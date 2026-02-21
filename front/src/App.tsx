@@ -1,7 +1,7 @@
 import "@mantine/core/styles.css";
 import { MantineProvider, createTheme } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
-import { router } from "../routes";
+import { router } from "./routes";
 
 const UpAgainTheme = createTheme({
   focusRing: "never",

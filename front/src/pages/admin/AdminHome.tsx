@@ -139,6 +139,7 @@ export default function AdminHome() {
         shadow="md"
         className={classes.customBorder}
       >
+        {/* TODO: sort and filter button */}
         <AdminTable
           header={demoAdminActivities.header}
           body={demoAdminActivities.body}
