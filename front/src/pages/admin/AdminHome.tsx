@@ -26,6 +26,7 @@ import AdminCardNav from "../../components/admin/AdminCardNav";
 import AdminTable from "../../components/admin/AdminTable";
 import classes from "../../components/admin/Admin.module.css";
 import PaginationFooter from "../../components/PaginationFooter";
+import { PATHS } from "../../../src/routes/paths";
 
 export default function AdminHome() {
   const demoAdminActivities = {
@@ -55,7 +56,7 @@ export default function AdminHome() {
           icon={IconUsers}
           title="Total Users"
           value={99999}
-          path="/admin/users"
+          path={PATHS.ADMIN.USERS}
           description={
             <StatsCardDesc
               stats={67}
@@ -69,7 +70,7 @@ export default function AdminHome() {
           icon={IconClipboardCheck}
           title="Pending requests"
           value={18}
-          path="/admin/validations"
+          path={PATHS.ADMIN.VALIDATIONS}
         />
         <AdminCardInfo
           icon={IconLeaf}
@@ -88,7 +89,7 @@ export default function AdminHome() {
           icon={IconBox}
           title="Available containers"
           value={18}
-          path="/admin/containers"
+          path={PATHS.ADMIN.CONTAINERS}
         />
       </SimpleGrid>
 
@@ -102,41 +103,49 @@ export default function AdminHome() {
           title="User"
           description="Manage user accounts"
           icon={IconUsers}
+          path={PATHS.ADMIN.USERS}
         />
         <AdminCardNav
           title="Validation"
           description="Validate or reject pending requests"
           icon={IconClipboardCheck}
+          path={PATHS.ADMIN.VALIDATIONS}
         />
         <AdminCardNav
           title="Container"
           description="Manage UpAgain's containers"
           icon={IconBox}
+          path={PATHS.ADMIN.CONTAINERS}
         />
         <AdminCardNav
           title="Event"
           description="Manage upcoming & on-going events/workshops"
           icon={IconCalendarEventFilled}
+          path={PATHS.ADMIN.EVENTS}
         />
         <AdminCardNav
           title="Subscription"
           description="Manage subscription price & premium accounts"
           icon={IconDiamond}
+          path={PATHS.ADMIN.SUBSCRIPTIONS}
         />
         <AdminCardNav
           title="Posts"
           description="Manage comunity & sponsored posts"
           icon={IconArticle}
+          path={PATHS.ADMIN.POSTS}
         />
         <AdminCardNav
           title="Listings"
           description="Manage listings posted by users"
           icon={IconBuildingStore}
+          path={PATHS.ADMIN.LISTINGS}
         />
         <AdminCardNav
           title="Finance Hub"
           description="Analyze UpAgain's income"
           icon={IconPigMoney}
+          path={PATHS.ADMIN.FINANCE}
         />
       </SimpleGrid>
 

@@ -15,6 +15,7 @@ import classes from "./Admin.module.css";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { IconSun, IconMoon } from "@tabler/icons-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { PATHS } from "../../../src/routes/paths";
 
 interface NavbarLinkProps {
   icon: typeof IconHome2;
@@ -59,19 +60,23 @@ export function NavbarLink({
 }
 
 const navButtonData = [
-  { icon: IconHome2, label: "Overview", path: "/admin" },
-  { icon: IconUsers, label: "Users", path: "/admin/users" },
+  { icon: IconHome2, label: "Overview", path: PATHS.ADMIN.HOME },
+  { icon: IconUsers, label: "Users", path: PATHS.ADMIN.USERS },
   {
     icon: IconClipboardCheck,
     label: "Validations",
     path: "/admin/validations",
   },
-  { icon: IconBox, label: "Containers", path: "/admin/containers" },
-  { icon: IconCalendarEventFilled, label: "Events", path: "/admin/events" },
-  { icon: IconDiamond, label: "Subscriptions", path: "/admin/subscriptions" },
-  { icon: IconArticle, label: "Posts", path: "/admin/posts" },
-  { icon: IconBuildingStore, label: "Listings", path: "/admin/listings" },
-  { icon: IconPigMoney, label: "Finance", path: "/admin/finance" },
+  { icon: IconBox, label: "Containers", path: PATHS.ADMIN.CONTAINERS },
+  { icon: IconCalendarEventFilled, label: "Events", path: PATHS.ADMIN.EVENTS },
+  {
+    icon: IconDiamond,
+    label: "Subscriptions",
+    path: PATHS.ADMIN.SUBSCRIPTIONS,
+  },
+  { icon: IconArticle, label: "Posts", path: PATHS.ADMIN.POSTS },
+  { icon: IconBuildingStore, label: "Listings", path: PATHS.ADMIN.LISTINGS },
+  { icon: IconPigMoney, label: "Finance", path: PATHS.ADMIN.FINANCE },
 ];
 
 function ThemeToggleButton() {
