@@ -2,16 +2,17 @@ package models
 
 type LoginResponse struct {
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	Role     string `json:"role"`
 }
 
 type LoginRequest struct {
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type AccountCreds struct {
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }

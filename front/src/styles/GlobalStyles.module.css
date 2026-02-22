@@ -68,6 +68,55 @@
   }
 }
 
+.actionIcon {
+  /* Transition for smooth color fading */
+  transition: all 0.2s ease;
+
+  &[data-variant="primary"] {
+    background-color: var(--mantine-color-body);
+    color: var(--mantine-color-text);
+    border: 1px solid transparent;
+
+    &:hover {
+      border-color: #45a575; /* Your Gold Accent */
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(69, 165, 117, 0.2);
+    }
+  }
+}
+
+.input {
+  border-radius: 100px; /* Matching button radius */
+  padding-left: 20px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  border: 1px solid var(--border-color);
+  background-color: var(--mantine-color-body);
+
+  &:hover {
+    border-color: #45a575; /* Your brand green */
+  }
+
+  &:focus {
+    border-color: #45a575;
+    outline: none;
+  }
+
+  /* Style when there is an error */
+  &[data-error] {
+    border-color: var(--mantine-color-red-6);
+  }
+}
+
+/* You can also style the label separately here */
+.label {
+  margin-bottom: 5px;
+  margin-left: 10px;
+  font-weight: 600;
+  color: var(--mantine-color-text);
+}
+
 .main {
   width: 100%;
   /* Use flex-grow so the main area pushes the footer down if the page is empty */

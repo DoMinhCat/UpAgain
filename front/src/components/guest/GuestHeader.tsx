@@ -1,9 +1,25 @@
-import { Button, Group, Image, UnstyledButton, Tooltip } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Image,
+  UnstyledButton,
+  Tooltip,
+  Menu,
+  ActionIcon,
+  rem,
+} from "@mantine/core";
+import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
-import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
-import { IconSun, IconMoon } from "@tabler/icons-react";
 import { PATHS } from "../../../src/routes/paths";
+import {
+  IconSettings,
+  IconWorld,
+  IconPhoto,
+  IconMessageCircle,
+  IconSun,
+  IconMoon,
+} from "@tabler/icons-react";
 
 interface NavbarLinkProps {
   icon: typeof IconMoon;
@@ -82,6 +98,41 @@ export function GuestHeader() {
       {/* 3. Actions Section */}
       <Group gap="md">
         <ThemeToggleButton />
+        <Menu
+          shadow="md"
+          width={200}
+          position="bottom-end"
+          transitionProps={{ transition: "pop" }}
+        >
+          <Menu.Target>
+            <ActionIcon variant="primary" color="grey" size="lg" radius="md">
+              <IconWorld size={20} stroke={1.5} />
+            </ActionIcon>
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            <Menu.Label>Languages</Menu.Label>
+            <Menu.Item
+              leftSection={
+                <Image src="/united-kingdom.png" w="20px" fit="contain" />
+              }
+            >
+              English
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<Image src="/france.png" w="20px" fit="contain" />}
+            >
+              Française
+            </Menu.Item>
+            <Menu.Item
+              leftSection={
+                <IconPhoto style={{ width: rem(14), height: rem(14) }} />
+              }
+            >
+              Another language
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
 
         <Group gap="xs" visibleFrom="xs">
           <Button variant="secondary">Log in</Button>

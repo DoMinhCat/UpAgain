@@ -20,20 +20,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return 
 	} 
 
-	existing, err := db.GetAccountCredsByUsername(creds.Username) 
+	existing, err := db.GetAccountCredsByEmail(creds.Email) 
 	if err != nil { 
-		http.Error(w, fmt.Sprintf("error requesting user by username: %v", err), 
+		http.Error(w, fmt.Sprintf("error requesting user by email: %v", err), 
 		http.StatusInternalServerError) 
 		return 
 	}
 
-	if existing == nil || creds.Username != existing.Username || 
-		creds.Password != existing.Password { 
+	if existing == nil || creds.Email != existing.Email || !utils.IsPasswordCorrect(existing.Password, creds.Password){ 
 		http.Error(w, "unauthorized", http.StatusUnauthorized) 
 		return 
 	}
 
-	token, err := utils.GenerateJWT(creds.Username, existing.Role)
+	token, err := utils.GenerateJWT(creds.Email, existing.Role)
 	if err != nil { 
 		http.Error(w, "token generation failed", 
 		http.StatusInternalServerError) 

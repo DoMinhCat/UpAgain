@@ -12,8 +12,10 @@
   align-items: center;
   justify-content: center;
   color: var(--mantine-color-text);
+
   &:hover {
     color: #45a575;
+    transform: translateY(-1px);
   }
 }
 

@@ -5,6 +5,9 @@ import {
   Button,
   Text,
   Paper,
+  ActionIcon,
+  TextInput,
+  PasswordInput,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
@@ -33,6 +36,29 @@ const UpAgainTheme = createTheme({
       defaultProps: {
         classNames: {
           root: classes.paper,
+        },
+      },
+    }),
+    ActionIcon: ActionIcon.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.actionIcon,
+        },
+      },
+    }),
+    TextInput: TextInput.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.input,
+          label: classes.label,
+        },
+      },
+    }),
+    PasswordInput: PasswordInput.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.input,
+          label: classes.label,
         },
       },
     }),

@@ -45,3 +45,19 @@ func GetJWTSecret() []byte{
 	}
 	return []byte(secret)
 }
+
+func GetFrontOriginDev() string{
+	frontOrigin := os.Getenv("FRONTEND_ORIGIN_DEV")
+	if frontOrigin==""{
+		log.Panic("FRONTEND_ORIGIN_DEV not find in .env")
+	}
+	return frontOrigin
+}
+
+func GetFrontOriginProd() string{
+	frontOrigin := os.Getenv("FRONTEND_ORIGIN_PROD")
+	if frontOrigin==""{
+		log.Panic("FRONTEND_ORIGIN_PROD not find in .env")
+	}
+	return frontOrigin
+}

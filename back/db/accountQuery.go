@@ -8,16 +8,16 @@ import (
 	"fmt"
 )
 
-func GetAccountCredsByUsername(username string) (*models.AccountCreds, error){
+func GetAccountCredsByEmail(email string) (*models.AccountCreds, error){
 	var user models.AccountCreds
 
-	row := utils.Conn.QueryRow("SELECT username, password, role FROM accounts WHERE username=$1", username)
-	err := row.Scan(&user.Username, &user.Password, &user.Role)
+	row := utils.Conn.QueryRow("SELECT email, password, role FROM accounts WHERE email=$1", email)
+	err := row.Scan(&user.Email, &user.Password, &user.Role)
 	if err!=nil{
 		if err == sql.ErrNoRows {
             return nil, nil // Return nothing found without an error
         }
-		return nil, fmt.Errorf("error getting user by username from DB: %v", err.Error())
+		return nil, fmt.Errorf("error getting user by email from DB: %v", err.Error())
 	}
 
 	return &user, nil

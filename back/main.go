@@ -5,6 +5,8 @@ import (
 	"backend/utils"
 	"log/slog"
 	"net/http"
+
+	"github.com/rs/cors"
 )
 
 func main(){
@@ -21,8 +23,21 @@ func main(){
 
 
 	mux := routes.GetAllRoutes()
+	// CORS configuration
+	allowedOrigins :=  []string{utils.GetFrontOriginDev(), utils.GetFrontOriginProd()}
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins: allowedOrigins,
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	handler := corsHandler.Handler(mux)
 
 	port := utils.GetPort()
 	slog.Info("backend started", "port", port)
-	http.ListenAndServe(":" + port, mux)
+	err := http.ListenAndServe(":" + port, handler)
+	if err != nil {
+		slog.Error("server failed to start", "error", err)
+	}
 }

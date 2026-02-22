@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"backend/models"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -11,6 +9,6 @@ func HashPassword(password string) []byte{
 	return hashed
 }
 
-func VerifyPassword(existing models.LoginRequest, creds models.AccountCreds) bool{
-	return bcrypt.CompareHashAndPassword([]byte(existing.Password), []byte(creds.Password)) == nil
+func IsPasswordCorrect(existing string, creds string) bool{
+	return bcrypt.CompareHashAndPassword([]byte(existing), []byte(creds)) == nil
 }
