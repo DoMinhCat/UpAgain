@@ -26,7 +26,7 @@ import {
 } from "../../components/admin/AdminCardInfo";
 import AdminCardNav from "../../components/admin/AdminCardNav";
 import AdminTable from "../../components/admin/AdminTable";
-import classes from "../../components/admin/Admin.module.css";
+import classes from "../../styles/Admin.module.css";
 import PaginationFooter from "../../components/PaginationFooter";
 import { PATHS } from "../../../src/routes/paths";
 

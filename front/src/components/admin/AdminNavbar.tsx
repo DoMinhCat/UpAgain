@@ -11,7 +11,7 @@ import {
   IconBuildingStore,
 } from "@tabler/icons-react";
 import { Center, Stack, Tooltip, UnstyledButton, Image } from "@mantine/core";
-import classes from "./Admin.module.css";
+import classes from "../../styles/Admin.module.css";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { IconSun, IconMoon } from "@tabler/icons-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -25,12 +25,7 @@ interface NavbarLinkProps {
   onClick?: () => void;
 }
 
-export function NavbarLink({
-  icon: Icon,
-  label,
-  path,
-  onClick,
-}: NavbarLinkProps) {
+function NavbarLink({ icon: Icon, label, path, onClick }: NavbarLinkProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -106,12 +101,12 @@ export function AdminNavbar() {
       </Center>
 
       <div className={classes.navbarMain}>
-        <Stack justify="center" gap={0}>
+        <Stack justify="center" gap="sm">
           {links}
         </Stack>
       </div>
 
-      <Stack justify="center" gap={0}>
+      <Stack justify="center" gap="sm">
         <ThemeToggleButton />
 
         {/* TODO: User avatar */}

@@ -1,7 +1,7 @@
 import { Card, Text, Flex, Title, Box, Group } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { type Icon } from "@tabler/icons-react";
-import classes from "./Admin.module.css";
+import classes from "../../styles/Admin.module.css";
 
 interface StatsCardDescProps {
   description: string;

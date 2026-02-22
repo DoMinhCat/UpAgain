@@ -1,5 +1,5 @@
 import { type RouteObject } from "react-router-dom";
-import AdminLayout from "../layouts/admin/AdminLayout.tsx";
+import AdminLayout from "../layouts/AdminLayout.tsx";
 import AdminHome from "../pages/admin/AdminHome.tsx";
 import { PATHS } from "./paths.ts";
 

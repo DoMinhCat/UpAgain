@@ -13,7 +13,13 @@ export const PATHS = {
   USER: {
     // paths for user espace
   },
-  AUTH: {
+  GUEST: {
+    HOME: "/",
     LOGIN: "/login",
+    REGISTER: "/register",
+    ABOUT: "/about",
+    PRICING: "/pricing",
+    POSTS: "/posts",
+    CONTACT: "/contact",
   },
 } as const;

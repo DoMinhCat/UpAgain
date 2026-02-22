@@ -1,6 +1,6 @@
 import { Card, Title, Text } from "@mantine/core";
 import { type Icon } from "@tabler/icons-react";
-import classes from "./Admin.module.css";
+import classes from "../../styles/Admin.module.css";
 import { useNavigate } from "react-router-dom";
 
 interface AdminCardNavProps {
