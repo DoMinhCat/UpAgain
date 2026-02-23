@@ -6,8 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { jwtDecode } from "jwt-decode";
-import { Navigate } from "react-router-dom";
-import { PATHS } from "../routes/paths";
+import { showInfoNotification } from "../components/NotificationToast";
 
 interface User {
   token: string;
@@ -66,6 +65,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
+    showInfoNotification(
+      "Logged Out Successfully",
+      "You have been logged out successfully.",
+    );
   };
 
   return (

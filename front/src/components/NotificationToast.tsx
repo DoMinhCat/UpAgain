@@ -1,5 +1,6 @@
 import { notifications } from "@mantine/notifications";
 
+const autoCloseDuration = 5000;
 export const showErrorNotification = (error: any, title = "Error") => {
   let message = "An unexpected error occurred.";
 
@@ -22,12 +23,12 @@ export const showErrorNotification = (error: any, title = "Error") => {
     message: message,
     color: "red",
     // icon: <IconX size={18} />,
-    autoClose: 5000,
+    autoClose: autoCloseDuration,
     styles: {
       root: {
         border: "1px solid var(--border-color)",
         borderRadius: "var(--mantine-radius-md)",
-        padding: "var(--mantine-spacing-md)",
+        padding: "var(--mantine-spacing-lg)",
         boxShadow: "var(--mantine-shadow-lg)",
 
         // This ensures the red "indicator" on the left still looks sharp
@@ -38,3 +39,26 @@ export const showErrorNotification = (error: any, title = "Error") => {
     },
   });
 };
+
+export const showInfoNotification = (title = "Info", message: string) => {
+  notifications.show({
+    title: title,
+    message: message,
+    color: "blue",
+    autoClose: autoCloseDuration,
+    styles: {
+      root: {
+        border: "1px solid var(--border-color)",
+        borderRadius: "var(--mantine-radius-md)",
+        padding: "var(--mantine-spacing-lg)",
+        boxShadow: "var(--mantine-shadow-lg)",
+
+        "&::before": {
+          backgroundColor: "var(--mantine-color-blue-6)",
+        },
+      },
+    },
+  });
+};
+
+// TODO: success (and warning) noti
