@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/db"
 	"backend/models"
+	response "backend/utils"
 	utils "backend/utils/auth"
 	"encoding/json"
 	"log/slog"
@@ -14,20 +15,20 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&creds) 
 
 	if err != nil { 
-		http.Error(w, "invalid JSON request body", http.StatusBadRequest)
-		slog.Debug("invalid JSON request body", "error", err)
+		response.RespondWithError(w, http.StatusBadRequest, "An error occurred.")
+		slog.Error("invalid JSON request body", "error", err)
 		return 
 	} 
 
 	existing, err := db.GetAccountCredsByEmail(creds.Email) 
 	if err != nil { 
-		http.Error(w, "login failed",http.StatusInternalServerError) 
+		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 		slog.Error("GetAccountCredsByEmail() failed", "controller", "Login", "error", err)
 		return 
 	}
 
 	if existing == nil || creds.Email != existing.Email || !utils.IsPasswordCorrect(existing.Password, creds.Password){ 
-		http.Error(w, "unauthorized", http.StatusUnauthorized) 
+		response.RespondWithError(w, http.StatusUnauthorized, "Oops, incorrect email or password.")
 		return 
 	}
 
@@ -35,7 +36,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if existing.Role=="employee"{
 		isAdmin, err := db.GetEmployeeRoleById(existing.Id)
 		if err != nil { 
-			http.Error(w, "login failed",http.StatusInternalServerError) 
+    		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 			slog.Error("GetEmployeeRoleById() failed", "controller", "Login", "error", err)
 		return 
 		}
@@ -48,8 +49,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := utils.GenerateJWT(creds.Email, existing.Role, existing.Id)
 	if err != nil { 
-		http.Error(w, "token generation failed", 
-		http.StatusInternalServerError) 
+		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 		return 
 	} 
 

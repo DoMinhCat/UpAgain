@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/db"
 	"backend/models"
+	"backend/utils"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -15,74 +16,75 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	var err = json.NewDecoder(r.Body).Decode(&newAccount)
 	if err != nil{
-		http.Error(w, "invalid JSON request body", http.StatusBadRequest)
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while creating an account for you.")
 		slog.Debug("invalid JSON request body", "error", err)
 		return
 	}
 
 	// validate
-	var errMsg []string
 	if len(newAccount.Username) < 4 || len(newAccount.Username) > 50{
-		errMsg = append(errMsg,"username must be between 4 and 50 characters")
+		utils.RespondWithError(w, http.StatusBadRequest, "Username must be between 4 and 50 characters.")
+		return
 	}
 
 	if len(newAccount.Password) < 12 || len(newAccount.Password) > 120{
-		errMsg = append(errMsg,"password must be between 12 and 120 characters")
+		utils.RespondWithError(w, http.StatusBadRequest, "Password must be between 12 and 120 characters.")
+		return
 	}
 
 	emailRegex := `^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
 	emailMatch, _ := regexp.MatchString(emailRegex, newAccount.Email)
 	if !emailMatch {
-		errMsg = append(errMsg, "invalid email format")
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid email format.")
+		return
 	}
 
 	passwordMatch, _ := regexp.Match("[A-Z]",[]byte(newAccount.Password))
 	if !passwordMatch{
-		errMsg = append(errMsg,"password must contain at least one capital character")
+		utils.RespondWithError(w, http.StatusBadRequest, "Password must contain at least one capital character")
+		return
 	}
 	passwordMatch, _ = regexp.Match("[0-9]",[]byte(newAccount.Password))
 	if !passwordMatch{
-		errMsg = append(errMsg,"password must contain at least one digit")
+		utils.RespondWithError(w, http.StatusBadRequest, "Password must contain at least one digit")
+		return
 	}
 	passwordMatch, _ = regexp.Match("\\W",[]byte(newAccount.Password))
 	if !passwordMatch{
-		errMsg = append(errMsg,"password must contain at least one special character")
+		utils.RespondWithError(w, http.StatusBadRequest, "Password must contain at least one special character.")
+		return
 	}
 
 	if (newAccount.Role != "user" && newAccount.Role != "pro" && newAccount.Role != "employee"){
-		errMsg = append(errMsg, "role must be 'user', 'pro', or 'employee'")
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occured while creating an account for you.")
+		return
 	} 
 
-	if len(errMsg) > 0{
-		encodedErr, _ := json.Marshal(errMsg)
-		http.Error(w, string(encodedErr), http.StatusBadRequest)
-		return
-	}
 
 	// Check for existed username
 	usernameExists, err := db.CheckUsernameExists(newAccount.Username)
 	if err != nil{
-		http.Error(w, "account creation failed", http.StatusInternalServerError)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
 		return
 	}
 	if usernameExists{
-		http.Error(w, fmt.Sprintf("'%s' has been taken, please choose another username", newAccount.Username), http.StatusConflict)
+		utils.RespondWithError(w, http.StatusConflict, fmt.Sprintf("'%s' has been taken, please choose another username.", newAccount.Username))
 		return
 	}
 	// Check for existed email
 	emailExists, err := db.CheckEmailExists(newAccount.Email)
 	if err != nil{
-		http.Error(w, "account creation failed", http.StatusInternalServerError)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
 		return
 	}
 	if emailExists{
-		http.Error(w, "an account has been already registered with this email", http.StatusConflict)
+		utils.RespondWithError(w, http.StatusConflict, "An account has been already registered with this email.")
 		return
 	}
 
 	err = db.CreateAccount(newAccount)
 	if err != nil{
-		http.Error(w, "account creation failed", http.StatusInternalServerError)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
 		slog.Debug("CreateAccount() failed", "error", err)
 		return
 	}

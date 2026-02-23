@@ -18,6 +18,7 @@ import { useState } from "react";
 import { LoginRequest } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { showErrorNotification } from "../NotificationToast";
 
 // const requirements = [
 //   { re: /[0-9]/, label: "Includes number" },
@@ -75,6 +76,7 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const validateEmail = (val: string) => {
     const regex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$/;
     if (!val) {
@@ -92,7 +94,7 @@ export function LoginForm() {
     e.preventDefault(); // Prevents page reload
 
     if (!validateEmail(email)) return;
-
+    setIsLoading(true);
     try {
       // Call axios
       const data = await LoginRequest({ email, password });
@@ -105,8 +107,9 @@ export function LoginForm() {
         navigate(PATHS.HOME);
       }
     } catch (error: any) {
-      // TODO: toast for error
-      console.error("Login failed:", error.response?.data || error.message);
+      showErrorNotification(error, "Login Failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -114,7 +117,7 @@ export function LoginForm() {
     <Container size={420} my={40}>
       <Title ta="center">Welcome back!</Title>
 
-      <Text mt="sm">
+      <Text mt="sm" ta={"center"}>
         Do not have an account yet?{" "}
         <Anchor href={PATHS.GUEST.REGISTER}>Create account</Anchor>
       </Text>
@@ -166,12 +169,14 @@ export function LoginForm() {
             mb="md"
             onChange={(event) => setEmail(event.currentTarget.value)}
             onBlur={() => validateEmail(email)}
+            disabled={isLoading}
             required
           />
           <PasswordInput
             label="Password"
             placeholder="Your secret"
             onChange={(event) => setPassword(event.currentTarget.value)}
+            disabled={isLoading}
             required
           />
 
@@ -180,7 +185,14 @@ export function LoginForm() {
               Forgot password?
             </Anchor>
           </Group>
-          <Button fullWidth mt="xl" variant="primary" type="submit">
+          <Button
+            fullWidth
+            mt="xl"
+            variant="primary"
+            type="submit"
+            disabled={isLoading}
+            loading={isLoading}
+          >
             Sign in
           </Button>
         </form>

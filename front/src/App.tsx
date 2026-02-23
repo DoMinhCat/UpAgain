@@ -10,8 +10,9 @@ import {
   PasswordInput,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
-import { router } from "./routes";
+import { router } from "./routes/routes";
 import classes from "./styles/GlobalStyles.module.css";
+import { Notifications } from "@mantine/notifications";
 
 const UpAgainTheme = createTheme({
   focusRing: "never",
@@ -97,9 +98,9 @@ function App() {
         },
       })}
     >
+      <Notifications limit={5} zIndex={1000} />
       <RouterProvider router={router} />
     </MantineProvider>
   );
 }
-
 export default App;
