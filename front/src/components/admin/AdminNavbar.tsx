@@ -75,11 +75,14 @@ const navButtonData = [
   { icon: IconPigMoney, label: "Finance", path: PATHS.ADMIN.FINANCE },
 ];
 
-function ThemeToggleButton() {
+function ThemeToggleButton({ onClick }: { onClick?: () => void }) {
   const { setColorScheme } = useMantineColorScheme();
   const scheme = useComputedColorScheme("light");
 
-  const toggle = () => setColorScheme(scheme === "dark" ? "light" : "dark");
+  const toggle = () => {
+    setColorScheme(scheme === "dark" ? "light" : "dark");
+    if (onClick) onClick();
+  }
 
   return (
     <NavbarLink
@@ -90,9 +93,9 @@ function ThemeToggleButton() {
   );
 }
 
-export function AdminNavbar() {
+export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
   const links = navButtonData.map((link) => (
-    <NavbarLink {...link} key={link.label} />
+    <NavbarLink {...link} key={link.label} onClick={onLinkClick} />
   ));
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -115,10 +118,10 @@ export function AdminNavbar() {
       </div>
 
       <Stack justify="center" gap="sm">
-        <ThemeToggleButton />
+        <ThemeToggleButton onClick={onLinkClick} />
 
         {/* TODO: User avatar */}
-        <NavbarLink icon={IconLogout} label="Logout" onClick={handleLogout} />
+        <NavbarLink icon={IconLogout} label="Logout" onClick={() => { handleLogout(); if (onLinkClick) onLinkClick(); }} />
       </Stack>
     </nav>
   );

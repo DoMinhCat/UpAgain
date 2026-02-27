@@ -1,16 +1,19 @@
 import { type RouteObject } from "react-router-dom";
 import GuestLayout from "../layouts/GuestLayout.tsx";
 import Login from "../pages/guest/LoginPage.tsx";
+import Register from "../pages/guest/RegisterPage.tsx";
 import { PATHS } from "./paths.ts";
 
 export const guestRoutes: RouteObject = {
-  path: PATHS.GUEST.LOGIN,
   element: <GuestLayout />,
   children: [
     {
-      index: true,
+      path: PATHS.GUEST.LOGIN,
       element: <Login />, // page
     },
-    // Future guest routes go here
+    {
+      path: PATHS.GUEST.REGISTER,
+      element: <Register />, // page
+    },
   ],
 };

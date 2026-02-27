@@ -6,6 +6,6 @@ import (
 )
 
 func GetAccountRoutes(mux *http.ServeMux) {
-	// Create new account
-	mux.HandleFunc("POST /account/{$}", controllers.CreateAccount)
+	// Create new account, this one handles the creation of an account for a user, pro or employee
+	mux.HandleFunc("POST /register/{$}", controllers.CreateAccount)
 }

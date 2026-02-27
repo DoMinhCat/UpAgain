@@ -8,6 +8,7 @@ import {
   ActionIcon,
   TextInput,
   PasswordInput,
+  Checkbox,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -17,6 +18,7 @@ import { Notifications } from "@mantine/notifications";
 const UpAgainTheme = createTheme({
   focusRing: "never",
   fontFamily: "Nunito, sans-serif",
+  cursorType: 'pointer',
 
   components: {
     Button: Button.extend({
@@ -63,6 +65,7 @@ const UpAgainTheme = createTheme({
         },
       },
     }),
+
   },
 });
 

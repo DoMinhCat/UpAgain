@@ -15,9 +15,12 @@
     "@mantine/notifications": "^8.3.15",
     "@tabler/icons-react": "^3.36.1",
     "clsx": "^2.1.1",
+    "i18n-iso-countries": "^7.14.0",
     "jwt-decode": "^4.0.0",
+    "libphonenumber-js": "^1.12.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-imask": "^7.6.1",
     "react-router-dom": "^7.13.0"
   },
   "devDependencies": {

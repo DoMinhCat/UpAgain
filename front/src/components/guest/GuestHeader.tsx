@@ -7,8 +7,12 @@ import {
   Menu,
   ActionIcon,
   rem,
+  Burger,
+  Drawer,
+  Stack,
 } from "@mantine/core";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
 import { PATHS } from "../../../src/routes/paths";
@@ -57,9 +61,10 @@ function ThemeToggleButton() {
   );
 }
 
-function HeaderLink({ label, path }: { label: string; path: string }) {
+function HeaderLink({ label, path, onClick }: { label: string; path: string; onClick?: () => void }) {
   const navigate = useNavigate();
   const handleClick = () => {
+    if (onClick) onClick();
     navigate(path);
   };
   return (
@@ -70,6 +75,8 @@ function HeaderLink({ label, path }: { label: string; path: string }) {
 }
 
 export function GuestHeader() {
+  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
+
   return (
     <Group justify="space-between" h="100%" px="xl" className={classes.header}>
       {/* 1. Brand Section */}
@@ -131,7 +138,30 @@ export function GuestHeader() {
           <Button variant="secondary">Log in</Button>
           <Button variant="primary">Sign up</Button>
         </Group>
+
+        <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" size="sm" />
       </Group>
+
+      <Drawer
+        opened={drawerOpened}
+        onClose={closeDrawer}
+        size="100%"
+        padding="md"
+        title="Navigation"
+        hiddenFrom="sm"
+        zIndex={1000000}
+      >
+        <Stack gap="md">
+          <HeaderLink label="Community" path={PATHS.GUEST.POSTS} onClick={closeDrawer} />
+          <HeaderLink label="About Us" path={PATHS.GUEST.ABOUT} onClick={closeDrawer} />
+          <HeaderLink label="Pricing" path={PATHS.GUEST.PRICING} onClick={closeDrawer} />
+          <HeaderLink label="Contact" path={PATHS.GUEST.CONTACT} onClick={closeDrawer} />
+          <Group grow>
+            <Button variant="secondary" onClick={closeDrawer}>Log in</Button>
+            <Button variant="primary" onClick={closeDrawer}>Sign up</Button>
+          </Group>
+        </Stack>
+      </Drawer>
     </Group>
   );
 }

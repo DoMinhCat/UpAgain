@@ -22,13 +22,13 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// validate
-	if len(newAccount.Username) < 4 || len(newAccount.Username) > 50 {
-		utils.RespondWithError(w, http.StatusBadRequest, "Username must be between 4 and 50 characters.")
+	if len(newAccount.Username) < 4 || len(newAccount.Username) > 20 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Username must be between 4 and 20 characters.")
 		return
 	}
 
-	if len(newAccount.Password) < 12 || len(newAccount.Password) > 120 {
-		utils.RespondWithError(w, http.StatusBadRequest, "Password must be between 12 and 120 characters.")
+	if len(newAccount.Password) < 12 || len(newAccount.Password) > 60 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Password must be between 12 and 60 characters.")
 		return
 	}
 
@@ -55,8 +55,18 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if newAccount.Phone != "" {
+		phoneRegex := `^\+?[0-9]{10,15}$`
+		phoneMatch, _ := regexp.MatchString(phoneRegex, newAccount.Phone)
+		if !phoneMatch {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid phone number.")
+			return
+		}
+	}
+
 	if newAccount.Role != "user" && newAccount.Role != "pro" && newAccount.Role != "employee" {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occured while creating an account for you.")
+		slog.Error("Invalid role", "role", newAccount.Role)
 		return
 	}
 
@@ -81,10 +91,10 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.CreateAccount(newAccount)
+	err = db.CreateAccountUser(newAccount)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
-		slog.Debug("CreateAccount() failed", "error", err)
+		slog.Debug("CreateAccountUser() failed", "error", err)
 		return
 	}
 
