@@ -19,12 +19,14 @@ interface AuthContextType {
   user: User | null;
   login: (token: string) => User;
   logout: () => void;
+  isInitializing: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -44,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
       }
     }
+    setIsInitializing(false);
   }, []);
 
   const login = (token: string) => {
@@ -72,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isInitializing }}>
       {children}
     </AuthContext.Provider>
   );

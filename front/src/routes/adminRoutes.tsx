@@ -5,11 +5,20 @@ import { PATHS } from "./paths.ts";
 import { useAuth } from "../context/AuthContext.tsx";
 import { isTokenExpired } from "../api/auth.ts";
 import AdminUsersModule from "../pages/admin/AdminUsersModule.tsx";
+import { Center, Loader } from "@mantine/core";
 
 // implement the same Guard component for user and pro
 const AdminGuard = ({ children }: { children: React.ReactNode }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isInitializing } = useAuth();
   const unauthorized = !user || user.role !== "admin" || isTokenExpired();
+
+  if (isInitializing) {
+    return (
+      <Center style={{ width: "100vw", height: "100vh" }}>
+        <Loader size="xl" />
+      </Center>
+    );
+  }
 
   if (unauthorized) {
     if (user && isTokenExpired()) logout();
@@ -33,7 +42,7 @@ export const adminRoutes: RouteObject = {
       element: <AdminHome />, // page
     },
     {
-      path: "users",     // Affiche <AdminUsersModule /> sur "/admin/users"
+      path: "users", // Affiche <AdminUsersModule /> sur "/admin/users"
       element: <AdminUsersModule />,
     },
   ],

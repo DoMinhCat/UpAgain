@@ -5,20 +5,30 @@ export interface AdminTableProps {
   header: string[];
   children: React.ReactNode;
   footer?: React.ReactNode;
+  loading?: boolean;
 }
 
 export default function AdminTable({
   header,
   children,
   footer,
+  loading,
 }: AdminTableProps) {
   return (
     <Table.ScrollContainer minWidth={600} mx="0">
-      <Table striped highlightOnHover style={{ width: '100%', maxWidth: 'none' }}>
+      <Table
+        verticalSpacing="sm"
+        striped
+        highlightOnHover
+        style={{ width: "100%", maxWidth: "none" }}
+        onLoad={loading ? () => {} : undefined}
+      >
         <Table.Thead>
           <Table.Tr>
             {header.map((title, index) => (
-              <Table.Th key={index}>{title}</Table.Th>
+              <Table.Th ta="center" key={index}>
+                {title}
+              </Table.Th>
             ))}
           </Table.Tr>
         </Table.Thead>
