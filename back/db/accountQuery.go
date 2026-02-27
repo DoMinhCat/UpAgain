@@ -140,6 +140,15 @@ func GetAllAccounts() ([]models.Account, error) {
 		if err := rows.Scan(&account.Id, &account.Email, &account.Username, &account.Role, &account.IsBanned, &account.CreatedAt); err != nil {
 			return nil, fmt.Errorf("GetAllAccounts() failed: %v", err.Error())
 		}
+		if account.Role == "employee" {
+			isAdmin, err := CheckIsAdmin(account.Id)
+			if err != nil {
+				return nil, fmt.Errorf("GetAllAccounts() failed: %v", err.Error())
+			}
+			if isAdmin {
+				account.Role = "admin"
+			}
+		}
 		accounts = append(accounts, account)
 	}
 

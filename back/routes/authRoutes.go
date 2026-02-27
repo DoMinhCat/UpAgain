@@ -6,5 +6,5 @@ import (
 )
 
 func GetAuthRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /login/{$}", controllers.Login)
+	mux.Handle("POST /login/{$}", http.HandlerFunc(controllers.Login))
 }

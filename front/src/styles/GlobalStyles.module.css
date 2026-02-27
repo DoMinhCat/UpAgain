@@ -165,3 +165,37 @@
   padding: 40px 16px;
   box-sizing: border-box;
 }
+
+.pill {
+  color: var(--mantine-color-text);
+  border: 1px solid transparent;
+  width: 80px;
+  /* Set your desired fixed length */
+  display: inline-block;
+  /* Required for width to apply to inline elements */
+  text-align: center;
+  /* Centers the text inside the pill */
+
+  /* Prevent text from breaking the fixed width */
+  white-space: nowrap;
+  /* Keeps text on one line */
+  overflow: hidden;
+  /* Hides text that is too long */
+  text-overflow: ellipsis;
+
+  &[data-variant="green"] {
+    background-color: #45a575;
+  }
+
+  &[data-variant="red"] {
+    background-color: var(--mantine-color-red-6);
+  }
+
+  &[data-variant="blue"] {
+    background-color: var(--mantine-color-blue-6);
+  }
+
+  &[data-variant="yellow"] {
+    background-color: var(--mantine-color-yellow-6);
+  }
+}

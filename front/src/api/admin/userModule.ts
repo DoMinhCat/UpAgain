@@ -6,8 +6,9 @@ export interface Account {
     username: string;
     email: string;
     role: string;
-    status: string;
+    is_banned: boolean;
     created_at: string;
+    last_active: string;
 }
 
 export async function getAllAccounts() {

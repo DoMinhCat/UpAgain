@@ -8,6 +8,7 @@ import {
   ActionIcon,
   TextInput,
   PasswordInput,
+  Pill,
   Select,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
@@ -33,6 +34,13 @@ const UpAgainTheme = createTheme({
       defaultProps: {
         classNames: {
           root: classes.button,
+        },
+      },
+    }),
+    Pill: Pill.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.pill,
         },
       },
     }),

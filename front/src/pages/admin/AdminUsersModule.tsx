@@ -1,4 +1,4 @@
-import { Container, Grid, Title, Table, Button, TextInput, Select } from "@mantine/core";
+import { Container, Grid, Title, Table, Button, TextInput, Select, Pill } from "@mantine/core";
 import AdminTable from "../../components/admin/AdminTable";
 import { IconSearch, IconChevronDown, IconPlus } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
@@ -42,8 +42,9 @@ export default function AdminUsersModule() {
             <Table.Td>{account.id}</Table.Td>
             <Table.Td>{account.username}</Table.Td>
             <Table.Td>{account.email}</Table.Td>
-            <Table.Td>{capitalize(account.role)}</Table.Td>
-            <Table.Td>{account.status}</Table.Td>
+            <Table.Td>{account.role === "user" ? <Pill variant="blue">User</Pill> : account.role === "pro" ? <Pill variant="yellow">Pro</Pill> : account.role === "employee" ? <Pill variant="green">Employee</Pill> : <Pill variant="red">Admin</Pill>}</Table.Td>
+            <Table.Td>{account.is_banned ? <Pill variant="red">Banned</Pill> : <Pill variant="green">Active</Pill>}</Table.Td>
+            <Table.Td>{dayjs(account.last_active).format("DD/MM/YYYY - HH:mm")}</Table.Td>
             <Table.Td>
                 <Button variant="edit" me="sm" size="xs">Edit</Button>
                 <Button variant="delete" size="xs">Delete</Button>
@@ -79,7 +80,7 @@ export default function AdminUsersModule() {
                 </Grid.Col>
             </Grid>
 
-            <AdminTable header={["Registered on", "ID", "Username", "Email", "Role", "Status", "Actions"]} >
+            <AdminTable header={["Registered on", "ID", "Username", "Email", "Role", "Status", "Last Active", "Actions"]} >
                 {listUsers}
             </AdminTable>
         </Container>

@@ -6,21 +6,5 @@ import (
 )
 
 func GetHealthCheckRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /healthcheck/{$}", controllers.HealthCheck)
+	mux.Handle("GET /healthcheck/{$}", http.HandlerFunc(controllers.HealthCheck))
 }
-
-
-// others to add
-
-
-// func GetProRoute(mux *http.ServeMux) {
-
-// }
-
-// func GetEmployeeRoute(mux *http.ServeMux) {
-
-// }
-
-// func GetAdminRoute(mux *http.ServeMux) {
-
-// }
