@@ -1,0 +1,9 @@
+.breadcrumbTitle {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.breadcrumbTitle:hover {
+  text-decoration: underline;
+  transform: translateY(-1px);
+}

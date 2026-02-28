@@ -1,4 +1,4 @@
-import { Table } from "@mantine/core";
+import { Center, Loader, Table } from "@mantine/core";
 import type React from "react";
 
 export interface AdminTableProps {
@@ -33,7 +33,19 @@ export default function AdminTable({
           </Table.Tr>
         </Table.Thead>
 
-        <Table.Tbody>{children}</Table.Tbody>
+        <Table.Tbody>
+          {loading ? (
+            <Table.Tr>
+              <Table.Td colSpan={header.length}>
+                <Center py="sm">
+                  <Loader size="sm" />
+                </Center>
+              </Table.Td>
+            </Table.Tr>
+          ) : (
+            children
+          )}
+        </Table.Tbody>
 
         {footer && <Table.Caption mt="md">{footer}</Table.Caption>}
       </Table>

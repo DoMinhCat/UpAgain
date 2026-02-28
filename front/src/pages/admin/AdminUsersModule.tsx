@@ -29,6 +29,7 @@ import {
   showErrorNotification,
 } from "../../components/NotificationToast";
 import { RegisterRequest } from "../../api/admin/userModule";
+import { PATHS } from "../../routes/paths";
 
 const requirements = [
   { re: /[0-9]/, label: "Includes number" },
@@ -255,7 +256,15 @@ export default function AdminUsersModule() {
   const listUsers =
     filteredAccounts.length > 0 ? (
       filteredAccounts.map((account) => (
-        <Table.Tr key={account.id}>
+        <Table.Tr
+          style={{
+            cursor: "pointer",
+          }}
+          key={account.id}
+          onClick={() => {
+            navigate(PATHS.ADMIN.USERS + "/" + account.id);
+          }}
+        >
           <Table.Td ta="center">
             {dayjs(account.created_at).format("DD/MM/YYYY - HH:mm")}
           </Table.Td>
@@ -568,7 +577,6 @@ export default function AdminUsersModule() {
             Cancel
           </Button>
           <Button
-            // TODO
             onClick={() => {
               handleDeleteAccount();
             }}

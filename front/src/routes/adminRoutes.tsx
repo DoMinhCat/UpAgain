@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.tsx";
 import { isTokenExpired } from "../api/auth.ts";
 import AdminUsersModule from "../pages/admin/AdminUsersModule.tsx";
 import { Center, Loader } from "@mantine/core";
+import AdminUserDetails from "../pages/admin/AdminUserDetails.tsx";
 
 // implement the same Guard component for user and pro
 const AdminGuard = ({ children }: { children: React.ReactNode }) => {
@@ -39,11 +40,15 @@ export const adminRoutes: RouteObject = {
   children: [
     {
       index: true,
-      element: <AdminHome />, // page
+      element: <AdminHome />, // home page user hub
     },
     {
       path: "users", // Affiche <AdminUsersModule /> sur "/admin/users"
       element: <AdminUsersModule />,
+    },
+    {
+      path: "users/:id",
+      element: <AdminUserDetails />,
     },
   ],
 };
