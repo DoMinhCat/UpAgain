@@ -18,9 +18,10 @@ type Account struct {
 	Id        int       `json:"id"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
-	Role      string    `json:"role"`
-	IsBanned  bool      `json:"is_banned"`
-	CreatedAt time.Time `json:"created_at"`
+	Role       string      `json:"role"`
+	IsBanned   bool        `json:"is_banned"`
+	CreatedAt  time.Time   `json:"created_at"`
+	LastActive null.Time `json:"last_active"`
 }
 
 type AccountDetails struct {
@@ -30,6 +31,7 @@ type AccountDetails struct {
 	Role      string    `json:"role"`
 	IsBanned  bool      `json:"is_banned"`
 	CreatedAt time.Time `json:"created_at"`
+	LastActive null.Time `json:"last_active"`
 	Phone     null.String    `json:"phone"`
 	Score     int       `json:"score"`
 	IsPremium bool    `json:"is_premium"`

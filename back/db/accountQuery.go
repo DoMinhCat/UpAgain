@@ -101,7 +101,7 @@ func DeleteAccount(id int) error {
 func GetAllAccounts() ([]models.Account, error) {
 	var accounts []models.Account
 
-	rows, err := utils.Conn.Query("SELECT id, email, username, role, is_banned, created_at FROM accounts WHERE deleted_at IS NULL")
+	rows, err := utils.Conn.Query("SELECT id, email, username, role, is_banned, created_at, last_active FROM accounts WHERE deleted_at IS NULL")
 	if err != nil {
 		return nil, fmt.Errorf("GetAllAccounts() failed: %v", err.Error())
 	}
@@ -109,7 +109,7 @@ func GetAllAccounts() ([]models.Account, error) {
 
 	for rows.Next() {
 		var account models.Account
-		if err := rows.Scan(&account.Id, &account.Email, &account.Username, &account.Role, &account.IsBanned, &account.CreatedAt); err != nil {
+		if err := rows.Scan(&account.Id, &account.Email, &account.Username, &account.Role, &account.IsBanned, &account.CreatedAt, &account.LastActive); err != nil {
 			return nil, fmt.Errorf("GetAllAccounts() failed: %v", err.Error())
 		}
 		if account.Role == "employee" {
@@ -130,8 +130,8 @@ func GetAllAccounts() ([]models.Account, error) {
 func GetAccountDetailsById(id_account int) (models.AccountDetails, error) {
 	var account models.AccountDetails
 
-	row := utils.Conn.QueryRow("SELECT id, email, username, role, is_banned, created_at, avatar FROM accounts WHERE id=$1 AND deleted_at IS NULL", id_account)
-	err := row.Scan(&account.Id, &account.Email, &account.Username, &account.Role, &account.IsBanned, &account.CreatedAt, &account.Avatar)
+	row := utils.Conn.QueryRow("SELECT id, email, username, role, is_banned, created_at, avatar, last_active FROM accounts WHERE id=$1 AND deleted_at IS NULL", id_account)
+	err := row.Scan(&account.Id, &account.Email, &account.Username, &account.Role, &account.IsBanned, &account.CreatedAt, &account.Avatar, &account.LastActive)
 	if err != nil {
 		if err == sql.ErrNoRows{
 			return models.AccountDetails{}, nil

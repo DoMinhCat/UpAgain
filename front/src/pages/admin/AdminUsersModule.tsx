@@ -239,9 +239,9 @@ export default function AdminUsersModule() {
       } else if (filters.sortValue === "oldest_registration") {
         return dayjs(a.created_at).diff(dayjs(b.created_at));
       } else if (filters.sortValue === "most_recent_last_active") {
-        return dayjs(b.last_active).diff(dayjs(a.last_active));
+        return dayjs(b.last_active || 0).diff(dayjs(a.last_active || 0));
       } else if (filters.sortValue === "oldest_last_active") {
-        return dayjs(a.last_active).diff(dayjs(b.last_active));
+        return dayjs(a.last_active || 0).diff(dayjs(b.last_active || 0));
       }
       return 0;
     });
@@ -289,7 +289,9 @@ export default function AdminUsersModule() {
             )}
           </Table.Td>
           <Table.Td ta="center">
-            {dayjs(account.last_active).format("DD/MM/YYYY - HH:mm")}
+            {account.last_active
+              ? dayjs(account.last_active).format("DD/MM/YYYY - HH:mm")
+              : "N/A"}
           </Table.Td>
           <Table.Td ta="center">
             <Button
