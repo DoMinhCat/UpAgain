@@ -122,3 +122,35 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+func GetAccountDetails(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value("user").(models.AuthClaims)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to get account details.")
+		return
+	}
+	role := claims.Role
+	userID := claims.Id
+
+	id_input := r.PathValue("id_account")
+	id_account, err := strconv.Atoi(id_input)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while getting account details.")
+		slog.Error("GetAccountDetails() failed", "controller", "GetAccountDetails", "error", err)
+		return
+	}
+
+	if role != "admin" && id_account != userID {
+		utils.RespondWithError(w, http.StatusForbidden, "You can only get your own account details.")
+		return
+	}
+
+	account, err := db.GetAccountDetailsById(id_account)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while getting account details.")
+		slog.Error("GetAccountDetails() failed", "controller", "GetAccountDetails", "error", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, account)
+}

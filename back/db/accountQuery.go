@@ -127,6 +127,46 @@ func GetAllAccounts() ([]models.Account, error) {
 	return accounts, nil
 }
 
+func GetAccountDetailsById(id_account int) (models.AccountDetails, error) {
+	var account models.AccountDetails
+
+	row := utils.Conn.QueryRow("SELECT id, email, username, role, is_banned, created_at FROM accounts WHERE id=$1 AND deleted_at IS NULL", id_account)
+	err := row.Scan(&account.Id, &account.Email, &account.Username, &account.Role, &account.IsBanned, &account.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows{
+			return models.AccountDetails{}, nil
+		}
+		return models.AccountDetails{}, fmt.Errorf("GetAccountById() failed: %v", err.Error())
+	}
+	if account.Role == "employee" {
+		isAdmin, err := CheckIsAdmin(account.Id)
+		if err != nil {
+			return models.AccountDetails{}, fmt.Errorf("GetAccountById() failed: %v", err.Error())
+		}
+		if isAdmin {
+			account.Role = "admin"
+		}
+	}
+	if account.Role == "pro"{
+		proDetails, err := GetProDetailsById(id_account)
+		if err != nil {
+			return models.AccountDetails{}, fmt.Errorf("GetAccountById() failed: %v", err.Error())
+		}
+		account.Phone = proDetails.Phone
+		account.IsPremium = proDetails.IsPremium
+	}
+
+	if account.Role == "user"{
+		userDetail, err := GetUserDetailsById(id_account)
+		if err != nil {
+			return models.AccountDetails{}, fmt.Errorf("GetAccountById() failed: %v", err.Error())
+		}
+		account.Phone = userDetail.Phone
+		account.Score = userDetail.Score
+	}
+	return account, nil
+}
+
 func CheckAccountExistsById(id_account int) (bool, error) {
 	var exists bool
 
