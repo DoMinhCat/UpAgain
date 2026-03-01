@@ -1,7 +1,8 @@
 export const ENDPOINTS = {
   // admin endpoints
   ADMIN: {
-    USERS: "/accounts/",
+    USERS: "/admin/accounts/",
+    REGISTER: "/admin/register/",
   },
 
   AUTH: {
@@ -9,7 +10,11 @@ export const ENDPOINTS = {
     REFRESH: "/refresh/",
   },
 
-  ACCOUNT: {
+  GUEST: {
     REGISTER: "/register/",
+  },
+
+  USER: {
+    DELETE: "/user/delete/",
   },
 } as const;

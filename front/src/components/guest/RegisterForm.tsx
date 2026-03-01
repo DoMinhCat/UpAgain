@@ -202,8 +202,9 @@ export default function RegisterForm() {
         username: Username,
         phone,
         role,
+        source: "guest",
       });
-      if (response.status === 201) {
+      if (response?.status === 201) {
         // redirect
         navigate(PATHS.GUEST.LOGIN);
         showSuccessNotification(
@@ -211,7 +212,10 @@ export default function RegisterForm() {
           "You have been registered successfully, log in to continue.",
         );
       } else {
-        showErrorNotification("Registration Failed", response.data.error);
+        showErrorNotification(
+          "Registration Failed",
+          response?.data?.error || "Unknown error",
+        );
       }
     } catch (error: any) {
       showErrorNotification("Registration Failed", error);

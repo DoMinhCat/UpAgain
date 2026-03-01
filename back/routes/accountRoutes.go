@@ -6,12 +6,18 @@ import (
 	"net/http"
 )
 
-// TODO: wrap all with auth middleware so that UpdateLastActive knows which id to update
 func GetAccountRoutes(mux *http.ServeMux) {
-	// Create new account, this one handles the creation of an account for a user, pro or employee
-	mux.Handle("POST /register/{$}", middleware.UpdateLastActive(http.HandlerFunc(controllers.CreateAccount)))
+	// 1. ADMIN ROUTES
+	// Admin create new account, this one handles the creation of an account for a user, pro or employee
+	mux.Handle("POST /admin/register/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CreateAccountAdmin))))
 	// Get all accounts, this one handles the retrieval of all accounts
-	mux.Handle("GET /accounts/{$}", middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAllAccounts)))
+	mux.Handle("GET /admin/accounts/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAllAccountsAdmin))))
 	// Soft delete an account, this one handles the soft deletion of an account
-	mux.Handle("DELETE /accounts/{id_account}/{$}", middleware.UpdateLastActive(http.HandlerFunc(controllers.SoftDeleteAccount)))
+	mux.Handle("DELETE /admin/accounts/{id_account}/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.SoftDeleteAccountAdmin))))
+	
+	// 2. GUEST ROUTES
+	// Guest create new account
+	mux.Handle("POST /register/{$}", http.HandlerFunc(controllers.CreateAccountGuest))
 }
+
+	

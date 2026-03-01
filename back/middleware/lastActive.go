@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"backend/models"
 	"backend/utils"
 	"log/slog"
 	"net/http"
@@ -9,11 +10,12 @@ import (
 
 func UpdateLastActive(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		accountID, ok := r.Context().Value("account_id").(int)
+		user, ok := r.Context().Value("user").(models.AuthClaims)
 		if !ok {
 			next.ServeHTTP(w, r)
 			return
 		}
+		accountID := user.Id
 
 		_, err := utils.Conn.Exec("UPDATE accounts SET last_active = $1 WHERE id = $2 AND (last_active < $1 - INTERVAL '2 minutes' OR last_active IS NULL)", time.Now(), accountID)
 		if err != nil {

@@ -4,15 +4,19 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	validations "backend/utils/validations"
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
-	"regexp"
 	"strconv"
 )
 
-func CreateAccount(w http.ResponseWriter, r *http.Request) {
+func CreateAccountAdmin(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to create an account.")
+		return
+	}
 	var newAccount models.CreateAccountRequest
 
 	var err = json.NewDecoder(r.Body).Decode(&newAccount)
@@ -22,104 +26,76 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate
-	if len(newAccount.Username) < 4 || len(newAccount.Username) > 20 {
-		utils.RespondWithError(w, http.StatusBadRequest, "Username must be between 4 and 20 characters.")
-		return
-	}
-
-	if len(newAccount.Password) < 12 || len(newAccount.Password) > 60 {
-		utils.RespondWithError(w, http.StatusBadRequest, "Password must be between 12 and 60 characters.")
-		return
-	}
-
-	emailRegex := `^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
-	emailMatch, _ := regexp.MatchString(emailRegex, newAccount.Email)
-	if !emailMatch {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid email format.")
-		return
-	}
-
-	passwordMatch, _ := regexp.Match("[A-Z]", []byte(newAccount.Password))
-	if !passwordMatch {
-		utils.RespondWithError(w, http.StatusBadRequest, "Password must contain at least one capital character")
-		return
-	}
-	passwordMatch, _ = regexp.Match("[0-9]", []byte(newAccount.Password))
-	if !passwordMatch {
-		utils.RespondWithError(w, http.StatusBadRequest, "Password must contain at least one digit")
-		return
-	}
-	passwordMatch, _ = regexp.Match("\\W", []byte(newAccount.Password))
-	if !passwordMatch {
-		utils.RespondWithError(w, http.StatusBadRequest, "Password must contain at least one special character.")
-		return
-	}
-
-	if newAccount.Phone != "" {
-		phoneRegex := `^\+?[0-9]{10,15}$`
-		phoneMatch, _ := regexp.MatchString(phoneRegex, newAccount.Phone)
-		if !phoneMatch {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid phone number.")
-			return
-		}
-	}
-
-	if newAccount.Role != "user" && newAccount.Role != "pro" && newAccount.Role != "employee" && newAccount.Role != "admin" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid role.")
-		slog.Error("Invalid role", "role", newAccount.Role)
-		return
-	}
-
-	// Check for existed username
-	usernameExists, err := db.CheckUsernameExists(newAccount.Username)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
-		return
-	}
-	if usernameExists {
-		utils.RespondWithError(w, http.StatusConflict, fmt.Sprintf("'%s' has been taken, please choose another username.", newAccount.Username))
-		return
-	}
-	// Check for existed email
-	emailExists, err := db.CheckEmailExists(newAccount.Email)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
-		return
-	}
-	if emailExists {
-		utils.RespondWithError(w, http.StatusConflict, "An account has been already registered with this email.")
+	validationResponse := validations.ValidateAccountCreation(newAccount)
+	if !validationResponse.Success {
+		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message)
 		return
 	}
 
 	err = db.CreateAccount(newAccount)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
-		slog.Error("CreateAccount() failed", "error", err)
+		slog.Error("CreateAccount() failed", "controller", "CreateAccountAdmin", "error", err)
 		return
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }
 
-func GetAllAccounts(w http.ResponseWriter, r *http.Request) {
+func CreateAccountGuest(w http.ResponseWriter, r *http.Request) {
+	var newAccount models.CreateAccountRequest
+
+	var err = json.NewDecoder(r.Body).Decode(&newAccount)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while creating an account for you.")
+		slog.Error("invalid JSON request body", "error", err)
+		return
+	}
+
+	validationResponse := validations.ValidateAccountCreation(newAccount)
+	if !validationResponse.Success {
+		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message)
+		return
+	}
+
+	err = db.CreateAccount(newAccount)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
+		slog.Error("CreateAccount() failed", "controller", "CreateAccountGuest", "error", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusCreated, nil)
+}
+
+func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to create an account.")
+		return
+	}
 	accounts, err := db.GetAllAccounts()
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching accounts.")
-		slog.Error("GetAllAccounts() failed", "error", err)
+		slog.Error("GetAllAccountsAdmin() failed", "controller", "GetAllAccountsAdmin", "error", err)
 		return
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, accounts)
 }
 
-func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
+func SoftDeleteAccountAdmin(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to create an account.")
+		return
+	}
 	// get id to delete
 	id_input := r.PathValue("id_account")
 	id_account, err := strconv.Atoi(id_input)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while soft deleting an account.")
-		slog.Error("SoftDeleteAccount() failed", "error", err)
+		slog.Error("SoftDeleteAccountAdmin() failed", "controller", "SoftDeleteAccountAdmin", "error", err)
 		return
 	}
 
@@ -127,12 +103,12 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 	exists, err := db.CheckAccountExistsById(id_account)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while soft deleting an account.")
-		slog.Error("SoftDeleteAccount() failed", "error", err)
+		slog.Error("SoftDeleteAccountAdmin() failed", "controller", "SoftDeleteAccountAdmin", "error", err)
 		return
 	}
 	if !exists {
 		utils.RespondWithError(w, http.StatusNotFound, "Account not found or already deleted.")
-		slog.Error("SoftDeleteAccount() failed", "error", "account not found")
+		slog.Error("SoftDeleteAccountAdmin() failed", "controller", "SoftDeleteAccountAdmin", "error", "account not found")
 		return
 	}
 
@@ -140,19 +116,19 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 	isAdmin, err := db.CheckIsAdmin(id_account)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while soft deleting an account.")
-		slog.Error("SoftDeleteAccount() failed", "error", err)
+		slog.Error("SoftDeleteAccountAdmin() failed", "controller", "SoftDeleteAccountAdmin", "error", err)
 		return
 	}
 	if isAdmin {
 		utils.RespondWithError(w, http.StatusForbidden, "Admins cannot be soft deleted.")
-		slog.Error("SoftDeleteAccount() failed", "error", "admin cannot be soft deleted")
+		slog.Error("SoftDeleteAccountAdmin() failed", "controller", "SoftDeleteAccountAdmin", "error", "admin cannot be soft deleted")
 		return
 	}
 
 	err = db.SoftDeleteAccount(id_account)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while soft deleting an account.")
-		slog.Error("SoftDeleteAccount() failed", "error", err)
+		slog.Error("SoftDeleteAccountAdmin() failed", "controller", "SoftDeleteAccountAdmin", "error", err)
 		return
 	}
 

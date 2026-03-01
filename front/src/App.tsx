@@ -19,7 +19,7 @@ import { Notifications } from "@mantine/notifications";
 const UpAgainTheme = createTheme({
   focusRing: "never",
   fontFamily: "Nunito, sans-serif",
-  cursorType: 'pointer',
+  cursorType: "pointer",
 
   components: {
     Select: Select.extend({
@@ -81,7 +81,6 @@ const UpAgainTheme = createTheme({
         },
       },
     }),
-
   },
 });
 
@@ -90,7 +89,7 @@ function App() {
     <MantineProvider
       theme={UpAgainTheme}
       defaultColorScheme="dark"
-      cssVariablesResolver={(theme) => ({
+      cssVariablesResolver={() => ({
         variables: {},
         light: {
           // these 2 for auto mantine color

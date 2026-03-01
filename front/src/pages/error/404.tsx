@@ -21,7 +21,7 @@ export function NotFoundPage() {
           address, or the page has been moved to another URL.
         </Text>
         <Group justify="center">
-          <Button variant="primary" onClick={() => navigate(PATHS.GUEST.HOME)}>
+          <Button variant="primary" onClick={() => navigate(PATHS.HOME)}>
             Take me back to home page
           </Button>
         </Group>

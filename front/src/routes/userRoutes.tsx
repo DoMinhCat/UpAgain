@@ -1,15 +1,27 @@
-import { Navigate, type RouteObject } from "react-router-dom";
+import { type RouteObject, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "./paths";
+import { useEffect } from "react";
+import { Center, Loader } from "@mantine/core";
 
 const UserGuard = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, isInitializing } = useAuth();
   const unauthorized = !user || user.role !== "admin";
+  const navigate = useNavigate();
 
-  if (unauthorized) {
-    return <Navigate to={PATHS.GUEST.LOGIN} replace />;
+  useEffect(() => {
+    if (unauthorized) {
+      navigate(PATHS.GUEST.LOGIN, { replace: true });
+    }
+  }, [unauthorized]);
+
+  if (isInitializing) {
+    return (
+      <Center style={{ width: "100vw", height: "100vh" }}>
+        <Loader size="xl" />
+      </Center>
+    );
   }
-
   return <>{children}</>;
 };
 
@@ -18,14 +30,16 @@ export const adminRoutes: RouteObject = {
   element: (
     <UserGuard>
       {/* TODO */}
-      <UserLayout />,
+      {/* <UserLayout /> */}
+      <div>User layout</div>
     </UserGuard>
   ),
   children: [
     {
       index: true,
       // TODO
-      element: <UserHome />, // page
+      // element: <UserHome />, // page
+      element: <div>User home</div>,
     },
     // Future admin routes go here
     // { path: "settings", element: <AdminSettings /> }

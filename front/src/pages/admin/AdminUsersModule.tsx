@@ -159,7 +159,7 @@ export default function AdminUsersModule() {
   const createMutation = useMutation({
     mutationFn: RegisterRequest,
     onSuccess: (response) => {
-      if (response.status === 201) {
+      if (response?.status === 201) {
         showSuccessNotification(
           "Account creation success",
           "Account created successfully.",
@@ -167,7 +167,7 @@ export default function AdminUsersModule() {
         closeCreate();
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       } else {
-        showErrorNotification("Account creation failed", response.data.error);
+        showErrorNotification("Account creation failed", response?.data.error);
       }
     },
     onError: (error: any) => {
@@ -190,6 +190,7 @@ export default function AdminUsersModule() {
       email: emailNew,
       password: passwordNew,
       role: roleNew,
+      source: "admin",
     });
   };
 
@@ -316,9 +317,9 @@ export default function AdminUsersModule() {
     );
 
   const deleteMutation = useMutation({
-    mutationFn: deleteAccount,
+    mutationFn: (id_account: number) => deleteAccount(id_account, "admin"),
     onSuccess: (response) => {
-      if (response.status === 204) {
+      if (response?.status === 204) {
         showSuccessNotification(
           "Account deleted",
           "Account deleted successfully.",
@@ -326,7 +327,7 @@ export default function AdminUsersModule() {
         closeDelete();
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       } else {
-        showErrorNotification("Account deletion failed", response.data.error);
+        showErrorNotification("Account deletion failed", response?.data.error);
       }
     },
     onError: (error: any) => {
