@@ -294,14 +294,26 @@ export default function AdminUsersModule() {
             {dayjs(account.last_active).format("DD/MM/YYYY - HH:mm")}
           </Table.Td>
           <Table.Td ta="center">
-            <Button variant="edit" me="sm" size="xs">
+            <Button
+              variant="edit"
+              me="sm"
+              size="xs"
+              // TODO: open modal to edit account
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                navigate(PATHS.ADMIN.USERS + "/" + account.id);
+              }}
+            >
               Edit
             </Button>
             <Button
               disabled={account.role === "admin"}
               variant="delete"
               size="xs"
-              onClick={() => handleModalDelete(account)}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                handleModalDelete(account);
+              }}
             >
               Delete
             </Button>
