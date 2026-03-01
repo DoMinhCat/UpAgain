@@ -9,6 +9,9 @@ export interface Account {
   is_banned: boolean;
   created_at: string;
   last_active: string;
+  phone?: string;
+  score?: number;
+  is_premium?: boolean;
 }
 
 export async function getAllAccounts() {
@@ -29,4 +32,9 @@ export const RegisterRequest = async (payload: RegisterPayload) => {
 
 export const deleteAccount = async (id_account: number) => {
   return await api.delete(ENDPOINTS.ADMIN.USERS + id_account + "/");
+};
+
+export const getAccountDetails = async (id_account: number) => {
+  const response = await api.get(ENDPOINTS.ADMIN.USERS + id_account + "/");
+  return response.data;
 };
