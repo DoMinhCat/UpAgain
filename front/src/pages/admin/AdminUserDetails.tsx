@@ -46,6 +46,8 @@ export default function AdminUserDetails() {
   if (error) {
     return <Navigate to={PATHS.ADMIN.USERS} replace />;
   }
+
+  const role = accountDetails?.role;
   return (
     <Container px="md" size="xl">
       <AdminBreadcrumbs
@@ -155,6 +157,76 @@ export default function AdminUserDetails() {
               {accountDetails?.phone ? accountDetails?.phone : "N/A"}
             </Text>
           </InfoField>
+        </Paper>
+
+        <Title order={3} ta="left" mt="xl">
+          Activities
+        </Title>
+        <Paper variant="primary" px="lg" py="md" mt="sm">
+          <InfoField label="Last active on">
+            <Text ps="sm" mt="xs" mb="xl">
+              {dayjs(accountDetails?.last_active).format("DD/MM/YYYY - HH:mm")}
+            </Text>
+          </InfoField>
+          {role == "user" && (
+            <>
+              <InfoField label="Total container deposits">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total container deposits of user
+                </Text>
+              </InfoField>
+              <InfoField label="Total listings">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total listings (annonces) of user
+                </Text>
+              </InfoField>
+              <InfoField label="Total spendings">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total money user spent for events/workshops
+                </Text>
+              </InfoField>
+            </>
+          )}
+
+          {role == "employee" && (
+            <>
+              <InfoField label="Total events/workshops assigned">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total events linked to employee
+                </Text>
+              </InfoField>
+              <InfoField label="Total articles posted">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total articles employee posted
+                </Text>
+              </InfoField>
+            </>
+          )}
+          {role == "pro" && (
+            <>
+              <InfoField label="Total listings acquired">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total listings reserved/purchased
+                </Text>
+              </InfoField>
+              <InfoField label="Total container deposits acquired">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total container deposits acquired
+                </Text>
+              </InfoField>
+              <InfoField label="Total projects posted">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total projects posted
+                </Text>
+              </InfoField>
+              <InfoField label="Total spendings posted">
+                <Text ps="sm" mt="xs" mb="xl">
+                  TODO: total money spent through subscription/buying
+                  object/participate events and workshops
+                </Text>
+              </InfoField>
+            </>
+          )}
         </Paper>
       </Container>
     </Container>
