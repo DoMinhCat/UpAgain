@@ -99,7 +99,8 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const accountId = parseInt(localStorage.getItem("accountId") || "0");
+  const { user } = useAuth();
+  const accountId = user?.id ? user.id : 0;
   const isValidId = !isNaN(accountId) && accountId > 0;
   const { data: accountDetails, error: errorAccountDetails } =
     useAccountDetails(accountId, isValidId);
@@ -132,14 +133,23 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
         {!errorAccountDetails && (
           <Menu shadow="md" width={150}>
             <Menu.Target>
-              <Avatar
-                // avatar must be in /src/assets/avatars
-                src={accountDetails?.avatar}
-                name="User's name"
-                color="initials"
-                size="40"
-                className={classes.avatarNavbar}
-              />
+              {accountDetails?.avatar ? (
+                <Avatar
+                  // avatar must be in /src/assets/avatars
+                  src={accountDetails?.avatar}
+                  name={accountDetails?.username}
+                  color="initials"
+                  size="40"
+                  className={classes.avatarNavbar}
+                />
+              ) : (
+                <Avatar
+                  name={accountDetails?.username}
+                  color="initials"
+                  size="40"
+                  className={classes.avatarNavbar}
+                />
+              )}
             </Menu.Target>
 
             <Menu.Dropdown>
