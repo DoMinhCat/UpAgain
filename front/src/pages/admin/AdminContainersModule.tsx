@@ -1,22 +1,24 @@
 import {
   Container as MantineContainer,
+  Paper,
+  Grid,
   Title,
   SimpleGrid,
   Divider,
   Table,
   Button,
   Group,
+  Text,
   Stack,
   TextInput,
   Select,
+  Pill,
 } from "@mantine/core";
 import { 
   IconBox, 
-  IconAlertTriangle, 
-  IconCheck, 
+  IconPackage, 
   IconPlus, 
   IconSearch,
-  IconBuildingWarehouse 
 } from "@tabler/icons-react";
 import { AdminCardInfo } from "../../components/admin/AdminCardInfo";
 import AdminTable from "../../components/admin/AdminTable";
@@ -25,6 +27,7 @@ import { getAllContainers, type Container } from "../../api/admin/containerModul
 import { useState, useMemo } from "react";
 import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
+import { BarChart } from '@mantine/charts';
 
 export default function AdminContainersModule() {
   const [openedCreate, { open: openCreate }] = useDisclosure(false);
@@ -54,33 +57,66 @@ export default function AdminContainersModule() {
     });
   }, [containers, filters]);
 
+  const chartData = useMemo(() => [
+    { status: 'Ready', count: stats.ready },
+    { status: 'Full', count: stats.full },
+    { status: 'Maintenance', count: stats.maintenance },
+    { status: 'Pending', count: 2 }, 
+  ], [stats]);
   return (
     <MantineContainer px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">Container Management</Title>
 
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg" mb="xl">
-        <AdminCardInfo
-          icon={IconBox}
-          title="Total Containers"
-          value={stats.total}
-          description="Across all European sites"
-        />
-        <AdminCardInfo
-          icon={IconCheck}
-          title="Ready for Deposit"
-          value={stats.ready}
-        />
-        <AdminCardInfo
-          icon={IconBuildingWarehouse}
-          title="Full / To Collect"
-          value={stats.full}
-        />
-        <AdminCardInfo
-          icon={IconAlertTriangle}
-          title="In Maintenance"
-          value={stats.maintenance}
-        />
-      </SimpleGrid>
+  <Grid mb="xl" align="stretch">
+        <Grid.Col span={{ base: 12, md: 4 }}>
+          <Stack gap="md">
+            <AdminCardInfo
+              icon={IconBox}
+              title="Total Containers"
+              value={stats.total}
+              description="Across all European sites"
+            />
+            <AdminCardInfo
+              icon={IconPackage}
+              title="Ready / Total"
+              value={`${stats.ready + stats.full} / ${stats.total}`}
+              description={`${((stats.ready + stats.full) / stats.total * 100).toFixed(0)}% capacity used`}
+            />
+          </Stack>
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 12, md: 8 }}>
+          <Paper withBorder p="md" radius="lg" shadow="sm" h="100%">
+            <Title order={4} mb="lg">Inventory Distribution</Title>
+            <BarChart
+              h={300}
+              data={chartData}
+              dataKey="status"
+              series={[{ name: 'count', color: 'red.6' }]}
+              tickLine="y"
+              gridAxis="xy"
+              tooltipProps={{
+                cursor: { fill: 'rgba(255, 255, 255, 0.05)' },
+                content: ({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <Paper withBorder p="xs" radius="md" shadow="md">
+                        <Text size="xs" fw={700} tt="uppercase" c="dimmed">
+                          {payload[0].payload.status}
+                        </Text>
+                        <Text fw={700} size="sm">
+                          {payload[0].value} Containers
+                        </Text>
+                      </Paper>
+                    );
+                  }
+                  return null;
+                },
+              }}
+            />
+          </Paper>
+        </Grid.Col>
+      </Grid>
 
       <Divider my="xl" label="Detailed Inventory" labelPosition="center" />
 
@@ -112,12 +148,16 @@ export default function AdminContainersModule() {
         >
           {filteredData.map((c) => (
             <Table.Tr key={c.id}>
-              <Table.Td>{dayjs(c.created_at).format("DD/MM/YYYY")}</Table.Td>
-              <Table.Td><strong>{c.id}</strong></Table.Td>
-              <Table.Td>{c.city_name}</Table.Td>
-              <Table.Td>{c.postal_code}</Table.Td>
-              <Table.Td>{c.status.toUpperCase()}</Table.Td>
-              <Table.Td>
+              <Table.Td ta="center">{dayjs(c.created_at).format("DD/MM/YYYY")}</Table.Td>
+              <Table.Td ta="center"><strong>{c.id}</strong></Table.Td>
+              <Table.Td ta="center">{c.city_name}</Table.Td>
+              <Table.Td ta="center">{c.postal_code}</Table.Td>
+              <Table.Td ta="center">
+                <Pill color={c.status === 'ready' ? 'green' : 'orange'}>
+                  {c.status.toUpperCase()}
+                </Pill>
+              </Table.Td>
+              <Table.Td ta="center">
                 <Button variant="subtle" size="xs">Manage</Button>
               </Table.Td>
             </Table.Tr>
