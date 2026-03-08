@@ -1,0 +1,14 @@
+package models
+
+import "github.com/guregu/null"
+
+type UserDetails struct {
+	Phone null.String `json:"phone"`
+	Score int         `json:"score"`
+}
+
+type UserStats struct {
+	TotalDeposits int `json:"total_deposits"`
+	TotalListings int `json:"total_listings"`
+	TotalSpent    int `json:"total_spendings"`
+}
