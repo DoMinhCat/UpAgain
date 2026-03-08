@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 )
@@ -94,9 +95,11 @@ func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.Vali
 	// Check for existed username
 	usernameExists, err := db.CheckUsernameExists(newAccount.Username)
 	if err != nil {
+		slog.Error("Database error during username check", "error", err, "username", newAccount.Username)
+
 		response = models.ValidationResponse{
 			Success: false,
-			Message: "An error occured while creating an account for you.",
+			Message: "An error occurred while creating an account for you. pitie",
 			Error:   http.StatusInternalServerError,
 		}
 		return response
@@ -112,9 +115,11 @@ func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.Vali
 	// Check for existed email
 	emailExists, err := db.CheckEmailExists(newAccount.Email)
 	if err != nil {
+		slog.Error("CheckEmailExists failed", "error", err)
+
 		response = models.ValidationResponse{
 			Success: false,
-			Message: "An error occured while creating an account for you.",
+			Message: "An error occurred while creating an aezaccount for you.",
 			Error:   http.StatusInternalServerError,
 		}
 		return response
