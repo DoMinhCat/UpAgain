@@ -468,6 +468,29 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check if email already exists
+	id, err := db.GetAccountIdByEmail(payload.Email)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+		slog.Error("GetAccountIdByEmail() failed", "controller", "UpdateAccount", "error", err)
+		return
+	}
+	if id != 0 && id != id_account {
+		utils.RespondWithError(w, http.StatusConflict, "Email already exists.")
+		return
+	}
+
+	username_id, err := db.GetAccountIdByUsername(payload.Username)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+		slog.Error("GetAccountIdByUsername() failed", "controller", "UpdateAccount", "error", err)
+		return
+	}
+	if username_id != 0 && username_id != id_account {
+		utils.RespondWithError(w, http.StatusConflict, "Username already exists.")
+		return
+	}
+
 	payload.Id = id_account
 	err = db.UpdateAccount(payload, role)
 	if err != nil {

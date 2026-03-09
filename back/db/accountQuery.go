@@ -303,3 +303,27 @@ func GetIdByUsernameByEmail(username *string, email * string) (int, error){
 
 	return id, nil
 }
+
+func GetAccountIdByEmail(email string) (int, error){
+	id := 0
+	err := utils.Conn.QueryRow("select id from accounts where email=$1;", email).Scan(&id)
+	if err != nil{
+		if err == sql.ErrNoRows {
+			return id, nil
+		}
+		return id, fmt.Errorf("GetAccountIdByEmail() failed: %v", err.Error())
+	}
+	return id, nil
+}
+
+func GetAccountIdByUsername(username string) (int, error){
+	id := 0
+	err := utils.Conn.QueryRow("select id from accounts where username=$1;", username).Scan(&id)
+	if err != nil{
+		if err == sql.ErrNoRows {
+			return id, nil
+		}
+		return id, fmt.Errorf("GetAccountIdByUsername() failed: %v", err.Error())
+	}
+	return id, nil
+}
