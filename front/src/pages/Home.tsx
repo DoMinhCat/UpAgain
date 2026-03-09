@@ -1,5 +1,5 @@
 // src/pages/Home.tsx
-import AdminHome from "./admin/AdminHome";
+// import AdminHome from "./admin/AdminHome";
 // import ProHome from "./ProHome";
 // import UserHome from "./UserHome";
 import { useAuth } from "../context/AuthContext";

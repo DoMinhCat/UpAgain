@@ -415,3 +415,66 @@ func GetAccountStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func UpdateAccount(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value("user").(models.AuthClaims)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update an account.")
+		return
+	}
+	reqRole := claims.Role
+	reqID := claims.Id
+	id_input := r.PathValue("id_account")
+	id_account, err := strconv.Atoi(id_input)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+		slog.Error("Atoi() failed", "controller", "UpdateAccount", "error", err)
+		return
+	}
+
+	exist, err := db.CheckAccountExistsById(id_account, nil)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+		slog.Error("CheckAccountExistsById() failed", "controller", "UpdateAccount", "error", err)
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", id_account))
+		return
+	}
+
+	role, err := db.GetRoleById(id_account)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+		slog.Error("GetRoleById() failed", "controller", "UpdateAccount", "error", err)
+		return
+	}
+	
+	// check role for update
+	if reqRole !="admin" && reqID != id_account{
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update another's account.")
+		return
+	}
+	if role == "admin" && reqID != id_account{
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update another admin's account.")
+		return
+	}
+	
+	var payload models.UpdateAccountRequest
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+		slog.Error("NewDecoder() failed", "controller", "UpdateAccount", "error", err)
+		return
+	}
+
+	payload.Id = id_account
+	err = db.UpdateAccount(payload, role)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+		slog.Error("UpdateAccount() failed", "controller", "UpdateAccount", "error", err)
+		return
+	}
+	
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}

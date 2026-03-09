@@ -89,13 +89,14 @@ export interface updateAccountPayload {
   username: string;
   email: string;
   phone?: string;
-  role: string;
 }
 export const updateAccount = async (payload: updateAccountPayload) => {
-  return await api.patch(ENDPOINTS.ADMIN.USERS + payload.id_account + "/", {
-    username: payload.username,
-    email: payload.email,
-    phone: payload.phone,
-    role: payload.role,
-  });
+  return await api.patch(
+    ENDPOINTS.ADMIN.USERS + payload.id_account + "/update/",
+    {
+      username: payload.username,
+      email: payload.email,
+      phone: payload.phone,
+    },
+  );
 };

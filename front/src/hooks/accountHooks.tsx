@@ -161,14 +161,14 @@ export const useUpdateAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: updateAccountPayload) => updateAccount(payload),
-    onSuccess: (response, id_account) => {
+    onSuccess: (response, variables) => {
       if (response?.status === 204) {
         showSuccessNotification(
           "Account updated",
           "Account updated successfully.",
         );
         queryClient.invalidateQueries({
-          queryKey: ["accountDetails", id_account],
+          queryKey: ["accountDetails", variables.id_account],
         });
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       }

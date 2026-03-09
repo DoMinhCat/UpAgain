@@ -33,6 +33,7 @@ import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
 
 import { PATHS } from "../../routes/paths";
+import { useAuth } from "../../context/AuthContext";
 
 const requirements = [
   { re: /[0-9]/, label: "Includes number" },
@@ -41,6 +42,7 @@ const requirements = [
 ];
 
 export default function AdminUsersModule() {
+  const { user } = useAuth();
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
   const [openedDelete, { open: openDelete, close: closeDelete }] =
@@ -65,7 +67,6 @@ export default function AdminUsersModule() {
   const [phoneNewError, setPhoneNewError] = useState<string | null>(null);
   const [disablePhone, setDisablePhone] = useState<boolean>(false);
   const [disablePhoneEdit, setDisablePhoneEdit] = useState<boolean>(false);
-  const [roleEditError, setRoleEditError] = useState<string | null>(null);
   const [usernameEditError, setUsernameEditError] = useState<string | null>(
     null,
   );
@@ -213,14 +214,6 @@ export default function AdminUsersModule() {
     setRoleNewError(null);
     return true;
   };
-  const validateRoleEdit = (val: string) => {
-    if (!val) {
-      setRoleEditError("Role is required");
-      return false;
-    }
-    setRoleEditError(null);
-    return true;
-  };
 
   // create hook
   const createMutation = useCreateAccount();
@@ -280,7 +273,6 @@ export default function AdminUsersModule() {
   const [usernameEdit, setUsernameEdit] = useState<string>("");
   const [emailEdit, setEmailEdit] = useState<string>("");
   const [phoneEdit, setPhoneEdit] = useState<string>("");
-  const [roleEdit, setRoleEdit] = useState<string>("");
   const editMutation = useUpdateAccount();
   const [selectedEditAcc, setSelectedEditAcc] = useState<Account | null>(null);
   const handleModalEdit = (account: Account) => {
@@ -292,11 +284,9 @@ export default function AdminUsersModule() {
     setUsernameEdit("");
     setEmailEdit("");
     setPhoneEdit("");
-    setRoleEdit("");
     setUsernameEditError(null);
     setEmailEditError(null);
     setPhoneEditError(null);
-    setRoleEditError(null);
     setDisablePhoneEdit(false);
     setSelectedEditAcc(null);
     closeEdit();
@@ -307,8 +297,7 @@ export default function AdminUsersModule() {
     const userErr = validateUsernameEdit(usernameEdit);
     const emailErr = validateEmailEdit(emailEdit);
     const phoneErr = validatePhoneEdit(phoneEdit);
-    const roleErr = validateRoleEdit(roleEdit);
-    if (userErr && emailErr && phoneErr && roleErr) {
+    if (!userErr || !emailErr || !phoneErr) {
       return;
     }
     if (selectedEditAcc?.id) {
@@ -318,7 +307,6 @@ export default function AdminUsersModule() {
           username: usernameEdit,
           email: emailEdit,
           phone: phoneEdit,
-          role: roleEdit,
         },
         {
           onSuccess: (response: any) => {
@@ -343,7 +331,6 @@ export default function AdminUsersModule() {
       setEmailEdit(accountDetails.email || "");
       setPhoneEdit(accountDetails.phone || "");
       const role = accountDetails.role || "";
-      setRoleEdit(role);
 
       if (role === "admin" || role === "employee") {
         setDisablePhoneEdit(true);
@@ -364,6 +351,7 @@ export default function AdminUsersModule() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
+  //TODO: filter by ID search
   const { data: accounts = [] as Account[], isLoading: isAccountsLoading } =
     useGetAllAccounts(false);
   const filteredAccounts = useMemo(() => {
@@ -447,6 +435,7 @@ export default function AdminUsersModule() {
               variant="edit"
               me="sm"
               size="xs"
+              disabled={account.role === "admin" && account.id !== user?.id}
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 handleModalEdit(account);
@@ -455,7 +444,7 @@ export default function AdminUsersModule() {
               Edit
             </Button>
             <Button
-              disabled={account.role === "admin"}
+              disabled={account.role === "admin" && account.id !== user?.id}
               variant="delete"
               size="xs"
               onClick={(e: React.MouseEvent) => {
@@ -781,32 +770,6 @@ export default function AdminUsersModule() {
             onBlur={() => validatePhoneEdit(phoneEdit)}
             error={phoneEditError}
             disabled={disablePhoneEdit || isAccountDetailsLoading}
-          />
-          <Select
-            withAsterisk
-            clearable
-            label="Role"
-            error={roleEditError}
-            disabled={isAccountDetailsLoading}
-            onBlur={() => validateRoleEdit(roleEdit)}
-            placeholder="Role"
-            value={roleEdit}
-            data={[
-              { value: "user", label: "User" },
-              { value: "pro", label: "Pro" },
-              { value: "employee", label: "Employee" },
-              { value: "admin", label: "Admin" },
-            ]}
-            onChange={(value) => {
-              setRoleEdit(value as string);
-              if (value === "admin" || value === "employee") {
-                setPhoneEdit("");
-                setPhoneEditError(null);
-                setDisablePhoneEdit(true);
-              } else {
-                setDisablePhoneEdit(false);
-              }
-            }}
           />
         </Stack>
         <Group mt="lg" justify="center">

@@ -47,3 +47,10 @@ type UpdatePasswordRequest struct {
 type ToggleBanRequest struct {
 	CurrentlyBanned bool `json:"is_banned"`
 }
+
+type UpdateAccountRequest struct {
+	Id     int    `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+}

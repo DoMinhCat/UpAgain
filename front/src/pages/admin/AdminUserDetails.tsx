@@ -13,7 +13,6 @@ import {
   Tooltip,
   Modal,
   Loader,
-  Select,
   TextInput,
 } from "@mantine/core";
 import { PATHS } from "../../routes/paths";
@@ -79,13 +78,11 @@ export default function AdminUserDetails() {
   const [usernameEdit, setUsernameEdit] = useState<string>("");
   const [emailEdit, setEmailEdit] = useState<string>("");
   const [phoneEdit, setPhoneEdit] = useState<string>("");
-  const [roleEdit, setRoleEdit] = useState<string>("");
   const [usernameEditError, setUsernameEditError] = useState<string | null>(
     null,
   );
   const [emailEditError, setEmailEditError] = useState<string | null>(null);
   const [phoneEditError, setPhoneEditError] = useState<string | null>(null);
-  const [roleEditError, setRoleEditError] = useState<string | null>(null);
   const [disablePhoneEdit, setDisablePhoneEdit] = useState<boolean>(false);
 
   //validations
@@ -174,15 +171,6 @@ export default function AdminUserDetails() {
     }
   };
 
-  const validateRoleEdit = (val: string) => {
-    if (!val) {
-      setRoleEditError("Role is required");
-      return false;
-    }
-    setRoleEditError(null);
-    return true;
-  };
-
   // Fetch account info to display
   const params = useParams();
   const accountId: number = params.id ? parseInt(params.id) : 0;
@@ -201,7 +189,14 @@ export default function AdminUserDetails() {
       setUsernameEdit(accountDetails.username || "");
       setEmailEdit(accountDetails.email || "");
       setPhoneEdit(accountDetails.phone || "");
-      setRoleEdit(accountDetails.role || "");
+      if (
+        accountDetails.role === "admin" ||
+        accountDetails.role === "employee"
+      ) {
+        setDisablePhoneEdit(true);
+      } else {
+        setDisablePhoneEdit(false);
+      }
     }
   }, [accountDetails]);
 
@@ -304,8 +299,7 @@ export default function AdminUserDetails() {
     if (
       !validateUsernameEdit(usernameEdit) ||
       !validateEmailEdit(emailEdit) ||
-      !validatePhoneEdit(phoneEdit) ||
-      !validateRoleEdit(roleEdit)
+      !validatePhoneEdit(phoneEdit)
     )
       return;
     if (accountId) {
@@ -315,7 +309,6 @@ export default function AdminUserDetails() {
           username: usernameEdit,
           email: emailEdit,
           phone: phoneEdit,
-          role: roleEdit,
         },
         {
           onSuccess: (response: any) => {
@@ -929,31 +922,6 @@ export default function AdminUserDetails() {
             onBlur={() => validatePhoneEdit(phoneEdit)}
             error={phoneEditError}
             disabled={disablePhoneEdit}
-          />
-          <Select
-            withAsterisk
-            clearable
-            label="Role"
-            value={roleEdit}
-            error={roleEditError}
-            onBlur={() => validateRoleEdit(roleEdit)}
-            placeholder="Role"
-            data={[
-              { value: "user", label: "User" },
-              { value: "pro", label: "Pro" },
-              { value: "employee", label: "Employee" },
-              { value: "admin", label: "Admin" },
-            ]}
-            onChange={(value) => {
-              setRoleEdit(value as string);
-              if (value === "admin" || value === "employee") {
-                setPhoneEdit("");
-                setPhoneEditError(null);
-                setDisablePhoneEdit(true);
-              } else {
-                setDisablePhoneEdit(false);
-              }
-            }}
           />
         </Stack>
         <Group mt="lg" justify="center">

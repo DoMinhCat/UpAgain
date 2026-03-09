@@ -93,3 +93,16 @@ func GetProTotalItemsSpendingsById(id int) (int, error) {
 
 	return total, nil
 }
+
+func GetTotalActiveTransactionById(id_account int) (int, error){
+	var total int
+	query := `
+		select count(*) from transactions t
+		where t.id_pro=$1 and t.action='reserved'
+	`
+	err := utils.Conn.QueryRow(query, id_account).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalActiveTransactionById() failed: %v", err.Error())
+	}
+	return total, nil
+}

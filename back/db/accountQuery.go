@@ -263,3 +263,43 @@ func RecoverAccount(id_account int) error {
 	}
 	return nil
 }
+
+func UpdateAccount(account models.UpdateAccountRequest, currentRole string) error {
+	// update accounts entity
+	_, err := utils.Conn.Exec("UPDATE accounts SET username=$1, email=$2 WHERE id=$3 AND deleted_at IS NULL", account.Username, account.Email, account.Id)
+	if err != nil{
+		return fmt.Errorf("UpdateAccount() failed: %v", err.Error())
+	}
+
+	// update phone
+	if currentRole =="pro"{
+		_, err = utils.Conn.Exec("UPDATE pros SET phone=$1 WHERE id_account=$2;", account.Phone, account.Id)
+	}
+	if currentRole =="user"{
+		_, err = utils.Conn.Exec("UPDATE users SET phone=$1 WHERE id_account=$2;", account.Phone, account.Id)
+	}
+	if err != nil {
+		return fmt.Errorf("UpdateAccount() failed: %v", err.Error())
+	}
+	return nil
+}
+
+func GetIdByUsernameByEmail(username *string, email * string) (int, error){
+	var id int
+	var err error
+
+	if username != nil && email != nil{
+		err = utils.Conn.QueryRow("select id from accounts where username=$1 and email=$2;", *username, *email).Scan(&id)
+	}
+	if username != nil{
+		err = utils.Conn.QueryRow("select id from accounts where username=$1;", *username).Scan(&id)
+	}
+	if email != nil{
+		err = utils.Conn.QueryRow("select id from accounts where email=$1;", *email).Scan(&id)
+	}
+	if err != nil{
+		return 0, fmt.Errorf("GetIdByUsernameByEmail() failed: %v", err.Error())
+	}
+
+	return id, nil
+}

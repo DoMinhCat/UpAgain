@@ -35,3 +35,21 @@ func GetTotalAdsSpendingsById(id int) (int, error) {
 	}
 	return total, nil
 }
+
+// count ads of an account having ads status pending/active
+func GetTotalActiveAdsById(id_account int) (int, error){
+	var total int
+
+	query := `
+		select count(*) from ads a
+		join posts p on a.id_post=p.id
+		join accounts ac on ac.id=p.id_account		
+		where ac.id=$1 and (a.status='pending' or a.status='active')
+	`
+	err := utils.Conn.QueryRow(query +";", id_account).Scan(&total)
+	if err != nil{
+		return 0, fmt.Errorf("GetTotalActiveAdsById	() failed: %v", err)
+	}
+
+	return total, nil
+}
