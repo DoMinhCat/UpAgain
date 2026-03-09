@@ -27,7 +27,6 @@ export const showErrorNotification = (title = "Error", error: any) => {
     title: title,
     message: message,
     color: "red",
-    // icon: <IconX size={18} />,
     autoClose: autoCloseDuration,
     styles: {
       root: {
@@ -36,7 +35,6 @@ export const showErrorNotification = (title = "Error", error: any) => {
         padding: "var(--mantine-spacing-lg)",
         boxShadow: "var(--mantine-shadow-lg)",
 
-        // This ensures the red "indicator" on the left still looks sharp
         "&::before": {
           backgroundColor: "var(--mantine-color-red-6)",
         },

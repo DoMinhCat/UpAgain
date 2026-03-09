@@ -70,7 +70,8 @@ export default function AdminUsersDeleted() {
           .includes(filters.searchValue?.toLowerCase() || "") ||
         account.email
           .toLowerCase()
-          .includes(filters.searchValue?.toLowerCase() || "");
+          .includes(filters.searchValue?.toLowerCase() || "") ||
+        account.id.toString().includes(filters.searchValue || "");
       const matchesRole =
         !filters.roleValue || account.role === filters.roleValue;
       return matchesSearch && matchesRole;
@@ -178,7 +179,7 @@ export default function AdminUsersDeleted() {
             <TextInput
               label="Search"
               variant="filled"
-              placeholder="Name or email..."
+              placeholder="Search by username, email or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>

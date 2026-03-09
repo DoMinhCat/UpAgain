@@ -362,7 +362,8 @@ export default function AdminUsersModule() {
           .includes(filters.searchValue?.toLowerCase() || "") ||
         account.email
           .toLowerCase()
-          .includes(filters.searchValue?.toLowerCase() || "");
+          .includes(filters.searchValue?.toLowerCase() || "") ||
+        account.id.toString().includes(filters.searchValue || "");
       const matchesRole =
         !filters.roleValue || account.role === filters.roleValue;
       const matchesStatus =
@@ -502,7 +503,7 @@ export default function AdminUsersModule() {
             <TextInput
               label="Search"
               variant="filled"
-              placeholder="Name or email..."
+              placeholder="Search by username, email or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
