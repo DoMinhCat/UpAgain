@@ -3,7 +3,6 @@ import {
   Paper,
   Grid,
   Title,
-  SimpleGrid,
   Divider,
   Table,
   Button,
@@ -39,14 +38,18 @@ export default function AdminContainersModule() {
     staleTime: 1000 * 60 * 5, 
   });
 
-  const stats = useMemo(() => {
-    return {
-      total: containers.length,
-      ready: containers.filter(c => c.status === 'ready').length,
-      full: containers.filter(c => c.status === 'full').length,
-      maintenance: containers.filter(c => c.status === 'maintenance').length,
-    };
-  }, [containers]);
+  const stats = useMemo(() => ({
+    total: containers.length,
+    ready: containers.filter(c => c.status === 'ready').length,
+    full: containers.filter(c => c.status === 'full').length,
+    maintenance: containers.filter(c => c.status === 'maintenance').length,
+  }), [containers]);
+
+  const chartData = useMemo(() => [
+    { label: 'Ready', value: stats.ready, color: '#45a575' },
+    { label: 'Occupied', value: stats.full, color: 'var(--mantine-color-yellow-6)' },
+    { label: 'Maintenance', value: stats.maintenance, color: 'var(--mantine-color-red-6)' },
+  ], [stats]);
 
   const filteredData = useMemo(() => {
     return containers.filter(c => {
@@ -57,17 +60,11 @@ export default function AdminContainersModule() {
     });
   }, [containers, filters]);
 
-  const chartData = useMemo(() => [
-    { status: 'Ready', count: stats.ready },
-    { status: 'Full', count: stats.full },
-    { status: 'Maintenance', count: stats.maintenance },
-    { status: 'Pending', count: 2 }, 
-  ], [stats]);
   return (
     <MantineContainer px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">Container Management</Title>
 
-  <Grid mb="xl" align="stretch">
+      <Grid mb="xl" align="stretch">
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Stack gap="md">
             <AdminCardInfo
@@ -91,22 +88,25 @@ export default function AdminContainersModule() {
             <BarChart
               h={300}
               data={chartData}
-              dataKey="status"
-              series={[{ name: 'count', color: 'red.6' }]}
-              tickLine="y"
+              dataKey="label"
+              series={[{ name: 'value', color: 'green.6' }]}
               gridAxis="xy"
+              barProps={{ radius: [8, 8, 0, 0] }}
+              getBarColor={(value, series) => {
+                const item = chartData.find(d => d.value === value);
+                return item ? item.color : 'blue';
+              }}
               tooltipProps={{
                 cursor: { fill: 'rgba(255, 255, 255, 0.05)' },
                 content: ({ active, payload }) => {
                   if (active && payload && payload.length) {
+                    const data = payload[0].payload;
                     return (
                       <Paper withBorder p="xs" radius="md" shadow="md">
-                        <Text size="xs" fw={700} tt="uppercase" c="dimmed">
-                          {payload[0].payload.status}
+                        <Text size="xs" fw={700} tt="uppercase" style={{ color: data.color }}>
+                          {data.label}
                         </Text>
-                        <Text fw={700} size="sm">
-                          {payload[0].value} Containers
-                        </Text>
+                        <Text fw={700} size="sm">{data.value} Containers</Text>
                       </Paper>
                     );
                   }
@@ -137,7 +137,7 @@ export default function AdminContainersModule() {
               clearable
             />
           </Group>
-          <Button leftSection={<IconPlus size={16} />} onClick={openCreate} variant="primary">
+          <Button leftSection={<IconPlus size={16} />} variant="primary">
             Add New Container
           </Button>
         </Group>
@@ -153,12 +153,18 @@ export default function AdminContainersModule() {
               <Table.Td ta="center">{c.city_name}</Table.Td>
               <Table.Td ta="center">{c.postal_code}</Table.Td>
               <Table.Td ta="center">
-                <Pill color={c.status === 'ready' ? 'green' : 'orange'}>
+                <Pill 
+                  style={{ backgroundColor: c.status === 'ready' ? '#45a575' : c.status === 'full' ? 'var(--mantine-color-yellow-6)' : 'var(--mantine-color-red-6)' }}
+                  c="white"
+                >
                   {c.status.toUpperCase()}
                 </Pill>
               </Table.Td>
               <Table.Td ta="center">
-                <Button variant="subtle" size="xs">Manage</Button>
+                 <Group gap="xs" justify="center">
+                    <Button variant="edit" size="xs">Edit</Button>
+                    <Button variant="delete" size="xs">Delete</Button>
+                 </Group>
               </Table.Td>
             </Table.Tr>
           ))}
