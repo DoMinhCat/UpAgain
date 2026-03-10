@@ -24,3 +24,26 @@ func GetAllContainers() ([]models.Container, error) {
 	}
 	return containers, nil
 }
+
+func FindContainerByID(id int) (models.Container, error) {
+	var c models.Container
+	query := `SELECT id, created_at, city_name, postal_code, status, is_deleted 
+			  FROM containers WHERE id = $1 AND is_deleted = false`
+
+	err := utils.Conn.QueryRow(query, id).Scan(
+		&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Status, &c.IsDeleted,
+	)
+	return c, err
+}
+
+func UpdateStatus(id int, status string) error {
+	query := `UPDATE containers SET status = $1 WHERE id = $2`
+	_, err := utils.Conn.Exec(query, status, id)
+	return err
+}
+
+func SoftDelete(id int) error {
+	query := `UPDATE containers SET is_deleted = true WHERE id = $1`
+	_, err := utils.Conn.Exec(query, id)
+	return err
+}

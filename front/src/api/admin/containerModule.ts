@@ -33,4 +33,9 @@ export const updateContainerStatus = async (id: number, status: string) => {
     showErrorNotification("Error while updating container status", error);
     throw error;
   }
+};  
+
+export const deleteContainer = async (id: number) => {
+  const response = await api.delete(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`);
+  return response;
 };

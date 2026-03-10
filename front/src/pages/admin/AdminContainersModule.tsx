@@ -27,8 +27,11 @@ import { useState, useMemo } from "react";
 import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
 import { BarChart } from '@mantine/charts';
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "../../routes/paths";
 
 export default function AdminContainersModule() {
+  const navigate = useNavigate();
   const [openedCreate, { open: openCreate }] = useDisclosure(false);
   const [filters, setFilters] = useState({ searchValue: "", statusValue: null as string | null });
 
@@ -59,6 +62,10 @@ export default function AdminContainersModule() {
       return matchesSearch && matchesStatus && !c.is_deleted;
     });
   }, [containers, filters]);
+
+  function handleModalDelete(c: Container) {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <MantineContainer px="md" size="xl">
@@ -147,7 +154,11 @@ export default function AdminContainersModule() {
           header={["Created At", "ID", "Location", "Zip Code", "Status", "Actions"]}
         >
           {filteredData.map((c) => (
-            <Table.Tr key={c.id}>
+            <Table.Tr 
+              key={c.id} 
+              style={{ cursor: "pointer" }} 
+              onClick={() => navigate(`${PATHS.ADMIN.CONTAINERS}/${c.id}`)}
+            >
               <Table.Td ta="center">{dayjs(c.created_at).format("DD/MM/YYYY")}</Table.Td>
               <Table.Td ta="center"><strong>{c.id}</strong></Table.Td>
               <Table.Td ta="center">{c.city_name}</Table.Td>
@@ -161,10 +172,28 @@ export default function AdminContainersModule() {
                 </Pill>
               </Table.Td>
               <Table.Td ta="center">
-                 <Group gap="xs" justify="center">
-                    <Button variant="edit" size="xs">Edit</Button>
-                    <Button variant="delete" size="xs">Delete</Button>
-                 </Group>
+                <Group gap="xs" justify="center">
+                  <Button 
+                    variant="edit" 
+                    size="xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`${PATHS.ADMIN.CONTAINERS}/${c.id}`);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="delete" 
+                    size="xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleModalDelete(c); 
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </Group>
               </Table.Td>
             </Table.Tr>
           ))}
