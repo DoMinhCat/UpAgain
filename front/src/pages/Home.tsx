@@ -1,5 +1,5 @@
 // src/pages/Home.tsx
-import AdminHome from "./admin/AdminHome";
+// import AdminHome from "./admin/AdminHome";
 // import ProHome from "./ProHome";
 // import UserHome from "./UserHome";
 import { useAuth } from "../context/AuthContext";
@@ -20,7 +20,7 @@ const Home = () => {
     // Render component based on role
     switch (user.role) {
       case "admin":
-        return <AdminHome />;
+        return <Navigate to={PATHS.ADMIN.HOME} />;
       // TODO: add other home page for each role
       // case "pro":
       //   return <ProHome />;

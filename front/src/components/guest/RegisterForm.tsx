@@ -8,25 +8,17 @@ import {
   PasswordInput,
   Checkbox,
   Fieldset,
-  Stack,
   Button,
   Divider,
 } from "@mantine/core";
-import { IconCheck, IconLock, IconX } from "@tabler/icons-react";
+import { IconLock } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { RegisterRequest } from "../../api/admin/userModule";
-import {
-  showErrorNotification,
-  showSuccessNotification,
-} from "../NotificationToast";
 import { Link } from "react-router-dom";
 import PasswordStrengthInput, { requirements } from "../PasswordStrengthInput";
-import { useMutation } from "@tanstack/react-query";
+import { useRegister } from "../../hooks/authHooks";
 
 export default function RegisterForm() {
-  const navigate = useNavigate();
   // password
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -74,28 +66,7 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
 
-  const registerMutation = useMutation({
-    mutationFn: () =>
-      RegisterRequest({
-        email,
-        password,
-        username: Username,
-        phone,
-        role: "user",
-      }),
-    onSuccess: (response) => {
-      if (response?.status === 201) {
-        navigate(PATHS.GUEST.LOGIN);
-        showSuccessNotification(
-          "Registration Success",
-          "You have been registered successfully, log in to continue.",
-        );
-      }
-    },
-    onError: (error: any) => {
-      showErrorNotification("Registration failed", error);
-    },
-  });
+  const registerMutation = useRegister();
 
   const validateEmail = (val: string) => {
     const regex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$/;
@@ -166,7 +137,13 @@ export default function RegisterForm() {
     )
       return;
 
-    registerMutation.mutate();
+    registerMutation.mutate({
+      email,
+      password,
+      username: Username,
+      phone,
+      role: "user",
+    });
   };
 
   return (

@@ -22,6 +22,7 @@ type Account struct {
 	IsBanned   bool      `json:"is_banned"`
 	CreatedAt  time.Time `json:"created_at"`
 	LastActive null.Time `json:"last_active"`
+	DeletedAt  null.Time `json:"deleted_at"`
 }
 
 type AccountDetails struct {
@@ -36,8 +37,20 @@ type AccountDetails struct {
 	Score      int         `json:"score"`
 	IsPremium  bool        `json:"is_premium"`
 	Avatar     null.String `json:"avatar"`
+	DeletedAt  null.Time   `json:"deleted_at"`
 }
 
-type UpdatePasswordRequest struct{
+type UpdatePasswordRequest struct {
 	Password string `json:"password"`
+}
+
+type ToggleBanRequest struct {
+	CurrentlyBanned bool `json:"is_banned"`
+}
+
+type UpdateAccountRequest struct {
+	Id     int    `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
 }

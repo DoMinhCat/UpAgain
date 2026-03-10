@@ -9,14 +9,24 @@ import {
   IconBox,
   IconArticle,
   IconBuildingStore,
+  IconUser,
 } from "@tabler/icons-react";
-import { Center, Stack, Tooltip, UnstyledButton, Image } from "@mantine/core";
+import {
+  Center,
+  Stack,
+  Tooltip,
+  UnstyledButton,
+  Image,
+  Menu,
+  Avatar,
+} from "@mantine/core";
 import classes from "../../styles/Admin.module.css";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { IconSun, IconMoon } from "@tabler/icons-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { PATHS } from "../../../src/routes/paths";
 import { useAuth } from "../../context/AuthContext";
+import { useAccountDetails } from "../../hooks/accountHooks";
 
 interface NavbarLinkProps {
   icon: typeof IconHome2;
@@ -31,10 +41,12 @@ function NavbarLink({ icon: Icon, label, path, onClick }: NavbarLinkProps) {
   const location = useLocation();
 
   let isActive = false;
-  if (path && path !== PATHS.ADMIN.HOME) {
-    isActive = location.pathname.startsWith(path);
-  } else {
-    isActive = location.pathname === PATHS.ADMIN.HOME;
+  if (path) {
+    if (path !== PATHS.ADMIN.HOME) {
+      isActive = location.pathname.startsWith(path);
+    } else {
+      isActive = location.pathname === PATHS.ADMIN.HOME;
+    }
   }
 
   const handleClick = () => {
@@ -62,11 +74,11 @@ function NavbarLink({ icon: Icon, label, path, onClick }: NavbarLinkProps) {
 
 const navButtonData = [
   { icon: IconHome2, label: "Overview", path: PATHS.ADMIN.HOME },
-  { icon: IconUsers, label: "Users", path: PATHS.ADMIN.USERS },
+  { icon: IconUsers, label: "Users", path: PATHS.ADMIN.USERS.ALL },
   {
     icon: IconClipboardCheck,
     label: "Validations",
-    path: "/admin/validations",
+    path: PATHS.ADMIN.VALIDATIONS.ALL,
   },
   { icon: IconBox, label: "Containers", path: PATHS.ADMIN.CONTAINERS },
   { icon: IconCalendarEventFilled, label: "Events", path: PATHS.ADMIN.EVENTS },
@@ -77,26 +89,8 @@ const navButtonData = [
   },
   { icon: IconArticle, label: "Posts", path: PATHS.ADMIN.POSTS },
   { icon: IconBuildingStore, label: "Listings", path: PATHS.ADMIN.LISTINGS },
-  { icon: IconPigMoney, label: "Finance", path: PATHS.ADMIN.FINANCE },
+  { icon: IconPigMoney, label: "Finance", path: PATHS.ADMIN.FINANCE.ALL },
 ];
-
-function ThemeToggleButton({ onClick }: { onClick?: () => void }) {
-  const { setColorScheme } = useMantineColorScheme();
-  const scheme = useComputedColorScheme("light");
-
-  const toggle = () => {
-    setColorScheme(scheme === "dark" ? "light" : "dark");
-    if (onClick) onClick();
-  }
-
-  return (
-    <NavbarLink
-      icon={scheme === "dark" ? IconSun : IconMoon}
-      label="Toggle theme"
-      onClick={toggle}
-    />
-  );
-}
 
 export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
   const links = navButtonData.map((link) => (
@@ -105,9 +99,22 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
+  const { user } = useAuth();
+  const accountId = user?.id ? user.id : 0;
+  const isValidId = !isNaN(accountId) && accountId > 0;
+  const { data: accountDetails, error: errorAccountDetails } =
+    useAccountDetails(accountId, isValidId);
   const handleLogout = () => {
     logout();
     navigate(PATHS.HOME, { replace: true });
+  };
+
+  // theme toggle
+  const { setColorScheme } = useMantineColorScheme();
+  const scheme = useComputedColorScheme("light");
+
+  const toggle = () => {
+    setColorScheme(scheme === "dark" ? "light" : "dark");
   };
 
   return (
@@ -122,11 +129,61 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
         </Stack>
       </div>
 
-      <Stack justify="center" gap="sm">
-        <ThemeToggleButton onClick={onLinkClick} />
+      <Stack justify="center" gap="sm" py="md">
+        {!errorAccountDetails && (
+          <Menu shadow="md" width={150}>
+            <Menu.Target>
+              {accountDetails?.avatar ? (
+                <Avatar
+                  // avatar must be in /src/assets/avatars
+                  src={accountDetails?.avatar}
+                  name={accountDetails?.username}
+                  color="initials"
+                  size="40"
+                  className={classes.avatarNavbar}
+                />
+              ) : (
+                <Avatar
+                  name={accountDetails?.username}
+                  color="initials"
+                  size="40"
+                  className={classes.avatarNavbar}
+                />
+              )}
+            </Menu.Target>
 
-        {/* TODO: User avatar */}
-        <NavbarLink icon={IconLogout} label="Logout" onClick={() => { handleLogout(); if (onLinkClick) onLinkClick(); }} />
+            <Menu.Dropdown>
+              {/* TODO: navigate to profile page */}
+              <Menu.Item leftSection={<IconUser size={14} />}>
+                Profile
+              </Menu.Item>
+              <Menu.Item
+                leftSection={
+                  scheme === "dark" ? (
+                    <IconSun size={14} />
+                  ) : (
+                    <IconMoon size={14} />
+                  )
+                }
+                onClick={toggle}
+              >
+                {scheme === "dark" ? "Light mode" : "Dark mode"}
+              </Menu.Item>
+
+              <Menu.Divider />
+
+              <Menu.Item
+                leftSection={<IconLogout size={14} />}
+                onClick={() => {
+                  handleLogout();
+                  if (onLinkClick) onLinkClick();
+                }}
+              >
+                Logout
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        )}
       </Stack>
     </nav>
   );

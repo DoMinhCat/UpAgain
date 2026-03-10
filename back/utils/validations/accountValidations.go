@@ -8,130 +8,203 @@ import (
 	"regexp"
 )
 
-// basic validations for creating an account
+// basic validations for creating/updating an account
 func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.ValidationResponse {
 	var response models.ValidationResponse
 
-	if len(newAccount.Username) < 4 || len(newAccount.Username) > 20 {
+	isValidUsername, errMsg := validateUsername(newAccount.Username, 0) 
+	if !isValidUsername{
 		response = models.ValidationResponse{
 			Success: false,
-			Message: "Username must be between 4 and 20 characters.",
+			Message: errMsg,
 			Error:   http.StatusBadRequest,
 		}
 		return response
 	}
 
-	if len(newAccount.Password) < 12 || len(newAccount.Password) > 60 {
+	isValidPassword, errMsg := validatePassword(newAccount.Password)
+	if !isValidPassword{
 		response = models.ValidationResponse{
 			Success: false,
-			Message: "Password must be between 12 and 60 characters.",
+			Message: errMsg,
 			Error:   http.StatusBadRequest,
 		}
 		return response
 	}
 
-	emailRegex := `^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
-	emailMatch, _ := regexp.MatchString(emailRegex, newAccount.Email)
-	if !emailMatch {
+	isValidEmail, errMsg := validateEmail(newAccount.Email, 0)
+	if !isValidEmail{
 		response = models.ValidationResponse{
 			Success: false,
-			Message: "Invalid email format.",
-			Error:   http.StatusBadRequest,
-		}
-		return response
-	}
-
-	passwordMatch, _ := regexp.Match("[A-Z]", []byte(newAccount.Password))
-	if !passwordMatch {
-		response = models.ValidationResponse{
-			Success: false,
-			Message: "Password must contain at least one capital character.",
-			Error:   http.StatusBadRequest,
-		}
-		return response
-	}
-	passwordMatch, _ = regexp.Match("[0-9]", []byte(newAccount.Password))
-	if !passwordMatch {
-		response = models.ValidationResponse{
-			Success: false,
-			Message: "Password must contain at least one digit.",
-			Error:   http.StatusBadRequest,
-		}
-		return response
-	}
-	passwordMatch, _ = regexp.Match("\\W", []byte(newAccount.Password))
-	if !passwordMatch {
-		response = models.ValidationResponse{
-			Success: false,
-			Message: "Password must contain at least one special character.",
+			Message: errMsg,
 			Error:   http.StatusBadRequest,
 		}
 		return response
 	}
 
 	if newAccount.Phone != "" {
-		phoneRegex := `^\+?[0-9]{10,15}$`
-		phoneMatch, _ := regexp.MatchString(phoneRegex, newAccount.Phone)
-		if !phoneMatch {
+		isValidPhone, errMsg := validatePhone(newAccount.Phone)
+		if !isValidPhone{
 			response = models.ValidationResponse{
 				Success: false,
-				Message: "Invalid phone number.",
+				Message: errMsg,
 				Error:   http.StatusBadRequest,
 			}
 			return response
 		}
 	}
 
-	if newAccount.Role != "user" && newAccount.Role != "pro" && newAccount.Role != "employee" && newAccount.Role != "admin" {
+	isValidRole, errMsg := validateRole(newAccount.Role)
+	if !isValidRole{
 		response = models.ValidationResponse{
 			Success: false,
-			Message: "Invalid role.",
+			Message: errMsg,
 			Error:   http.StatusBadRequest,
 		}
 		return response
 	}
 
-	// Check for existed username
-	usernameExists, err := db.CheckUsernameExists(newAccount.Username)
-	if err != nil {
-		response = models.ValidationResponse{
-			Success: false,
-			Message: "An error occured while creating an account for you.",
-			Error:   http.StatusInternalServerError,
-		}
-		return response
-	}
-	if usernameExists {
-		response = models.ValidationResponse{
-			Success: false,
-			Message: fmt.Sprintf("'%s' has been taken, please choose another username.", newAccount.Username),
-			Error:   http.StatusConflict,
-		}
-		return response
-	}
-	// Check for existed email
-	emailExists, err := db.CheckEmailExists(newAccount.Email)
-	if err != nil {
-		response = models.ValidationResponse{
-			Success: false,
-			Message: "An error occured while creating an account for you.",
-			Error:   http.StatusInternalServerError,
-		}
-		return response
-	}
-	if emailExists {
-		response = models.ValidationResponse{
-			Success: false,
-			Message: "An account has been already registered with this email.",
-			Error:   http.StatusConflict,
-		}
-		return response
-	}
-
-	response = models.ValidationResponse{
+	return models.ValidationResponse{
 		Success: true,
 		Message: "",
 		Error:   http.StatusOK,
 	}
-	return response
 }
+
+func ValidateAccountUpdate(newAccount models.UpdateAccountRequest) models.ValidationResponse {
+	var response models.ValidationResponse
+
+	if newAccount.Username != "" {
+		isValidUsername, errMsg := validateUsername(newAccount.Username, newAccount.Id)
+		if !isValidUsername{
+			response = models.ValidationResponse{
+				Success: false,
+				Message: errMsg,
+				Error:   http.StatusBadRequest,
+			}
+			return response
+		}
+	}
+
+	if newAccount.Email != "" {
+		isValidEmail, errMsg := validateEmail(newAccount.Email, newAccount.Id)
+		if !isValidEmail{
+			response = models.ValidationResponse{
+				Success: false,
+				Message: errMsg,
+				Error:   http.StatusBadRequest,
+			}
+			return response
+		}
+	}
+
+	if newAccount.Phone != "" {
+		isValidPhone, errMsg := validatePhone(newAccount.Phone)
+		if !isValidPhone{
+			response = models.ValidationResponse{
+				Success: false,
+				Message: errMsg,
+				Error:   http.StatusBadRequest,
+			}
+			return response
+		}
+	}
+
+
+
+	return models.ValidationResponse{
+		Success: true,
+		Message: "",
+		Error:   http.StatusOK,
+	}
+}
+
+func validateUsername(username string, reqId int) (bool, string) {
+	if len(username) < 4 || len(username) > 20 {
+		return false, "Username must be between 4 and 20 characters."
+	}
+	// Check for existed username
+	usernameExists, err := db.CheckUsernameExists(username)
+	if err != nil {
+		return false, "An error occured while creating/updating an account for you."
+	}
+	if usernameExists {
+		if reqId != 0{
+			// check if same username as ANOTHER user
+			dupId, err := db.GetIdByUsernameByEmail(&username, nil)
+			if err != nil {
+				return false, "An error occured while creating/updating an account for you."
+			}
+			if dupId != reqId{
+				return false, fmt.Sprintf("'%s' has been taken, please choose another username.", username)
+			}
+		} else {
+			return false, fmt.Sprintf("'%s' has been taken, please choose another username.", username)
+		}
+	}
+	return true, ""
+}
+
+func validatePassword(password string) (bool, string) {
+	if len(password) < 12 || len(password) > 60 {
+		return false, "Password must be between 12 and 60 characters."
+	}
+	passwordMatch, _ := regexp.Match("[A-Z]", []byte(password))
+	if !passwordMatch {
+		return false, "Password must contain at least one capital character."
+	}
+	passwordMatch, _ = regexp.Match("[0-9]", []byte(password))
+	if !passwordMatch {
+		return false, "Password must contain at least one digit."
+	}
+	passwordMatch, _ = regexp.Match("\\W", []byte(password))
+	if !passwordMatch {
+		return false, "Password must contain at least one special character."
+	}
+	return true, ""
+}
+
+func validateEmail(email string, reqId int) (bool, string) {
+	emailRegex := `^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
+	emailMatch, _ := regexp.MatchString(emailRegex, email)
+	if !emailMatch {
+		return false, "Invalid email format."
+	}
+	emailExists, err := db.CheckEmailExists(email)
+	if err != nil {
+		return false, "An error occured while creating/updating an account for you."
+	}
+	if emailExists {
+		if reqId != 0{
+			// check if same username as ANOTHER user
+			dupId, err := db.GetIdByUsernameByEmail(nil, &email)
+			if err != nil {
+				return false, "An error occured while creating/updating an account for you."
+			}
+			if dupId != reqId{
+				return false, fmt.Sprintf("'%s' has been taken, please choose another email.", email)
+			}
+		} else{
+			return false, fmt.Sprintf("'%s' has been taken, please choose another email.", email)
+		}
+	}
+
+	return true, ""
+}
+
+func validatePhone(phone string) (bool, string) {
+	phoneRegex := `^\+?[0-9]{10,15}$`
+	phoneMatch, _ := regexp.MatchString(phoneRegex, phone)
+	if !phoneMatch {
+		return false, "Invalid phone number."
+	}
+	return true, ""
+}
+
+func validateRole(role string) (bool, string) {
+	if role != "user" && role != "pro" && role != "employee" && role != "admin" {
+		return false, "Invalid role."
+	}
+	return true, ""
+}
+
