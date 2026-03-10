@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.tsx";
 import FullScreenLoader from "../components/FullScreenLoader.tsx";
 import AdminUsersModule from "../pages/admin/AdminUsersModule.tsx";
 import AdminUserDetails from "../pages/admin/AdminUserDetails.tsx";
+import ValidationHub from "../pages/admin/ValidationHub.tsx";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -49,6 +50,10 @@ export const adminRoutes: RouteObject = {
     {
       path: PATHS.ADMIN.USERS + "/:id", // Affiche <AdminUserDetails /> sur "/admin/users/:id"
       element: <AdminUserDetails />,
+    },
+    {
+      path: PATHS.ADMIN.VALIDATIONS,
+      element: <ValidationHub />,
     },
   ],
 };
