@@ -57,16 +57,40 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param := r.URL.Query().Get("is_deleted")
+	query := r.URL.Query()
+	param := query.Get("is_deleted")
 	isDeleted, err := strconv.ParseBool(param)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching accounts.")
 		slog.Error("ParseBool() failed", "controller", "GetAllAccountsAdmin", "error", err)
 		return
 	}
+
+	// default pagination
+	page := -1
+	limit := -1
 	
-	slog.Debug("isDeleted", "isDeleted", isDeleted)
-	accounts, err := db.GetAllAccounts(isDeleted)
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching accounts.")
+			slog.Error("Atoi() failed", "controller", "GetAllAccountsAdmin", "error", err)
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching accounts.")
+			slog.Error("Atoi() failed", "controller", "GetAllAccountsAdmin", "error", err)
+			return
+		}
+	}
+	
+	accounts, err := db.GetAllAccounts(isDeleted, page, limit)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching accounts.")
 		slog.Error("GetAllAccounts() failed", "controller", "GetAllAccountsAdmin", "error", err)

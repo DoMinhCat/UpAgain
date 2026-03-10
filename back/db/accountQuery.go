@@ -98,16 +98,32 @@ func DeleteAccount(id int) error {
 	return nil
 }
 
-func GetAllAccounts(isDeleted bool) ([]models.Account, error) {
+// isDeleted: get soft deleted or existing account
+//
+// page: get page number for pagination, if page = -1 then get ALL
+//
+// limit: number of records for each page, if limit = -1 then get ALL
+func GetAllAccounts(isDeleted bool, page int, limit int) ([]models.Account, error) {
 	var accounts []models.Account
 	var param string
+	var offset int
+	var err error
+	var rows *sql.Rows
+
 	if isDeleted {
 		param = "WHERE deleted_at IS NOT NULL"
 	} else {
 		param = "WHERE deleted_at IS NULL"
 	}
 
-	rows, err := utils.Conn.Query("SELECT id, email, username, role, is_banned, created_at, last_active, deleted_at FROM accounts " + param)
+	if limit != -1 && page != -1{
+		offset = (page - 1) * limit
+		param += " LIMIT $1 OFFSET $2"
+		rows, err = utils.Conn.Query("SELECT id, email, username, role, is_banned, created_at, last_active, deleted_at FROM accounts " + param + ";", limit, offset)
+	} else {
+		rows, err = utils.Conn.Query("SELECT id, email, username, role, is_banned, created_at, last_active, deleted_at FROM accounts " + param + ";")
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("GetAllAccounts() failed: %v", err.Error())
 	}
