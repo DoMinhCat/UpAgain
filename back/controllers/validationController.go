@@ -74,12 +74,14 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	employeeID, ok := r.Context().Value("userID").(int)
+	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
 		slog.Error("Failed to extract employee ID from context")
-		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized to perform this action")
+		utils.RespondWithError(w, http.StatusUnauthorized, "Failed to read user claims")
 		return
 	}
+
+	employeeID := claims.Id
 
 	payload, newStatus, err := parseValidationPayload(r)
 	if err != nil {
@@ -112,11 +114,13 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	employeeID, ok := r.Context().Value("userID").(int)
+	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		utils.RespondWithError(w, http.StatusUnauthorized, "Failed to read user claims")
 		return
 	}
+
+	employeeID := claims.Id
 
 	_, newStatus, err := parseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal, elle contiendra la raison du refus
 	if err != nil {
@@ -143,11 +147,13 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	employeeID, ok := r.Context().Value("userID").(int)
+	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		utils.RespondWithError(w, http.StatusUnauthorized, "Failed to read user claims")
 		return
 	}
+
+	employeeID := claims.Id
 
 	_, newStatus, err := parseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal, elle contiendra la raison du refus
 	if err != nil {
