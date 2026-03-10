@@ -98,20 +98,13 @@ func DeleteAccount(id int) error {
 	return nil
 }
 
-// if isDeleted is nil, get all accounts
-//
-// if isDeleted is true, get only deleted accounts
-//
-// if isDeleted is false, get only not deleted accounts
-func GetAllAccounts(isDeleted *bool) ([]models.Account, error) {
+func GetAllAccounts(isDeleted bool) ([]models.Account, error) {
 	var accounts []models.Account
-	param := ""
-	if isDeleted != nil {
-		if *isDeleted {
-			param = "WHERE deleted_at IS NOT NULL"
-		} else {
-			param = "WHERE deleted_at IS NULL"
-		}
+	var param string
+	if isDeleted {
+		param = "WHERE deleted_at IS NOT NULL"
+	} else {
+		param = "WHERE deleted_at IS NULL"
 	}
 
 	rows, err := utils.Conn.Query("SELECT id, email, username, role, is_banned, created_at, last_active, deleted_at FROM accounts " + param)

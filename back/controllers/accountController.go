@@ -64,6 +64,8 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 		slog.Error("ParseBool() failed", "controller", "GetAllAccountsAdmin", "error", err)
 		return
 	}
+	
+	slog.Debug("isDeleted", "isDeleted", isDeleted)
 	accounts, err := db.GetAllAccounts(isDeleted)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching accounts.")
