@@ -12,10 +12,10 @@ import {
   Table,
   Pill,
   Modal,
+  Pagination,
 } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
-import { type Account } from "../../api/admin/userModule";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import dayjs from "dayjs";
 import AdminTable from "../../components/admin/AdminTable";
 import { useNavigate } from "react-router-dom";
@@ -43,6 +43,32 @@ export default function AdminUsersDeleted() {
     sortValue: string | null;
     roleValue: string | null;
   }>({ searchValue: "", sortValue: null, roleValue: null });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [activePage, setPage] = useState(1);
+  const LIMIT = 10;
+
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+    appliedFilters.roleValue ||
+    appliedFilters.sortValue,
+  );
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: null,
+      roleValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+
   const [openedRecover, { open: openRecover, close: closeRecover }] =
     useDisclosure(false);
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
@@ -56,44 +82,18 @@ export default function AdminUsersDeleted() {
   };
 
   // get all deleted accounts
-  const {
-    data: deletedAccounts = [] as Account[],
-    isLoading: isDeletedAccountsLoading,
-  } = useGetAllAccounts(true);
+  const { data: accountsWithPagination, isLoading: isDeletedAccountsLoading } =
+    useGetAllAccounts(
+      true,
+      hasFilters ? -1 : activePage,
+      hasFilters ? -1 : LIMIT,
+      appliedFilters.searchValue,
+      appliedFilters.roleValue || undefined,
+      undefined,
+      appliedFilters.sortValue || undefined,
+    );
 
-  // filtering
-  const filteredAccounts = useMemo(() => {
-    const result = deletedAccounts.filter((account) => {
-      const matchesSearch =
-        account.username
-          .toLowerCase()
-          .includes(filters.searchValue?.toLowerCase() || "") ||
-        account.email
-          .toLowerCase()
-          .includes(filters.searchValue?.toLowerCase() || "") ||
-        account.id.toString().includes(filters.searchValue || "");
-      const matchesRole =
-        !filters.roleValue || account.role === filters.roleValue;
-      return matchesSearch && matchesRole;
-    });
-    return [...result].sort((a, b) => {
-      if (filters.sortValue === "most_recent_registration") {
-        return dayjs(b.created_at).diff(dayjs(a.created_at));
-      } else if (filters.sortValue === "oldest_registration") {
-        return dayjs(a.created_at).diff(dayjs(b.created_at));
-      } else if (filters.sortValue === "most_recent_deletion") {
-        return dayjs(b.deleted_at || 0).diff(dayjs(a.deleted_at || 0));
-      } else if (filters.sortValue === "oldest_deletion") {
-        return dayjs(a.deleted_at || 0).diff(dayjs(b.deleted_at || 0));
-      }
-      return 0;
-    });
-  }, [
-    deletedAccounts,
-    filters.searchValue,
-    filters.roleValue,
-    filters.sortValue,
-  ]);
+  const filteredAccounts = accountsWithPagination?.accounts || [];
 
   const handleFilterChange = (key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -175,7 +175,7 @@ export default function AdminUsersDeleted() {
         </Group>
 
         <Grid align="flex-end">
-          <Grid.Col span={{ base: 12, md: 6 }}>
+          <Grid.Col span={{ base: 12, md: 5 }}>
             <TextInput
               label="Search"
               variant="filled"
@@ -229,20 +229,15 @@ export default function AdminUsersDeleted() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
-            <Button
-              variant="secondary"
-              fullWidth
-              onClick={() =>
-                setFilters({
-                  searchValue: "",
-                  roleValue: null,
-                  sortValue: null,
-                })
-              }
-            >
-              Reset filters
-            </Button>
+          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+            <Group gap="xs" grow>
+              <Button onClick={handleSearchClick} variant="primary">
+                Apply filters
+              </Button>
+              <Button variant="secondary" onClick={handleResetFilters}>
+                Reset
+              </Button>
+            </Group>
           </Grid.Col>
         </Grid>
       </Stack>
@@ -257,6 +252,28 @@ export default function AdminUsersDeleted() {
           "Role",
           "Actions",
         ]}
+        footer={
+          !hasFilters &&
+          accountsWithPagination &&
+          accountsWithPagination.total_records > 0 && (
+            <Group justify="space-between" mt="md">
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
+                {Math.min(
+                  activePage * LIMIT,
+                  accountsWithPagination.total_records,
+                )}{" "}
+                of {accountsWithPagination.total_records} results
+              </span>
+              <Pagination
+                total={accountsWithPagination.last_page || 1}
+                value={activePage}
+                onChange={setPage}
+                disabled={isDeletedAccountsLoading}
+              />
+            </Group>
+          )
+        }
       >
         {listDeletedUsers}
       </AdminTable>

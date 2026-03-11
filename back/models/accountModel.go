@@ -25,6 +25,14 @@ type Account struct {
 	DeletedAt  null.Time `json:"deleted_at"`
 }
 
+type AccountsListPagination struct{
+	Accounts []Account 	`json:"accounts"`
+	CurrentPage int 	`json:"current_page"`
+	LastPage int 	`json:"last_page"`
+	Limit int 	`json:"limit"`
+	TotalRecords int 	`json:"total_records"`
+}
+
 type AccountDetails struct {
 	Id         int         `json:"id"`
 	Email      string      `json:"email"`

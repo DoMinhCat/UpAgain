@@ -98,30 +98,103 @@ func DeleteAccount(id int) error {
 	return nil
 }
 
-func GetAllAccounts(isDeleted bool) ([]models.Account, error) {
-	var accounts []models.Account
-	var param string
+type AccountFilters struct {
+	Search string
+	Sort   string
+	Role   string
+	Status string
+}
+
+// isDeleted: get soft deleted or existing account
+//
+// page: get page number for pagination, if page = -1 then get ALL
+//
+// limit: number of records for each page, if limit = -1 then get ALL
+func GetAllAccounts(isDeleted bool, page int, limit int, filters AccountFilters) ([]models.Account, int, error) {
+	accounts := make([]models.Account, 0)
+	var params []interface{}
+	var countParams []interface{}
+	paramIndex := 1
+
+	whereClause := "WHERE deleted_at IS NULL"
 	if isDeleted {
-		param = "WHERE deleted_at IS NOT NULL"
-	} else {
-		param = "WHERE deleted_at IS NULL"
+		whereClause = "WHERE deleted_at IS NOT NULL"
 	}
 
-	rows, err := utils.Conn.Query("SELECT id, email, username, role, is_banned, created_at, last_active, deleted_at FROM accounts " + param)
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(" AND (username ILIKE $%d OR email ILIKE $%d OR CAST(id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		params = append(params, searchParam)
+		countParams = append(countParams, searchParam)
+		paramIndex++
+	}
+
+	if filters.Role != "" {
+		if filters.Role == "admin" {
+			whereClause += " AND role = 'employee' AND EXISTS (SELECT 1 FROM employees WHERE employees.id_account = accounts.id AND employees.is_admin = true)"
+		} else if filters.Role == "employee" {
+			whereClause += " AND role = 'employee' AND NOT EXISTS (SELECT 1 FROM employees WHERE employees.id_account = accounts.id AND employees.is_admin = true)"
+		} else {
+			whereClause += fmt.Sprintf(" AND role = $%d", paramIndex)
+			params = append(params, filters.Role)
+			countParams = append(countParams, filters.Role)
+			paramIndex++
+		}
+	}
+
+	if filters.Status == "active" {
+		whereClause += " AND is_banned = false"
+	} else if filters.Status == "banned" {
+		whereClause += " AND is_banned = true"
+	}
+
+	var totalRecords int
+	countQuery := "SELECT COUNT(*) FROM accounts " + whereClause
+	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
 	if err != nil {
-		return nil, fmt.Errorf("GetAllAccounts() failed: %v", err.Error())
+		return nil, 0, fmt.Errorf("GetAllAccounts() count failed: %v", err)
+	}
+
+	orderBy := "ORDER BY id ASC" // Default sorting
+	switch filters.Sort {
+	case "most_recent_registration":
+		orderBy = "ORDER BY created_at DESC"
+	case "oldest_registration":
+		orderBy = "ORDER BY created_at ASC"
+	case "most_recent_last_active":
+		orderBy = "ORDER BY coalesce(last_active, to_timestamp(0)) DESC"
+	case "oldest_last_active":
+		orderBy = "ORDER BY coalesce(last_active, to_timestamp(0)) ASC"
+	case "most_recent_deletion":
+		orderBy = "ORDER BY deleted_at DESC"
+	case "oldest_deletion":
+		orderBy = "ORDER BY deleted_at ASC"
+	}
+
+	query := "SELECT id, email, username, role, is_banned, created_at, last_active, deleted_at FROM accounts " + whereClause + " " + orderBy
+
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
+	}
+
+	rows, err := utils.Conn.Query(query, params...)
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetAllAccounts() query failed: %v", err.Error())
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var account models.Account
 		if err := rows.Scan(&account.Id, &account.Email, &account.Username, &account.Role, &account.IsBanned, &account.CreatedAt, &account.LastActive, &account.DeletedAt); err != nil {
-			return nil, fmt.Errorf("GetAllAccounts() failed: %v", err.Error())
+			return nil, 0, fmt.Errorf("GetAllAccounts() scan failed: %v", err.Error())
 		}
 		if account.Role == "employee" {
 			isAdmin, err := CheckIsAdmin(account.Id)
 			if err != nil {
-				return nil, fmt.Errorf("GetAllAccounts() failed: %v", err.Error())
+				return nil, 0, fmt.Errorf("GetAllAccounts() admin check failed: %v", err.Error())
 			}
 			if isAdmin {
 				account.Role = "admin"
@@ -130,7 +203,7 @@ func GetAllAccounts(isDeleted bool) ([]models.Account, error) {
 		accounts = append(accounts, account)
 	}
 
-	return accounts, nil
+	return accounts, totalRecords, nil
 }
 
 func GetAccountDetailsById(id_account int) (models.AccountDetails, error) {

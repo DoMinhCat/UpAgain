@@ -57,23 +57,74 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param := r.URL.Query().Get("is_deleted")
+	query := r.URL.Query()
+	param := query.Get("is_deleted")
 	isDeleted, err := strconv.ParseBool(param)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching accounts.")
 		slog.Error("ParseBool() failed", "controller", "GetAllAccountsAdmin", "error", err)
 		return
 	}
+
+	// default pagination
+	page := -1
+	limit := -1
 	
-	slog.Debug("isDeleted", "isDeleted", isDeleted)
-	accounts, err := db.GetAllAccounts(isDeleted)
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching accounts.")
+			slog.Error("Atoi() failed", "controller", "GetAllAccountsAdmin", "error", err)
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching accounts.")
+			slog.Error("Atoi() failed", "controller", "GetAllAccountsAdmin", "error", err)
+			return
+		}
+	}
+	
+	filters := db.AccountFilters{
+		Search: query.Get("search"),
+		Sort:   query.Get("sort"),
+		Role:   query.Get("role"),
+		Status: query.Get("status"),
+	}
+
+	accounts, total, err := db.GetAllAccounts(isDeleted, page, limit, filters)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching accounts.")
 		slog.Error("GetAllAccounts() failed", "controller", "GetAllAccountsAdmin", "error", err)
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, accounts)
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+	
+	result := map[string]interface{}{
+		"accounts":      accounts,
+		"current_page":  page,
+		"last_page":     lastPage,
+		"limit":         limit,
+		"total_records": total,
+	}
+	if page == -1 || limit == -1 {
+		result["current_page"] = 1
+		result["last_page"] = 1
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
 func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
