@@ -29,13 +29,13 @@ export default function PendingListingsTable({ data, loading, onSuccess }: Pendi
       showSuccessNotification(
             "Succès",
             `Le dépôt a été ${variables.action === "approve" ? "validé" : "refusé"}.`,
-        );
+      );
     },
     onError: () => {
-        showErrorNotification(
+      showErrorNotification(
             "Erreur",
             "Une erreur est survenue lors de l'opération.",
-        );
+      );
       console.error("Erreur lors de la validation de l'annonce");
     }
   });
@@ -55,7 +55,6 @@ export default function PendingListingsTable({ data, loading, onSuccess }: Pendi
     }
   };
 
-  // On ajoute la colonne "Prix" par rapport au tableau des dépôts
   const headers = ["ID", "Annonce", "Prix", "Utilisateur", "Lieu", "Date", "Actions"];
 
   return (

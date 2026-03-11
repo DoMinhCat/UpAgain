@@ -4,6 +4,8 @@ import { fetchPendingValidations } from "../../api/admin/validationModule";
 import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
 import FullScreenLoader from "../../components/FullScreenLoader";
 import PendingDepositsTable from "../../components/admin/PendingDepositsTable";
+import PendingListingsTable from "../../components/admin/PendingListingsTable";
+import PendingEventsTable from "../../components/admin/PendingEventsTable";
 import { PATHS } from "../../routes/paths";
 
 export default function ValidationHub() {
@@ -42,13 +44,12 @@ export default function ValidationHub() {
         </Tabs.Panel>
 
         <Tabs.Panel value="listings" pt="xl">
-           <Text c="dimmed" ta="center" mt="xl">Le tableau des annonces arrive bientôt...</Text>
-           {/* TODO: <PendingListingsTable data={data?.listings || []} loading={isLoading} onSuccess={refetch} /> */}
+           <PendingListingsTable data={data?.listings || []} loading={isLoading} onSuccess={refetch} /> 
         </Tabs.Panel>
 
         <Tabs.Panel value="events" pt="xl">
            <Text c="dimmed" ta="center" mt="xl">Le tableau des événements arrive bientôt...</Text>
-           {/* TODO: <PendingEventsTable data={data?.events || []} loading={isLoading} onSuccess={refetch} /> */}
+           <PendingEventsTable data={data?.events || []} loading={isLoading} onSuccess={refetch} />
         </Tabs.Panel>
       </Tabs>
     </Container>
