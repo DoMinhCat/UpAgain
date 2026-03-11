@@ -11,6 +11,7 @@ import {
   Group,
   Modal,
   PasswordInput,
+  Pagination,
 } from "@mantine/core";
 import AdminTable from "../../components/admin/AdminTable";
 import {
@@ -20,7 +21,7 @@ import {
   IconRestore,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { type Account } from "../../api/admin/userModule";
 import {
   useGetAllAccounts,
@@ -347,49 +348,49 @@ export default function AdminUsersModule() {
     roleValue: string | null;
     statusValue: string | null;
   }>({ searchValue: "", sortValue: null, roleValue: null, statusValue: null });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [activePage, setPage] = useState(1);
+  const LIMIT = 10;
+
   const handleFilterChange = (key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  //TODO: filter by ID search
-  const { data: accounts = [] as Account[], isLoading: isAccountsLoading } =
-    useGetAllAccounts(false);
-  const filteredAccounts = useMemo(() => {
-    const result = accounts.filter((account) => {
-      const matchesSearch =
-        account.username
-          .toLowerCase()
-          .includes(filters.searchValue?.toLowerCase() || "") ||
-        account.email
-          .toLowerCase()
-          .includes(filters.searchValue?.toLowerCase() || "") ||
-        account.id.toString().includes(filters.searchValue || "");
-      const matchesRole =
-        !filters.roleValue || account.role === filters.roleValue;
-      const matchesStatus =
-        !filters.statusValue ||
-        account.is_banned === (filters.statusValue === "banned");
-      return matchesSearch && matchesRole && matchesStatus;
-    });
-    return [...result].sort((a, b) => {
-      if (filters.sortValue === "most_recent_registration") {
-        return dayjs(b.created_at).diff(dayjs(a.created_at));
-      } else if (filters.sortValue === "oldest_registration") {
-        return dayjs(a.created_at).diff(dayjs(b.created_at));
-      } else if (filters.sortValue === "most_recent_last_active") {
-        return dayjs(b.last_active || 0).diff(dayjs(a.last_active || 0));
-      } else if (filters.sortValue === "oldest_last_active") {
-        return dayjs(a.last_active || 0).diff(dayjs(b.last_active || 0));
-      }
-      return 0;
-    });
-  }, [
-    accounts,
-    filters.searchValue,
-    filters.roleValue,
-    filters.statusValue,
-    filters.sortValue,
-  ]);
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+    appliedFilters.roleValue ||
+    appliedFilters.statusValue ||
+    appliedFilters.sortValue,
+  );
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: null,
+      roleValue: null,
+      statusValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+
+  const { data: accountsWithPagination, isLoading: isAccountsLoading } =
+    useGetAllAccounts(
+      false,
+      hasFilters ? -1 : activePage,
+      hasFilters ? -1 : LIMIT,
+      appliedFilters.searchValue,
+      appliedFilters.roleValue || undefined,
+      appliedFilters.statusValue || undefined,
+      appliedFilters.sortValue || undefined,
+    );
+  const filteredAccounts = accountsWithPagination?.accounts || [];
   const listUsers =
     filteredAccounts.length > 0 ? (
       filteredAccounts.map((account) => (
@@ -499,7 +500,7 @@ export default function AdminUsersModule() {
         </Group>
 
         <Grid align="flex-end">
-          <Grid.Col span={{ base: 12, md: 4 }}>
+          <Grid.Col span={{ base: 12, md: 3 }}>
             <TextInput
               label="Search"
               variant="filled"
@@ -567,21 +568,15 @@ export default function AdminUsersModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
-            <Button
-              variant="secondary"
-              fullWidth
-              onClick={() =>
-                setFilters({
-                  searchValue: "",
-                  roleValue: null,
-                  statusValue: null,
-                  sortValue: null,
-                })
-              }
-            >
-              Reset filters
-            </Button>
+          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+            <Group gap="xs" grow>
+              <Button onClick={handleSearchClick} variant="primary">
+                Apply filters
+              </Button>
+              <Button variant="secondary" onClick={handleResetFilters}>
+                Reset
+              </Button>
+            </Group>
           </Grid.Col>
         </Grid>
       </Stack>
@@ -597,6 +592,28 @@ export default function AdminUsersModule() {
           "Last Active",
           "Actions",
         ]}
+        footer={
+          !hasFilters &&
+          accountsWithPagination &&
+          accountsWithPagination.total_records > 0 && (
+            <Group justify="space-between" mt="md">
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
+                {Math.min(
+                  activePage * LIMIT,
+                  accountsWithPagination.total_records,
+                )}{" "}
+                of {accountsWithPagination.total_records} results
+              </span>
+              <Pagination
+                total={accountsWithPagination.last_page || 1}
+                value={activePage}
+                onChange={setPage}
+                disabled={isAccountsLoading}
+              />
+            </Group>
+          )
+        }
       >
         {listUsers}
       </AdminTable>

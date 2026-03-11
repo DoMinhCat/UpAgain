@@ -16,10 +16,26 @@ export interface Account {
   deleted_at?: string;
 }
 
+export interface AccountsListPagination {
+  accounts: Account[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+  total_records: number;
+}
+
 // get active or deleted accounts
-export const getAllAccounts = async (is_deleted: boolean) => {
+export const getAllAccounts = async (
+  is_deleted: boolean,
+  page?: number,
+  limit?: number,
+  search?: string,
+  role?: string,
+  status?: string,
+  sort?: string,
+) => {
   const response = await api.get(ENDPOINTS.ADMIN.USERS, {
-    params: { is_deleted },
+    params: { is_deleted, page, limit, search, role, status, sort },
   });
   return response.data;
 };

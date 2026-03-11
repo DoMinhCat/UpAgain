@@ -16,6 +16,7 @@ import {
   type AccountStats,
   type updateAccountPayload,
   updateAccount,
+  type AccountsListPagination,
 } from "../api/admin/userModule";
 import {
   showSuccessNotification,
@@ -76,10 +77,27 @@ export const useAccountDetails = (
   });
 };
 
-export const useGetAllAccounts = (isDeleted: boolean) => {
-  return useQuery<Account[]>({
-    queryKey: [isDeleted ? "deletedAccounts" : "accounts"],
-    queryFn: () => getAllAccounts(isDeleted),
+export const useGetAllAccounts = (
+  isDeleted: boolean,
+  page?: number,
+  limit?: number,
+  search?: string,
+  role?: string,
+  status?: string,
+  sort?: string,
+) => {
+  return useQuery<AccountsListPagination>({
+    queryKey: [
+      isDeleted ? "deletedAccounts" : "accounts",
+      page,
+      limit,
+      search,
+      role,
+      status,
+      sort,
+    ],
+    queryFn: () =>
+      getAllAccounts(isDeleted, page, limit, search, role, status, sort),
     staleTime: 1000 * 60 * 2, // refresh data every 2m
   });
 };
