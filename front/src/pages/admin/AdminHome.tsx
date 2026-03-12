@@ -7,6 +7,10 @@ import {
   Table,
   Flex,
   Button,
+  Progress,
+  Text,
+  Stack,
+  Box,
 } from "@mantine/core";
 import {
   IconArrowUp,
@@ -98,8 +102,14 @@ export default function AdminHome() {
         <AdminCardInfo
           icon={IconBox}
           title="Available containers"
-          value={18}
+          value={18 + " / " + 56}
           path={PATHS.ADMIN.CONTAINERS}
+          description={
+            <Box mt="xs">
+              <Text c="dimmed">75% capacity used</Text>
+              <Progress value={75} />
+            </Box>
+          }
         />
       </SimpleGrid>
 
