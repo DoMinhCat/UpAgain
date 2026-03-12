@@ -29,6 +29,8 @@ import AdminTable from "../../components/admin/AdminTable";
 import classes from "../../styles/Admin.module.css";
 import PaginationFooter from "../../components/PaginationFooter";
 import { PATHS } from "../../../src/routes/paths";
+import { getAccountCountStats } from "../../api/admin/userModule";
+import { useQuery } from "@tanstack/react-query";
 
 export default function AdminHome() {
   const demoAdminActivities = {
@@ -47,6 +49,14 @@ export default function AdminHome() {
     ],
   };
 
+  const {
+    data: accountCountStats,
+    isLoading: isLoadingAccountCountStats,
+    error: errorAccountCountStats,
+  } = useQuery({
+    queryKey: ["accountCountStats"],
+    queryFn: getAccountCountStats,
+  });
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -57,14 +67,13 @@ export default function AdminHome() {
         <AdminCardInfo
           icon={IconUsers}
           title="Total Users"
-          value={99999}
+          value={accountCountStats?.total}
           path={PATHS.ADMIN.USERS.ALL}
           description={
             <StatsCardDesc
-              stats={67}
-              percentage={15.6}
+              stats={accountCountStats?.increase}
               icon={IconArrowUp}
-              description=" users from last month"
+              description=" new users from last month"
             />
           }
         />
@@ -81,7 +90,6 @@ export default function AdminHome() {
           description={
             <StatsCardDesc
               stats={67}
-              percentage={15.6}
               icon={IconArrowUp}
               description="kg from last month"
             />
