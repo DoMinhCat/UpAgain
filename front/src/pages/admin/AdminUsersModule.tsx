@@ -380,16 +380,19 @@ export default function AdminUsersModule() {
     setPage(1);
   };
 
-  const { data: accountsWithPagination, isLoading: isAccountsLoading } =
-    useGetAllAccounts(
-      false,
-      hasFilters ? -1 : activePage,
-      hasFilters ? -1 : LIMIT,
-      appliedFilters.searchValue,
-      appliedFilters.roleValue || undefined,
-      appliedFilters.statusValue || undefined,
-      appliedFilters.sortValue || undefined,
-    );
+  const {
+    data: accountsWithPagination,
+    isLoading: isAccountsLoading,
+    error: accountsError,
+  } = useGetAllAccounts(
+    false,
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.roleValue || undefined,
+    appliedFilters.statusValue || undefined,
+    appliedFilters.sortValue || undefined,
+  );
   const filteredAccounts = accountsWithPagination?.accounts || [];
   const listUsers =
     filteredAccounts.length > 0 ? (
@@ -582,6 +585,7 @@ export default function AdminUsersModule() {
       </Stack>
       <AdminTable
         loading={isAccountsLoading}
+        error={accountsError}
         header={[
           "Registered on",
           "ID",
