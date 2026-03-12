@@ -17,8 +17,7 @@ func GetAllContainersHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(containers)
+	utils.RespondWithJSON(w, http.StatusOK, containers)
 }
 
 func GetContainerByID(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +34,7 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(container)
+	utils.RespondWithJSON(w, http.StatusOK, container)
 }
 
 func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +50,7 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
 func DeleteContainer(w http.ResponseWriter, r *http.Request) {
@@ -63,5 +61,7 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+
