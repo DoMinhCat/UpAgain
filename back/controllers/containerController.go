@@ -39,6 +39,11 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
 	id, _ := strconv.Atoi(r.PathValue("id"))
 
 	var body struct {
@@ -55,6 +60,11 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteContainer(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
 	id, _ := strconv.Atoi(r.PathValue("id"))
 
 	if err := db.SoftDeleteContainer(id); err != nil {
