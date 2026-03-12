@@ -1,3 +1,5 @@
+// for navigations ONLY, routes in routes/ should use relative path
+
 export const PATHS = {
   // common endpoints here for all roles
   HOME: "/",
@@ -5,9 +7,16 @@ export const PATHS = {
   // admin endpoints
   ADMIN: {
     HOME: "/admin",
-    USERS: "/admin/users",
-    VALIDATIONS: "/admin/validations",
-    FINANCE: "/admin/finance",
+    USERS: {
+      ALL: "/admin/users",
+      DELETED: "/admin/users/deleted",
+    },
+    VALIDATIONS: {
+      ALL: "/admin/validations",
+    },
+    FINANCE: {
+      ALL: "/admin/finance",
+    },
     CONTAINERS: "/admin/containers",
     POSTS: "/admin/posts",
     EVENTS: "/admin/events",

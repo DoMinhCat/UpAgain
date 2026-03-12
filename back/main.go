@@ -26,8 +26,9 @@ func main() {
 	allowedOrigins := []string{"http://localhost:5173", "http://127.0.0.1:5173", utils.GetFrontOriginDev(), utils.GetFrontOriginProd()}
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization", "Accept-Encoding"},
+		ExposedHeaders:   []string{"Content-Type", "Authorization", "Accept-Encoding"},
 		AllowCredentials: true,
 	})
 

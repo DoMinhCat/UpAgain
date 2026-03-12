@@ -18,7 +18,7 @@ export default function AdminBreadcrumbs({
     return (
       <Title
         key={breadcrumb.href}
-        order={2}
+        order={4}
         onClick={() => {
           navigate(breadcrumb.href);
         }}

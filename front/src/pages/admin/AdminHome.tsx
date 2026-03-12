@@ -58,7 +58,7 @@ export default function AdminHome() {
           icon={IconUsers}
           title="Total Users"
           value={99999}
-          path={PATHS.ADMIN.USERS}
+          path={PATHS.ADMIN.USERS.ALL}
           description={
             <StatsCardDesc
               stats={67}
@@ -72,7 +72,7 @@ export default function AdminHome() {
           icon={IconClipboardCheck}
           title="Pending requests"
           value={18}
-          path={PATHS.ADMIN.VALIDATIONS}
+          path={PATHS.ADMIN.VALIDATIONS.ALL}
         />
         <AdminCardInfo
           icon={IconLeaf}
@@ -105,13 +105,13 @@ export default function AdminHome() {
           title="User"
           description="Manage user accounts"
           icon={IconUsers}
-          path={PATHS.ADMIN.USERS}
+          path={PATHS.ADMIN.USERS.ALL}
         />
         <AdminCardNav
           title="Validation"
           description="Validate or reject pending requests"
           icon={IconClipboardCheck}
-          path={PATHS.ADMIN.VALIDATIONS}
+          path={PATHS.ADMIN.VALIDATIONS.ALL}
         />
         <AdminCardNav
           title="Container"
@@ -147,7 +147,7 @@ export default function AdminHome() {
           title="Finance Hub"
           description="Analyze UpAgain's income"
           icon={IconPigMoney}
-          path={PATHS.ADMIN.FINANCE}
+          path={PATHS.ADMIN.FINANCE.ALL}
         />
       </SimpleGrid>
 

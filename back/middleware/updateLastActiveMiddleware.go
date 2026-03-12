@@ -1,23 +1,23 @@
 package middleware
 
 import (
+	"backend/db"
 	"backend/models"
-	"backend/utils"
 	authUtils "backend/utils/auth"
 	"context"
 	"log/slog"
 	"net/http"
 	"strings"
-	"time"
 )
 
 func UpdateLastActive(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, ok := r.Context().Value("user").(models.AuthClaims)
 
-		// If not in context (e.g. guest routes), manually parse token
+		// If not in context (ex: guest routes), manually parse token
 		if !ok {
 			authHeader := r.Header.Get("Authorization")
+			// if there is JWT attached
 			if authHeader != "" {
 				tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 				claims, err := authUtils.ParseJWT(tokenString)
@@ -36,7 +36,7 @@ func UpdateLastActive(next http.Handler) http.Handler {
 		}
 		accountID := user.Id
 
-		_, err := utils.Conn.Exec("UPDATE accounts SET last_active = $1 WHERE id = $2 AND (last_active < $3 OR last_active IS NULL)", time.Now(), accountID, time.Now().Add(-2*time.Minute))
+		err := db.UpdateLastActive(accountID)
 		if err != nil {
 			slog.Error("UpdateLastActive() failed", "account_id", accountID, "error", err)
 		}

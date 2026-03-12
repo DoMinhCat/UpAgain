@@ -35,3 +35,38 @@ func GetUserDetailsById(id_account int) (models.UserDetails, error) {
 	}
 	return userDetails, nil
 }
+
+// GetUserStatsById get some basic stats of user to display in admin user detail page or in profile page of user. Stats include:
+//
+// - Total deposits item of a user, these deposits must be approved, reserved or completed
+//
+// - Total listings (annonces) of a user that are approved, reserved or completed
+//
+// - Total spendings on events/workshops (these are the only options that user can spend money on)
+func GetUserStatsById(id int) (models.UserStats, error) {
+	var userStats models.UserStats
+
+	is_validated := true
+	deposits, err := GetUserTotalDepositsById(id, &is_validated)
+	if err != nil {
+		return models.UserStats{}, fmt.Errorf("GetUserStatsById() failed: %v", err.Error())
+
+	}
+
+	listings, err := GetUserTotalListingsById(id, &is_validated)
+	if err != nil {
+		return models.UserStats{}, fmt.Errorf("GetUserStatsById() failed: %v", err.Error())
+
+	}
+
+	spendings, err := GetTotalEventSpendingsById(id)
+	if err != nil {
+		return models.UserStats{}, fmt.Errorf("GetUserStatsById() failed: %v", err.Error())
+
+	}
+
+	userStats.TotalDeposits = deposits
+	userStats.TotalListings = listings
+	userStats.TotalSpent = spendings
+	return userStats, nil
+}

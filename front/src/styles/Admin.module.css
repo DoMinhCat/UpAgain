@@ -57,3 +57,12 @@
 .card[data-clickable]:active {
   transform: translateY(-2px);
 }
+
+.avatarNavbar {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
