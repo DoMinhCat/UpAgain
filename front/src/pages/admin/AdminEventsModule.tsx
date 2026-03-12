@@ -8,6 +8,7 @@ import {
   Select,
   Button,
   Stack,
+  Table,
 } from "@mantine/core";
 import {
   IconCalendarEventFilled,
@@ -23,6 +24,7 @@ import {
   StatsCardDesc,
 } from "../../components/admin/AdminCardInfo";
 import { useState } from "react";
+import AdminTable from "../../components/admin/AdminTable";
 
 export default function AdminEventsModule() {
   // TODO for filtering
@@ -74,7 +76,6 @@ export default function AdminEventsModule() {
           description={
             <StatsCardDesc
               stats={67}
-              percentage={15.6}
               icon={IconArrowUp}
               description=" new events since last month"
             />
@@ -87,7 +88,6 @@ export default function AdminEventsModule() {
           description={
             <StatsCardDesc
               stats={67}
-              percentage={15.6}
               icon={IconArrowUp}
               description=" events happening in the next 30 days"
             />
@@ -100,7 +100,6 @@ export default function AdminEventsModule() {
           description={
             <StatsCardDesc
               stats={67}
-              percentage={15.6}
               icon={IconArrowUp}
               description=" registrations during the last month"
             />
@@ -113,7 +112,6 @@ export default function AdminEventsModule() {
           description={
             <StatsCardDesc
               stats={67}
-              percentage={15.6}
               icon={IconArrowUp}
               description=" requires review and validation"
             />
@@ -199,6 +197,32 @@ export default function AdminEventsModule() {
           </Grid.Col>
         </Grid>
       </Stack>
+
+      <AdminTable
+        loading={false}
+        error={null}
+        header={[
+          "Registered on",
+          "ID",
+          "Username",
+          "Email",
+          "Role",
+          "Status",
+          "Last Active",
+          "Actions",
+        ]}
+      >
+        <Table.Tr>
+          <Table.Td>1</Table.Td>
+          <Table.Td>2</Table.Td>
+          <Table.Td>3</Table.Td>
+          <Table.Td>4</Table.Td>
+          <Table.Td>5</Table.Td>
+          <Table.Td>6</Table.Td>
+          <Table.Td>7</Table.Td>
+          <Table.Td>8</Table.Td>
+        </Table.Tr>
+      </AdminTable>
     </Container>
   );
 }
