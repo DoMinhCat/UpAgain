@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func CreateAccount(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +37,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	validationResponse := validations.ValidateAccountCreation(newAccount)
 	if !validationResponse.Success {
-		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message)
+		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message.Error())
 		return
 	}
 
@@ -553,4 +554,35 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+// get the info for the card in admin home
+func GetAccountCount(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	count, err := db.GetAccountCount()
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while getting account count.")
+		slog.Error("GetAccountCount() failed", "controller", "GetAccountCount", "error", err)
+		return
+	}
+
+	// increase since last month
+	intIncrease, err := db.GetAccountIncreaseSince(time.Now().AddDate(0, -1, 0))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while getting account count.")
+		slog.Error("GetAccountIncreaseSince() failed", "controller", "GetAccountCount", "error", err)
+		return
+	}
+
+	stats := models.AccountCountStats{
+		Total: count,
+		Increase: intIncrease,
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, stats)
 }

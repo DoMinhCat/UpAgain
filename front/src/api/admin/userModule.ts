@@ -116,3 +116,12 @@ export const updateAccount = async (payload: updateAccountPayload) => {
     },
   );
 };
+
+export interface AccountCountStats {
+  total: number;
+  increase: number;
+}
+export const getAccountCountStats = async () => {
+  const response = await api.get(ENDPOINTS.ADMIN.USERS_COUNT);
+  return response.data;
+};

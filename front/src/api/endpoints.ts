@@ -2,6 +2,7 @@ export const ENDPOINTS = {
   // admin endpoints
   ADMIN: {
     USERS: "/accounts/",
+    USERS_COUNT: "/accounts/count/",
   },
 
   AUTH: {

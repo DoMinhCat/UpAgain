@@ -62,3 +62,8 @@ type UpdateAccountRequest struct {
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 }
+
+type AccountCountStats struct{
+	Total int `json:"total"`
+	Increase int `json:"increase"`
+}
