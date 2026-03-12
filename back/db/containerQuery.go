@@ -47,3 +47,36 @@ func SoftDeleteContainer(id int) error {
 	_, err := utils.Conn.Exec(query, id)
 	return err
 }
+
+// return total count of containers by status
+//
+// Available status: "active" => ("occupied" or "ready") and not deleted, "occupied", "maintenance", "ready", "deleted"
+//
+// return total of all records if status is nil
+func GetContainerCountByStatus(status *string) (int, error) {
+	var count int
+	param := ""
+
+	if status != nil {
+		switch *status {
+		case "active":
+			param = "WHERE (status='occupied' or status='ready') and is_deleted=false"
+		case "occupied":
+			param = "WHERE status='occupied' and is_deleted=false"
+		case "maintenance":
+			param = "WHERE status='maintenance' and is_deleted=false"
+		case "ready":
+			param = "WHERE status='ready' and is_deleted=false"
+		case "deleted":
+			param = "WHERE is_deleted=true"
+		case "not_deleted":
+			param = "WHERE is_deleted=false"
+		default:
+			param = ""
+		}
+	}
+	
+	query := "SELECT COUNT(*) FROM containers "
+	err := utils.Conn.QueryRow(query + param + ";").Scan(&count)
+	return count, err
+}

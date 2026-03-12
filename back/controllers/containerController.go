@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"backend/db"
+	"backend/models"
 	"backend/utils"
 	"encoding/json"
 	"log/slog"
@@ -29,7 +30,7 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 
 	container, err := db.FindContainerByID(id)
 	if err != nil {
-		slog.Error("Failed to fetch container", "id", id, "error", err)
+		slog.Error("FindContainerByID() failed", "controller", "GetContainerByID", "id", id, "error", err)
 		http.Error(w, "Container not found", http.StatusNotFound)
 		return
 	}
@@ -46,7 +47,7 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&body)
 
 	if err := db.UpdateStatusContainer(id, body.Status); err != nil {
-		slog.Error("Update failed", "id", id, "error", err)
+		slog.Error("UpdateStatusContainer() failed", "controller", "UpdateContainerStatus", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
@@ -57,11 +58,42 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.PathValue("id"))
 
 	if err := db.SoftDeleteContainer(id); err != nil {
-		slog.Error("Deletion failed", "id", id, "error", err)
+		slog.Error("SoftDeleteContainer() failed", "controller", "DeleteContainer", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+// to show info in stats card on admin home
+func GetContainerCountStats(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	statusParam := "active"
+	activeCount, err := db.GetContainerCountByStatus(&statusParam)
+	if err != nil {
+		slog.Error("GetContainerCountByStatus() failed", "controller", "GetContainerCount", "error", err, "status", statusParam)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	statusParam = "not_deleted"
+	totalCount, err := db.GetContainerCountByStatus(&statusParam)
+	if err != nil {
+		slog.Error("GetContainerCountByStatus() failed", "controller", "GetContainerCount", "error", err, "status", statusParam)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	stats := models.ContainerCountStats{
+		Total: totalCount,
+		Active: activeCount,
+	}
+	utils.RespondWithJSON(w, http.StatusOK, stats)
 }
 
 
