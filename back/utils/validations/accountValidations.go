@@ -66,7 +66,7 @@ func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.Vali
 
 	return models.ValidationResponse{
 		Success: true,
-		Message: "",
+		Message: nil,
 		Error:   http.StatusOK,
 	}
 }
@@ -110,101 +110,99 @@ func ValidateAccountUpdate(newAccount models.UpdateAccountRequest) models.Valida
 		}
 	}
 
-
-
 	return models.ValidationResponse{
 		Success: true,
-		Message: "",
+		Message: nil,
 		Error:   http.StatusOK,
 	}
 }
 
-func validateUsername(username string, reqId int) (bool, string) {
+func validateUsername(username string, reqId int) (bool, error) {
 	if len(username) < 4 || len(username) > 20 {
-		return false, "Username must be between 4 and 20 characters."
+		return false, fmt.Errorf("Username must be between 4 and 20 characters.")
 	}
 	// Check for existed username
 	usernameExists, err := db.CheckUsernameExists(username)
 	if err != nil {
-		return false, "An error occured while creating/updating an account for you."
+		return false, fmt.Errorf("An error occured while creating/updating an account for you.")
 	}
 	if usernameExists {
 		if reqId != 0{
 			// check if same username as ANOTHER user
 			dupId, err := db.GetIdByUsernameByEmail(&username, nil)
 			if err != nil {
-				return false, "An error occured while creating/updating an account for you."
+				return false, fmt.Errorf("An error occured while creating/updating an account for you.")
 			}
 			if dupId != reqId{
-				return false, fmt.Sprintf("'%s' has been taken, please choose another username.", username)
+				return false, fmt.Errorf("'%s' has been taken, please choose another username.", username)
 			}
 		} else {
-			return false, fmt.Sprintf("'%s' has been taken, please choose another username.", username)
+			return false, fmt.Errorf("'%s' has been taken, please choose another username.", username)
 		}
 	}
-	return true, ""
+	return true, nil
 }
 
-func validatePassword(password string) (bool, string) {
+func validatePassword(password string) (bool, error) {
 	if len(password) < 12 || len(password) > 60 {
-		return false, "Password must be between 12 and 60 characters."
+		return false, fmt.Errorf("Password must be between 12 and 60 characters.")
 	}
 	passwordMatch, _ := regexp.Match("[A-Z]", []byte(password))
 	if !passwordMatch {
-		return false, "Password must contain at least one capital character."
+		return false, fmt.Errorf("Password must contain at least one capital character.")
 	}
 	passwordMatch, _ = regexp.Match("[0-9]", []byte(password))
 	if !passwordMatch {
-		return false, "Password must contain at least one digit."
+		return false, fmt.Errorf("Password must contain at least one digit.")
 	}
 	passwordMatch, _ = regexp.Match("\\W", []byte(password))
 	if !passwordMatch {
-		return false, "Password must contain at least one special character."
+		return false, fmt.Errorf("Password must contain at least one special character.")
 	}
-	return true, ""
+	return true, nil
 }
 
-func validateEmail(email string, reqId int) (bool, string) {
+func validateEmail(email string, reqId int) (bool, error) {
 	emailRegex := `^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
 	emailMatch, _ := regexp.MatchString(emailRegex, email)
 	if !emailMatch {
-		return false, "Invalid email format."
+		return false, fmt.Errorf("Invalid email format.")
 	}
 	emailExists, err := db.CheckEmailExists(email)
 	if err != nil {
-		return false, "An error occured while creating/updating an account for you."
+		return false, fmt.Errorf("An error occured while creating/updating an account for you.")
 	}
 	if emailExists {
 		if reqId != 0{
 			// check if same username as ANOTHER user
 			dupId, err := db.GetIdByUsernameByEmail(nil, &email)
 			if err != nil {
-				return false, "An error occured while creating/updating an account for you."
+				return false, fmt.Errorf("An error occured while creating/updating an account for you.")
 			}
 			if dupId != reqId{
-				return false, fmt.Sprintf("'%s' has been taken, please choose another email.", email)
+				return false, fmt.Errorf("'%s' has been taken, please choose another email.", email)
 			}
 		} else{
-			return false, fmt.Sprintf("'%s' has been taken, please choose another email.", email)
+			return false, fmt.Errorf("'%s' has been taken, please choose another email.", email)
 		}
 	}
 
-	return true, ""
+	return true, nil
 }
 
-func validatePhone(phone string) (bool, string) {
+func validatePhone(phone string) (bool, error) {
 	phoneRegex := `^\+?[0-9]{10,15}$`
 	phoneMatch, _ := regexp.MatchString(phoneRegex, phone)
 	if !phoneMatch {
-		return false, "Invalid phone number."
+		return false, fmt.Errorf("Invalid phone number.")
 	}
-	return true, ""
+	return true, nil
 }
 
-func validateRole(role string) (bool, string) {
+func validateRole(role string) (bool, error) {
 	if role != "user" && role != "pro" && role != "employee" && role != "admin" {
-		return false, "Invalid role."
+		return false, fmt.Errorf("Invalid role.")
 	}
-	return true, ""
+	return true, nil
 }
 
