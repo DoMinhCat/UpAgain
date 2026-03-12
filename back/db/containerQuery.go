@@ -36,13 +36,13 @@ func FindContainerByID(id int) (models.Container, error) {
 	return c, err
 }
 
-func UpdateStatus(id int, status string) error {
+func UpdateStatusContainer(id int, status string) error {
 	query := `UPDATE containers SET status = $1 WHERE id = $2`
 	_, err := utils.Conn.Exec(query, status, id)
 	return err
 }
 
-func SoftDelete(id int) error {
+func SoftDeleteContainer(id int) error {
 	query := `UPDATE containers SET is_deleted = true WHERE id = $1`
 	_, err := utils.Conn.Exec(query, id)
 	return err

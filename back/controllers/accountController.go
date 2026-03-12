@@ -36,7 +36,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	validationResponse := validations.ValidateAccountCreation(newAccount)
 	if !validationResponse.Success {
-		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message)
+		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message.Error())
 		return
 	}
 

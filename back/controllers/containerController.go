@@ -47,7 +47,7 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(r.Body).Decode(&body)
 
-	if err := db.UpdateStatus(id, body.Status); err != nil {
+	if err := db.UpdateStatusContainer(id, body.Status); err != nil {
 		slog.Error("Update failed", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
@@ -58,7 +58,7 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.PathValue("id"))
 
-	if err := db.SoftDelete(id); err != nil {
+	if err := db.SoftDeleteContainer(id); err != nil {
 		slog.Error("Deletion failed", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
