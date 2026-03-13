@@ -643,7 +643,7 @@ export default function AdminUsersModule() {
           </Button>
         </Group>
       </Modal>
-      <Modal opened={openedCreate} onClose={closeCreate}>
+      <Modal opened={openedCreate} onClose={closeCreate} title="Create account">
         <Stack>
           <TextInput
             data-autofocus

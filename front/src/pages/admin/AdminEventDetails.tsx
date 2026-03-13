@@ -13,7 +13,9 @@ import {
   TextInput,
   Table,
   NumberInput,
+  Select,
 } from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
 import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
 import { PATHS } from "../../routes/paths";
 import {
@@ -33,12 +35,13 @@ export default function AdminEventDetails() {
     useDisclosure(false);
   const [titleEdit, setTitleEdit] = useState<string>("");
   const [capacityEdit, setCapacityEdit] = useState<number>(0);
+  const [priceEdit, setPriceEdit] = useState<number>(0);
+  const [streetEdit, setStreetEdit] = useState<string>("");
+  const [cityEdit, setCityEdit] = useState<string>("");
+  const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
+  const [dateEdit, setDateEdit] = useState<string | null>(null);
+  const [categoryEdit, setCategoryEdit] = useState<string>("");
 
-  const handleCloseEdit = () => {
-    setTitleEdit("");
-    setCapacityEdit(0);
-    closeEdit();
-  };
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
@@ -124,7 +127,7 @@ export default function AdminEventDetails() {
               <Group gap="xs">
                 <IconCalendarEvent />
                 <Text fw={500} size="lg">
-                  Start date: March 15, 2026
+                  March 15, 2026
                 </Text>
               </Group>
 
@@ -134,21 +137,21 @@ export default function AdminEventDetails() {
               <Stack gap="lg">
                 <Group justify="space-between">
                   <Group gap="xs">
-                    <IconCoinEuro />
+                    <IconCoinEuro color="gold" />
                     <Text>60€</Text>
                   </Group>
                 </Group>
 
                 <Group justify="space-between">
                   <Group gap="xs">
-                    <IconUsers />
-                    <Text>Capacity 16</Text>
+                    <IconUsers color="#315ff5" />
+                    <Text>16{" max"}</Text>
                   </Group>
                 </Group>
 
                 <Group justify="space-between">
                   <Group gap="xs">
-                    <IconMapPin />
+                    <IconMapPin color="green" />
                     <Text>Location Paris</Text>
                   </Group>
                 </Group>
@@ -158,7 +161,7 @@ export default function AdminEventDetails() {
                 <Modal
                   title="Edit event"
                   opened={openedEdit}
-                  onClose={handleCloseEdit}
+                  onClose={closeEdit}
                   centered
                   size="xl"
                 >
@@ -168,10 +171,9 @@ export default function AdminEventDetails() {
                       withAsterisk
                       label="Tile"
                       value={titleEdit}
-                      // onChange={(e) => {
-                      //   setUsernameEdit(e.target.value);
-                      //   validateUsernameEdit(e.target.value);
-                      // }}
+                      onChange={(e) => {
+                        setTitleEdit(e.target.value);
+                      }}
                       // onBlur={() => validateUsernameEdit(usernameEdit)}
                       // error={usernameEditError}
                       // disabled={isAccountDetailsLoading}
@@ -180,19 +182,101 @@ export default function AdminEventDetails() {
                     <NumberInput
                       withAsterisk
                       label="Capacity"
+                      min={0}
                       value={capacityEdit}
-                      // onChange={(e) => {
-                      //   setEmailEdit(e.target.value);
-                      //   validateEmailEdit(e.target.value);
-                      // }}
+                      onChange={(value) => {
+                        setCapacityEdit(Number(value));
+                      }}
                       // onBlur={() => validateEmailEdit(emailEdit)}
                       // error={emailEditError}
                       // disabled={isAccountDetailsLoading}
                       required
                     />
+                    <NumberInput
+                      withAsterisk
+                      label="Price"
+                      min={0}
+                      value={priceEdit}
+                      onChange={(value) => {
+                        setPriceEdit(Number(value));
+                      }}
+                      // onBlur={() => validateEmailEdit(emailEdit)}
+                      // error={emailEditError}
+                      // disabled={isAccountDetailsLoading}
+                      required
+                    />
+                    <Grid>
+                      <Grid.Col span={{ base: 12, md: 9 }}>
+                        <TextInput
+                          withAsterisk
+                          label="Street"
+                          value={streetEdit}
+                          onChange={(e) => {
+                            setStreetEdit(e.target.value);
+                          }}
+                          // onBlur={() => validateUsernameEdit(usernameEdit)}
+                          // error={usernameEditError}
+                          // disabled={isAccountDetailsLoading}
+                          required
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={{ base: 12, md: 3 }}>
+                        <TextInput
+                          withAsterisk
+                          label="City"
+                          value={cityEdit}
+                          onChange={(e) => {
+                            setCityEdit(e.target.value);
+                          }}
+                          // onBlur={() => validateUsernameEdit(usernameEdit)}
+                          // error={usernameEditError}
+                          // disabled={isAccountDetailsLoading}
+                          required
+                        />
+                      </Grid.Col>
+                    </Grid>
+                    <TextInput
+                      label="Additional location details"
+                      value={locationDetailEdit}
+                      onChange={(e) => {
+                        setLocationDetailEdit(e.target.value);
+                      }}
+                      // onBlur={() => validateUsernameEdit(usernameEdit)}
+                      // error={usernameEditError}
+                      // disabled={isAccountDetailsLoading}
+                      required
+                    />
+                    <DateTimePicker
+                      withAsterisk
+                      label="Date and time of event"
+                      value={dateEdit}
+                      onChange={setDateEdit}
+                      required
+                      // onBlur={() => validateUsernameEdit(usernameEdit)}
+                      // error={usernameEditError}
+                      // disabled={isAccountDetailsLoading}
+                    />
+                    <Select
+                      withAsterisk
+                      clearable
+                      label="Category"
+                      value={categoryEdit}
+                      // error={roleNewError}
+                      // onBlur={() => validateRoleNew(roleNew)}
+                      data={[
+                        { value: "workshop", label: "Workshop" },
+                        { value: "conference", label: "Conference" },
+                        { value: "meetups", label: "Meetups" },
+                        { value: "exposition", label: "Exposition" },
+                        { value: "other", label: "Other" },
+                      ]}
+                      onChange={(value) => {
+                        setCategoryEdit(value as string);
+                      }}
+                    />
                   </Stack>
                   <Group mt="lg" justify="center">
-                    <Button onClick={handleCloseEdit} variant="grey">
+                    <Button onClick={closeEdit} variant="grey">
                       Cancel
                     </Button>
                     <Button
