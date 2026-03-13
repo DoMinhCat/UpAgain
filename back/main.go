@@ -23,7 +23,7 @@ func main() {
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration
-	allowedOrigins := []string{utils.GetFrontOriginDev(), utils.GetFrontOriginProd()}
+	allowedOrigins := []string{utils.GetFrontOriginDev(), utils.GetFrontOriginProd(), "http://localhost:5174"}
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},

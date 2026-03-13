@@ -202,25 +202,25 @@ export default function AdminEventsModule() {
         loading={false}
         error={null}
         header={[
-          "Registered on",
+          "Created on",
           "ID",
-          "Username",
-          "Email",
-          "Role",
+          "Title",
+          "Employee",
+          "Location",
+          "Start Date",
           "Status",
-          "Last Active",
           "Actions",
         ]}
       >
         <Table.Tr>
-          <Table.Td>1</Table.Td>
-          <Table.Td>2</Table.Td>
-          <Table.Td>3</Table.Td>
-          <Table.Td>4</Table.Td>
-          <Table.Td>5</Table.Td>
-          <Table.Td>6</Table.Td>
-          <Table.Td>7</Table.Td>
-          <Table.Td>8</Table.Td>
+          <Table.Td ta="center">1</Table.Td>
+          <Table.Td ta="center">2</Table.Td>
+          <Table.Td ta="center">3</Table.Td>
+          <Table.Td ta="center">4</Table.Td>
+          <Table.Td ta="center">5</Table.Td>
+          <Table.Td ta="center">6</Table.Td>
+          <Table.Td ta="center">6</Table.Td>
+          <Table.Td ta="center">6</Table.Td>
         </Table.Tr>
       </AdminTable>
     </Container>
