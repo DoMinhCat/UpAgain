@@ -9,6 +9,8 @@ import {
   Button,
   Stack,
   Table,
+  Modal,
+  NumberInput,
 } from "@mantine/core";
 import {
   IconCalendarEventFilled,
@@ -25,6 +27,9 @@ import {
 } from "../../components/admin/AdminCardInfo";
 import { useState } from "react";
 import AdminTable from "../../components/admin/AdminTable";
+import { useDisclosure } from "@mantine/hooks";
+import { DateTimePicker } from "@mantine/dates";
+import { TextEditor } from "../../components/TextEditor";
 
 export default function AdminEventsModule() {
   // TODO for filtering
@@ -61,6 +66,35 @@ export default function AdminEventsModule() {
     setAppliedFilters(defaultFilters);
     setPage(1);
   };
+
+  // create modal
+  const [openedCreate, { open: openCreate, close: closeCreate }] =
+    useDisclosure(false);
+  const [title, setTitle] = useState<string>("");
+  const [capacity, setCapacity] = useState<number>();
+  const [price, setPrice] = useState<number>(0);
+  const [street, setStreet] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [locationDetail, setLocationDetail] = useState<string>("");
+  const [date, setDate] = useState<string | null>(null);
+  const [category, setCategory] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [errorDescription, setErrorDescription] = useState<string>("");
+
+  const handleCloseCreate = () => {
+    setTitle("");
+    setCapacity(undefined);
+    setPrice(0);
+    setStreet("");
+    setCity("");
+    setLocationDetail("");
+    setDate(null);
+    setCategory("");
+    setDescription("");
+    setErrorDescription("");
+    closeCreate();
+  };
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -126,9 +160,160 @@ export default function AdminEventsModule() {
           </Title>
 
           <Group gap="xs" align="flex-end">
-            <Button variant="primary" leftSection={<IconPlus size={16} />}>
+            <Button
+              variant="primary"
+              leftSection={<IconPlus size={16} />}
+              onClick={openCreate}
+            >
               New Event
             </Button>
+            <Modal
+              opened={openedCreate}
+              onClose={handleCloseCreate}
+              title="Create Event"
+              size="xl"
+            >
+              <Stack>
+                <TextInput
+                  data-autofocus
+                  withAsterisk
+                  placeholder="Give the event a catchy title"
+                  label="Tile"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                  }}
+                  // onBlur={() => validateUsernameEdit(usernameEdit)}
+                  // error={usernameEditError}
+                  // disabled={isAccountDetailsLoading}
+                  required
+                />
+                <NumberInput
+                  label="Capacity"
+                  placeholder="Maximum number of attendees"
+                  min={0}
+                  value={capacity}
+                  suffix=" people"
+                  onChange={(value) => {
+                    setCapacity(Number(value));
+                  }}
+                  // onBlur={() => validateEmailEdit(emailEdit)}
+                  // error={emailEditError}
+                  // disabled={isAccountDetailsLoading}
+                />
+                <NumberInput
+                  withAsterisk
+                  label="Price"
+                  placeholder="Entry fee - (0 if free)"
+                  min={0}
+                  prefix="€"
+                  value={price}
+                  onChange={(value) => {
+                    setPrice(Number(value));
+                  }}
+                  // onBlur={() => validateEmailEdit(emailEdit)}
+                  // error={emailEditError}
+                  // disabled={isAccountDetailsLoading}
+                  required
+                />
+                <Grid>
+                  <Grid.Col span={{ base: 12, md: 9 }}>
+                    <TextInput
+                      withAsterisk
+                      label="Street"
+                      value={street}
+                      placeholder="21 Erard street"
+                      onChange={(e) => {
+                        setStreet(e.target.value);
+                      }}
+                      // onBlur={() => validateUsernameEdit(usernameEdit)}
+                      // error={usernameEditError}
+                      // disabled={isAccountDetailsLoading}
+                      required
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 3 }}>
+                    <TextInput
+                      withAsterisk
+                      placeholder="Paris"
+                      label="City"
+                      value={city}
+                      onChange={(e) => {
+                        setCity(e.target.value);
+                      }}
+                      // onBlur={() => validateUsernameEdit(usernameEdit)}
+                      // error={usernameEditError}
+                      // disabled={isAccountDetailsLoading}
+                      required
+                    />
+                  </Grid.Col>
+                </Grid>
+                <TextInput
+                  label="Additional location details"
+                  placeholder="Room 12, 2nd floor"
+                  value={locationDetail}
+                  onChange={(e) => {
+                    setLocationDetail(e.target.value);
+                  }}
+                  // onBlur={() => validateUsernameEdit(usernameEdit)}
+                  // error={usernameEditError}
+                  // disabled={isAccountDetailsLoading}
+                />
+                <DateTimePicker
+                  withAsterisk
+                  label="Date and time of event"
+                  placeholder="When does the event take place?"
+                  value={date}
+                  onChange={setDate}
+                  required
+                  // onBlur={() => validateUsernameEdit(usernameEdit)}
+                  // error={usernameEditError}
+                  // disabled={isAccountDetailsLoading}
+                />
+                <Select
+                  withAsterisk
+                  clearable
+                  label="Category"
+                  value={category}
+                  placeholder="Select a category"
+                  // error={roleNewError}
+                  // onBlur={() => validateRoleNew(roleNew)}
+                  data={[
+                    { value: "workshop", label: "Workshop" },
+                    { value: "conference", label: "Conference" },
+                    { value: "meetups", label: "Meetups" },
+                    { value: "exposition", label: "Exposition" },
+                    { value: "other", label: "Other" },
+                  ]}
+                  onChange={(value) => {
+                    setCategory(value as string);
+                  }}
+                />
+                <TextEditor
+                  label="Event's description"
+                  value={description}
+                  error={errorDescription}
+                  onChange={(value) => {
+                    setDescription(value);
+                  }}
+                />
+              </Stack>
+              <Group mt="lg" justify="center">
+                <Button onClick={handleCloseCreate} variant="grey">
+                  Cancel
+                </Button>
+                <Button
+                  // onClick={(e) => {
+                  //   handleEditAccount(e);
+                  // }}
+                  variant="primary"
+                  // loading={editMutation.isPending}
+                  // disabled={editMutation.isPending || isAccountDetailsLoading}
+                >
+                  Confirm
+                </Button>
+              </Group>
+            </Modal>
           </Group>
         </Group>
         {/* filter options */}

@@ -13,9 +13,10 @@ interface TextEditorProps {
   value: string;
   onChange: (value: string) => void;
   label?: string;
+  error?: string;
 }
 
-export function TextEditor({ value, onChange, label }: TextEditorProps) {
+export function TextEditor({ value, onChange, label, error }: TextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -33,12 +34,20 @@ export function TextEditor({ value, onChange, label }: TextEditorProps) {
   });
 
   return (
-    <Input.Wrapper label={label}>
+    <Input.Wrapper
+      label={label}
+      error={error}
+      styles={{
+        error: {
+          marginTop: "8px",
+        },
+      }}
+    >
       <RichTextEditor
         editor={editor}
         styles={{
           root: {
-            border: "1px solid var(--border-color)",
+            border: error ? "1px solid red" : "1px solid var(--border-color)",
             borderRadius: "8px",
             overflow: "hidden",
           },

@@ -484,13 +484,6 @@ export default function AdminUsersModule() {
 
           <Group gap="xs" align="flex-end">
             <Button
-              variant="primary"
-              leftSection={<IconPlus size={16} />}
-              onClick={openCreate}
-            >
-              New Account
-            </Button>
-            <Button
               variant="edit"
               leftSection={<IconRestore size={16} />}
               onClick={() => {
@@ -498,6 +491,13 @@ export default function AdminUsersModule() {
               }}
             >
               Recover Accounts
+            </Button>
+            <Button
+              variant="primary"
+              leftSection={<IconPlus size={16} />}
+              onClick={openCreate}
+            >
+              New Account
             </Button>
           </Group>
         </Group>
