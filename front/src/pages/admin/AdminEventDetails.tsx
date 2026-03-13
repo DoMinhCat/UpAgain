@@ -8,6 +8,8 @@ import {
   Card,
   Grid,
   Divider,
+  Button,
+  Table,
 } from "@mantine/core";
 import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
 import { PATHS } from "../../routes/paths";
@@ -15,8 +17,10 @@ import {
   IconCalendarEvent,
   IconCoinEuro,
   IconMapPin,
+  IconMapPinFilled,
   IconUsers,
 } from "@tabler/icons-react";
+import AdminTable from "../../components/admin/AdminTable";
 
 export default function AdminEventDetails() {
   return (
@@ -30,113 +34,70 @@ export default function AdminEventDetails() {
           { title: "Event's Details", href: "#" },
         ]}
       />
-      <Container p="md" size="xl">
+      <Container p="lg" size="xl">
         {/* The justify="space-between" works best when items have defined widths or flex growth */}
-        <Grid gutter="xl" align="flex-start">
+        <Grid gutter="xl" align="flex-start" mb="xl">
           {/* LEFT SECTION: Added flex: 1 to occupy remaining space */}
           <Grid.Col span={{ base: 12, md: 8 }}>
-            <Group style={{ flex: 1 }}>
-              <Stack gap={0} style={{ width: "100%" }}>
-                <Group>
-                  <Badge size="sm" variant="green">
-                    Category
-                  </Badge>
-                  <Badge size="sm" variant="green">
-                    Status
-                  </Badge>
-                </Group>
+            {/* <Group style={{ flex: 1 }}> */}
+            <Stack gap={0} style={{ width: "100%" }}>
+              <Group>
+                <Badge size="sm" variant="green">
+                  Category
+                </Badge>
+                <Badge size="sm" variant="green">
+                  Status
+                </Badge>
+              </Group>
 
-                <Title order={2} mt="lg" mb="xs">
-                  Event's title
-                </Title>
-                <Text c="dimmed" size="xs" mb="xl">
-                  Created on March 13 2026
-                </Text>
-                <div>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Maecenas ullamcorper metus risus, a varius tortor ultrices in.
-                  Etiam sed eros in tortor viverra tristique commodo id est. Ut
-                  egestas vestibulum purus vitae gravida. Nunc id lectus eget mi
-                  venenatis vestibulum. Nunc consequat viverra ex, quis
-                  malesuada mauris. Aenean interdum nibh et sem venenatis, eget
-                  maximus ex fermentum. Nunc et eleifend mi, eget tempor lacus.
-                  Aenean ut massa enim. Aliquam placerat mi arcu, vitae ornare
-                  lorem mollis et. Aliquam aliquam nulla ullamcorper,
-                  condimentum erat non, ultricies mi. Vivamus nec sem sem.
-                  Quisque non nisl eget nisl tincidunt fringilla id ac enim.
-                  Phasellus molestie iaculis commodo. Cras sed nisl iaculis,
-                  dignissim tortor eget, eleifend turpis. Morbi risus justo,
-                  porta at bibendum a, vestibulum vel tortor. Ut fermentum
-                  convallis rutrum. Etiam rutrum, sem eu vehicula iaculis, nulla
-                  eros ornare ex, vitae iaculis nisi lacus vitae enim. Donec
-                  ligula arcu, mattis sed ante at, ullamcorper ultricies nisi.
-                  Vivamus vehicula lorem vel efficitur venenatis. Ut non ligula
-                  velit. Nunc porttitor in nulla vitae iaculis. In sollicitudin
-                  magna convallis urna ullamcorper, ut scelerisque magna
-                  tincidunt. Nunc vitae faucibus urna, in vehicula est. Ut felis
-                  eros, fringilla sed mi non, laoreet sollicitudin dolor.
-                  Phasellus velit diam, iaculis et neque quis, consequat congue
-                  eros. Nulla facilisi. Maecenas in augue neque. Mauris
-                  fermentum efficitur nisl sit amet ultricies. Nunc viverra
-                  pellentesque sodales. Suspendisse venenatis efficitur purus
-                  posuere rutrum. Proin eu tellus elementum, elementum mauris
-                  id, ultricies tortor. Donec at diam id diam vestibulum
-                  rhoncus. Pellentesque ex neque, vulputate sed justo sodales,
-                  fermentum ultrices velit. Fusce dapibus ipsum mi, vel
-                  ullamcorper nisi ullamcorper sit amet. Morbi ac nulla vel nunc
-                  cursus consequat et eu leo.
-                  <br />
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Maecenas ullamcorper metus risus, a varius tortor ultrices in.
-                  Etiam sed eros in tortor viverra tristique commodo id est. Ut
-                  egestas vestibulum purus vitae gravida. Nunc id lectus eget mi
-                  venenatis vestibulum. Nunc consequat viverra ex, quis
-                  malesuada mauris. Aenean interdum nibh et sem venenatis, eget
-                  maximus ex fermentum. Nunc et eleifend mi, eget tempor lacus.
-                  Aenean ut massa enim. Aliquam placerat mi arcu, vitae ornare
-                  lorem mollis et. Aliquam aliquam nulla ullamcorper,
-                  condimentum erat non, ultricies mi. Vivamus nec sem sem.
-                  Quisque non nisl eget nisl tincidunt fringilla id ac enim.
-                  Phasellus molestie iaculis commodo. Cras sed nisl iaculis,
-                  dignissim tortor eget, eleifend turpis. Morbi risus justo,
-                  porta at bibendum a, vestibulum vel tortor. Ut fermentum
-                  convallis rutrum. Etiam rutrum, sem eu vehicula iaculis, nulla
-                  eros ornare ex, vitae iaculis nisi lacus vitae enim. Donec
-                  ligula arcu, mattis sed ante at, ullamcorper ultricies nisi.
-                  Vivamus vehicula lorem vel efficitur venenatis. Ut non ligula
-                  velit. Nunc porttitor in nulla vitae iaculis. In sollicitudin
-                  magna convallis urna ullamcorper, ut scelerisque magna
-                  tincidunt. Nunc vitae faucibus urna, in vehicula est. Ut felis
-                  eros, fringilla sed mi non, laoreet sollicitudin dolor.
-                  Phasellus velit diam, iaculis et neque quis, consequat congue
-                  eros. Nulla facilisi. Maecenas in augue neque. Mauris
-                  fermentum efficitur nisl sit amet ultricies. Nunc viverra
-                  pellentesque sodales. Suspendisse venenatis efficitur purus
-                  posuere rutrum. Proin eu tellus elementum, elementum mauris
-                  id, ultricies tortor. Donec at diam id diam vestibulum
-                  rhoncus. Pellentesque ex neque, vulputate sed justo sodales,
-                  fermentum ultrices velit. Fusce dapibus ipsum mi, vel
-                  ullamcorper nisi ullamcorper sit amet. Morbi ac nulla vel nunc
-                  cursus consequat et eu leo.Lorem ipsum dolor sit amet,
-                  consectetur adipiscing elit. Maecenas ullamcorper metus risus,
-                  a varius tortor ultrices in. Etiam sed eros in tortor viverra
-                  tristique commodo id est. Ut egestas vestibulum purus vitae
-                  gravida. Nunc id lectus eget mi venenatis vestibulum. Nunc
-                  consequat viverra ex, quis malesuada mauris. Aenean interdum
-                  nibh et sem venenatis, eget maximus ex fermentum. Nunc et
-                  eleifend mi, eget tempor lacus. Aenean ut massa enim. Aliquam
-                  placerat mi arcu, vitae ornare lorem mollis et. Aliquam
-                  aliquam nulla ullamcorper, condimentum erat non, ultricies mi.
-                  Proin eu tellus elementum, elementum mauris id, ultricies
-                  tortor. Donec at diam id diam vestibulum rhoncus. Pellentesque
-                  ex neque, vulputate sed justo sodales, fermentum ultrices
-                  velit. Fusce dapibus ipsum mi, vel ullamcorper nisi
-                  ullamcorper sit amet. Morbi ac nulla vel nunc cursus consequat
-                  et eu leo.
-                </div>
-              </Stack>
+              <Title order={2} mt="lg" mb="xs">
+                Event's title
+              </Title>
+              <Text c="dimmed" size="xs" mb="xl">
+                Created on March 13 2026
+              </Text>
+              <div>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Maecenas ullamcorper metus risus, a varius tortor ultrices in.
+                Etiam sed eros in tortor viverra tristique commodo id est. Ut
+                egestas vestibulum purus vitae gravida. Nunc id lectus eget mi
+                venenatis vestibulum. Nunc consequat viverra ex, quis malesuada
+                mauris. Aenean interdum nibh et sem venenatis, eget maximus ex
+                fermentum. Nunc et eleifend mi, eget tempor lacus. Aenean ut
+                massa enim. Aliquam placerat mi arcu, vitae ornare lorem mollis
+                ies tortor. Donec at diam id diam vestibulum rhoncus.
+                Pellentesque ex neque, vulputate sed justo sodales, fermentum
+                ultrices velit. Fusce dapibus ipsum mi, vel ullamcorper nisi
+                ullamcorper sit amet. Morbi ac nulla vel nunc cursus consequat
+                et eu leo.
+                <br />
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Maecenas ullamcorper metus risus, a varius tortor ultrices in.
+                Etiam sed eros in tortor viverra tristique commodo id est. Ut
+                egestas vestibulum purus vitae gravida. Nunc id lectus eget mi
+                venenatis vestibulum. Nunc consequat viverra ex, quis malesuada
+                <br />
+                magna tincidunt. Nunc vitae faucibus urna, in vehicula est. Ut
+                felis eros, fringilla sed mi non, laoreet sollicitudin dolor.
+                Phasellus velit diam, iaculis et neque quis, consequat congue
+                eros. Nulla facilisi. Maecenas in augue neque. Mauris fermentum
+                efficitur nisl sit amet ultricies. Nunc viverra pellentesque
+                sodales. Suspendisse venenatis efficitur purus posuere rutrum.
+                Proin eu tellus elementum, elementum mauris id, ultricies
+                tortor. Donec at diam id diam vestibulum rhoncus. Pellentesque
+                ex neque, vulputate sed justo sodales, fermentum ultrices velit.
+                Fusce dapibus ipsum mi, vel ullamcorper nisi ullamcorper sit
+                amet. ullamcorper sit amet. Morbi ac nulla vel nunc cursus
+                consequat et eu leo.
+              </div>
+            </Stack>
+            <Group gap="sm" mt="xl">
+              <IconMapPinFilled color="green" size={32} />
+              <Title order={3}>Location</Title>
             </Group>
+            <Text mt="md">Some text about location</Text>
           </Grid.Col>
+
           {/* RIGHT SECTION */}
           <Grid.Col
             span={{ base: 12, md: 4 }}
@@ -158,31 +119,45 @@ export default function AdminEventDetails() {
                 <Group justify="space-between">
                   <Group gap="xs">
                     <IconCoinEuro />
-                    <Text c="dimmed">Fee</Text>
+                    <Text>60€</Text>
                   </Group>
-
-                  <Text fw={500}>$50.00</Text>
                 </Group>
 
                 <Group justify="space-between">
                   <Group gap="xs">
                     <IconUsers />
-                    <Text c="dimmed">Capacity</Text>
+                    <Text>Capacity 16</Text>
                   </Group>
-                  <Text fw={500}>120/150</Text>
                 </Group>
 
                 <Group justify="space-between">
                   <Group gap="xs">
                     <IconMapPin />
-                    <Text c="dimmed">Location</Text>
+                    <Text>Location Paris</Text>
                   </Group>
-                  <Text fw={500}>Convention Hall A</Text>
                 </Group>
+                <Button variant="edit">Edit event</Button>
               </Stack>
             </Card>
           </Grid.Col>
         </Grid>
+
+        {/* Assigned employee List */}
+        <Title order={3} mb="lg">
+          Assigned employees
+        </Title>
+        <AdminTable
+          loading={false}
+          error={null}
+          header={["Assigned on", "ID", "Employee", "Actions"]}
+        >
+          <Table.Tr>
+            <Table.Td ta="center">1</Table.Td>
+            <Table.Td ta="center">2</Table.Td>
+            <Table.Td ta="center">3</Table.Td>
+            <Table.Td ta="center">4</Table.Td>
+          </Table.Tr>
+        </AdminTable>
       </Container>
     </Container>
   );
