@@ -9,7 +9,10 @@ import {
   Grid,
   Divider,
   Button,
+  Modal,
+  TextInput,
   Table,
+  NumberInput,
 } from "@mantine/core";
 import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
 import { PATHS } from "../../routes/paths";
@@ -21,8 +24,21 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import AdminTable from "../../components/admin/AdminTable";
+import { useDisclosure } from "@mantine/hooks";
+import { useState } from "react";
 
 export default function AdminEventDetails() {
+  // edit modal and form
+  const [openedEdit, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
+  const [titleEdit, setTitleEdit] = useState<string>("");
+  const [capacityEdit, setCapacityEdit] = useState<number>(0);
+
+  const handleCloseEdit = () => {
+    setTitleEdit("");
+    setCapacityEdit(0);
+    closeEdit();
+  };
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
@@ -136,7 +152,61 @@ export default function AdminEventDetails() {
                     <Text>Location Paris</Text>
                   </Group>
                 </Group>
-                <Button variant="edit">Edit event</Button>
+                <Button variant="edit" onClick={openEdit}>
+                  Edit event
+                </Button>
+                <Modal
+                  title="Edit event"
+                  opened={openedEdit}
+                  onClose={handleCloseEdit}
+                  centered
+                  size="xl"
+                >
+                  <Stack>
+                    <TextInput
+                      data-autofocus
+                      withAsterisk
+                      label="Tile"
+                      value={titleEdit}
+                      // onChange={(e) => {
+                      //   setUsernameEdit(e.target.value);
+                      //   validateUsernameEdit(e.target.value);
+                      // }}
+                      // onBlur={() => validateUsernameEdit(usernameEdit)}
+                      // error={usernameEditError}
+                      // disabled={isAccountDetailsLoading}
+                      required
+                    />
+                    <NumberInput
+                      withAsterisk
+                      label="Capacity"
+                      value={capacityEdit}
+                      // onChange={(e) => {
+                      //   setEmailEdit(e.target.value);
+                      //   validateEmailEdit(e.target.value);
+                      // }}
+                      // onBlur={() => validateEmailEdit(emailEdit)}
+                      // error={emailEditError}
+                      // disabled={isAccountDetailsLoading}
+                      required
+                    />
+                  </Stack>
+                  <Group mt="lg" justify="center">
+                    <Button onClick={handleCloseEdit} variant="grey">
+                      Cancel
+                    </Button>
+                    <Button
+                      // onClick={(e) => {
+                      //   handleEditAccount(e);
+                      // }}
+                      variant="primary"
+                      // loading={editMutation.isPending}
+                      // disabled={editMutation.isPending || isAccountDetailsLoading}
+                    >
+                      Confirm
+                    </Button>
+                  </Group>
+                </Modal>
               </Stack>
             </Card>
           </Grid.Col>
