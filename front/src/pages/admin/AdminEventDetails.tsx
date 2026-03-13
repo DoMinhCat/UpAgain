@@ -11,6 +11,8 @@ import {
   Button,
   Modal,
   TextInput,
+  type ComboboxItem,
+  type OptionsFilter,
   Table,
   NumberInput,
   Select,
@@ -23,6 +25,7 @@ import {
   IconCoinEuro,
   IconMapPin,
   IconMapPinFilled,
+  IconPlus,
   IconUsers,
 } from "@tabler/icons-react";
 import AdminTable from "../../components/admin/AdminTable";
@@ -41,6 +44,20 @@ export default function AdminEventDetails() {
   const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
   const [dateEdit, setDateEdit] = useState<string | null>(null);
   const [categoryEdit, setCategoryEdit] = useState<string>("");
+
+  // assign employee modal and form
+  const [openedAssign, { open: openAssign, close: closeAssign }] =
+    useDisclosure(false);
+  const [employeeAssign, setEmployeeAssign] = useState<string>("");
+  const filterEmployee: OptionsFilter = ({ options, search }) => {
+    const splittedSearch = search.toLowerCase().trim().split(" ");
+    return (options as ComboboxItem[]).filter((option) => {
+      const words = option.label.toLowerCase().trim().split(" ");
+      return splittedSearch.every((searchWord) =>
+        words.some((word) => word.includes(searchWord)),
+      );
+    });
+  };
 
   return (
     <Container px="md" size="xl">
@@ -297,9 +314,64 @@ export default function AdminEventDetails() {
         </Grid>
 
         {/* Assigned employee List */}
-        <Title order={3} mb="lg">
-          Assigned employees
-        </Title>
+        <Group justify="space-between">
+          <Title order={3} mb="lg">
+            Assigned employees
+          </Title>
+          <Button
+            variant="primary"
+            onClick={openAssign}
+            leftSection={<IconPlus size={16} />}
+          >
+            Assign employee
+          </Button>
+          <Modal
+            title="Assign employee"
+            opened={openedAssign}
+            onClose={closeAssign}
+            centered
+            size="md"
+          >
+            <Stack>
+              <Select
+                withAsterisk
+                clearable
+                label="Employee"
+                value={employeeAssign}
+                maxDropdownHeight={200}
+                filter={filterEmployee}
+                searchable
+                // error={roleNewError}
+                // onBlur={() => validateRoleNew(roleNew)}
+                data={[
+                  { value: "1", label: "Employee 1" },
+                  { value: "2", label: "Employee 2" },
+                  { value: "3", label: "Employee 3" },
+                  { value: "4", label: "Employee 4" },
+                  { value: "5", label: "Employee 5" },
+                ]}
+                onChange={(value) => {
+                  setEmployeeAssign(value as string);
+                }}
+              />
+            </Stack>
+            <Group mt="lg" justify="center">
+              <Button onClick={closeAssign} variant="grey">
+                Cancel
+              </Button>
+              <Button
+                // onClick={(e) => {
+                //   handleEditAccount(e);
+                // }}
+                variant="primary"
+                // loading={editMutation.isPending}
+                // disabled={editMutation.isPending || isAccountDetailsLoading}
+              >
+                Confirm
+              </Button>
+            </Group>
+          </Modal>
+        </Group>
         <AdminTable
           loading={false}
           error={null}
