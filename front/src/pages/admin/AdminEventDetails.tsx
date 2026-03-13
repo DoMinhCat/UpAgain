@@ -31,6 +31,7 @@ import {
 import AdminTable from "../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
+import { TextEditor } from "../../components/TextEditor";
 
 export default function AdminEventDetails() {
   // edit modal and form
@@ -44,6 +45,7 @@ export default function AdminEventDetails() {
   const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
   const [dateEdit, setDateEdit] = useState<string | null>(null);
   const [categoryEdit, setCategoryEdit] = useState<string>("");
+  const [descriptionEdit, setDescriptionEdit] = useState<string>("");
 
   // assign employee modal and form
   const [openedAssign, { open: openAssign, close: closeAssign }] =
@@ -289,6 +291,13 @@ export default function AdminEventDetails() {
                       ]}
                       onChange={(value) => {
                         setCategoryEdit(value as string);
+                      }}
+                    />
+                    <TextEditor
+                      label="Event's description"
+                      value={descriptionEdit}
+                      onChange={(value) => {
+                        setDescriptionEdit(value);
                       }}
                     />
                   </Stack>
