@@ -9,6 +9,8 @@ import AdminUsersModule from "../pages/admin/AdminUsersModule.tsx";
 import AdminUserDetails from "../pages/admin/AdminUserDetails.tsx";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import AdminEventsModule from "../pages/admin/AdminEventsModule.tsx";
+import AdminEventDetails from "../pages/admin/AdminEventDetails.tsx";
 
 // implement the same Guard component for user and pro
 const AdminGuard = ({ children }: { children: React.ReactNode }) => {
@@ -54,6 +56,16 @@ export const adminRoutes: RouteObject = {
         {
           path: ":id", // Affiche <AdminUserDetails /> sur "/admin/users/:id"
           element: <AdminUserDetails />,
+        },
+      ],
+    },
+    {
+      path: "events",
+      children: [
+        { index: true, element: <AdminEventsModule /> },
+        {
+          path: ":id",
+          element: <AdminEventDetails />,
         },
       ],
     },
