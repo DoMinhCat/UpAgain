@@ -99,7 +99,7 @@ func GetPendingListings() ([]models.PendingListingResponse, error) {
 func GetPendingEvents() ([]models.PendingEventResponse, error) {
 	query := `
 		SELECT 
-			ev.id, ev.title, ev.description, ev.category, ev.date_start, ev.time_start, 
+			ev.id, ev.title, ev.description, ev.category, ev.start_at, 
 			ev.capacity, ev.price, ev.created_at, ee.id_employee, acc.username
 		FROM events ev
 		JOIN event_employee ee ON ev.id = ee.id_event
@@ -125,7 +125,6 @@ func GetPendingEvents() ([]models.PendingEventResponse, error) {
 			&ev.Description,
 			&ev.Category,
 			&ev.DateStart,
-			&ev.TimeStart,
 			&ev.Capacity,
 			&ev.Price,
 			&ev.CreatedAt,

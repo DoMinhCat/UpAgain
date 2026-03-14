@@ -48,7 +48,6 @@ type PendingEventResponse struct {
 	Description      null.String `json:"description"`
 	Category         string      `json:"category"`
 	DateStart        time.Time   `json:"date_start"`
-	TimeStart        null.String `json:"time_start"`
 	Capacity         null.Int    `json:"capacity"`
 	Price            null.Float  `json:"price"`
 	CreatedAt        time.Time   `json:"created_at"`
