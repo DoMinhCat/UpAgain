@@ -35,7 +35,6 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import { showErrorNotification } from "../../components/NotificationToast";
 
 import FullScreenLoader from "../../components/FullScreenLoader";
 import InfoField from "../../components/InfoField";
@@ -203,20 +202,11 @@ export default function AdminUserDetails() {
   const {
     data: accountStats,
     isLoading: isAccountStatsLoading,
-    error: errorAccountStats,
   } = useAccountStats(
     accountId,
     isValidId && role != "admin" && !isAccountDetailsLoading,
   );
 
-  useEffect(() => {
-    if (errorAccountDetails) {
-      showErrorNotification("Error", "Error while fetching account details");
-    }
-    if (errorAccountStats) {
-      showErrorNotification("Error", "Error while fetching account stats");
-    }
-  }, [errorAccountDetails, errorAccountStats]);
 
   // delete hook
   const deletionMutation = useDeleteAccount();
