@@ -3,6 +3,7 @@ export const ENDPOINTS = {
   ADMIN: {
     USERS: "/accounts/",
     CONTAINERS: "/containers/",
+    USERS_COUNT: "/accounts/count/",
   },
 
   AUTH: {

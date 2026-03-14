@@ -10,6 +10,7 @@ import {
   PasswordInput,
   Pill,
   Select,
+  Progress,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -78,6 +79,13 @@ const UpAgainTheme = createTheme({
         classNames: {
           input: classes.input,
           label: classes.label,
+        },
+      },
+    }),
+    Progress: Progress.extend({
+      defaultProps: {
+        classNames: {
+          section: classes.progress,
         },
       },
     }),
