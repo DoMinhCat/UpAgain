@@ -399,3 +399,22 @@ func GetAccountIdByUsername(username string) (int, error){
 	}
 	return id, nil
 }
+
+
+func GetAccountCount() (int, error){
+	var count int
+	err := utils.Conn.QueryRow("select count(*) from accounts").Scan(&count)
+	if err != nil{
+		return 0, fmt.Errorf("GetAccountCount() failed: %v", err.Error())
+	}
+	return count, nil
+}
+
+func GetAccountIncreaseSince(since time.Time) (int, error){
+	var count int
+	err := utils.Conn.QueryRow("select count(*) from accounts where created_at > $1", since).Scan(&count)
+	if err != nil{
+		return 0, fmt.Errorf("GetAccountIncreaseSince() failed: %v", err.Error())
+	}
+	return count, nil
+}

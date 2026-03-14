@@ -18,4 +18,5 @@ func GetAccountRoutes(mux *http.ServeMux) {
 	mux.Handle("PATCH /accounts/{id_account}/recover/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.RecoverAccount))))
 	mux.Handle("PATCH /accounts/{id_account}/update/{$}", middleware.AuthMiddleware([]string{"admin", "employee", "user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateAccount))))
 	mux.Handle("GET /accounts/{id_account}/stats/{$}", middleware.AuthMiddleware([]string{"admin", "employee", "user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAccountStats))))
+	mux.Handle("GET /accounts/count/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAccountCount))))
 }

@@ -210,3 +210,7 @@
     background-color: var(--mantine-color-yellow-6);
   }
 }
+
+.progress {
+  background-color: #45a575;
+}
