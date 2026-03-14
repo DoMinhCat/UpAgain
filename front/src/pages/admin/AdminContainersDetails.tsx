@@ -141,8 +141,8 @@ export default function AdminContainersDetails() {
           label="New Status"
           placeholder="Pick one"
           data={[
-            { value: 'ready', label: 'Ready (Available)' },
-            { value: 'full', label: 'Full (Needs Collection)' },
+            { value: 'ready', label: 'Ready' },
+            { value: 'occupied', label: 'Occupied' },
             { value: 'maintenance', label: 'Maintenance' },
           ]}
           defaultValue={container?.status}

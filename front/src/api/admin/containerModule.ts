@@ -28,7 +28,7 @@ export const getContainerDetails = async (id: number) => {
 
 export const updateContainerStatus = async (id: number, status: string) => {
   try {
-    return await api.patch(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`, { status });
+    return await api.put(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`, { status });
   } catch (error: any) {
     showErrorNotification("Error while updating container status", error);
     throw error;
@@ -38,4 +38,9 @@ export const updateContainerStatus = async (id: number, status: string) => {
 export const deleteContainer = async (id: number) => {
   const response = await api.delete(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`);
   return response;
+};
+
+export const createContainer = async (container: Partial<Container>) => {
+  const response = await api.post(ENDPOINTS.ADMIN.CONTAINERS, container);
+  return response.data;
 };

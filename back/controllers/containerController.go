@@ -100,10 +100,28 @@ func GetContainerCountStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stats := models.ContainerCountStats{
-		Total: totalCount,
+		Total:  totalCount,
 		Active: activeCount,
 	}
 	utils.RespondWithJSON(w, http.StatusOK, stats)
 }
 
+func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
+	var c models.Container
+	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
 
+	id, err := db.InsertContainer(c)
+	if err != nil {
+		slog.Error("Failed to create container", "error", err)
+		http.Error(w, "Creation failed", http.StatusInternalServerError)
+		return
+	}
+
+	c.ID = id
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(c)
+}

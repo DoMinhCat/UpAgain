@@ -4,6 +4,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"fmt"
+	"log/slog"
 )
 
 func GetAllContainers() ([]models.Container, error) {
@@ -27,7 +28,7 @@ func GetAllContainers() ([]models.Container, error) {
 
 func FindContainerByID(id int) (models.Container, error) {
 	var c models.Container
-	query := `SELECT id, created_at, city_name, postal_code, status, is_deleted 
+	query := `SELECT id, created_at, city_name, postal_code, status, is_deleted
 			  FROM containers WHERE id = $1 AND is_deleted = false`
 
 	err := utils.Conn.QueryRow(query, id).Scan(
@@ -75,8 +76,22 @@ func GetContainerCountByStatus(status *string) (int, error) {
 			param = ""
 		}
 	}
-	
+
 	query := "SELECT COUNT(*) FROM containers "
 	err := utils.Conn.QueryRow(query + param + ";").Scan(&count)
 	return count, err
+}
+
+func InsertContainer(c models.Container) (int, error) {
+	var newId int
+	query := `INSERT INTO containers (city_name, postal_code, status, is_deleted, created_at)
+              VALUES ($1, $2, $3, false, NOW()) RETURNING id`
+
+	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, "ready").Scan(&newId)
+
+	if err != nil {
+		slog.Error("CRITICAL SQL ERROR", "msg", err.Error())
+	}
+
+	return newId, err
 }
