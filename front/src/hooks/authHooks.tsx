@@ -4,10 +4,7 @@ import { RegisterRequest, type RegisterPayload } from "../api/admin/userModule";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "../routes/paths";
-import {
-  showErrorNotification,
-  showSuccessNotification,
-} from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/NotificationToast";
 
 export const useLogin = () => {
   const navigate = useNavigate();
@@ -15,6 +12,10 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: (payload: LoginPayload) => LoginRequest(payload),
+    meta: {
+      errorTitle: "Login failed",
+      errorMessage: "Could not log in to your account",
+    },
     onSuccess: (data) => {
       const user = login(data.token);
 
@@ -25,9 +26,6 @@ export const useLogin = () => {
         navigate(PATHS.HOME);
       }
     },
-    onError: (error: any) => {
-      showErrorNotification("Login failed", error);
-    },
   });
 };
 
@@ -36,6 +34,10 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: (payload: RegisterPayload) => RegisterRequest(payload),
+    meta: {
+      errorTitle: "Registration failed",
+      errorMessage: "Could not register your account",
+    },
     onSuccess: (response) => {
       if (response?.status === 201) {
         navigate(PATHS.GUEST.LOGIN);
@@ -44,9 +46,6 @@ export const useRegister = () => {
           "You have been registered successfully, log in to continue.",
         );
       }
-    },
-    onError: (error: any) => {
-      showErrorNotification("Registration failed", error);
     },
   });
 };
