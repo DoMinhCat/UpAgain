@@ -10,36 +10,47 @@ import {
   Text,
   Title,
   Button,
+  Tooltip,
   Modal,
+  Loader,
+  TextInput,
 } from "@mantine/core";
 import { PATHS } from "../../routes/paths";
 import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
 import { ScoreRing } from "../../components/ScoreRing";
 import { useEffect, useState } from "react";
+
 import {
-  deleteAccount,
-  getAccountDetails,
-  updatePassword,
-  type Account,
-  type updatePasswordPayload,
-} from "../../api/admin/userModule";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+  useAccountDetails,
+  useDeleteAccount,
+  useUpdatePassword,
+  useToggleBanAccount,
+  useRecoverAccount,
+  useAccountStats,
+  useUpdateAccount,
+} from "../../hooks/accountHooks";
 import {
-  showErrorNotification,
-  showSuccessNotification,
-} from "../../components/NotificationToast";
-import { useMutation, useQuery } from "@tanstack/react-query";
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
 import FullScreenLoader from "../../components/FullScreenLoader";
 import InfoField from "../../components/InfoField";
 import dayjs from "dayjs";
 import PasswordStrengthInput, {
   requirements,
 } from "../../components/PasswordStrengthInput";
-import { IconLock } from "@tabler/icons-react";
+import { IconLock, IconInfoCircleFilled } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuth } from "../../context/AuthContext";
 
 export default function AdminUserDetails() {
+  // for breadcrumbs
+  const location = useLocation();
+  const origin = location.state;
+
   const { user } = useAuth();
   const navigate = useNavigate();
   // modal control
@@ -52,16 +63,26 @@ export default function AdminUserDetails() {
     openedChangePassword,
     { open: openChangePassword, close: closeChangePassword },
   ] = useDisclosure(false);
+  const [openedRecover, { open: openRecover, close: closeRecover }] =
+    useDisclosure(false);
 
   // states for password form
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [isLoadingPasswordForm, setIsLoadingPasswordForm] =
-    useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmPasswordError, setConfirmPasswordError] = useState<
     string | null
   >(null);
+  // states edit form
+  const [usernameEdit, setUsernameEdit] = useState<string>("");
+  const [emailEdit, setEmailEdit] = useState<string>("");
+  const [phoneEdit, setPhoneEdit] = useState<string>("");
+  const [usernameEditError, setUsernameEditError] = useState<string | null>(
+    null,
+  );
+  const [emailEditError, setEmailEditError] = useState<string | null>(null);
+  const [phoneEditError, setPhoneEditError] = useState<string | null>(null);
+  const [disablePhoneEdit, setDisablePhoneEdit] = useState<boolean>(false);
 
   //validations
   const validatePassword = (val: string) => {
@@ -99,6 +120,56 @@ export default function AdminUserDetails() {
     return true;
   };
 
+  const validateUsernameEdit = (val: string) => {
+    if (!val) {
+      setUsernameEditError("Username is required");
+      return false;
+    }
+    if (val.length < 4) {
+      setUsernameEditError("Username must be at least 4 characters long");
+      return false;
+    }
+    if (val.length > 20) {
+      setUsernameEditError("Username must be at most 20 characters long");
+      return false;
+    }
+    setUsernameEditError(null);
+    return true;
+  };
+
+  const validateEmailEdit = (val: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!val) {
+      setEmailEditError("Email is required");
+      return false;
+    }
+    if (!regex.test(val)) {
+      setEmailEditError("Invalid email format");
+      return false;
+    }
+    setEmailEditError(null);
+    return true;
+  };
+
+  const validatePhoneEdit = (val: string) => {
+    if (val.length !== 0) {
+      if (!val.match(/^[0-9]+$/)) {
+        setPhoneEditError("Phone number must contain only numbers");
+        return false;
+      }
+      if (val.length < 10) {
+        setPhoneEditError("Phone must be at least 10 characters long");
+        return false;
+      }
+      if (val.length > 15) {
+        setPhoneEditError("Phone must be at most 15 characters long");
+        return false;
+      }
+      setPhoneEditError(null);
+      return true;
+    }
+  };
+
   // Fetch account info to display
   const params = useParams();
   const accountId: number = params.id ? parseInt(params.id) : 0;
@@ -107,60 +178,54 @@ export default function AdminUserDetails() {
     data: accountDetails,
     isLoading: isAccountDetailsLoading,
     error: errorAccountDetails,
-  } = useQuery<Account>({
-    queryKey: ["accountDetails", accountId],
-    queryFn: () => getAccountDetails(accountId),
-    enabled: isValidId, // only run query if isValidId
-  });
+  } = useAccountDetails(accountId, isValidId);
+  const role = accountDetails?.role;
+  const is_banned = accountDetails?.is_banned;
 
+  // insert values for edit form
   useEffect(() => {
-    if (errorAccountDetails) {
-      showErrorNotification("Error", "Error while fetching account details");
+    if (accountDetails) {
+      setUsernameEdit(accountDetails.username || "");
+      setEmailEdit(accountDetails.email || "");
+      setPhoneEdit(accountDetails.phone || "");
+      if (
+        accountDetails.role === "admin" ||
+        accountDetails.role === "employee"
+      ) {
+        setDisablePhoneEdit(true);
+      } else {
+        setDisablePhoneEdit(false);
+      }
     }
-  }, [errorAccountDetails]);
+  }, [accountDetails]);
+
+  const {
+    data: accountStats,
+    isLoading: isAccountStatsLoading,
+  } = useAccountStats(
+    accountId,
+    isValidId && role != "admin" && !isAccountDetailsLoading,
+  );
+
 
   // delete hook
-  const deletionMutation = useMutation({
-    mutationFn: (accountId: number) => deleteAccount(accountId),
-    onSuccess: (response) => {
-      if (response.status === 204) {
-        showSuccessNotification(
-          "Account deleted",
-          "Account deleted successfully.",
-        );
-        closeDelete();
-        navigate(PATHS.ADMIN.USERS);
-      }
-    },
-    onError: (error: any) => {
-      showErrorNotification("Account deletion failed", error);
-    },
-  });
+  const deletionMutation = useDeleteAccount();
   const handleDeleteAccount = async () => {
     if (accountId) {
-      deletionMutation.mutate(accountId);
+      deletionMutation.mutate(accountId, {
+        onSuccess: (response) => {
+          if (response?.status === 204) {
+            closeDelete();
+            navigate(PATHS.ADMIN.USERS.ALL);
+          }
+        },
+      });
     }
   };
 
   // change pass hook
   const { mutate: mutatePasswordUpdate, isPending: isPendingPasswordUpdate } =
-    useMutation({
-      mutationFn: (payload: updatePasswordPayload) => updatePassword(payload),
-      onSuccess: (response) => {
-        if (response?.status === 204) {
-          showSuccessNotification(
-            "Password updated",
-            "Password changed successfully.",
-          );
-          closeChangePassword();
-          setPassword("");
-          setConfirmPassword("");
-        }
-      },
-      onError: (error: any) => {
-        showErrorNotification("Password update failed", error);
-      },
-    });
+    useUpdatePassword();
 
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,24 +235,101 @@ export default function AdminUserDetails() {
     )
       return;
 
-    mutatePasswordUpdate({ id: accountId, newPassword: password });
+    mutatePasswordUpdate(
+      { id: accountId, newPassword: password },
+      {
+        onSuccess: (response) => {
+          if (response?.status === 204) {
+            closeChangePassword();
+            setPassword("");
+            setConfirmPassword("");
+          }
+        },
+      },
+    );
+  };
+
+  // ban hook
+  const { mutate: mutateToggleBan, isPending: isPendingToggleBan } =
+    useToggleBanAccount();
+
+  const handleBan = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutateToggleBan(
+      { id: accountId, is_banned: is_banned ? true : false },
+      {
+        onSuccess: (response) => {
+          if (response?.status === 204) {
+            closeBan();
+          }
+        },
+      },
+    );
+  };
+
+  const { mutate: mutateRecover, isPending: isPendingRecover } =
+    useRecoverAccount();
+
+  const handleRecover = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (accountId) {
+      mutateRecover(accountId, {
+        onSuccess: (response) => {
+          if (response?.status === 204) {
+            closeRecover();
+          }
+        },
+      });
+    }
+  };
+
+  const editMutation = useUpdateAccount();
+  const handleEditAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !validateUsernameEdit(usernameEdit) ||
+      !validateEmailEdit(emailEdit) ||
+      !validatePhoneEdit(phoneEdit)
+    )
+      return;
+    if (accountId) {
+      editMutation.mutate(
+        {
+          id_account: accountId,
+          username: usernameEdit,
+          email: emailEdit,
+          phone: phoneEdit,
+        },
+        {
+          onSuccess: (response: any) => {
+            if (response?.status === 204) {
+              closeEdit();
+            }
+          },
+        },
+      );
+    }
   };
 
   if (isAccountDetailsLoading) {
     return <FullScreenLoader />;
   }
   if (errorAccountDetails) {
-    return <Navigate to={PATHS.ADMIN.USERS} replace />;
+    return <Navigate to={PATHS.ADMIN.USERS.ALL} replace />;
   }
-  const role = accountDetails?.role;
-  console.log(role === "admin" && accountId != user?.id);
-  console.log(accountId.toString(), user?.id);
+
   return (
     <Container px="md" size="xl">
+      <Title order={2} mt="xs" mb="sm">
+        User's Details
+      </Title>
       <AdminBreadcrumbs
         breadcrumbs={[
-          { title: "User Management", href: PATHS.ADMIN.USERS },
-          { title: "Users Details", href: "#" },
+          { title: "User Management", href: PATHS.ADMIN.USERS.ALL },
+          ...(origin === "deletedList"
+            ? [{ title: "Deleted Accounts", href: PATHS.ADMIN.USERS.DELETED }]
+            : []),
+          { title: "User's Details", href: "#" },
         ]}
       />
       <Container px="md" size="sm" mt="xl">
@@ -242,7 +384,11 @@ export default function AdminUserDetails() {
             )}
           </InfoField>
           <InfoField label="Status">
-            {accountDetails?.is_banned ? (
+            {accountDetails?.deleted_at ? (
+              <Text ps="sm" mt="xs" mb="xl" c="red">
+                Deleted
+              </Text>
+            ) : accountDetails?.is_banned ? (
               <Text ps="sm" mt="xs" mb="xl" c="red">
                 Banned
               </Text>
@@ -293,214 +439,365 @@ export default function AdminUserDetails() {
           </InfoField>
         </Paper>
 
-        <Title order={3} ta="left" mt="xl">
-          Activities
-        </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
-          <InfoField label="Last active on">
-            <Text ps="sm" mt="xs">
-              {dayjs(accountDetails?.last_active).format("DD/MM/YYYY - HH:mm")}
-            </Text>
-          </InfoField>
-          {role == "user" && (
-            <>
-              <InfoField label="Total container deposits" mt="xl">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total container deposits of user
+        {!accountDetails?.deleted_at && (
+          <>
+            <Title order={3} ta="left" mt="xl">
+              Activities
+            </Title>
+            <Paper variant="primary" px="lg" py="md" mt="sm">
+              <InfoField label="Last active on">
+                <Text ps="sm" mt="xs">
+                  {accountDetails?.last_active
+                    ? dayjs(accountDetails?.last_active).format(
+                        "DD/MM/YYYY - HH:mm",
+                      )
+                    : "N/A"}
                 </Text>
               </InfoField>
-              <InfoField label="Total listings">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total listings (annonces) of user
-                </Text>
-              </InfoField>
-              <InfoField label="Total spendings">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total money user spent for events/workshops
-                </Text>
-              </InfoField>
-            </>
-          )}
+              {role == "user" && (
+                <>
+                  <InfoField label="Total container deposits posted" mt="xl">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_deposits +
+                            (accountStats?.total_deposits === 1
+                              ? " deposit"
+                              : " deposits") +
+                            " posted"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                  <InfoField label="Total listings posted">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_listings +
+                            (accountStats?.total_listings === 1
+                              ? " listing"
+                              : " listings") +
+                            " posted"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                  <InfoField label="Total spendings">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_spendings + " €"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                </>
+              )}
 
-          {role == "employee" && (
-            <>
-              <InfoField label="Total events/workshops assigned" mt="xl">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total events linked to employee
-                </Text>
-              </InfoField>
-              <InfoField label="Total articles posted">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total articles employee posted
-                </Text>
-              </InfoField>
-            </>
-          )}
-          {role == "pro" && (
-            <>
-              <InfoField label="Total listings acquired" mt="xl">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total listings reserved/purchased
-                </Text>
-              </InfoField>
-              <InfoField label="Total container deposits acquired">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total container deposits acquired
-                </Text>
-              </InfoField>
-              <InfoField label="Total projects posted">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total projects posted
-                </Text>
-              </InfoField>
-              <InfoField label="Total spendings posted">
-                <Text ps="sm" mt="xs" mb="xl">
-                  TODO: total money spent through subscription/buying
-                  object/participate events and workshops
-                </Text>
-              </InfoField>
-            </>
-          )}
-        </Paper>
-
+              {role == "employee" && (
+                <>
+                  <InfoField label="Total events/workshops assigned" mt="xl">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_events +
+                            (accountStats?.total_events === 1
+                              ? " event/workshop"
+                              : " events/workshops") +
+                            " assigned"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                  <InfoField label="Total articles posted">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_posts +
+                            (accountStats?.total_posts === 1
+                              ? " article"
+                              : " articles") +
+                            " posted"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                </>
+              )}
+              {role == "pro" && (
+                <>
+                  <InfoField label="Total listings purchased" mt="xl">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_listings +
+                            (accountStats?.total_listings === 1
+                              ? " listing"
+                              : " listings") +
+                            " purchased"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                  <InfoField label="Total container deposits purchased">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_deposits +
+                            (accountStats?.total_deposits === 1
+                              ? " deposit"
+                              : " deposits") +
+                            " purchased"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                  <InfoField label="Total projects posted">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_projects +
+                            (accountStats?.total_projects === 1
+                              ? " project"
+                              : " projects") +
+                            " posted"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                  <InfoField label="Total spendings">
+                    {isAccountStatsLoading ? (
+                      <Loader mb="xl" size="sm" />
+                    ) : (
+                      <Text ps="sm" mt="xs" mb="xl">
+                        {!errorAccountDetails
+                          ? accountStats?.total_spendings + " €"
+                          : "Failed to get account's stats"}
+                      </Text>
+                    )}
+                  </InfoField>
+                </>
+              )}
+            </Paper>
+          </>
+        )}
         <Title order={3} ta="left" mt="xl" c="red">
           Danger zone
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm">
-          <InfoField label="Edit account">
-            <Box ps="sm" mb="xl">
-              <Text c="dimmed" mt="xs">
-                Modify account's username, contact information, etc.
-              </Text>
-              <Button
-                mt="xs"
-                variant="edit"
-                onClick={openEdit}
-                disabled={role === "admin" && accountId != user?.id}
-              >
-                Edit account
-              </Button>
-            </Box>
-          </InfoField>
-
-          <InfoField label="Change password">
-            <Box ps="sm" mb="xl">
-              <Text mt="xs" mb="xs" c="dimmed">
-                Assign a new password for this account
-              </Text>
-              <form onSubmit={handleChangePassword}>
-                <PasswordStrengthInput
-                  w="50%"
-                  variant="body-color"
-                  placeholder="New password"
-                  value={password}
-                  disabled={
-                    isLoadingPasswordForm ||
-                    (role === "admin" && accountId != user?.id)
-                  }
-                  leftSection={<IconLock size={14} />}
-                  onChange={(event) => {
-                    const value = event.currentTarget.value;
-                    setPassword(value);
-                    validatePassword(value);
-                  }}
-                  error={passwordError}
-                  required
-                />
-                <PasswordInput
-                  leftSection={<IconLock size={14} />}
-                  variant="body-color"
-                  w="50%"
-                  mt="xs"
-                  value={confirmPassword}
-                  placeholder="Confirm new password"
-                  onChange={(event) => {
-                    const value = event.currentTarget.value;
-                    setConfirmPassword(value);
-                    validateConfirmPassword(value);
-                  }}
-                  disabled={
-                    isLoadingPasswordForm ||
-                    (role === "admin" && accountId != user?.id)
-                  }
-                  error={confirmPasswordError}
-                  required
-                />
+          {accountDetails?.deleted_at ? (
+            <InfoField label="Recover account">
+              <Box ps="sm" mb="xl">
+                <Text c="dimmed" my="xs">
+                  Recover this deleted account
+                </Text>
                 <Button
-                  mt="md"
-                  variant="edit"
-                  onClick={() => {
-                    if (
-                      !validatePassword(password) ||
-                      !validateConfirmPassword(confirmPassword)
-                    )
-                      return;
-                    openChangePassword();
-                  }}
-                  loading={isPendingPasswordUpdate}
-                  disabled={
-                    isPendingPasswordUpdate ||
-                    (role === "admin" && accountId != user?.id)
-                  }
+                  variant="primary"
+                  onClick={openRecover}
+                  loading={isPendingRecover}
                 >
-                  Change password
+                  Recover account
                 </Button>
-                {/* // modal change pass */}
-                <Modal
-                  opened={openedChangePassword}
-                  onClose={closeChangePassword}
-                  title="Change password"
-                >
-                  Are you sure you change password for this account? The old
-                  password will be replaced by the new one.
-                  <Group mt="lg" justify="flex-end">
-                    <Button onClick={closeChangePassword} variant="grey">
-                      Cancel
-                    </Button>
+              </Box>
+            </InfoField>
+          ) : (
+            <>
+              <InfoField label="Edit account">
+                <Box ps="sm" mb="xl">
+                  <Group gap="xs">
+                    <Text c="dimmed" my="xs">
+                      Modify account's username, contact information, etc.
+                    </Text>
+                    {role === "admin" && accountId != user?.id && (
+                      <Tooltip
+                        label="Cannot edit another admin's account"
+                        closeDelay={200}
+                        transitionProps={{ transition: "pop", duration: 300 }}
+                      >
+                        <IconInfoCircleFilled size={14} />
+                      </Tooltip>
+                    )}
+                  </Group>
+                  <Button
+                    variant="edit"
+                    onClick={openEdit}
+                    disabled={role === "admin" && accountId != user?.id}
+                  >
+                    Edit account
+                  </Button>
+                </Box>
+              </InfoField>
+
+              <InfoField label="Change password">
+                <Box ps="sm" mb="xl">
+                  <Group gap="xs">
+                    <Text mt="xs" mb="xs" c="dimmed">
+                      Assign a new password for this account
+                    </Text>
+                    {role === "admin" && accountId != user?.id && (
+                      <Tooltip
+                        label="Cannot change password of another admin"
+                        closeDelay={200}
+                        transitionProps={{ transition: "pop", duration: 300 }}
+                      >
+                        <IconInfoCircleFilled size={14} />
+                      </Tooltip>
+                    )}
+                  </Group>
+                  <form onSubmit={handleChangePassword}>
+                    <PasswordStrengthInput
+                      w="50%"
+                      variant="body-color"
+                      placeholder="New password"
+                      value={password}
+                      disabled={
+                        isPendingPasswordUpdate ||
+                        (role === "admin" && accountId != user?.id)
+                      }
+                      leftSection={<IconLock size={14} />}
+                      onChange={(event) => {
+                        const value = event.currentTarget.value;
+                        setPassword(value);
+                        validatePassword(value);
+                      }}
+                      error={passwordError}
+                      required
+                    />
+                    <PasswordInput
+                      leftSection={<IconLock size={14} />}
+                      variant="body-color"
+                      w="50%"
+                      mt="xs"
+                      value={confirmPassword}
+                      placeholder="Confirm new password"
+                      onChange={(event) => {
+                        const value = event.currentTarget.value;
+                        setConfirmPassword(value);
+                        validateConfirmPassword(value);
+                      }}
+                      disabled={
+                        isPendingPasswordUpdate ||
+                        (role === "admin" && accountId != user?.id)
+                      }
+                      error={confirmPasswordError}
+                      required
+                    />
                     <Button
-                      onClick={handleChangePassword}
+                      mt="md"
                       variant="edit"
+                      onClick={() => {
+                        if (
+                          !validatePassword(password) ||
+                          !validateConfirmPassword(confirmPassword)
+                        )
+                          return;
+                        openChangePassword();
+                      }}
                       loading={isPendingPasswordUpdate}
+                      disabled={
+                        isPendingPasswordUpdate ||
+                        (role === "admin" && accountId != user?.id)
+                      }
                     >
                       Change password
                     </Button>
+                    {/* // modal change pass */}
+                    <Modal
+                      opened={openedChangePassword}
+                      onClose={closeChangePassword}
+                      title="Change password"
+                    >
+                      Are you sure you change password for this account? The old
+                      password will be replaced by the new one.
+                      <Group mt="lg" justify="flex-end">
+                        <Button onClick={closeChangePassword} variant="grey">
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleChangePassword}
+                          variant="edit"
+                          loading={isPendingPasswordUpdate}
+                        >
+                          Change password
+                        </Button>
+                      </Group>
+                    </Modal>
+                  </form>
+                </Box>
+              </InfoField>
+              <InfoField label={is_banned ? "Unban account" : "Ban account"}>
+                <Box ps="sm" mb="xl">
+                  <Group gap="xs">
+                    <Text c="dimmed" my="xs">
+                      {is_banned
+                        ? "This account will regain access to UpAgain"
+                        : "This account will not be able to access to UpAgain until an admin unbans it"}
+                    </Text>
+                    {role === "admin" &&
+                      accountId != user?.id &&
+                      !is_banned && (
+                        <Tooltip
+                          label="Cannot ban an admin"
+                          closeDelay={200}
+                          transitionProps={{ transition: "pop", duration: 300 }}
+                        >
+                          <IconInfoCircleFilled size={14} />
+                        </Tooltip>
+                      )}
                   </Group>
-                </Modal>
-              </form>
-            </Box>
-          </InfoField>
-          <InfoField label="Ban account">
-            <Box ps="sm" mb="xl">
-              <Text c="dimmed" mt="xs">
-                This account will not be able to access to UpAgain until an
-                admin unbans it
-              </Text>
-              <Button
-                mt="xs"
-                variant="delete"
-                onClick={openBan}
-                disabled={role === "admin" && accountId != user?.id}
-              >
-                Ban account
-              </Button>
-            </Box>
-          </InfoField>
+                  <Button
+                    variant={!is_banned ? "delete" : "primary"}
+                    onClick={openBan}
+                    disabled={role === "admin" || isPendingToggleBan}
+                  >
+                    {!is_banned ? "Ban account" : "Unban account"}
+                  </Button>
+                </Box>
+              </InfoField>
 
-          <InfoField label="Delete account">
-            <Box ps="sm" mb="xl">
-              <Text c="dimmed" mt="xs">
-                This account will be soft deleted
-              </Text>
-              <Button
-                mt="xs"
-                variant="delete"
-                onClick={openDelete}
-                disabled={role === "admin" && accountId != user?.id}
-              >
-                Delete account
-              </Button>
-            </Box>
-          </InfoField>
+              <InfoField label="Delete account">
+                <Box ps="sm" mb="xl">
+                  <Group gap="xs">
+                    <Text c="dimmed" my="xs">
+                      This account will be soft deleted
+                    </Text>
+                    {role === "admin" && accountId != user?.id && (
+                      <Tooltip
+                        label="Cannot delete another admin's account"
+                        closeDelay={200}
+                        transitionProps={{ transition: "pop", duration: 300 }}
+                      >
+                        <IconInfoCircleFilled size={14} />
+                      </Tooltip>
+                    )}
+                  </Group>
+                  <Button
+                    variant="delete"
+                    onClick={openDelete}
+                    disabled={role === "admin" && accountId != user?.id}
+                  >
+                    Delete account
+                  </Button>
+                </Box>
+              </InfoField>
+            </>
+          )}
         </Paper>
       </Container>
       {/* // modal delete */}
@@ -523,39 +820,112 @@ export default function AdminUserDetails() {
           </Button>
         </Group>
       </Modal>
-      {/* // modal edit */}
-      <Modal opened={openedEdit} onClose={closeEdit} title="Edit account">
-        Edit
-        <Group mt="lg" justify="flex-end">
-          <Button onClick={closeEdit} variant="grey">
-            Cancel
-          </Button>
-          <Button
-            // onClick={() => {
-            //   handleDeleteAccount();
-            // }}
-            variant="primary"
-            // loading={deletionMutation.isPending}
-          >
-            Delete
-          </Button>
-        </Group>
-      </Modal>
+
       {/* // modal ban */}
-      <Modal opened={openedBan} onClose={closeBan} title="Ban account">
-        Are you sure you want to ban this account? This account will be banned.
+      <Modal
+        opened={openedBan}
+        onClose={closeBan}
+        title={!is_banned ? "Ban account" : "Unban account"}
+      >
+        {!is_banned
+          ? "Are you sure you want to ban this account? This account will be banned."
+          : "Are you sure you want to unban this account? This account will regain access."}
         <Group mt="lg" justify="flex-end">
           <Button onClick={closeBan} variant="grey">
             Cancel
           </Button>
           <Button
-            // onClick={() => {
-            //   handleDeleteAccount();
-            // }}
-            variant="delete"
-            // loading={deletionMutation.isPending}
+            onClick={handleBan}
+            variant={!is_banned ? "delete" : "primary"}
+            loading={isPendingToggleBan}
           >
-            Ban account
+            {!is_banned ? "Ban account" : "Unban account"}
+          </Button>
+        </Group>
+      </Modal>
+
+      {/* // modal recover */}
+      <Modal
+        opened={openedRecover}
+        onClose={closeRecover}
+        title="Recover account"
+      >
+        Are you sure you want to recover this account? This account will regain
+        access.
+        <Group mt="lg" justify="flex-end">
+          <Button onClick={closeRecover} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleRecover}
+            variant="primary"
+            loading={isPendingRecover}
+          >
+            Recover account
+          </Button>
+        </Group>
+      </Modal>
+
+      {/* // edit modal */}
+      <Modal
+        title="Edit account"
+        opened={openedEdit}
+        onClose={closeEdit}
+        centered
+      >
+        <Stack>
+          <TextInput
+            data-autofocus
+            withAsterisk
+            label="Username"
+            value={usernameEdit}
+            placeholder="Username"
+            onChange={(e) => {
+              setUsernameEdit(e.target.value);
+              validateUsernameEdit(e.target.value);
+            }}
+            onBlur={() => validateUsernameEdit(usernameEdit)}
+            error={usernameEditError}
+            required
+          />
+          <TextInput
+            withAsterisk
+            label="Email"
+            value={emailEdit}
+            placeholder="Email"
+            onChange={(e) => {
+              setEmailEdit(e.target.value);
+              validateEmailEdit(e.target.value);
+            }}
+            onBlur={() => validateEmailEdit(emailEdit)}
+            error={emailEditError}
+            required
+          />
+          <TextInput
+            label="Phone"
+            value={phoneEdit}
+            placeholder="Phone"
+            onChange={(e) => {
+              setPhoneEdit(e.target.value);
+              validatePhoneEdit(e.target.value);
+            }}
+            onBlur={() => validatePhoneEdit(phoneEdit)}
+            error={phoneEditError}
+            disabled={disablePhoneEdit}
+          />
+        </Stack>
+        <Group mt="lg" justify="center">
+          <Button onClick={closeEdit} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={(e) => {
+              handleEditAccount(e);
+            }}
+            variant="primary"
+            loading={editMutation.isPending}
+          >
+            Confirm
           </Button>
         </Group>
       </Modal>

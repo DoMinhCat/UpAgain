@@ -11,36 +11,15 @@ import {
 } from "@mantine/core";
 import { PATHS } from "../../routes/paths";
 import { useState } from "react";
-import { LoginRequest } from "../../api/auth";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { showErrorNotification } from "../NotificationToast";
-import { useMutation } from "@tanstack/react-query";
+import { useLogin } from "../../hooks/authHooks";
 
 export function LoginForm() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
 
-  const loginMutation = useMutation({
-    mutationFn: () => LoginRequest({ email, password }),
-    onSuccess: (data) => {
-      const user = login(data.token);
-
-      // redirect
-      if (user.role === "admin") {
-        navigate(PATHS.ADMIN.HOME);
-      } else {
-        navigate(PATHS.HOME);
-      }
-    },
-    onError: (error: any) => {
-      showErrorNotification("Login failed", error);
-    },
-  });
+  const loginMutation = useLogin();
 
   const validateEmail = (val: string) => {
     const regex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$/;
@@ -68,7 +47,7 @@ export function LoginForm() {
 
     if (!validateEmail(email)) return;
 
-    loginMutation.mutate();
+    loginMutation.mutate({ email, password });
   };
 
   return (

@@ -15,7 +15,7 @@ export default function AdminTable({
   loading,
 }: AdminTableProps) {
   return (
-    <Table.ScrollContainer minWidth={600} mx="0">
+    <Table.ScrollContainer minWidth={600} mx="0" maxHeight={600}>
       <Table
         verticalSpacing="sm"
         striped

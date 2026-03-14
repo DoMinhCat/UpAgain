@@ -2,14 +2,13 @@ package models
 
 import "github.com/guregu/null"
 
-type ProDetails struct {
-	Phone     null.String `json:"phone"`
-	IsPremium bool        `json:"is_premium"`
+type UserDetails struct {
+	Phone null.String `json:"phone"`
+	Score int         `json:"score"`
 }
 
-type ProStats struct {
+type UserStats struct {
 	TotalDeposits int `json:"total_deposits"`
 	TotalListings int `json:"total_listings"`
-	TotalProjects int `json:"total_projects"`
 	TotalSpent    int `json:"total_spendings"`
 }

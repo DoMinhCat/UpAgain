@@ -11,25 +11,30 @@ import {
   Group,
   Modal,
   PasswordInput,
+  Pagination,
 } from "@mantine/core";
 import AdminTable from "../../components/admin/AdminTable";
-import { IconSearch, IconPlus, IconLock } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  deleteAccount,
-  getAllAccounts,
-  type Account,
-} from "../../api/admin/userModule";
+  IconSearch,
+  IconPlus,
+  IconLock,
+  IconRestore,
+} from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { type Account } from "../../api/admin/userModule";
+import {
+  useGetAllAccounts,
+  useDeleteAccount,
+  useCreateAccount,
+  useUpdateAccount,
+  useAccountDetails,
+} from "../../hooks/accountHooks";
 import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  showSuccessNotification,
-  showErrorNotification,
-} from "../../components/NotificationToast";
-import { RegisterRequest } from "../../api/admin/userModule";
+
 import { PATHS } from "../../routes/paths";
+import { useAuth } from "../../context/AuthContext";
 
 const requirements = [
   { re: /[0-9]/, label: "Includes number" },
@@ -38,10 +43,12 @@ const requirements = [
 ];
 
 export default function AdminUsersModule() {
-  const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
   const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
+  const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
   // form
   const [usernameNew, setUsernameNew] = useState<string>("");
@@ -50,7 +57,7 @@ export default function AdminUsersModule() {
   const [confirmPasswordNew, setConfirmPasswordNew] = useState<string>("");
   const [roleNew, setRoleNew] = useState<string>("");
   const [phoneNew, setPhoneNew] = useState<string>("");
-  // errors
+  // error states
   const [usernameNewError, setUsernameNewError] = useState<string | null>(null);
   const [emailNewError, setEmailNewError] = useState<string | null>(null);
   const [passwordNewError, setPasswordNewError] = useState<string | null>(null);
@@ -60,7 +67,13 @@ export default function AdminUsersModule() {
   const [roleNewError, setRoleNewError] = useState<string | null>(null);
   const [phoneNewError, setPhoneNewError] = useState<string | null>(null);
   const [disablePhone, setDisablePhone] = useState<boolean>(false);
-
+  const [disablePhoneEdit, setDisablePhoneEdit] = useState<boolean>(false);
+  const [usernameEditError, setUsernameEditError] = useState<string | null>(
+    null,
+  );
+  const [emailEditError, setEmailEditError] = useState<string | null>(null);
+  const [phoneEditError, setPhoneEditError] = useState<string | null>(null);
+  // validations
   const validateUsernameNew = (val: string) => {
     if (!val) {
       setUsernameNewError("Username is required");
@@ -77,6 +90,22 @@ export default function AdminUsersModule() {
     setUsernameNewError(null);
     return true;
   };
+  const validateUsernameEdit = (val: string) => {
+    if (!val) {
+      setUsernameEditError("Username is required");
+      return false;
+    }
+    if (val.length < 4) {
+      setUsernameEditError("Username must be at least 4 characters long");
+      return false;
+    }
+    if (val.length > 20) {
+      setUsernameEditError("Username must be at most 20 characters long");
+      return false;
+    }
+    setUsernameEditError(null);
+    return true;
+  };
 
   const validateEmailNew = (val: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,6 +118,19 @@ export default function AdminUsersModule() {
       return false;
     }
     setEmailNewError(null);
+    return true;
+  };
+  const validateEmailEdit = (val: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!val) {
+      setEmailEditError("Email is required");
+      return false;
+    }
+    if (!regex.test(val)) {
+      setEmailEditError("Invalid email format");
+      return false;
+    }
+    setEmailEditError(null);
     return true;
   };
 
@@ -146,6 +188,24 @@ export default function AdminUsersModule() {
       return true;
     }
   };
+  const validatePhoneEdit = (val: string) => {
+    if (val.length !== 0) {
+      if (!val.match(/^[0-9]+$/)) {
+        setPhoneEditError("Phone number must contain only numbers");
+        return false;
+      }
+      if (val.length < 10) {
+        setPhoneEditError("Phone must be at least 10 characters long");
+        return false;
+      }
+      if (val.length > 15) {
+        setPhoneEditError("Phone must be at most 15 characters long");
+        return false;
+      }
+      setPhoneEditError(null);
+      return true;
+    }
+  };
 
   const validateRoleNew = (val: string) => {
     if (!val) {
@@ -156,22 +216,8 @@ export default function AdminUsersModule() {
     return true;
   };
 
-  const createMutation = useMutation({
-    mutationFn: RegisterRequest,
-    onSuccess: (response) => {
-      if (response?.status === 201) {
-        showSuccessNotification(
-          "Account creation success",
-          "Account created successfully.",
-        );
-        closeCreate();
-        queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      }
-    },
-    onError: (error: any) => {
-      showErrorNotification("Account creation failed", error);
-    },
-  });
+  // create hook
+  const createMutation = useCreateAccount();
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,12 +229,21 @@ export default function AdminUsersModule() {
       !validateRoleNew(roleNew)
     )
       return;
-    createMutation.mutate({
-      username: usernameNew,
-      email: emailNew,
-      password: passwordNew,
-      role: roleNew,
-    });
+    createMutation.mutate(
+      {
+        username: usernameNew,
+        email: emailNew,
+        password: passwordNew,
+        role: roleNew,
+      },
+      {
+        onSuccess: (response: any) => {
+          if (response?.status === 201) {
+            closeCreate();
+          }
+        },
+      },
+    );
   };
 
   // handle delete account confirmation modals
@@ -199,6 +254,93 @@ export default function AdminUsersModule() {
     setSelectedDeleteAcc(account);
     openDelete();
   };
+
+  const deleteMutation = useDeleteAccount();
+
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedDeleteAcc?.id) {
+      deleteMutation.mutate(selectedDeleteAcc.id, {
+        onSuccess: (response: any) => {
+          if (response?.status === 204) {
+            closeDelete();
+          }
+        },
+      });
+    }
+  };
+
+  // handle edit account modals
+  const [usernameEdit, setUsernameEdit] = useState<string>("");
+  const [emailEdit, setEmailEdit] = useState<string>("");
+  const [phoneEdit, setPhoneEdit] = useState<string>("");
+  const editMutation = useUpdateAccount();
+  const [selectedEditAcc, setSelectedEditAcc] = useState<Account | null>(null);
+  const handleModalEdit = (account: Account) => {
+    setSelectedEditAcc(account);
+    openEdit();
+  };
+
+  const handleCloseEdit = () => {
+    setUsernameEdit("");
+    setEmailEdit("");
+    setPhoneEdit("");
+    setUsernameEditError(null);
+    setEmailEditError(null);
+    setPhoneEditError(null);
+    setDisablePhoneEdit(false);
+    setSelectedEditAcc(null);
+    closeEdit();
+  };
+
+  const handleEditAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const userErr = validateUsernameEdit(usernameEdit);
+    const emailErr = validateEmailEdit(emailEdit);
+    const phoneErr = validatePhoneEdit(phoneEdit);
+    if (!userErr || !emailErr || !phoneErr) {
+      return;
+    }
+    if (selectedEditAcc?.id) {
+      editMutation.mutate(
+        {
+          id_account: selectedEditAcc.id,
+          username: usernameEdit,
+          email: emailEdit,
+          phone: phoneEdit,
+        },
+        {
+          onSuccess: (response: any) => {
+            if (response?.status === 204) {
+              handleCloseEdit();
+            }
+          },
+        },
+      );
+    }
+  };
+
+  // info for edit account in form triggered at each modal opening
+  let selectedEditId = selectedEditAcc?.id ? selectedEditAcc.id : 0;
+  const isValidId = !isNaN(selectedEditId) && selectedEditId > 0;
+  const { data: accountDetails, isLoading: isAccountDetailsLoading } =
+    useAccountDetails(selectedEditId, isValidId);
+
+  useEffect(() => {
+    if (accountDetails && openedEdit) {
+      setUsernameEdit(accountDetails.username || "");
+      setEmailEdit(accountDetails.email || "");
+      setPhoneEdit(accountDetails.phone || "");
+      const role = accountDetails.role || "";
+
+      if (role === "admin" || role === "employee") {
+        setDisablePhoneEdit(true);
+      } else {
+        setDisablePhoneEdit(false);
+      }
+    }
+  }, [accountDetails, openedEdit]);
+  // filters
   const navigate = useNavigate();
   const [filters, setFilters] = useState<{
     searchValue: string | undefined;
@@ -206,51 +348,49 @@ export default function AdminUsersModule() {
     roleValue: string | null;
     statusValue: string | null;
   }>({ searchValue: "", sortValue: null, roleValue: null, statusValue: null });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [activePage, setPage] = useState(1);
+  const LIMIT = 10;
+
   const handleFilterChange = (key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const { data: accounts = [] as Account[], isLoading: isAccountsLoading } =
-    useQuery<Account[]>({
-      queryKey: ["accounts"],
-      queryFn: getAllAccounts,
-      staleTime: 1000 * 60 * 2, // refresh data every 2m
-    });
-  const filteredAccounts = useMemo(() => {
-    const result = accounts.filter((account) => {
-      const matchesSearch =
-        account.username
-          .toLowerCase()
-          .includes(filters.searchValue?.toLowerCase() || "") ||
-        account.email
-          .toLowerCase()
-          .includes(filters.searchValue?.toLowerCase() || "");
-      const matchesRole =
-        !filters.roleValue || account.role === filters.roleValue;
-      const matchesStatus =
-        !filters.statusValue ||
-        account.is_banned === (filters.statusValue === "banned");
-      return matchesSearch && matchesRole && matchesStatus;
-    });
-    return [...result].sort((a, b) => {
-      if (filters.sortValue === "most_recent_registration") {
-        return dayjs(b.created_at).diff(dayjs(a.created_at));
-      } else if (filters.sortValue === "oldest_registration") {
-        return dayjs(a.created_at).diff(dayjs(b.created_at));
-      } else if (filters.sortValue === "most_recent_last_active") {
-        return dayjs(b.last_active || 0).diff(dayjs(a.last_active || 0));
-      } else if (filters.sortValue === "oldest_last_active") {
-        return dayjs(a.last_active || 0).diff(dayjs(b.last_active || 0));
-      }
-      return 0;
-    });
-  }, [
-    accounts,
-    filters.searchValue,
-    filters.roleValue,
-    filters.statusValue,
-    filters.sortValue,
-  ]);
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+    appliedFilters.roleValue ||
+    appliedFilters.statusValue ||
+    appliedFilters.sortValue,
+  );
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: null,
+      roleValue: null,
+      statusValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+
+  const { data: accountsWithPagination, isLoading: isAccountsLoading } =
+    useGetAllAccounts(
+      false,
+      hasFilters ? -1 : activePage,
+      hasFilters ? -1 : LIMIT,
+      appliedFilters.searchValue,
+      appliedFilters.roleValue || undefined,
+      appliedFilters.statusValue || undefined,
+      appliedFilters.sortValue || undefined,
+    );
+  const filteredAccounts = accountsWithPagination?.accounts || [];
   const listUsers =
     filteredAccounts.length > 0 ? (
       filteredAccounts.map((account) => (
@@ -260,7 +400,7 @@ export default function AdminUsersModule() {
           }}
           key={account.id}
           onClick={() => {
-            navigate(PATHS.ADMIN.USERS + "/" + account.id);
+            navigate(PATHS.ADMIN.USERS.ALL + "/" + account.id);
           }}
         >
           <Table.Td ta="center">
@@ -297,16 +437,16 @@ export default function AdminUsersModule() {
               variant="edit"
               me="sm"
               size="xs"
-              // TODO: open modal to edit account
+              disabled={account.role === "admin" && account.id !== user?.id}
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
-                navigate(PATHS.ADMIN.USERS + "/" + account.id);
+                handleModalEdit(account);
               }}
             >
               Edit
             </Button>
             <Button
-              disabled={account.role === "admin"}
+              disabled={account.role === "admin" && account.id !== user?.id}
               variant="delete"
               size="xs"
               onClick={(e: React.MouseEvent) => {
@@ -327,28 +467,6 @@ export default function AdminUsersModule() {
       </Table.Tr>
     );
 
-  const deleteMutation = useMutation({
-    mutationFn: (id_account: number) => deleteAccount(id_account),
-    onSuccess: (response) => {
-      if (response?.status === 204) {
-        showSuccessNotification(
-          "Account deleted",
-          "Account deleted successfully.",
-        );
-        closeDelete();
-        queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      }
-    },
-    onError: (error: any) => {
-      showErrorNotification("Account deletion failed", error);
-    },
-  });
-
-  const handleDeleteAccount = async () => {
-    if (selectedDeleteAcc?.id) {
-      deleteMutation.mutate(selectedDeleteAcc.id);
-    }
-  };
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -357,129 +475,36 @@ export default function AdminUsersModule() {
 
       <Stack gap="md" mb="xl">
         <Group justify="space-between" align="flex-end">
-          <div>
-            <Title c="dimmed" order={3}>
-              Manage users and their permissions
-            </Title>
-          </div>
+          <Title c="dimmed" order={3}>
+            Manage users and their permissions
+          </Title>
 
-          <Modal
-            opened={openedCreate}
-            onClose={closeCreate}
-            title="New Account"
-            centered
-          >
-            <Stack>
-              <TextInput
-                data-autofocus
-                withAsterisk
-                label="Username"
-                placeholder="Username"
-                onChange={(e) => {
-                  setUsernameNew(e.target.value);
-                  validateUsernameNew(e.target.value);
-                }}
-                onBlur={() => validateUsernameNew(usernameNew)}
-                error={usernameNewError}
-                required
-              />
-              <TextInput
-                withAsterisk
-                label="Email"
-                placeholder="Email"
-                onChange={(e) => {
-                  setEmailNew(e.target.value);
-                  validateEmailNew(e.target.value);
-                }}
-                onBlur={() => validateEmailNew(emailNew)}
-                error={emailNewError}
-                required
-              />
-              <PasswordInput
-                withAsterisk
-                leftSection={<IconLock size={14} />}
-                label="Password"
-                placeholder="Password"
-                onChange={(e) => {
-                  setPasswordNew(e.target.value);
-                  validatePasswordNew(e.target.value);
-                }}
-                onBlur={() => validatePasswordNew(passwordNew)}
-                error={passwordNewError}
-                required
-              />
-              <PasswordInput
-                withAsterisk
-                leftSection={<IconLock size={14} />}
-                label="Confirm Password"
-                placeholder="Confirm Password"
-                onChange={(e) => {
-                  setConfirmPasswordNew(e.target.value);
-                  validateConfirmPasswordNew(e.target.value);
-                }}
-                onBlur={() => validateConfirmPasswordNew(confirmPasswordNew)}
-                error={confirmPasswordNewError}
-                required
-              />
-              <TextInput
-                label="Phone"
-                placeholder="Phone"
-                onChange={(e) => {
-                  setPhoneNew(e.target.value);
-                  validatePhoneNew(e.target.value);
-                }}
-                onBlur={() => validatePhoneNew(phoneNew)}
-                error={phoneNewError}
-                disabled={disablePhone}
-              />
-              <Select
-                withAsterisk
-                clearable
-                label="Role"
-                error={roleNewError}
-                onBlur={() => validateRoleNew(roleNew)}
-                placeholder="Role"
-                data={[
-                  { value: "user", label: "User" },
-                  { value: "pro", label: "Pro" },
-                  { value: "employee", label: "Employee" },
-                  { value: "admin", label: "Admin" },
-                ]}
-                onChange={(value) => {
-                  setRoleNew(value as string);
-                  if (value === "admin" || value === "employee") {
-                    setPhoneNew("");
-                    setPhoneNewError(null);
-                    setDisablePhone(true);
-                  } else {
-                    setDisablePhone(false);
-                  }
-                }}
-              />
-              <Button
-                variant="primary"
-                onClick={handleCreateAccount}
-                loading={createMutation.isPending}
-              >
-                Create Account
-              </Button>
-            </Stack>
-          </Modal>
-          <Button
-            variant="primary"
-            leftSection={<IconPlus size={16} />}
-            onClick={openCreate}
-          >
-            New Account
-          </Button>
+          <Group gap="xs" align="flex-end">
+            <Button
+              variant="primary"
+              leftSection={<IconPlus size={16} />}
+              onClick={openCreate}
+            >
+              New Account
+            </Button>
+            <Button
+              variant="edit"
+              leftSection={<IconRestore size={16} />}
+              onClick={() => {
+                navigate(PATHS.ADMIN.USERS.DELETED);
+              }}
+            >
+              Recover Accounts
+            </Button>
+          </Group>
         </Group>
 
         <Grid align="flex-end">
-          <Grid.Col span={{ base: 12, md: 4 }}>
+          <Grid.Col span={{ base: 12, md: 3 }}>
             <TextInput
               label="Search"
               variant="filled"
-              placeholder="Name or email..."
+              placeholder="Search by username, email or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
@@ -508,6 +533,7 @@ export default function AdminUsersModule() {
                 },
               ]}
               value={filters.sortValue}
+              clearable
               onChange={(val) => handleFilterChange("sortValue", val)}
             />
           </Grid.Col>
@@ -542,21 +568,15 @@ export default function AdminUsersModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
-            <Button
-              variant="secondary"
-              fullWidth
-              onClick={() =>
-                setFilters({
-                  searchValue: "",
-                  roleValue: null,
-                  statusValue: null,
-                  sortValue: null,
-                })
-              }
-            >
-              Reset filters
-            </Button>
+          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+            <Group gap="xs" grow>
+              <Button onClick={handleSearchClick} variant="primary">
+                Apply filters
+              </Button>
+              <Button variant="secondary" onClick={handleResetFilters}>
+                Reset
+              </Button>
+            </Group>
           </Grid.Col>
         </Grid>
       </Stack>
@@ -572,6 +592,28 @@ export default function AdminUsersModule() {
           "Last Active",
           "Actions",
         ]}
+        footer={
+          !hasFilters &&
+          accountsWithPagination &&
+          accountsWithPagination.total_records > 0 && (
+            <Group justify="space-between" mt="md">
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
+                {Math.min(
+                  activePage * LIMIT,
+                  accountsWithPagination.total_records,
+                )}{" "}
+                of {accountsWithPagination.total_records} results
+              </span>
+              <Pagination
+                total={accountsWithPagination.last_page || 1}
+                value={activePage}
+                onChange={setPage}
+                disabled={isAccountsLoading}
+              />
+            </Group>
+          )
+        }
       >
         {listUsers}
       </AdminTable>
@@ -587,13 +629,175 @@ export default function AdminUsersModule() {
             Cancel
           </Button>
           <Button
-            onClick={() => {
-              handleDeleteAccount();
+            onClick={(e) => {
+              handleDeleteAccount(e);
             }}
             variant="delete"
             loading={deleteMutation.isPending}
           >
             Delete
+          </Button>
+        </Group>
+      </Modal>
+      <Modal opened={openedCreate} onClose={closeCreate}>
+        <Stack>
+          <TextInput
+            data-autofocus
+            withAsterisk
+            label="Username"
+            placeholder="Username"
+            onChange={(e) => {
+              setUsernameNew(e.target.value);
+              validateUsernameNew(e.target.value);
+            }}
+            onBlur={() => validateUsernameNew(usernameNew)}
+            error={usernameNewError}
+            required
+          />
+          <TextInput
+            withAsterisk
+            label="Email"
+            placeholder="Email"
+            onChange={(e) => {
+              setEmailNew(e.target.value);
+              validateEmailNew(e.target.value);
+            }}
+            onBlur={() => validateEmailNew(emailNew)}
+            error={emailNewError}
+            required
+          />
+          <PasswordInput
+            withAsterisk
+            leftSection={<IconLock size={14} />}
+            label="Password"
+            placeholder="Password"
+            onChange={(e) => {
+              setPasswordNew(e.target.value);
+              validatePasswordNew(e.target.value);
+            }}
+            onBlur={() => validatePasswordNew(passwordNew)}
+            error={passwordNewError}
+            required
+          />
+          <PasswordInput
+            withAsterisk
+            leftSection={<IconLock size={14} />}
+            label="Confirm Password"
+            placeholder="Confirm Password"
+            onChange={(e) => {
+              setConfirmPasswordNew(e.target.value);
+              validateConfirmPasswordNew(e.target.value);
+            }}
+            onBlur={() => validateConfirmPasswordNew(confirmPasswordNew)}
+            error={confirmPasswordNewError}
+            required
+          />
+          <TextInput
+            label="Phone"
+            placeholder="Phone"
+            onChange={(e) => {
+              setPhoneNew(e.target.value);
+              validatePhoneNew(e.target.value);
+            }}
+            onBlur={() => validatePhoneNew(phoneNew)}
+            error={phoneNewError}
+            disabled={disablePhone}
+          />
+          <Select
+            withAsterisk
+            clearable
+            label="Role"
+            error={roleNewError}
+            onBlur={() => validateRoleNew(roleNew)}
+            placeholder="Role"
+            data={[
+              { value: "user", label: "User" },
+              { value: "pro", label: "Pro" },
+              { value: "employee", label: "Employee" },
+              { value: "admin", label: "Admin" },
+            ]}
+            onChange={(value) => {
+              setRoleNew(value as string);
+              if (value === "admin" || value === "employee") {
+                setPhoneNew("");
+                setPhoneNewError(null);
+                setDisablePhone(true);
+              } else {
+                setDisablePhone(false);
+              }
+            }}
+          />
+          <Button
+            variant="primary"
+            onClick={handleCreateAccount}
+            loading={createMutation.isPending}
+          >
+            Create Account
+          </Button>
+        </Stack>
+      </Modal>
+      <Modal
+        title="Edit account"
+        opened={openedEdit}
+        onClose={handleCloseEdit}
+        centered
+      >
+        <Stack>
+          <TextInput
+            data-autofocus
+            withAsterisk
+            label="Username"
+            placeholder="Username"
+            value={usernameEdit}
+            onChange={(e) => {
+              setUsernameEdit(e.target.value);
+              validateUsernameEdit(e.target.value);
+            }}
+            onBlur={() => validateUsernameEdit(usernameEdit)}
+            error={usernameEditError}
+            disabled={isAccountDetailsLoading}
+            required
+          />
+          <TextInput
+            withAsterisk
+            label="Email"
+            placeholder="Email"
+            value={emailEdit}
+            onChange={(e) => {
+              setEmailEdit(e.target.value);
+              validateEmailEdit(e.target.value);
+            }}
+            onBlur={() => validateEmailEdit(emailEdit)}
+            error={emailEditError}
+            disabled={isAccountDetailsLoading}
+            required
+          />
+          <TextInput
+            label="Phone"
+            placeholder="Phone"
+            value={phoneEdit}
+            onChange={(e) => {
+              setPhoneEdit(e.target.value);
+              validatePhoneEdit(e.target.value);
+            }}
+            onBlur={() => validatePhoneEdit(phoneEdit)}
+            error={phoneEditError}
+            disabled={disablePhoneEdit || isAccountDetailsLoading}
+          />
+        </Stack>
+        <Group mt="lg" justify="center">
+          <Button onClick={handleCloseEdit} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={(e) => {
+              handleEditAccount(e);
+            }}
+            variant="primary"
+            loading={editMutation.isPending}
+            disabled={editMutation.isPending || isAccountDetailsLoading}
+          >
+            Confirm
           </Button>
         </Group>
       </Modal>

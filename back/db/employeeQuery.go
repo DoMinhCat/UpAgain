@@ -1,6 +1,7 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
 	"database/sql"
 	"fmt"
@@ -13,7 +14,7 @@ func GetEmployeeRoleById(id int) (bool, error) {
 	row := utils.Conn.QueryRow("SELECT is_admin FROM employees WHERE id_account=$1", id)
 	err := row.Scan(&isAdmin)
 	if err != nil {
-		return false, fmt.Errorf("error getting employee's role by id_account from DB: %v", err.Error())
+		return false, fmt.Errorf("GetEmployeeRoleById() failed: %v", err.Error())
 	}
 
 	return isAdmin, nil
@@ -41,4 +42,21 @@ func CreateEmployee(insertedId int, isAdmin bool) error {
 		return fmt.Errorf("CreateEmployee() failed: %v", err)
 	}
 	return nil
+}
+
+func GetEmployeeStatsById(id int) (models.EmployeeStats, error) {
+	var stats models.EmployeeStats
+	
+	events, err := GetTotalEventsOfEmployeeById(id)
+	if err != nil {
+		return models.EmployeeStats{}, fmt.Errorf("GetEmployeeStatsById() failed: %v", err.Error())
+	}
+	stats.TotalEvents = events
+	
+	posts, err := GetTotalPostsByIdByCategory(id, nil)
+	if err != nil {
+		return models.EmployeeStats{}, fmt.Errorf("GetEmployeeStatsById() failed: %v", err.Error())
+	}
+	stats.TotalPosts = posts
+	return stats, nil
 }

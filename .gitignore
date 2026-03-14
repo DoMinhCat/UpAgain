@@ -5,3 +5,4 @@ node_modules/
 back/tmp/
 back/bin/
 *.txt
+*.exe

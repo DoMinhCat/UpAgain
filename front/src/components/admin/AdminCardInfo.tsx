@@ -1,4 +1,4 @@
-import { Card, Text, Flex, Title, Box, Group } from "@mantine/core";
+import { Card, Text, Flex, Title, Box, Group, Loader } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { type Icon } from "@tabler/icons-react";
 import classes from "../../styles/Admin.module.css";
@@ -7,13 +7,11 @@ interface StatsCardDescProps {
   description: string;
   icon: Icon;
   stats: number;
-  percentage: number;
 }
 export function StatsCardDesc({
   description,
   icon: Icon,
   stats,
-  percentage,
 }: StatsCardDescProps) {
   return (
     <Box>
@@ -23,7 +21,7 @@ export function StatsCardDesc({
         </Text>
 
         <Text c="dimmed" style={{ flex: 1 }}>
-          + {percentage}% | {stats}
+          + {stats}
           {description}
         </Text>
       </Group>
@@ -37,6 +35,8 @@ interface AdminCardInfoProps {
   value: string | number;
   description?: React.ReactNode;
   path?: string;
+  error?: boolean;
+  loading?: boolean;
 }
 
 export function AdminCardInfo({
@@ -45,6 +45,8 @@ export function AdminCardInfo({
   value,
   description,
   path,
+  error,
+  loading,
 }: AdminCardInfoProps) {
   const navigate = useNavigate();
   const handleClick = () => {
@@ -76,11 +78,18 @@ export function AdminCardInfo({
         <Icon />
       </Flex>
 
-      <Title order={3} mt="lg">
-        {value}
-      </Title>
-
-      {description}
+      {loading ? (
+        <Loader />
+      ) : error ? (
+        <Text c="red">An error occured while fetching data</Text>
+      ) : (
+        <>
+          <Title order={3} mt="lg">
+            {value}
+          </Title>
+          {description}
+        </>
+      )}
     </Card>
   );
 }
