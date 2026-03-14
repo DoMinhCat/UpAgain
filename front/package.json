@@ -12,6 +12,7 @@
   "dependencies": {
     "@mantine/core": "^8.3.15",
     "@mantine/dates": "^8.3.15",
+    "@mantine/dropzone": "^8.3.15",
     "@mantine/hooks": "^8.3.15",
     "@mantine/notifications": "^8.3.15",
     "@mantine/tiptap": "^8.3.15",

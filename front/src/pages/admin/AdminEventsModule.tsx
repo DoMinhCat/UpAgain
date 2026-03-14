@@ -30,6 +30,7 @@ import AdminTable from "../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
 import { DateTimePicker } from "@mantine/dates";
 import { TextEditor } from "../../components/TextEditor";
+import ImageDropzone from "../../components/ImageDropzone";
 
 export default function AdminEventsModule() {
   // TODO for filtering
@@ -297,6 +298,7 @@ export default function AdminEventsModule() {
                     setDescription(value);
                   }}
                 />
+                <ImageDropzone loading={false} disabled={false} />
               </Stack>
               <Group mt="lg" justify="center">
                 <Button onClick={handleCloseCreate} variant="grey">
