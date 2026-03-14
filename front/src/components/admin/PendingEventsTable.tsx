@@ -1,10 +1,21 @@
 import { useState } from "react";
-import { Table, Button, Group, Badge, Modal, Textarea, Text } from "@mantine/core";
+import {
+  Table,
+  Button,
+  Group,
+  Badge,
+  Modal,
+  Textarea,
+  Text,
+} from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 import { IconCheck, IconX, IconUsers } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "./AdminTable";
-import { type PendingEvent, processValidationAction } from "../../api/admin/validationModule";
+import {
+  type PendingEvent,
+  processValidationAction,
+} from "../../api/admin/validationModule";
 import { showSuccessNotification } from "../../components/NotificationToast";
 import { showErrorNotification } from "../../components/NotificationToast";
 
@@ -14,30 +25,42 @@ interface PendingEventsTableProps {
   onSuccess: () => void;
 }
 
-export default function PendingEventsTable({ data, loading, onSuccess }: PendingEventsTableProps) {
+export default function PendingEventsTable({
+  data,
+  loading,
+  onSuccess,
+}: PendingEventsTableProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
   const [refuseReason, setRefuseReason] = useState("");
 
+  // TODO: please move to hooks/ folder
   const mutation = useMutation({
-    mutationFn: ({ id, action, reason }: { id: number; action: "approve" | "refuse"; reason?: string }) =>
-      processValidationAction("events", id, action, reason),
-    onSuccess: (_,variables) => {
+    mutationFn: ({
+      id,
+      action,
+      reason,
+    }: {
+      id: number;
+      action: "approve" | "refuse";
+      reason?: string;
+    }) => processValidationAction("events", id, action, reason),
+    onSuccess: (_, variables) => {
       close();
       setRefuseReason("");
       onSuccess();
       showSuccessNotification(
-            "Succès",
-            `Le dépôt a été ${variables.action === "approve" ? "validé" : "refusé"}.`,
+        "Succès",
+        `Le dépôt a été ${variables.action === "approve" ? "validé" : "refusé"}.`,
       );
     },
     onError: () => {
       showErrorNotification(
-            "Erreur",
-            "Une erreur est survenue lors de l'opération.",
+        "Erreur",
+        "Une erreur est survenue lors de l'opération.",
       );
       console.error("Erreur lors de la validation de l'annonce");
-    }
+    },
   });
 
   const handleApprove = (id: number) => {
@@ -51,18 +74,31 @@ export default function PendingEventsTable({ data, loading, onSuccess }: Pending
 
   const handleConfirmRefuse = () => {
     if (selectedItem && refuseReason.trim().length > 0) {
-      mutation.mutate({ id: selectedItem, action: "refuse", reason: refuseReason });
+      mutation.mutate({
+        id: selectedItem,
+        action: "refuse",
+        reason: refuseReason,
+      });
     }
   };
 
-  const headers = ["ID", "Événement", "Infos", "Créateur", "Date Prévue", "Actions"];
+  const headers = [
+    "ID",
+    "Événement",
+    "Infos",
+    "Créateur",
+    "Date Prévue",
+    "Actions",
+  ];
 
   return (
     <>
       <AdminTable header={headers} loading={loading}>
         {data.length === 0 && !loading && (
           <Table.Tr>
-            <Table.Td colSpan={headers.length} ta="center">Aucun événement en attente</Table.Td>
+            <Table.Td colSpan={headers.length} ta="center">
+              Aucun événement en attente
+            </Table.Td>
           </Table.Tr>
         )}
 
@@ -72,26 +108,36 @@ export default function PendingEventsTable({ data, loading, onSuccess }: Pending
             <Table.Td ta="center">
               <strong>{item.title}</strong>
               <br />
-              <Badge size="sm" color="violet" variant="light">{item.category}</Badge>
+              <Badge size="sm" color="violet" variant="light">
+                {item.category}
+              </Badge>
             </Table.Td>
-            
+
             <Table.Td ta="center">
               <Group gap="xs" justify="center">
                 {item.capacity && (
-                  <Badge color="gray" variant="outline" leftSection={<IconUsers size={12} />}>
+                  <Badge
+                    color="gray"
+                    variant="outline"
+                    leftSection={<IconUsers size={12} />}
+                  >
                     {item.capacity} places
                   </Badge>
                 )}
                 {item.price ? (
-                  <Badge color="green" variant="light">{item.price} €</Badge>
+                  <Badge color="green" variant="light">
+                    {item.price} €
+                  </Badge>
                 ) : (
-                  <Badge color="gray" variant="light">Gratuit</Badge>
+                  <Badge color="gray" variant="light">
+                    Gratuit
+                  </Badge>
                 )}
               </Group>
             </Table.Td>
 
             <Table.Td ta="center">{item.employee_username}</Table.Td>
-            
+
             <Table.Td ta="center">
               <Text size="sm" fw={500}>
                 {new Date(item.date_start).toLocaleDateString("fr-FR")}
@@ -105,20 +151,23 @@ export default function PendingEventsTable({ data, loading, onSuccess }: Pending
 
             <Table.Td ta="center">
               <Group justify="center" gap="sm">
-                <Button 
-                  color="green" 
-                  size="xs" 
-                  leftSection={<IconCheck size={14} />} 
-                  onClick={() => handleApprove(item.id_event)} 
-                  loading={mutation.isPending && mutation.variables?.action === "approve"}
+                <Button
+                  color="green"
+                  size="xs"
+                  leftSection={<IconCheck size={14} />}
+                  onClick={() => handleApprove(item.id_event)}
+                  loading={
+                    mutation.isPending &&
+                    mutation.variables?.action === "approve"
+                  }
                 >
                   Valider
                 </Button>
-                <Button 
-                  color="red" 
-                  variant="light" 
-                  size="xs" 
-                  leftSection={<IconX size={14} />} 
+                <Button
+                  color="red"
+                  variant="light"
+                  size="xs"
+                  leftSection={<IconX size={14} />}
                   onClick={() => handleOpenRefuseModal(item.id_event)}
                 >
                   Refuser
@@ -129,7 +178,12 @@ export default function PendingEventsTable({ data, loading, onSuccess }: Pending
         ))}
       </AdminTable>
 
-      <Modal opened={opened} onClose={close} title="Raison du refus (Obligatoire)" centered>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title="Raison du refus (Obligatoire)"
+        centered
+      >
         <Textarea
           placeholder="Veuillez expliquer à l'employé pourquoi l'événement est refusé..."
           value={refuseReason}
@@ -138,12 +192,20 @@ export default function PendingEventsTable({ data, loading, onSuccess }: Pending
           data-autofocus
         />
         <Group justify="flex-end" mt="md">
-          <Button variant="default" onClick={close} disabled={mutation.isPending}>Annuler</Button>
-          <Button 
-            color="red" 
-            onClick={handleConfirmRefuse} 
-            disabled={refuseReason.trim().length === 0} 
-            loading={mutation.isPending && mutation.variables?.action === "refuse"}
+          <Button
+            variant="default"
+            onClick={close}
+            disabled={mutation.isPending}
+          >
+            Annuler
+          </Button>
+          <Button
+            color="red"
+            onClick={handleConfirmRefuse}
+            disabled={refuseReason.trim().length === 0}
+            loading={
+              mutation.isPending && mutation.variables?.action === "refuse"
+            }
           >
             Confirmer le refus
           </Button>

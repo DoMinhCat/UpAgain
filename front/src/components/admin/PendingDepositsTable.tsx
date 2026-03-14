@@ -4,7 +4,10 @@ import { useMutation } from "@tanstack/react-query";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "./AdminTable";
-import { type PendingDeposit, processValidationAction } from "../../api/admin/validationModule";
+import {
+  type PendingDeposit,
+  processValidationAction,
+} from "../../api/admin/validationModule";
 import { showSuccessNotification } from "../../components/NotificationToast";
 import { showErrorNotification } from "../../components/NotificationToast";
 
@@ -14,29 +17,42 @@ interface PendingDepositsTableProps {
   onSuccess: () => void;
 }
 
-export default function PendingDepositsTable({ data, loading, onSuccess }: PendingDepositsTableProps) {
+export default function PendingDepositsTable({
+  data,
+  loading,
+  onSuccess,
+}: PendingDepositsTableProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
   const [refuseReason, setRefuseReason] = useState("");
 
+  // TODO: please move to hooks/ folder
   const mutation = useMutation({
-    mutationFn: ({ id, action, reason }: { id: number; action: "approve" | "refuse"; reason?: string }) =>
-      processValidationAction("deposits", id, action, reason),
+    mutationFn: ({
+      id,
+      action,
+      reason,
+    }: {
+      id: number;
+      action: "approve" | "refuse";
+      reason?: string;
+    }) => processValidationAction("deposits", id, action, reason),
     onSuccess: (_, variables) => {
       close();
       setRefuseReason("");
       onSuccess();
+      // TODO: please change all messages and contents to English to be consistent, we will use i18n later
       showSuccessNotification(
         "Succès",
         `Le dépôt a été ${variables.action === "approve" ? "validé" : "refusé"}.`,
       );
     },
     onError: () => {
-        showErrorNotification(
-            "Erreur",
-            "Une erreur est survenue lors de l'opération.",
-        );
-    }
+      showErrorNotification(
+        "Erreur",
+        "Une erreur est survenue lors de l'opération.",
+      );
+    },
   });
 
   const handleApprove = (id: number) => {
@@ -50,7 +66,11 @@ export default function PendingDepositsTable({ data, loading, onSuccess }: Pendi
 
   const handleConfirmRefuse = () => {
     if (selectedItem && refuseReason.trim().length > 0) {
-      mutation.mutate({ id: selectedItem, action: "refuse", reason: refuseReason });
+      mutation.mutate({
+        id: selectedItem,
+        action: "refuse",
+        reason: refuseReason,
+      });
     }
   };
 
@@ -61,7 +81,9 @@ export default function PendingDepositsTable({ data, loading, onSuccess }: Pendi
       <AdminTable header={headers} loading={loading}>
         {data.length === 0 && !loading && (
           <Table.Tr>
-            <Table.Td colSpan={headers.length} ta="center">Aucun dépôt en attente</Table.Td>
+            <Table.Td colSpan={headers.length} ta="center">
+              Aucun dépôt en attente
+            </Table.Td>
           </Table.Tr>
         )}
 
@@ -71,17 +93,38 @@ export default function PendingDepositsTable({ data, loading, onSuccess }: Pendi
             <Table.Td ta="center">
               <strong>{item.title}</strong>
               <br />
-              <Badge size="sm" color="gray" variant="light">{item.material}</Badge>
+              <Badge size="sm" color="gray" variant="light">
+                {item.material}
+              </Badge>
             </Table.Td>
             <Table.Td ta="center">{item.username}</Table.Td>
-            <Table.Td ta="center">{item.city_name} ({item.postal_code})</Table.Td>
-            <Table.Td ta="center">{new Date(item.created_at).toLocaleDateString("fr-FR")}</Table.Td>
+            <Table.Td ta="center">
+              {item.city_name} ({item.postal_code})
+            </Table.Td>
+            <Table.Td ta="center">
+              {new Date(item.created_at).toLocaleDateString("fr-FR")}
+            </Table.Td>
             <Table.Td ta="center">
               <Group justify="center" gap="sm">
-                <Button color="green" size="xs" leftSection={<IconCheck size={14} />} onClick={() => handleApprove(item.id_item)} loading={mutation.isPending && mutation.variables?.action === "approve"}>
+                <Button
+                  color="green"
+                  size="xs"
+                  leftSection={<IconCheck size={14} />}
+                  onClick={() => handleApprove(item.id_item)}
+                  loading={
+                    mutation.isPending &&
+                    mutation.variables?.action === "approve"
+                  }
+                >
                   Valider
                 </Button>
-                <Button color="red" variant="light" size="xs" leftSection={<IconX size={14} />} onClick={() => handleOpenRefuseModal(item.id_item)}>
+                <Button
+                  color="red"
+                  variant="light"
+                  size="xs"
+                  leftSection={<IconX size={14} />}
+                  onClick={() => handleOpenRefuseModal(item.id_item)}
+                >
                   Refuser
                 </Button>
               </Group>
@@ -90,7 +133,12 @@ export default function PendingDepositsTable({ data, loading, onSuccess }: Pendi
         ))}
       </AdminTable>
 
-      <Modal opened={opened} onClose={close} title="Raison du refus (Obligatoire)" centered>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title="Raison du refus (Obligatoire)"
+        centered
+      >
         <Textarea
           placeholder="Veuillez expliquer à l'utilisateur pourquoi son dépôt est refusé..."
           value={refuseReason}
@@ -99,8 +147,21 @@ export default function PendingDepositsTable({ data, loading, onSuccess }: Pendi
           data-autofocus
         />
         <Group justify="flex-end" mt="md">
-          <Button variant="default" onClick={close} disabled={mutation.isPending}>Annuler</Button>
-          <Button color="red" onClick={handleConfirmRefuse} disabled={refuseReason.trim().length === 0} loading={mutation.isPending && mutation.variables?.action === "refuse"}>
+          <Button
+            variant="default"
+            onClick={close}
+            disabled={mutation.isPending}
+          >
+            Annuler
+          </Button>
+          <Button
+            color="red"
+            onClick={handleConfirmRefuse}
+            disabled={refuseReason.trim().length === 0}
+            loading={
+              mutation.isPending && mutation.variables?.action === "refuse"
+            }
+          >
             Confirmer le refus
           </Button>
         </Group>
