@@ -9,6 +9,8 @@ import AdminUsersModule from "../pages/admin/AdminUsersModule.tsx";
 import AdminUserDetails from "../pages/admin/AdminUserDetails.tsx";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import AdminContainersModule from "../pages/admin/AdminContainersModule.tsx";
+import AdminContainersDetails from "../pages/admin/AdminContainersDetails.tsx";
 import AdminEventsModule from "../pages/admin/AdminEventsModule.tsx";
 import AdminEventDetails from "../pages/admin/AdminEventDetails.tsx";
 
@@ -56,6 +58,16 @@ export const adminRoutes: RouteObject = {
         {
           path: ":id", // Affiche <AdminUserDetails /> sur "/admin/users/:id"
           element: <AdminUserDetails />,
+        },
+      ],
+    },
+    {
+      path: "containers",
+      children: [
+        { index: true, element: <AdminContainersModule /> },
+        {
+          path: ":id",
+          element: <AdminContainersDetails />,
         },
       ],
     },
