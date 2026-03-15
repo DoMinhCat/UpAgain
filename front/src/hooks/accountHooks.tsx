@@ -19,7 +19,7 @@ import {
   type AccountsListPagination,
   type AccountCountStats,
   getAccountCountStats,
-} from "../api/admin/userModule";
+} from "../api/admin/accountModule";
 import { showSuccessNotification } from "../components/NotificationToast";
 
 export const useRecoverAccount = () => {
