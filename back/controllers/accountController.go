@@ -43,7 +43,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	err = db.CreateAccount(newAccount)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while creating an account for you.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
 		slog.Error("CreateAccount() failed", "controller", "CreateAccount", "error", err)
 		return
 	}
