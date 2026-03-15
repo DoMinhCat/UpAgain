@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { 
-  getAllContainers, 
-  createContainer, 
-  updateContainerStatus, 
-  deleteContainer, 
-  getContainerDetails
+import {
+  getAllContainers,
+  createContainer,
+  updateContainerStatus,
+  deleteContainer,
+  getContainerDetails,
+  getContainerCountStats,
+  type ContainerCountStats,
 } from "../api/admin/containerModule";
 import { showSuccessNotification } from "../components/NotificationToast";
 
@@ -36,18 +38,18 @@ export const useCreateContainer = () => {
 
 export const useUpdateStatus = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) => 
+    mutationFn: ({ id, status }: { id: number; status: string }) =>
       updateContainerStatus(id, status),
-    
+
     onSuccess: (_data, variables) => {
       showSuccessNotification("Updated", "Container status modified");
 
       queryClient.invalidateQueries({ queryKey: ["containers"] });
 
-      queryClient.invalidateQueries({ 
-        queryKey: ["containerDetails", variables.id] 
+      queryClient.invalidateQueries({
+        queryKey: ["containerDetails", variables.id],
       });
     },
     meta: {
@@ -80,5 +82,18 @@ export const useContainerDetails = (id: number) => {
       errorTitle: "Details Error",
       errorMessage: `Could not load information for container #${id}`,
     },
+    staleTime: 1000 * 60 * 2, // refresh data every 2m
+  });
+};
+
+export const useContainerCountStats = () => {
+  return useQuery<ContainerCountStats>({
+    queryKey: ["containerCountStats"],
+    queryFn: getContainerCountStats,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load container count stats",
+    },
+    staleTime: 1000 * 60, // refresh data every 1m
   });
 };
