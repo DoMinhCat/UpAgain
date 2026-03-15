@@ -254,7 +254,7 @@ export default function RegisterForm() {
           <Checkbox
             mt="md"
             defaultChecked
-            label="I agree to sell my privacy"
+            label="I agree to sell my privacy to UpAgain"
             color="teal"
             required
           />
