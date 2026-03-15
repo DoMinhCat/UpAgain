@@ -1,4 +1,4 @@
-import { Center, Loader, Table } from "@mantine/core";
+import { Center, Loader, Table, Text } from "@mantine/core";
 import type React from "react";
 
 export interface AdminTableProps {
@@ -6,6 +6,7 @@ export interface AdminTableProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   loading?: boolean;
+  error?: Error | null;
 }
 
 export default function AdminTable({
@@ -13,6 +14,7 @@ export default function AdminTable({
   children,
   footer,
   loading,
+  error,
 }: AdminTableProps) {
   return (
     <Table.ScrollContainer minWidth={600} mx="0" maxHeight={600}>
@@ -39,6 +41,14 @@ export default function AdminTable({
               <Table.Td colSpan={header.length}>
                 <Center py="sm">
                   <Loader size="sm" />
+                </Center>
+              </Table.Td>
+            </Table.Tr>
+          ) : error ? (
+            <Table.Tr>
+              <Table.Td colSpan={header.length}>
+                <Center py="sm">
+                  <Text c="red">Error</Text>
                 </Center>
               </Table.Td>
             </Table.Tr>

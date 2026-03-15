@@ -20,13 +20,16 @@ import {
 } from "../api/admin/userModule";
 import {
   showSuccessNotification,
-  showErrorNotification,
 } from "../components/NotificationToast";
 
 export const useRecoverAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (accountId: number) => recoverAccount(accountId),
+    meta: {
+      errorTitle: "Account recovery failed",
+      errorMessage: "Could not recover the account",
+    },
     onSuccess: (response, accountId) => {
       if (response?.status === 204) {
         queryClient.invalidateQueries({ queryKey: ["deletedAccounts"] });
@@ -40,9 +43,6 @@ export const useRecoverAccount = () => {
         );
       }
     },
-    onError: (error: any) => {
-      showErrorNotification("Account recovery failed", error);
-    },
   });
 };
 
@@ -50,6 +50,10 @@ export const useDeleteAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (accountId: number) => deleteAccount(accountId),
+    meta: {
+      errorTitle: "Account deletion failed",
+      errorMessage: "Could not delete the account",
+    },
     onSuccess: (response) => {
       if (response?.status === 204) {
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
@@ -59,9 +63,6 @@ export const useDeleteAccount = () => {
           "Account deleted successfully.",
         );
       }
-    },
-    onError: (error: any) => {
-      showErrorNotification("Account deletion failed", error);
     },
   });
 };
@@ -74,6 +75,10 @@ export const useAccountDetails = (
     queryKey: ["accountDetails", accountId],
     queryFn: () => getAccountDetails(accountId),
     enabled,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load account details",
+    },
   });
 };
 
@@ -99,12 +104,20 @@ export const useGetAllAccounts = (
     queryFn: () =>
       getAllAccounts(isDeleted, page, limit, search, role, status, sort),
     staleTime: 1000 * 60 * 2, // refresh data every 2m
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load accounts list",
+    },
   });
 };
 
 export const useUpdatePassword = () => {
   return useMutation({
     mutationFn: (payload: updatePasswordPayload) => updatePassword(payload),
+    meta: {
+      errorTitle: "Password update failed",
+      errorMessage: "Could not update the password",
+    },
     onSuccess: (response) => {
       if (response?.status === 204) {
         showSuccessNotification(
@@ -113,9 +126,6 @@ export const useUpdatePassword = () => {
         );
       }
     },
-    onError: (error: any) => {
-      showErrorNotification("Password update failed", error);
-    },
   });
 };
 
@@ -123,6 +133,10 @@ export const useToggleBanAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: updateIsBannedPayload) => banAccount(payload),
+    meta: {
+      errorTitle: "Account status update failed",
+      errorMessage: "Could not update the account ban status",
+    },
     onSuccess: (response, variables) => {
       if (response?.status === 204) {
         showSuccessNotification(
@@ -137,14 +151,6 @@ export const useToggleBanAccount = () => {
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       }
     },
-    onError: (error: any, variables) => {
-      showErrorNotification(
-        variables.is_banned
-          ? "Account banning failed"
-          : "Account unbanning failed",
-        error,
-      );
-    },
   });
 };
 
@@ -152,6 +158,10 @@ export const useCreateAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: RegisterRequest,
+    meta: {
+      errorTitle: "Account creation failed",
+      errorMessage: "Could not create the account",
+    },
     onSuccess: (response) => {
       if (response?.status === 201) {
         showSuccessNotification(
@@ -161,9 +171,6 @@ export const useCreateAccount = () => {
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       }
     },
-    onError: (error: any) => {
-      showErrorNotification("Account creation failed", error);
-    },
   });
 };
 
@@ -172,6 +179,10 @@ export const useAccountStats = (accountId: number, enabled: boolean = true) => {
     queryKey: ["accountStats", accountId],
     queryFn: () => getAccountStats(accountId),
     enabled,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load account stats",
+    },
   });
 };
 
@@ -179,6 +190,10 @@ export const useUpdateAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: updateAccountPayload) => updateAccount(payload),
+    meta: {
+      errorTitle: "Account update failed",
+      errorMessage: "Could not update the account",
+    },
     onSuccess: (response, variables) => {
       if (response?.status === 204) {
         showSuccessNotification(
@@ -190,9 +205,6 @@ export const useUpdateAccount = () => {
         });
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       }
-    },
-    onError: (error: any) => {
-      showErrorNotification("Account update failed", error);
     },
   });
 };
