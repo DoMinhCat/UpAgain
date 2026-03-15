@@ -14,28 +14,22 @@ import {
 } from "@mantine/core";
 import { PATHS } from "../../routes/paths";
 import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
-import { useEffect, useState } from "react";
-import {
-  getContainerDetails,
-  deleteContainer,
-  updateContainerStatus,
-  type Container as ContainerType,
-} from "../../api/admin/containerModule";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import {
-  showErrorNotification,
-  showSuccessNotification,
-} from "../../components/NotificationToast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { showSuccessNotification } from "../../components/NotificationToast";
 import FullScreenLoader from "../../components/FullScreenLoader";
 import InfoField from "../../components/InfoField";
 import dayjs from "dayjs";
 import { IconBox, IconTrash, IconEdit, IconAlertTriangle } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 
+import { 
+  useContainerDetails, 
+  useUpdateStatus, 
+  useDeleteContainer 
+} from "../../hooks/containerHooks";
+
 export default function AdminContainersDetails() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const params = useParams();
   const [openedDelete, { open: openDelete, close: closeDelete }] = useDisclosure(false);
   const [openedStatus, { open: openStatus, close: closeStatus }] = useDisclosure(false);
@@ -43,36 +37,29 @@ export default function AdminContainersDetails() {
   const containerId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(containerId) && containerId > 0;
 
-  const {
-    data: container,
-    isLoading,
-    error,
-  } = useQuery<ContainerType>({
-    queryKey: ["containerDetails", containerId],
-    queryFn: () => getContainerDetails(containerId),
-    enabled: isValidId,
-  });
+  const { data: container, isLoading, isError } = useContainerDetails(containerId);
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => deleteContainer(id),
-    onSuccess: () => {
-      showSuccessNotification("Success", "Container removed successfully");
-      navigate(PATHS.ADMIN.CONTAINERS);
-    },
-    onError: (err: any) => showErrorNotification("Error", err.message),
-  });
+  const statusMutation = useUpdateStatus();
 
-  const statusMutation = useMutation({
-    mutationFn: (newStatus: string) => updateContainerStatus(containerId, newStatus),
-    onSuccess: () => {
-      showSuccessNotification("Updated", "Container status changed");
-      queryClient.invalidateQueries({ queryKey: ["containerDetails", containerId] });
-      closeStatus();
-    },
-  });
+  const deleteMutation = useDeleteContainer();
+
+  const handleStatusChange = (newStatus: string) => {
+    statusMutation.mutate(
+      { id: containerId, status: newStatus },
+      { onSuccess: () => closeStatus() }
+    );
+  };
+
+  const handleDelete = () => {
+    deleteMutation.mutate(containerId, {
+      onSuccess: () => navigate(PATHS.ADMIN.CONTAINERS)
+    });
+  };
 
   if (isLoading) return <FullScreenLoader />;
-  if (error || !isValidId) return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
+  if (!isValidId || isError) return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
+
+  const statusColor = container?.status === 'ready' ? 'green' : container?.status === 'occupied' ? 'orange' : 'red';
 
   return (
     <Container px="md" size="xl">
@@ -85,7 +72,7 @@ export default function AdminContainersDetails() {
 
       <Container px="md" size="sm" mt="xl">
         <Stack justify="center" align="center" mb="xl">
-          <ThemeIcon size={80} radius="xl" color={container?.status === 'ready' ? 'green' : 'orange'}>
+          <ThemeIcon size={80} radius="xl" color={statusColor}>
             <IconBox size={45} />
           </ThemeIcon>
           <Title order={2}>Container #{container?.id}</Title>
@@ -96,7 +83,7 @@ export default function AdminContainersDetails() {
         <Paper variant="primary" px="lg" py="md" mt="sm">
           <InfoField label="Current Status">
              <Group mt="xs" mb="xl">
-                <Text fw={700} c={container?.status === 'ready' ? 'green' : 'orange'}>
+                <Text fw={700} c={statusColor}>
                   {container?.status.toUpperCase()}
                 </Text>
                 <Button size="compact-xs" variant="light" onClick={openStatus} leftSection={<IconEdit size={14}/>}>
@@ -114,17 +101,9 @@ export default function AdminContainersDetails() {
           </InfoField>
         </Paper>
 
+        
         <Title order={3} ta="left" mt="xl" c="red">Danger Zone</Title>
         <Paper variant="primary" px="lg" py="md" mt="sm" style={{ border: '1px solid #ff000033' }}>
-          <InfoField label="Maintenance Mode">
-            <Box ps="sm" mb="xl">
-              <Text c="dimmed" size="sm" mt="xs">Mark as maintenance if the smart-lock or sensors are failing.</Text>
-              <Button mt="xs" variant="outline" color="orange" leftSection={<IconAlertTriangle size={16}/>} onClick={() => statusMutation.mutate('maintenance')}>
-                Set to Maintenance
-              </Button>
-            </Box>
-          </InfoField>
-
           <InfoField label="Permanently Remove">
             <Box ps="sm">
               <Text c="dimmed" size="sm" mt="xs">This will soft-delete the container from the active park.</Text>
@@ -136,6 +115,7 @@ export default function AdminContainersDetails() {
         </Paper>
       </Container>
 
+      {/* MODALS */}
       <Modal opened={openedStatus} onClose={closeStatus} title="Update Container Status" centered>
         <Select
           label="New Status"
@@ -146,7 +126,7 @@ export default function AdminContainersDetails() {
             { value: 'maintenance', label: 'Maintenance' },
           ]}
           defaultValue={container?.status}
-          onChange={(val) => val && statusMutation.mutate(val)}
+          onChange={(val) => val && handleStatusChange(val)}
         />
       </Modal>
 
@@ -154,7 +134,7 @@ export default function AdminContainersDetails() {
         <Text size="sm">Are you sure? This action will remove the container from the monitoring dashboard.</Text>
         <Group mt="xl" justify="flex-end">
           <Button variant="grey" onClick={closeDelete}>Cancel</Button>
-          <Button variant="delete" loading={deleteMutation.isPending} onClick={() => deleteMutation.mutate(containerId)}>
+          <Button variant="delete" loading={deleteMutation.isPending} onClick={handleDelete}>
             Confirm Delete
           </Button>
         </Group>

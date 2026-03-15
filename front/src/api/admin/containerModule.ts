@@ -1,46 +1,35 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
-import { showErrorNotification } from "../../components/NotificationToast";
-
 export interface Container {
-  id: number;
-  created_at: string;
-  city_name: string;
-  postal_code: string;
-  status: 'ready' | 'full' | 'maintenance';
-  is_deleted: boolean;
+id: number;
+created_at: string;
+city_name: string;
+postal_code: string;
+status: 'ready' | 'occupied' | 'maintenance';
+is_deleted: boolean;
 }
 
-export async function getAllContainers() {
-  try {
-    const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS);
-    return response.data;
-  } catch (error: any) {
-    showErrorNotification("Error while getting containers", error);
-    throw error;
-  }
-}
+export const getAllContainers = async (): Promise<Container[]> => {
+  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS);
+  return response.data;
+};
 
-export const getContainerDetails = async (id: number) => {
-  const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`);
+export const createContainer = async (container: Partial<Container>) => {
+  const response = await api.post(ENDPOINTS.ADMIN.CONTAINERS, container);
   return response.data;
 };
 
 export const updateContainerStatus = async (id: number, status: string) => {
-  try {
-    return await api.put(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`, { status });
-  } catch (error: any) {
-    showErrorNotification("Error while updating container status", error);
-    throw error;
-  }
-};  
+  const response = await api.put(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`, { status });
+  return response.data;
+};
 
 export const deleteContainer = async (id: number) => {
   const response = await api.delete(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`);
   return response;
 };
 
-export const createContainer = async (container: Partial<Container>) => {
-  const response = await api.post(ENDPOINTS.ADMIN.CONTAINERS, container);
+export const getContainerDetails = async (id: number): Promise<Container> => {
+  const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS}${id}/`);
   return response.data;
 };
