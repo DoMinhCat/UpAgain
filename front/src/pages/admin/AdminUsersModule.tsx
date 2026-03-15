@@ -380,16 +380,19 @@ export default function AdminUsersModule() {
     setPage(1);
   };
 
-  const { data: accountsWithPagination, isLoading: isAccountsLoading } =
-    useGetAllAccounts(
-      false,
-      hasFilters ? -1 : activePage,
-      hasFilters ? -1 : LIMIT,
-      appliedFilters.searchValue,
-      appliedFilters.roleValue || undefined,
-      appliedFilters.statusValue || undefined,
-      appliedFilters.sortValue || undefined,
-    );
+  const {
+    data: accountsWithPagination,
+    isLoading: isAccountsLoading,
+    error: accountsError,
+  } = useGetAllAccounts(
+    false,
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.roleValue || undefined,
+    appliedFilters.statusValue || undefined,
+    appliedFilters.sortValue || undefined,
+  );
   const filteredAccounts = accountsWithPagination?.accounts || [];
   const listUsers =
     filteredAccounts.length > 0 ? (
@@ -481,13 +484,6 @@ export default function AdminUsersModule() {
 
           <Group gap="xs" align="flex-end">
             <Button
-              variant="primary"
-              leftSection={<IconPlus size={16} />}
-              onClick={openCreate}
-            >
-              New Account
-            </Button>
-            <Button
               variant="edit"
               leftSection={<IconRestore size={16} />}
               onClick={() => {
@@ -495,6 +491,13 @@ export default function AdminUsersModule() {
               }}
             >
               Recover Accounts
+            </Button>
+            <Button
+              variant="primary"
+              leftSection={<IconPlus size={16} />}
+              onClick={openCreate}
+            >
+              New Account
             </Button>
           </Group>
         </Group>
@@ -582,6 +585,7 @@ export default function AdminUsersModule() {
       </Stack>
       <AdminTable
         loading={isAccountsLoading}
+        error={accountsError}
         header={[
           "Registered on",
           "ID",
@@ -639,7 +643,7 @@ export default function AdminUsersModule() {
           </Button>
         </Group>
       </Modal>
-      <Modal opened={openedCreate} onClose={closeCreate}>
+      <Modal opened={openedCreate} onClose={closeCreate} title="Create account">
         <Stack>
           <TextInput
             data-autofocus

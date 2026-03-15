@@ -1,26 +1,35 @@
 import { notifications } from "@mantine/notifications";
 
 const autoCloseDuration = 5000;
-export const showErrorNotification = (title = "Error", error: any) => {
-  // default title is "Error" if not provided any title
+export const showErrorNotification = (
+  title = "Error",
+  errorMessage?: string,
+  error?: any,
+) => {
+  // default message is "An unexpected error occurred."
   let message = "An unexpected error occurred.";
 
-  if (typeof error === "string") {
-    message = error;
-  } else if (error?.response) {
-    const data = error.response.data;
-
-    if (typeof data === "string") {
-      message = data;
-    } else if (data && typeof data === "object" && data.message) {
-      message = data.message;
-    } else if (data && typeof data === "object" && data.error) {
-      message = data.error;
+  if (error) {
+    if (typeof error === "string") {
+      message = error;
+    } else if (error?.response?.data) {
+      const data = error.response.data;
+      if (typeof data === "string") {
+        message = data;
+      } else if (typeof data === "object" && data.message) {
+        message = data.message;
+      } else if (typeof data === "object" && data.error) {
+        message = data.error;
+      } else {
+        message = errorMessage || message;
+      }
+    } else if (error?.message) {
+      message = error.message;
     } else {
-      message = JSON.stringify(data);
+      message = errorMessage || message;
     }
-  } else if (error?.message) {
-    message = error.message;
+  } else if (errorMessage) {
+    message = errorMessage;
   }
 
   notifications.show({

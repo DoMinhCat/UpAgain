@@ -77,37 +77,37 @@ export default function AdminHome() {
             <StatsCardDesc
               stats={accountCountStats?.increase}
               icon={IconArrowUp}
-              description=" new users from last month"
+              description=" users since last month"
             />
           }
         />
         <AdminCardInfo
           icon={IconClipboardCheck}
           title="Pending requests"
-          value={18}
+          value={999}
           path={PATHS.ADMIN.VALIDATIONS.ALL}
         />
         <AdminCardInfo
           icon={IconLeaf}
           title="Total CO₂ saved"
-          value={18}
+          value={9999}
           description={
             <StatsCardDesc
-              stats={67}
+              stats={9999}
               icon={IconArrowUp}
-              description="kg from last month"
+              description="kg since last month"
             />
           }
         />
         <AdminCardInfo
           icon={IconBox}
           title="Available containers"
-          value={18 + " / " + 56}
+          value={9999 + " / " + 9999}
           path={PATHS.ADMIN.CONTAINERS}
           description={
             <Box mt="xs">
-              <Text c="dimmed">75% capacity used</Text>
-              <Progress value={75} />
+              <Text c="dimmed">9999% capacity used</Text>
+              <Progress value={9999} />
             </Box>
           }
         />
@@ -138,7 +138,7 @@ export default function AdminHome() {
           path={PATHS.ADMIN.CONTAINERS}
         />
         <AdminCardNav
-          title="Event"
+          title="Event/Workshop"
           description="Manage upcoming & on-going events/workshops"
           icon={IconCalendarEventFilled}
           path={PATHS.ADMIN.EVENTS}
@@ -202,7 +202,9 @@ export default function AdminHome() {
           {demoAdminActivities.body.map((row, rowIndex) => (
             <Table.Tr key={rowIndex}>
               {row.map((cell, cellIndex) => (
-                <Table.Td key={cellIndex}>{cell}</Table.Td>
+                <Table.Td ta="center" key={cellIndex}>
+                  {cell}
+                </Table.Td>
               ))}
             </Table.Tr>
           ))}

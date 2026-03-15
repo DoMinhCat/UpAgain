@@ -1,4 +1,3 @@
-import "@mantine/core/styles.css";
 import {
   MantineProvider,
   createTheme,
@@ -11,11 +10,13 @@ import {
   Pill,
   Select,
   Progress,
+  NumberInput,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
 import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
+import { DateTimePicker } from "@mantine/dates";
 
 const UpAgainTheme = createTheme({
   focusRing: "never",
@@ -74,7 +75,23 @@ const UpAgainTheme = createTheme({
         },
       },
     }),
+    NumberInput: NumberInput.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.input,
+          label: classes.label,
+        },
+      },
+    }),
     PasswordInput: PasswordInput.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.input,
+          label: classes.label,
+        },
+      },
+    }),
+    DateTimePicker: DateTimePicker.extend({
       defaultProps: {
         classNames: {
           input: classes.input,
