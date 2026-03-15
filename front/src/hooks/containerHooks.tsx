@@ -7,6 +7,7 @@ import {
   getContainerDetails,
   getContainerCountStats,
   type ContainerCountStats,
+  type Container,
 } from "../api/admin/containerModule";
 import { showSuccessNotification } from "../components/NotificationToast";
 
@@ -74,7 +75,7 @@ export const useDeleteContainer = () => {
   });
 };
 export const useContainerDetails = (id: number) => {
-  return useQuery({
+  return useQuery<Container>({
     queryKey: ["containerDetails", id],
     queryFn: () => getContainerDetails(id),
     enabled: !!id,
