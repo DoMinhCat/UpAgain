@@ -59,7 +59,7 @@ export const adminRoutes: RouteObject = {
       ],
     },
     {
-      path: PATHS.ADMIN.VALIDATIONS,
+      path: PATHS.ADMIN.VALIDATIONS.ALL,
       element: <ValidationHub />,
     },
   ],
