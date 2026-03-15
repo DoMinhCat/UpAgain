@@ -293,7 +293,7 @@ func UpdatePassword(id_account int, newPassword string) error {
 // return "admin", "employee", "user", "pro"
 func GetRoleById(id_account int) (string, error) {
 	var role string
-	row := utils.Conn.QueryRow("SELECT role FROM accounts WHERE id=$1 AND deleted_at IS NULL", id_account)
+	row := utils.Conn.QueryRow("SELECT role FROM accounts WHERE id=$1", id_account)
 	err := row.Scan(&role)
 	if err != nil {
 		return "", fmt.Errorf("GetRoleById() failed: %v", err.Error())
