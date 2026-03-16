@@ -11,10 +11,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetAuthRoutes(mux)
 	GetAccountRoutes(mux)
 	GetContainerRoutes(mux)
-
-	// add more routes later
-	// GetEventRoutes(mux)
-	// GetContainerRoutes(mux)
+	GetEventRoutes(mux)
 
 	return mux
 }
