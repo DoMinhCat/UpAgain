@@ -65,10 +65,10 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stats := models.EventStats{
-		Total:           total,
-		NewEvents:       newEvents,
-		UpcomingEvents:  upcomingEvents,
-		Registrations:   registrations,
+		Total:            total,
+		NewEvents:        newEvents,
+		UpcomingEvents:   upcomingEvents,
+		Registrations:    registrations,
 		PendingApprovals: pendingApprovals,
 	}
 
@@ -86,7 +86,7 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	// default pagination
 	page := -1
 	limit := -1
-	
+
 	query := r.URL.Query()
 	pageStr := query.Get("page")
 	if pageStr != "" {
@@ -107,7 +107,7 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	filters := models.EventFilters{
 		Search: query.Get("search"),
 		Sort:   query.Get("sort"),
@@ -128,12 +128,12 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 			lastPage = 1
 		}
 	}
-	
+
 	result := models.EventsListPagination{
-		Events:      events,
+		Events:       events,
 		CurrentPage:  page,
 		LastPage:     lastPage,
-		Limit:         limit,
+		Limit:        limit,
 		TotalRecords: total,
 	}
 	if page == -1 || limit == -1 {

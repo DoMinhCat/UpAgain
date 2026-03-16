@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func GetTotalActiveItemById(id_account int ) (int, error){
+func GetTotalActiveItemById(id_account int) (int, error) {
 	var total int
 
 	query := `

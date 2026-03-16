@@ -38,7 +38,7 @@ func GetTotalEventSpendingsById(id int) (int, error) {
 }
 
 // get total events registered by user/pro that are not cancelled
-func GetTotalActiveEventsRegisteredById(id_account int) (int, error){
+func GetTotalActiveEventsRegisteredById(id_account int) (int, error) {
 	var total int
 	query := `
 		select count(*) from event_registrations er
@@ -53,8 +53,8 @@ func GetTotalActiveEventsRegisteredById(id_account int) (int, error){
 	return total, nil
 }
 
-// get total count of events not cancelled and not not refused 
-func GetTotalCountActiveEvents() (int, error){
+// get total count of events not cancelled and not not refused
+func GetTotalCountActiveEvents() (int, error) {
 	var total int
 	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM events WHERE status!='cancelled' AND status!='refused'").Scan(&total)
 	if err != nil {
@@ -63,48 +63,47 @@ func GetTotalCountActiveEvents() (int, error){
 	return total, nil
 }
 
-func GetEventIncreaseSince(since time.Time) (int, error){
+func GetEventIncreaseSince(since time.Time) (int, error) {
 	var count int
 	err := utils.Conn.QueryRow("select count(*) from events where created_at >= $1 and created_at < now()", since).Scan(&count)
-	if err != nil{
+	if err != nil {
 		return 0, fmt.Errorf("GetEventIncreaseSince() failed: %v", err.Error())
 	}
 	return count, nil
 }
 
-func GetUpcomingEventIn(in time.Time) (int, error){
+func GetUpcomingEventIn(in time.Time) (int, error) {
 	var count int
 	err := utils.Conn.QueryRow("select count(*) from events where start_at <= $1 AND start_at > now() AND status!='cancelled' AND status!='refused'", in).Scan(&count)
-	if err != nil{
+	if err != nil {
 		return 0, fmt.Errorf("GetUpcomingEventIn() failed: %v", err.Error())
 	}
 	return count, nil
 }
 
-
 // TODO
-func GetTotalRegistrationsSince(since time.Time) (int, error){
+func GetTotalRegistrationsSince(since time.Time) (int, error) {
 	var count int
 	err := utils.Conn.QueryRow("select count(*) from event_registrations where created_at >= $1 and created_at < now()", since).Scan(&count)
-	if err != nil{
+	if err != nil {
 		return 0, fmt.Errorf("GetTotalRegistrationsSince() failed: %v", err.Error())
 	}
 	return count, nil
 }
 
 // get total count of events by status, status == nil then get all events
-func GetTotalEventsByStatus(status *string) (int, error){
+func GetTotalEventsByStatus(status *string) (int, error) {
 	var count int
 	if status == nil {
 		err := utils.Conn.QueryRow("select count(*) from events").Scan(&count)
-		if err != nil{
+		if err != nil {
 			return 0, fmt.Errorf("GetTotalEventsByStatus() failed: %v", err.Error())
 		}
 		return count, nil
 	}
 
 	err := utils.Conn.QueryRow("select count(*) from events where status=$1", *status).Scan(&count)
-	if err != nil{
+	if err != nil {
 		return 0, fmt.Errorf("GetTotalEventsByStatus() failed: %v", err.Error())
 	}
 	return count, nil
@@ -147,20 +146,20 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	orderBy := "ORDER BY e.id ASC" // Default sorting
 	if filters.Sort != "" {
 		switch filters.Sort {
-			case "earliest_start_date":
-				orderBy = "ORDER BY e.start_at ASC"
-			case "latest_start_date":
-				orderBy = "ORDER BY e.start_at DESC"
-			case "most_recent_creation":
-				orderBy = "ORDER BY e.created_at DESC"
-			case "oldest_creation":
-				orderBy = "ORDER BY e.created_at ASC"
-			case "highest_price":
-				orderBy = "ORDER BY e.price DESC"
-			case "lowest_price":
-				orderBy = "ORDER BY e.price ASC"
-			default:
-				orderBy = "ORDER BY e.id ASC"
+		case "earliest_start_date":
+			orderBy = "ORDER BY e.start_at ASC"
+		case "latest_start_date":
+			orderBy = "ORDER BY e.start_at DESC"
+		case "most_recent_creation":
+			orderBy = "ORDER BY e.created_at DESC"
+		case "oldest_creation":
+			orderBy = "ORDER BY e.created_at ASC"
+		case "highest_price":
+			orderBy = "ORDER BY e.price DESC"
+		case "lowest_price":
+			orderBy = "ORDER BY e.price ASC"
+		default:
+			orderBy = "ORDER BY e.id ASC"
 		}
 	}
 

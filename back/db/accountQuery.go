@@ -335,15 +335,15 @@ func RecoverAccount(id_account int) error {
 func UpdateAccount(account models.UpdateAccountRequest, currentRole string) error {
 	// update accounts entity
 	_, err := utils.Conn.Exec("UPDATE accounts SET username=$1, email=$2 WHERE id=$3 AND deleted_at IS NULL", account.Username, account.Email, account.Id)
-	if err != nil{
+	if err != nil {
 		return fmt.Errorf("UpdateAccount() failed: %v", err.Error())
 	}
 
 	// update phone
-	if currentRole =="pro"{
+	if currentRole == "pro" {
 		_, err = utils.Conn.Exec("UPDATE pros SET phone=$1 WHERE id_account=$2;", account.Phone, account.Id)
 	}
-	if currentRole =="user"{
+	if currentRole == "user" {
 		_, err = utils.Conn.Exec("UPDATE users SET phone=$1 WHERE id_account=$2;", account.Phone, account.Id)
 	}
 	if err != nil {
@@ -352,30 +352,30 @@ func UpdateAccount(account models.UpdateAccountRequest, currentRole string) erro
 	return nil
 }
 
-func GetIdByUsernameByEmail(username *string, email * string) (int, error){
+func GetIdByUsernameByEmail(username *string, email *string) (int, error) {
 	var id int
 	var err error
 
-	if username != nil && email != nil{
+	if username != nil && email != nil {
 		err = utils.Conn.QueryRow("select id from accounts where username=$1 and email=$2;", *username, *email).Scan(&id)
 	}
-	if username != nil{
+	if username != nil {
 		err = utils.Conn.QueryRow("select id from accounts where username=$1;", *username).Scan(&id)
 	}
-	if email != nil{
+	if email != nil {
 		err = utils.Conn.QueryRow("select id from accounts where email=$1;", *email).Scan(&id)
 	}
-	if err != nil{
+	if err != nil {
 		return 0, fmt.Errorf("GetIdByUsernameByEmail() failed: %v", err.Error())
 	}
 
 	return id, nil
 }
 
-func GetAccountIdByEmail(email string) (int, error){
+func GetAccountIdByEmail(email string) (int, error) {
 	id := 0
 	err := utils.Conn.QueryRow("select id from accounts where email=$1;", email).Scan(&id)
-	if err != nil{
+	if err != nil {
 		if err == sql.ErrNoRows {
 			return id, nil
 		}
@@ -384,10 +384,10 @@ func GetAccountIdByEmail(email string) (int, error){
 	return id, nil
 }
 
-func GetAccountIdByUsername(username string) (int, error){
+func GetAccountIdByUsername(username string) (int, error) {
 	id := 0
 	err := utils.Conn.QueryRow("select id from accounts where username=$1;", username).Scan(&id)
-	if err != nil{
+	if err != nil {
 		if err == sql.ErrNoRows {
 			return id, nil
 		}
@@ -396,20 +396,19 @@ func GetAccountIdByUsername(username string) (int, error){
 	return id, nil
 }
 
-
-func GetAccountCount() (int, error){
+func GetAccountCount() (int, error) {
 	var count int
 	err := utils.Conn.QueryRow("select count(*) from accounts").Scan(&count)
-	if err != nil{
+	if err != nil {
 		return 0, fmt.Errorf("GetAccountCount() failed: %v", err.Error())
 	}
 	return count, nil
 }
 
-func GetAccountIncreaseSince(since time.Time) (int, error){
+func GetAccountIncreaseSince(since time.Time) (int, error) {
 	var count int
 	err := utils.Conn.QueryRow("select count(*) from accounts where created_at > $1", since).Scan(&count)
-	if err != nil{
+	if err != nil {
 		return 0, fmt.Errorf("GetAccountIncreaseSince() failed: %v", err.Error())
 	}
 	return count, nil
