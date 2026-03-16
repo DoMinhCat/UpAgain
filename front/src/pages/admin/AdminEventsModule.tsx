@@ -31,9 +31,14 @@ import { useDisclosure } from "@mantine/hooks";
 import { DateTimePicker } from "@mantine/dates";
 import { TextEditor } from "../../components/TextEditor";
 import ImageDropzone from "../../components/ImageDropzone";
+import { useGetAllEvents, useGetEventStats } from "../../hooks/eventHooks";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "../../routes/paths";
 
 export default function AdminEventsModule() {
-  // TODO for filtering
+  const navigate = useNavigate();
+
+  // get all accounts
   const [filters, setFilters] = useState<{
     searchValue: string | undefined;
     sortValue: string | null;
@@ -67,6 +72,48 @@ export default function AdminEventsModule() {
     setAppliedFilters(defaultFilters);
     setPage(1);
   };
+
+  const {
+    data: events,
+    isLoading: isLoadingEvents,
+    error: errorEvents,
+  } = useGetAllEvents(
+    activePage,
+    LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.statusValue || undefined,
+    appliedFilters.sortValue || undefined,
+  );
+  const filteredEvents = events?.events || [];
+  const listEvents =
+    filteredEvents.length > 0 ? (
+      filteredEvents.map((event) => (
+        <Table.Tr
+          style={{
+            cursor: "pointer",
+          }}
+          key={event.id}
+          onClick={() => {
+            navigate(PATHS.ADMIN.EVENTS.ALL + "/" + event.id);
+          }}
+        >
+          <Table.Td>{event.created_at}</Table.Td>
+          <Table.Td>{event.id}</Table.Td>
+          <Table.Td>{event.title}</Table.Td>
+          <Table.Td>{event.employee_name}</Table.Td>
+          <Table.Td>{event.category}</Table.Td>
+          <Table.Td>{event.start_at}</Table.Td>
+          <Table.Td>{event.status}</Table.Td>
+          <Table.Td>{"Buttons"}</Table.Td>
+        </Table.Tr>
+      ))
+    ) : (
+      <Table.Tr>
+        <Table.Td colSpan={8} ta="center">
+          No events found
+        </Table.Td>
+      </Table.Tr>
+    );
 
   // create modal
   const [openedCreate, { open: openCreate, close: closeCreate }] =
@@ -394,8 +441,8 @@ export default function AdminEventsModule() {
       </Stack>
 
       <AdminTable
-        loading={false}
-        error={null}
+        loading={isLoadingEvents}
+        error={errorEvents}
         header={[
           "Created on",
           "ID",
@@ -407,16 +454,7 @@ export default function AdminEventsModule() {
           "Actions",
         ]}
       >
-        <Table.Tr>
-          <Table.Td ta="center">1</Table.Td>
-          <Table.Td ta="center">2</Table.Td>
-          <Table.Td ta="center">3</Table.Td>
-          <Table.Td ta="center">4</Table.Td>
-          <Table.Td ta="center">5</Table.Td>
-          <Table.Td ta="center">6</Table.Td>
-          <Table.Td ta="center">6</Table.Td>
-          <Table.Td ta="center">6</Table.Td>
-        </Table.Tr>
+        {listEvents}
       </AdminTable>
     </Container>
   );

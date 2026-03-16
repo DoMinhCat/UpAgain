@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/guregu/null"
+)
 
 type EventStats struct {
 	Total            int `json:"total"`
@@ -29,6 +33,7 @@ type Event struct {
 	City           string    `json:"city"`
 	Street         string    `json:"street"`
 	LocationDetail string    `json:"location_detail"`
+	EmployeeName   null.String `json:"employee_name"`
 }
 
 type EventsListPagination struct {
