@@ -106,13 +106,13 @@ export default function AdminEventsModule() {
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
         <AdminCardInfo
           icon={IconCalendarEventFilled}
-          title="Total Events"
+          title="Total active events"
           value={99999}
           description={
             <StatsCardDesc
               stats={67}
               icon={IconArrowUp}
-              description=" new events since last month"
+              description=" events created since last month"
             />
           }
         />
@@ -142,7 +142,7 @@ export default function AdminEventsModule() {
         />
         <AdminCardInfo
           icon={IconClockCheck}
-          title="Pending Approval"
+          title="Pending approval"
           value={45}
           description={
             <StatsCardDesc

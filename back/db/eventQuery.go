@@ -3,6 +3,7 @@ package db
 import (
 	"backend/utils"
 	"fmt"
+	"time"
 )
 
 // get total events assigned to an employee that are not cancelled
@@ -49,4 +50,52 @@ func GetTotalActiveEventsRegisteredById(id_account int) (int, error){
 		return 0, fmt.Errorf("GetTotalActiveEventsRegisteredById() failed: %v", err.Error())
 	}
 	return total, nil
+}
+
+// get total count of events not cancelled and not not refused 
+func GetTotalCountActiveEvents() (int, error){
+	var total int
+	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM events WHERE status!='cancelled' AND status!='refused'").Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalCountActiveEvents() failed: %v", err.Error())
+	}
+	return total, nil
+}
+
+func GetEventIncreaseSince(since time.Time) (int, error){
+	var count int
+	err := utils.Conn.QueryRow("select count(*) from events where created_at >= $1 and created_at < now()", since).Scan(&count)
+	if err != nil{
+		return 0, fmt.Errorf("GetEventIncreaseSince() failed: %v", err.Error())
+	}
+	return count, nil
+}
+
+func GetUpcomingEventIn(in time.Time) (int, error){
+	var count int
+	err := utils.Conn.QueryRow("select count(*) from events where start_at <= $1 AND start_at > now() AND status!='cancelled' AND status!='refused'", in).Scan(&count)
+	if err != nil{
+		return 0, fmt.Errorf("GetUpcomingEventIn() failed: %v", err.Error())
+	}
+	return count, nil
+}
+
+
+// TODO
+func GetTotalRegistrationsSince(since time.Time) (int, error){
+	var count int
+	err := utils.Conn.QueryRow("select count(*) from event_registrations where created_at >= $1 and created_at < now()", since).Scan(&count)
+	if err != nil{
+		return 0, fmt.Errorf("GetTotalRegistrationsSince() failed: %v", err.Error())
+	}
+	return count, nil
+}
+
+func GetTotalEventsByStatus(status string) (int, error){
+	var count int
+	err := utils.Conn.QueryRow("select count(*) from events where status=$1", status).Scan(&count)
+	if err != nil{
+		return 0, fmt.Errorf("GetTotalEventsByStatus() failed: %v", err.Error())
+	}
+	return count, nil
 }
