@@ -19,7 +19,9 @@ export const PATHS = {
     },
     CONTAINERS: "/admin/containers",
     POSTS: "/admin/posts",
-    EVENTS: "/admin/events",
+    EVENTS: {
+      ALL: "/admin/events",
+    },
     LISTINGS: "/admin/listings",
     SUBSCRIPTIONS: "/admin/subscriptions",
   },

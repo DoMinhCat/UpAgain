@@ -14,6 +14,7 @@ export interface Event {
   city: string;
   street: string;
   location_detail: string;
+  employee_name: string | null;
 }
 
 export interface EventsListPagination {

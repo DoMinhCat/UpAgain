@@ -163,7 +163,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 		}
 	}
 
-	query := "SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail FROM events e " + whereClause + " " + orderBy
+	query := "SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username as employee_name FROM events e LEFT JOIN event_employee ee ON e.id=ee.id_event LEFT JOIN accounts a ON ee.id_employee=a.id " + whereClause + " " + orderBy
 
 	// pagination
 	if limit != -1 && page != -1 {
@@ -181,7 +181,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 
 	for rows.Next() {
 		var event models.Event
-		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail)
+		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail, &event.EmployeeName)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllEvents() scan failed: %v", err.Error())
 		}
