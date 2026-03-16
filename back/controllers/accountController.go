@@ -91,7 +91,7 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	
-	filters := db.AccountFilters{
+	filters := models.AccountFilters{
 		Search: query.Get("search"),
 		Sort:   query.Get("sort"),
 		Role:   query.Get("role"),
@@ -113,16 +113,16 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	
-	result := map[string]interface{}{
-		"accounts":      accounts,
-		"current_page":  page,
-		"last_page":     lastPage,
-		"limit":         limit,
-		"total_records": total,
+	result := models.AccountsListPagination{
+		Accounts:      accounts,
+		CurrentPage:  page,
+		LastPage:     lastPage,
+		Limit:         limit,
+		TotalRecords: total,
 	}
 	if page == -1 || limit == -1 {
-		result["current_page"] = 1
-		result["last_page"] = 1
+		result.CurrentPage = 1
+		result.LastPage = 1
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, result)
