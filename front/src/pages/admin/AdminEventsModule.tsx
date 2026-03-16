@@ -324,7 +324,7 @@ export default function AdminEventsModule() {
             <TextInput
               label="Search"
               variant="filled"
-              placeholder="Search by username, email or ID..."
+              placeholder="Search by employee's name, event's ID or title..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
@@ -336,20 +336,28 @@ export default function AdminEventsModule() {
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Select
               label="Sort by"
-              placeholder="Pick one"
+              placeholder="Pick one sort method"
               data={[
                 {
-                  value: "most_recent_registration",
-                  label: "Most recent registration",
+                  value: "most_recent_creation",
+                  label: "Most recent creation",
                 },
-                { value: "oldest_registration", label: "Oldest registration" },
+                { value: "oldest_creation", label: "Oldest creation" },
                 {
-                  value: "most_recent_last_active",
-                  label: "Most recent last active",
+                  value: "highest_price",
+                  label: "Highest price",
                 },
                 {
-                  value: "oldest_last_active",
-                  label: "Oldest last active",
+                  value: "lowest_price",
+                  label: "Lowest price",
+                },
+                {
+                  value: "earliest_start_date",
+                  label: "Earliest start date",
+                },
+                {
+                  value: "latest_start_date",
+                  label: "Latest start date",
                 },
               ]}
               value={filters.sortValue}

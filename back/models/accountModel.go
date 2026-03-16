@@ -67,3 +67,10 @@ type AccountCountStats struct{
 	Total int `json:"total"`
 	Increase int `json:"increase"`
 }
+
+type AccountFilters struct {
+	Search string
+	Sort   string
+	Role   string
+	Status string
+}

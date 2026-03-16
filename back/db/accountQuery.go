@@ -98,19 +98,12 @@ func DeleteAccount(id int) error {
 	return nil
 }
 
-type AccountFilters struct {
-	Search string
-	Sort   string
-	Role   string
-	Status string
-}
-
 // isDeleted: get soft deleted or existing account
 //
 // page: get page number for pagination, if page = -1 then get ALL
 //
 // limit: number of records for each page, if limit = -1 then get ALL
-func GetAllAccounts(isDeleted bool, page int, limit int, filters AccountFilters) ([]models.Account, int, error) {
+func GetAllAccounts(isDeleted bool, page int, limit int, filters models.AccountFilters) ([]models.Account, int, error) {
 	accounts := make([]models.Account, 0)
 	var params []interface{}
 	var countParams []interface{}

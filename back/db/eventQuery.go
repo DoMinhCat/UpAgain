@@ -1,6 +1,7 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
 	"fmt"
 	"time"
@@ -91,11 +92,102 @@ func GetTotalRegistrationsSince(since time.Time) (int, error){
 	return count, nil
 }
 
-func GetTotalEventsByStatus(status string) (int, error){
+// get total count of events by status, status == nil then get all events
+func GetTotalEventsByStatus(status *string) (int, error){
 	var count int
-	err := utils.Conn.QueryRow("select count(*) from events where status=$1", status).Scan(&count)
+	if status == nil {
+		err := utils.Conn.QueryRow("select count(*) from events").Scan(&count)
+		if err != nil{
+			return 0, fmt.Errorf("GetTotalEventsByStatus() failed: %v", err.Error())
+		}
+		return count, nil
+	}
+
+	err := utils.Conn.QueryRow("select count(*) from events where status=$1", *status).Scan(&count)
 	if err != nil{
 		return 0, fmt.Errorf("GetTotalEventsByStatus() failed: %v", err.Error())
 	}
 	return count, nil
+}
+
+// page: get page number for pagination, if page = -1 then get ALL
+//
+// limit: number of records for each page, if limit = -1 then get ALL
+//
+// return list of events, total count of events, error
+func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Event, int, error) {
+	var results []models.Event
+	var params []interface{}
+	var countParams []interface{}
+	whereClause := "WHERE e.created_at IS NOT NULL"
+	paramIndex := 1
+
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(" AND (e.title ILIKE $%d OR (SELECT a.username FROM accounts a JOIN event_employee ee ON a.id=ee.id_employee) ILIKE $%d OR CAST(e.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		params = append(params, searchParam)
+		countParams = append(countParams, searchParam)
+		paramIndex++
+	}
+
+	if filters.Status != "" {
+		whereClause += fmt.Sprintf(" AND e.status = $%d", paramIndex)
+		params = append(params, filters.Status)
+		countParams = append(countParams, filters.Status)
+		paramIndex++
+	}
+
+	var totalRecords int
+	countQuery := "SELECT COUNT(*) FROM events e " + whereClause
+	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetAllEvents() count failed: %v", err)
+	}
+
+	orderBy := "ORDER BY e.id ASC" // Default sorting
+	if filters.Sort != "" {
+		switch filters.Sort {
+			case "earliest_start_date":
+				orderBy = "ORDER BY e.start_at ASC"
+			case "latest_start_date":
+				orderBy = "ORDER BY e.start_at DESC"
+			case "most_recent_creation":
+				orderBy = "ORDER BY e.created_at DESC"
+			case "oldest_creation":
+				orderBy = "ORDER BY e.created_at ASC"
+			case "highest_price":
+				orderBy = "ORDER BY e.price DESC"
+			case "lowest_price":
+				orderBy = "ORDER BY e.price ASC"
+			default:
+				orderBy = "ORDER BY e.id ASC"
+		}
+	}
+
+	query := "SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail FROM events e " + whereClause + " " + orderBy
+
+	// pagination
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
+	}
+
+	rows, err := utils.Conn.Query(query, params...)
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetAllEvents() query failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event models.Event
+		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllEvents() scan failed: %v", err.Error())
+		}
+		results = append(results, event)
+	}
+
+	return results, totalRecords, nil
 }
