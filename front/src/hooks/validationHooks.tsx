@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchPendingValidations, processValidationAction } from "../api/admin/validationModule";
-import { fetchAllItemsHistory } from "../api/admin/validationModule";
+import { fetchPendingValidations, processValidationAction, fetchAllItemsHistory } from "../api/admin/validationModule";
 
 export const usePendingValidations = () => {
   return useQuery({
     queryKey: ["pendingValidations"],
     queryFn: fetchPendingValidations,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load pending validations",
+    },
   });
 };
 
@@ -23,8 +26,12 @@ export const useProcessValidation = () => {
     mutationFn: ({ entityType, id, action, reason }: ProcessValidationParams) =>
       processValidationAction(entityType, id, action, reason),
     onSuccess: () => {
-      // Refresh the list automatically after a successful action
       queryClient.invalidateQueries({ queryKey: ["pendingValidations"] });
+      queryClient.invalidateQueries({ queryKey: ["allItemsHistory"] });
+    },
+    meta: {
+      errorTitle: "Validation Failed",
+      errorMessage: "Could not process the validation action",
     },
   });
 };
@@ -33,5 +40,9 @@ export const useAllItemsHistory = () => {
   return useQuery({
     queryKey: ["allItemsHistory"],
     queryFn: fetchAllItemsHistory,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load items history",
+    },
   });
 };
