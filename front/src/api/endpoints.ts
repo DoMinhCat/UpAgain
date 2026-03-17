@@ -8,7 +8,9 @@ export const ENDPOINTS = {
         `/admin/validations/${entityType}/${id}`,
       HISTORY: "/admin/items/history",
     },
+    CONTAINERS: "/containers/",
     USERS_COUNT: "/accounts/count/",
+    CONTAINERS_COUNT: "/containers/count/",
   },
 
   AUTH: {
