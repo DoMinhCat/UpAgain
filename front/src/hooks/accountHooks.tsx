@@ -17,10 +17,10 @@ import {
   type updateAccountPayload,
   updateAccount,
   type AccountsListPagination,
-} from "../api/admin/userModule";
-import {
-  showSuccessNotification,
-} from "../components/NotificationToast";
+  type AccountCountStats,
+  getAccountCountStats,
+} from "../api/admin/accountModule";
+import { showSuccessNotification } from "../components/NotificationToast";
 
 export const useRecoverAccount = () => {
   const queryClient = useQueryClient();
@@ -206,5 +206,17 @@ export const useUpdateAccount = () => {
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       }
     },
+  });
+};
+
+export const useAccountCountStats = () => {
+  return useQuery<AccountCountStats>({
+    queryKey: ["accountCountStats"],
+    queryFn: getAccountCountStats,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load account count stats",
+    },
+    staleTime: 1000 * 60, // refresh data every 1m
   });
 };

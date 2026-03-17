@@ -33,7 +33,7 @@ export const getAllAccounts = async (
   role?: string,
   status?: string,
   sort?: string,
-) => {
+): Promise<AccountsListPagination> => {
   const response = await api.get(ENDPOINTS.ADMIN.USERS, {
     params: { is_deleted, page, limit, search, role, status, sort },
   });
@@ -55,7 +55,9 @@ export const deleteAccount = async (id_account: number) => {
   return await api.delete(ENDPOINTS.ADMIN.USERS + id_account + "/");
 };
 
-export const getAccountDetails = async (id_account: number) => {
+export const getAccountDetails = async (
+  id_account: number,
+): Promise<Account> => {
   const response = await api.get(ENDPOINTS.ADMIN.USERS + id_account + "/");
   return response.data;
 };
@@ -93,7 +95,9 @@ export interface AccountStats {
   total_spendings?: number;
 }
 
-export const getAccountStats = async (id_account: number) => {
+export const getAccountStats = async (
+  id_account: number,
+): Promise<AccountStats> => {
   const response = await api.get(
     ENDPOINTS.ADMIN.USERS + id_account + "/stats/",
   );
@@ -121,7 +125,7 @@ export interface AccountCountStats {
   total: number;
   increase: number;
 }
-export const getAccountCountStats = async () => {
+export const getAccountCountStats = async (): Promise<AccountCountStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.USERS_COUNT);
   return response.data;
 };

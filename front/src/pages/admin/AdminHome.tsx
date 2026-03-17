@@ -11,6 +11,7 @@ import {
   Text,
   Stack,
   Box,
+  Loader,
 } from "@mantine/core";
 import {
   IconArrowUp,
@@ -33,10 +34,11 @@ import AdminTable from "../../components/admin/AdminTable";
 import classes from "../../styles/Admin.module.css";
 import PaginationFooter from "../../components/PaginationFooter";
 import { PATHS } from "../../../src/routes/paths";
-import { getAccountCountStats } from "../../api/admin/userModule";
-import { useQuery } from "@tanstack/react-query";
+import { useAccountCountStats } from "../../hooks/accountHooks";
+import { useContainerCountStats } from "../../hooks/containerHooks";
 
 export default function AdminHome() {
+  // TODO: replace with real admin history data
   const demoAdminActivities = {
     header: ["Timestamp", "Admin", "Module", "Item's ID", "Action", "Detail"],
     body: [
@@ -57,10 +59,14 @@ export default function AdminHome() {
     data: accountCountStats,
     isLoading: isLoadingAccountCountStats,
     error: errorAccountCountStats,
-  } = useQuery({
-    queryKey: ["accountCountStats"],
-    queryFn: getAccountCountStats,
-  });
+  } = useAccountCountStats();
+
+  const {
+    data: containerCountStats,
+    isLoading: isLoadingContainerCountStats,
+    error: errorContainerCountStats,
+  } = useContainerCountStats();
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -71,44 +77,71 @@ export default function AdminHome() {
         <AdminCardInfo
           icon={IconUsers}
           title="Total Users"
-          value={accountCountStats?.total}
+          value={accountCountStats?.total ?? 0}
           path={PATHS.ADMIN.USERS.ALL}
           description={
-            <StatsCardDesc
-              stats={accountCountStats?.increase}
-              icon={IconArrowUp}
-              description=" new users from last month"
-            />
+            errorAccountCountStats ? (
+              <Text c="red">An error occurred while loading user stats</Text>
+            ) : isLoadingAccountCountStats ? (
+              <Loader size="sm" />
+            ) : (
+              <StatsCardDesc
+                stats={accountCountStats?.increase ?? 0}
+                icon={IconArrowUp}
+                description=" users since last month"
+              />
+            )
           }
         />
         <AdminCardInfo
           icon={IconClipboardCheck}
           title="Pending requests"
-          value={18}
+          value={999}
           path={PATHS.ADMIN.VALIDATIONS.ALL}
         />
         <AdminCardInfo
           icon={IconLeaf}
           title="Total CO₂ saved"
-          value={18}
+          value={9999}
           description={
             <StatsCardDesc
-              stats={67}
+              stats={9999}
               icon={IconArrowUp}
-              description="kg from last month"
+              description="kg since last month"
             />
           }
         />
         <AdminCardInfo
           icon={IconBox}
           title="Available containers"
-          value={18 + " / " + 56}
+          value={
+            containerCountStats?.active + " / " + containerCountStats?.total
+          }
           path={PATHS.ADMIN.CONTAINERS}
           description={
-            <Box mt="xs">
-              <Text c="dimmed">75% capacity used</Text>
-              <Progress value={75} />
-            </Box>
+            errorContainerCountStats ? (
+              <Text c="red">
+                An error occurred while loading container stats
+              </Text>
+            ) : isLoadingContainerCountStats ? (
+              <Loader size="sm" />
+            ) : (
+              <Box mt="xs">
+                <Text c="dimmed">
+                  {((containerCountStats?.active ?? 0) /
+                    (containerCountStats?.total ?? 0)) *
+                    100}
+                  % containers active
+                </Text>
+                <Progress
+                  value={
+                    ((containerCountStats?.active ?? 0) /
+                      (containerCountStats?.total ?? 0)) *
+                    100
+                  }
+                />
+              </Box>
+            )
           }
         />
       </SimpleGrid>
@@ -138,7 +171,7 @@ export default function AdminHome() {
           path={PATHS.ADMIN.CONTAINERS}
         />
         <AdminCardNav
-          title="Event"
+          title="Event/Workshop"
           description="Manage upcoming & on-going events/workshops"
           icon={IconCalendarEventFilled}
           path={PATHS.ADMIN.EVENTS}
@@ -202,7 +235,9 @@ export default function AdminHome() {
           {demoAdminActivities.body.map((row, rowIndex) => (
             <Table.Tr key={rowIndex}>
               {row.map((cell, cellIndex) => (
-                <Table.Td key={cellIndex}>{cell}</Table.Td>
+                <Table.Td ta="center" key={cellIndex}>
+                  {cell}
+                </Table.Td>
               ))}
             </Table.Tr>
           ))}

@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import { PATHS } from "../../routes/paths";
 import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
-import { ScoreRing } from "../../components/ScoreRing";
+import { ScoreRing } from "../../components/user/ScoreRing";
 import { useEffect, useState } from "react";
 
 import {
