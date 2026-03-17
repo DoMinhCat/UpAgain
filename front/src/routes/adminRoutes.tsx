@@ -7,9 +7,10 @@ import { useAuth } from "../context/AuthContext.tsx";
 import FullScreenLoader from "../components/FullScreenLoader.tsx";
 import AdminUsersModule from "../pages/admin/AdminUsersModule.tsx";
 import AdminUserDetails from "../pages/admin/AdminUserDetails.tsx";
-import ValidationHub from "../pages/admin/ValidationHub.tsx";
+import AdminValidationHub from "../pages/admin/AdminValidationHub.tsx";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import AdminValidationDetails from "../pages/admin/AdminValidationDetails.tsx";
 
 // implement the same Guard component for user and pro
 const AdminGuard = ({ children }: { children: React.ReactNode }) => {
@@ -59,8 +60,14 @@ export const adminRoutes: RouteObject = {
       ],
     },
     {
-      path: PATHS.ADMIN.VALIDATIONS.ALL,
-      element: <ValidationHub />,
+      path: "validations",
+      children: [
+        { index: true, element: <AdminValidationHub /> },
+        {
+          path: ":type/:id", // Gérera /admin/validations/deposits/1
+          element: <AdminValidationDetails />,
+        },
+      ],
     },
   ],
 };

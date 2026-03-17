@@ -2,13 +2,16 @@ import { useState } from "react";
 import { Container, Tabs, Text, Table, Button, Group, Badge, Modal, Textarea } from "@mantine/core";
 import { IconCheck, IconX, IconUsers } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import { useNavigate } from "react-router-dom";
 import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
 import FullScreenLoader from "../../components/FullScreenLoader";
 import AdminTable from "../../components/admin/AdminTable";
 import { PATHS } from "../../routes/paths";
 import { usePendingValidations, useProcessValidation } from "../../hooks/validationHooks";
 
-export default function ValidationHub() {
+export default function AdminValidationHub() {
+  const navigate = useNavigate();
+
   // 1. Hooks centrally loaded
   const { data, isLoading, isError } = usePendingValidations();
   const processMutation = useProcessValidation();
@@ -67,14 +70,17 @@ export default function ValidationHub() {
           </Tabs.Tab>
         </Tabs.List>
 
-
         <Tabs.Panel value="deposits" pt="xl">
           <AdminTable header={["ID", "Item", "User", "Location", "Date", "Actions"]} loading={isLoading}>
             {data?.deposits?.length === 0 && (
               <Table.Tr><Table.Td colSpan={6} ta="center">No pending deposits</Table.Td></Table.Tr>
             )}
             {data?.deposits?.map((item) => (
-              <Table.Tr key={`dep-${item.id_item}`}>
+              <Table.Tr 
+                key={`dep-${item.id_item}`}
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/deposits/${item.id_item}`, { state: { item } })}
+              >
                 <Table.Td ta="center">#{item.id_item}</Table.Td>
                 <Table.Td ta="center">
                   <strong>{item.title}</strong><br />
@@ -85,8 +91,30 @@ export default function ValidationHub() {
                 <Table.Td ta="center">{new Date(item.created_at).toLocaleDateString("en-US")}</Table.Td>
                 <Table.Td ta="center">
                   <Group justify="center" gap="sm">
-                    <Button color="green" size="xs" leftSection={<IconCheck size={14} />} onClick={() => handleApprove(item.id_item, 'deposits')} loading={processMutation.isPending && processMutation.variables?.id === item.id_item && processMutation.variables?.action === "approve"}>Approve</Button>
-                    <Button color="red" variant="light" size="xs" leftSection={<IconX size={14} />} onClick={() => handleOpenRefuseModal(item.id_item, 'deposits')}>Refuse</Button>
+                    <Button 
+                      color="green" 
+                      size="xs" 
+                      leftSection={<IconCheck size={14} />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApprove(item.id_item, 'deposits');
+                      }} 
+                      loading={processMutation.isPending && processMutation.variables?.id === item.id_item && processMutation.variables?.action === "approve"}
+                    >
+                      Approve
+                    </Button>
+                    <Button 
+                      color="red" 
+                      variant="light" 
+                      size="xs" 
+                      leftSection={<IconX size={14} />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenRefuseModal(item.id_item, 'deposits');
+                      }}
+                    >
+                      Refuse
+                    </Button>
                   </Group>
                 </Table.Td>
               </Table.Tr>
@@ -94,14 +122,17 @@ export default function ValidationHub() {
           </AdminTable>
         </Tabs.Panel>
 
-
         <Tabs.Panel value="listings" pt="xl">
           <AdminTable header={["ID", "Listing", "Price", "User", "Location", "Date", "Actions"]} loading={isLoading}>
             {data?.listings?.length === 0 && (
               <Table.Tr><Table.Td colSpan={7} ta="center">No pending listings</Table.Td></Table.Tr>
             )}
             {data?.listings?.map((item) => (
-              <Table.Tr key={`list-${item.id_item}`}>
+              <Table.Tr 
+                key={`list-${item.id_item}`}
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/listings/${item.id_item}`, { state: { item } })}
+              >
                 <Table.Td ta="center">#{item.id_item}</Table.Td>
                 <Table.Td ta="center">
                   <strong>{item.title}</strong><br />
@@ -115,8 +146,30 @@ export default function ValidationHub() {
                 <Table.Td ta="center">{new Date(item.created_at).toLocaleDateString("en-US")}</Table.Td>
                 <Table.Td ta="center">
                   <Group justify="center" gap="sm">
-                    <Button color="green" size="xs" leftSection={<IconCheck size={14} />} onClick={() => handleApprove(item.id_item, 'listings')} loading={processMutation.isPending && processMutation.variables?.id === item.id_item && processMutation.variables?.action === "approve"}>Approve</Button>
-                    <Button color="red" variant="light" size="xs" leftSection={<IconX size={14} />} onClick={() => handleOpenRefuseModal(item.id_item, 'listings')}>Refuse</Button>
+                    <Button 
+                      color="green" 
+                      size="xs" 
+                      leftSection={<IconCheck size={14} />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApprove(item.id_item, 'listings');
+                      }} 
+                      loading={processMutation.isPending && processMutation.variables?.id === item.id_item && processMutation.variables?.action === "approve"}
+                    >
+                      Approve
+                    </Button>
+                    <Button 
+                      color="red" 
+                      variant="light" 
+                      size="xs" 
+                      leftSection={<IconX size={14} />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenRefuseModal(item.id_item, 'listings');
+                      }}
+                    >
+                      Refuse
+                    </Button>
                   </Group>
                 </Table.Td>
               </Table.Tr>
@@ -124,14 +177,17 @@ export default function ValidationHub() {
           </AdminTable>
         </Tabs.Panel>
 
-
         <Tabs.Panel value="events" pt="xl">
           <AdminTable header={["ID", "Event", "Details", "Creator", "Scheduled Date", "Actions"]} loading={isLoading}>
             {data?.events?.length === 0 && (
               <Table.Tr><Table.Td colSpan={6} ta="center">No pending events</Table.Td></Table.Tr>
             )}
             {data?.events?.map((item) => (
-              <Table.Tr key={`evt-${item.id_event}`}>
+              <Table.Tr 
+                key={`evt-${item.id_event}`}
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/events/${item.id_event}`, { state: { item } })}
+              >
                 <Table.Td ta="center">#{item.id_event}</Table.Td>
                 <Table.Td ta="center">
                   <strong>{item.title}</strong><br />
@@ -150,8 +206,30 @@ export default function ValidationHub() {
                 </Table.Td>
                 <Table.Td ta="center">
                   <Group justify="center" gap="sm">
-                    <Button color="green" size="xs" leftSection={<IconCheck size={14} />} onClick={() => handleApprove(item.id_event, 'events')} loading={processMutation.isPending && processMutation.variables?.id === item.id_event && processMutation.variables?.action === "approve"}>Approve</Button>
-                    <Button color="red" variant="light" size="xs" leftSection={<IconX size={14} />} onClick={() => handleOpenRefuseModal(item.id_event, 'events')}>Refuse</Button>
+                    <Button 
+                      color="green" 
+                      size="xs" 
+                      leftSection={<IconCheck size={14} />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApprove(item.id_event, 'events');
+                      }} 
+                      loading={processMutation.isPending && processMutation.variables?.id === item.id_event && processMutation.variables?.action === "approve"}
+                    >
+                      Approve
+                    </Button>
+                    <Button 
+                      color="red" 
+                      variant="light" 
+                      size="xs" 
+                      leftSection={<IconX size={14} />} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenRefuseModal(item.id_event, 'events');
+                      }}
+                    >
+                      Refuse
+                    </Button>
                   </Group>
                 </Table.Td>
               </Table.Tr>
@@ -159,7 +237,6 @@ export default function ValidationHub() {
           </AdminTable>
         </Tabs.Panel>
       </Tabs>
-
 
       <Modal opened={opened} onClose={close} title="Reason for refusal (Required)" centered>
         <Textarea

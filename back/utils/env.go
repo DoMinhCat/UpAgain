@@ -51,7 +51,6 @@ func GetFrontOriginDev() string {
 	if frontOrigin == "" {
 		log.Panic("FRONTEND_ORIGIN_DEV not find in .env")
 	}
-	println(frontOrigin)
 	return frontOrigin
 }
 
