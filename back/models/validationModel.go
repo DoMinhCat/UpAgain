@@ -47,7 +47,7 @@ type PendingEventResponse struct {
 	Title            string      `json:"title"`
 	Description      null.String `json:"description"`
 	Category         string      `json:"category"`
-	DateStart        time.Time   `json:"date_start"`
+	DateStart        null.Time   `json:"date_start"`
 	Capacity         null.Int    `json:"capacity"`
 	Price            null.Float  `json:"price"`
 	CreatedAt        time.Time   `json:"created_at"`
@@ -58,4 +58,13 @@ type PendingEventResponse struct {
 type ValidationActionRequest struct {
 	Action string `json:"action"`
 	Reason string `json:"reason"`
+}
+
+type AllItemResponse struct {
+	ID        int       `json:"id"`
+	Title     string    `json:"title"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+	Username  string    `json:"username"`
+	ItemType  string    `json:"item_type"`
 }

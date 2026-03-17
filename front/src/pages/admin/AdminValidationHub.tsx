@@ -7,13 +7,23 @@ import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
 import FullScreenLoader from "../../components/FullScreenLoader";
 import AdminTable from "../../components/admin/AdminTable";
 import { PATHS } from "../../routes/paths";
-import { usePendingValidations, useProcessValidation } from "../../hooks/validationHooks";
+import { usePendingValidations, useProcessValidation, useAllItemsHistory } from "../../hooks/validationHooks";
 
 export default function AdminValidationHub() {
   const navigate = useNavigate();
 
   // 1. Hooks centrally loaded
   const { data, isLoading, isError } = usePendingValidations();
+  const { data: historyData, isLoading: isLoadingHistory } = useAllItemsHistory();
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+      case 'approved': return <Badge color="green">Approved</Badge>;
+      case 'refused': return <Badge color="red">Refused</Badge>;
+      case 'pending': return <Badge color="orange">Pending</Badge>;
+      default: return <Badge color="gray">{status}</Badge>;
+    }
+  };
+
   const processMutation = useProcessValidation();
 
   // 2. Shared Refusal Modal State
@@ -67,6 +77,9 @@ export default function AdminValidationHub() {
           </Tabs.Tab>
           <Tabs.Tab value="events">
             Events ({data?.events?.length || 0})
+          </Tabs.Tab>
+          <Tabs.Tab value="history">
+            All History ({historyData?.length || 0})
           </Tabs.Tab>
         </Tabs.List>
 
@@ -232,6 +245,35 @@ export default function AdminValidationHub() {
                     </Button>
                   </Group>
                 </Table.Td>
+              </Table.Tr>
+            ))}
+          </AdminTable>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="history" pt="xl">
+          <AdminTable header={["ID", "Type", "Title", "User", "Status", "Created At"]} loading={isLoadingHistory}>
+            {historyData?.length === 0 && (
+              <Table.Tr><Table.Td colSpan={6} ta="center">No history found</Table.Td></Table.Tr>
+            )}
+            {historyData?.map((item: any) => (
+              <Table.Tr key={`hist-${item.id}`}>
+                <Table.Td ta="center">#{item.id}</Table.Td>
+                <Table.Td ta="center">
+                  <Badge 
+                    color={
+                      item.item_type === 'Deposit' ? 'blue' : 
+                      item.item_type === 'Listing' ? 'grape' : 
+                      'violet' 
+                    } 
+                    variant="light"
+                  >
+                    {item.item_type}
+                  </Badge>
+                </Table.Td>
+                <Table.Td ta="center"><strong>{item.title}</strong></Table.Td>
+                <Table.Td ta="center">{item.username}</Table.Td>
+                <Table.Td ta="center">{getStatusBadge(item.status)}</Table.Td>
+                <Table.Td ta="center">{new Date(item.created_at).toLocaleDateString("en-US")}</Table.Td>
               </Table.Tr>
             ))}
           </AdminTable>

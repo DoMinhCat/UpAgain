@@ -3,9 +3,10 @@ export const ENDPOINTS = {
   ADMIN: {
     USERS: "/accounts/",
     VALIDATIONS: {
-      PENDING: "/admin/validations/pending",
+      PENDING: "/admin/validations/pending",    
       ACTION: (entityType: string, id: number) =>
         `/admin/validations/${entityType}/${id}`,
+      HISTORY: "/admin/items/history",
     },
     USERS_COUNT: "/accounts/count/",
   },

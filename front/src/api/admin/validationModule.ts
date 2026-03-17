@@ -58,6 +58,12 @@ export const fetchPendingValidations = async (): Promise<PendingValidationsRespo
   return response.data;
 };
 
+
+export const fetchAllItemsHistory = async () => {
+  const response = await api.get(ENDPOINTS.ADMIN.VALIDATIONS.HISTORY);
+  return response.data;
+};
+
 export const processValidationAction = async (
   entityType: 'listings' | 'deposits' | 'events',
   id: number,

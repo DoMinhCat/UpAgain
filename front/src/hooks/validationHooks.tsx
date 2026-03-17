@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchPendingValidations, processValidationAction } from "../api/admin/validationModule";
+import { fetchAllItemsHistory } from "../api/admin/validationModule";
 
 export const usePendingValidations = () => {
   return useQuery({
@@ -25,5 +26,12 @@ export const useProcessValidation = () => {
       // Refresh the list automatically after a successful action
       queryClient.invalidateQueries({ queryKey: ["pendingValidations"] });
     },
+  });
+};
+
+export const useAllItemsHistory = () => {
+  return useQuery({
+    queryKey: ["allItemsHistory"],
+    queryFn: fetchAllItemsHistory,
   });
 };

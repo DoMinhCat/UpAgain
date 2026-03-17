@@ -11,4 +11,5 @@ func GetValidationRoutes(mux *http.ServeMux) {
 	mux.Handle("PUT /admin/validations/listings/{id}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ProcessListingValidation))))
 	mux.Handle("PUT /admin/validations/deposits/{id}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ProcessDepositValidation))))
 	mux.Handle("PUT /admin/validations/events/{id}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ProcessEventValidation))))
+	mux.Handle("GET /admin/items/history", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetItemsHistory))))
 }

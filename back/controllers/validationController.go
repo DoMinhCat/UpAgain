@@ -171,3 +171,28 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	// TODO: Notification OneSignal au salarié qui a proposé l'atelier
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Event processed successfully"})
 }
+
+func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value("user").(models.AuthClaims)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "Failed to read user claims")
+		return
+	}
+
+	if claims.Role != "admin" && claims.Role != "employee" {
+		utils.RespondWithError(w, http.StatusForbidden, "You are not authorized to view the history")
+		return
+	}
+
+	items, err := db.GetAllItemsHistory()
+	if err != nil {
+		slog.Error("GetAllItemsHistory() failed", "controller", "GetItemsHistory", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items history")
+		return
+	}
+
+	if items == nil {
+		items = []models.AllItemResponse{}
+	}
+	utils.RespondWithJSON(w, http.StatusOK, items)
+}
