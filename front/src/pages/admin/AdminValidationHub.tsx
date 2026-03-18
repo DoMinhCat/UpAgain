@@ -5,6 +5,7 @@ import {
   Text,
   Table,
   Button,
+  Title,
   Group,
   Badge,
   Modal,
@@ -13,7 +14,7 @@ import {
 import { IconCheck, IconX, IconUsers } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
-import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
+// import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
 import FullScreenLoader from "../../components/FullScreenLoader";
 import AdminTable from "../../components/admin/AdminTable";
 import { PATHS } from "../../routes/paths";
@@ -99,13 +100,13 @@ export default function AdminValidationHub() {
     );
 
   return (
-    <Container size="xl" mt="md">
-      <AdminBreadcrumbs
-        breadcrumbs={[
-          { title: "Dashboard", href: PATHS.ADMIN.HOME },
-          { title: "Validations", href: PATHS.ADMIN.VALIDATIONS.ALL },
-        ]}
-      />
+    <Container px="md" size="xl">
+      <Title order={2} mt="lg" mb="xl">
+        Validation Hub
+      </Title>
+      <Title c="dimmed" order={3} mb="xl">
+        Review pending listings, deposits and events
+      </Title>
 
       <Tabs defaultValue="deposits" color="#45a575">
         <Tabs.List>
