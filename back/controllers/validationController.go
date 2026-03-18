@@ -11,40 +11,6 @@ import (
 	"strconv"
 )
 
-func GetPendingValidations(w http.ResponseWriter, r *http.Request) {
-	deposits, err := db.GetPendingDeposits()
-	if err != nil {
-		slog.Error("GetPendingDeposits failed", "controller", "GetPendingValidations", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending deposits")
-		return
-	}
-
-	listings, err := db.GetPendingListings()
-	if err != nil {
-		slog.Error("GetPendingListings failed", "controller", "GetPendingValidations", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending listings")
-		return
-	}
-
-	events, err := db.GetPendingEvents()
-	if err != nil {
-		slog.Error("GetPendingEvents failed", "controller", "GetPendingValidations", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending events")
-		return
-	}
-
-	response := struct {
-		Deposits []models.PendingDepositResponse `json:"deposits"`
-		Listings []models.PendingListingResponse `json:"listings"`
-		Events   []models.PendingEventResponse   `json:"events"`
-	}{
-		Deposits: deposits,
-		Listings: listings,
-		Events:   events,
-	}
-	utils.RespondWithJSON(w, http.StatusOK, response)
-}
-
 // helper function, not a controller
 func parseValidationPayload(r *http.Request) (*models.ValidationActionRequest, string, error) {
 	var payload models.ValidationActionRequest
@@ -65,6 +31,128 @@ func parseValidationPayload(r *http.Request) (*models.ValidationActionRequest, s
 	}
 
 	return &payload, newStatus, nil
+}
+
+// parsePaginationAndFilters extracts page, limit, search, sort from query params.
+// page and limit default to -1 (no pagination).
+func parsePaginationAndFilters(r *http.Request) (page, limit int, filters db.ValidationFilters, err error) {
+	page = -1
+	limit = -1
+	query := r.URL.Query()
+
+	if pageStr := query.Get("page"); pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			return
+		}
+	}
+	if limitStr := query.Get("limit"); limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			return
+		}
+	}
+	filters = db.ValidationFilters{
+		Search: query.Get("search"),
+		Sort:   query.Get("sort"),
+	}
+	return
+}
+
+// buildPaginatedResult computes last_page and returns a standardized map.
+func buildPaginatedResult(page, limit, total int) map[string]interface{} {
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+	currentPage := page
+	if page == -1 || limit == -1 {
+		currentPage = 1
+		lastPage = 1
+	}
+	return map[string]interface{}{
+		"current_page":  currentPage,
+		"last_page":     lastPage,
+		"limit":         limit,
+		"total_records": total,
+	}
+}
+
+// GetPendingDepositsAdmin returns paginated pending deposits.
+func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
+	page, limit, filters, err := parsePaginationAndFilters(r)
+	if err != nil {
+		slog.Error("parsePaginationAndFilters failed", "controller", "GetPendingDepositsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
+		return
+	}
+
+	deposits, total, err := db.GetPendingDeposits(page, limit, filters)
+	if err != nil {
+		slog.Error("GetPendingDeposits failed", "controller", "GetPendingDepositsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending deposits")
+		return
+	}
+
+	result := buildPaginatedResult(page, limit, total)
+	result["deposits"] = deposits
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}
+
+// GetPendingListingsAdmin returns paginated pending listings.
+func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
+	page, limit, filters, err := parsePaginationAndFilters(r)
+	if err != nil {
+		slog.Error("parsePaginationAndFilters failed", "controller", "GetPendingListingsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
+		return
+	}
+
+	listings, total, err := db.GetPendingListings(page, limit, filters)
+	if err != nil {
+		slog.Error("GetPendingListings failed", "controller", "GetPendingListingsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending listings")
+		return
+	}
+
+	result := buildPaginatedResult(page, limit, total)
+	result["listings"] = listings
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}
+
+// GetPendingEventsAdmin returns paginated pending events.
+func GetPendingEventsAdmin(w http.ResponseWriter, r *http.Request) {
+	page, limit, filters, err := parsePaginationAndFilters(r)
+	if err != nil {
+		slog.Error("parsePaginationAndFilters failed", "controller", "GetPendingEventsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
+		return
+	}
+
+	events, total, err := db.GetPendingEvents(page, limit, filters)
+	if err != nil {
+		slog.Error("GetPendingEvents failed", "controller", "GetPendingEventsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending events")
+		return
+	}
+
+	result := buildPaginatedResult(page, limit, total)
+	result["events"] = events
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}
+
+// GetValidationStats returns counts of pending/approved/refused for all entity types.
+func GetValidationStats(w http.ResponseWriter, r *http.Request) {
+	stats, err := db.GetValidationStats()
+	if err != nil {
+		slog.Error("GetValidationStats failed", "controller", "GetValidationStats", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching validation stats")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, stats)
 }
 
 func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
@@ -127,9 +215,9 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 
 	employeeID := claims.Id
 
-	_, newStatus, err := parseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal, elle contiendra la raison du refus
+	_, newStatus, err := parseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal
 	if err != nil {
-		slog.Error("Atoi failed", "controller", "ProcessDepositValidation", "error", err)
+		slog.Error("parseValidationPayload failed", "controller", "ProcessDepositValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -163,7 +251,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 
 	employeeID := claims.Id
 
-	_, newStatus, err := parseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal, elle contiendra la raison du refus
+	_, newStatus, err := parseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
 	if err != nil {
 		slog.Error("parseValidationPayload failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
