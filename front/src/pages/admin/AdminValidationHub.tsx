@@ -297,6 +297,7 @@ export default function AdminValidationHub() {
             header={[
               "ID",
               "Event",
+              "Category",
               "Details",
               "Creator",
               "Scheduled Date",
@@ -325,8 +326,22 @@ export default function AdminValidationHub() {
                 <Table.Td ta="center">#{item.id_event}</Table.Td>
                 <Table.Td ta="center">
                   <strong>{item.title}</strong>
-                  <br />
-                  <Badge size="sm" color="violet" variant="light">
+                </Table.Td>
+                <Table.Td ta="center">
+                  <Badge
+                    color={
+                      item.category === "other"
+                        ? "grey"
+                        : item.category === "workshop"
+                          ? "blue"
+                          : item.category === "conference"
+                            ? "gren"
+                            : item.category === "meetups"
+                              ? "yellow"
+                              : "red"
+                    }
+                    variant="light"
+                  >
                     {item.category}
                   </Badge>
                 </Table.Td>
@@ -342,11 +357,11 @@ export default function AdminValidationHub() {
                       </Badge>
                     )}
                     {item.price ? (
-                      <Badge color="green" variant="light">
+                      <Badge color="yellow" variant="light">
                         {item.price} €
                       </Badge>
                     ) : (
-                      <Badge color="gray" variant="light">
+                      <Badge color="green" variant="light">
                         Free
                       </Badge>
                     )}
@@ -355,7 +370,9 @@ export default function AdminValidationHub() {
                 <Table.Td ta="center">{item.employee_username}</Table.Td>
                 <Table.Td ta="center">
                   <Text size="sm" fw={500}>
-                    {new Date(item.date_start).toLocaleDateString("en-US")}
+                    {item.date_start
+                      ? new Date(item.date_start).toLocaleDateString("en-US")
+                      : "N/A"}
                   </Text>
                   {item.time_start && (
                     <Text size="xs" c="dimmed">
@@ -366,7 +383,7 @@ export default function AdminValidationHub() {
                 <Table.Td ta="center">
                   <Group justify="center" gap="sm">
                     <Button
-                      color="green"
+                      variant="primary"
                       size="xs"
                       leftSection={<IconCheck size={14} />}
                       onClick={(e) => {
@@ -382,8 +399,7 @@ export default function AdminValidationHub() {
                       Approve
                     </Button>
                     <Button
-                      color="red"
-                      variant="light"
+                      variant="delete"
                       size="xs"
                       leftSection={<IconX size={14} />}
                       onClick={(e) => {
@@ -402,7 +418,7 @@ export default function AdminValidationHub() {
 
         <Tabs.Panel value="history" pt="xl">
           <AdminTable
-            header={["ID", "Created At", "Type", "Title", "User", "Status"]}
+            header={["ID", "Created At", "Type", "Title", "Creator", "Status"]}
             loading={isLoadingHistory}
           >
             {historyData?.length === 0 && (
@@ -448,7 +464,7 @@ export default function AdminValidationHub() {
       <Modal
         opened={opened}
         onClose={close}
-        title="Reason for refusal (Required)"
+        title="Refuse event proposal"
         centered
       >
         <Textarea
@@ -457,17 +473,20 @@ export default function AdminValidationHub() {
           onChange={(event) => setRefuseReason(event.currentTarget.value)}
           minRows={3}
           data-autofocus
+          label="Reason of refusal"
+          required
+          withAsterisk
         />
         <Group justify="flex-end" mt="md">
           <Button
-            variant="default"
+            variant="grey"
             onClick={close}
             disabled={processMutation.isPending}
           >
             Cancel
           </Button>
           <Button
-            color="red"
+            variant="delete"
             onClick={handleConfirmRefuse}
             disabled={refuseReason.trim().length === 0}
             loading={
