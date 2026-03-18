@@ -249,7 +249,7 @@ export default function AdminValidationDetails() {
               </Text>
               <Group>
                 <Button
-                  color="green"
+                  variant="primary"
                   leftSection={<IconCheck size={16} />}
                   onClick={handleApprove}
                   loading={
@@ -260,8 +260,7 @@ export default function AdminValidationDetails() {
                   Approve
                 </Button>
                 <Button
-                  color="red"
-                  variant="light"
+                  variant="delete"
                   leftSection={<IconX size={16} />}
                   onClick={openRefuse}
                 >
@@ -288,14 +287,14 @@ export default function AdminValidationDetails() {
         />
         <Group justify="flex-end" mt="md">
           <Button
-            variant="default"
+            variant="grey"
             onClick={closeRefuse}
             disabled={processMutation.isPending}
           >
             Cancel
           </Button>
           <Button
-            color="red"
+            variant="delete"
             onClick={handleConfirmRefuse}
             disabled={refuseReason.trim().length === 0}
             loading={
