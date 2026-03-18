@@ -1,6 +1,7 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
 
+// --- Types ---
 
 export interface PendingDeposit {
   id_item: number;
@@ -37,8 +38,7 @@ export interface PendingEvent {
   title: string;
   description: string | null;
   category: string;
-  date_start: string;
-  time_start: string | null;
+  date_start: string | null;
   capacity: number | null;
   price: number | null;
   created_at: string;
@@ -46,18 +46,91 @@ export interface PendingEvent {
   employee_username: string;
 }
 
-export interface PendingValidationsResponse {
+export interface PaginatedDepositsResponse {
   deposits: PendingDeposit[];
-  listings: PendingListing[];
-  events: PendingEvent[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+  total_records: number;
 }
 
-// --- REQUÊTES ---
-export const fetchPendingValidations = async (): Promise<PendingValidationsResponse> => {
-  const response = await api.get<PendingValidationsResponse>(ENDPOINTS.ADMIN.VALIDATIONS.PENDING);
+export interface PaginatedListingsResponse {
+  listings: PendingListing[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+  total_records: number;
+}
+
+export interface PaginatedEventsResponse {
+  events: PendingEvent[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+  total_records: number;
+}
+
+export interface ValidationStats {
+  pending_deposits: number;
+  approved_deposits: number;
+  refused_deposits: number;
+  pending_listings: number;
+  approved_listings: number;
+  refused_listings: number;
+  pending_events: number;
+  approved_events: number;
+  refused_events: number;
+}
+
+export interface ValidationFilters {
+  search?: string;
+  sort?: string;
+}
+
+// --- API functions ---
+
+export const fetchPendingDeposits = async (
+  page?: number,
+  limit?: number,
+  filters?: ValidationFilters,
+): Promise<PaginatedDepositsResponse> => {
+  const response = await api.get<PaginatedDepositsResponse>(
+    ENDPOINTS.ADMIN.VALIDATIONS.DEPOSITS,
+    { params: { page, limit, ...filters } },
+  );
   return response.data;
 };
 
+export const fetchPendingListings = async (
+  page?: number,
+  limit?: number,
+  filters?: ValidationFilters,
+): Promise<PaginatedListingsResponse> => {
+  const response = await api.get<PaginatedListingsResponse>(
+    ENDPOINTS.ADMIN.VALIDATIONS.LISTINGS,
+    { params: { page, limit, ...filters } },
+  );
+  return response.data;
+};
+
+export const fetchPendingEvents = async (
+  page?: number,
+  limit?: number,
+  filters?: ValidationFilters,
+): Promise<PaginatedEventsResponse> => {
+  const response = await api.get<PaginatedEventsResponse>(
+    ENDPOINTS.ADMIN.VALIDATIONS.EVENTS,
+    { params: { page, limit, ...filters } },
+  );
+  return response.data;
+};
+
+export const fetchValidationStats = async (): Promise<ValidationStats> => {
+  const response = await api.get<ValidationStats>(
+    ENDPOINTS.ADMIN.VALIDATIONS.STATS,
+  );
+  return response.data;
+};
 
 export const fetchAllItemsHistory = async () => {
   const response = await api.get(ENDPOINTS.ADMIN.VALIDATIONS.HISTORY);
@@ -65,10 +138,10 @@ export const fetchAllItemsHistory = async () => {
 };
 
 export const processValidationAction = async (
-  entityType: 'listings' | 'deposits' | 'events',
+  entityType: "listings" | "deposits" | "events",
   id: number,
-  action: 'approve' | 'refuse',
-  reason?: string
+  action: "approve" | "refuse",
+  reason?: string,
 ): Promise<{ message: string }> => {
   const payload = { action, reason: reason || "" };
   const url = ENDPOINTS.ADMIN.VALIDATIONS.ACTION(entityType, id);

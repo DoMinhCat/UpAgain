@@ -68,3 +68,43 @@ type AllItemResponse struct {
 	Username  string    `json:"username"`
 	ItemType  string    `json:"item_type"`
 }
+
+// --- Paginated responses ---
+
+type PaginatedDepositsResponse struct {
+	Deposits     []PendingDepositResponse `json:"deposits"`
+	CurrentPage  int                      `json:"current_page"`
+	LastPage     int                      `json:"last_page"`
+	Limit        int                      `json:"limit"`
+	TotalRecords int                      `json:"total_records"`
+}
+
+type PaginatedListingsResponse struct {
+	Listings     []PendingListingResponse `json:"listings"`
+	CurrentPage  int                      `json:"current_page"`
+	LastPage     int                      `json:"last_page"`
+	Limit        int                      `json:"limit"`
+	TotalRecords int                      `json:"total_records"`
+}
+
+type PaginatedEventsResponse struct {
+	Events       []PendingEventResponse `json:"events"`
+	CurrentPage  int                    `json:"current_page"`
+	LastPage     int                    `json:"last_page"`
+	Limit        int                    `json:"limit"`
+	TotalRecords int                    `json:"total_records"`
+}
+
+// --- Stats ---
+
+type ValidationStats struct {
+	PendingDeposits  int `json:"pending_deposits"`
+	ApprovedDeposits int `json:"approved_deposits"`
+	RefusedDeposits  int `json:"refused_deposits"`
+	PendingListings  int `json:"pending_listings"`
+	ApprovedListings int `json:"approved_listings"`
+	RefusedListings  int `json:"refused_listings"`
+	PendingEvents    int `json:"pending_events"`
+	ApprovedEvents   int `json:"approved_events"`
+	RefusedEvents    int `json:"refused_events"`
+}

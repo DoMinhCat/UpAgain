@@ -3,7 +3,10 @@ export const ENDPOINTS = {
   ADMIN: {
     USERS: "/accounts/",
     VALIDATIONS: {
-      PENDING: "/admin/validations/pending",    
+      DEPOSITS: "/admin/validations/deposits",
+      LISTINGS: "/admin/validations/listings",
+      EVENTS: "/admin/validations/events",
+      STATS: "/admin/validations/stats",
       ACTION: (entityType: string, id: number) =>
         `/admin/validations/${entityType}/${id}`,
       HISTORY: "/admin/items/history",
