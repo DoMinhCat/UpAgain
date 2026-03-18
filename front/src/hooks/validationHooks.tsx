@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchPendingValidations, processValidationAction, fetchAllItemsHistory } from "../api/admin/validationModule";
+import {
+  fetchPendingValidations,
+  processValidationAction,
+  fetchAllItemsHistory,
+} from "../api/admin/validationModule";
 
 export const usePendingValidations = () => {
   return useQuery({
@@ -9,13 +13,14 @@ export const usePendingValidations = () => {
       errorTitle: "Fetching Failed",
       errorMessage: "Could not load pending validations",
     },
+    staleTime: 1000 * 60, // 1min
   });
 };
 
 interface ProcessValidationParams {
-  entityType: 'listings' | 'deposits' | 'events';
+  entityType: "listings" | "deposits" | "events";
   id: number;
-  action: 'approve' | 'refuse';
+  action: "approve" | "refuse";
   reason?: string;
 }
 
@@ -44,5 +49,6 @@ export const useAllItemsHistory = () => {
       errorTitle: "Fetching Failed",
       errorMessage: "Could not load items history",
     },
+    staleTime: 1000 * 60, // 1min
   });
 };
