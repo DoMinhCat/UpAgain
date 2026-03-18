@@ -104,7 +104,7 @@ func GetPendingEvents() ([]models.PendingEventResponse, error) {
 		FROM events ev
 		JOIN event_employee ee ON ev.id = ee.id_event
 		JOIN accounts acc ON ee.id_employee = acc.id
-		WHERE ev.status = 'pending' AND ev.is_cancelled = false
+		WHERE ev.status = 'pending' AND ev.status!='cancelled'
 		ORDER BY ev.created_at ASC
 	`
 
