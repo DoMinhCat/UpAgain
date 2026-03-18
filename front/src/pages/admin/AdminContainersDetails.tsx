@@ -19,25 +19,36 @@ import { showSuccessNotification } from "../../components/NotificationToast";
 import FullScreenLoader from "../../components/FullScreenLoader";
 import InfoField from "../../components/InfoField";
 import dayjs from "dayjs";
-import { IconBox, IconTrash, IconEdit, IconAlertTriangle } from "@tabler/icons-react";
+import {
+  IconBox,
+  IconTrash,
+  IconEdit,
+  IconAlertTriangle,
+} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 
-import { 
-  useContainerDetails, 
-  useUpdateStatus, 
-  useDeleteContainer 
+import {
+  useContainerDetails,
+  useUpdateStatus,
+  useDeleteContainer,
 } from "../../hooks/containerHooks";
 
 export default function AdminContainersDetails() {
   const navigate = useNavigate();
   const params = useParams();
-  const [openedDelete, { open: openDelete, close: closeDelete }] = useDisclosure(false);
-  const [openedStatus, { open: openStatus, close: closeStatus }] = useDisclosure(false);
-  
+  const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
+  const [openedStatus, { open: openStatus, close: closeStatus }] =
+    useDisclosure(false);
+
   const containerId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(containerId) && containerId > 0;
 
-  const { data: container, isLoading, isError } = useContainerDetails(containerId);
+  const {
+    data: container,
+    isLoading,
+    isError,
+  } = useContainerDetails(containerId);
 
   const statusMutation = useUpdateStatus();
 
@@ -46,20 +57,26 @@ export default function AdminContainersDetails() {
   const handleStatusChange = (newStatus: string) => {
     statusMutation.mutate(
       { id: containerId, status: newStatus },
-      { onSuccess: () => closeStatus() }
+      { onSuccess: () => closeStatus() },
     );
   };
 
   const handleDelete = () => {
     deleteMutation.mutate(containerId, {
-      onSuccess: () => navigate(PATHS.ADMIN.CONTAINERS)
+      onSuccess: () => navigate(PATHS.ADMIN.CONTAINERS),
     });
   };
 
   if (isLoading) return <FullScreenLoader />;
-  if (!isValidId || isError) return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
+  if (!isValidId || isError)
+    return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
 
-  const statusColor = container?.status === 'ready' ? 'green' : container?.status === 'occupied' ? 'orange' : 'red';
+  const statusColor =
+    container?.status === "ready"
+      ? "green"
+      : container?.status === "occupied"
+        ? "orange"
+        : "red";
 
   return (
     <Container px="md" size="xl">
@@ -76,38 +93,66 @@ export default function AdminContainersDetails() {
             <IconBox size={45} />
           </ThemeIcon>
           <Title order={2}>Container #{container?.id}</Title>
-          <Text c="dimmed">{container?.city_name} - {container?.postal_code}</Text>
+          <Text c="dimmed">
+            {container?.city_name} - {container?.postal_code}
+          </Text>
         </Stack>
 
-        <Title order={3} ta="left" mt="xl">Operational Information</Title>
+        <Title order={3} ta="left" mt="xl">
+          Operational Information
+        </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm">
           <InfoField label="Current Status">
-             <Group mt="xs" mb="xl">
-                <Text fw={700} c={statusColor}>
-                  {container?.status.toUpperCase()}
-                </Text>
-                <Button size="compact-xs" variant="light" onClick={openStatus} leftSection={<IconEdit size={14}/>}>
-                  Change Status
-                </Button>
-             </Group>
+            <Group mt="xs" mb="xl">
+              <Text fw={700} c={statusColor}>
+                {container?.status.toUpperCase()}
+              </Text>
+              <Button
+                size="compact-xs"
+                variant="light"
+                onClick={openStatus}
+                leftSection={<IconEdit size={14} />}
+              >
+                Change Status
+              </Button>
+            </Group>
           </InfoField>
 
           <InfoField label="Location">
-            <Text ps="sm" mt="xs" mb="xl">{container?.city_name} ({container?.postal_code})</Text>
+            <Text ps="sm" mt="xs" mb="xl">
+              {container?.city_name} ({container?.postal_code})
+            </Text>
           </InfoField>
 
           <InfoField label="Created On">
-            <Text ps="sm" mt="xs">{dayjs(container?.created_at).format("DD/MM/YYYY - HH:mm")}</Text>
+            <Text ps="sm" mt="xs">
+              {dayjs(container?.created_at).format("DD/MM/YYYY - HH:mm")}
+            </Text>
           </InfoField>
         </Paper>
 
-        
-        <Title order={3} ta="left" mt="xl" c="red">Danger Zone</Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm" style={{ border: '1px solid #ff000033' }}>
-          <InfoField label="Permanently Remove">
+        <Title order={3} ta="left" mt="xl" c="red">
+          Danger Zone
+        </Title>
+        <Paper
+          variant="primary"
+          px="lg"
+          py="md"
+          mt="sm"
+          style={{ border: "1px solid #ff000033" }}
+        >
+          <InfoField label="Remove container">
             <Box ps="sm">
-              <Text c="dimmed" size="sm" mt="xs">This will soft-delete the container from the active park.</Text>
-              <Button mt="xs" variant="delete" leftSection={<IconTrash size={16}/>} onClick={openDelete}>
+              <Text c="dimmed" size="sm" mt="xs">
+                This will soft-delete the container, excluding it from the
+                system.
+              </Text>
+              <Button
+                mt="xs"
+                variant="delete"
+                leftSection={<IconTrash size={16} />}
+                onClick={openDelete}
+              >
                 Delete Container
               </Button>
             </Box>
@@ -116,25 +161,44 @@ export default function AdminContainersDetails() {
       </Container>
 
       {/* MODALS */}
-      <Modal opened={openedStatus} onClose={closeStatus} title="Update Container Status" centered>
+      <Modal
+        opened={openedStatus}
+        onClose={closeStatus}
+        title="Update Container Status"
+        centered
+      >
         <Select
           label="New Status"
           placeholder="Pick one"
           data={[
-            { value: 'ready', label: 'Ready' },
-            { value: 'occupied', label: 'Occupied' },
-            { value: 'maintenance', label: 'Maintenance' },
+            { value: "ready", label: "Ready" },
+            { value: "occupied", label: "Occupied" },
+            { value: "maintenance", label: "Maintenance" },
           ]}
           defaultValue={container?.status}
           onChange={(val) => val && handleStatusChange(val)}
         />
       </Modal>
 
-      <Modal opened={openedDelete} onClose={closeDelete} title="Confirm Deletion" centered>
-        <Text size="sm">Are you sure? This action will remove the container from the monitoring dashboard.</Text>
+      <Modal
+        opened={openedDelete}
+        onClose={closeDelete}
+        title="Confirm Deletion"
+        centered
+      >
+        <Text size="sm">
+          Are you sure? This action will remove the container from the
+          monitoring dashboard.
+        </Text>
         <Group mt="xl" justify="flex-end">
-          <Button variant="grey" onClick={closeDelete}>Cancel</Button>
-          <Button variant="delete" loading={deleteMutation.isPending} onClick={handleDelete}>
+          <Button variant="grey" onClick={closeDelete}>
+            Cancel
+          </Button>
+          <Button
+            variant="delete"
+            loading={deleteMutation.isPending}
+            onClick={handleDelete}
+          >
             Confirm Delete
           </Button>
         </Group>
