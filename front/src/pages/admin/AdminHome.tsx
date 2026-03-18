@@ -131,7 +131,7 @@ export default function AdminHome() {
                   {((containerCountStats?.active ?? 0) /
                     (containerCountStats?.total ?? 0)) *
                     100}
-                  % containers active
+                  % of containers in service
                 </Text>
                 <Progress
                   value={

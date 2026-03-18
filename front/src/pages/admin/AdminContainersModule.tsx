@@ -314,7 +314,7 @@ export default function AdminContainersModule() {
               placeholder="e.g. 69000"
             />
             <Group justify="flex-end" mt="md">
-              <Button variant="outline" onClick={closeCreate}>
+              <Button variant="grey" onClick={closeCreate}>
                 Cancel
               </Button>
               <Button
@@ -342,7 +342,7 @@ export default function AdminContainersModule() {
           {selectedContainer?.city_name})? This will perform a soft delete.
         </Text>
         <Group justify="flex-end">
-          <Button variant="outline" onClick={closeDelete}>
+          <Button variant="grey" onClick={closeDelete}>
             Cancel
           </Button>
           <Button
