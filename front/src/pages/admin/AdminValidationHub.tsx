@@ -164,7 +164,7 @@ export default function AdminValidationHub() {
                 <Table.Td ta="center">
                   <Group justify="center" gap="sm">
                     <Button
-                      color="green"
+                      variant="primary"
                       size="xs"
                       leftSection={<IconCheck size={14} />}
                       onClick={(e) => {
@@ -180,8 +180,7 @@ export default function AdminValidationHub() {
                       Approve
                     </Button>
                     <Button
-                      color="red"
-                      variant="light"
+                      variant="delete"
                       size="xs"
                       leftSection={<IconX size={14} />}
                       onClick={(e) => {
@@ -258,7 +257,7 @@ export default function AdminValidationHub() {
                 <Table.Td ta="center">
                   <Group justify="center" gap="sm">
                     <Button
-                      color="green"
+                      variant="primary"
                       size="xs"
                       leftSection={<IconCheck size={14} />}
                       onClick={(e) => {
@@ -274,8 +273,7 @@ export default function AdminValidationHub() {
                       Approve
                     </Button>
                     <Button
-                      color="red"
-                      variant="light"
+                      variant="delete"
                       size="xs"
                       leftSection={<IconX size={14} />}
                       onClick={(e) => {
