@@ -107,7 +107,7 @@ export default function AdminValidationHub() {
         ]}
       />
 
-      <Tabs defaultValue="deposits">
+      <Tabs defaultValue="deposits" color="#45a575">
         <Tabs.List>
           <Tabs.Tab value="deposits">
             Deposits ({data?.deposits?.length || 0})
