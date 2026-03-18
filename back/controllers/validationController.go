@@ -14,21 +14,21 @@ import (
 func GetPendingValidations(w http.ResponseWriter, r *http.Request) {
 	deposits, err := db.GetPendingDeposits()
 	if err != nil {
-		slog.Error("Failed to fetch pending deposits", "error", err)
+		slog.Error("GetPendingDeposits failed", "controller", "GetPendingValidations", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending deposits")
 		return
 	}
 
 	listings, err := db.GetPendingListings()
 	if err != nil {
-		slog.Error("Failed to fetch pending listings", "error", err)
+		slog.Error("GetPendingListings failed", "controller", "GetPendingValidations", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending listings")
 		return
 	}
 
 	events, err := db.GetPendingEvents()
 	if err != nil {
-		slog.Error("Failed to fetch pending events", "error", err)
+		slog.Error("GetPendingEvents failed", "controller", "GetPendingValidations", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending events")
 		return
 	}
@@ -45,6 +45,7 @@ func GetPendingValidations(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
+// helper function, not a controller
 func parseValidationPayload(r *http.Request) (*models.ValidationActionRequest, string, error) {
 	var payload models.ValidationActionRequest
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -70,13 +71,14 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	itemID, err := strconv.Atoi(idStr)
 	if err != nil {
+		slog.Error("Atoi failed", "controller", "ProcessListingValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid listing ID")
 		return
 	}
 
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		slog.Error("Failed to extract employee ID from context")
+		slog.Error("r.Context().Value failed", "controller", "ProcessListingValidation")
 		utils.RespondWithError(w, http.StatusUnauthorized, "Failed to read user claims")
 		return
 	}
@@ -85,13 +87,14 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 
 	payload, newStatus, err := parseValidationPayload(r)
 	if err != nil {
+		slog.Error("parseValidationPayload failed", "controller", "ProcessListingValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err = db.UpdateListingStatus(itemID, newStatus, employeeID)
 	if err != nil {
-		slog.Error("Failed to process listing validation", "error", err, "itemID", itemID)
+		slog.Error("UpdateListingStatus failed", "controller", "ProcessListingValidation", "itemId", itemID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during validation")
 		return
 	}
@@ -110,13 +113,15 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	itemID, err := strconv.Atoi(idStr)
 	if err != nil {
+		slog.Error("Atoi failed", "controller", "ProcessDepositValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid deposit ID")
 		return
 	}
 
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		utils.RespondWithError(w, http.StatusUnauthorized, "Failed to read user claims")
+		slog.Error("r.Context().Value failed", "controller", "ProcessDepositValidation")
+		utils.RespondWithError(w, http.StatusInternalServerError, "Unable to authenticate request")
 		return
 	}
 
@@ -124,32 +129,35 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 
 	_, newStatus, err := parseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal, elle contiendra la raison du refus
 	if err != nil {
+		slog.Error("Atoi failed", "controller", "ProcessDepositValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err = db.ProcessDepositValidation(itemID, newStatus, employeeID)
 	if err != nil {
-		slog.Error("Failed to process deposit validation", "error", err, "itemID", itemID)
+		slog.Error("ProcessDepositValidation failed", "controller", "ProcessDepositValidation", "itemId", itemID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during deposit validation")
 		return
 	}
 
 	// TODO: Notification OneSignal (et envoi du code-barres par email/push si approved)
-	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Deposit processed successfully"})
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Deposit status updated successfully"})
 }
 
 func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	eventID, err := strconv.Atoi(idStr)
 	if err != nil {
+		slog.Error("Atoi failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event ID")
 		return
 	}
 
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		utils.RespondWithError(w, http.StatusUnauthorized, "Failed to read user claims")
+		slog.Error("r.Context().Value failed", "controller", "ProcessEventValidation")
+		utils.RespondWithError(w, http.StatusInternalServerError, "Unable to authenticate request")
 		return
 	}
 
@@ -157,30 +165,32 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 
 	_, newStatus, err := parseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal, elle contiendra la raison du refus
 	if err != nil {
+		slog.Error("parseValidationPayload failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err = db.UpdateEventStatus(eventID, newStatus, employeeID)
 	if err != nil {
-		slog.Error("Failed to process event validation", "error", err, "eventID", eventID)
+		slog.Error("UpdateEventStatus failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
 
 	// TODO: Notification OneSignal au salarié qui a proposé l'atelier
-	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Event processed successfully"})
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Event status updated successfully"})
 }
 
 func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		utils.RespondWithError(w, http.StatusUnauthorized, "Failed to read user claims")
+		slog.Error("r.Context().Value failed", "controller", "GetItemsHistory")
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to read user claims")
 		return
 	}
 
 	if claims.Role != "admin" && claims.Role != "employee" {
-		utils.RespondWithError(w, http.StatusForbidden, "You are not authorized to view the history")
+		utils.RespondWithError(w, http.StatusForbidden, "You are not authorized to perform this request")
 		return
 	}
 
