@@ -148,7 +148,7 @@ export default function AdminContainersModule() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 8 }}>
-          <Paper withBorder p="md" radius="lg" shadow="sm" h="100%">
+          <Paper px="md" radius="lg" shadow="sm" h="100%">
             <Title order={4} mb="lg">
               Inventory Distribution
             </Title>
@@ -198,7 +198,7 @@ export default function AdminContainersModule() {
         <Group>
           <TextInput
             placeholder="Search by city or zip..."
-            leftSection={<IconSearch size={16} />}
+            rightSection={<IconSearch size={16} />}
             value={filters.searchValue}
             onChange={(e) =>
               setFilters({ ...filters, searchValue: e.target.value })
@@ -314,7 +314,7 @@ export default function AdminContainersModule() {
               placeholder="e.g. 69000"
             />
             <Group justify="flex-end" mt="md">
-              <Button variant="outline" onClick={closeCreate}>
+              <Button variant="grey" onClick={closeCreate}>
                 Cancel
               </Button>
               <Button
@@ -342,7 +342,7 @@ export default function AdminContainersModule() {
           {selectedContainer?.city_name})? This will perform a soft delete.
         </Text>
         <Group justify="flex-end">
-          <Button variant="outline" onClick={closeDelete}>
+          <Button variant="grey" onClick={closeDelete}>
             Cancel
           </Button>
           <Button
