@@ -5,7 +5,7 @@ import classes from "../../styles/Admin.module.css";
 
 interface StatsCardDescProps {
   description: string;
-  icon: Icon;
+  icon?: Icon;
   stats: number;
 }
 export function StatsCardDesc({
@@ -16,9 +16,7 @@ export function StatsCardDesc({
   return (
     <Box>
       <Group gap="xs" mt="sm" align="flex-start" wrap="nowrap">
-        <Text c="dimmed">
-          <Icon size={24} />
-        </Text>
+        <Text c="dimmed">{Icon && <Icon size={24} />}</Text>
 
         <Text c="dimmed" style={{ flex: 1 }}>
           + {stats}
