@@ -18,8 +18,8 @@ import {
   Select,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
-import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
-import { PATHS } from "../../routes/paths";
+import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import { PATHS } from "../../../routes/paths";
 import {
   IconCalendarEvent,
   IconCoinEuro,
@@ -28,10 +28,10 @@ import {
   IconPlus,
   IconUsers,
 } from "@tabler/icons-react";
-import AdminTable from "../../components/admin/AdminTable";
+import AdminTable from "../../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import { TextEditor } from "../../components/TextEditor";
+import { TextEditor } from "../../../components/TextEditor";
 
 export default function AdminEventDetails() {
   // edit modal and form

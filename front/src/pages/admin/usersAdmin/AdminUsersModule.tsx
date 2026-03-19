@@ -13,7 +13,7 @@ import {
   PasswordInput,
   Pagination,
 } from "@mantine/core";
-import AdminTable from "../../components/admin/AdminTable";
+import AdminTable from "../../../components/admin/AdminTable";
 import {
   IconSearch,
   IconPlus,
@@ -22,19 +22,19 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { type Account } from "../../api/admin/accountModule";
+import { type Account } from "../../../api/admin/accountModule";
 import {
   useGetAllAccounts,
   useDeleteAccount,
   useCreateAccount,
   useUpdateAccount,
   useAccountDetails,
-} from "../../hooks/accountHooks";
+} from "../../../hooks/accountHooks";
 import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
 
-import { PATHS } from "../../routes/paths";
-import { useAuth } from "../../context/AuthContext";
+import { PATHS } from "../../../routes/paths";
+import { useAuth } from "../../../context/AuthContext";
 
 const requirements = [
   { re: /[0-9]/, label: "Includes number" },
