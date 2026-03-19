@@ -195,3 +195,17 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 
 	return results, totalRecords, nil
 }
+
+func CreateEvent(event models.CreateEventRequest) (int, error) {
+	var eventId int
+	query := `
+		INSERT INTO events (title, description, start_at, price, category, capacity, status, city, street, location_detail)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		RETURNING id;
+	`
+	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.Price, event.Category, event.Capacity, event.Status, event.City, event.Street, event.LocationDetail).Scan(&eventId)
+	if err != nil {
+		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
+	}
+	return eventId, nil
+}
