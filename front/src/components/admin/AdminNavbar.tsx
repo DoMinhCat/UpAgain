@@ -81,7 +81,11 @@ const navButtonData = [
     path: PATHS.ADMIN.VALIDATIONS.ALL,
   },
   { icon: IconBox, label: "Containers", path: PATHS.ADMIN.CONTAINERS },
-  { icon: IconCalendarEventFilled, label: "Events", path: PATHS.ADMIN.EVENTS },
+  {
+    icon: IconCalendarEventFilled,
+    label: "Events",
+    path: PATHS.ADMIN.EVENTS.ALL,
+  },
   {
     icon: IconDiamond,
     label: "Subscriptions",

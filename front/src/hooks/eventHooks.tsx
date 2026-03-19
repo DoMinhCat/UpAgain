@@ -17,6 +17,10 @@ export const useGetAllEvents = (
   return useQuery<EventsListPagination>({
     queryKey: ["events", page, limit, search, status, sort],
     queryFn: () => getAllEvents(page, limit, search, status, sort),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch events.",
+    },
   });
 };
 
