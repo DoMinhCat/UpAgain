@@ -15,9 +15,9 @@ import {
   Loader,
   TextInput,
 } from "@mantine/core";
-import { PATHS } from "../../routes/paths";
-import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
-import { ScoreRing } from "../../components/user/ScoreRing";
+import { PATHS } from "../../../routes/paths";
+import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import { ScoreRing } from "../../../components/user/ScoreRing";
 import { useEffect, useState } from "react";
 
 import {
@@ -28,7 +28,7 @@ import {
   useRecoverAccount,
   useAccountStats,
   useUpdateAccount,
-} from "../../hooks/accountHooks";
+} from "../../../hooks/accountHooks";
 import {
   Navigate,
   useLocation,
@@ -36,15 +36,15 @@ import {
   useParams,
 } from "react-router-dom";
 
-import FullScreenLoader from "../../components/FullScreenLoader";
-import InfoField from "../../components/InfoField";
+import FullScreenLoader from "../../../components/FullScreenLoader";
+import InfoField from "../../../components/InfoField";
 import dayjs from "dayjs";
 import PasswordStrengthInput, {
   requirements,
-} from "../../components/PasswordStrengthInput";
+} from "../../../components/PasswordStrengthInput";
 import { IconLock, IconInfoCircleFilled } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function AdminUserDetails() {
   // for breadcrumbs
@@ -199,14 +199,11 @@ export default function AdminUserDetails() {
     }
   }, [accountDetails]);
 
-  const {
-    data: accountStats,
-    isLoading: isAccountStatsLoading,
-  } = useAccountStats(
-    accountId,
-    isValidId && role != "admin" && !isAccountDetailsLoading,
-  );
-
+  const { data: accountStats, isLoading: isAccountStatsLoading } =
+    useAccountStats(
+      accountId,
+      isValidId && role != "admin" && !isAccountDetailsLoading,
+    );
 
   // delete hook
   const deletionMutation = useDeleteAccount();

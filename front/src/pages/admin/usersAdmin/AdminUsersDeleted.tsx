@@ -1,5 +1,5 @@
-import { PATHS } from "../../routes/paths";
-import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
+import { PATHS } from "../../../routes/paths";
+import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import {
   Container,
   Stack,
@@ -17,10 +17,13 @@ import {
 import { IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import dayjs from "dayjs";
-import AdminTable from "../../components/admin/AdminTable";
+import AdminTable from "../../../components/admin/AdminTable";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { useRecoverAccount, useGetAllAccounts } from "../../hooks/accountHooks";
+import {
+  useRecoverAccount,
+  useGetAllAccounts,
+} from "../../../hooks/accountHooks";
 
 export default function AdminUsersDeleted() {
   // hooks
