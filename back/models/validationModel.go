@@ -51,8 +51,8 @@ type PendingEventResponse struct {
 	Capacity         null.Int    `json:"capacity"`
 	Price            null.Float  `json:"price"`
 	CreatedAt        time.Time   `json:"created_at"`
-	EmployeeID       int         `json:"id_employee"`
-	EmployeeUsername string      `json:"employee_username"`
+	EmployeeID       null.Int    `json:"id_employee"`
+	EmployeeUsername null.String `json:"employee_username"`
 }
 
 type ValidationActionRequest struct {

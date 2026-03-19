@@ -19,6 +19,7 @@ import {
   SimpleGrid,
   Divider,
   Loader,
+  Pill,
 } from "@mantine/core";
 import {
   IconCheck,
@@ -686,12 +687,30 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 <strong>{ev.id_event}</strong>
               </Table.Td>
               <Table.Td ta="center">{ev.title}</Table.Td>
-              <Table.Td ta="center">{ev.employee_username}</Table.Td>
-              <Table.Td ta="center">{ev.category}</Table.Td>
+              <Table.Td ta="center">
+                {ev.employee_username ?? "Not assigned"}
+              </Table.Td>
+              <Table.Td ta="center">
+                <Pill
+                  variant={
+                    ev.category === "other"
+                      ? "gray"
+                      : ev.category === "workshop"
+                        ? "blue"
+                        : ev.category === "conference"
+                          ? "green"
+                          : ev.category === "meetups"
+                            ? "yellow"
+                            : "red"
+                  }
+                >
+                  {ev.category.charAt(0).toUpperCase() + ev.category.slice(1)}
+                </Pill>
+              </Table.Td>
               <Table.Td ta="center">
                 {ev.date_start
                   ? dayjs(ev.date_start).format("DD/MM/YYYY")
-                  : "—"}
+                  : "Not set"}
               </Table.Td>
               <Table.Td ta="center">
                 <Group
