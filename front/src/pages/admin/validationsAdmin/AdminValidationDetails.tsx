@@ -30,10 +30,10 @@ import {
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 
-import { PATHS } from "../../routes/paths";
-import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
-import InfoField from "../../components/InfoField";
-import { useProcessValidation } from "../../hooks/validationHooks";
+import { PATHS } from "../../../routes/paths";
+import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import InfoField from "../../../components/InfoField";
+import { useProcessValidation } from "../../../hooks/validationHooks";
 
 export default function AdminValidationDetails() {
   const navigate = useNavigate();

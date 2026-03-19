@@ -38,9 +38,9 @@ import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 
-import AdminTable from "../../components/admin/AdminTable";
-import { AdminCardInfo } from "../../components/admin/AdminCardInfo";
-import { PATHS } from "../../routes/paths";
+import AdminTable from "../../../components/admin/AdminTable";
+import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
+import { PATHS } from "../../../routes/paths";
 import {
   usePendingDeposits,
   usePendingListings,
@@ -48,7 +48,7 @@ import {
   useValidationStats,
   useAllItemsHistory,
   useProcessValidation,
-} from "../../hooks/validationHooks";
+} from "../../../hooks/validationHooks";
 
 const LIMIT = 10;
 
@@ -61,7 +61,7 @@ function getStatusBadge(status: string) {
     case "refused":
       return <Badge color="red">Refused</Badge>;
     case "pending":
-      return <Badge color="orange">Pending</Badge>;
+      return <Badge color="yellow">Pending</Badge>;
     default:
       return <Badge color="gray">{status}</Badge>;
   }
@@ -96,9 +96,7 @@ function OverviewTab() {
 
   const totalProcessed = totalApproved + totalRefused;
   const approvalRate =
-    totalProcessed > 0
-      ? Math.round((totalApproved / totalProcessed) * 100)
-      : 0;
+    totalProcessed > 0 ? Math.round((totalApproved / totalProcessed) * 100) : 0;
 
   const chartData = [
     { name: "Pending", value: totalPending, color: "orange.5" },
@@ -256,7 +254,12 @@ interface FilterBarProps {
   onReset: () => void;
 }
 
-function FilterBar({ filters, onFilterChange, onApply, onReset }: FilterBarProps) {
+function FilterBar({
+  filters,
+  onFilterChange,
+  onApply,
+  onReset,
+}: FilterBarProps) {
   return (
     <Grid align="flex-end" mb="md">
       <Grid.Col span={{ base: 12, md: 5 }}>
@@ -308,7 +311,8 @@ interface ActionHandlers {
 function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
-  const [appliedFilters, setAppliedFilters] = useState<FiltersState>(defaultFilters);
+  const [appliedFilters, setAppliedFilters] =
+    useState<FiltersState>(defaultFilters);
 
   const hasFilters = !!(appliedFilters.searchValue || appliedFilters.sortValue);
 
@@ -338,14 +342,24 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
     <Stack gap="sm" mt="md">
       <FilterBar
         filters={filters}
-        onFilterChange={(key, val) => setFilters((prev) => ({ ...prev, [key]: val }))}
+        onFilterChange={(key, val) =>
+          setFilters((prev) => ({ ...prev, [key]: val }))
+        }
         onApply={handleApply}
         onReset={handleReset}
       />
       <AdminTable
         loading={isLoading}
         error={isError ? new Error("Could not load pending deposits.") : null}
-        header={["Submitted on", "ID", "Title", "User", "Container", "Material", "Actions"]}
+        header={[
+          "Submitted on",
+          "ID",
+          "Title",
+          "User",
+          "Container",
+          "Material",
+          "Actions",
+        ]}
         footer={
           !hasFilters && data && data.total_records > 0 ? (
             <Group justify="space-between" mt="md">
@@ -378,9 +392,12 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               key={d.id_item}
               style={{ cursor: "pointer" }}
               onClick={() =>
-                navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/deposits/${d.id_item}`, {
-                  state: { item: d },
-                })
+                navigate(
+                  `${PATHS.ADMIN.VALIDATIONS.ALL}/deposits/${d.id_item}`,
+                  {
+                    state: { item: d },
+                  },
+                )
               }
             >
               <Table.Td ta="center">
@@ -396,7 +413,11 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               </Table.Td>
               <Table.Td ta="center">{d.material}</Table.Td>
               <Table.Td ta="center">
-                <Group gap="xs" justify="center" onClick={(e) => e.stopPropagation()}>
+                <Group
+                  gap="xs"
+                  justify="center"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Button
                     size="xs"
                     variant="primary"
@@ -407,7 +428,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                   </Button>
                   <Button
                     size="xs"
-                    variant="secondary"
+                    variant="delete"
                     leftSection={<IconX size={14} />}
                     onClick={() => onOpenRefuse(d.id_item, "deposits")}
                   >
@@ -428,7 +449,8 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
-  const [appliedFilters, setAppliedFilters] = useState<FiltersState>(defaultFilters);
+  const [appliedFilters, setAppliedFilters] =
+    useState<FiltersState>(defaultFilters);
 
   const hasFilters = !!(appliedFilters.searchValue || appliedFilters.sortValue);
 
@@ -458,14 +480,24 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
     <Stack gap="sm" mt="md">
       <FilterBar
         filters={filters}
-        onFilterChange={(key, val) => setFilters((prev) => ({ ...prev, [key]: val }))}
+        onFilterChange={(key, val) =>
+          setFilters((prev) => ({ ...prev, [key]: val }))
+        }
         onApply={handleApply}
         onReset={handleReset}
       />
       <AdminTable
         loading={isLoading}
         error={isError ? new Error("Could not load pending listings.") : null}
-        header={["Submitted on", "ID", "Title", "User", "City", "Price", "Actions"]}
+        header={[
+          "Submitted on",
+          "ID",
+          "Title",
+          "User",
+          "City",
+          "Price",
+          "Actions",
+        ]}
         footer={
           !hasFilters && data && data.total_records > 0 ? (
             <Group justify="space-between" mt="md">
@@ -498,9 +530,12 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               key={l.id_item}
               style={{ cursor: "pointer" }}
               onClick={() =>
-                navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/listings/${l.id_item}`, {
-                  state: { item: l },
-                })
+                navigate(
+                  `${PATHS.ADMIN.VALIDATIONS.ALL}/listings/${l.id_item}`,
+                  {
+                    state: { item: l },
+                  },
+                )
               }
             >
               <Table.Td ta="center">
@@ -518,7 +553,11 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 {l.price != null ? `${l.price} €` : "—"}
               </Table.Td>
               <Table.Td ta="center">
-                <Group gap="xs" justify="center" onClick={(e) => e.stopPropagation()}>
+                <Group
+                  gap="xs"
+                  justify="center"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Button
                     size="xs"
                     variant="primary"
@@ -529,7 +568,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                   </Button>
                   <Button
                     size="xs"
-                    variant="secondary"
+                    variant="delete"
                     leftSection={<IconX size={14} />}
                     onClick={() => onOpenRefuse(l.id_item, "listings")}
                   >
@@ -550,7 +589,8 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
-  const [appliedFilters, setAppliedFilters] = useState<FiltersState>(defaultFilters);
+  const [appliedFilters, setAppliedFilters] =
+    useState<FiltersState>(defaultFilters);
 
   const hasFilters = !!(appliedFilters.searchValue || appliedFilters.sortValue);
 
@@ -580,14 +620,24 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
     <Stack gap="sm" mt="md">
       <FilterBar
         filters={filters}
-        onFilterChange={(key, val) => setFilters((prev) => ({ ...prev, [key]: val }))}
+        onFilterChange={(key, val) =>
+          setFilters((prev) => ({ ...prev, [key]: val }))
+        }
         onApply={handleApply}
         onReset={handleReset}
       />
       <AdminTable
         loading={isLoading}
         error={isError ? new Error("Could not load pending events.") : null}
-        header={["Submitted on", "ID", "Title", "Employee", "Category", "Start date", "Actions"]}
+        header={[
+          "Submitted on",
+          "ID",
+          "Title",
+          "Employee",
+          "Category",
+          "Start date",
+          "Actions",
+        ]}
         footer={
           !hasFilters && data && data.total_records > 0 ? (
             <Group justify="space-between" mt="md">
@@ -620,9 +670,12 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               key={ev.id_event}
               style={{ cursor: "pointer" }}
               onClick={() =>
-                navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/events/${ev.id_event}`, {
-                  state: { item: ev },
-                })
+                navigate(
+                  `${PATHS.ADMIN.VALIDATIONS.ALL}/events/${ev.id_event}`,
+                  {
+                    state: { item: ev },
+                  },
+                )
               }
             >
               <Table.Td ta="center">
@@ -635,10 +688,16 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               <Table.Td ta="center">{ev.employee_username}</Table.Td>
               <Table.Td ta="center">{ev.category}</Table.Td>
               <Table.Td ta="center">
-                {ev.date_start ? dayjs(ev.date_start).format("DD/MM/YYYY") : "—"}
+                {ev.date_start
+                  ? dayjs(ev.date_start).format("DD/MM/YYYY")
+                  : "—"}
               </Table.Td>
               <Table.Td ta="center">
-                <Group gap="xs" justify="center" onClick={(e) => e.stopPropagation()}>
+                <Group
+                  gap="xs"
+                  justify="center"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Button
                     size="xs"
                     variant="primary"
@@ -649,7 +708,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                   </Button>
                   <Button
                     size="xs"
-                    variant="secondary"
+                    variant="delete"
                     leftSection={<IconX size={14} />}
                     onClick={() => onOpenRefuse(ev.id_event, "events")}
                   >
@@ -784,7 +843,10 @@ export default function AdminValidationHub() {
           <Tabs.Tab value="listings" leftSection={<IconTags size={16} />}>
             Listings
           </Tabs.Tab>
-          <Tabs.Tab value="events" leftSection={<IconCalendarEvent size={16} />}>
+          <Tabs.Tab
+            value="events"
+            leftSection={<IconCalendarEvent size={16} />}
+          >
             Events
           </Tabs.Tab>
           <Tabs.Tab value="history" leftSection={<IconHistory size={16} />}>
