@@ -113,6 +113,12 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, err := strconv.Atoi(c.PostalCode)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid postal code")
+		return
+	}
+
 	id, err := db.InsertContainer(c)
 	if err != nil {
 		slog.Error("Failed to create container", "error", err)
