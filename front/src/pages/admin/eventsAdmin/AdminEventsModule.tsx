@@ -80,8 +80,8 @@ export default function AdminEventsModule() {
     isLoading: isLoadingEvents,
     error: errorEvents,
   } = useGetAllEvents(
-    activePage,
-    LIMIT,
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
     appliedFilters.searchValue,
     appliedFilters.statusValue || undefined,
     appliedFilters.sortValue || undefined,
@@ -144,9 +144,6 @@ export default function AdminEventsModule() {
               {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
             </Pill>
           </Table.Td>
-          <Table.Td ta="center">
-            <Button>Assign</Button>
-          </Table.Td>
         </Table.Tr>
       ))
     ) : (
@@ -185,6 +182,11 @@ export default function AdminEventsModule() {
     closeCreate();
   };
 
+  const {
+    data: eventStats,
+    isLoading: isLoadingEventStats,
+    isError: errorEventStats,
+  } = useGetEventStats();
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -196,48 +198,71 @@ export default function AdminEventsModule() {
         <AdminCardInfo
           icon={IconCalendarEventFilled}
           title="Total active events"
-          value={99999}
+          value={eventStats?.total ?? 0}
+          error={errorEventStats}
+          loading={isLoadingEventStats}
           description={
             <StatsCardDesc
-              stats={67}
+              stats={eventStats?.increase ?? 0}
               icon={IconArrowUp}
-              description=" events created since last month"
+              description={
+                eventStats?.increase === 1
+                  ? " new event since last month"
+                  : " new events since last month"
+              }
             />
           }
         />
         <AdminCardInfo
           icon={IconCalendarTime}
           title="Upcoming events"
-          value={15}
+          value={eventStats?.upcoming ?? 0}
+          error={errorEventStats}
+          loading={isLoadingEventStats}
           description={
             <StatsCardDesc
-              stats={67}
+              stats={eventStats?.upcoming ?? 0}
               icon={IconArrowUp}
-              description=" events happening in the next 30 days"
+              description={
+                eventStats?.upcoming === 1
+                  ? "upcoming event in the next 30 days"
+                  : "upcoming events in the next 30 days"
+              }
             />
           }
         />
         <AdminCardInfo
           icon={IconCalendarCheck}
           title="Registrations (last 30 days)"
-          value={626}
+          value={eventStats?.registrations ?? 0}
+          error={errorEventStats}
+          loading={isLoadingEventStats}
           description={
             <StatsCardDesc
-              stats={67}
+              stats={eventStats?.registrations ?? 0}
               icon={IconArrowUp}
-              description=" registrations during the last month"
+              description={
+                eventStats?.registrations === 1
+                  ? " registration since last month"
+                  : " registrations since last month"
+              }
             />
           }
         />
         <AdminCardInfo
           icon={IconClockCheck}
           title="Pending approval"
-          value={45}
+          value={eventStats?.pending ?? 0}
+          error={errorEventStats}
+          loading={isLoadingEventStats}
           description={
             <StatsCardDesc
-              stats={67}
-              icon={IconArrowUp}
-              description=" requires review and validation"
+              stats={eventStats?.pending ?? 0}
+              description={
+                eventStats?.pending === 1
+                  ? " event requires validation"
+                  : " events require validation"
+              }
             />
           }
         />
@@ -493,7 +518,6 @@ export default function AdminEventsModule() {
           "Category",
           "Start Date",
           "Status",
-          "Actions",
         ]}
       >
         {listEvents}
