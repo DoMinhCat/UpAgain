@@ -29,15 +29,15 @@ import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
 import { BarChart } from "@mantine/charts";
 
-import { AdminCardInfo } from "../../components/admin/AdminCardInfo";
-import AdminTable from "../../components/admin/AdminTable";
+import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
+import AdminTable from "../../../components/admin/AdminTable";
 
 import {
   useContainers,
   useCreateContainer,
   useDeleteContainer,
-} from "../../hooks/containerHooks";
-import { PATHS } from "../../routes/paths";
+} from "../../../hooks/containerHooks";
+import { PATHS } from "../../../routes/paths";
 export interface Container {
   id: number;
   created_at: string;

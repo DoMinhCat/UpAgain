@@ -28,7 +28,7 @@ func GetTotalEventsAssignedById(id_account int) (int, error){
 	query := `
 		select count(*) from event_employee ee
 		join events e on e.id=ee.id_event
-		where e.is_cancelled=false and ee.id_employee=$1 and (e.start_at is null or e.start_at > now());
+		where e.status!='cancelled' and ee.id_employee=$1 and (e.start_at is null or e.start_at > now());
 	`
 	row := utils.Conn.QueryRow(query, id_account)
 	err := row.Scan(&total)

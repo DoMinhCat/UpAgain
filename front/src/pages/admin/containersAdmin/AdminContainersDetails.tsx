@@ -12,26 +12,20 @@ import {
   ThemeIcon,
   Select,
 } from "@mantine/core";
-import { PATHS } from "../../routes/paths";
-import AdminBreadcrumbs from "../../components/admin/AdminBreadcrumbs";
+import { PATHS } from "../../../routes/paths";
+import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { showSuccessNotification } from "../../components/NotificationToast";
-import FullScreenLoader from "../../components/FullScreenLoader";
-import InfoField from "../../components/InfoField";
+import FullScreenLoader from "../../../components/FullScreenLoader";
+import InfoField from "../../../components/InfoField";
 import dayjs from "dayjs";
-import {
-  IconBox,
-  IconTrash,
-  IconEdit,
-  IconAlertTriangle,
-} from "@tabler/icons-react";
+import { IconBox, IconTrash, IconEdit } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 
 import {
   useContainerDetails,
   useUpdateStatus,
   useDeleteContainer,
-} from "../../hooks/containerHooks";
+} from "../../../hooks/containerHooks";
 
 export default function AdminContainersDetails() {
   const navigate = useNavigate();
@@ -141,11 +135,10 @@ export default function AdminContainersDetails() {
           mt="sm"
           style={{ border: "1px solid #ff000033" }}
         >
-          <InfoField label="Remove container">
+          <InfoField label="Permanently Remove">
             <Box ps="sm">
               <Text c="dimmed" size="sm" mt="xs">
-                This will soft-delete the container, excluding it from the
-                system.
+                This will soft-delete the container from the active park.
               </Text>
               <Button
                 mt="xs"

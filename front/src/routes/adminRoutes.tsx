@@ -1,18 +1,20 @@
 import { type RouteObject } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout.tsx";
 import AdminHome from "../pages/admin/AdminHome.tsx";
-import AdminUsersDeleted from "../pages/admin/AdminUsersDeleted.tsx";
+import AdminUsersDeleted from "../pages/admin/usersAdmin/AdminUsersDeleted.tsx";
 import { PATHS } from "./paths.ts";
 import { useAuth } from "../context/AuthContext.tsx";
 import FullScreenLoader from "../components/FullScreenLoader.tsx";
-import AdminUsersModule from "../pages/admin/AdminUsersModule.tsx";
-import AdminUserDetails from "../pages/admin/AdminUserDetails.tsx";
+import AdminUsersModule from "../pages/admin/usersAdmin/AdminUsersModule.tsx";
+import AdminUserDetails from "../pages/admin/usersAdmin/AdminUserDetails.tsx";
+import AdminValidationHub from "../pages/admin/validationsAdmin/AdminValidationHub.tsx";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import AdminContainersModule from "../pages/admin/AdminContainersModule.tsx";
-import AdminContainersDetails from "../pages/admin/AdminContainersDetails.tsx";
-import AdminEventsModule from "../pages/admin/AdminEventsModule.tsx";
-import AdminEventDetails from "../pages/admin/AdminEventDetails.tsx";
+import AdminValidationDetails from "../pages/admin/validationsAdmin/AdminValidationDetails.tsx";
+import AdminContainersModule from "../pages/admin/containersAdmin/AdminContainersModule.tsx";
+import AdminContainersDetails from "../pages/admin/containersAdmin/AdminContainersDetails.tsx";
+import AdminEventsModule from "../pages/admin/eventsAdmin/AdminEventsModule.tsx";
+import AdminEventDetails from "../pages/admin/eventsAdmin/AdminEventDetails.tsx";
 
 // implement the same Guard component for user and pro
 const AdminGuard = ({ children }: { children: React.ReactNode }) => {
@@ -58,6 +60,16 @@ export const adminRoutes: RouteObject = {
         {
           path: ":id", // Affiche <AdminUserDetails /> sur "/admin/users/:id"
           element: <AdminUserDetails />,
+        },
+      ],
+    },
+    {
+      path: "validations",
+      children: [
+        { index: true, element: <AdminValidationHub /> },
+        {
+          path: ":type/:id", // Gérera /admin/validations/deposits/1
+          element: <AdminValidationDetails />,
         },
       ],
     },
