@@ -108,3 +108,9 @@ type ValidationStats struct {
 	ApprovedEvents   int `json:"approved_events"`
 	RefusedEvents    int `json:"refused_events"`
 }
+
+// ValidationFilters holds optional filter params for pending validation queries
+type ValidationFilters struct {
+	Search string
+	Sort   string
+}

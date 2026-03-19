@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"backend/db"
 	"backend/models"
 	"encoding/json"
 	"fmt"
@@ -33,7 +32,7 @@ func ParseValidationPayload(r *http.Request) (*models.ValidationActionRequest, s
 // parsePaginationAndFilters extracts page, limit, search, sort from query params.
 //
 // page and limit default to -1 (no pagination).
-func ParsePaginationAndFilters(r *http.Request) (page, limit int, filters db.ValidationFilters, err error) {
+func ParsePaginationAndFilters(r *http.Request) (page, limit int, filters models.ValidationFilters, err error) {
 	page = -1
 	limit = -1
 	query := r.URL.Query()
@@ -50,7 +49,7 @@ func ParsePaginationAndFilters(r *http.Request) (page, limit int, filters db.Val
 			return
 		}
 	}
-	filters = db.ValidationFilters{
+	filters = models.ValidationFilters{
 		Search: query.Get("search"),
 		Sort:   query.Get("sort"),
 	}
