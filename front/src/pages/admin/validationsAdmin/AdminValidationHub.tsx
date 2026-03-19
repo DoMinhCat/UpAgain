@@ -33,7 +33,7 @@ import {
   IconCircleCheck,
   IconCircleX,
 } from "@tabler/icons-react";
-import { DonutChart } from "@mantine/charts";
+import { PieChart } from "@mantine/charts";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -138,7 +138,7 @@ function OverviewTab() {
       </SimpleGrid>
 
       <Grid>
-        {/* Donut chart — global status distribution */}
+        {/* Pie chart — global status distribution */}
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Paper withBorder p="lg" radius="md" shadow="sm" h="100%">
             <Text fw={600} mb="md">
@@ -149,10 +149,11 @@ function OverviewTab() {
                 <Loader />
               </Group>
             ) : (
-              <DonutChart
+              <PieChart
                 data={chartData}
                 withLabelsLine
                 withLabels
+                withTooltip
                 tooltipDataSource="segment"
                 mx="auto"
               />
