@@ -167,6 +167,13 @@ export default function AdminEventsModule() {
   const [category, setCategory] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [errorDescription, setErrorDescription] = useState<string>("");
+  const [errorTitle, setErrorTitle] = useState<string>("");
+  const [errorCapacity, setErrorCapacity] = useState<string>("");
+  const [errorPrice, setErrorPrice] = useState<string>("");
+  const [errorStreet, setErrorStreet] = useState<string>("");
+  const [errorCity, setErrorCity] = useState<string>("");
+  const [errorDate, setErrorDate] = useState<string>("");
+  const [errorCategory, setErrorCategory] = useState<string>("");
 
   const handleCloseCreate = () => {
     setTitle("");
@@ -178,15 +185,107 @@ export default function AdminEventsModule() {
     setDate(null);
     setCategory("");
     setDescription("");
+    setErrorTitle("");
+    setErrorCapacity("");
+    setErrorPrice("");
+    setErrorStreet("");
+    setErrorCity("");
+    setErrorDate("");
+    setErrorCategory("");
     setErrorDescription("");
     closeCreate();
   };
 
+  // create validations
+  const validateTitle = () => {
+    if (!title || title.trim() === "") {
+      setErrorTitle("Title is required");
+      return false;
+    }
+    setErrorTitle("");
+    return true;
+  };
+  const validateCapacity = () => {
+    if (capacity && capacity <= 0) {
+      setErrorCapacity("Capacity must be greater than 0");
+      return false;
+    }
+    setErrorCapacity("");
+    return true;
+  };
+  const validatePrice = () => {
+    if (price < 0) {
+      setErrorPrice("Price must be greater than or equal to 0");
+      return false;
+    }
+    setErrorPrice("");
+    return true;
+  };
+  const validateStreet = () => {
+    if (!street || street.trim() === "") {
+      setErrorStreet("Street is required");
+      return false;
+    }
+    setErrorStreet("");
+    return true;
+  };
+  const validateCity = () => {
+    if (!city || city.trim() === "") {
+      setErrorCity("City is required");
+      return false;
+    }
+    setErrorCity("");
+    return true;
+  };
+  const validateDate = () => {
+    if (!date || date.trim() === "") {
+      setErrorDate("Date is required");
+      return false;
+    }
+    setErrorDate("");
+    return true;
+  };
+  const validateCategory = () => {
+    if (!category || category.trim() === "") {
+      setErrorCategory("Category is required");
+      return false;
+    }
+    setErrorCategory("");
+    return true;
+  };
+  const validateDescription = () => {
+    if (!description || description.trim() === "") {
+      setErrorDescription("A description is required");
+      return false;
+    }
+    setErrorDescription("");
+    return true;
+  };
+
+  const handleSubmitCreate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !validateTitle() ||
+      !validateCapacity() ||
+      !validatePrice() ||
+      !validateStreet() ||
+      !validateCity() ||
+      !validateDate() ||
+      !validateCategory() ||
+      !validateDescription()
+    ) {
+      return;
+    }
+    // call mutation
+  };
+
+  // event stats
   const {
     data: eventStats,
     isLoading: isLoadingEventStats,
     isError: errorEventStats,
   } = useGetEventStats();
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -298,8 +397,8 @@ export default function AdminEventsModule() {
                   onChange={(e) => {
                     setTitle(e.target.value);
                   }}
-                  // onBlur={() => validateUsernameEdit(usernameEdit)}
-                  // error={usernameEditError}
+                  onBlur={() => validateTitle()}
+                  error={errorTitle}
                   // disabled={isAccountDetailsLoading}
                   required
                 />
@@ -312,8 +411,8 @@ export default function AdminEventsModule() {
                   onChange={(value) => {
                     setCapacity(Number(value));
                   }}
-                  // onBlur={() => validateEmailEdit(emailEdit)}
-                  // error={emailEditError}
+                  onBlur={() => validateCapacity()}
+                  error={errorCapacity}
                   // disabled={isAccountDetailsLoading}
                 />
                 <NumberInput
@@ -326,8 +425,8 @@ export default function AdminEventsModule() {
                   onChange={(value) => {
                     setPrice(Number(value));
                   }}
-                  // onBlur={() => validateEmailEdit(emailEdit)}
-                  // error={emailEditError}
+                  onBlur={() => validatePrice()}
+                  error={errorPrice}
                   // disabled={isAccountDetailsLoading}
                   required
                 />
@@ -341,8 +440,8 @@ export default function AdminEventsModule() {
                       onChange={(e) => {
                         setStreet(e.target.value);
                       }}
-                      // onBlur={() => validateUsernameEdit(usernameEdit)}
-                      // error={usernameEditError}
+                      onBlur={() => validateStreet()}
+                      error={errorStreet}
                       // disabled={isAccountDetailsLoading}
                       required
                     />
@@ -356,8 +455,8 @@ export default function AdminEventsModule() {
                       onChange={(e) => {
                         setCity(e.target.value);
                       }}
-                      // onBlur={() => validateUsernameEdit(usernameEdit)}
-                      // error={usernameEditError}
+                      onBlur={() => validateCity()}
+                      error={errorCity}
                       // disabled={isAccountDetailsLoading}
                       required
                     />
@@ -370,8 +469,6 @@ export default function AdminEventsModule() {
                   onChange={(e) => {
                     setLocationDetail(e.target.value);
                   }}
-                  // onBlur={() => validateUsernameEdit(usernameEdit)}
-                  // error={usernameEditError}
                   // disabled={isAccountDetailsLoading}
                 />
                 <DateTimePicker
@@ -381,8 +478,8 @@ export default function AdminEventsModule() {
                   value={date}
                   onChange={setDate}
                   required
-                  // onBlur={() => validateUsernameEdit(usernameEdit)}
-                  // error={usernameEditError}
+                  onBlur={() => validateDate()}
+                  error={errorDate}
                   // disabled={isAccountDetailsLoading}
                 />
                 <Select
@@ -391,8 +488,8 @@ export default function AdminEventsModule() {
                   label="Category"
                   value={category}
                   placeholder="Select a category"
-                  // error={roleNewError}
-                  // onBlur={() => validateRoleNew(roleNew)}
+                  error={errorCategory}
+                  onBlur={() => validateCategory()}
                   data={[
                     { value: "workshop", label: "Workshop" },
                     { value: "conference", label: "Conference" },
@@ -419,9 +516,9 @@ export default function AdminEventsModule() {
                   Cancel
                 </Button>
                 <Button
-                  // onClick={(e) => {
-                  //   handleEditAccount(e);
-                  // }}
+                  onClick={(e) => {
+                    handleSubmitCreate(e);
+                  }}
                   variant="primary"
                   // loading={editMutation.isPending}
                   // disabled={editMutation.isPending || isAccountDetailsLoading}
