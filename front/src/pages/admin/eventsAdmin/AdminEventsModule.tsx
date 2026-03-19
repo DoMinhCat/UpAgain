@@ -24,13 +24,13 @@ import {
 import {
   AdminCardInfo,
   StatsCardDesc,
-} from "../../components/admin/AdminCardInfo";
+} from "../../../components/admin/AdminCardInfo";
 import { useState } from "react";
-import AdminTable from "../../components/admin/AdminTable";
+import AdminTable from "../../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
 import { DateTimePicker } from "@mantine/dates";
-import { TextEditor } from "../../components/TextEditor";
-import ImageDropzone from "../../components/ImageDropzone";
+import { TextEditor } from "../../../components/TextEditor";
+import ImageDropzone from "../../../components/ImageDropzone";
 
 export default function AdminEventsModule() {
   // TODO for filtering
