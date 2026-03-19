@@ -11,6 +11,7 @@ import {
   Table,
   Modal,
   NumberInput,
+  Pill,
 } from "@mantine/core";
 import {
   IconCalendarEventFilled,
@@ -34,11 +35,12 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
+import dayjs from "dayjs";
 
 export default function AdminEventsModule() {
   const navigate = useNavigate();
 
-  // get all accounts
+  // get all events
   const [filters, setFilters] = useState<{
     searchValue: string | undefined;
     sortValue: string | null;
@@ -97,14 +99,54 @@ export default function AdminEventsModule() {
             navigate(PATHS.ADMIN.EVENTS.ALL + "/" + event.id);
           }}
         >
-          <Table.Td>{event.created_at}</Table.Td>
-          <Table.Td>{event.id}</Table.Td>
-          <Table.Td>{event.title}</Table.Td>
-          <Table.Td>{event.employee_name}</Table.Td>
-          <Table.Td>{event.category}</Table.Td>
-          <Table.Td>{event.start_at}</Table.Td>
-          <Table.Td>{event.status}</Table.Td>
-          <Table.Td>{"Buttons"}</Table.Td>
+          <Table.Td ta="center">
+            {dayjs(event.created_at).format("DD/MM/YYYY")}
+          </Table.Td>
+          <Table.Td ta="center">{event.id}</Table.Td>
+          <Table.Td ta="center">{event.title}</Table.Td>
+          <Table.Td ta="center">
+            {event.employee_name ?? "Not assigned"}
+          </Table.Td>
+          <Table.Td ta="center">
+            <Pill
+              variant={
+                event.category === "other"
+                  ? "gray"
+                  : event.category === "workshop"
+                    ? "blue"
+                    : event.category === "conference"
+                      ? "green"
+                      : event.category === "meetups"
+                        ? "yellow"
+                        : "red"
+              }
+            >
+              {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
+            </Pill>
+          </Table.Td>
+          <Table.Td ta="center">
+            {event.start_at
+              ? dayjs(event.start_at).format("DD/MM/YYYY")
+              : "Not set"}
+          </Table.Td>
+          <Table.Td ta="center">
+            <Pill
+              variant={
+                event.status === "pending"
+                  ? "yellow"
+                  : event.status === "approved"
+                    ? "green"
+                    : event.status === "refused"
+                      ? "red"
+                      : "gray"
+              }
+            >
+              {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+            </Pill>
+          </Table.Td>
+          <Table.Td ta="center">
+            <Button>Assign</Button>
+          </Table.Td>
         </Table.Tr>
       ))
     ) : (
@@ -448,7 +490,7 @@ export default function AdminEventsModule() {
           "ID",
           "Title",
           "Employee",
-          "Location",
+          "Category",
           "Start Date",
           "Status",
           "Actions",

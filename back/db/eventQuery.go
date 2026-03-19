@@ -11,7 +11,7 @@ import (
 func GetTotalEventsOfEmployeeById(id int) (int, error) {
 	var total int
 
-	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM event_employee ee JOIN events e on ee.id_event=e.id WHERE ee.id_account=$1 and e.is_cancelled=false", id).Scan(&total)
+	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM event_employee ee JOIN events e on ee.id_event=e.id WHERE ee.id_employee=$1 and e.status!='cancelled' and e.status!='refused'", id).Scan(&total)
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalEventsOfEmployeeById() failed: %v", err.Error())
 	}
@@ -163,7 +163,12 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 		}
 	}
 
-	query := "SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username as employee_name FROM events e LEFT JOIN event_employee ee ON e.id=ee.id_event LEFT JOIN accounts a ON ee.id_employee=a.id " + whereClause + " " + orderBy
+	query := `
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username as employee_name 
+		FROM events e 
+		LEFT JOIN event_employee ee ON e.id=ee.id_event 
+		LEFT JOIN accounts a ON ee.id_employee=a.id 
+		` + whereClause + " " + orderBy
 
 	// pagination
 	if limit != -1 && page != -1 {

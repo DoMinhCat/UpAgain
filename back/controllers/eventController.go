@@ -31,28 +31,28 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 	total, err := db.GetTotalCountActiveEvents()
 	if err != nil {
 		slog.Error("GetTotalCountActiveEvents() failed", "controller", "GetEventStats", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
 	newEvents, err := db.GetEventIncreaseSince(time.Now().AddDate(0, -1, 0)) // get new events created since last month
 	if err != nil {
 		slog.Error("GetEventIncreaseSince() failed", "controller", "GetEventStats", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
 	upcomingEvents, err := db.GetUpcomingEventIn(time.Now().AddDate(0, 1, 0)) // get upcoming events in next 30 days
 	if err != nil {
 		slog.Error("GetEventIncreaseSince() failed", "controller", "GetEventStats", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
 	registrations, err := db.GetTotalRegistrationsSince(time.Now().AddDate(0, -1, 0)) // get total registrations since last month
 	if err != nil {
 		slog.Error("GetTotalRegistrationsSince() failed", "controller", "GetEventStats", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
@@ -60,7 +60,7 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 	pendingApprovals, err := db.GetTotalEventsByStatus(&status)
 	if err != nil {
 		slog.Error("GetTotalEventsByStatus() failed", "controller", "GetEventStats", "status", status, "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
@@ -92,8 +92,8 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	if pageStr != "" {
 		page, err = strconv.Atoi(pageStr)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching events.")
 			slog.Error("Atoi() failed", "controller", "GetAllEvents", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching events.")
 			return
 		}
 	}
@@ -102,8 +102,8 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	if limitStr != "" {
 		limit, err = strconv.Atoi(limitStr)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching events.")
 			slog.Error("Atoi() failed", "controller", "GetAllEvents", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching events.")
 			return
 		}
 	}
@@ -117,7 +117,7 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	events, total, err := db.GetAllEvents(page, limit, filters)
 	if err != nil {
 		slog.Error("GetAllEvents() failed", "controller", "GetAllEvents", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching events.")
 		return
 	}
 

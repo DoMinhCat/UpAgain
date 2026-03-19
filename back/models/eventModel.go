@@ -24,15 +24,15 @@ type Event struct {
 	Id             int       `json:"id"`
 	CreatedAt      time.Time `json:"created_at"`
 	Title          string    `json:"title"`
-	Description    string    `json:"description"`
-	StartAt        time.Time `json:"start_at"`
-	Price          float64   `json:"price"`
+	Description    null.String    `json:"description"`
+	StartAt        null.Time `json:"start_at"`
+	Price          null.Float   `json:"price"`
 	Category       string    `json:"category"`
-	Capacity       int       `json:"capacity"`
+	Capacity       null.Int       `json:"capacity"`
 	Status         string    `json:"status"`
 	City           string    `json:"city"`
 	Street         string    `json:"street"`
-	LocationDetail string    `json:"location_detail"`
+	LocationDetail null.String    `json:"location_detail"`
 	EmployeeName   null.String `json:"employee_name"`
 }
 
