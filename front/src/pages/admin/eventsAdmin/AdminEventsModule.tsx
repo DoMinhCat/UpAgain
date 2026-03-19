@@ -276,6 +276,16 @@ export default function AdminEventsModule() {
     ) {
       return;
     }
+    // console.log(
+    //   title,
+    //   capacity,
+    //   price,
+    //   street,
+    //   city,
+    //   date,
+    //   category,
+    //   description,
+    // );
     // call mutation
   };
 

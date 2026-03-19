@@ -4,6 +4,8 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	validation "backend/utils/validations"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -141,4 +143,47 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 		result.LastPage = 1
 	}
 	utils.RespondWithJSON(w, http.StatusOK, result)
+}
+
+func CreateEvent(w http.ResponseWriter, r *http.Request) {
+	var err error
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" && role != "employee"{
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	var event models.CreateEventRequest
+	err = json.NewDecoder(r.Body).Decode(&event)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+		return
+	}
+
+	// validations
+	validation := validation.ValidateEventCreation(event)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+		return
+	}
+
+	eventId, err := db.CreateEvent(event)
+	if err != nil {
+		slog.Error("CreateEvent() failed", "controller", "CreateEvent", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the event.")
+		return
+	}
+
+	// assign employee to event automatically if request was sent from employee
+	// if created by admin, employee is null
+	if role == "employee" {
+		err = db.AssignEmployeeToEvent(eventId, r.Context().Value("user").(models.AuthClaims).Id)
+		if err != nil {
+			slog.Error("AssignEmployeeToEvent() failed", "controller", "CreateEvent", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the event.")
+			return
+		}
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, event)
 }
