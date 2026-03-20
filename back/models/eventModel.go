@@ -56,3 +56,7 @@ type CreateEventRequest struct {
 	Street         string    `json:"street"`
 	LocationDetail null.String    `json:"location_detail"`
 }
+
+type AssignEmployeeRequest struct{
+	IdsEmployee []int `json:"ids_employee"`
+}

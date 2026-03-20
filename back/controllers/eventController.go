@@ -12,17 +12,21 @@ import (
 	"time"
 )
 
-// get general stats to show in event module's cards. Stats include:
-//
-// - total events
-//
-// - new events since last month (30 days)
-//
-// - upcoming events in next 30 days
-//
-// - total registrations since last month
-//
-// - total pending approvals for events
+// GetEventStats godoc
+// @Summary      Get event stats
+// @Description  Get general stats of events to show in event module's cards. Stats include:
+// @Description  - total events
+// @Description  - new events since last month (30 days)
+// @Description  - upcoming events in next 30 days
+// @Description  - total registrations since last month
+// @Description  - total pending approvals for events
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Success      200   {object}  models.EventStats  "Event stats retrieved successfully"
+// @Failure      400   {object}  nil                "Invalid ID or payload"
+// @Failure      500   {object}  nil                "Internal server error"
+// @Router       /events/count/ [get]
 func GetEventStats(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -241,4 +245,48 @@ func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.RespondWithJSON(w, http.StatusOK, employees)
+}
+
+func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" && role != "employee"{
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	id_url := r.URL.Query().Get("id_event")
+	if id_url == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
+		return
+	}
+
+	id_event, err := strconv.Atoi(id_url)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event id.")
+		return
+	}
+
+	var payload models.AssignEmployeeRequest
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+		return
+	}
+
+	// employee can only self assign
+	if role != "admin" && len(payload.IdsEmployee) > 1 {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You can only assign yourself to an event.")
+		return
+	}
+
+	err = db.AssignEmployeeToEventByEventId(id_event, payload.IdsEmployee)
+	if err != nil {
+		slog.Error("AssignEmployeeToEvent() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning the employee to the event.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, nil)
 }

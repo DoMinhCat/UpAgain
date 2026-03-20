@@ -84,6 +84,19 @@ definitions:
       username:
         type: string
     type: object
+  models.EventStats:
+    properties:
+      increase:
+        type: integer
+      pending:
+        type: integer
+      registrations:
+        type: integer
+      total:
+        type: integer
+      upcoming:
+        type: integer
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -811,6 +824,31 @@ paths:
       summary: Get container count stats
       tags:
       - container
+  /events/count/:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Get general stats of events to show in event module's cards. Stats include:
+        - total events
+        - new events since last month (30 days)
+        - upcoming events in next 30 days
+        - total registrations since last month
+        - total pending approvals for events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event stats retrieved successfully
+          schema:
+            $ref: '#/definitions/models.EventStats'
+        "400":
+          description: Invalid ID or payload
+        "500":
+          description: Internal server error
+      summary: Get event stats
+      tags:
+      - event
   /healthcheck/:
     get:
       description: Check the database connection status
