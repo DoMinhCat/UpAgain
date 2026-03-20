@@ -13,6 +13,17 @@ import (
 	"time"
 )
 
+// CreateAccount godoc
+// @Summary      Create an account
+// @Description  Creates a new account
+// @Tags         account
+// @Produce      json
+// @Param        account body models.CreateAccountRequest true "Account details"
+// @Success      201  {object}  nil  "Account created successfully"
+// @Failure      400  {object}  nil  "Invalid request body"
+// @Failure      500  {object}  nil  "An error occurred while creating an account for you."
+// @Success      200  {string}  string  "Hello, World!"
+// @Router       /hello [get]
 func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	var newAccount models.CreateAccountRequest
 
