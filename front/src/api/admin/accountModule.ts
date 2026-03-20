@@ -34,7 +34,7 @@ export const getAllAccounts = async (
   status?: string,
   sort?: string,
 ): Promise<AccountsListPagination> => {
-  const response = await api.get(ENDPOINTS.ADMIN.USERS, {
+  const response = await api.get(ENDPOINTS.ADMIN.USERS.ALL, {
     params: { is_deleted, page, limit, search, role, status, sort },
   });
   return response.data;
@@ -52,13 +52,13 @@ export const RegisterRequest = async (payload: RegisterPayload) => {
 };
 
 export const deleteAccount = async (id_account: number) => {
-  return await api.delete(ENDPOINTS.ADMIN.USERS + id_account + "/");
+  return await api.delete(ENDPOINTS.ADMIN.USERS.ALL + id_account + "/");
 };
 
 export const getAccountDetails = async (
   id_account: number,
 ): Promise<Account> => {
-  const response = await api.get(ENDPOINTS.ADMIN.USERS + id_account + "/");
+  const response = await api.get(ENDPOINTS.ADMIN.USERS.ALL + id_account + "/");
   return response.data;
 };
 
@@ -67,7 +67,7 @@ export interface updatePasswordPayload {
   newPassword: string;
 }
 export const updatePassword = async (payload: updatePasswordPayload) => {
-  return await api.patch(ENDPOINTS.ADMIN.USERS + payload.id + "/password/", {
+  return await api.patch(ENDPOINTS.ADMIN.USERS.UPDATE_PASSWORD(payload.id), {
     password: payload.newPassword,
   });
 };
@@ -77,13 +77,13 @@ export interface updateIsBannedPayload {
   is_banned: boolean;
 }
 export const banAccount = async (payload: updateIsBannedPayload) => {
-  return await api.patch(ENDPOINTS.ADMIN.USERS + payload.id + "/ban/", {
+  return await api.patch(ENDPOINTS.ADMIN.USERS.BAN(payload.id), {
     is_banned: payload.is_banned,
   });
 };
 
 export const recoverAccount = async (id_account: number) => {
-  return await api.patch(ENDPOINTS.ADMIN.USERS + id_account + "/recover/");
+  return await api.patch(ENDPOINTS.ADMIN.USERS.RECOVER(id_account));
 };
 
 export interface AccountStats {
@@ -98,9 +98,7 @@ export interface AccountStats {
 export const getAccountStats = async (
   id_account: number,
 ): Promise<AccountStats> => {
-  const response = await api.get(
-    ENDPOINTS.ADMIN.USERS + id_account + "/stats/",
-  );
+  const response = await api.get(ENDPOINTS.ADMIN.USERS.STATS(id_account));
   return response.data;
 };
 
@@ -111,14 +109,11 @@ export interface updateAccountPayload {
   phone?: string;
 }
 export const updateAccount = async (payload: updateAccountPayload) => {
-  return await api.patch(
-    ENDPOINTS.ADMIN.USERS + payload.id_account + "/update/",
-    {
-      username: payload.username,
-      email: payload.email,
-      phone: payload.phone,
-    },
-  );
+  return await api.patch(ENDPOINTS.ADMIN.USERS.UPDATE(payload.id_account), {
+    username: payload.username,
+    email: payload.email,
+    phone: payload.phone,
+  });
 };
 
 export interface AccountCountStats {
@@ -126,6 +121,6 @@ export interface AccountCountStats {
   increase: number;
 }
 export const getAccountCountStats = async (): Promise<AccountCountStats> => {
-  const response = await api.get(ENDPOINTS.ADMIN.USERS_COUNT);
+  const response = await api.get(ENDPOINTS.ADMIN.USERS.COUNT);
   return response.data;
 };

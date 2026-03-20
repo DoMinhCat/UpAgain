@@ -1,7 +1,22 @@
 export const ENDPOINTS = {
   // admin endpoints
   ADMIN: {
-    USERS: "/accounts/",
+    USERS: {
+      ALL: "/accounts/",
+      COUNT: "/accounts/count/",
+      UPDATE_PASSWORD: (id_account: number) =>
+        `/accounts/${id_account}/password/`,
+      BAN: (id_account: number) => `/accounts/${id_account}/ban/`,
+      RECOVER: (id_account: number) => `/accounts/${id_account}/recover/`,
+      STATS: (id_account: number) => `/accounts/${id_account}/stats/`,
+      UPDATE: (id_account: number) => `/accounts/${id_account}/`,
+    },
+
+    CONTAINERS: {
+      ALL: "/containers/",
+      COUNT: "/containers/count/",
+    },
+
     VALIDATIONS: {
       DEPOSITS: "/admin/validations/deposits",
       LISTINGS: "/admin/validations/listings",
@@ -11,11 +26,12 @@ export const ENDPOINTS = {
         `/admin/validations/${entityType}/${id}`,
       HISTORY: "/admin/items/history",
     },
-    CONTAINERS: "/containers/",
-    EVENTS: "/events/",
-    USERS_COUNT: "/accounts/count/",
-    CONTAINERS_COUNT: "/containers/count/",
-    EVENTS_COUNT: "/events/count/",
+
+    EVENTS: {
+      ALL: "/events/",
+      STATS: "/events/count/",
+      ASSIGN: (id_event: number) => `/events/${id_event}/assign/`,
+    },
   },
 
   AUTH: {
