@@ -9,6 +9,8 @@ import {
   assignEmployeeToEvent,
   getEventDetails,
   type AppEvent,
+  type AssignedEmployee,
+  getAssignedEmployees,
 } from "../api/admin/eventModule";
 import { showSuccessNotification } from "../components/NotificationToast";
 
@@ -22,6 +24,7 @@ export const useGetAllEvents = (
   return useQuery<EventsListPagination>({
     queryKey: ["events", page, limit, search, status, sort],
     queryFn: () => getAllEvents(page, limit, search, status, sort),
+    staleTime: 60 * 1000,
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch events.",
@@ -33,6 +36,11 @@ export const useGetEventStats = () => {
   return useQuery<EventStats>({
     queryKey: ["eventStats"],
     queryFn: getEventStats,
+    staleTime: 60 * 1000,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch event stats.",
+    },
   });
 };
 
@@ -81,9 +89,22 @@ export const useGetEventDetails = (id_event: number) => {
   return useQuery<AppEvent>({
     queryKey: ["event", id_event],
     queryFn: () => getEventDetails(id_event),
+    staleTime: 60 * 1000,
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch event details.",
+    },
+  });
+};
+
+export const useGetAssignedEmployees = (id_event: number) => {
+  return useQuery<AssignedEmployee[]>({
+    queryKey: ["assignedEmployees", id_event],
+    queryFn: () => getAssignedEmployees(id_event),
+    staleTime: 60 * 1000,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch assigned employees.",
     },
   });
 };
