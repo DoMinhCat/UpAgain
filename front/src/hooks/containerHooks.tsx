@@ -15,6 +15,7 @@ export const useContainers = () => {
   return useQuery({
     queryKey: ["containers"],
     queryFn: getAllContainers,
+    staleTime: 60 * 1000,
     meta: {
       errorTitle: "Inventory Error",
       errorMessage: "Unable to load containers from European hubs.",

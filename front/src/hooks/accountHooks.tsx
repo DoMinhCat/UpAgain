@@ -75,6 +75,7 @@ export const useAccountDetails = (
     queryKey: ["accountDetails", accountId],
     queryFn: () => getAccountDetails(accountId),
     enabled,
+    staleTime: 60 * 1000,
     meta: {
       errorTitle: "Fetching Failed",
       errorMessage: "Could not load account details",
@@ -103,7 +104,7 @@ export const useGetAllAccounts = (
     ],
     queryFn: () =>
       getAllAccounts(isDeleted, page, limit, search, role, status, sort),
-    staleTime: 1000 * 60 * 2, // refresh data every 2m
+    staleTime: 1000 * 60,
     meta: {
       errorTitle: "Fetching Failed",
       errorMessage: "Could not load accounts list",
@@ -179,6 +180,7 @@ export const useAccountStats = (accountId: number, enabled: boolean = true) => {
     queryKey: ["accountStats", accountId],
     queryFn: () => getAccountStats(accountId),
     enabled,
+    staleTime: 60 * 1000,
     meta: {
       errorTitle: "Fetching Failed",
       errorMessage: "Could not load account stats",

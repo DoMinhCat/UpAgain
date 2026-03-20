@@ -77,6 +77,21 @@ export const getEventDetails = async (id_event: number): Promise<AppEvent> => {
   return response.data;
 };
 
+export interface AssignedEmployee {
+  id: number;
+  username: string;
+  assigned_at: string;
+}
+
+export const getAssignedEmployees = async (
+  id_event: number,
+): Promise<AssignedEmployee[]> => {
+  const response = await api.get(
+    ENDPOINTS.ADMIN.EVENTS.ASSIGNED_EMPLOYEES(id_event),
+  );
+  return response.data;
+};
+
 export const assignEmployeeToEvent = async (
   id_event: number,
   employee_ids: number[],

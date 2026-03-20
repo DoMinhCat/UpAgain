@@ -31,6 +31,7 @@ export const ENDPOINTS = {
       ALL: "/events/",
       STATS: "/events/count/",
       ASSIGN: (id_event: number) => `/events/${id_event}/assign/`,
+      ASSIGNED_EMPLOYEES: (id_event: number) => `/events/${id_event}/assigned/`,
     },
   },
 
