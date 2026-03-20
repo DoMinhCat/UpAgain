@@ -3,7 +3,7 @@ package models
 import "github.com/guregu/null"
 
 type UserDetails struct {
-	Phone null.String `json:"phone"`
+	Phone null.String `json:"phone" swaggertype:"string"`
 	Score int         `json:"score"`
 }
 

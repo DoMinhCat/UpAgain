@@ -9,6 +9,11 @@ import (
 	"github.com/rs/cors"
 )
 
+// @title           UpAgain backend Golang API
+// @version         1.0
+// @description     Backend API written in Golang that handles requests from the frontend.
+// @host      localhost:8080
+// @BasePath  /
 func main() {
 	utils.InitLogger()
 
