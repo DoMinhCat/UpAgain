@@ -55,7 +55,7 @@ func ValidateEventCreation(newEvent models.CreateEventRequest) models.Validation
 		return response
 	}
 
-	if !newEvent.Capacity.Valid || newEvent.Capacity.Int64 <= 0 {
+	if newEvent.Capacity.Valid && newEvent.Capacity.Int64 <= 0 {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("Capacity must be greater than 0."),
@@ -82,7 +82,7 @@ func ValidateEventCreation(newEvent models.CreateEventRequest) models.Validation
 		return response
 	}
 
-	if newEvent.Category != "workshop" && newEvent.Category != "conference" && newEvent.Category != "conference" && newEvent.Category != "exposition" && newEvent.Category != "other" {
+	if newEvent.Category != "workshop" && newEvent.Category != "meetups" && newEvent.Category != "conference" && newEvent.Category != "exposition" && newEvent.Category != "other" {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("Invalid category."),
