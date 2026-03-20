@@ -20,11 +20,11 @@ export function TextEditor({ value, onChange, label, error }: TextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline,
+      // Underline,
       Highlight,
       Subscript,
       Superscript,
-      Link,
+      // Link,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content: value,

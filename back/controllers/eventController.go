@@ -156,6 +156,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var event models.CreateEventRequest
 	err = json.NewDecoder(r.Body).Decode(&event)
 	if err != nil {
+		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CreateEvent", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -185,5 +186,5 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, event)
+	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }

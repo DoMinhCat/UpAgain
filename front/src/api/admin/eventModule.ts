@@ -51,3 +51,23 @@ export const getEventStats = async (): Promise<EventStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.EVENTS_COUNT);
   return response.data;
 };
+
+export interface EventCreationPayload {
+  title: string;
+  description: string;
+  start_at: string;
+  price: number;
+  category: string;
+  capacity?: number;
+  city: string;
+  street: string;
+  location_detail?: string;
+  status: string;
+}
+
+export const createEvent = async (
+  event: EventCreationPayload,
+): Promise<void> => {
+  const response = await api.post(ENDPOINTS.ADMIN.EVENTS, event);
+  return response.data;
+};

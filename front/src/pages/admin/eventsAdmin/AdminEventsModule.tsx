@@ -36,6 +36,7 @@ import { PATHS } from "../../../routes/paths";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
 import dayjs from "dayjs";
+import { useCreateEvent } from "../../../hooks/eventHooks";
 
 export default function AdminEventsModule() {
   const navigate = useNavigate();
@@ -262,6 +263,8 @@ export default function AdminEventsModule() {
     return true;
   };
 
+  const createEventMutation = useCreateEvent();
+
   const handleSubmitCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (
@@ -273,20 +276,29 @@ export default function AdminEventsModule() {
       !validateDate() ||
       !validateCategory() ||
       !validateDescription()
-    ) {
+    )
       return;
-    }
-    // console.log(
-    //   title,
-    //   capacity,
-    //   price,
-    //   street,
-    //   city,
-    //   date,
-    //   category,
-    //   description,
-    // );
-    // call mutation
+
+    // TODO: send picture paths
+    createEventMutation.mutate(
+      {
+        title,
+        capacity: capacity ?? undefined,
+        price,
+        street,
+        city,
+        location_detail: locationDetail,
+        start_at: dayjs(date).toISOString() ?? "",
+        category,
+        description,
+        status: "pending",
+      },
+      {
+        onSuccess: () => {
+          handleCloseCreate();
+        },
+      },
+    );
   };
 
   // event stats
@@ -409,13 +421,14 @@ export default function AdminEventsModule() {
                   }}
                   onBlur={() => validateTitle()}
                   error={errorTitle}
-                  // disabled={isAccountDetailsLoading}
+                  disabled={createEventMutation.isPending}
                   required
                 />
                 <NumberInput
                   label="Capacity"
                   placeholder="Maximum number of attendees"
                   min={0}
+                  disabled={createEventMutation.isPending}
                   value={capacity}
                   suffix=" people"
                   onChange={(value) => {
@@ -432,6 +445,7 @@ export default function AdminEventsModule() {
                   min={0}
                   prefix="€"
                   value={price}
+                  disabled={createEventMutation.isPending}
                   onChange={(value) => {
                     setPrice(Number(value));
                   }}
@@ -445,6 +459,7 @@ export default function AdminEventsModule() {
                     <TextInput
                       withAsterisk
                       label="Street"
+                      disabled={createEventMutation.isPending}
                       value={street}
                       placeholder="21 Erard street"
                       onChange={(e) => {
@@ -462,6 +477,7 @@ export default function AdminEventsModule() {
                       placeholder="Paris"
                       label="City"
                       value={city}
+                      disabled={createEventMutation.isPending}
                       onChange={(e) => {
                         setCity(e.target.value);
                       }}
@@ -475,6 +491,7 @@ export default function AdminEventsModule() {
                 <TextInput
                   label="Additional location details"
                   placeholder="Room 12, 2nd floor"
+                  disabled={createEventMutation.isPending}
                   value={locationDetail}
                   onChange={(e) => {
                     setLocationDetail(e.target.value);
@@ -486,6 +503,7 @@ export default function AdminEventsModule() {
                   label="Date and time of event"
                   placeholder="When does the event take place?"
                   value={date}
+                  disabled={createEventMutation.isPending}
                   onChange={setDate}
                   required
                   onBlur={() => validateDate()}
@@ -497,6 +515,7 @@ export default function AdminEventsModule() {
                   clearable
                   label="Category"
                   value={category}
+                  disabled={createEventMutation.isPending}
                   placeholder="Select a category"
                   error={errorCategory}
                   onBlur={() => validateCategory()}
@@ -530,8 +549,7 @@ export default function AdminEventsModule() {
                     handleSubmitCreate(e);
                   }}
                   variant="primary"
-                  // loading={editMutation.isPending}
-                  // disabled={editMutation.isPending || isAccountDetailsLoading}
+                  loading={createEventMutation.isPending}
                 >
                   Confirm
                 </Button>
@@ -546,6 +564,7 @@ export default function AdminEventsModule() {
               label="Search"
               variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
+              disabled={createEventMutation.isPending}
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
@@ -583,6 +602,7 @@ export default function AdminEventsModule() {
               ]}
               value={filters.sortValue}
               clearable
+              disabled={createEventMutation.isPending}
               onChange={(val) => handleFilterChange("sortValue", val)}
             />
           </Grid.Col>

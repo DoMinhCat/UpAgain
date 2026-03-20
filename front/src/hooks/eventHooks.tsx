@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { showSuccessNotification } from "../components/NotificationToast";
 import {
+  createEvent,
+  type EventCreationPayload,
   getAllEvents,
   getEventStats,
   type EventStats,
   type EventsListPagination,
 } from "../api/admin/eventModule";
+import { showSuccessNotification } from "../components/NotificationToast";
 
 export const useGetAllEvents = (
   page?: number,
@@ -28,5 +30,21 @@ export const useGetEventStats = () => {
   return useQuery<EventStats>({
     queryKey: ["eventStats"],
     queryFn: getEventStats,
+  });
+};
+
+export const useCreateEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (event: EventCreationPayload) => createEvent(event),
+    onSuccess: () => {
+      showSuccessNotification("Success", "New event created");
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+    meta: {
+      errorTitle: "Event creation failed",
+      errorMessage: "An error occured while creating new event",
+    },
   });
 };
