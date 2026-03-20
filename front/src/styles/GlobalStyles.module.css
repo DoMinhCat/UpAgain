@@ -225,3 +225,41 @@
 .progress {
   background-color: #45a575;
 }
+
+.badge {
+  color: var(--mantine-color-text);
+  border: 1px solid transparent;
+  width: auto;
+  min-width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  white-space: nowrap;
+
+  &[data-variant="green"] {
+    background-color: #45a575;
+  }
+
+  &[data-variant="red"] {
+    background-color: var(--mantine-color-red-6);
+  }
+  &[data-variant="gray"] {
+    background-color: var(--mantine-color-gray-6);
+  }
+
+  &[data-variant="blue"] {
+    background-color: var(--mantine-color-blue-6);
+  }
+
+  &[data-variant="yellow"] {
+    background-color: var(--mantine-color-yellow-6);
+  }
+  &[data-variant="green"] {
+    background-color: var(--mantine-color-green-6);
+  }
+}
+
+.divider {
+  border-color: var(--border-color);
+}

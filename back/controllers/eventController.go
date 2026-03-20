@@ -194,7 +194,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
-	id_url := r.URL.Query().Get("id_event")
+	id_url := r.PathValue("id_event")
 	if id_url == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
 		return
