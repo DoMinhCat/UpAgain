@@ -24,7 +24,7 @@ type Event struct {
 	Id             int       `json:"id"`
 	CreatedAt      time.Time `json:"created_at"`
 	Title          string    `json:"title"`
-	Description    null.String    `json:"description"`
+	Description    string    `json:"description"`
 	StartAt        null.Time `json:"start_at"`
 	Price          null.Float   `json:"price"`
 	Category       string    `json:"category"`

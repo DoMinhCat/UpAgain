@@ -508,7 +508,6 @@ export default function AdminEventsModule() {
                   required
                   onBlur={() => validateDate()}
                   error={errorDate}
-                  // disabled={isAccountDetailsLoading}
                 />
                 <Select
                   withAsterisk
@@ -538,7 +537,7 @@ export default function AdminEventsModule() {
                     setDescription(value);
                   }}
                 />
-                <ImageDropzone loading={false} disabled={false} />
+                <ImageDropzone loading={createEventMutation.isPending} />
               </Stack>
               <Group mt="lg" justify="center">
                 <Button onClick={handleCloseCreate} variant="grey">
