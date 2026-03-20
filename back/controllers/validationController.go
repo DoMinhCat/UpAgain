@@ -10,7 +10,19 @@ import (
 	"strconv"
 )
 
-// GetPendingDepositsAdmin returns paginated pending deposits.
+// GetPendingDepositsAdmin godoc
+// @Summary      Get pending deposits
+// @Description  Get a paginated list of pending deposits for admin
+// @Tags         validation
+// @Produce      json
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Param        search  query     string  false  "Search query"
+// @Param        sort    query     string  false  "Sort order"
+// @Success      200     {object}  map[string]interface{}  "Paginated deposits"
+// @Failure      400     {object}  nil                     "Invalid pagination parameters"
+// @Failure      500     {object}  nil                     "Internal server error"
+// @Router       /admin/validations/deposits [get]
 func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
 	if err != nil {
@@ -31,7 +43,19 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-// GetPendingListingsAdmin returns paginated pending listings.
+// GetPendingListingsAdmin godoc
+// @Summary      Get pending listings
+// @Description  Get a paginated list of pending listings for admin
+// @Tags         validation
+// @Produce      json
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Param        search  query     string  false  "Search query"
+// @Param        sort    query     string  false  "Sort order"
+// @Success      200     {object}  map[string]interface{}  "Paginated listings"
+// @Failure      400     {object}  nil                     "Invalid pagination parameters"
+// @Failure      500     {object}  nil                     "Internal server error"
+// @Router       /admin/validations/listings [get]
 func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
 	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
 	if err != nil {
@@ -52,7 +76,19 @@ func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-// GetPendingEventsAdmin returns paginated pending events.
+// GetPendingEventsAdmin godoc
+// @Summary      Get pending events
+// @Description  Get a paginated list of pending events for admin
+// @Tags         validation
+// @Produce      json
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Param        search  query     string  false  "Search query"
+// @Param        sort    query     string  false  "Sort order"
+// @Success      200     {object}  map[string]interface{}  "Paginated events"
+// @Failure      400     {object}  nil                     "Invalid pagination parameters"
+// @Failure      500     {object}  nil                     "Internal server error"
+// @Router       /admin/validations/events [get]
 func GetPendingEventsAdmin(w http.ResponseWriter, r *http.Request) {
 	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
 	if err != nil {
@@ -73,7 +109,14 @@ func GetPendingEventsAdmin(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-// GetValidationStats returns counts of pending/approved/refused for all entity types.
+// GetValidationStats godoc
+// @Summary      Get validation stats
+// @Description  Get counts of pending, approved, and refused for all entity types
+// @Tags         validation
+// @Produce      json
+// @Success      200  {object}  models.ValidationStats  "Validation stats"
+// @Failure      500  {object}  nil                     "Internal server error"
+// @Router       /admin/validations/stats [get]
 func GetValidationStats(w http.ResponseWriter, r *http.Request) {
 	stats, err := db.GetValidationStats()
 	if err != nil {
@@ -84,6 +127,19 @@ func GetValidationStats(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, stats)
 }
 
+// ProcessListingValidation godoc
+// @Summary      Process listing validation
+// @Description  Approve or refuse a listing
+// @Tags         validation
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int     true  "Listing ID"
+// @Param        body  body      models.ValidationActionRequest  true  "Validation decision"
+// @Success      200   {object}  map[string]string  "Listing status updated successfully"
+// @Failure      400   {object}  nil                "Invalid ID or payload"
+// @Failure      401   {object}  nil                "Unauthorized"
+// @Failure      500   {object}  nil                "Internal server error"
+// @Router       /admin/validations/listings/{id} [put]
 func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	itemID, err := strconv.Atoi(idStr)
@@ -126,6 +182,18 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Listing status updated successfully"})
 }
 
+// ProcessDepositValidation godoc
+// @Summary      Process deposit validation
+// @Description  Approve or refuse a deposit
+// @Tags         validation
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int     true  "Deposit ID"
+// @Param        body  body      models.ValidationActionRequest  true  "Validation decision"
+// @Success      200   {object}  map[string]string  "Deposit status updated successfully"
+// @Failure      400   {object}  nil                "Invalid ID or payload"
+// @Failure      500   {object}  nil                "Internal server error"
+// @Router       /admin/validations/deposits/{id} [put]
 func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	itemID, err := strconv.Atoi(idStr)
@@ -162,6 +230,18 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Deposit status updated successfully"})
 }
 
+// ProcessEventValidation godoc
+// @Summary      Process event validation
+// @Description  Approve or refuse an event
+// @Tags         validation
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int     true  "Event ID"
+// @Param        body  body      models.ValidationActionRequest  true  "Validation decision"
+// @Success      200   {object}  map[string]string  "Event status updated successfully"
+// @Failure      400   {object}  nil                "Invalid ID or payload"
+// @Failure      500   {object}  nil                "Internal server error"
+// @Router       /admin/validations/events/{id} [put]
 func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	eventID, err := strconv.Atoi(idStr)
@@ -198,6 +278,15 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Event status updated successfully"})
 }
 
+// GetItemsHistory godoc
+// @Summary      Get items history
+// @Description  Get a history of all items
+// @Tags         validation
+// @Produce      json
+// @Success      200  {array}   models.AllItemResponse  "Items history"
+// @Failure      403  {object}  nil                     "Forbidden"
+// @Failure      500  {object}  nil                     "Internal server error"
+// @Router       /admin/items/history [get]
 func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
