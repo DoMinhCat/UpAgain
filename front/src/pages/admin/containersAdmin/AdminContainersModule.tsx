@@ -65,6 +65,13 @@ export default function AdminContainersModule() {
   const { data: containers = [], isLoading } = useContainers();
   const createMutation = useCreateContainer();
   const deleteMutation = useDeleteContainer();
+  const handleDeleteContainer = (id: number) => {
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        closeDelete();
+      },
+    });
+  };
 
   const stats = useMemo(
     () => ({
@@ -121,6 +128,10 @@ export default function AdminContainersModule() {
   const handleOpenDelete = (c: Container) => {
     setSelectedContainer(c);
     openDelete();
+  };
+  const handleCloseDelete = () => {
+    setSelectedContainer(null);
+    closeDelete();
   };
 
   return (
@@ -332,7 +343,7 @@ export default function AdminContainersModule() {
       {/* delete */}
       <Modal
         opened={openedDelete}
-        onClose={closeDelete}
+        onClose={handleCloseDelete}
         title="Confirm Archiving"
         centered
       >
@@ -342,14 +353,14 @@ export default function AdminContainersModule() {
           {selectedContainer?.city_name})? This will perform a soft delete.
         </Text>
         <Group justify="flex-end">
-          <Button variant="grey" onClick={closeDelete}>
+          <Button variant="grey" onClick={handleCloseDelete}>
             Cancel
           </Button>
           <Button
             variant="delete"
             loading={deleteMutation.isPending}
             onClick={() =>
-              selectedContainer && deleteMutation.mutate(selectedContainer.id)
+              selectedContainer && handleDeleteContainer(selectedContainer.id)
             }
           >
             Confirm Delete

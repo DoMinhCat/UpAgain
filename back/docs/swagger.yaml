@@ -1,0 +1,907 @@
+basePath: /
+definitions:
+  models.AccountCountStats:
+    properties:
+      increase:
+        type: integer
+      total:
+        type: integer
+    type: object
+  models.AccountDetails:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_banned:
+        type: boolean
+      is_premium:
+        type: boolean
+      last_active:
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
+      score:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.AllItemResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      item_type:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      username:
+        type: string
+    type: object
+  models.Container:
+    properties:
+      city_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_deleted:
+        type: boolean
+      postal_code:
+        type: string
+      status:
+        type: string
+    type: object
+  models.ContainerCountStats:
+    properties:
+      active:
+        type: integer
+      total:
+        type: integer
+    type: object
+  models.CreateAccountRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.ToggleBanRequest:
+    properties:
+      is_banned:
+        type: boolean
+    type: object
+  models.UpdateAccountRequest:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      phone:
+        type: string
+      username:
+        type: string
+    type: object
+  models.UpdatePasswordRequest:
+    properties:
+      password:
+        type: string
+    type: object
+  models.UpdateStatusRequest:
+    properties:
+      status:
+        example: running
+        type: string
+    type: object
+  models.ValidationActionRequest:
+    properties:
+      action:
+        type: string
+      reason:
+        type: string
+    type: object
+  models.ValidationStats:
+    properties:
+      approved_deposits:
+        type: integer
+      approved_events:
+        type: integer
+      approved_listings:
+        type: integer
+      pending_deposits:
+        type: integer
+      pending_events:
+        type: integer
+      pending_listings:
+        type: integer
+      refused_deposits:
+        type: integer
+      refused_events:
+        type: integer
+      refused_listings:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Backend API written in Golang that handles requests from the frontend.
+  title: UpAgain backend Golang API
+  version: "1.0"
+paths:
+  /accounts/:
+    get:
+      description: Get a list of all accounts with filters and pagination
+      parameters:
+      - description: Fetch deleted accounts
+        in: query
+        name: is_deleted
+        required: true
+        type: boolean
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      - description: Filter by role
+        in: query
+        name: role
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of accounts and pagination info
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid parameters
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get all accounts (Admin)
+      tags:
+      - account
+  /accounts/{id_account}/:
+    delete:
+      description: Marks an account as deleted
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid ID
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Account not found
+        "500":
+          description: Internal server error
+      summary: Soft delete account
+      tags:
+      - account
+    get:
+      description: Get details of a specific account
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AccountDetails'
+        "400":
+          description: Invalid ID
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+      summary: Get account details
+      tags:
+      - account
+  /accounts/{id_account}/ban/:
+    patch:
+      consumes:
+      - application/json
+      description: Ban or unban an account
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      - description: Current ban status
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ToggleBanRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Account not found
+        "500":
+          description: Internal server error
+      summary: Toggle ban status
+      tags:
+      - account
+  /accounts/{id_account}/password/:
+    patch:
+      consumes:
+      - application/json
+      description: Update the password of a specific account
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      - description: New password
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Account not found
+        "500":
+          description: Internal server error
+      summary: Update password
+      tags:
+      - account
+  /accounts/{id_account}/recover/:
+    patch:
+      description: Restore a soft-deleted account
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Account not found
+        "500":
+          description: Internal server error
+      summary: Recover account
+      tags:
+      - account
+  /accounts/{id_account}/stats/:
+    get:
+      description: Get activity statistics for a specific account based on its role
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Stats (UserStats, ProStats, or EmployeeStats)
+          schema: {}
+        "400":
+          description: Invalid request or role
+        "401":
+          description: Unauthorized
+        "404":
+          description: Account not found
+        "500":
+          description: Internal server error
+      summary: Get account stats
+      tags:
+      - account
+  /accounts/{id_account}/update/:
+    patch:
+      consumes:
+      - application/json
+      description: Update details of a specific account
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      - description: Account updates
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "409":
+          description: Email or Username already exists
+        "500":
+          description: Internal server error
+      summary: Update account
+      tags:
+      - account
+  /accounts/count/:
+    get:
+      description: Get total count of accounts and increase since last month
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AccountCountStats'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get account count stats
+      tags:
+      - account
+  /admin/items/history:
+    get:
+      description: Get a history of all items
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Items history
+          schema:
+            items:
+              $ref: '#/definitions/models.AllItemResponse'
+            type: array
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+      summary: Get items history
+      tags:
+      - validation
+  /admin/validations/deposits:
+    get:
+      description: Get a paginated list of pending deposits for admin
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated deposits
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid pagination parameters
+        "500":
+          description: Internal server error
+      summary: Get pending deposits
+      tags:
+      - validation
+  /admin/validations/deposits/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Approve or refuse a deposit
+      parameters:
+      - description: Deposit ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Validation decision
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ValidationActionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deposit status updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID or payload
+        "500":
+          description: Internal server error
+      summary: Process deposit validation
+      tags:
+      - validation
+  /admin/validations/events:
+    get:
+      description: Get a paginated list of pending events for admin
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated events
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid pagination parameters
+        "500":
+          description: Internal server error
+      summary: Get pending events
+      tags:
+      - validation
+  /admin/validations/events/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Approve or refuse an event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Validation decision
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ValidationActionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event status updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID or payload
+        "500":
+          description: Internal server error
+      summary: Process event validation
+      tags:
+      - validation
+  /admin/validations/listings:
+    get:
+      description: Get a paginated list of pending listings for admin
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated listings
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid pagination parameters
+        "500":
+          description: Internal server error
+      summary: Get pending listings
+      tags:
+      - validation
+  /admin/validations/listings/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Approve or refuse a listing
+      parameters:
+      - description: Listing ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Validation decision
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ValidationActionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Listing status updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID or payload
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Process listing validation
+      tags:
+      - validation
+  /admin/validations/stats:
+    get:
+      description: Get counts of pending, approved, and refused for all entity types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Validation stats
+          schema:
+            $ref: '#/definitions/models.ValidationStats'
+        "500":
+          description: Internal server error
+      summary: Get validation stats
+      tags:
+      - validation
+  /containers/:
+    get:
+      description: Get a list of all containers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Container'
+            type: array
+        "500":
+          description: Internal server error
+      summary: Get all containers
+      tags:
+      - container
+    post:
+      consumes:
+      - application/json
+      description: Create a new container
+      parameters:
+      - description: Container details
+        in: body
+        name: container
+        required: true
+        schema:
+          $ref: '#/definitions/models.Container'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Container'
+        "400":
+          description: Invalid request or postal code
+          schema:
+            type: string
+        "500":
+          description: Creation failed
+          schema:
+            type: string
+      summary: Create container
+      tags:
+      - container
+  /containers/{id}/:
+    delete:
+      description: Soft delete a container by its ID
+      parameters:
+      - description: Container ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Delete container
+      tags:
+      - container
+    get:
+      description: Get a single container by its ID
+      parameters:
+      - description: Container ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Container'
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "404":
+          description: Container not found
+          schema:
+            type: string
+      summary: Get container by ID
+      tags:
+      - container
+    put:
+      consumes:
+      - application/json
+      description: Update the status of a container
+      parameters:
+      - description: Container ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New status payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Update container status
+      tags:
+      - container
+  /containers/count/:
+    get:
+      description: Get statistics about container counts (total and active)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ContainerCountStats'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Get container count stats
+      tags:
+      - container
+  /healthcheck/:
+    get:
+      description: Check the database connection status
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Database connected successfully
+          schema:
+            type: string
+        "500":
+          description: 'Error connecting to database: ...'
+          schema:
+            type: string
+      summary: Health Check
+      tags:
+      - health
+  /login/:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and return a JWT token and set a refresh token
+        cookie
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request body
+        "401":
+          description: Incorrect email or password
+        "500":
+          description: Internal server error
+      summary: Login
+      tags:
+      - auth
+  /refresh/:
+    post:
+      description: Refresh the JWT token using the refresh token cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: No refresh token found or invalid refresh token
+        "500":
+          description: Internal server error
+      summary: Refresh Token
+      tags:
+      - auth
+  /register/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new account
+      parameters:
+      - description: Account details
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Account created successfully
+        "400":
+          description: Invalid request body or validation failed
+        "401":
+          description: Unauthorized to create admin/employee account
+        "500":
+          description: Internal server error
+      summary: Create an account
+      tags:
+      - account
+swagger: "2.0"

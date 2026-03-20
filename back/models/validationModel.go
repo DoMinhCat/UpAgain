@@ -45,14 +45,14 @@ type PendingListingResponse struct {
 type PendingEventResponse struct {
 	EventID          int         `json:"id_event"`
 	Title            string      `json:"title"`
-	Description      null.String `json:"description"`
+	Description      string `json:"description"`
 	Category         string      `json:"category"`
 	DateStart        null.Time   `json:"date_start"`
 	Capacity         null.Int    `json:"capacity"`
 	Price            null.Float  `json:"price"`
 	CreatedAt        time.Time   `json:"created_at"`
-	EmployeeID       int         `json:"id_employee"`
-	EmployeeUsername string      `json:"employee_username"`
+	EmployeeID       null.Int    `json:"id_employee"`
+	EmployeeUsername null.String `json:"employee_username" swaggertype:"string"`
 }
 
 type ValidationActionRequest struct {

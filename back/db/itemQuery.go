@@ -255,8 +255,8 @@ func GetPendingEvents(page, limit int, filters models.ValidationFilters) ([]mode
 			ev.id, ev.title, ev.description, ev.category, ev.start_at,
 			ev.capacity, ev.price, ev.created_at, ee.id_employee, acc.username
 		FROM events ev
-		JOIN event_employee ee ON ev.id = ee.id_event
-		JOIN accounts acc ON ee.id_employee = acc.id
+		LEFT JOIN event_employee ee ON ev.id = ee.id_event
+		LEFT JOIN accounts acc ON ee.id_employee = acc.id
 		` + whereClause + " " + orderBy
 
 	if limit != -1 && page != -1 {
