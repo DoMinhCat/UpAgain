@@ -3,7 +3,7 @@ package models
 import "github.com/guregu/null"
 
 type ProDetails struct {
-	Phone     null.String `json:"phone"`
+	Phone     null.String `json:"phone" swaggertype:"string"`
 	IsPremium bool        `json:"is_premium"`
 }
 

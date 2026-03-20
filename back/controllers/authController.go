@@ -11,6 +11,18 @@ import (
 	"time"
 )
 
+// Login godoc
+// @Summary      Login
+// @Description  Authenticate a user and return a JWT token and set a refresh token cookie
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        credentials  body      models.LoginRequest  true  "Login credentials"
+// @Success      200          {object}  map[string]string    "token"
+// @Failure      400          {object}  nil                  "Invalid request body"
+// @Failure      401          {object}  nil                  "Incorrect email or password"
+// @Failure      500          {object}  nil                  "Internal server error"
+// @Router       /login/ [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	var creds models.LoginRequest
 	err := json.NewDecoder(r.Body).Decode(&creds)
@@ -75,6 +87,15 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"token": token})
 }
 
+// RefreshToken godoc
+// @Summary      Refresh Token
+// @Description  Refresh the JWT token using the refresh token cookie
+// @Tags         auth
+// @Produce      json
+// @Success      200  {object}  map[string]string  "token"
+// @Failure      401  {object}  nil                "No refresh token found or invalid refresh token"
+// @Failure      500  {object}  nil                "Internal server error"
+// @Router       /refresh/ [post]
 func RefreshToken(w http.ResponseWriter, r *http.Request) {
 	slog.Debug("RefreshToken was called", "controller", "RefreshToken")
 	cookie, err := r.Cookie("refreshToken")
