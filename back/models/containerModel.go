@@ -15,3 +15,7 @@ type ContainerCountStats struct {
 	Active int `json:"active"`
 	Total int `json:"total"`
 }
+
+type UpdateStatusRequest struct {
+    Status string `json:"status" example:"running"`
+}
