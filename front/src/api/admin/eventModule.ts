@@ -1,7 +1,7 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
 
-export interface Event {
+export interface AppEvent {
   id: number;
   created_at: string;
   title: string;
@@ -18,7 +18,7 @@ export interface Event {
 }
 
 export interface EventsListPagination {
-  events: Event[];
+  events: AppEvent[];
   current_page: number;
   last_page: number;
   limit: number;
@@ -33,7 +33,7 @@ export const getAllEvents = async (
   status?: string,
   sort?: string,
 ): Promise<EventsListPagination> => {
-  const response = await api.get(ENDPOINTS.ADMIN.EVENTS, {
+  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL, {
     params: { page, limit, search, status, sort },
   });
   return response.data;
@@ -48,7 +48,7 @@ export interface EventStats {
 }
 
 export const getEventStats = async (): Promise<EventStats> => {
-  const response = await api.get(ENDPOINTS.ADMIN.EVENTS_COUNT);
+  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.STATS);
   return response.data;
 };
 
@@ -68,6 +68,22 @@ export interface EventCreationPayload {
 export const createEvent = async (
   event: EventCreationPayload,
 ): Promise<void> => {
-  const response = await api.post(ENDPOINTS.ADMIN.EVENTS, event);
+  const response = await api.post(ENDPOINTS.ADMIN.EVENTS.ALL, event);
+  return response.data;
+};
+
+export const getEventDetails = async (id_event: number): Promise<AppEvent> => {
+  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL + id_event + "/");
+  return response.data;
+};
+
+export const assignEmployeeToEvent = async (
+  id_event: number,
+  employee_ids: number[],
+): Promise<void> => {
+  const response = await api.post(
+    ENDPOINTS.ADMIN.EVENTS.ASSIGN(id_event),
+    employee_ids,
+  );
   return response.data;
 };
