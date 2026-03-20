@@ -10,6 +10,14 @@ import (
 	"strconv"
 )
 
+// GetAllContainersHandler godoc
+// @Summary      Get all containers
+// @Description  Get a list of all containers
+// @Tags         container
+// @Produce      json
+// @Success      200  {array}   models.Container
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /containers/ [get]
 func GetAllContainersHandler(w http.ResponseWriter, r *http.Request) {
 	containers, err := db.GetAllContainers()
 	if err != nil {
@@ -21,6 +29,16 @@ func GetAllContainersHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, containers)
 }
 
+// GetContainerByID godoc
+// @Summary      Get container by ID
+// @Description  Get a single container by its ID
+// @Tags         container
+// @Produce      json
+// @Param        id   path      int  true  "Container ID"
+// @Success      200  {object}  models.Container
+// @Failure      400  {string}  string  "Invalid ID"
+// @Failure      404  {string}  string  "Container not found"
+// @Router       /containers/{id}/ [get]
 func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
@@ -38,6 +56,18 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, container)
 }
 
+// UpdateContainerStatus godoc
+// @Summary      Update container status
+// @Description  Update the status of a container
+// @Tags         container
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int     true  "Container ID"
+// @Param        body  body      models.UpdateStatusRequest  true  "New status payload"
+// @Success      204   {object}  nil     "No Content"
+// @Failure      401   {object}  nil     "Unauthorized"
+// @Failure      500   {string}  string  "Internal error"
+// @Router       /containers/{id}/ [put]
 func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -46,12 +76,10 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	id, _ := strconv.Atoi(r.PathValue("id"))
 
-	var body struct {
-		Status string `json:"status"`
-	}
-	json.NewDecoder(r.Body).Decode(&body)
+	var payload models.UpdateStatusRequest
+	json.NewDecoder(r.Body).Decode(&payload)
 
-	if err := db.UpdateStatusContainer(id, body.Status); err != nil {
+	if err := db.UpdateStatusContainer(id, payload.Status); err != nil {
 		slog.Error("UpdateStatusContainer() failed", "controller", "UpdateContainerStatus", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
@@ -59,6 +87,16 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// DeleteContainer godoc
+// @Summary      Delete container
+// @Description  Soft delete a container by its ID
+// @Tags         container
+// @Produce      json
+// @Param        id   path      int  true  "Container ID"
+// @Success      204  {object}  nil  "No Content"
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      500  {string}  string  "Internal error"
+// @Router       /containers/{id}/ [delete]
 func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -76,6 +114,15 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 }
 
 // to show info in stats card on admin home
+// GetContainerCountStats godoc
+// @Summary      Get container count stats
+// @Description  Get statistics about container counts (total and active)
+// @Tags         container
+// @Produce      json
+// @Success      200  {object}  models.ContainerCountStats
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      500  {string}  string  "Internal error"
+// @Router       /containers/count/ [get]
 func GetContainerCountStats(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -106,6 +153,17 @@ func GetContainerCountStats(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, stats)
 }
 
+// CreateContainerHandler godoc
+// @Summary      Create container
+// @Description  Create a new container
+// @Tags         container
+// @Accept       json
+// @Produce      json
+// @Param        container  body      models.Container  true  "Container details"
+// @Success      201        {object}  models.Container
+// @Failure      400        {string}  string  "Invalid request or postal code"
+// @Failure      500        {string}  string  "Creation failed"
+// @Router       /containers/ [post]
 func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 	var c models.Container
 	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {

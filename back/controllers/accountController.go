@@ -17,13 +17,14 @@ import (
 // @Summary      Create an account
 // @Description  Creates a new account
 // @Tags         account
+// @Accept       json
 // @Produce      json
 // @Param        account body models.CreateAccountRequest true "Account details"
 // @Success      201  {object}  nil  "Account created successfully"
-// @Failure      400  {object}  nil  "Invalid request body"
-// @Failure      500  {object}  nil  "An error occurred while creating an account for you."
-// @Success      200  {string}  string  "Hello, World!"
-// @Router       /hello [get]
+// @Failure      400  {object}  nil  "Invalid request body or validation failed"
+// @Failure      401  {object}  nil  "Unauthorized to create admin/employee account"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /register/ [post]
 func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	var newAccount models.CreateAccountRequest
 
@@ -62,6 +63,23 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }
 
+// GetAllAccountsAdmin godoc
+// @Summary      Get all accounts (Admin)
+// @Description  Get a list of all accounts with filters and pagination
+// @Tags         account
+// @Produce      json
+// @Param        is_deleted  query     bool    true   "Fetch deleted accounts"
+// @Param        page        query     int     false  "Page number"
+// @Param        limit       query     int     false  "Limit"
+// @Param        search      query     string  false  "Search query"
+// @Param        sort        query     string  false  "Sort order"
+// @Param        role        query     string  false  "Filter by role"
+// @Param        status      query     string  false  "Filter by status"
+// @Success      200         {object}  map[string]interface{}  "List of accounts and pagination info"
+// @Failure      400         {object}  nil                     "Invalid parameters"
+// @Failure      401         {object}  nil                     "Unauthorized"
+// @Failure      500         {object}  nil                     "Internal server error"
+// @Router       /accounts/ [get]
 func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -139,6 +157,19 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
+// SoftDeleteAccount godoc
+// @Summary      Soft delete account
+// @Description  Marks an account as deleted
+// @Tags         account
+// @Produce      json
+// @Param        id_account  path      int  true  "Account ID"
+// @Success      204         {object}  nil  "No Content"
+// @Failure      400         {object}  nil  "Invalid ID"
+// @Failure      401         {object}  nil  "Unauthorized"
+// @Failure      403         {object}  nil  "Forbidden"
+// @Failure      404         {object}  nil  "Account not found"
+// @Failure      500         {object}  nil  "Internal server error"
+// @Router       /accounts/{id_account}/ [delete]
 func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
@@ -198,6 +229,18 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// GetAccountDetails godoc
+// @Summary      Get account details
+// @Description  Get details of a specific account
+// @Tags         account
+// @Produce      json
+// @Param        id_account  path      int  true  "Account ID"
+// @Success      200         {object}  models.AccountDetails
+// @Failure      400         {object}  nil  "Invalid ID"
+// @Failure      401         {object}  nil  "Unauthorized"
+// @Failure      403         {object}  nil  "Forbidden"
+// @Failure      500         {object}  nil  "Internal server error"
+// @Router       /accounts/{id_account}/ [get]
 func GetAccountDetails(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
@@ -230,6 +273,21 @@ func GetAccountDetails(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, account)
 }
 
+// UpdatePassword godoc
+// @Summary      Update password
+// @Description  Update the password of a specific account
+// @Tags         account
+// @Accept       json
+// @Produce      json
+// @Param        id_account  path      int                          true  "Account ID"
+// @Param        body        body      models.UpdatePasswordRequest true  "New password"
+// @Success      204         {object}  nil  "No Content"
+// @Failure      400         {object}  nil  "Invalid request"
+// @Failure      401         {object}  nil  "Unauthorized"
+// @Failure      403         {object}  nil  "Forbidden"
+// @Failure      404         {object}  nil  "Account not found"
+// @Failure      500         {object}  nil  "Internal server error"
+// @Router       /accounts/{id_account}/password/ [patch]
 func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
@@ -295,6 +353,21 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// ToggleBanAccount godoc
+// @Summary      Toggle ban status
+// @Description  Ban or unban an account
+// @Tags         account
+// @Accept       json
+// @Produce      json
+// @Param        id_account  path      int                      true  "Account ID"
+// @Param        body        body      models.ToggleBanRequest  true  "Current ban status"
+// @Success      204         {object}  nil  "No Content"
+// @Failure      400         {object}  nil  "Invalid request"
+// @Failure      401         {object}  nil  "Unauthorized"
+// @Failure      403         {object}  nil  "Forbidden"
+// @Failure      404         {object}  nil  "Account not found"
+// @Failure      500         {object}  nil  "Internal server error"
+// @Router       /accounts/{id_account}/ban/ [patch]
 func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 	// defensive auth check
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
@@ -369,6 +442,18 @@ func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// RecoverAccount godoc
+// @Summary      Recover account
+// @Description  Restore a soft-deleted account
+// @Tags         account
+// @Produce      json
+// @Param        id_account  path      int  true  "Account ID"
+// @Success      204         {object}  nil  "No Content"
+// @Failure      400         {object}  nil  "Invalid ID"
+// @Failure      401         {object}  nil  "Unauthorized"
+// @Failure      404         {object}  nil  "Account not found"
+// @Failure      500         {object}  nil  "Internal server error"
+// @Router       /accounts/{id_account}/recover/ [patch]
 func RecoverAccount(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
@@ -408,8 +493,18 @@ func RecoverAccount(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-// GetAccountStats gets the stats based on account's role to display in admin user's detail view
-// Frontend route: /admin/users/:id, in the section "Activities"
+// GetAccountStats godoc
+// @Summary      Get account stats
+// @Description  Get activity statistics for a specific account based on its role
+// @Tags         account
+// @Produce      json
+// @Param        id_account  path      int  true  "Account ID"
+// @Success      200         {object}  interface{}  "Stats (UserStats, ProStats, or EmployeeStats)"
+// @Failure      400         {object}  nil          "Invalid request or role"
+// @Failure      401         {object}  nil          "Unauthorized"
+// @Failure      404         {object}  nil          "Account not found"
+// @Failure      500         {object}  nil          "Internal server error"
+// @Router       /accounts/{id_account}/stats/ [get]
 func GetAccountStats(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
@@ -481,6 +576,20 @@ func GetAccountStats(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdateAccount godoc
+// @Summary      Update account
+// @Description  Update details of a specific account
+// @Tags         account
+// @Accept       json
+// @Produce      json
+// @Param        id_account  path      int                          true  "Account ID"
+// @Param        body        body      models.UpdateAccountRequest  true  "Account updates"
+// @Success      204         {object}  nil     "No Content"
+// @Failure      400         {object}  nil     "Invalid request"
+// @Failure      401         {object}  nil     "Unauthorized"
+// @Failure      409         {object}  nil     "Email or Username already exists"
+// @Failure      500         {object}  nil     "Internal server error"
+// @Router       /accounts/{id_account}/update/ [patch]
 func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
@@ -567,7 +676,15 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-// get the info for the card in admin home
+// GetAccountCount godoc
+// @Summary      Get account count stats
+// @Description  Get total count of accounts and increase since last month
+// @Tags         account
+// @Produce      json
+// @Success      200  {object}  models.AccountCountStats
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /accounts/count/ [get]
 func GetAccountCount(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {

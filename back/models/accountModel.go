@@ -41,10 +41,10 @@ type AccountDetails struct {
 	IsBanned   bool        `json:"is_banned"`
 	CreatedAt  time.Time   `json:"created_at"`
 	LastActive null.Time   `json:"last_active"`
-	Phone      null.String `json:"phone"`
+	Phone      null.String `json:"phone" swaggertype:"string"`
 	Score      int         `json:"score"`
 	IsPremium  bool        `json:"is_premium"`
-	Avatar     null.String `json:"avatar"`
+	Avatar     null.String `json:"avatar" swaggertype:"string"`
 	DeletedAt  null.Time   `json:"deleted_at"`
 }
 
