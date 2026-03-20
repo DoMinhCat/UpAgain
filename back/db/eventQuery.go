@@ -7,17 +7,6 @@ import (
 	"time"
 )
 
-// get total events assigned to an employee that are not cancelled
-func GetTotalEventsOfEmployeeById(id int) (int, error) {
-	var total int
-
-	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM event_employee ee JOIN events e on ee.id_event=e.id WHERE ee.id_employee=$1 and e.status!='cancelled' and e.status!='refused'", id).Scan(&total)
-	if err != nil {
-		return 0, fmt.Errorf("GetTotalEventsOfEmployeeById() failed: %v", err.Error())
-	}
-	return total, nil
-}
-
 // get total money user spent on events
 func GetTotalEventSpendingsById(id int) (int, error) {
 	var total int
@@ -34,22 +23,6 @@ func GetTotalEventSpendingsById(id int) (int, error) {
 		return 0, fmt.Errorf("GetTotalEventSpendingsById() failed: %v", err.Error())
 	}
 
-	return total, nil
-}
-
-// get total events registered by user/pro that are not cancelled
-func GetTotalActiveEventsRegisteredById(id_account int) (int, error) {
-	var total int
-	query := `
-		select count(*) from event_registrations er
-		join events e on e.id=er.id_event
-		where er.status='registered' and er.id_account=$1 and (e.start_at is null or e.start_at > now());
-	`
-	row := utils.Conn.QueryRow(query, id_account)
-	err := row.Scan(&total)
-	if err != nil {
-		return 0, fmt.Errorf("GetTotalActiveEventsRegisteredById() failed: %v", err.Error())
-	}
 	return total, nil
 }
 
@@ -208,4 +181,17 @@ func CreateEvent(event models.CreateEventRequest) (int, error) {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
 	}
 	return eventId, nil
+}
+
+func GetEventDetailsById(id_event int) (models.Event, error) {
+	var event models.Event
+	query := `
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail
+		FROM events e WHERE e.id=$1;
+	`
+	err := utils.Conn.QueryRow(query, id_event).Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail)
+	if err != nil {
+		return models.Event{}, fmt.Errorf("GetEventDetailsById() failed: %v", err.Error())
+	}
+	return event, nil
 }

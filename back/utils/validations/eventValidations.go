@@ -19,7 +19,7 @@ func ValidateEventCreation(newEvent models.CreateEventRequest) models.Validation
 		return response
 	}
 
-	if !newEvent.Description.Valid || strings.TrimSpace(newEvent.Description.String) == "" {
+	if strings.TrimSpace(newEvent.Description.String) == "" {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("Description is required."),

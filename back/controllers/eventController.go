@@ -188,3 +188,57 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }
+
+func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
+	id_url := r.URL.Query().Get("id_event")
+	if id_url == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
+		return
+	}
+
+	id_event, err := strconv.Atoi(id_url)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "GetEventDetailsById", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event id.")
+		return
+	}
+
+	eventDetails, err := db.GetEventDetailsById(id_event)
+	if err != nil {
+		slog.Error("GetEventDetailsById() failed", "controller", "GetEventDetailsById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event details.")
+		return
+	}
+
+	
+	utils.RespondWithJSON(w, http.StatusOK, eventDetails)
+}
+
+func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	id_url := r.URL.Query().Get("id_event")
+	if id_url == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
+		return
+	}
+
+	id_event, err := strconv.Atoi(id_url)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "GetAssignedEmployeesByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event id.")
+		return
+	}
+
+	employees, err := db.GetAssignedEmployeesByEventId(id_event)
+	if err != nil {
+		slog.Error("GetAssignedEmployeesByEventId() failed", "controller", "GetAssignedEmployeesByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching assigned employees.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, employees)
+}
