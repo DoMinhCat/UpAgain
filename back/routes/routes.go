@@ -1,7 +1,10 @@
 package routes
 
 import (
+	_ "backend/docs"
 	"net/http"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func GetAllRoutes() *http.ServeMux {
@@ -13,9 +16,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetValidationRoutes(mux)
 	GetContainerRoutes(mux)
 
-	// add more routes later
-	// GetEventRoutes(mux)
-	// GetContainerRoutes(mux)
+	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	return mux
 }
