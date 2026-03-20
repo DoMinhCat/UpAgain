@@ -52,3 +52,17 @@ func GetAssignedEmployeesByEventId(eventId int) ([]models.AssignedEmployee, erro
 	}
 	return employees, nil
 }
+
+func AssignEmployeeToEventByEventId(eventId int, employeeIds []int) error {
+	query := `
+		INSERT INTO event_employee (id_event, id_employee)
+		VALUES ($1, $2);
+	`
+	for _, employeeId := range employeeIds {
+		_, err := utils.Conn.Exec(query, eventId, employeeId)
+		if err != nil {
+			return fmt.Errorf("AssignEmployeeToEventByEventId() failed: %v", err.Error())
+		}
+	}
+	return nil
+}
