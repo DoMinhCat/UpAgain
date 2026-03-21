@@ -1,26 +1,17 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
-export interface Container {
-  id: number;
-  created_at: string;
-  city_name: string;
-  postal_code: string;
-  status: "ready" | "occupied" | "maintenance";
-  is_deleted: boolean;
-}
-
-export interface ContainerCountStats {
-  active: number;
-  total: number;
-}
+import {
+  type Container,
+  type ContainerCountStats,
+} from "../interfaces/container";
 
 export const getAllContainers = async (): Promise<Container[]> => {
-  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS);
+  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.ALL);
   return response.data;
 };
 
 export const createContainer = async (container: Partial<Container>) => {
-  const response = await api.post(ENDPOINTS.ADMIN.CONTAINERS, container);
+  const response = await api.post(ENDPOINTS.ADMIN.CONTAINERS.ALL, container);
   return response.data;
 };
 
@@ -43,6 +34,6 @@ export const getContainerDetails = async (id: number): Promise<Container> => {
 
 export const getContainerCountStats =
   async (): Promise<ContainerCountStats> => {
-    const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS_COUNT);
+    const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.COUNT);
     return response.data;
   };

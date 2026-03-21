@@ -64,7 +64,7 @@ func GetProStatsById(id int) (models.ProStats, error) {
 	if err != nil {
 		return models.ProStats{}, fmt.Errorf("GetProStatsById() failed: %v", err.Error())
 	}
-	
+
 	spendings, err := GetProTotalSpendingsById(id)
 	if err != nil {
 		return models.ProStats{}, fmt.Errorf("GetProStatsById() failed: %v", err.Error())

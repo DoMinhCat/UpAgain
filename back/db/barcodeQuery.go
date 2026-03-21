@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func GetTotalActiveBarCodeById(id_account int ) (int, error){
+func GetTotalActiveBarCodeById(id_account int) (int, error) {
 	var total int
 
 	query := `

@@ -94,7 +94,7 @@ func GetProTotalItemsSpendingsById(id int) (int, error) {
 	return total, nil
 }
 
-func GetTotalActiveTransactionById(id_account int) (int, error){
+func GetTotalActiveTransactionById(id_account int) (int, error) {
 	var total int
 	query := `
 		select count(*) from transactions t

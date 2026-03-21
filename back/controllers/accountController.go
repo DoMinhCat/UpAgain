@@ -99,7 +99,7 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 	// default pagination
 	page := -1
 	limit := -1
-	
+
 	pageStr := query.Get("page")
 	if pageStr != "" {
 		page, err = strconv.Atoi(pageStr)
@@ -119,8 +119,8 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
-	filters := db.AccountFilters{
+
+	filters := models.AccountFilters{
 		Search: query.Get("search"),
 		Sort:   query.Get("sort"),
 		Role:   query.Get("role"),
@@ -141,17 +141,17 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 			lastPage = 1
 		}
 	}
-	
-	result := map[string]interface{}{
-		"accounts":      accounts,
-		"current_page":  page,
-		"last_page":     lastPage,
-		"limit":         limit,
-		"total_records": total,
+
+	result := models.AccountsListPagination{
+		Accounts:     accounts,
+		CurrentPage:  page,
+		LastPage:     lastPage,
+		Limit:        limit,
+		TotalRecords: total,
 	}
 	if page == -1 || limit == -1 {
-		result["current_page"] = 1
-		result["last_page"] = 1
+		result.CurrentPage = 1
+		result.LastPage = 1
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, result)
@@ -623,17 +623,17 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("GetRoleById() failed", "controller", "UpdateAccount", "error", err)
 		return
 	}
-	
+
 	// check role for update
-	if reqRole !="admin" && reqID != id_account{
+	if reqRole != "admin" && reqID != id_account {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update another's account.")
 		return
 	}
-	if role == "admin" && reqID != id_account{
+	if role == "admin" && reqID != id_account {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update another admin's account.")
 		return
 	}
-	
+
 	var payload models.UpdateAccountRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
@@ -672,7 +672,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("UpdateAccount() failed", "controller", "UpdateAccount", "error", err)
 		return
 	}
-	
+
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
@@ -708,7 +708,7 @@ func GetAccountCount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stats := models.AccountCountStats{
-		Total: count,
+		Total:    count,
 		Increase: intIncrease,
 	}
 

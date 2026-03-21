@@ -1011,6 +1011,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/events/count/": {
+            "get": {
+                "description": "Get general stats of events to show in event module's cards. Stats include:\n- total events\n- new events since last month (30 days)\n- upcoming events in next 30 days\n- total registrations since last month\n- total pending approvals for events",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Get event stats",
+                "responses": {
+                    "200": {
+                        "description": "Event stats retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.EventStats"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or payload"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/healthcheck/": {
             "get": {
                 "description": "Check the database connection status",
@@ -1280,6 +1309,26 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "models.EventStats": {
+            "type": "object",
+            "properties": {
+                "increase": {
+                    "type": "integer"
+                },
+                "pending": {
+                    "type": "integer"
+                },
+                "registrations": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "upcoming": {
+                    "type": "integer"
                 }
             }
         },
