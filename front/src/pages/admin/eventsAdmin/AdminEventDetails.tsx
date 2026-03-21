@@ -17,6 +17,7 @@ import {
   NumberInput,
   Select,
   MultiSelect,
+  Loader,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -34,12 +35,14 @@ import { useDisclosure } from "@mantine/hooks";
 import { useState, useEffect } from "react";
 import { TextEditor } from "../../../components/TextEditor";
 import {
+  useAssignEmployeeToEvent,
   useGetAssignedEmployees,
   useGetEventDetails,
 } from "../../../hooks/eventHooks";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import FullScreenLoader from "../../../components/FullScreenLoader";
+import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 
 export default function AdminEventDetails() {
   // edit modal and form
@@ -72,6 +75,7 @@ export default function AdminEventDetails() {
 
   const handleCloseAssign = () => {
     setEmployeeAssign([]);
+    setAssignError("");
     closeAssign();
   };
 
@@ -101,6 +105,46 @@ export default function AdminEventDetails() {
       setDescriptionEdit(eventDetails.description || "");
     }
   }, [eventDetails, openedEdit]);
+
+  // GET AVAILABLE EMPLOYEES
+  const { data: availableEmployees, isLoading: isLoadingAvailableEmployees } =
+    useGetAvailableEmployees(
+      {
+        start_at: eventDetails?.start_at || "",
+        end_at: eventDetails?.end_at || "",
+      },
+      !!eventDetails?.start_at && !!eventDetails?.end_at,
+    );
+
+  // ASSIGN EMPLOYEES
+  const [assignError, setAssignError] = useState<string>("");
+  const validateAssign = () => {
+    if (employeeAssign.length === 0) {
+      setAssignError("Please select at least one employee");
+      return false;
+    }
+    return true;
+  };
+  const assignEmployees = useAssignEmployeeToEvent();
+  const handleAssign = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateAssign()) return;
+    const assignIds = employeeAssign.map((id) => Number(id));
+    console.log(assignIds);
+    assignEmployees.mutate(
+      {
+        id_event,
+        employee_ids: assignIds,
+        start_at: eventDetails?.start_at || "",
+        end_at: eventDetails?.end_at || "",
+      },
+      {
+        onSuccess: () => {
+          handleCloseAssign();
+        },
+      },
+    );
+  };
 
   if (isLoadingEventDetails) return <FullScreenLoader />;
   return (
@@ -419,61 +463,67 @@ export default function AdminEventDetails() {
           <Modal
             title="Assign employee"
             opened={openedAssign}
-            onClose={closeAssign}
+            onClose={handleCloseAssign}
             centered
             size="md"
           >
-            <Stack>
-              <MultiSelect
-                withAsterisk
-                clearable
-                label="Employee"
-                value={employeeAssign}
-                styles={{
-                  pill: {
-                    display: "inline-flex",
-                    backgroundColor: "var(--component-color-bg)",
-                    color: "var(--mantine-color-body)",
-                    width: "auto",
-                    minWidth: "unset",
-                  },
-                  label: {
-                    display: "block",
-                  },
-                }}
-                maxDropdownHeight={200}
-                filter={filterEmployee}
-                searchable
-                // error={roleNewError}
-                // onBlur={() => validateRoleNew(roleNew)}
-                data={[
-                  { value: "1", label: "Employee 1" },
-                  { value: "2", label: "Employee 2" },
-                  { value: "3", label: "Employee 3" },
-                  { value: "4", label: "Employee 4" },
-                  { value: "5", label: "Employee 5" },
-                ]}
-                onChange={setEmployeeAssign}
-                hidePickedOptions
-                comboboxProps={{ shadow: "md" }}
-                nothingFoundMessage="No employees available"
-              />
-            </Stack>
-            <Group mt="lg" justify="center">
-              <Button onClick={handleCloseAssign} variant="grey">
-                Cancel
-              </Button>
-              <Button
-                // onClick={(e) => {
-                //   handleEditAccount(e);
-                // }}
-                variant="primary"
-                // loading={editMutation.isPending}
-                // disabled={editMutation.isPending || isAccountDetailsLoading}
-              >
-                Confirm
-              </Button>
-            </Group>
+            {isLoadingAvailableEmployees ? (
+              <Loader />
+            ) : (
+              <>
+                <Stack>
+                  <MultiSelect
+                    withAsterisk
+                    clearable
+                    label="Employee"
+                    value={employeeAssign}
+                    error={assignError}
+                    styles={{
+                      pill: {
+                        display: "inline-flex",
+                        backgroundColor: "var(--component-color-bg)",
+                        color: "var(--mantine-color-body)",
+                        width: "auto",
+                        minWidth: "unset",
+                      },
+                      label: {
+                        display: "block",
+                      },
+                    }}
+                    maxDropdownHeight={200}
+                    filter={filterEmployee}
+                    searchable
+                    onBlur={() => validateAssign()}
+                    data={availableEmployees?.employees.map((employee) => ({
+                      value: employee.id?.toString(),
+                      label: `${employee.username} - ${employee.email}`,
+                    }))}
+                    onChange={(value) => {
+                      setEmployeeAssign(value);
+                      setAssignError("");
+                    }}
+                    hidePickedOptions
+                    comboboxProps={{ shadow: "md" }}
+                    nothingFoundMessage="No employees available"
+                  />
+                </Stack>
+                <Group mt="lg" justify="center">
+                  <Button onClick={handleCloseAssign} variant="grey">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      handleAssign(e);
+                    }}
+                    variant="primary"
+                    // loading={editMutation.isPending}
+                    // disabled={editMutation.isPending || isAccountDetailsLoading}
+                  >
+                    Confirm
+                  </Button>
+                </Group>
+              </>
+            )}
           </Modal>
         </Group>
         <AdminTable

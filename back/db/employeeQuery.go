@@ -62,11 +62,11 @@ func GetEmployeeStatsById(id int) (models.EmployeeStats, error) {
 	return stats, nil
 }
 
-func GetAvailableEmployeesByTime(from, to time.Time) ([]models.AvailableEmployeesResponse, error) {
-	var employees []models.AvailableEmployeesResponse
+func GetAvailableEmployeesByTime(from, to time.Time) (models.AvailableEmployeesResponse, error) {
+	var employees models.AvailableEmployeesResponse
 
 	query := `
-		SELECT a.email, a.username FROM accounts a 
+		SELECT a.email, a.username, a.id FROM accounts a 
 		JOIN employees e ON a.id = e.id_account
 		WHERE a.id NOT IN (
 			SELECT ee.id_employee FROM event_employee ee 
@@ -77,15 +77,24 @@ func GetAvailableEmployeesByTime(from, to time.Time) ([]models.AvailableEmployee
 	`
 	rows, err := utils.Conn.Query(query, from, to)
 	if err != nil {
-		return nil, fmt.Errorf("GetAvailableEmployeesByTime() failed: %v", err.Error())
+		return models.AvailableEmployeesResponse{}, fmt.Errorf("GetAvailableEmployeesByTime() failed: %v", err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var employee models.AvailableEmployeesResponse
-		if err := rows.Scan(&employee.Email, &employee.Username); err != nil {
-			return nil, fmt.Errorf("GetAvailableEmployeesByTime() scan failed: %v", err.Error())
+		var employee models.AvailableEmployee
+		if err := rows.Scan(&employee.Email, &employee.Username, &employee.Id); err != nil {
+			return models.AvailableEmployeesResponse{}, fmt.Errorf("GetAvailableEmployeesByTime() scan failed: %v", err.Error())
 		}
-		employees = append(employees, employee)
+		employees.Employees = append(employees.Employees, employee)
 	}
 	return employees, nil
+}
+
+func CheckEmployeeExists(id int) (bool, error) {
+	var exists bool
+	err := utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM employees WHERE id_account=$1)", id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckEmployeeExists() failed: %v", err.Error())
+	}
+	return exists, nil
 }

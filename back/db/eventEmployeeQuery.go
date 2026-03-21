@@ -66,3 +66,11 @@ func AssignEmployeeToEventByEventId(eventId int, employeeIds []int) error {
 	}
 	return nil
 }
+
+func UnAssignEmployeeByEventId(eventId int, employeeIds int) error {
+	_, err := utils.Conn.Exec("DELETE FROM event_employee WHERE id_event = $1 AND id_employee = $2;", eventId, employeeIds)
+	if err != nil {
+		return fmt.Errorf("UnAssignEmployeeByEventId() failed: %v", err.Error())
+	}
+	return nil
+}

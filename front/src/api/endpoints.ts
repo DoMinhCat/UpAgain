@@ -34,6 +34,10 @@ export const ENDPOINTS = {
       ASSIGNED_EMPLOYEES: (id_event: number) =>
         `/events/employees/${id_event}/`,
     },
+
+    EMPLOYEES: {
+      AVAILABLE: "/employees/available/",
+    },
   },
 
   AUTH: {

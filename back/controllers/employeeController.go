@@ -4,9 +4,9 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	"encoding/json"
 	"log/slog"
 	"net/http"
+	"time"
 )
 
 // GetAvailableEmployees returns all employees not being occupied during the specific time
@@ -17,21 +17,32 @@ func GetAvailableEmployees(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payload models.AvailableEmployeesRequest
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+	from := r.URL.Query().Get("start_at")
+	to := r.URL.Query().Get("end_at")
+
+	fromTime, err := time.Parse("2006-01-02T15:04:05Z", from)
+	if err != nil {
+		slog.Error("Invalid start_at format", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid start_at format.")
 		return
 	}
 
-	employees, err := db.GetAvailableEmployeesByTime(payload.From, payload.To)
+	toTime, err := time.Parse("2006-01-02T15:04:05Z", to)
+	if err != nil {
+		slog.Error("Invalid end_at format", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid end_at format.")
+		return
+	}
+
+	employees, err := db.GetAvailableEmployeesByTime(fromTime, toTime)
 	if err != nil {
 		slog.Error("Error fetching available employees", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching available employees.")
 		return
 	}
 
-	if employees == nil {
-		employees = []models.AvailableEmployeesResponse{}
+	if employees.Employees == nil {
+		employees.Employees = []models.AvailableEmployee{}
 	}
 	utils.RespondWithJSON(w, http.StatusOK, employees)
 }

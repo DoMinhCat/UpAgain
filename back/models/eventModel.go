@@ -61,4 +61,10 @@ type CreateEventRequest struct {
 
 type AssignEmployeeRequest struct{
 	IdsEmployee []int `json:"ids_employee"`
+	StartAt time.Time `json:"start_at"`
+	EndAt time.Time `json:"end_at"`
+}
+
+type UnAssignEmployeeRequest struct{
+	IdEmployee int `json:"id_employee"`
 }

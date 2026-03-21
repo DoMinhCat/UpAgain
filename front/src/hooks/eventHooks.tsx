@@ -69,10 +69,14 @@ export const useAssignEmployeeToEvent = () => {
     mutationFn: ({
       id_event,
       employee_ids,
+      start_at,
+      end_at,
     }: {
       id_event: number;
       employee_ids: number[];
-    }) => assignEmployeeToEvent(id_event, employee_ids),
+      start_at: string;
+      end_at: string;
+    }) => assignEmployeeToEvent(id_event, employee_ids, start_at, end_at),
     onSuccess: () => {
       showSuccessNotification(
         "Assignation successful",
