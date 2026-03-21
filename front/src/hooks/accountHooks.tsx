@@ -9,17 +9,19 @@ import {
   banAccount,
   getAllAccounts,
   RegisterRequest,
+  getAccountStats,
+  updateAccount,
+  getAccountCountStats,
+} from "../api/admin/accountModule";
+import {
   type Account,
   type updateIsBannedPayload,
   type updatePasswordPayload,
-  getAccountStats,
   type AccountStats,
   type updateAccountPayload,
-  updateAccount,
   type AccountsListPagination,
   type AccountCountStats,
-  getAccountCountStats,
-} from "../api/admin/accountModule";
+} from "../api/interfaces/account";
 import { showSuccessNotification } from "../components/NotificationToast";
 
 export const useRecoverAccount = () => {

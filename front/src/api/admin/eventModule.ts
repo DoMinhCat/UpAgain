@@ -1,29 +1,12 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
-
-export interface AppEvent {
-  id: number;
-  created_at: string;
-  title: string;
-  description: string;
-  start_at: string;
-  price: number;
-  category: string;
-  capacity: number;
-  status: string;
-  city: string;
-  street: string;
-  location_detail: string;
-  employee_name: string | null;
-}
-
-export interface EventsListPagination {
-  events: AppEvent[];
-  current_page: number;
-  last_page: number;
-  limit: number;
-  total_records: number;
-}
+import {
+  type EventsListPagination,
+  type AppEvent,
+  type EventStats,
+  type EventCreationPayload,
+  type AssignedEmployee,
+} from "../interfaces/event";
 
 // get active or deleted events
 export const getAllEvents = async (
@@ -39,31 +22,10 @@ export const getAllEvents = async (
   return response.data;
 };
 
-export interface EventStats {
-  total: number;
-  increase: number;
-  upcoming: number;
-  registrations: number;
-  pending: number;
-}
-
 export const getEventStats = async (): Promise<EventStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.EVENTS.STATS);
   return response.data;
 };
-
-export interface EventCreationPayload {
-  title: string;
-  description: string;
-  start_at: string;
-  price: number;
-  category: string;
-  capacity?: number;
-  city: string;
-  street: string;
-  location_detail?: string;
-  status: string;
-}
 
 export const createEvent = async (
   event: EventCreationPayload,
@@ -76,12 +38,6 @@ export const getEventDetails = async (id_event: number): Promise<AppEvent> => {
   const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL + id_event + "/");
   return response.data;
 };
-
-export interface AssignedEmployee {
-  id: number;
-  username: string;
-  assigned_at: string;
-}
 
 export const getAssignedEmployees = async (
   id_event: number,
@@ -96,9 +52,8 @@ export const assignEmployeeToEvent = async (
   id_event: number,
   employee_ids: number[],
 ): Promise<void> => {
-  const response = await api.put(
-    ENDPOINTS.ADMIN.EVENTS.ASSIGN(id_event),
-    { ids_employee: employee_ids },
-  );
+  const response = await api.put(ENDPOINTS.ADMIN.EVENTS.ASSIGN(id_event), {
+    ids_employee: employee_ids,
+  });
   return response.data;
 };
