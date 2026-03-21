@@ -14,6 +14,7 @@ import {
 import { type PaginatedDepositsResponse } from "../api/interfaces/deposit";
 import { type PaginatedListingsResponse } from "../api/interfaces/listing";
 import { type EventsListPagination } from "../api/interfaces/event";
+import { type PaginatedHistoryResponse } from "../api/interfaces/item";
 
 const STALE_TIME = 1000 * 60; // 1min
 
@@ -83,10 +84,10 @@ export const useValidationStats = () => {
 
 // --- History hook ---
 
-export const useAllItemsHistory = () => {
-  return useQuery({
-    queryKey: ["allItemsHistory"],
-    queryFn: fetchAllItemsHistory,
+export const useAllItemsHistory = (page?: number, limit?: number) => {
+  return useQuery<PaginatedHistoryResponse>({
+    queryKey: ["allItemsHistory", page, limit],
+    queryFn: () => fetchAllItemsHistory(page, limit),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Fetching Failed",

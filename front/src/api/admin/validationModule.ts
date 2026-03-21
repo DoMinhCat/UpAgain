@@ -8,6 +8,7 @@ import {
 import { type PaginatedDepositsResponse } from "../interfaces/deposit";
 import { type PaginatedListingsResponse } from "../interfaces/listing";
 import { type EventsListPagination } from "../interfaces/event";
+import { type PaginatedHistoryResponse } from "../interfaces/item";
 
 // --- API functions ---
 
@@ -54,8 +55,14 @@ export const fetchValidationStats = async (): Promise<ValidationStats> => {
   return response.data;
 };
 
-export const fetchAllItemsHistory = async () => {
-  const response = await api.get(ENDPOINTS.ADMIN.VALIDATIONS.HISTORY);
+export const fetchAllItemsHistory = async (
+  page?: number,
+  limit?: number,
+): Promise<PaginatedHistoryResponse> => {
+  const response = await api.get<PaginatedHistoryResponse>(
+    ENDPOINTS.ADMIN.VALIDATIONS.HISTORY,
+    { params: { page, limit } },
+  );
   return response.data;
 };
 
