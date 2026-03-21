@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+// TODO: check exist for all
+
 // GetPendingDepositsAdmin godoc
 // @Summary      Get pending deposits
 // @Description  Get a paginated list of pending deposits for admin
@@ -240,6 +242,7 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 // @Param        body  body      models.ValidationActionRequest  true  "Validation decision"
 // @Success      200   {object}  map[string]string  "Event status updated successfully"
 // @Failure      400   {object}  nil                "Invalid ID or payload"
+// @Failure      404   {object}  nil                "Event not found"
 // @Failure      500   {object}  nil                "Internal server error"
 // @Router       /admin/validations/events/{id} [put]
 func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
@@ -248,6 +251,17 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("Atoi failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event ID")
+		return
+	}
+
+	exist, err := db.CheckEventExistsById(eventID)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "ProcessEventValidation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
 		return
 	}
 
