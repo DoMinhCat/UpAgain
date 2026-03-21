@@ -15,11 +15,16 @@ type AssignedEmployee struct {
 }
 
 type AvailableEmployeesRequest struct{
-	From time.Time `json:"from"`
-	To time.Time `json:"to"`
+	From time.Time `json:"start_at"`
+	To time.Time `json:"end_at"`
+}
+
+type AvailableEmployee struct{
+	Id int `json:"id"`
+	Email string `json:"email"`
+	Username string `json:"username"`
 }
 
 type AvailableEmployeesResponse struct{
-	Email string `json:"email"`
-	Username string `json:"username"`
+	Employees []AvailableEmployee `json:"employees"`
 }

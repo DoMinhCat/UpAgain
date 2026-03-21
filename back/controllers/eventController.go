@@ -353,7 +353,7 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	exist, err := db.CheckEventExistsById(id_event)
 	if err != nil {
 		slog.Error("CheckEventExistsById() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning event(s) to the event.")
 		return
 	}
 	if !exist {
@@ -375,15 +375,103 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: check employee exists
-	// TODO: check employee has no conflict
+	// check employee exists
+	for _, id_employee := range payload.IdsEmployee {
+		exist, err := db.CheckEmployeeExists(id_employee)
+		if err != nil {
+			slog.Error("CheckEmployeeExists() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning employee(s) to the event.")
+			return
+		}
+		if !exist {
+			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID " + strconv.Itoa(id_employee) + " not found.")
+			return
+		}
+	}
+	
+	// check employee has no conflict
+	validIds := []int{}
+	availableEmployees, err := db.GetAvailableEmployeesByTime(payload.StartAt, payload.EndAt)
+	if err != nil {
+		slog.Error("GetAvailableEmployeesByTime() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning employee(s) to the event.")
+			return
+		}
+	for _, availableEmployee := range availableEmployees.Employees {
+		for id_employee := range availableEmployee.Id {
+			validIds = append(validIds, id_employee)
+		}
+	}
+
+	var valid bool
+	for _, id_account := range payload.IdsEmployee{
+		valid = false
+		for _, validId := range validIds{
+			if validId == id_account {
+				valid = true
+			}
+		}
+		if !valid {
+			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID " + strconv.Itoa(id_account) + " is not available.")
+			return
+		}
+	}
 
 	err = db.AssignEmployeeToEventByEventId(id_event, payload.IdsEmployee)
 	if err != nil {
 		slog.Error("AssignEmployeeToEvent() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning the employee to the event.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning employee(s) to the event.")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, nil)
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin"{
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	id_url := r.PathValue("id_event")
+	if id_url == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
+		return
+	}
+
+	id_event, err := strconv.Atoi(id_url)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event id.")
+		return
+	}
+
+	exist, err := db.CheckEventExistsById(id_event)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while unassigning the employee from the event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		return
+	}
+
+	var payload models.UnAssignEmployeeRequest
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+		return
+	}
+
+	err = db.UnAssignEmployeeByEventId(id_event, payload.IdEmployee)
+	if err != nil {
+		slog.Error("UnAssignEmployeeByEventId() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while unassigning the employee from the event.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
