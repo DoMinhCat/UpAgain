@@ -363,21 +363,23 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Actions",
         ]}
         footer={
-          !hasFilters && data && data.total_records > 0 ? (
+          !hasFilters &&
+          data &&
+          data.total_records > 0 && (
             <Group justify="space-between" mt="md">
-              <Text size="sm" c="dimmed">
-                Showing {(activePage - 1) * LIMIT + 1}–
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
                 {Math.min(activePage * LIMIT, data.total_records)} of{" "}
                 {data.total_records} results
-              </Text>
+              </span>
               <Pagination
-                total={data.last_page}
+                total={data.last_page || 1}
                 value={activePage}
                 onChange={setPage}
                 disabled={isLoading}
               />
             </Group>
-          ) : null
+          )
         }
       >
         {deposits.length === 0 && !isLoading ? (
@@ -501,21 +503,23 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Actions",
         ]}
         footer={
-          !hasFilters && data && data.total_records > 0 ? (
+          !hasFilters &&
+          data &&
+          data.total_records > 0 && (
             <Group justify="space-between" mt="md">
-              <Text size="sm" c="dimmed">
-                Showing {(activePage - 1) * LIMIT + 1}–
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
                 {Math.min(activePage * LIMIT, data.total_records)} of{" "}
                 {data.total_records} results
-              </Text>
+              </span>
               <Pagination
-                total={data.last_page}
+                total={data.last_page || 1}
                 value={activePage}
                 onChange={setPage}
                 disabled={isLoading}
               />
             </Group>
-          ) : null
+          )
         }
       >
         {listings.length === 0 && !isLoading ? (
@@ -641,21 +645,23 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Actions",
         ]}
         footer={
-          !hasFilters && data && data.total_records > 0 ? (
+          !hasFilters &&
+          data &&
+          data.total_records > 0 && (
             <Group justify="space-between" mt="md">
-              <Text size="sm" c="dimmed">
-                Showing {(activePage - 1) * LIMIT + 1}–
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
                 {Math.min(activePage * LIMIT, data.total_records)} of{" "}
                 {data.total_records} results
-              </Text>
+              </span>
               <Pagination
-                total={data.last_page}
+                total={data.last_page || 1}
                 value={activePage}
                 onChange={setPage}
                 disabled={isLoading}
               />
             </Group>
-          ) : null
+          )
         }
       >
         {events.length === 0 && !isLoading ? (
