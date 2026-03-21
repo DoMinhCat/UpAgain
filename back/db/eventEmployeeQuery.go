@@ -33,7 +33,7 @@ func GetAssignedEmployeesByEventId(eventId int) ([]models.AssignedEmployee, erro
 	var employees []models.AssignedEmployee
 	query := `
 		SELECT ee.id_employee, a.username, ee.assigned_at
-		FROM event_employees ee
+		FROM event_employee ee
 		JOIN accounts a ON ee.id_employee = a.id
 		WHERE ee.id_event = $1;
 	`
