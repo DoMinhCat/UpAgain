@@ -346,8 +346,8 @@ export default function AdminEventsModule() {
               icon={IconArrowUp}
               description={
                 eventStats?.upcoming === 1
-                  ? "upcoming event in the next 30 days"
-                  : "upcoming events in the next 30 days"
+                  ? " upcoming event in the next 30 days"
+                  : " upcoming events in the next 30 days"
               }
             />
           }
