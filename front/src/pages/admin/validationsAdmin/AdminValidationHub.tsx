@@ -363,21 +363,23 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Actions",
         ]}
         footer={
-          !hasFilters && data && data.total_records > 0 ? (
+          !hasFilters &&
+          data &&
+          data.total_records > 0 && (
             <Group justify="space-between" mt="md">
-              <Text size="sm" c="dimmed">
-                Showing {(activePage - 1) * LIMIT + 1}–
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
                 {Math.min(activePage * LIMIT, data.total_records)} of{" "}
                 {data.total_records} results
-              </Text>
+              </span>
               <Pagination
-                total={data.last_page}
+                total={data.last_page || 1}
                 value={activePage}
                 onChange={setPage}
                 disabled={isLoading}
               />
             </Group>
-          ) : null
+          )
         }
       >
         {deposits.length === 0 && !isLoading ? (
@@ -501,21 +503,23 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Actions",
         ]}
         footer={
-          !hasFilters && data && data.total_records > 0 ? (
+          !hasFilters &&
+          data &&
+          data.total_records > 0 && (
             <Group justify="space-between" mt="md">
-              <Text size="sm" c="dimmed">
-                Showing {(activePage - 1) * LIMIT + 1}–
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
                 {Math.min(activePage * LIMIT, data.total_records)} of{" "}
                 {data.total_records} results
-              </Text>
+              </span>
               <Pagination
-                total={data.last_page}
+                total={data.last_page || 1}
                 value={activePage}
                 onChange={setPage}
                 disabled={isLoading}
               />
             </Group>
-          ) : null
+          )
         }
       >
         {listings.length === 0 && !isLoading ? (
@@ -641,21 +645,23 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Actions",
         ]}
         footer={
-          !hasFilters && data && data.total_records > 0 ? (
+          !hasFilters &&
+          data &&
+          data.total_records > 0 && (
             <Group justify="space-between" mt="md">
-              <Text size="sm" c="dimmed">
-                Showing {(activePage - 1) * LIMIT + 1}–
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
                 {Math.min(activePage * LIMIT, data.total_records)} of{" "}
                 {data.total_records} results
-              </Text>
+              </span>
               <Pagination
-                total={data.last_page}
+                total={data.last_page || 1}
                 value={activePage}
                 onChange={setPage}
                 disabled={isLoading}
               />
             </Group>
-          ) : null
+          )
         }
       >
         {events.length === 0 && !isLoading ? (
@@ -669,26 +675,23 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
         ) : (
           events.map((ev) => (
             <Table.Tr
-              key={ev.id_event}
+              key={ev.id}
               style={{ cursor: "pointer" }}
               onClick={() =>
-                navigate(
-                  `${PATHS.ADMIN.VALIDATIONS.ALL}/events/${ev.id_event}`,
-                  {
-                    state: { item: ev },
-                  },
-                )
+                navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/events/${ev.id}`, {
+                  state: { item: ev },
+                })
               }
             >
               <Table.Td ta="center">
                 {dayjs(ev.created_at).format("DD/MM/YYYY")}
               </Table.Td>
               <Table.Td ta="center">
-                <strong>{ev.id_event}</strong>
+                <strong>{ev.id}</strong>
               </Table.Td>
               <Table.Td ta="center">{ev.title}</Table.Td>
               <Table.Td ta="center">
-                {ev.employee_username ?? "Not assigned"}
+                {ev.employee_name ?? "Not assigned"}
               </Table.Td>
               <Table.Td ta="center">
                 <Pill
@@ -708,8 +711,8 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 </Pill>
               </Table.Td>
               <Table.Td ta="center">
-                {ev.date_start
-                  ? dayjs(ev.date_start).format("DD/MM/YYYY")
+                {ev.start_at
+                  ? dayjs(ev.start_at).format("DD/MM/YYYY")
                   : "Not set"}
               </Table.Td>
               <Table.Td ta="center">
@@ -722,7 +725,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     size="xs"
                     variant="primary"
                     leftSection={<IconCheck size={14} />}
-                    onClick={() => onApprove(ev.id_event, "events")}
+                    onClick={() => onApprove(ev.id, "events")}
                   >
                     Approve
                   </Button>
@@ -730,7 +733,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     size="xs"
                     variant="delete"
                     leftSection={<IconX size={14} />}
-                    onClick={() => onOpenRefuse(ev.id_event, "events")}
+                    onClick={() => onOpenRefuse(ev.id, "events")}
                   >
                     Refuse
                   </Button>
@@ -747,8 +750,14 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 // ─── History Tab ─────────────────────────────────────────────────────────────
 
 function HistoryTab() {
-  const { data: historyData, isLoading, isError } = useAllItemsHistory();
-  const items = historyData ?? [];
+  const [activePage, setPage] = useState(1);
+  const {
+    data: historyData,
+    isLoading,
+    isError,
+  } = useAllItemsHistory(activePage, LIMIT);
+
+  const items = historyData?.items ?? [];
 
   return (
     <Stack gap="sm" mt="md">
@@ -756,6 +765,24 @@ function HistoryTab() {
         loading={isLoading}
         error={isError ? new Error("Could not load history.") : null}
         header={["Date", "ID", "Title", "Type", "User", "Status"]}
+        footer={
+          historyData &&
+          historyData.total_records > 0 && (
+            <Group justify="space-between" mt="md">
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
+                {Math.min(activePage * LIMIT, historyData.total_records)} of{" "}
+                {historyData.total_records} results
+              </span>
+              <Pagination
+                total={historyData.last_page || 1}
+                value={activePage}
+                onChange={setPage}
+                disabled={isLoading}
+              />
+            </Group>
+          )
+        }
       >
         {items.length === 0 && !isLoading ? (
           <Table.Tr>

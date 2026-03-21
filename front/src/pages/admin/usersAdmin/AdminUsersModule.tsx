@@ -21,8 +21,8 @@ import {
   IconRestore,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { type Account } from "../../../api/interfaces/account";
 import { useState, useEffect } from "react";
-import { type Account } from "../../../api/admin/accountModule";
 import {
   useGetAllAccounts,
   useDeleteAccount,

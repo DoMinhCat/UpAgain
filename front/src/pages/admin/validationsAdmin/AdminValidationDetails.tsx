@@ -102,7 +102,6 @@ export default function AdminValidationDetails() {
       </Title>
       <AdminBreadcrumbs
         breadcrumbs={[
-          { title: "Dashboard", href: PATHS.ADMIN.HOME },
           { title: "Validations", href: PATHS.ADMIN.VALIDATIONS.ALL },
           { title: `Details #${id}`, href: "#" },
         ]}
