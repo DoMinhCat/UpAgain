@@ -15,7 +15,6 @@ func AuthMiddleware(requiredRole []string, next http.Handler) http.Handler {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			respond.RespondWithError(w, http.StatusUnauthorized, "You need to log in first.")
-			http.Error(w, "missing token", http.StatusUnauthorized)
 			return
 		}
 

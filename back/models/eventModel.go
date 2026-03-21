@@ -26,14 +26,14 @@ type Event struct {
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
 	StartAt        null.Time `json:"start_at"`
-	Price          null.Float   `json:"price"`
+	Price          null.Float   `json:"price" swaggertype:"number"`
 	Category       string    `json:"category"`
-	Capacity       null.Int       `json:"capacity"`
+	Capacity       null.Int       `json:"capacity" swaggertype:"integer"`
 	Status         string    `json:"status"`
 	City           string    `json:"city"`
 	Street         string    `json:"street"`
-	LocationDetail null.String    `json:"location_detail"`
-	EmployeeName   null.String `json:"employee_name"`
+	LocationDetail null.String    `json:"location_detail" swaggertype:"string"`
+	EmployeeName   null.String `json:"employee_name" swaggertype:"string"`
 }
 
 type EventsListPagination struct {
@@ -46,15 +46,15 @@ type EventsListPagination struct {
 
 type CreateEventRequest struct {
 	Title          string    `json:"title"`
-	Description    null.String    `json:"description"`
+	Description    string    `json:"description"`
 	StartAt        null.Time `json:"start_at"`
-	Price          null.Float   `json:"price"`
+	Price          null.Float   `json:"price" swaggertype:"number"`
 	Category       string    `json:"category"`
-	Capacity       null.Int       `json:"capacity"`
+	Capacity       null.Int       `json:"capacity" swaggertype:"integer"`
 	Status         string    `json:"status"`
 	City           string    `json:"city"`
 	Street         string    `json:"street"`
-	LocationDetail null.String    `json:"location_detail"`
+	LocationDetail null.String    `json:"location_detail" swaggertype:"string"`
 }
 
 type AssignEmployeeRequest struct{

@@ -81,14 +81,24 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, stats)
 }
 
+// GetAllEvents godoc
+// @Summary      Get all events
+// @Description  Get list of all events with pagination, search, status and sort filters.
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        page    query     int     false  "Current page number (default 1)"
+// @Param        limit   query     int     false  "Number of events per page (default all)"
+// @Param        search  query     string  false  "Search in title or city"
+// @Param        status  query     string  false  "Filter by status: pending, approved, refused"
+// @Param        sort    query     string  false  "Sort by field"
+// @Success      200     {object}  models.EventsListPagination  "Events list retrieved successfully"
+// @Failure      400     {object}  nil                          "Invalid query parameters"
+// @Failure      401     {object}  nil                          "Unauthorized"
+// @Failure      500     {object}  nil                          "Internal server error"
+// @Router       /events/ [get]
 func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	var err error
-	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" {
-		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
-		return
-	}
-
 	// default pagination
 	page := -1
 	limit := -1
@@ -149,6 +159,18 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
+// CreateEvent godoc
+// @Summary      Create new event
+// @Description  Create a new event from the provided payload.
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        event  body      models.CreateEventRequest  true  "Event details"
+// @Success      201    {object}  nil                         "Event created successfully"
+// @Failure      400    {object}  nil                         "Invalid payload"
+// @Failure      401    {object}  nil                         "Unauthorized"
+// @Failure      500    {object}  nil                         "Internal server error"
+// @Router       /events/ [post]
 func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var err error
 	role := r.Context().Value("user").(models.AuthClaims).Role
@@ -193,6 +215,18 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }
 
+// GetEventDetailsById godoc
+// @Summary      Get event details
+// @Description  Get detailed information about an event by its ID.
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        id_event  path      int  true  "Event ID"
+// @Success      200       {object}  models.Event  "Event details retrieved successfully"
+// @Failure      400       {object}  nil           "Invalid event ID"
+// @Failure      404       {object}  nil           "Event not found"
+// @Failure      500       {object}  nil           "Internal server error"
+// @Router       /events/{id_event}/ [get]
 func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
 	id_url := r.PathValue("id_event")
 	if id_url == "" {
@@ -218,6 +252,18 @@ func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, eventDetails)
 }
 
+// GetAssignedEmployeesByEventId godoc
+// @Summary      Get assigned employees
+// @Description  Get list of employees assigned to an event by ID.
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        id_event  path      int  true  "Event ID"
+// @Success      200       {array}   models.AssignedEmployee  "List of assigned employees"
+// @Failure      400       {object}  nil                    "Invalid event ID"
+// @Failure      401       {object}  nil                    "Unauthorized"
+// @Failure      500       {object}  nil                    "Internal server error"
+// @Router       /events/employees/{id_event}/ [get]
 func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -247,6 +293,19 @@ func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, employees)
 }
 
+// AssignEmployeeToEventByEventId godoc
+// @Summary      Assign employees to event
+// @Description  Assign a list of employees to an event by its ID. Replaces existing assignments.
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        id_event  path      int                     true  "Event ID"
+// @Param        payload   body      models.AssignEmployeeRequest  true  "List of employee IDs"
+// @Success      200       {object}  nil                    "Employees assigned successfully"
+// @Failure      400       {object}  nil                    "Invalid payload or ID"
+// @Failure      401       {object}  nil                    "Unauthorized"
+// @Failure      500       {object}  nil                    "Internal server error"
+// @Router       /events/{id_event}/assign/ [post]
 func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "employee"{
