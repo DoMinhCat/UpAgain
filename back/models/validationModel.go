@@ -79,6 +79,14 @@ type PaginatedDepositsResponse struct {
 	TotalRecords int                      `json:"total_records"`
 }
 
+type PaginatedHistoryResponse struct {
+	Items        []AllItemResponse `json:"items"`
+	CurrentPage  int               `json:"current_page"`
+	LastPage     int               `json:"last_page"`
+	Limit        int               `json:"limit"`
+	TotalRecords int               `json:"total_records"`
+}
+
 type PaginatedListingsResponse struct {
 	Listings     []PendingListingResponse `json:"listings"`
 	CurrentPage  int                      `json:"current_page"`

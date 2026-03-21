@@ -7,10 +7,22 @@ import (
 	"fmt"
 )
 
-func GetAllItemsHistory() ([]models.AllItemResponse, error) {
+func GetAllItemsHistory(page, limit int) ([]models.AllItemResponse, int, error) {
+	countQuery := `
+		SELECT COUNT(*) FROM (
+			SELECT i.id FROM items i WHERE i.is_deleted = false
+			UNION ALL
+			SELECT ev.id FROM events ev WHERE ev.status != 'cancelled'
+		) as total_history
+	`
+	var totalRecords int
+	if err := utils.Conn.QueryRow(countQuery).Scan(&totalRecords); err != nil {
+		return nil, 0, fmt.Errorf("error counting history: %v", err)
+	}
+
 	query := `
 		SELECT 
-			i.id, i.title, i.status::text as status, i.created_at, a.username,
+			i.id, i.title, i.status::text as status, i.created_at, COALESCE(a.username, 'System'),
 			CASE 
 				WHEN d.id_item IS NOT NULL THEN 'Deposit'
 				WHEN l.id_item IS NOT NULL THEN 'Listing'
@@ -25,19 +37,27 @@ func GetAllItemsHistory() ([]models.AllItemResponse, error) {
 		UNION ALL
 
 		SELECT 
-			ev.id, ev.title, ev.status::text as status, ev.created_at, acc.username,
+			ev.id, ev.title, ev.status::text as status, ev.created_at, 
+			COALESCE(acc.username, 'Not assigned') as username,
 			'Event' as item_type
 		FROM events ev
-		JOIN event_employee ee ON ev.id = ee.id_event
-		JOIN accounts acc ON ee.id_employee = acc.id
-		WHERE ev.status!='cancelled'
+		LEFT JOIN (
+			SELECT DISTINCT ON (id_event) id_event, id_employee FROM event_employee ORDER BY id_event, assigned_at ASC
+		) ee ON ev.id = ee.id_event
+		LEFT JOIN accounts acc ON ee.id_employee = acc.id
+		WHERE ev.status != 'cancelled'
 
 		ORDER BY created_at DESC
 	`
 
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
+	}
+
 	rows, err := utils.Conn.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("error getting all items and events history: %v", err)
+		return nil, 0, fmt.Errorf("error getting all items and events history: %v", err)
 	}
 	defer rows.Close()
 
@@ -46,11 +66,11 @@ func GetAllItemsHistory() ([]models.AllItemResponse, error) {
 		var item models.AllItemResponse
 		err := rows.Scan(&item.ID, &item.Title, &item.Status, &item.CreatedAt, &item.Username, &item.ItemType)
 		if err != nil {
-			return nil, fmt.Errorf("error scanning history row: %v", err)
+			return nil, 0, fmt.Errorf("error scanning history row: %v", err)
 		}
 		items = append(items, item)
 	}
-	return items, nil
+	return items, totalRecords, nil
 }
 
 // GetPendingDeposits returns paginated pending deposits with optional search/sort.
@@ -79,11 +99,11 @@ func GetPendingDeposits(page, limit int, filters models.ValidationFilters) ([]mo
 	}
 
 	countQuery := `
-		SELECT COUNT(*)
+		SELECT COUNT(DISTINCT i.id)
 		FROM items i
-		JOIN deposits d ON i.id = d.id_item
-		JOIN containers c ON d.id_container = c.id
-		JOIN accounts a ON i.id_user = a.id
+		LEFT JOIN deposits d ON i.id = d.id_item
+		LEFT JOIN containers c ON d.id_container = c.id
+		LEFT JOIN accounts a ON i.id_user = a.id
 		` + whereClause
 
 	var totalRecords int
@@ -162,10 +182,10 @@ func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]mo
 	}
 
 	countQuery := `
-		SELECT COUNT(*)
+		SELECT COUNT(DISTINCT i.id)
 		FROM items i
-		JOIN listings l ON l.id_item = i.id
-		JOIN accounts a ON a.id = i.id_user
+		LEFT JOIN listings l ON l.id_item = i.id
+		LEFT JOIN accounts a ON a.id = i.id_user
 		` + whereClause
 
 	var totalRecords int
@@ -239,10 +259,10 @@ func GetPendingEvents(page, limit int, filters models.ValidationFilters) ([]mode
 	}
 
 	countQuery := `
-		SELECT COUNT(*)
+		SELECT COUNT(DISTINCT ev.id)
 		FROM events ev
-		JOIN event_employee ee ON ev.id = ee.id_event
-		JOIN accounts acc ON ee.id_employee = acc.id
+		LEFT JOIN event_employee ee ON ev.id = ee.id_event
+		LEFT JOIN accounts acc ON ee.id_employee = acc.id
 		` + whereClause
 
 	var totalRecords int

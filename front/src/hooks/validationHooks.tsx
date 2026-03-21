@@ -6,14 +6,15 @@ import {
   fetchValidationStats,
   fetchAllItemsHistory,
   processValidationAction,
-  type PaginatedDepositsResponse,
-  type PaginatedListingsResponse,
-  type PaginatedEventsResponse,
 } from "../api/admin/validationModule";
 import {
   type ValidationFilters,
   type ValidationStats,
 } from "../api/interfaces/validation";
+import { type PaginatedDepositsResponse } from "../api/interfaces/deposit";
+import { type PaginatedListingsResponse } from "../api/interfaces/listing";
+import { type EventsListPagination } from "../api/interfaces/event";
+import { type PaginatedHistoryResponse } from "../api/interfaces/item";
 
 const STALE_TIME = 1000 * 60; // 1min
 
@@ -56,7 +57,7 @@ export const usePendingEvents = (
   limit?: number,
   filters?: ValidationFilters,
 ) => {
-  return useQuery<PaginatedEventsResponse>({
+  return useQuery<EventsListPagination>({
     queryKey: ["pendingEvents", page, limit, filters?.search, filters?.sort],
     queryFn: () => fetchPendingEvents(page, limit, filters),
     staleTime: STALE_TIME,
@@ -83,10 +84,10 @@ export const useValidationStats = () => {
 
 // --- History hook ---
 
-export const useAllItemsHistory = () => {
-  return useQuery({
-    queryKey: ["allItemsHistory"],
-    queryFn: fetchAllItemsHistory,
+export const useAllItemsHistory = (page?: number, limit?: number) => {
+  return useQuery<PaginatedHistoryResponse>({
+    queryKey: ["allItemsHistory", page, limit],
+    queryFn: () => fetchAllItemsHistory(page, limit),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Fetching Failed",

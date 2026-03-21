@@ -5,62 +5,10 @@ import {
   type ValidationStats,
   type ValidationFilters,
 } from "../interfaces/validation";
-
-// --- Types ---
-
-export interface PendingDeposit {
-  id_item: number;
-  title: string;
-  description: string;
-  material: string;
-  state: string;
-  weight: number;
-  created_at: string;
-  id_container: number;
-  city_name: string;
-  postal_code: string;
-  id_user: number;
-  username: string;
-}
-
-export interface PendingListing {
-  id_item: number;
-  title: string;
-  description: string;
-  material: string;
-  state: string;
-  weight: number;
-  price: number | null;
-  created_at: string;
-  city_name: string;
-  postal_code: string;
-  id_user: number;
-  username: string;
-}
-
-export interface PaginatedDepositsResponse {
-  deposits: PendingDeposit[];
-  current_page: number;
-  last_page: number;
-  limit: number;
-  total_records: number;
-}
-
-export interface PaginatedListingsResponse {
-  listings: PendingListing[];
-  current_page: number;
-  last_page: number;
-  limit: number;
-  total_records: number;
-}
-
-export interface PaginatedEventsResponse {
-  events: AppEvent[];
-  current_page: number;
-  last_page: number;
-  limit: number;
-  total_records: number;
-}
+import { type PaginatedDepositsResponse } from "../interfaces/deposit";
+import { type PaginatedListingsResponse } from "../interfaces/listing";
+import { type EventsListPagination } from "../interfaces/event";
+import { type PaginatedHistoryResponse } from "../interfaces/item";
 
 // --- API functions ---
 
@@ -92,8 +40,8 @@ export const fetchPendingEvents = async (
   page?: number,
   limit?: number,
   filters?: ValidationFilters,
-): Promise<PaginatedEventsResponse> => {
-  const response = await api.get<PaginatedEventsResponse>(
+): Promise<EventsListPagination> => {
+  const response = await api.get<EventsListPagination>(
     ENDPOINTS.ADMIN.VALIDATIONS.EVENTS,
     { params: { page, limit, ...filters } },
   );
@@ -107,8 +55,14 @@ export const fetchValidationStats = async (): Promise<ValidationStats> => {
   return response.data;
 };
 
-export const fetchAllItemsHistory = async () => {
-  const response = await api.get(ENDPOINTS.ADMIN.VALIDATIONS.HISTORY);
+export const fetchAllItemsHistory = async (
+  page?: number,
+  limit?: number,
+): Promise<PaginatedHistoryResponse> => {
+  const response = await api.get<PaginatedHistoryResponse>(
+    ENDPOINTS.ADMIN.VALIDATIONS.HISTORY,
+    { params: { page, limit } },
+  );
   return response.data;
 };
 
