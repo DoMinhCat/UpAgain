@@ -37,6 +37,24 @@ func ValidateEventCreation(newEvent models.CreateEventRequest) models.Validation
 		return response
 	}
 
+	if !newEvent.EndAt.Valid || newEvent.EndAt.Time.IsZero() {
+		response = models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("End date is required."),
+			Error:   http.StatusBadRequest,
+		}
+		return response
+	}
+
+	if newEvent.EndAt.Time.Before(newEvent.StartAt.Time) {
+		response = models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("End date must be after start date."),
+			Error:   http.StatusBadRequest,
+		}
+		return response
+	}
+
 	if strings.TrimSpace(newEvent.Street) == "" {
 		response = models.ValidationResponse{
 			Success: false,

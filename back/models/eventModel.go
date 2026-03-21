@@ -26,6 +26,7 @@ type Event struct {
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
 	StartAt        null.Time `json:"start_at"`
+	EndAt          null.Time `json:"end_at"`
 	Price          null.Float   `json:"price" swaggertype:"number"`
 	Category       string    `json:"category"`
 	Capacity       null.Int       `json:"capacity" swaggertype:"integer"`
@@ -48,6 +49,7 @@ type CreateEventRequest struct {
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
 	StartAt        null.Time `json:"start_at"`
+	EndAt          null.Time `json:"end_at"`
 	Price          null.Float   `json:"price" swaggertype:"number"`
 	Category       string    `json:"category"`
 	Capacity       null.Int       `json:"capacity" swaggertype:"integer"`

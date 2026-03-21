@@ -131,6 +131,11 @@ export default function AdminEventsModule() {
               : "Not set"}
           </Table.Td>
           <Table.Td ta="center">
+            {event.end_at
+              ? dayjs(event.end_at).format("DD/MM/YYYY")
+              : "Not set"}
+          </Table.Td>
+          <Table.Td ta="center">
             <Pill
               variant={
                 event.status === "pending"
@@ -165,6 +170,7 @@ export default function AdminEventsModule() {
   const [city, setCity] = useState<string>("");
   const [locationDetail, setLocationDetail] = useState<string>("");
   const [date, setDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
   const [category, setCategory] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [errorDescription, setErrorDescription] = useState<string>("");
@@ -288,7 +294,8 @@ export default function AdminEventsModule() {
         street,
         city,
         location_detail: locationDetail,
-        start_at: dayjs(date).toISOString() ?? "",
+        start_at: date ? dayjs(date).toISOString() : "",
+        end_at: endDate ? dayjs(endDate).toISOString() : "",
         category,
         description,
         status: "pending",
@@ -498,17 +505,32 @@ export default function AdminEventsModule() {
                   }}
                   // disabled={isAccountDetailsLoading}
                 />
-                <DateTimePicker
-                  withAsterisk
-                  label="Date and time of event"
-                  placeholder="When does the event take place?"
-                  value={date}
-                  disabled={createEventMutation.isPending}
-                  onChange={setDate}
-                  required
-                  onBlur={() => validateDate()}
-                  error={errorDate}
-                />
+                <Grid>
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <DateTimePicker
+                      withAsterisk
+                      label="Start date"
+                      placeholder="When does it start?"
+                      value={date ? new Date(date) : null}
+                      disabled={createEventMutation.isPending}
+                      onChange={(val) => setDate(val ? dayjs(val).toISOString() : null)}
+                      required
+                      onBlur={() => validateDate()}
+                      error={errorDate}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <DateTimePicker
+                      withAsterisk
+                      label="End date"
+                      placeholder="When does it end?"
+                      value={endDate ? new Date(endDate) : null}
+                      disabled={createEventMutation.isPending}
+                      onChange={(val) => setEndDate(val ? dayjs(val).toISOString() : null)}
+                      required
+                    />
+                  </Grid.Col>
+                </Grid>
                 <Select
                   withAsterisk
                   clearable
@@ -643,6 +665,7 @@ export default function AdminEventsModule() {
           "Employee",
           "Category",
           "Start Date",
+          "End Date",
           "Status",
         ]}
       >

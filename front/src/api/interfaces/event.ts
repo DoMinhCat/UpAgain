@@ -5,6 +5,7 @@ export interface AppEvent {
   title: string;
   description: string;
   start_at: string;
+  end_at: string;
   price: number;
   category: string;
   capacity: number;
@@ -35,6 +36,7 @@ export interface EventCreationPayload {
   title: string;
   description: string;
   start_at: string;
+  end_at: string;
   price: number;
   category: string;
   capacity?: number;
