@@ -294,12 +294,15 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 
 // GetItemsHistory godoc
 // @Summary      Get items history
-// @Description  Get a history of all items
+// @Description  Get a paginated history of all items
 // @Tags         validation
 // @Produce      json
-// @Success      200  {array}   models.AllItemResponse  "Items history"
-// @Failure      403  {object}  nil                     "Forbidden"
-// @Failure      500  {object}  nil                     "Internal server error"
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Success      200     {object}  models.PaginatedHistoryResponse  "Paginated items history"
+// @Failure      400     {object}  nil                              "Invalid pagination parameters"
+// @Failure      403     {object}  nil                              "Forbidden"
+// @Failure      500     {object}  nil                              "Internal server error"
 // @Router       /admin/items/history [get]
 func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
@@ -314,15 +317,21 @@ func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items, err := db.GetAllItemsHistory()
+	page, limit, _, err := helper.ParsePaginationAndFilters(r)
+	if err != nil {
+		slog.Error("ParsePaginationAndFilters failed", "controller", "GetItemsHistory", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
+		return
+	}
+
+	items, total, err := db.GetAllItemsHistory(page, limit)
 	if err != nil {
 		slog.Error("GetAllItemsHistory() failed", "controller", "GetItemsHistory", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items history")
 		return
 	}
 
-	if items == nil {
-		items = []models.AllItemResponse{}
-	}
-	utils.RespondWithJSON(w, http.StatusOK, items)
+	result := helper.BuildPaginatedResult(page, limit, total)
+	result["items"] = items
+	utils.RespondWithJSON(w, http.StatusOK, result)
 }

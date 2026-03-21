@@ -750,8 +750,14 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 // ─── History Tab ─────────────────────────────────────────────────────────────
 
 function HistoryTab() {
-  const { data: historyData, isLoading, isError } = useAllItemsHistory();
-  const items = historyData ?? [];
+  const [activePage, setPage] = useState(1);
+  const {
+    data: historyData,
+    isLoading,
+    isError,
+  } = useAllItemsHistory(activePage, LIMIT);
+
+  const items = historyData?.items ?? [];
 
   return (
     <Stack gap="sm" mt="md">
@@ -759,6 +765,24 @@ function HistoryTab() {
         loading={isLoading}
         error={isError ? new Error("Could not load history.") : null}
         header={["Date", "ID", "Title", "Type", "User", "Status"]}
+        footer={
+          historyData &&
+          historyData.total_records > 0 && (
+            <Group justify="space-between" mt="md">
+              <span style={{ fontSize: "14px", color: "gray" }}>
+                Showing {(activePage - 1) * LIMIT + 1}-
+                {Math.min(activePage * LIMIT, historyData.total_records)} of{" "}
+                {historyData.total_records} results
+              </span>
+              <Pagination
+                total={historyData.last_page || 1}
+                value={activePage}
+                onChange={setPage}
+                disabled={isLoading}
+              />
+            </Group>
+          )
+        }
       >
         {items.length === 0 && !isLoading ? (
           <Table.Tr>
