@@ -79,11 +79,11 @@ func GetPendingDeposits(page, limit int, filters models.ValidationFilters) ([]mo
 	}
 
 	countQuery := `
-		SELECT COUNT(*)
+		SELECT COUNT(DISTINCT i.id)
 		FROM items i
-		JOIN deposits d ON i.id = d.id_item
-		JOIN containers c ON d.id_container = c.id
-		JOIN accounts a ON i.id_user = a.id
+		LEFT JOIN deposits d ON i.id = d.id_item
+		LEFT JOIN containers c ON d.id_container = c.id
+		LEFT JOIN accounts a ON i.id_user = a.id
 		` + whereClause
 
 	var totalRecords int
@@ -162,10 +162,10 @@ func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]mo
 	}
 
 	countQuery := `
-		SELECT COUNT(*)
+		SELECT COUNT(DISTINCT i.id)
 		FROM items i
-		JOIN listings l ON l.id_item = i.id
-		JOIN accounts a ON a.id = i.id_user
+		LEFT JOIN listings l ON l.id_item = i.id
+		LEFT JOIN accounts a ON a.id = i.id_user
 		` + whereClause
 
 	var totalRecords int
@@ -239,10 +239,10 @@ func GetPendingEvents(page, limit int, filters models.ValidationFilters) ([]mode
 	}
 
 	countQuery := `
-		SELECT COUNT(*)
+		SELECT COUNT(DISTINCT ev.id)
 		FROM events ev
-		JOIN event_employee ee ON ev.id = ee.id_event
-		JOIN accounts acc ON ee.id_employee = acc.id
+		LEFT JOIN event_employee ee ON ev.id = ee.id_event
+		LEFT JOIN accounts acc ON ee.id_employee = acc.id
 		` + whereClause
 
 	var totalRecords int
