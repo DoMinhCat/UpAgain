@@ -669,26 +669,23 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
         ) : (
           events.map((ev) => (
             <Table.Tr
-              key={ev.id_event}
+              key={ev.id}
               style={{ cursor: "pointer" }}
               onClick={() =>
-                navigate(
-                  `${PATHS.ADMIN.VALIDATIONS.ALL}/events/${ev.id_event}`,
-                  {
-                    state: { item: ev },
-                  },
-                )
+                navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/events/${ev.id}`, {
+                  state: { item: ev },
+                })
               }
             >
               <Table.Td ta="center">
                 {dayjs(ev.created_at).format("DD/MM/YYYY")}
               </Table.Td>
               <Table.Td ta="center">
-                <strong>{ev.id_event}</strong>
+                <strong>{ev.id}</strong>
               </Table.Td>
               <Table.Td ta="center">{ev.title}</Table.Td>
               <Table.Td ta="center">
-                {ev.employee_username ?? "Not assigned"}
+                {ev.employee_name ?? "Not assigned"}
               </Table.Td>
               <Table.Td ta="center">
                 <Pill
@@ -708,8 +705,8 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 </Pill>
               </Table.Td>
               <Table.Td ta="center">
-                {ev.date_start
-                  ? dayjs(ev.date_start).format("DD/MM/YYYY")
+                {ev.start_at
+                  ? dayjs(ev.start_at).format("DD/MM/YYYY")
                   : "Not set"}
               </Table.Td>
               <Table.Td ta="center">
@@ -722,7 +719,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     size="xs"
                     variant="primary"
                     leftSection={<IconCheck size={14} />}
-                    onClick={() => onApprove(ev.id_event, "events")}
+                    onClick={() => onApprove(ev.id, "events")}
                   >
                     Approve
                   </Button>
@@ -730,7 +727,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     size="xs"
                     variant="delete"
                     leftSection={<IconX size={14} />}
-                    onClick={() => onOpenRefuse(ev.id_event, "events")}
+                    onClick={() => onOpenRefuse(ev.id, "events")}
                   >
                     Refuse
                   </Button>
