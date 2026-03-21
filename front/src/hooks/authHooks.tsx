@@ -1,9 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { LoginRequest, type LoginPayload } from "../api/auth";
-import {
-  RegisterRequest,
-  type RegisterPayload,
-} from "../api/admin/accountModule";
+import { RegisterRequest } from "../api/admin/accountModule";
+import { type RegisterPayload } from "../api/interfaces/account";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "../routes/paths";

@@ -1,17 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createEvent,
-  type EventCreationPayload,
   getAllEvents,
   getEventStats,
-  type EventStats,
-  type EventsListPagination,
   assignEmployeeToEvent,
   getEventDetails,
-  type AppEvent,
-  type AssignedEmployee,
   getAssignedEmployees,
 } from "../api/admin/eventModule";
+import {
+  type EventCreationPayload,
+  type EventStats,
+  type EventsListPagination,
+  type AppEvent,
+  type AssignedEmployee,
+} from "../api/interfaces/event";
 import { showSuccessNotification } from "../components/NotificationToast";
 
 export const useGetAllEvents = (
