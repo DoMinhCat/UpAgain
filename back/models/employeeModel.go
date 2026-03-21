@@ -13,3 +13,8 @@ type AssignedEmployee struct {
 	Username   string    `json:"username"`
 	AssignedAt time.Time `json:"assigned_at"`
 }
+
+type AvailableEmployeesRequest struct{
+	From time.Time `json:"from"`
+	To time.Time `json:"to"`
+}
