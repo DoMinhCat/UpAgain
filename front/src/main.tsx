@@ -9,8 +9,6 @@ import "@mantine/charts/styles.css";
 import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css";
 import {
   QueryClient,
   QueryClientProvider,
