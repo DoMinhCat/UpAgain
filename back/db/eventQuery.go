@@ -210,3 +210,16 @@ func GetTotalEventsAssignedById(id_account int) (int, error){
 	}
 	return total, nil
 }
+
+
+func CheckEventExistsById(id_event int) (bool, error){
+	var exists bool
+	query := `
+		SELECT EXISTS(SELECT 1 FROM events WHERE id=$1);
+	`
+	err := utils.Conn.QueryRow(query, id_event).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckEventExistsById() failed: %v", err.Error())
+	}
+	return exists, nil
+}

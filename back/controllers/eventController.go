@@ -241,6 +241,17 @@ func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exist, err := db.CheckEventExistsById(id_event)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "GetEventDetailsById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		return
+	}
+
 	eventDetails, err := db.GetEventDetailsById(id_event)
 	if err != nil {
 		slog.Error("GetEventDetailsById() failed", "controller", "GetEventDetailsById", "error", err)
@@ -262,6 +273,7 @@ func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Success      200       {array}   models.AssignedEmployee  "List of assigned employees"
 // @Failure      400       {object}  nil                    "Invalid event ID"
 // @Failure      401       {object}  nil                    "Unauthorized"
+// @Failure      404       {object}  nil                    "Event not found"
 // @Failure      500       {object}  nil                    "Internal server error"
 // @Router       /events/employees/{id_event}/ [get]
 func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
@@ -281,6 +293,17 @@ func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "GetAssignedEmployeesByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event id.")
+		return
+	}
+
+	exist, err := db.CheckEventExistsById(id_event)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
 		return
 	}
 
@@ -304,6 +327,7 @@ func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 // @Success      200       {object}  nil                    "Employees assigned successfully"
 // @Failure      400       {object}  nil                    "Invalid payload or ID"
 // @Failure      401       {object}  nil                    "Unauthorized"
+// @Failure      404       {object}  nil                    "Event not found"
 // @Failure      500       {object}  nil                    "Internal server error"
 // @Router       /events/{id_event}/assign/ [post]
 func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
@@ -326,6 +350,17 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exist, err := db.CheckEventExistsById(id_event)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		return
+	}
+
 	var payload models.AssignEmployeeRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
@@ -339,6 +374,9 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You can only assign yourself to an event.")
 		return
 	}
+
+	// TODO: check employee exists
+	// TODO: check employee has no conflict
 
 	err = db.AssignEmployeeToEventByEventId(id_event, payload.IdsEmployee)
 	if err != nil {
