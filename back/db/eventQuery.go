@@ -137,7 +137,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	}
 
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username as employee_name 
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username as employee_name 
 		FROM events e 
 		LEFT JOIN event_employee ee ON e.id=ee.id_event 
 		LEFT JOIN accounts a ON ee.id_employee=a.id 
@@ -159,7 +159,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 
 	for rows.Next() {
 		var event models.Event
-		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail, &event.EmployeeName)
+		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.EndAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail, &event.EmployeeName)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllEvents() scan failed: %v", err.Error())
 		}
@@ -172,11 +172,11 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 func CreateEvent(event models.CreateEventRequest) (int, error) {
 	var eventId int
 	query := `
-		INSERT INTO events (title, description, start_at, price, category, capacity, city, street, location_detail)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		RETURNING id;
 	`
-	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail).Scan(&eventId)
+	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail).Scan(&eventId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
 	}
@@ -186,10 +186,10 @@ func CreateEvent(event models.CreateEventRequest) (int, error) {
 func GetEventDetailsById(id_event int) (models.Event, error) {
 	var event models.Event
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail
 		FROM events e WHERE e.id=$1;
 	`
-	err := utils.Conn.QueryRow(query, id_event).Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail)
+	err := utils.Conn.QueryRow(query, id_event).Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.EndAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail)
 	if err != nil {
 		return models.Event{}, fmt.Errorf("GetEventDetailsById() failed: %v", err.Error())
 	}

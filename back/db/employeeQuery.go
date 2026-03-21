@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 // ALL QUERIES TO TABLE 'employees'
@@ -59,4 +60,32 @@ func GetEmployeeStatsById(id int) (models.EmployeeStats, error) {
 	}
 	stats.TotalPosts = posts
 	return stats, nil
+}
+
+func GetAvailableEmployeesByTime(from, to time.Time) ([]models.AvailableEmployeesResponse, error) {
+	var employees []models.AvailableEmployeesResponse
+
+	query := `
+		SELECT a.email, a.username FROM accounts a 
+		JOIN employees e ON a.id = e.id_account
+		WHERE a.id NOT IN (
+			SELECT ee.id_employee FROM event_employee ee 
+			JOIN events ev ON ee.id_event = ev.id 
+			WHERE ev.end_at > $1 AND ev.start_at < $2 
+			AND ev.status != 'refused' AND ev.status != 'cancelled'
+		);
+	`
+	rows, err := utils.Conn.Query(query, from, to)
+	if err != nil {
+		return nil, fmt.Errorf("GetAvailableEmployeesByTime() failed: %v", err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var employee models.AvailableEmployeesResponse
+		if err := rows.Scan(&employee.Email, &employee.Username); err != nil {
+			return nil, fmt.Errorf("GetAvailableEmployeesByTime() scan failed: %v", err.Error())
+		}
+		employees = append(employees, employee)
+	}
+	return employees, nil
 }

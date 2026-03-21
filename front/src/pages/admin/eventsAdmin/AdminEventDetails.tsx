@@ -31,7 +31,7 @@ import {
 } from "@tabler/icons-react";
 import AdminTable from "../../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextEditor } from "../../../components/TextEditor";
 import {
   useGetAssignedEmployees,
@@ -52,6 +52,7 @@ export default function AdminEventDetails() {
   const [cityEdit, setCityEdit] = useState<string>("");
   const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
   const [dateEdit, setDateEdit] = useState<string | null>(null);
+  const [endDateEdit, setEndDateEdit] = useState<string | null>(null);
   const [categoryEdit, setCategoryEdit] = useState<string>("");
   const [descriptionEdit, setDescriptionEdit] = useState<string>("");
 
@@ -86,8 +87,22 @@ export default function AdminEventDetails() {
     error: errorAssignedEmployees,
   } = useGetAssignedEmployees(id_event);
 
-  if (isLoadingEventDetails) return <FullScreenLoader />;
+  useEffect(() => {
+    if (eventDetails && openedEdit) {
+      setTitleEdit(eventDetails.title || "");
+      setCapacityEdit(eventDetails.capacity || 0);
+      setPriceEdit(eventDetails.price || 0);
+      setStreetEdit(eventDetails.street || "");
+      setCityEdit(eventDetails.city || "");
+      setLocationDetailEdit(eventDetails.location_detail || "");
+      setDateEdit(eventDetails.start_at || null);
+      setEndDateEdit(eventDetails.end_at || null);
+      setCategoryEdit(eventDetails.category || "");
+      setDescriptionEdit(eventDetails.description || "");
+    }
+  }, [eventDetails, openedEdit]);
 
+  if (isLoadingEventDetails) return <FullScreenLoader />;
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
@@ -171,12 +186,14 @@ export default function AdminEventDetails() {
             <Card withBorder shadow="sm" radius="md" padding="md">
               {/* Header/Date Section */}
               <Group gap="xs">
-                <IconCalendarEvent />
                 <Text fw={700} size="md">
-                  {dayjs(eventDetails?.start_at)
+                  {eventDetails?.start_at
                     ? dayjs(eventDetails?.start_at).format("dddd, MMM DD") +
                       " · " +
-                      dayjs(eventDetails?.start_at).format("HH:mm A") +
+                      dayjs(eventDetails?.start_at).format("HH:mm") +
+                      (eventDetails?.end_at
+                        ? " - " + dayjs(eventDetails?.end_at).format("HH:mm")
+                        : "") +
                       ", UTC" +
                       dayjs(eventDetails?.start_at).format("Z")
                     : "No specified date"}
@@ -314,16 +331,32 @@ export default function AdminEventDetails() {
                       // disabled={isAccountDetailsLoading}
                       required
                     />
-                    <DateTimePicker
-                      withAsterisk
-                      label="Date and time of event"
-                      value={dateEdit}
-                      onChange={setDateEdit}
-                      required
-                      // onBlur={() => validateUsernameEdit(usernameEdit)}
-                      // error={usernameEditError}
-                      // disabled={isAccountDetailsLoading}
-                    />
+                    <Grid>
+                      <Grid.Col span={{ base: 12, md: 6 }}>
+                        <DateTimePicker
+                          withAsterisk
+                          label="Start date"
+                          value={dateEdit ? new Date(dateEdit) : null}
+                          onChange={(val) =>
+                            setDateEdit(val ? dayjs(val).toISOString() : null)
+                          }
+                          required
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={{ base: 12, md: 6 }}>
+                        <DateTimePicker
+                          withAsterisk
+                          label="End date"
+                          value={endDateEdit ? new Date(endDateEdit) : null}
+                          onChange={(val) =>
+                            setEndDateEdit(
+                              val ? dayjs(val).toISOString() : null,
+                            )
+                          }
+                          required
+                        />
+                      </Grid.Col>
+                    </Grid>
                     <Select
                       withAsterisk
                       clearable

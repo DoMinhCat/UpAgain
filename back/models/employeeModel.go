@@ -18,3 +18,8 @@ type AvailableEmployeesRequest struct{
 	From time.Time `json:"from"`
 	To time.Time `json:"to"`
 }
+
+type AvailableEmployeesResponse struct{
+	Email string `json:"email"`
+	Username string `json:"username"`
+}
