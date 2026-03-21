@@ -1,5 +1,6 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
+import { type AppEvent } from "./eventModule";
 
 // --- Types ---
 
@@ -33,19 +34,6 @@ export interface PendingListing {
   username: string;
 }
 
-export interface PendingEvent {
-  id_event: number;
-  title: string;
-  description: string | null;
-  category: string;
-  date_start: string | null;
-  capacity: number | null;
-  price: number | null;
-  created_at: string;
-  id_employee: number;
-  employee_username: string;
-}
-
 export interface PaginatedDepositsResponse {
   deposits: PendingDeposit[];
   current_page: number;
@@ -63,7 +51,7 @@ export interface PaginatedListingsResponse {
 }
 
 export interface PaginatedEventsResponse {
-  events: PendingEvent[];
+  events: AppEvent[];
   current_page: number;
   last_page: number;
   limit: number;

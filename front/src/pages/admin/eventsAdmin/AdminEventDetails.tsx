@@ -80,8 +80,11 @@ export default function AdminEventDetails() {
     useGetEventDetails(id_event);
 
   // GET ASSIGNED EMPLOYEES
-  const { data: assignedEmployees, isLoading: isLoadingAssignedEmployees } =
-    useGetAssignedEmployees(id_event);
+  const {
+    data: assignedEmployees,
+    isLoading: isLoadingAssignedEmployees,
+    error: errorAssignedEmployees,
+  } = useGetAssignedEmployees(id_event);
 
   if (isLoadingEventDetails) return <FullScreenLoader />;
 
@@ -441,31 +444,39 @@ export default function AdminEventDetails() {
           </Modal>
         </Group>
         <AdminTable
-          loading={false}
-          error={null}
+          loading={isLoadingAssignedEmployees}
+          error={errorAssignedEmployees}
           header={["Assigned on", "ID", "Employee", "Actions"]}
         >
-          {assignedEmployees?.map((employee) => {
-            return (
-              <Table.Tr key={employee?.id}>
-                <Table.Td ta="center">
-                  {dayjs(employee?.assigned_at).format("DD/MM/YYYY")}
-                </Table.Td>
-                <Table.Td ta="center">{employee?.id}</Table.Td>
-                <Table.Td ta="center">{employee?.username}</Table.Td>
-                <Table.Td ta="center">
-                  <Button
-                    variant="delete"
-                    // onClick={() => {
-                    //   handleUnassignEmployee(employee?.id);
-                    // }}
-                  >
-                    Unassign
-                  </Button>
-                </Table.Td>
-              </Table.Tr>
-            );
-          })}
+          {(assignedEmployees?.length ?? 0) > 0 ? (
+            assignedEmployees?.map((employee) => {
+              return (
+                <Table.Tr key={employee?.id}>
+                  <Table.Td ta="center">
+                    {dayjs(employee?.assigned_at).format("DD/MM/YYYY")}
+                  </Table.Td>
+                  <Table.Td ta="center">{employee?.id}</Table.Td>
+                  <Table.Td ta="center">{employee?.username}</Table.Td>
+                  <Table.Td ta="center">
+                    <Button
+                      variant="delete"
+                      // onClick={() => {
+                      //   handleUnassignEmployee(employee?.id);
+                      // }}
+                    >
+                      Unassign
+                    </Button>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })
+          ) : (
+            <Table.Tr>
+              <Table.Td ta="center" colSpan={4}>
+                No employees assigned
+              </Table.Td>
+            </Table.Tr>
+          )}
         </AdminTable>
       </Container>
     </Container>
