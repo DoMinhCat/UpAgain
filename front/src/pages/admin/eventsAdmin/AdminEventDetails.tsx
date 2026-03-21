@@ -70,7 +70,6 @@ export default function AdminEventDetails() {
 
   // GET EVENT DETAILS
   const id_event = Number(useParams().id);
-  console.log(id_event);
   const { data: eventDetails, isLoading: isLoadingEventDetails } =
     useGetEventDetails(id_event);
 
@@ -211,9 +210,12 @@ export default function AdminEventDetails() {
                     </Text>
                   </Group>
                 </Group>
-                <Button variant="edit" onClick={openEdit}>
-                  Edit event
-                </Button>
+                <Group justify="space-between" grow>
+                  <Button variant="edit" onClick={openEdit}>
+                    Edit event
+                  </Button>
+                  <Button variant="delete">Cancel event</Button>
+                </Group>
                 <Modal
                   title="Edit event"
                   opened={openedEdit}
@@ -426,7 +428,9 @@ export default function AdminEventDetails() {
           {assignedEmployees?.map((employee) => {
             return (
               <Table.Tr key={employee?.id}>
-                <Table.Td ta="center">{employee?.assigned_at}</Table.Td>
+                <Table.Td ta="center">
+                  {dayjs(employee?.assigned_at).format("DD/MM/YYYY")}
+                </Table.Td>
                 <Table.Td ta="center">{employee?.id}</Table.Td>
                 <Table.Td ta="center">{employee?.username}</Table.Td>
                 <Table.Td ta="center">
