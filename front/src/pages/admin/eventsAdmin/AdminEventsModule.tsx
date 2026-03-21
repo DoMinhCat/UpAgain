@@ -11,6 +11,7 @@ import {
   Table,
   Modal,
   NumberInput,
+  Pill,
 } from "@mantine/core";
 import {
   IconCalendarEventFilled,
@@ -29,11 +30,18 @@ import { useState } from "react";
 import AdminTable from "../../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
 import { DateTimePicker } from "@mantine/dates";
+import { useGetAllEvents, useGetEventStats } from "../../../hooks/eventHooks";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "../../../routes/paths";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
+import dayjs from "dayjs";
+import { useCreateEvent } from "../../../hooks/eventHooks";
 
 export default function AdminEventsModule() {
-  // TODO for filtering
+  const navigate = useNavigate();
+
+  // get all events
   const [filters, setFilters] = useState<{
     searchValue: string | undefined;
     sortValue: string | null;
@@ -68,6 +76,85 @@ export default function AdminEventsModule() {
     setPage(1);
   };
 
+  const {
+    data: events,
+    isLoading: isLoadingEvents,
+    error: errorEvents,
+  } = useGetAllEvents(
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.statusValue || undefined,
+    appliedFilters.sortValue || undefined,
+  );
+  const filteredEvents = events?.events || [];
+  const listEvents =
+    filteredEvents.length > 0 ? (
+      filteredEvents.map((event) => (
+        <Table.Tr
+          style={{
+            cursor: "pointer",
+          }}
+          key={event.id}
+          onClick={() => {
+            navigate(PATHS.ADMIN.EVENTS.ALL + "/" + event.id);
+          }}
+        >
+          <Table.Td ta="center">
+            {dayjs(event.created_at).format("DD/MM/YYYY")}
+          </Table.Td>
+          <Table.Td ta="center">{event.id}</Table.Td>
+          <Table.Td ta="center">{event.title}</Table.Td>
+          <Table.Td ta="center">
+            {event.employee_name ?? "Not assigned"}
+          </Table.Td>
+          <Table.Td ta="center">
+            <Pill
+              variant={
+                event.category === "other"
+                  ? "gray"
+                  : event.category === "workshop"
+                    ? "blue"
+                    : event.category === "conference"
+                      ? "green"
+                      : event.category === "meetups"
+                        ? "yellow"
+                        : "red"
+              }
+            >
+              {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
+            </Pill>
+          </Table.Td>
+          <Table.Td ta="center">
+            {event.start_at
+              ? dayjs(event.start_at).format("DD/MM/YYYY")
+              : "Not set"}
+          </Table.Td>
+          <Table.Td ta="center">
+            <Pill
+              variant={
+                event.status === "pending"
+                  ? "yellow"
+                  : event.status === "approved"
+                    ? "green"
+                    : event.status === "refused"
+                      ? "red"
+                      : "gray"
+              }
+            >
+              {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+            </Pill>
+          </Table.Td>
+        </Table.Tr>
+      ))
+    ) : (
+      <Table.Tr>
+        <Table.Td colSpan={8} ta="center">
+          No events found
+        </Table.Td>
+      </Table.Tr>
+    );
+
   // create modal
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
@@ -81,6 +168,13 @@ export default function AdminEventsModule() {
   const [category, setCategory] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [errorDescription, setErrorDescription] = useState<string>("");
+  const [errorTitle, setErrorTitle] = useState<string>("");
+  const [errorCapacity, setErrorCapacity] = useState<string>("");
+  const [errorPrice, setErrorPrice] = useState<string>("");
+  const [errorStreet, setErrorStreet] = useState<string>("");
+  const [errorCity, setErrorCity] = useState<string>("");
+  const [errorDate, setErrorDate] = useState<string>("");
+  const [errorCategory, setErrorCategory] = useState<string>("");
 
   const handleCloseCreate = () => {
     setTitle("");
@@ -92,9 +186,127 @@ export default function AdminEventsModule() {
     setDate(null);
     setCategory("");
     setDescription("");
+    setErrorTitle("");
+    setErrorCapacity("");
+    setErrorPrice("");
+    setErrorStreet("");
+    setErrorCity("");
+    setErrorDate("");
+    setErrorCategory("");
     setErrorDescription("");
     closeCreate();
   };
+
+  // create validations
+  const validateTitle = () => {
+    if (!title || title.trim() === "") {
+      setErrorTitle("Title is required");
+      return false;
+    }
+    setErrorTitle("");
+    return true;
+  };
+  const validateCapacity = () => {
+    if (capacity && capacity <= 0) {
+      setErrorCapacity("Capacity must be greater than 0");
+      return false;
+    }
+    setErrorCapacity("");
+    return true;
+  };
+  const validatePrice = () => {
+    if (price < 0) {
+      setErrorPrice("Price must be greater than or equal to 0");
+      return false;
+    }
+    setErrorPrice("");
+    return true;
+  };
+  const validateStreet = () => {
+    if (!street || street.trim() === "") {
+      setErrorStreet("Street is required");
+      return false;
+    }
+    setErrorStreet("");
+    return true;
+  };
+  const validateCity = () => {
+    if (!city || city.trim() === "") {
+      setErrorCity("City is required");
+      return false;
+    }
+    setErrorCity("");
+    return true;
+  };
+  const validateDate = () => {
+    if (!date || date.trim() === "") {
+      setErrorDate("Date is required");
+      return false;
+    }
+    setErrorDate("");
+    return true;
+  };
+  const validateCategory = () => {
+    if (!category || category.trim() === "") {
+      setErrorCategory("Category is required");
+      return false;
+    }
+    setErrorCategory("");
+    return true;
+  };
+  const validateDescription = () => {
+    if (!description || description.trim() === "") {
+      setErrorDescription("A description is required");
+      return false;
+    }
+    setErrorDescription("");
+    return true;
+  };
+
+  const createEventMutation = useCreateEvent();
+
+  const handleSubmitCreate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !validateTitle() ||
+      !validateCapacity() ||
+      !validatePrice() ||
+      !validateStreet() ||
+      !validateCity() ||
+      !validateDate() ||
+      !validateCategory() ||
+      !validateDescription()
+    )
+      return;
+
+    // TODO: send picture paths
+    createEventMutation.mutate(
+      {
+        title,
+        capacity: capacity ?? undefined,
+        price,
+        street,
+        city,
+        location_detail: locationDetail,
+        start_at: dayjs(date).toISOString() ?? "",
+        category,
+        description,
+        status: "pending",
+      },
+      {
+        onSuccess: () => {
+          handleCloseCreate();
+        },
+      },
+    );
+  };
+
+  // event stats
+  const {
+    data: eventStats,
+    isLoading: isLoadingEventStats,
+    isError: errorEventStats,
+  } = useGetEventStats();
 
   return (
     <Container px="md" size="xl">
@@ -106,49 +318,72 @@ export default function AdminEventsModule() {
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
         <AdminCardInfo
           icon={IconCalendarEventFilled}
-          title="Total Events"
-          value={99999}
+          title="Total active events"
+          value={eventStats?.total ?? 0}
+          error={errorEventStats}
+          loading={isLoadingEventStats}
           description={
             <StatsCardDesc
-              stats={67}
+              stats={eventStats?.increase ?? 0}
               icon={IconArrowUp}
-              description=" new events since last month"
+              description={
+                eventStats?.increase === 1
+                  ? " new event since last month"
+                  : " new events since last month"
+              }
             />
           }
         />
         <AdminCardInfo
           icon={IconCalendarTime}
           title="Upcoming events"
-          value={15}
+          value={eventStats?.upcoming ?? 0}
+          error={errorEventStats}
+          loading={isLoadingEventStats}
           description={
             <StatsCardDesc
-              stats={67}
+              stats={eventStats?.upcoming ?? 0}
               icon={IconArrowUp}
-              description=" events happening in the next 30 days"
+              description={
+                eventStats?.upcoming === 1
+                  ? " upcoming event in the next 30 days"
+                  : " upcoming events in the next 30 days"
+              }
             />
           }
         />
         <AdminCardInfo
           icon={IconCalendarCheck}
           title="Registrations (last 30 days)"
-          value={626}
+          value={eventStats?.registrations ?? 0}
+          error={errorEventStats}
+          loading={isLoadingEventStats}
           description={
             <StatsCardDesc
-              stats={67}
+              stats={eventStats?.registrations ?? 0}
               icon={IconArrowUp}
-              description=" registrations during the last month"
+              description={
+                eventStats?.registrations === 1
+                  ? " registration since last month"
+                  : " registrations since last month"
+              }
             />
           }
         />
         <AdminCardInfo
           icon={IconClockCheck}
-          title="Pending Approval"
-          value={45}
+          title="Pending approval"
+          value={eventStats?.pending ?? 0}
+          error={errorEventStats}
+          loading={isLoadingEventStats}
           description={
             <StatsCardDesc
-              stats={67}
-              icon={IconArrowUp}
-              description=" requires review and validation"
+              stats={eventStats?.pending ?? 0}
+              description={
+                eventStats?.pending === 1
+                  ? " event requires validation"
+                  : " events require validation"
+              }
             />
           }
         />
@@ -184,22 +419,23 @@ export default function AdminEventsModule() {
                   onChange={(e) => {
                     setTitle(e.target.value);
                   }}
-                  // onBlur={() => validateUsernameEdit(usernameEdit)}
-                  // error={usernameEditError}
-                  // disabled={isAccountDetailsLoading}
+                  onBlur={() => validateTitle()}
+                  error={errorTitle}
+                  disabled={createEventMutation.isPending}
                   required
                 />
                 <NumberInput
                   label="Capacity"
                   placeholder="Maximum number of attendees"
                   min={0}
+                  disabled={createEventMutation.isPending}
                   value={capacity}
                   suffix=" people"
                   onChange={(value) => {
                     setCapacity(Number(value));
                   }}
-                  // onBlur={() => validateEmailEdit(emailEdit)}
-                  // error={emailEditError}
+                  onBlur={() => validateCapacity()}
+                  error={errorCapacity}
                   // disabled={isAccountDetailsLoading}
                 />
                 <NumberInput
@@ -209,11 +445,12 @@ export default function AdminEventsModule() {
                   min={0}
                   prefix="€"
                   value={price}
+                  disabled={createEventMutation.isPending}
                   onChange={(value) => {
                     setPrice(Number(value));
                   }}
-                  // onBlur={() => validateEmailEdit(emailEdit)}
-                  // error={emailEditError}
+                  onBlur={() => validatePrice()}
+                  error={errorPrice}
                   // disabled={isAccountDetailsLoading}
                   required
                 />
@@ -222,13 +459,14 @@ export default function AdminEventsModule() {
                     <TextInput
                       withAsterisk
                       label="Street"
+                      disabled={createEventMutation.isPending}
                       value={street}
                       placeholder="21 Erard street"
                       onChange={(e) => {
                         setStreet(e.target.value);
                       }}
-                      // onBlur={() => validateUsernameEdit(usernameEdit)}
-                      // error={usernameEditError}
+                      onBlur={() => validateStreet()}
+                      error={errorStreet}
                       // disabled={isAccountDetailsLoading}
                       required
                     />
@@ -239,11 +477,12 @@ export default function AdminEventsModule() {
                       placeholder="Paris"
                       label="City"
                       value={city}
+                      disabled={createEventMutation.isPending}
                       onChange={(e) => {
                         setCity(e.target.value);
                       }}
-                      // onBlur={() => validateUsernameEdit(usernameEdit)}
-                      // error={usernameEditError}
+                      onBlur={() => validateCity()}
+                      error={errorCity}
                       // disabled={isAccountDetailsLoading}
                       required
                     />
@@ -252,12 +491,11 @@ export default function AdminEventsModule() {
                 <TextInput
                   label="Additional location details"
                   placeholder="Room 12, 2nd floor"
+                  disabled={createEventMutation.isPending}
                   value={locationDetail}
                   onChange={(e) => {
                     setLocationDetail(e.target.value);
                   }}
-                  // onBlur={() => validateUsernameEdit(usernameEdit)}
-                  // error={usernameEditError}
                   // disabled={isAccountDetailsLoading}
                 />
                 <DateTimePicker
@@ -265,20 +503,21 @@ export default function AdminEventsModule() {
                   label="Date and time of event"
                   placeholder="When does the event take place?"
                   value={date}
+                  disabled={createEventMutation.isPending}
                   onChange={setDate}
                   required
-                  // onBlur={() => validateUsernameEdit(usernameEdit)}
-                  // error={usernameEditError}
-                  // disabled={isAccountDetailsLoading}
+                  onBlur={() => validateDate()}
+                  error={errorDate}
                 />
                 <Select
                   withAsterisk
                   clearable
                   label="Category"
                   value={category}
+                  disabled={createEventMutation.isPending}
                   placeholder="Select a category"
-                  // error={roleNewError}
-                  // onBlur={() => validateRoleNew(roleNew)}
+                  error={errorCategory}
+                  onBlur={() => validateCategory()}
                   data={[
                     { value: "workshop", label: "Workshop" },
                     { value: "conference", label: "Conference" },
@@ -298,19 +537,18 @@ export default function AdminEventsModule() {
                     setDescription(value);
                   }}
                 />
-                <ImageDropzone loading={false} disabled={false} />
+                <ImageDropzone loading={createEventMutation.isPending} />
               </Stack>
               <Group mt="lg" justify="center">
                 <Button onClick={handleCloseCreate} variant="grey">
                   Cancel
                 </Button>
                 <Button
-                  // onClick={(e) => {
-                  //   handleEditAccount(e);
-                  // }}
+                  onClick={(e) => {
+                    handleSubmitCreate(e);
+                  }}
                   variant="primary"
-                  // loading={editMutation.isPending}
-                  // disabled={editMutation.isPending || isAccountDetailsLoading}
+                  loading={createEventMutation.isPending}
                 >
                   Confirm
                 </Button>
@@ -324,7 +562,8 @@ export default function AdminEventsModule() {
             <TextInput
               label="Search"
               variant="filled"
-              placeholder="Search by username, email or ID..."
+              placeholder="Search by employee's name, event's ID or title..."
+              disabled={createEventMutation.isPending}
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
@@ -336,24 +575,33 @@ export default function AdminEventsModule() {
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Select
               label="Sort by"
-              placeholder="Pick one"
+              placeholder="Pick one sort method"
               data={[
                 {
-                  value: "most_recent_registration",
-                  label: "Most recent registration",
+                  value: "most_recent_creation",
+                  label: "Most recent creation",
                 },
-                { value: "oldest_registration", label: "Oldest registration" },
+                { value: "oldest_creation", label: "Oldest creation" },
                 {
-                  value: "most_recent_last_active",
-                  label: "Most recent last active",
+                  value: "highest_price",
+                  label: "Highest price",
                 },
                 {
-                  value: "oldest_last_active",
-                  label: "Oldest last active",
+                  value: "lowest_price",
+                  label: "Lowest price",
+                },
+                {
+                  value: "earliest_start_date",
+                  label: "Earliest start date",
+                },
+                {
+                  value: "latest_start_date",
+                  label: "Latest start date",
                 },
               ]}
               value={filters.sortValue}
               clearable
+              disabled={createEventMutation.isPending}
               onChange={(val) => handleFilterChange("sortValue", val)}
             />
           </Grid.Col>
@@ -386,29 +634,19 @@ export default function AdminEventsModule() {
       </Stack>
 
       <AdminTable
-        loading={false}
-        error={null}
+        loading={isLoadingEvents}
+        error={errorEvents}
         header={[
           "Created on",
           "ID",
           "Title",
           "Employee",
-          "Location",
+          "Category",
           "Start Date",
           "Status",
-          "Actions",
         ]}
       >
-        <Table.Tr>
-          <Table.Td ta="center">1</Table.Td>
-          <Table.Td ta="center">2</Table.Td>
-          <Table.Td ta="center">3</Table.Td>
-          <Table.Td ta="center">4</Table.Td>
-          <Table.Td ta="center">5</Table.Td>
-          <Table.Td ta="center">6</Table.Td>
-          <Table.Td ta="center">6</Table.Td>
-          <Table.Td ta="center">6</Table.Td>
-        </Table.Tr>
+        {listEvents}
       </AdminTable>
     </Container>
   );

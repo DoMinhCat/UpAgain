@@ -13,7 +13,7 @@ type Container struct {
 
 type ContainerCountStats struct {
 	Active int `json:"active"`
-	Total int `json:"total"`
+	Total  int `json:"total"`
 }
 
 type UpdateStatusRequest struct {

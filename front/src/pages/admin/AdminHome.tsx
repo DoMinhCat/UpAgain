@@ -174,7 +174,7 @@ export default function AdminHome() {
           title="Event/Workshop"
           description="Manage upcoming & on-going events/workshops"
           icon={IconCalendarEventFilled}
-          path={PATHS.ADMIN.EVENTS}
+          path={PATHS.ADMIN.EVENTS.ALL}
         />
         <AdminCardNav
           title="Subscription"

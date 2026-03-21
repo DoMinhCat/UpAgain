@@ -11,6 +11,8 @@ import {
   Select,
   Progress,
   NumberInput,
+  Badge,
+  Divider,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -43,6 +45,20 @@ const UpAgainTheme = createTheme({
       defaultProps: {
         classNames: {
           root: classes.pill,
+        },
+      },
+    }),
+    Badge: Badge.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.badge,
+        },
+      },
+    }),
+    Divider: Divider.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.divider,
         },
       },
     }),

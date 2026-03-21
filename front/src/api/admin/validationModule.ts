@@ -1,5 +1,10 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
+import { type AppEvent } from "../interfaces/event";
+import {
+  type ValidationStats,
+  type ValidationFilters,
+} from "../interfaces/validation";
 
 // --- Types ---
 
@@ -33,19 +38,6 @@ export interface PendingListing {
   username: string;
 }
 
-export interface PendingEvent {
-  id_event: number;
-  title: string;
-  description: string | null;
-  category: string;
-  date_start: string | null;
-  capacity: number | null;
-  price: number | null;
-  created_at: string;
-  id_employee: number;
-  employee_username: string;
-}
-
 export interface PaginatedDepositsResponse {
   deposits: PendingDeposit[];
   current_page: number;
@@ -63,28 +55,11 @@ export interface PaginatedListingsResponse {
 }
 
 export interface PaginatedEventsResponse {
-  events: PendingEvent[];
+  events: AppEvent[];
   current_page: number;
   last_page: number;
   limit: number;
   total_records: number;
-}
-
-export interface ValidationStats {
-  pending_deposits: number;
-  approved_deposits: number;
-  refused_deposits: number;
-  pending_listings: number;
-  approved_listings: number;
-  refused_listings: number;
-  pending_events: number;
-  approved_events: number;
-  refused_events: number;
-}
-
-export interface ValidationFilters {
-  search?: string;
-  sort?: string;
 }
 
 // --- API functions ---

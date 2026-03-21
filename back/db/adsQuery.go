@@ -31,13 +31,13 @@ func GetTotalAdsSpendingsById(id int) (int, error) {
 			return 0, fmt.Errorf("GetTotalAdsSpendingsById() failed: %v", err.Error())
 		}
 		// price is monthly, so we divide by 30 to get price of 1 day
-		total += (ads_price / 30) * int(end_date.Sub(start_date).Hours() / 24)
+		total += (ads_price / 30) * int(end_date.Sub(start_date).Hours()/24)
 	}
 	return total, nil
 }
 
 // count ads of an account having ads status pending/active
-func GetTotalActiveAdsById(id_account int) (int, error){
+func GetTotalActiveAdsById(id_account int) (int, error) {
 	var total int
 
 	query := `
@@ -46,8 +46,8 @@ func GetTotalActiveAdsById(id_account int) (int, error){
 		join accounts ac on ac.id=p.id_account		
 		where ac.id=$1 and (a.status='pending' or a.status='active')
 	`
-	err := utils.Conn.QueryRow(query +";", id_account).Scan(&total)
-	if err != nil{
+	err := utils.Conn.QueryRow(query+";", id_account).Scan(&total)
+	if err != nil {
 		return 0, fmt.Errorf("GetTotalActiveAdsById	() failed: %v", err)
 	}
 

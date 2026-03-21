@@ -6,15 +6,18 @@ import {
   deleteContainer,
   getContainerDetails,
   getContainerCountStats,
+} from "../api/admin/containerModule";
+import {
   type ContainerCountStats,
   type Container,
-} from "../api/admin/containerModule";
+} from "../api/interfaces/container";
 import { showSuccessNotification } from "../components/NotificationToast";
 
 export const useContainers = () => {
   return useQuery({
     queryKey: ["containers"],
     queryFn: getAllContainers,
+    staleTime: 60 * 1000,
     meta: {
       errorTitle: "Inventory Error",
       errorMessage: "Unable to load containers from European hubs.",

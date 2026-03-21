@@ -46,13 +46,13 @@ func CreateEmployee(insertedId int, isAdmin bool) error {
 
 func GetEmployeeStatsById(id int) (models.EmployeeStats, error) {
 	var stats models.EmployeeStats
-	
+
 	events, err := GetTotalEventsOfEmployeeById(id)
 	if err != nil {
 		return models.EmployeeStats{}, fmt.Errorf("GetEmployeeStatsById() failed: %v", err.Error())
 	}
 	stats.TotalEvents = events
-	
+
 	posts, err := GetTotalPostsByIdByCategory(id, nil)
 	if err != nil {
 		return models.EmployeeStats{}, fmt.Errorf("GetEmployeeStatsById() failed: %v", err.Error())

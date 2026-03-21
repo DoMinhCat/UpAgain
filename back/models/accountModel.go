@@ -25,12 +25,12 @@ type Account struct {
 	DeletedAt  null.Time `json:"deleted_at"`
 }
 
-type AccountsListPagination struct{
-	Accounts []Account 	`json:"accounts"`
-	CurrentPage int 	`json:"current_page"`
-	LastPage int 	`json:"last_page"`
-	Limit int 	`json:"limit"`
-	TotalRecords int 	`json:"total_records"`
+type AccountsListPagination struct {
+	Accounts     []Account `json:"accounts"`
+	CurrentPage  int       `json:"current_page"`
+	LastPage     int       `json:"last_page"`
+	Limit        int       `json:"limit"`
+	TotalRecords int       `json:"total_records"`
 }
 
 type AccountDetails struct {
@@ -57,13 +57,20 @@ type ToggleBanRequest struct {
 }
 
 type UpdateAccountRequest struct {
-	Id     int    `json:"id"`
+	Id       int    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 }
 
-type AccountCountStats struct{
-	Total int `json:"total"`
+type AccountCountStats struct {
+	Total    int `json:"total"`
 	Increase int `json:"increase"`
+}
+
+type AccountFilters struct {
+	Search string
+	Sort   string
+	Role   string
+	Status string
 }

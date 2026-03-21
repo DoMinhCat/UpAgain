@@ -6,12 +6,14 @@ import {
   fetchValidationStats,
   fetchAllItemsHistory,
   processValidationAction,
-  type ValidationFilters,
   type PaginatedDepositsResponse,
   type PaginatedListingsResponse,
   type PaginatedEventsResponse,
-  type ValidationStats,
 } from "../api/admin/validationModule";
+import {
+  type ValidationFilters,
+  type ValidationStats,
+} from "../api/interfaces/validation";
 
 const STALE_TIME = 1000 * 60; // 1min
 

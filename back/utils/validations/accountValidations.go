@@ -12,8 +12,8 @@ import (
 func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.ValidationResponse {
 	var response models.ValidationResponse
 
-	isValidUsername, errMsg := validateUsername(newAccount.Username, 0) 
-	if !isValidUsername{
+	isValidUsername, errMsg := validateUsername(newAccount.Username, 0)
+	if !isValidUsername {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: errMsg,
@@ -23,7 +23,7 @@ func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.Vali
 	}
 
 	isValidPassword, errMsg := validatePassword(newAccount.Password)
-	if !isValidPassword{
+	if !isValidPassword {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: errMsg,
@@ -33,7 +33,7 @@ func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.Vali
 	}
 
 	isValidEmail, errMsg := validateEmail(newAccount.Email, 0)
-	if !isValidEmail{
+	if !isValidEmail {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: errMsg,
@@ -44,7 +44,7 @@ func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.Vali
 
 	if newAccount.Phone != "" {
 		isValidPhone, errMsg := validatePhone(newAccount.Phone)
-		if !isValidPhone{
+		if !isValidPhone {
 			response = models.ValidationResponse{
 				Success: false,
 				Message: errMsg,
@@ -55,7 +55,7 @@ func ValidateAccountCreation(newAccount models.CreateAccountRequest) models.Vali
 	}
 
 	isValidRole, errMsg := validateRole(newAccount.Role)
-	if !isValidRole{
+	if !isValidRole {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: errMsg,
@@ -76,7 +76,7 @@ func ValidateAccountUpdate(newAccount models.UpdateAccountRequest) models.Valida
 
 	if newAccount.Username != "" {
 		isValidUsername, errMsg := validateUsername(newAccount.Username, newAccount.Id)
-		if !isValidUsername{
+		if !isValidUsername {
 			response = models.ValidationResponse{
 				Success: false,
 				Message: errMsg,
@@ -88,7 +88,7 @@ func ValidateAccountUpdate(newAccount models.UpdateAccountRequest) models.Valida
 
 	if newAccount.Email != "" {
 		isValidEmail, errMsg := validateEmail(newAccount.Email, newAccount.Id)
-		if !isValidEmail{
+		if !isValidEmail {
 			response = models.ValidationResponse{
 				Success: false,
 				Message: errMsg,
@@ -100,7 +100,7 @@ func ValidateAccountUpdate(newAccount models.UpdateAccountRequest) models.Valida
 
 	if newAccount.Phone != "" {
 		isValidPhone, errMsg := validatePhone(newAccount.Phone)
-		if !isValidPhone{
+		if !isValidPhone {
 			response = models.ValidationResponse{
 				Success: false,
 				Message: errMsg,
@@ -127,13 +127,13 @@ func validateUsername(username string, reqId int) (bool, error) {
 		return false, fmt.Errorf("An error occured while creating/updating an account for you.")
 	}
 	if usernameExists {
-		if reqId != 0{
+		if reqId != 0 {
 			// check if same username as ANOTHER user
 			dupId, err := db.GetIdByUsernameByEmail(&username, nil)
 			if err != nil {
 				return false, fmt.Errorf("An error occured while creating/updating an account for you.")
 			}
-			if dupId != reqId{
+			if dupId != reqId {
 				return false, fmt.Errorf("'%s' has been taken, please choose another username.", username)
 			}
 		} else {
@@ -173,16 +173,16 @@ func validateEmail(email string, reqId int) (bool, error) {
 		return false, fmt.Errorf("An error occured while creating/updating an account for you.")
 	}
 	if emailExists {
-		if reqId != 0{
+		if reqId != 0 {
 			// check if same username as ANOTHER user
 			dupId, err := db.GetIdByUsernameByEmail(nil, &email)
 			if err != nil {
 				return false, fmt.Errorf("An error occured while creating/updating an account for you.")
 			}
-			if dupId != reqId{
+			if dupId != reqId {
 				return false, fmt.Errorf("'%s' has been taken, please choose another email.", email)
 			}
-		} else{
+		} else {
 			return false, fmt.Errorf("'%s' has been taken, please choose another email.", email)
 		}
 	}
@@ -205,4 +205,3 @@ func validateRole(role string) (bool, error) {
 	}
 	return true, nil
 }
-
