@@ -96,9 +96,9 @@ export const assignEmployeeToEvent = async (
   id_event: number,
   employee_ids: number[],
 ): Promise<void> => {
-  const response = await api.post(
+  const response = await api.put(
     ENDPOINTS.ADMIN.EVENTS.ASSIGN(id_event),
-    employee_ids,
+    { ids_employee: employee_ids },
   );
   return response.data;
 };
