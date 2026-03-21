@@ -32,9 +32,13 @@ import AdminTable from "../../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import { TextEditor } from "../../../components/TextEditor";
-import { useGetEventDetails } from "../../../hooks/eventHooks";
+import {
+  useGetAssignedEmployees,
+  useGetEventDetails,
+} from "../../../hooks/eventHooks";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
+import FullScreenLoader from "../../../components/FullScreenLoader";
 
 export default function AdminEventDetails() {
   // edit modal and form
@@ -70,6 +74,11 @@ export default function AdminEventDetails() {
   const { data: eventDetails, isLoading: isLoadingEventDetails } =
     useGetEventDetails(id_event);
 
+  // GET ASSIGNED EMPLOYEES
+  const { data: assignedEmployees, isLoading: isLoadingAssignedEmployees } =
+    useGetAssignedEmployees(id_event);
+
+  if (isLoadingEventDetails) return FullScreenLoader;
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
@@ -414,12 +423,25 @@ export default function AdminEventDetails() {
           error={null}
           header={["Assigned on", "ID", "Employee", "Actions"]}
         >
-          <Table.Tr>
-            <Table.Td ta="center">1</Table.Td>
-            <Table.Td ta="center">2</Table.Td>
-            <Table.Td ta="center">3</Table.Td>
-            <Table.Td ta="center">4</Table.Td>
-          </Table.Tr>
+          {assignedEmployees?.map((employee) => {
+            return (
+              <Table.Tr key={employee?.id}>
+                <Table.Td ta="center">{employee?.assigned_at}</Table.Td>
+                <Table.Td ta="center">{employee?.id}</Table.Td>
+                <Table.Td ta="center">{employee?.username}</Table.Td>
+                <Table.Td ta="center">
+                  <Button
+                    variant="delete"
+                    // onClick={() => {
+                    //   handleUnassignEmployee(employee?.id);
+                    // }}
+                  >
+                    Unassign
+                  </Button>
+                </Table.Td>
+              </Table.Tr>
+            );
+          })}
         </AdminTable>
       </Container>
     </Container>
