@@ -254,7 +254,7 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_url := r.URL.Query().Get("id_event")
+	id_url := r.PathValue("id_event")
 	if id_url == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
 		return

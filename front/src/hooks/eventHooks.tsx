@@ -77,6 +77,7 @@ export const useAssignEmployeeToEvent = () => {
         "Employee(s) assigned to event",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
     },
     meta: {
       errorTitle: "Employee assignation failed",
