@@ -49,6 +49,22 @@ definitions:
       username:
         type: string
     type: object
+  models.AssignEmployeeRequest:
+    properties:
+      ids_employee:
+        items:
+          type: integer
+        type: array
+    type: object
+  models.AssignedEmployee:
+    properties:
+      assigned_at:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
   models.Container:
     properties:
       city_name:
@@ -84,6 +100,58 @@ definitions:
       username:
         type: string
     type: object
+  models.CreateEventRequest:
+    properties:
+      capacity:
+        type: integer
+      category:
+        type: string
+      city:
+        type: string
+      description:
+        type: string
+      location_detail:
+        type: string
+      price:
+        type: number
+      start_at:
+        type: string
+      status:
+        type: string
+      street:
+        type: string
+      title:
+        type: string
+    type: object
+  models.Event:
+    properties:
+      capacity:
+        type: integer
+      category:
+        type: string
+      city:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      employee_name:
+        type: string
+      id:
+        type: integer
+      location_detail:
+        type: string
+      price:
+        type: number
+      start_at:
+        type: string
+      status:
+        type: string
+      street:
+        type: string
+      title:
+        type: string
+    type: object
   models.EventStats:
     properties:
       increase:
@@ -95,6 +163,21 @@ definitions:
       total:
         type: integer
       upcoming:
+        type: integer
+    type: object
+  models.EventsListPagination:
+    properties:
+      current_page:
+        type: integer
+      events:
+        items:
+          $ref: '#/definitions/models.Event'
+        type: array
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total_records:
         type: integer
     type: object
   models.LoginRequest:
@@ -824,6 +907,133 @@ paths:
       summary: Get container count stats
       tags:
       - container
+  /events/:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all events with pagination, search, status and sort
+        filters.
+      parameters:
+      - description: Current page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Number of events per page (default all)
+        in: query
+        name: limit
+        type: integer
+      - description: Search in title or city
+        in: query
+        name: search
+        type: string
+      - description: 'Filter by status: pending, approved, refused'
+        in: query
+        name: status
+        type: string
+      - description: Sort by field
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Events list retrieved successfully
+          schema:
+            $ref: '#/definitions/models.EventsListPagination'
+        "400":
+          description: Invalid query parameters
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get all events
+      tags:
+      - event
+    post:
+      consumes:
+      - application/json
+      description: Create a new event from the provided payload.
+      parameters:
+      - description: Event details
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Event created successfully
+        "400":
+          description: Invalid payload
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Create new event
+      tags:
+      - event
+  /events/{id_event}/:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about an event by its ID.
+      parameters:
+      - description: Event ID
+        in: path
+        name: id_event
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event details retrieved successfully
+          schema:
+            $ref: '#/definitions/models.Event'
+        "400":
+          description: Invalid event ID
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      summary: Get event details
+      tags:
+      - event
+  /events/{id_event}/assign/:
+    post:
+      consumes:
+      - application/json
+      description: Assign a list of employees to an event by its ID. Replaces existing
+        assignments.
+      parameters:
+      - description: Event ID
+        in: path
+        name: id_event
+        required: true
+        type: integer
+      - description: List of employee IDs
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.AssignEmployeeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Employees assigned successfully
+        "400":
+          description: Invalid payload or ID
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Assign employees to event
+      tags:
+      - event
   /events/count/:
     get:
       consumes:
@@ -847,6 +1057,35 @@ paths:
         "500":
           description: Internal server error
       summary: Get event stats
+      tags:
+      - event
+  /events/employees/{id_event}/:
+    get:
+      consumes:
+      - application/json
+      description: Get list of employees assigned to an event by ID.
+      parameters:
+      - description: Event ID
+        in: path
+        name: id_event
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of assigned employees
+          schema:
+            items:
+              $ref: '#/definitions/models.AssignedEmployee'
+            type: array
+        "400":
+          description: Invalid event ID
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get assigned employees
       tags:
       - event
   /healthcheck/:
