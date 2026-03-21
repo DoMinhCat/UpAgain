@@ -16,6 +16,7 @@ import {
   Table,
   NumberInput,
   Select,
+  MultiSelect,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -57,7 +58,7 @@ export default function AdminEventDetails() {
   // assign employee modal and form
   const [openedAssign, { open: openAssign, close: closeAssign }] =
     useDisclosure(false);
-  const [employeeAssign, setEmployeeAssign] = useState<string>("");
+  const [employeeAssign, setEmployeeAssign] = useState<string[]>([]);
   const filterEmployee: OptionsFilter = ({ options, search }) => {
     const splittedSearch = search.toLowerCase().trim().split(" ");
     return (options as ComboboxItem[]).filter((option) => {
@@ -66,6 +67,11 @@ export default function AdminEventDetails() {
         words.some((word) => word.includes(searchWord)),
       );
     });
+  };
+
+  const handleCloseAssign = () => {
+    setEmployeeAssign([]);
+    closeAssign();
   };
 
   // GET EVENT DETAILS
@@ -77,7 +83,8 @@ export default function AdminEventDetails() {
   const { data: assignedEmployees, isLoading: isLoadingAssignedEmployees } =
     useGetAssignedEmployees(id_event);
 
-  if (isLoadingEventDetails) return FullScreenLoader;
+  if (isLoadingEventDetails) return <FullScreenLoader />;
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
@@ -381,11 +388,23 @@ export default function AdminEventDetails() {
             size="md"
           >
             <Stack>
-              <Select
+              <MultiSelect
                 withAsterisk
                 clearable
                 label="Employee"
                 value={employeeAssign}
+                styles={{
+                  pill: {
+                    display: "inline-flex",
+                    backgroundColor: "var(--component-color-bg)",
+                    color: "var(--mantine-color-body)",
+                    width: "auto",
+                    minWidth: "unset",
+                  },
+                  label: {
+                    display: "block",
+                  },
+                }}
                 maxDropdownHeight={200}
                 filter={filterEmployee}
                 searchable
@@ -398,13 +417,14 @@ export default function AdminEventDetails() {
                   { value: "4", label: "Employee 4" },
                   { value: "5", label: "Employee 5" },
                 ]}
-                onChange={(value) => {
-                  setEmployeeAssign(value as string);
-                }}
+                onChange={setEmployeeAssign}
+                hidePickedOptions
+                comboboxProps={{ shadow: "md" }}
+                nothingFoundMessage="No employees available"
               />
             </Stack>
             <Group mt="lg" justify="center">
-              <Button onClick={closeAssign} variant="grey">
+              <Button onClick={handleCloseAssign} variant="grey">
                 Cancel
               </Button>
               <Button
