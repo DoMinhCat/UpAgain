@@ -52,17 +52,6 @@ export default function AdminEventDetails() {
   // edit modal and form
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
-  const [titleEdit, setTitleEdit] = useState<string>("");
-  const [capacityEdit, setCapacityEdit] = useState<number>(0);
-  const [priceEdit, setPriceEdit] = useState<number>(0);
-  const [streetEdit, setStreetEdit] = useState<string>("");
-  const [cityEdit, setCityEdit] = useState<string>("");
-  const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
-  const [dateEdit, setDateEdit] = useState<string | null>(null);
-  const [endDateEdit, setEndDateEdit] = useState<string | null>(null);
-  const [categoryEdit, setCategoryEdit] = useState<string>("");
-  const [descriptionEdit, setDescriptionEdit] = useState<string>("");
-
   // assign employee modal and form
   const [openedAssign, { open: openAssign, close: closeAssign }] =
     useDisclosure(false);
@@ -88,15 +77,27 @@ export default function AdminEventDetails() {
   const { data: eventDetails, isLoading: isLoadingEventDetails } =
     useGetEventDetails(id_event);
 
-  // GET ASSIGNED EMPLOYEES
-  const {
-    data: assignedEmployees,
-    isLoading: isLoadingAssignedEmployees,
-    error: errorAssignedEmployees,
-  } = useGetAssignedEmployees(id_event);
+  const [titleEdit, setTitleEdit] = useState<string>("");
+  const [capacityEdit, setCapacityEdit] = useState<number>(0);
+  const [priceEdit, setPriceEdit] = useState<number>(0);
+  const [streetEdit, setStreetEdit] = useState<string>("");
+  const [cityEdit, setCityEdit] = useState<string>("");
+  const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
+  const [dateEdit, setDateEdit] = useState<string | null>(null);
+  const [endDateEdit, setEndDateEdit] = useState<string | null>(null);
+  const [categoryEdit, setCategoryEdit] = useState<string>("");
+  const [descriptionEdit, setDescriptionEdit] = useState<string>("");
+  const [errorTitle, setErrorTitle] = useState<string | null>(null);
+  const [errorCapacity, setErrorCapacity] = useState<string | null>(null);
+  const [errorPrice, setErrorPrice] = useState<string | null>(null);
+  const [errorStreet, setErrorStreet] = useState<string | null>(null);
+  const [errorCity, setErrorCity] = useState<string | null>(null);
+  const [errorDate, setErrorDate] = useState<string | null>(null);
+  const [errorCategory, setErrorCategory] = useState<string | null>(null);
+  const [errorDescription, setErrorDescription] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (eventDetails && openedEdit) {
+  const handleOpenEdit = () => {
+    if (eventDetails) {
       setTitleEdit(eventDetails.title || "");
       setCapacityEdit(eventDetails.capacity || 0);
       setPriceEdit(eventDetails.price || 0);
@@ -108,7 +109,97 @@ export default function AdminEventDetails() {
       setCategoryEdit(eventDetails.category || "");
       setDescriptionEdit(eventDetails.description || "");
     }
-  }, [eventDetails, openedEdit]);
+    openEdit();
+  };
+
+  // validations
+  const validateTitle = () => {
+    if (!titleEdit || titleEdit.trim() === "") {
+      setErrorTitle("Title is required");
+      return false;
+    }
+    setErrorTitle("");
+    return true;
+  };
+  const validateCapacity = () => {
+    if (capacityEdit && capacityEdit <= 0) {
+      setErrorCapacity("Capacity must be greater than 0");
+      return false;
+    }
+    setErrorCapacity("");
+    return true;
+  };
+  const validatePrice = () => {
+    if (priceEdit < 0) {
+      setErrorPrice("Price must be greater than or equal to 0");
+      return false;
+    }
+    setErrorPrice("");
+    return true;
+  };
+  const validateStreet = () => {
+    if (!streetEdit || streetEdit.trim() === "") {
+      setErrorStreet("Street is required");
+      return false;
+    }
+    setErrorStreet("");
+    return true;
+  };
+  const validateCity = () => {
+    if (!cityEdit || cityEdit.trim() === "") {
+      setErrorCity("City is required");
+      return false;
+    }
+    setErrorCity("");
+    return true;
+  };
+  const validateDate = () => {
+    if (!dateEdit || dateEdit.trim() === "") {
+      setErrorDate("Date is required");
+      return false;
+    }
+    setErrorDate("");
+    return true;
+  };
+  const validateCategory = () => {
+    if (!categoryEdit || categoryEdit.trim() === "") {
+      setErrorCategory("Category is required");
+      return false;
+    }
+    setErrorCategory("");
+    return true;
+  };
+  const validateDescription = () => {
+    if (!descriptionEdit || descriptionEdit.trim() === "") {
+      setErrorDescription("A description is required");
+      return false;
+    }
+    setErrorDescription("");
+    return true;
+  };
+  const validateStartDate = () => {
+    if (!dateEdit || dateEdit.trim() === "") {
+      setErrorDate("Start date is required");
+      return false;
+    }
+    setErrorDate("");
+    return true;
+  };
+  const validateEndDate = () => {
+    if (!endDateEdit || endDateEdit.trim() === "") {
+      setErrorDate("End date is required");
+      return false;
+    }
+    setErrorDate("");
+    return true;
+  };
+
+  // GET ASSIGNED EMPLOYEES
+  const {
+    data: assignedEmployees,
+    isLoading: isLoadingAssignedEmployees,
+    error: errorAssignedEmployees,
+  } = useGetAssignedEmployees(id_event);
 
   // GET AVAILABLE EMPLOYEES
   const { data: availableEmployees, isLoading: isLoadingAvailableEmployees } =
@@ -331,7 +422,7 @@ export default function AdminEventDetails() {
                   </Group>
                 </Group>
                 <Group justify="space-between" grow>
-                  <Button variant="edit" onClick={openEdit}>
+                  <Button variant="edit" onClick={handleOpenEdit}>
                     Edit event
                   </Button>
                   <Button

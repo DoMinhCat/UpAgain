@@ -180,6 +180,7 @@ export default function AdminEventsModule() {
   const [errorStreet, setErrorStreet] = useState<string>("");
   const [errorCity, setErrorCity] = useState<string>("");
   const [errorDate, setErrorDate] = useState<string>("");
+  const [errorEndDate, setErrorEndDate] = useState<string>("");
   const [errorCategory, setErrorCategory] = useState<string>("");
 
   const handleCloseCreate = () => {
@@ -198,6 +199,7 @@ export default function AdminEventsModule() {
     setErrorStreet("");
     setErrorCity("");
     setErrorDate("");
+    setErrorEndDate("");
     setErrorCategory("");
     setErrorDescription("");
     closeCreate();
@@ -244,14 +246,6 @@ export default function AdminEventsModule() {
     setErrorCity("");
     return true;
   };
-  const validateDate = () => {
-    if (!date || date.trim() === "") {
-      setErrorDate("Date is required");
-      return false;
-    }
-    setErrorDate("");
-    return true;
-  };
   const validateCategory = () => {
     if (!category || category.trim() === "") {
       setErrorCategory("Category is required");
@@ -268,6 +262,22 @@ export default function AdminEventsModule() {
     setErrorDescription("");
     return true;
   };
+  const validateStartDate = () => {
+    if (!date || date.trim() === "") {
+      setErrorDate("Start date is required");
+      return false;
+    }
+    setErrorDate("");
+    return true;
+  };
+  const validateEndDate = () => {
+    if (!endDate || endDate.trim() === "") {
+      setErrorEndDate("End date is required");
+      return false;
+    }
+    setErrorEndDate("");
+    return true;
+  };
 
   const createEventMutation = useCreateEvent();
 
@@ -279,7 +289,8 @@ export default function AdminEventsModule() {
       !validatePrice() ||
       !validateStreet() ||
       !validateCity() ||
-      !validateDate() ||
+      !validateStartDate() ||
+      !validateEndDate() ||
       !validateCategory() ||
       !validateDescription()
     )
@@ -517,7 +528,7 @@ export default function AdminEventsModule() {
                         setDate(val ? dayjs(val).toISOString() : null)
                       }
                       required
-                      onBlur={() => validateDate()}
+                      onBlur={() => validateStartDate()}
                       error={errorDate}
                     />
                   </Grid.Col>
@@ -526,6 +537,8 @@ export default function AdminEventsModule() {
                       withAsterisk
                       label="End date"
                       placeholder="When does it end?"
+                      onBlur={() => validateEndDate()}
+                      error={errorEndDate}
                       value={endDate ? new Date(endDate) : null}
                       disabled={createEventMutation.isPending}
                       onChange={(val) =>
