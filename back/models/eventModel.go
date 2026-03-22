@@ -21,21 +21,21 @@ type EventFilters struct {
 }
 
 type Event struct {
-	Id             int       `json:"id"`
-	CreatedAt      time.Time `json:"created_at"`
-	Title          string    `json:"title"`
-	Description    string    `json:"description"`
-	StartAt        null.Time `json:"start_at"`
-	EndAt          null.Time `json:"end_at"`
-	Price          null.Float   `json:"price" swaggertype:"number"`
-	Category       string    `json:"category"`
-	Capacity       null.Int       `json:"capacity" swaggertype:"integer"`
-	Status         string    `json:"status"`
-	City           string    `json:"city"`
-	Street         string    `json:"street"`
-	LocationDetail null.String    `json:"location_detail" swaggertype:"string"`
+	Id             int         `json:"id"`
+	CreatedAt      time.Time   `json:"created_at"`
+	Title          string      `json:"title"`
+	Description    string      `json:"description"`
+	StartAt        null.Time   `json:"start_at"`
+	EndAt          null.Time   `json:"end_at"`
+	Price          null.Float  `json:"price" swaggertype:"number"`
+	Category       string      `json:"category"`
+	Capacity       null.Int    `json:"capacity" swaggertype:"integer"`
+	Status         string      `json:"status"`
+	City           string      `json:"city"`
+	Street         string      `json:"street"`
+	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
 	EmployeeName   null.String `json:"employee_name" swaggertype:"string"`
-	Images []string `json:"images"`
+	Images         []string    `json:"images"`
 }
 
 type EventsListPagination struct {
@@ -47,44 +47,44 @@ type EventsListPagination struct {
 }
 
 type CreateEventRequest struct {
-	Title          string    `json:"title"`
-	Description    string    `json:"description"`
-	StartAt        null.Time `json:"start_at"`
-	EndAt          null.Time `json:"end_at"`
-	Price          null.Float   `json:"price" swaggertype:"number"`
-	Category       string    `json:"category"`
-	Capacity       null.Int       `json:"capacity" swaggertype:"integer"`
-	Status         string    `json:"status"`
-	City           string    `json:"city"`
-	Street         string    `json:"street"`
-	LocationDetail null.String    `json:"location_detail" swaggertype:"string"`
-	Images []string `json:"images"`
+	Title          string      `json:"title"`
+	Description    string      `json:"description"`
+	StartAt        null.Time   `json:"start_at"`
+	EndAt          null.Time   `json:"end_at"`
+	Price          null.Float  `json:"price" swaggertype:"number"`
+	Category       string      `json:"category"`
+	Capacity       null.Int    `json:"capacity" swaggertype:"integer"`
+	Status         string      `json:"status"`
+	City           string      `json:"city"`
+	Street         string      `json:"street"`
+	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
+	Images         []string    `json:"images"`
 }
 
-type AssignEmployeeRequest struct{
-	IdsEmployee []int `json:"ids_employee"`
-	StartAt time.Time `json:"start_at"`
-	EndAt time.Time `json:"end_at"`
+type AssignEmployeeRequest struct {
+	IdsEmployee []int     `json:"ids_employee"`
+	StartAt     time.Time `json:"start_at"`
+	EndAt       time.Time `json:"end_at"`
 }
 
-type UnAssignEmployeeRequest struct{
+type UnAssignEmployeeRequest struct {
 	IdEmployee int `json:"id_employee"`
 }
 
-type UpdateEventStatusRequest struct{
+type UpdateEventStatusRequest struct {
 	Status string `json:"status"`
 }
 
-type UpdateEventRequest struct{
-	Title          string    `json:"title"`
-	Description    string    `json:"description"`
-	StartAt        time.Time `json:"start_at"`
-	EndAt          time.Time `json:"end_at"`
-	Price          null.Float   `json:"price" swaggertype:"number"`
-	Category       string    `json:"category"`
-	Capacity       null.Int       `json:"capacity" swaggertype:"integer"`
-	City           string    `json:"city"`
-	Street         string    `json:"street"`
-	LocationDetail null.String    `json:"location_detail" swaggertype:"string"`
-	Images []string `json:"images"`
+type UpdateEventRequest struct {
+	Title          string      `json:"title"`
+	Description    string      `json:"description"`
+	StartAt        time.Time   `json:"start_at"`
+	EndAt          time.Time   `json:"end_at"`
+	Price          null.Float  `json:"price" swaggertype:"number"`
+	Category       string      `json:"category"`
+	Capacity       null.Int    `json:"capacity" swaggertype:"integer"`
+	City           string      `json:"city"`
+	Street         string      `json:"street"`
+	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
+	Images         []string    `json:"images"`
 }

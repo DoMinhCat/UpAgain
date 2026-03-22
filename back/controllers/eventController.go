@@ -313,7 +313,6 @@ func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	utils.RespondWithJSON(w, http.StatusOK, eventDetails)
 }
 
@@ -386,7 +385,7 @@ func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 // @Router       /events/{id}/assign/ [post]
 func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" && role != "employee"{
+	if role != "admin" && role != "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -464,33 +463,33 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if !exist {
-			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID " + strconv.Itoa(id_employee) + " not found.")
+			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID "+strconv.Itoa(id_employee)+" not found.")
 			return
 		}
 	}
-	
+
 	// check employee has no conflict
 	validIds := []int{}
 	availableEmployees, err := db.GetAvailableEmployeesByTime(payload.StartAt, payload.EndAt)
 	if err != nil {
 		slog.Error("GetAvailableEmployeesByTime() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning employee(s) to the event.")
-			return
-		}
+		return
+	}
 	for _, availableEmployee := range availableEmployees.Employees {
-			validIds = append(validIds, availableEmployee.Id)
+		validIds = append(validIds, availableEmployee.Id)
 	}
 
 	var valid bool
-	for _, id_account := range payload.IdsEmployee{
+	for _, id_account := range payload.IdsEmployee {
 		valid = false
-		for _, validId := range validIds{
+		for _, validId := range validIds {
 			if validId == id_account {
 				valid = true
 			}
 		}
 		if !valid {
-			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID " + strconv.Itoa(id_account) + " is not available.")
+			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID "+strconv.Itoa(id_account)+" is not available.")
 			return
 		}
 	}
@@ -520,7 +519,7 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 // @Router       /events/{id}/unassign/ [delete]
 func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin"{
+	if role != "admin" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -583,7 +582,7 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 // @Router       /events/{id}/status/ [patch]
 func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin"{
+	if role != "admin" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -620,7 +619,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if payload.Status != "cancelled" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "pending"{
+	if payload.Status != "cancelled" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "pending" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
 		return
 	}
@@ -706,7 +705,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		payload.Category = r.FormValue("category")
 		payload.City = r.FormValue("city")
 		payload.Street = r.FormValue("street")
-		
+
 		if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
 			payload.Capacity.SetValid(int64(capacity))
 		}
@@ -751,7 +750,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// require validation again if employee
-	if role == "employee"{
+	if role == "employee" {
 		err = db.UpdateEventStatusByEventId(id_event, "pending", r.Context().Value("user").(models.AuthClaims).Id)
 		if err != nil {
 			slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
