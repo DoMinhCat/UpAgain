@@ -507,10 +507,23 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.CancelEventByEventId(id_event)
+	var payload models.UpdateEventStatusRequest
+	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Error("CancelEventByEventId() failed", "controller", "CancelEventByEventId", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling the event.")
+		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CancelEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+		return
+	}
+
+	if payload.Status != "cancelled" && payload.Status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
+		return
+	}
+
+	err = db.UpdateEventStatusByEventId(id_event, payload.Status)
+	if err != nil {
+		slog.Error("UpdateEventStatusByEventId() failed", "controller", "CancelEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event status.")
 		return
 	}
 

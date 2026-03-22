@@ -63,12 +63,22 @@ export const assignEmployeeToEvent = async (
   return response.data;
 };
 
-export const unAssignEmployee = async (
+export const unassignEmployee = async (
   id_event: number,
   id_employee: UnassignEmployeePayload,
 ): Promise<void> => {
   const response = await api.delete(ENDPOINTS.ADMIN.EVENTS.UNASSIGN(id_event), {
     data: id_employee,
+  });
+  return response.data;
+};
+
+export const updateEventStatus = async (
+  id_event: number,
+  status: string,
+): Promise<void> => {
+  const response = await api.patch(ENDPOINTS.ADMIN.EVENTS.CANCEL(id_event), {
+    status,
   });
   return response.data;
 };

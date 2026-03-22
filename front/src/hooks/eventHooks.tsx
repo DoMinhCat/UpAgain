@@ -6,7 +6,8 @@ import {
   assignEmployeeToEvent,
   getEventDetails,
   getAssignedEmployees,
-  unAssignEmployee,
+  unassignEmployee,
+  updateEventStatus,
 } from "../api/admin/eventModule";
 import {
   type EventCreationPayload,
@@ -85,6 +86,7 @@ export const useAssignEmployeeToEvent = () => {
         "Employee(s) assigned to event",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
     },
     meta: {
@@ -122,18 +124,43 @@ export const useUnAssignEmployee = (id_event: number) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id_employee: UnassignEmployeePayload): Promise<void> =>
-      unAssignEmployee(id_event, id_employee),
+      unassignEmployee(id_event, id_employee),
     onSuccess: () => {
       showSuccessNotification(
         "Unassignation successful",
         "Employee unassigned from event",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
     },
     meta: {
       errorTitle: "Employee unassignation failed",
       errorMessage: "An error occured while unassigning employee from event",
+    },
+  });
+};
+
+export const useUpdateEventStatus = (id_event: number, status: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (): Promise<void> => updateEventStatus(id_event, status),
+    onSuccess: () => {
+      showSuccessNotification(
+        status === "cancelled"
+          ? "Cancellation successful"
+          : "Reopening successful",
+        status === "cancelled"
+          ? "Event cancelled successfully"
+          : "Event reopened successfully",
+      );
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["event", id_event] });
+      queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+    },
+    meta: {
+      errorTitle: "Event cancellation failed",
+      errorMessage: "An error occured while cancelling event",
     },
   });
 };
