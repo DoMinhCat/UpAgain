@@ -23,7 +23,6 @@ import { DateTimePicker } from "@mantine/dates";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import {
-  IconCalendarEvent,
   IconCoinEuro,
   IconMapPin,
   IconMapPinFilled,
@@ -36,6 +35,7 @@ import { useState, useEffect } from "react";
 import { TextEditor } from "../../../components/TextEditor";
 import {
   useAssignEmployeeToEvent,
+  useUpdateEventStatus,
   useGetAssignedEmployees,
   useGetEventDetails,
   useUnAssignEmployee,
@@ -177,6 +177,24 @@ export default function AdminEventDetails() {
       },
     );
   };
+
+  // CANCEL EVENT
+  const [
+    openedCancelEvent,
+    { open: openCancelEvent, close: closeCancelEvent },
+  ] = useDisclosure(false);
+  const cancelEvent = useUpdateEventStatus(
+    id_event,
+    eventDetails?.status === "cancelled" ? "approved" : "cancelled",
+  );
+  const handleCancelEvent = () => {
+    cancelEvent.mutate(undefined, {
+      onSuccess: () => {
+        closeCancelEvent();
+      },
+    });
+  };
+
   if (isLoadingEventDetails) return <FullScreenLoader />;
   return (
     <Container px="md" size="xl">
@@ -315,7 +333,18 @@ export default function AdminEventDetails() {
                   <Button variant="edit" onClick={openEdit}>
                     Edit event
                   </Button>
-                  <Button variant="delete">Cancel event</Button>
+                  <Button
+                    variant={
+                      eventDetails?.status === "cancelled"
+                        ? "primary"
+                        : "delete"
+                    }
+                    onClick={openCancelEvent}
+                  >
+                    {eventDetails?.status === "cancelled"
+                      ? "Reopen event"
+                      : "Cancel event"}
+                  </Button>
                 </Group>
                 <Modal
                   title="Edit event"
@@ -547,8 +576,7 @@ export default function AdminEventDetails() {
                       handleAssign(e);
                     }}
                     variant="primary"
-                    // loading={editMutation.isPending}
-                    // disabled={editMutation.isPending || isAccountDetailsLoading}
+                    loading={assignEmployees.isPending}
                   >
                     Confirm
                   </Button>
@@ -616,7 +644,7 @@ export default function AdminEventDetails() {
         <Text>
           Are you sure you want to unassign this employee from this event?
         </Text>
-        <Group mt="lg" justify="center">
+        <Group mt="lg" justify="end">
           <Button onClick={handleCloseUnassign} variant="grey">
             Cancel
           </Button>
@@ -625,6 +653,36 @@ export default function AdminEventDetails() {
               handleUnassignEmployee();
             }}
             variant="delete"
+            loading={unassignEmployee.isPending}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
+      <Modal
+        opened={openedCancelEvent}
+        onClose={closeCancelEvent}
+        title={
+          eventDetails?.status === "cancelled" ? "Reopen Event" : "Cancel Event"
+        }
+      >
+        <Text>
+          Are you sure you want to{" "}
+          {eventDetails?.status === "cancelled" ? "reopen" : "cancel"} this
+          event?
+        </Text>
+        <Group mt="lg" justify="end">
+          <Button onClick={closeCancelEvent} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              handleCancelEvent();
+            }}
+            variant={
+              eventDetails?.status === "cancelled" ? "primary" : "delete"
+            }
+            loading={cancelEvent.isPending}
           >
             Confirm
           </Button>

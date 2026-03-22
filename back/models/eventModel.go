@@ -68,3 +68,7 @@ type AssignEmployeeRequest struct{
 type UnAssignEmployeeRequest struct{
 	IdEmployee int `json:"id_employee"`
 }
+
+type UpdateEventStatusRequest struct{
+	Status string `json:"status"`
+}
