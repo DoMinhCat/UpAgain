@@ -52,6 +52,8 @@ func ParsePaginationAndFilters(r *http.Request) (page, limit int, filters models
 	filters = models.ValidationFilters{
 		Search: query.Get("search"),
 		Sort:   query.Get("sort"),
+		Status: query.Get("status"),
+		Type:   query.Get("type"),
 	}
 	return
 }

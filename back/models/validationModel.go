@@ -119,6 +119,8 @@ type ValidationStats struct {
 
 // ValidationFilters holds optional filter params for pending validation queries
 type ValidationFilters struct {
-	Search string
-	Sort   string
+	Search string `json:"search"`
+	Sort   string `json:"sort"`
+	Status string `json:"status"`
+	Type   string `json:"type"`
 }

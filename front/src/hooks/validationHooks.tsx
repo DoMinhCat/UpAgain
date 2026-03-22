@@ -84,10 +84,22 @@ export const useValidationStats = () => {
 
 // --- History hook ---
 
-export const useAllItemsHistory = (page?: number, limit?: number) => {
+export const useAllItemsHistory = (
+  page?: number,
+  limit?: number,
+  filters?: ValidationFilters,
+) => {
   return useQuery<PaginatedHistoryResponse>({
-    queryKey: ["allItemsHistory", page, limit],
-    queryFn: () => fetchAllItemsHistory(page, limit),
+    queryKey: [
+      "allItemsHistory",
+      page,
+      limit,
+      filters?.search,
+      filters?.sort,
+      filters?.status,
+      filters?.type,
+    ],
+    queryFn: () => fetchAllItemsHistory(page, limit, filters),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Fetching Failed",

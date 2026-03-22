@@ -268,6 +268,10 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
+// @Param        search  query     string  false  "Search query"
+// @Param        sort    query     string  false  "Sort order"
+// @Param        status  query     string  false  "Filter by status"
+// @Param        type    query     string  false  "Filter by type"
 // @Success      200     {object}  models.PaginatedHistoryResponse  "Paginated items history"
 // @Failure      400     {object}  nil                              "Invalid pagination parameters"
 // @Failure      403     {object}  nil                              "Forbidden"
@@ -286,14 +290,14 @@ func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page, limit, _, err := helper.ParsePaginationAndFilters(r)
+	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
 	if err != nil {
 		slog.Error("ParsePaginationAndFilters failed", "controller", "GetItemsHistory", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
 		return
 	}
 
-	items, total, err := db.GetAllItemsHistory(page, limit)
+	items, total, err := db.GetAllItemsHistory(page, limit, filters)
 	if err != nil {
 		slog.Error("GetAllItemsHistory() failed", "controller", "GetItemsHistory", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items history")

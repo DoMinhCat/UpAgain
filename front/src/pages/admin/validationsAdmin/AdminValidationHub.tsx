@@ -74,9 +74,16 @@ function getStatusBadge(status: string) {
 interface FiltersState {
   searchValue: string;
   sortValue: string | null;
+  statusValue: string | null;
+  typeValue: string | null;
 }
 
-const defaultFilters: FiltersState = { searchValue: "", sortValue: null };
+const defaultFilters: FiltersState = {
+  searchValue: "",
+  sortValue: null,
+  statusValue: null,
+  typeValue: null,
+};
 
 // ─── Overview Tab ────────────────────────────────────────────────────────────
 
@@ -257,6 +264,8 @@ interface FilterBarProps {
   onFilterChange: (key: keyof FiltersState, value: string | null) => void;
   onApply: () => void;
   onReset: () => void;
+  showStatus?: boolean;
+  showType?: boolean;
 }
 
 function FilterBar({
@@ -264,24 +273,64 @@ function FilterBar({
   onFilterChange,
   onApply,
   onReset,
+  showStatus = false,
+  showType = false,
 }: FilterBarProps) {
+  // Always total to 12 columns to ensure consistent length across all tabs
+  const searchSpan = 12 - (showStatus ? 2 : 0) - (showType ? 2 : 0) - 2 - 3;
+
   return (
     <Grid align="flex-end" mb="md">
-      <Grid.Col span={{ base: 12, md: 5 }}>
+      <Grid.Col span={{ base: 12, md: searchSpan }}>
         <TextInput
           label="Search"
           variant="filled"
-          placeholder="Search by title, username or ID..."
+          placeholder="Search items by title, username or ID..."
           rightSection={<IconSearch size={14} />}
           value={filters.searchValue}
           onChange={(e) => onFilterChange("searchValue", e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onApply()}
         />
       </Grid.Col>
-      <Grid.Col span={{ base: 6, md: 3 }}>
+
+      {showStatus && (
+        <Grid.Col span={{ base: 6, md: 2 }}>
+          <Select
+            label="Status"
+            placeholder="All status"
+            data={[
+              { value: "pending", label: "Pending" },
+              { value: "approved", label: "Approved" },
+              { value: "refused", label: "Refused" },
+            ]}
+            value={filters.statusValue}
+            onChange={(val) => onFilterChange("statusValue", val)}
+            clearable
+          />
+        </Grid.Col>
+      )}
+
+      {showType && (
+        <Grid.Col span={{ base: 6, md: 2 }}>
+          <Select
+            label="Type"
+            placeholder="All types"
+            data={[
+              { value: "Deposit", label: "Deposit" },
+              { value: "Listing", label: "Listing" },
+              { value: "Event", label: "Event" },
+            ]}
+            value={filters.typeValue}
+            onChange={(val) => onFilterChange("typeValue", val)}
+            clearable
+          />
+        </Grid.Col>
+      )}
+
+      <Grid.Col span={{ base: 6, md: 2 }}>
         <Select
           label="Sort by"
-          placeholder="Default (oldest first)"
+          placeholder="Default"
           data={[
             { value: "oldest", label: "Oldest first" },
             { value: "most_recent", label: "Most recent first" },
@@ -291,10 +340,11 @@ function FilterBar({
           clearable
         />
       </Grid.Col>
-      <Grid.Col span={{ base: 6, md: 4 }}>
+
+      <Grid.Col span={{ base: 12, md: 3 }}>
         <Group gap="xs" grow>
           <Button variant="primary" onClick={onApply}>
-            Apply filters
+            Search
           </Button>
           <Button variant="secondary" onClick={onReset}>
             Reset
@@ -824,21 +874,63 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
 function HistoryTab() {
   const navigate = useNavigate();
   const [activePage, setPage] = useState(1);
+  const [filters, setFilters] = useState<FiltersState>(defaultFilters);
+  const [appliedFilters, setAppliedFilters] =
+    useState<FiltersState>(defaultFilters);
+
+  const hasFilters = !!(
+    appliedFilters.searchValue ||
+    appliedFilters.sortValue ||
+    appliedFilters.statusValue ||
+    appliedFilters.typeValue
+  );
+
   const {
     data: historyData,
     isLoading,
     isError,
-  } = useAllItemsHistory(activePage, LIMIT);
+  } = useAllItemsHistory(
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    {
+      search: appliedFilters.searchValue || undefined,
+      sort: appliedFilters.sortValue || undefined,
+      status: appliedFilters.statusValue || undefined,
+      type: appliedFilters.typeValue || undefined,
+    },
+  );
 
   const items = historyData?.items ?? [];
 
+  const handleApply = () => {
+    setPage(1);
+    setAppliedFilters({ ...filters });
+  };
+
+  const handleReset = () => {
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+
   return (
     <Stack gap="sm" mt="md">
+      <FilterBar
+        filters={filters}
+        onFilterChange={(key, val) =>
+          setFilters((prev) => ({ ...prev, [key]: val }))
+        }
+        onApply={handleApply}
+        onReset={handleReset}
+        showStatus
+        showType
+      />
       <AdminTable
         loading={isLoading}
         error={isError ? new Error("Could not load history.") : null}
         header={["Created on", "ID", "Title", "Type", "User", "Status"]}
         footer={
+          !hasFilters &&
           historyData &&
           historyData.total_records > 0 && (
             <Group justify="space-between" mt="md">
@@ -872,13 +964,27 @@ function HistoryTab() {
               style={{
                 cursor: "pointer",
               }}
-              onClick={() =>
-                item.item_type === "Event"
-                  ? navigate(`${PATHS.ADMIN.EVENTS.ALL}/${item.id}`, {
-                      state: "validationHub",
-                    })
-                  : navigate("#")
-              }
+              onClick={() => {
+                if (item.item_type === "Event") {
+                  navigate(`${PATHS.ADMIN.EVENTS.ALL}/${item.id}`, {
+                    state: "validationHub",
+                  });
+                } else if (item.item_type === "Deposit") {
+                  navigate(
+                    `${PATHS.ADMIN.VALIDATIONS.ALL}/deposits/${item.id}`,
+                    {
+                      state: { item },
+                    },
+                  );
+                } else if (item.item_type === "Listing") {
+                  navigate(
+                    `${PATHS.ADMIN.VALIDATIONS.ALL}/listings/${item.id}`,
+                    {
+                      state: { item },
+                    },
+                  );
+                }
+              }}
             >
               <Table.Td ta="center">
                 {dayjs(item.created_at).format("DD/MM/YYYY")}
@@ -888,7 +994,16 @@ function HistoryTab() {
               </Table.Td>
               <Table.Td ta="center">{item.title}</Table.Td>
               <Table.Td ta="center">
-                <Badge variant="light" color="blue">
+                <Badge
+                  variant="light"
+                  color={
+                    item.item_type === "Event"
+                      ? "blue"
+                      : item.item_type === "Deposit"
+                        ? "orange"
+                        : "green"
+                  }
+                >
                   {item.item_type}
                 </Badge>
               </Table.Td>
