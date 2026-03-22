@@ -334,32 +334,6 @@ func UpdateListingStatus(itemID int, newStatus string, employeeID int) error {
 	return nil
 }
 
-func UpdateEventStatus(eventID int, newStatus string, employeeID int) error {
-	tx, err := utils.Conn.Begin()
-	if err != nil {
-		return fmt.Errorf("error starting transaction: %v", err)
-	}
-	defer tx.Rollback()
-
-	_, err = tx.Exec(`UPDATE events SET status = $1 WHERE id = $2`, newStatus, eventID)
-	if err != nil {
-		return fmt.Errorf("error updating event status in tx: %v", err)
-	}
-
-	_, err = tx.Exec(`
-		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
-		VALUES ('event', $1, 'update', $2)
-	`, eventID, employeeID)
-	if err != nil {
-		return fmt.Errorf("error inserting into admin_history in tx: %v", err)
-	}
-
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("error committing event transaction: %v", err)
-	}
-	return nil
-}
-
 // GetValidationStats returns counts of pending/approved/refused for deposits, listings, and events.
 func GetValidationStats() (models.ValidationStats, error) {
 	var stats models.ValidationStats

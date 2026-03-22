@@ -223,10 +223,54 @@ func CheckEventExistsById(id_event int) (bool, error){
 	return exists, nil
 }
 
-func UpdateEventStatusByEventId(id_event int, status string) error {
-	_, err := utils.Conn.Exec("UPDATE events SET status=$1 WHERE id=$2;", status, id_event)
+func UpdateEventStatusByEventId(eventID int, newStatus string, employeeID int) error {
+	tx, err := utils.Conn.Begin()
 	if err != nil {
-		return fmt.Errorf("UpdateEventStatusByEventId() failed: %v", err.Error())
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`UPDATE events SET status = $1 WHERE id = $2`, newStatus, eventID)
+	if err != nil {
+		return fmt.Errorf("error updating event status in tx: %v", err)
+	}
+
+	_, err = tx.Exec(`
+		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
+		VALUES ('event', $1, 'update', $2)
+	`, eventID, employeeID)
+	if err != nil {
+		return fmt.Errorf("error inserting into admin_history in tx: %v", err)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error committing event transaction: %v", err)
+	}
+	return nil
+}
+
+func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employeeID int) error {
+	tx, err := utils.Conn.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`UPDATE events SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, location_detail = $10 WHERE id = $11`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, eventID)
+	if err != nil {
+		return fmt.Errorf("error updating event in tx: %v", err)
+	}
+
+	_, err = tx.Exec(`
+		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
+		VALUES ('event', $1, 'update', $2)
+	`, eventID, employeeID)
+	if err != nil {
+		return fmt.Errorf("error inserting into admin_history in tx: %v", err)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error committing event transaction: %v", err)
 	}
 	return nil
 }

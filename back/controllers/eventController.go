@@ -520,10 +520,75 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.UpdateEventStatusByEventId(id_event, payload.Status)
+	err = db.UpdateEventStatusByEventId(id_event, payload.Status, r.Context().Value("user").(models.AuthClaims).Id)
 	if err != nil {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event status.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" && role != "employee" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	id_url := r.PathValue("id_event")
+	if id_url == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
+		return
+	}
+
+	id_event, err := strconv.Atoi(id_url)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event id.")
+		return
+	}
+
+	exist, err := db.CheckEventExistsById(id_event)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		return
+	}
+
+	var payload models.UpdateEventRequest
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+		return
+	}
+
+	validation := validation.ValidateEventUpdate(payload)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+		return
+	}
+
+	// require validation again if employee
+	if role == "employee"{
+		err = db.UpdateEventStatusByEventId(id_event, "pending", r.Context().Value("user").(models.AuthClaims).Id)
+		if err != nil {
+			slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
+			return
+		}
+	}
+
+	err = db.UpdateEventByEventId(id_event, payload, r.Context().Value("user").(models.AuthClaims).Id)
+	if err != nil {
+		slog.Error("UpdateEventByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
 		return
 	}
 
