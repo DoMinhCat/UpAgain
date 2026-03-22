@@ -519,6 +519,7 @@ export default function AdminEventsModule() {
                 <Grid>
                   <Grid.Col span={{ base: 12, md: 6 }}>
                     <DateTimePicker
+                      clearable
                       withAsterisk
                       label="Start date"
                       placeholder="When does it start?"
@@ -535,6 +536,7 @@ export default function AdminEventsModule() {
                   <Grid.Col span={{ base: 12, md: 6 }}>
                     <DateTimePicker
                       withAsterisk
+                      clearable
                       label="End date"
                       placeholder="When does it end?"
                       onBlur={() => validateEndDate()}

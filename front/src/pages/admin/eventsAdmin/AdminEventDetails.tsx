@@ -93,6 +93,7 @@ export default function AdminEventDetails() {
   const [errorStreet, setErrorStreet] = useState<string | null>(null);
   const [errorCity, setErrorCity] = useState<string | null>(null);
   const [errorDate, setErrorDate] = useState<string | null>(null);
+  const [errorEndDate, setErrorEndDate] = useState<string | null>(null);
   const [errorCategory, setErrorCategory] = useState<string | null>(null);
   const [errorDescription, setErrorDescription] = useState<string | null>(null);
 
@@ -155,7 +156,7 @@ export default function AdminEventDetails() {
   };
   const validateDate = () => {
     if (!dateEdit || dateEdit.trim() === "") {
-      setErrorDate("Date is required");
+      setErrorDate("Start date is required");
       return false;
     }
     setErrorDate("");
@@ -177,21 +178,63 @@ export default function AdminEventDetails() {
     setErrorDescription("");
     return true;
   };
-  const validateStartDate = () => {
-    if (!dateEdit || dateEdit.trim() === "") {
+  const validateStartDate = (date: string | null) => {
+    if (!date || date.trim() === "") {
       setErrorDate("Start date is required");
       return false;
     }
     setErrorDate("");
     return true;
   };
-  const validateEndDate = () => {
-    if (!endDateEdit || endDateEdit.trim() === "") {
-      setErrorDate("End date is required");
+  const validateEndDate = (date: string | null) => {
+    if (!date || date.trim() === "") {
+      setErrorEndDate("End date is required");
       return false;
     }
-    setErrorDate("");
+    setErrorEndDate("");
     return true;
+  };
+
+  const handleEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !validateTitle() ||
+      !validateCapacity() ||
+      !validatePrice() ||
+      !validateStreet() ||
+      !validateCity() ||
+      !validateDate() ||
+      !validateCategory() ||
+      !validateDescription() ||
+      !validateStartDate(dateEdit) ||
+      !validateEndDate(endDateEdit)
+    )
+      return;
+    // call mutate
+  };
+  const handleCloseEdit = () => {
+    if (eventDetails) {
+      setTitleEdit(eventDetails.title || "");
+      setCapacityEdit(eventDetails.capacity || 0);
+      setPriceEdit(eventDetails.price || 0);
+      setStreetEdit(eventDetails.street || "");
+      setCityEdit(eventDetails.city || "");
+      setLocationDetailEdit(eventDetails.location_detail || "");
+      setDateEdit(eventDetails.start_at || null);
+      setEndDateEdit(eventDetails.end_at || null);
+      setCategoryEdit(eventDetails.category || "");
+      setDescriptionEdit(eventDetails.description || "");
+      setErrorTitle("");
+      setErrorCapacity("");
+      setErrorPrice("");
+      setErrorStreet("");
+      setErrorCity("");
+      setErrorDate("");
+      setErrorEndDate("");
+      setErrorCategory("");
+      setErrorDescription("");
+    }
+    closeEdit();
   };
 
   // GET ASSIGNED EMPLOYEES
@@ -441,7 +484,7 @@ export default function AdminEventDetails() {
                 <Modal
                   title="Edit event"
                   opened={openedEdit}
-                  onClose={closeEdit}
+                  onClose={handleCloseEdit}
                   centered
                   size="xl"
                 >
@@ -454,8 +497,8 @@ export default function AdminEventDetails() {
                       onChange={(e) => {
                         setTitleEdit(e.target.value);
                       }}
-                      // onBlur={() => validateUsernameEdit(usernameEdit)}
-                      // error={usernameEditError}
+                      onBlur={() => validateTitle()}
+                      error={errorTitle}
                       // disabled={isAccountDetailsLoading}
                       required
                     />
@@ -467,8 +510,8 @@ export default function AdminEventDetails() {
                       onChange={(value) => {
                         setCapacityEdit(Number(value));
                       }}
-                      // onBlur={() => validateEmailEdit(emailEdit)}
-                      // error={emailEditError}
+                      onBlur={() => validateCapacity()}
+                      error={errorCapacity}
                       // disabled={isAccountDetailsLoading}
                       required
                     />
@@ -480,8 +523,8 @@ export default function AdminEventDetails() {
                       onChange={(value) => {
                         setPriceEdit(Number(value));
                       }}
-                      // onBlur={() => validateEmailEdit(emailEdit)}
-                      // error={emailEditError}
+                      onBlur={() => validatePrice()}
+                      error={errorPrice}
                       // disabled={isAccountDetailsLoading}
                       required
                     />
@@ -494,8 +537,8 @@ export default function AdminEventDetails() {
                           onChange={(e) => {
                             setStreetEdit(e.target.value);
                           }}
-                          // onBlur={() => validateUsernameEdit(usernameEdit)}
-                          // error={usernameEditError}
+                          onBlur={() => validateStreet()}
+                          error={errorStreet}
                           // disabled={isAccountDetailsLoading}
                           required
                         />
@@ -508,8 +551,8 @@ export default function AdminEventDetails() {
                           onChange={(e) => {
                             setCityEdit(e.target.value);
                           }}
-                          // onBlur={() => validateUsernameEdit(usernameEdit)}
-                          // error={usernameEditError}
+                          onBlur={() => validateCity()}
+                          error={errorCity}
                           // disabled={isAccountDetailsLoading}
                           required
                         />
@@ -521,33 +564,38 @@ export default function AdminEventDetails() {
                       onChange={(e) => {
                         setLocationDetailEdit(e.target.value);
                       }}
-                      // onBlur={() => validateUsernameEdit(usernameEdit)}
-                      // error={usernameEditError}
                       // disabled={isAccountDetailsLoading}
-                      required
                     />
                     <Grid>
                       <Grid.Col span={{ base: 12, md: 6 }}>
                         <DateTimePicker
                           withAsterisk
+                          clearable
                           label="Start date"
                           value={dateEdit ? new Date(dateEdit) : null}
-                          onChange={(val) =>
-                            setDateEdit(val ? dayjs(val).toISOString() : null)
-                          }
+                          onChange={(val) => {
+                            setDateEdit(val ? dayjs(val).toISOString() : null);
+                            validateStartDate(dateEdit);
+                          }}
+                          onBlur={() => validateStartDate(dateEdit)}
+                          error={errorDate}
                           required
                         />
                       </Grid.Col>
                       <Grid.Col span={{ base: 12, md: 6 }}>
                         <DateTimePicker
+                          clearable
                           withAsterisk
                           label="End date"
                           value={endDateEdit ? new Date(endDateEdit) : null}
-                          onChange={(val) =>
+                          onChange={(val) => {
                             setEndDateEdit(
                               val ? dayjs(val).toISOString() : null,
-                            )
-                          }
+                            );
+                            validateEndDate(endDateEdit);
+                          }}
+                          onBlur={() => validateEndDate(endDateEdit)}
+                          error={errorEndDate}
                           required
                         />
                       </Grid.Col>
@@ -557,8 +605,8 @@ export default function AdminEventDetails() {
                       clearable
                       label="Category"
                       value={categoryEdit}
-                      // error={roleNewError}
-                      // onBlur={() => validateRoleNew(roleNew)}
+                      error={errorCategory}
+                      onBlur={() => validateCategory()}
                       data={[
                         { value: "workshop", label: "Workshop" },
                         { value: "conference", label: "Conference" },
@@ -576,16 +624,17 @@ export default function AdminEventDetails() {
                       onChange={(value) => {
                         setDescriptionEdit(value);
                       }}
+                      error={errorDescription ?? ""}
                     />
                   </Stack>
                   <Group mt="lg" justify="center">
-                    <Button onClick={closeEdit} variant="grey">
+                    <Button onClick={handleCloseEdit} variant="grey">
                       Cancel
                     </Button>
                     <Button
-                      // onClick={(e) => {
-                      //   handleEditAccount(e);
-                      // }}
+                      onClick={(e: React.FormEvent) => {
+                        handleEdit(e);
+                      }}
                       variant="primary"
                       // loading={editMutation.isPending}
                       // disabled={editMutation.isPending || isAccountDetailsLoading}
