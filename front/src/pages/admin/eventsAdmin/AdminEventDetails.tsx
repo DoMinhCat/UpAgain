@@ -337,21 +337,21 @@ export default function AdminEventDetails() {
 
   // CANCEL EVENT
   const [
-    openedCancelEvent,
-    { open: openCancelEvent, close: closeCancelEvent },
+    openedUpdateStatusModal,
+    { open: openUpdateStatusModal, close: closeUpdateStatusModal },
   ] = useDisclosure(false);
   const cancelEvent = useUpdateEventStatus(
     id_event,
     eventDetails?.status === "cancelled"
       ? "approved"
-      : eventDetails?.status === "pending"
+      : eventDetails?.status === "pending" || eventDetails?.status === "refused"
         ? "approved"
         : "cancelled",
   );
-  const handleCancelEvent = () => {
+  const handleUpdateEventStatus = () => {
     cancelEvent.mutate(undefined, {
       onSuccess: () => {
-        closeCancelEvent();
+        closeUpdateStatusModal();
       },
     });
   };
@@ -503,15 +503,17 @@ export default function AdminEventDetails() {
                   <Button
                     variant={
                       eventDetails?.status === "cancelled" ||
-                      eventDetails?.status === "pending"
+                      eventDetails?.status === "pending" ||
+                      eventDetails?.status === "refused"
                         ? "primary"
                         : "delete"
                     }
-                    onClick={openCancelEvent}
+                    onClick={openUpdateStatusModal}
                   >
                     {eventDetails?.status === "cancelled"
                       ? "Reopen event"
-                      : eventDetails?.status === "pending"
+                      : eventDetails?.status === "pending" ||
+                          eventDetails?.status === "refused"
                         ? "Approve event"
                         : "Cancel event"}
                   </Button>
@@ -858,12 +860,13 @@ export default function AdminEventDetails() {
         </Group>
       </Modal>
       <Modal
-        opened={openedCancelEvent}
-        onClose={closeCancelEvent}
+        opened={openedUpdateStatusModal}
+        onClose={closeUpdateStatusModal}
         title={
           eventDetails?.status === "cancelled"
             ? "Reopen Event"
-            : eventDetails?.status === "pending"
+            : eventDetails?.status === "pending" ||
+                eventDetails?.status === "refused"
               ? "Approve Event"
               : "Cancel Event"
         }
@@ -872,22 +875,24 @@ export default function AdminEventDetails() {
           Are you sure you want to{" "}
           {eventDetails?.status === "cancelled"
             ? "reopen"
-            : eventDetails?.status === "pending"
+            : eventDetails?.status === "pending" ||
+                eventDetails?.status === "refused"
               ? "approve"
               : "cancel"}{" "}
           this event?
         </Text>
         <Group mt="lg" justify="end">
-          <Button onClick={closeCancelEvent} variant="grey">
+          <Button onClick={closeUpdateStatusModal} variant="grey">
             Cancel
           </Button>
           <Button
             onClick={() => {
-              handleCancelEvent();
+              handleUpdateEventStatus();
             }}
             variant={
               eventDetails?.status === "cancelled" ||
-              eventDetails?.status === "pending"
+              eventDetails?.status === "pending" ||
+              eventDetails?.status === "refused"
                 ? "primary"
                 : "delete"
             }
