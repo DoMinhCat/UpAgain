@@ -451,7 +451,10 @@ export default function AdminEventDetails() {
                       " · " +
                       dayjs(eventDetails?.start_at).format("HH:mm") +
                       (eventDetails?.end_at
-                        ? " - " + dayjs(eventDetails?.end_at).format("HH:mm")
+                        ? " - " +
+                          dayjs(eventDetails?.end_at).format("dddd, MMM DD") +
+                          " · " +
+                          dayjs(eventDetails?.end_at).format("HH:mm")
                         : "") +
                       ", UTC" +
                       dayjs(eventDetails?.start_at).format("Z")
