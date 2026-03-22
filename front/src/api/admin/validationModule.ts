@@ -1,6 +1,5 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
-import { type AppEvent } from "../interfaces/event";
 import {
   type ValidationStats,
   type ValidationFilters,
@@ -58,10 +57,11 @@ export const fetchValidationStats = async (): Promise<ValidationStats> => {
 export const fetchAllItemsHistory = async (
   page?: number,
   limit?: number,
+  filters?: ValidationFilters,
 ): Promise<PaginatedHistoryResponse> => {
   const response = await api.get<PaginatedHistoryResponse>(
     ENDPOINTS.ADMIN.VALIDATIONS.HISTORY,
-    { params: { page, limit } },
+    { params: { page, limit, ...filters } },
   );
   return response.data;
 };

@@ -7,55 +7,100 @@ import (
 	"fmt"
 )
 
-func GetAllItemsHistory(page, limit int) ([]models.AllItemResponse, int, error) {
-	countQuery := `
-		SELECT COUNT(*) FROM (
-			SELECT i.id FROM items i WHERE i.is_deleted = false
-			UNION ALL
-			SELECT ev.id FROM events ev WHERE ev.status != 'cancelled'
-		) as total_history
-	`
+func GetAllItemsHistory(page, limit int, filters models.ValidationFilters) ([]models.AllItemResponse, int, error) {
+	var params []interface{}
+	paramIndex := 1
+
+	itemsWhere := "WHERE i.is_deleted = false"
+	eventsWhere := "WHERE ev.status != 'cancelled'"
+
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		itemsWhere += fmt.Sprintf(" AND (i.title ILIKE $%d OR a.username ILIKE $%d OR CAST(i.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		eventsWhere += fmt.Sprintf(" AND (ev.title ILIKE $%d OR acc.username ILIKE $%d OR CAST(ev.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		params = append(params, searchParam)
+		paramIndex++
+	}
+
+	if filters.Status != "" {
+		itemsWhere += fmt.Sprintf(" AND i.status::text = $%d", paramIndex)
+		eventsWhere += fmt.Sprintf(" AND ev.status::text = $%d", paramIndex)
+		params = append(params, filters.Status)
+		paramIndex++
+	}
+
+	includeItems := filters.Type == "" || filters.Type == "Deposit" || filters.Type == "Listing"
+	includeEvents := filters.Type == "" || filters.Type == "Event"
+
+	if filters.Type == "Deposit" {
+		itemsWhere += " AND d.id_item IS NOT NULL"
+	} else if filters.Type == "Listing" {
+		itemsWhere += " AND l.id_item IS NOT NULL"
+	}
+
+	countQuery := "SELECT COALESCE(SUM(count), 0) FROM ("
+	if includeItems {
+		countQuery += fmt.Sprintf("SELECT COUNT(*) FROM items i JOIN accounts a ON i.id_user = a.id LEFT JOIN deposits d ON i.id = d.id_item LEFT JOIN listings l ON i.id = l.id_item %s", itemsWhere)
+	}
+	if includeItems && includeEvents {
+		countQuery += " UNION ALL "
+	}
+	if includeEvents {
+		countQuery += fmt.Sprintf("SELECT COUNT(*) FROM events ev LEFT JOIN (SELECT DISTINCT ON (id_event) id_event, id_employee FROM event_employee ORDER BY id_event, assigned_at ASC) ee ON ev.id = ee.id_event LEFT JOIN accounts acc ON ee.id_employee = acc.id %s", eventsWhere)
+	}
+	countQuery += ") as history_counts"
+
 	var totalRecords int
-	if err := utils.Conn.QueryRow(countQuery).Scan(&totalRecords); err != nil {
+	if err := utils.Conn.QueryRow(countQuery, params...).Scan(&totalRecords); err != nil {
 		return nil, 0, fmt.Errorf("error counting history: %v", err)
 	}
 
-	query := `
-		SELECT 
-			i.id, i.title, i.status::text as status, i.created_at, COALESCE(a.username, 'System'),
-			CASE 
-				WHEN d.id_item IS NOT NULL THEN 'Deposit'
-				WHEN l.id_item IS NOT NULL THEN 'Listing'
-				ELSE 'Unknown'
-			END as item_type
-		FROM items i
-		JOIN accounts a ON i.id_user = a.id
-		LEFT JOIN deposits d ON i.id = d.id_item
-		LEFT JOIN listings l ON i.id = l.id_item
-		WHERE i.is_deleted = false
+	orderBy := "ORDER BY created_at DESC"
+	if filters.Sort == "oldest" {
+		orderBy = "ORDER BY created_at ASC"
+	}
 
-		UNION ALL
-
-		SELECT 
-			ev.id, ev.title, ev.status::text as status, ev.created_at, 
-			COALESCE(acc.username, 'Not assigned') as username,
-			'Event' as item_type
-		FROM events ev
-		LEFT JOIN (
-			SELECT DISTINCT ON (id_event) id_event, id_employee FROM event_employee ORDER BY id_event, assigned_at ASC
-		) ee ON ev.id = ee.id_event
-		LEFT JOIN accounts acc ON ee.id_employee = acc.id
-		WHERE ev.status != 'cancelled'
-
-		ORDER BY created_at DESC
-	`
+	query := "SELECT * FROM ("
+	if includeItems {
+		query += fmt.Sprintf(`
+			SELECT 
+				i.id, i.title, i.status::text as status, i.created_at, COALESCE(a.username, 'System'),
+				CASE 
+					WHEN d.id_item IS NOT NULL THEN 'Deposit'
+					WHEN l.id_item IS NOT NULL THEN 'Listing'
+					ELSE 'Unknown'
+				END as item_type
+			FROM items i
+			JOIN accounts a ON i.id_user = a.id
+			LEFT JOIN deposits d ON i.id = d.id_item
+			LEFT JOIN listings l ON i.id = l.id_item
+			%s`, itemsWhere)
+	}
+	if includeItems && includeEvents {
+		query += " UNION ALL "
+	}
+	if includeEvents {
+		query += fmt.Sprintf(`
+			SELECT 
+				ev.id, ev.title, ev.status::text as status, ev.created_at, 
+				COALESCE(acc.username, 'Not assigned') as username,
+				'Event' as item_type
+			FROM events ev
+			LEFT JOIN (
+				SELECT DISTINCT ON (id_event) id_event, id_employee FROM event_employee ORDER BY id_event, assigned_at ASC
+			) ee ON ev.id = ee.id_event
+			LEFT JOIN accounts acc ON ee.id_employee = acc.id
+			%s`, eventsWhere)
+	}
+	query += ") as total_history " + orderBy
 
 	if limit != -1 && page != -1 {
 		offset := (page - 1) * limit
-		query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
 	}
 
-	rows, err := utils.Conn.Query(query)
+	rows, err := utils.Conn.Query(query, params...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error getting all items and events history: %v", err)
 	}
@@ -69,6 +114,9 @@ func GetAllItemsHistory(page, limit int) ([]models.AllItemResponse, int, error) 
 			return nil, 0, fmt.Errorf("error scanning history row: %v", err)
 		}
 		items = append(items, item)
+	}
+	if items == nil {
+		items = []models.AllItemResponse{}
 	}
 	return items, totalRecords, nil
 }

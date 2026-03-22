@@ -13,4 +13,6 @@ export interface ValidationStats {
 export interface ValidationFilters {
   search?: string;
   sort?: string;
+  status?: string;
+  type?: string;
 }
