@@ -38,13 +38,16 @@ import {
   useAssignEmployeeToEvent,
   useGetAssignedEmployees,
   useGetEventDetails,
+  useUnAssignEmployee,
 } from "../../../hooks/eventHooks";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
+import type { AssignedEmployee } from "../../../api/interfaces/event";
 
 export default function AdminEventDetails() {
+  const navigate = useNavigate();
   // edit modal and form
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
@@ -146,6 +149,34 @@ export default function AdminEventDetails() {
     );
   };
 
+  // UNASSIGN MODAL
+  const [openedUnassign, { open: openUnassign, close: closeUnassign }] =
+    useDisclosure(false);
+  const [employeeUnassign, setEmployeeUnassign] =
+    useState<AssignedEmployee | null>(null);
+  const handleUnassignModal = (employee: AssignedEmployee) => {
+    setEmployeeUnassign(employee);
+    openUnassign();
+  };
+  const handleCloseUnassign = () => {
+    setEmployeeUnassign(null);
+    closeUnassign();
+  };
+
+  const unassignEmployee = useUnAssignEmployee(id_event);
+  const handleUnassignEmployee = () => {
+    if (!employeeUnassign) return;
+    unassignEmployee.mutate(
+      {
+        id_employee: employeeUnassign.id,
+      },
+      {
+        onSuccess: () => {
+          handleCloseUnassign();
+        },
+      },
+    );
+  };
   if (isLoadingEventDetails) return <FullScreenLoader />;
   return (
     <Container px="md" size="xl">
@@ -534,7 +565,20 @@ export default function AdminEventDetails() {
           {(assignedEmployees?.length ?? 0) > 0 ? (
             assignedEmployees?.map((employee) => {
               return (
-                <Table.Tr key={employee?.id}>
+                <Table.Tr
+                  key={employee?.id}
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    navigate(PATHS.ADMIN.USERS.ALL + "/" + employee?.id, {
+                      state: {
+                        from: "eventDetails",
+                        id_event: id_event,
+                      },
+                    });
+                  }}
+                >
                   <Table.Td ta="center">
                     {dayjs(employee?.assigned_at).format("DD/MM/YYYY")}
                   </Table.Td>
@@ -543,9 +587,10 @@ export default function AdminEventDetails() {
                   <Table.Td ta="center">
                     <Button
                       variant="delete"
-                      // onClick={() => {
-                      //   handleUnassignEmployee(employee?.id);
-                      // }}
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        handleUnassignModal(employee);
+                      }}
                     >
                       Unassign
                     </Button>
@@ -562,6 +607,28 @@ export default function AdminEventDetails() {
           )}
         </AdminTable>
       </Container>
+      <Modal
+        opened={openedUnassign}
+        onClose={handleCloseUnassign}
+        title="Unassign Employee"
+      >
+        <Text>
+          Are you sure you want to unassign this employee from this event?
+        </Text>
+        <Group mt="lg" justify="center">
+          <Button onClick={handleCloseUnassign} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              handleUnassignEmployee();
+            }}
+            variant="delete"
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 }

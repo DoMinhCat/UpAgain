@@ -6,6 +6,7 @@ import {
   assignEmployeeToEvent,
   getEventDetails,
   getAssignedEmployees,
+  unAssignEmployee,
 } from "../api/admin/eventModule";
 import {
   type EventCreationPayload,
@@ -13,6 +14,7 @@ import {
   type EventsListPagination,
   type AppEvent,
   type AssignedEmployee,
+  type UnassignEmployeePayload,
 } from "../api/interfaces/event";
 import { showSuccessNotification } from "../components/NotificationToast";
 
@@ -112,6 +114,26 @@ export const useGetAssignedEmployees = (id_event: number) => {
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch assigned employees.",
+    },
+  });
+};
+
+export const useUnAssignEmployee = (id_event: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_employee: UnassignEmployeePayload): Promise<void> =>
+      unAssignEmployee(id_event, id_employee),
+    onSuccess: () => {
+      showSuccessNotification(
+        "Unassignation successful",
+        "Employee unassigned from event",
+      );
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
+    },
+    meta: {
+      errorTitle: "Employee unassignation failed",
+      errorMessage: "An error occured while unassigning employee from event",
     },
   });
 };

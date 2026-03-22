@@ -403,7 +403,9 @@ export default function AdminUsersModule() {
           }}
           key={account.id}
           onClick={() => {
-            navigate(PATHS.ADMIN.USERS.ALL + "/" + account.id);
+            navigate(PATHS.ADMIN.USERS.ALL + "/" + account.id, {
+              state: "allUsers",
+            });
           }}
         >
           <Table.Td ta="center">

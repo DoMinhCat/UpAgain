@@ -6,6 +6,7 @@ import {
   type EventStats,
   type EventCreationPayload,
   type AssignedEmployee,
+  type UnassignEmployeePayload,
 } from "../interfaces/event";
 
 // get active or deleted events
@@ -58,6 +59,16 @@ export const assignEmployeeToEvent = async (
     ids_employee: employee_ids,
     start_at,
     end_at,
+  });
+  return response.data;
+};
+
+export const unAssignEmployee = async (
+  id_event: number,
+  id_employee: UnassignEmployeePayload,
+): Promise<void> => {
+  const response = await api.delete(ENDPOINTS.ADMIN.EVENTS.UNASSIGN(id_event), {
+    data: id_employee,
   });
   return response.data;
 };
