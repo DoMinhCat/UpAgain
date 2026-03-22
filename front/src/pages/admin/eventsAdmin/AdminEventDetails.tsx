@@ -692,7 +692,7 @@ export default function AdminEventDetails() {
           <Tooltip
             label="Event must be approved to assign employees"
             /* Only enable the tooltip if the button is disabled */
-            disabled={eventDetails?.status === "aproved"}
+            disabled={eventDetails?.status === "approved"}
             closeDelay={200}
             transitionProps={{ transition: "pop", duration: 300 }}
           >
@@ -702,7 +702,7 @@ export default function AdminEventDetails() {
                 variant="primary"
                 onClick={openAssign}
                 leftSection={<IconPlus size={16} />}
-                disabled={eventDetails?.status !== "aproved"}
+                disabled={eventDetails?.status !== "approved"}
               >
                 Assign employee
               </Button>
@@ -805,7 +805,7 @@ export default function AdminEventDetails() {
                     <Tooltip
                       label="Event must be approved to unassign employees"
                       /* Only enable the tooltip if the button is disabled */
-                      disabled={eventDetails?.status === "aproved"}
+                      disabled={eventDetails?.status === "approved"}
                       closeDelay={200}
                       transitionProps={{ transition: "pop", duration: 300 }}
                     >
@@ -813,7 +813,7 @@ export default function AdminEventDetails() {
                       <div style={{ width: "fit-content", margin: "auto" }}>
                         <Button
                           variant="delete"
-                          disabled={eventDetails?.status !== "aproved"}
+                          disabled={eventDetails?.status !== "approved"}
                           onClick={(e: React.MouseEvent) => {
                             e.stopPropagation();
                             handleUnassignModal(employee);
