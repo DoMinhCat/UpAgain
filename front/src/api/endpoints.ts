@@ -10,6 +10,7 @@ export const ENDPOINTS = {
       RECOVER: (id_account: number) => `/accounts/${id_account}/recover/`,
       STATS: (id_account: number) => `/accounts/${id_account}/stats/`,
       UPDATE: (id_account: number) => `/accounts/${id_account}/`,
+      SCORE_STATS: "/users/score/",
     },
 
     CONTAINERS: {

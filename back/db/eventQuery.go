@@ -232,7 +232,7 @@ func GetEventDetailsById(id_event int) (models.Event, error) {
 	return event, nil
 }
 
-func GetTotalEventsAssignedById(id_account int) (int, error){
+func GetTotalEventsAssignedById(id_account int) (int, error) {
 	var total int
 	query := `
 		select count(*) from event_employee ee
@@ -247,8 +247,7 @@ func GetTotalEventsAssignedById(id_account int) (int, error){
 	return total, nil
 }
 
-
-func CheckEventExistsById(id_event int) (bool, error){
+func CheckEventExistsById(id_event int) (bool, error) {
 	var exists bool
 	query := `
 		SELECT EXISTS(SELECT 1 FROM events WHERE id=$1);
