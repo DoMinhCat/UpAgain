@@ -273,3 +273,15 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employee
 	}
 	return nil
 }
+
+func GetEventStatusById(id_event int) (string, error) {
+	var status string
+	query := `
+		SELECT status FROM events WHERE id=$1;
+	`
+	err := utils.Conn.QueryRow(query, id_event).Scan(&status)
+	if err != nil {
+		return "", fmt.Errorf("GetEventStatusById() failed: %v", err.Error())
+	}
+	return status, nil
+}

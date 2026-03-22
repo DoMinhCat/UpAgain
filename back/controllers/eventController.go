@@ -361,6 +361,18 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check event is approved
+	status, err := db.GetEventStatusById(id_event)
+	if err != nil {
+		slog.Error("GetEventStatusById() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning event(s) to the event.")
+		return
+	}
+	if status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event is not approved.")
+		return
+	}
+
 	var payload models.AssignEmployeeRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
@@ -373,6 +385,20 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	if role != "admin" && len(payload.IdsEmployee) > 1 {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You can only assign yourself to an event.")
 		return
+	}
+
+	// can't assign admin
+	for _, id_employee := range payload.IdsEmployee {
+		isAdmin, err := db.CheckIsAdmin(id_employee)
+		if err != nil {
+			slog.Error("CheckIsAdmin() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning employee(s) to the event.")
+			return
+		}
+		if isAdmin {
+			utils.RespondWithError(w, http.StatusBadRequest, "An admin can't be assigned to an event.")
+			return
+		}
 	}
 
 	// check employee exists
@@ -515,7 +541,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if payload.Status != "cancelled" && payload.Status != "approved" && payload.Status != "refused" {
+	if payload.Status != "cancelled" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "pending"{
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
 		return
 	}
