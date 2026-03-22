@@ -104,6 +104,28 @@ export const updateEvent = async (
   id_event: number,
   event: UpdateEventPayload,
 ): Promise<void> => {
+  // if there is image to update, append fields to form data
+  if (event.images) {
+    const formData = event.images;
+    // append Other fields to existing form data
+    Object.entries(event).forEach(([key, value]) => {
+      if (key !== "images" && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+
+    const response = await api.put(
+      ENDPOINTS.ADMIN.EVENTS.UPDATE(id_event),
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response.data;
+  }
+  // if no image then update fields simple
   const response = await api.put(
     ENDPOINTS.ADMIN.EVENTS.UPDATE(id_event),
     event,

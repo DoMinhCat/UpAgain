@@ -86,4 +86,5 @@ type UpdateEventRequest struct{
 	City           string    `json:"city"`
 	Street         string    `json:"street"`
 	LocationDetail null.String    `json:"location_detail" swaggertype:"string"`
+	Images []string `json:"images"`
 }

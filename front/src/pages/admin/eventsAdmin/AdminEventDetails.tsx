@@ -54,6 +54,7 @@ import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
 import ImageDropzone from "../../../components/ImageDropzone";
+import type { FileWithPath } from "@mantine/dropzone";
 export default function AdminEventDetails() {
   const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
     useDisclosure(false);
@@ -115,6 +116,7 @@ export default function AdminEventDetails() {
   const [errorEndDate, setErrorEndDate] = useState<string | null>(null);
   const [errorCategory, setErrorCategory] = useState<string | null>(null);
   const [errorDescription, setErrorDescription] = useState<string | null>(null);
+  const [fileEdit, setFileEdit] = useState<any[]>([]);
 
   const handleOpenEdit = () => {
     if (eventDetails) {
@@ -128,6 +130,12 @@ export default function AdminEventDetails() {
       setEndDateEdit(eventDetails.end_at || "");
       setCategoryEdit(eventDetails.category || "");
       setDescriptionEdit(eventDetails.description || "");
+      const files = eventDetails.images?.map((path, index) => {
+        return {
+          path: path,
+        };
+      });
+      setFileEdit(files || []);
     }
     openEdit();
   };
@@ -230,6 +238,15 @@ export default function AdminEventDetails() {
       !validateEndDate(endDateEdit)
     )
       return;
+    const imagesData = new FormData();
+    fileEdit.forEach((obj) => {
+      if (obj instanceof File) {
+        imagesData.append("images", obj);
+      } else if (obj.path) {
+        imagesData.append("existing_images", obj.path);
+      }
+    });
+
     updateEvent.mutate(
       {
         title: titleEdit,
@@ -242,6 +259,7 @@ export default function AdminEventDetails() {
         end_at: endDateEdit,
         category: categoryEdit,
         description: descriptionEdit,
+        images: imagesData,
       },
       {
         onSuccess: () => {
@@ -744,11 +762,8 @@ export default function AdminEventDetails() {
                     />
                     <ImageDropzone
                       loading={updateEvent.isPending}
-                      value={imageEdit}
-                      onChange={(value) => {
-                        setImageEdit(value);
-                      }}
-                      loading={}
+                      files={fileEdit}
+                      setFiles={setFileEdit}
                     />
                   </Stack>
                   <Group mt="lg" justify="center">

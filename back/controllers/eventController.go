@@ -629,11 +629,55 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var payload models.UpdateEventRequest
-	err = json.NewDecoder(r.Body).Decode(&payload)
-	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "UpdateEventByEventId", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
-		return
+	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+		err := r.ParseMultipartForm(10 << 20) // 10MB limit
+		if err != nil {
+			slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
+			return
+		}
+
+		payload.Title = r.FormValue("title")
+		payload.Description = r.FormValue("description")
+		payload.Category = r.FormValue("category")
+		payload.City = r.FormValue("city")
+		payload.Street = r.FormValue("street")
+		
+		if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
+			payload.Capacity.SetValid(int64(capacity))
+		}
+		if price, err := strconv.ParseFloat(r.FormValue("price"), 64); err == nil {
+			payload.Price.SetValid(price)
+		}
+		if startAt, err := time.Parse(time.RFC3339, r.FormValue("start_at")); err == nil {
+			payload.StartAt = startAt
+		}
+		if endAt, err := time.Parse(time.RFC3339, r.FormValue("end_at")); err == nil {
+			payload.EndAt = endAt
+		}
+		payload.LocationDetail.SetValid(r.FormValue("location_detail"))
+
+		// Handle existing images
+		payload.Images = r.MultipartForm.Value["existing_images"]
+
+		// Handle new files
+		files := r.MultipartForm.File["images"]
+		for _, file := range files {
+			path, err := helper.SaveUploadedFile(file, "images/events")
+			if err != nil {
+				slog.Error("SaveUploadedFile() failed", "controller", "UpdateEventByEventId", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
+				return
+			}
+			payload.Images = append(payload.Images, path)
+		}
+	} else {
+		err = json.NewDecoder(r.Body).Decode(&payload)
+		if err != nil {
+			slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "UpdateEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+			return
+		}
 	}
 
 	validation := validation.ValidateEventUpdate(payload)
