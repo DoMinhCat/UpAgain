@@ -18,7 +18,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetEventRoutes(mux)
 	GetEmployeeRoutes(mux)
 
-		// swagger API documentation
+	// swagger API documentation
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	// serve uploaded files

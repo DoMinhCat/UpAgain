@@ -16,7 +16,7 @@ import (
 // @Produce      json
 // @Param        start_at  query     string  true  "Start date (RFC3339 format, e.g., 2026-03-22T17:00:00Z)"
 // @Param        end_at    query     string  true  "End date (RFC3339 format, e.g., 2026-03-22T19:00:00Z)"
-// @Success      200       {object}  models.AvailableEmployeesList  "List of available employees"
+// @Success      200       {object}  models.AvailableEmployeesResponse  "List of available employees"
 // @Failure      400       {object}  nil                            "Invalid time format"
 // @Failure      401       {object}  nil                            "Unauthorized"
 // @Failure      500       {object}  nil                            "Internal server error"

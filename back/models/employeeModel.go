@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 )
+
 type EmployeeStats struct {
 	TotalEvents int `json:"total_events"`
 	TotalPosts  int `json:"total_posts"`
@@ -15,17 +16,17 @@ type AssignedEmployee struct {
 	AssignedAt time.Time `json:"assigned_at"`
 }
 
-type AvailableEmployeesRequest struct{
+type AvailableEmployeesRequest struct {
 	From time.Time `json:"start_at"`
-	To time.Time `json:"end_at"`
+	To   time.Time `json:"end_at"`
 }
 
-type AvailableEmployee struct{
-	Id int `json:"id"`
-	Email string `json:"email"`
+type AvailableEmployee struct {
+	Id       int    `json:"id"`
+	Email    string `json:"email"`
 	Username string `json:"username"`
 }
 
-type AvailableEmployeesResponse struct{
+type AvailableEmployeesResponse struct {
 	Employees []AvailableEmployee `json:"employees"`
 }
