@@ -45,11 +45,14 @@ import { PATHS } from "../../../routes/paths";
 import {
   usePendingDeposits,
   usePendingListings,
-  usePendingEvents,
   useValidationStats,
   useAllItemsHistory,
   useProcessValidation,
 } from "../../../hooks/validationHooks";
+import {
+  useGetAllEvents,
+  useApproveRefuseEvent,
+} from "../../../hooks/eventHooks";
 
 const LIMIT = 10;
 
@@ -592,24 +595,55 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 
 // ─── Events Tab ──────────────────────────────────────────────────────────────
 
-function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
+function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
   const [appliedFilters, setAppliedFilters] =
     useState<FiltersState>(defaultFilters);
 
+  // refuse modal state
+  const [refuseOpened, { open: openRefuse, close: closeRefuse }] =
+    useDisclosure(false);
+  const [pendingRefuseId, setPendingRefuseId] = useState<number | null>(null);
+  const [refuseReason, setRefuseReason] = useState("");
+
   const hasFilters = !!(appliedFilters.searchValue || appliedFilters.sortValue);
 
-  const { data, isLoading, isError } = usePendingEvents(
-    hasFilters ? -1 : activePage,
-    hasFilters ? -1 : LIMIT,
-    {
-      search: appliedFilters.searchValue || undefined,
-      sort: appliedFilters.sortValue || undefined,
-    },
+  const { data, isLoading, isError } = useGetAllEvents(
+    hasFilters ? undefined : activePage,
+    hasFilters ? undefined : LIMIT,
+    appliedFilters.searchValue || undefined,
+    "pending",
+    appliedFilters.sortValue || undefined,
   );
 
   const events = data?.events ?? [];
+
+  const statusMutation = useApproveRefuseEvent();
+
+  const handleApprove = (id: number) => {
+    statusMutation.mutate({ id, status: "approved" });
+  };
+
+  const handleOpenRefuse = (id: number) => {
+    setPendingRefuseId(id);
+    setRefuseReason("");
+    openRefuse();
+  };
+
+  const handleConfirmRefuse = () => {
+    if (pendingRefuseId !== null && refuseReason.trim().length > 0) {
+      statusMutation.mutate(
+        { id: pendingRefuseId, status: "refused" },
+        {
+          onSuccess: () => {
+            closeRefuse();
+            setRefuseReason("");
+          },
+        },
+      );
+    }
+  };
 
   const handleApply = () => {
     setPage(1);
@@ -639,7 +673,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Submitted on",
           "ID",
           "Title",
-          "Employee",
+          "Creator",
           "Category",
           "Start date",
           "Actions",
@@ -678,8 +712,8 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               key={ev.id}
               style={{ cursor: "pointer" }}
               onClick={() =>
-                navigate(`${PATHS.ADMIN.VALIDATIONS.ALL}/events/${ev.id}`, {
-                  state: { item: ev },
+                navigate(`${PATHS.ADMIN.EVENTS.ALL}/${ev.id}`, {
+                  state: "validationHub",
                 })
               }
             >
@@ -690,9 +724,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 <strong>{ev.id}</strong>
               </Table.Td>
               <Table.Td ta="center">{ev.title}</Table.Td>
-              <Table.Td ta="center">
-                {ev.employee_name ?? "Not assigned"}
-              </Table.Td>
+              <Table.Td ta="center">{ev.employee_name ?? "Unknown"}</Table.Td>
               <Table.Td ta="center">
                 <Pill
                   variant={
@@ -725,7 +757,12 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     size="xs"
                     variant="primary"
                     leftSection={<IconCheck size={14} />}
-                    onClick={() => onApprove(ev.id, "events")}
+                    onClick={() => handleApprove(ev.id)}
+                    loading={
+                      statusMutation.isPending &&
+                      statusMutation.variables?.id === ev.id &&
+                      statusMutation.variables?.status === "approved"
+                    }
                   >
                     Approve
                   </Button>
@@ -733,7 +770,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     size="xs"
                     variant="delete"
                     leftSection={<IconX size={14} />}
-                    onClick={() => onOpenRefuse(ev.id, "events")}
+                    onClick={() => handleOpenRefuse(ev.id)}
                   >
                     Refuse
                   </Button>
@@ -743,6 +780,41 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           ))
         )}
       </AdminTable>
+
+      {/* Refuse modal — scoped to events tab */}
+      <Modal
+        opened={refuseOpened}
+        onClose={closeRefuse}
+        title="Refuse this event"
+        centered
+      >
+        <Stack gap="md">
+          <Text size="sm" c="dimmed">
+            Please provide a reason for the refusal. This will be logged.
+          </Text>
+          <Textarea
+            label="Reason"
+            placeholder="Enter refusal reason..."
+            value={refuseReason}
+            onChange={(e) => setRefuseReason(e.currentTarget.value)}
+            minRows={3}
+            required
+          />
+          <Group justify="flex-end">
+            <Button variant="grey" onClick={closeRefuse}>
+              Cancel
+            </Button>
+            <Button
+              variant="delete"
+              onClick={handleConfirmRefuse}
+              disabled={refuseReason.trim().length === 0}
+              loading={statusMutation.isPending}
+            >
+              Confirm Refusal
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Stack>
   );
 }
@@ -765,7 +837,7 @@ function HistoryTab() {
       <AdminTable
         loading={isLoading}
         error={isError ? new Error("Could not load history.") : null}
-        header={["Date", "ID", "Title", "Type", "User", "Status"]}
+        header={["Created on", "ID", "Title", "Type", "User", "Status"]}
         footer={
           historyData &&
           historyData.total_records > 0 && (
@@ -927,7 +999,7 @@ export default function AdminValidationHub() {
         </Tabs.Panel>
 
         <Tabs.Panel value="events">
-          <EventsTab {...handlers} />
+          <EventsTab navigate={navigate} />
         </Tabs.Panel>
 
         <Tabs.Panel value="history">
@@ -960,7 +1032,7 @@ export default function AdminValidationHub() {
               Cancel
             </Button>
             <Button
-              variant="primary"
+              variant="delete"
               onClick={handleConfirmRefuse}
               disabled={refuseReason.trim().length === 0}
               loading={processMutation.isPending}

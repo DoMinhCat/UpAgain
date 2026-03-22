@@ -114,7 +114,7 @@ export const useProcessValidation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pendingDeposits"] });
       queryClient.invalidateQueries({ queryKey: ["pendingListings"] });
-      queryClient.invalidateQueries({ queryKey: ["pendingEvents"] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["validationStats"] });
       queryClient.invalidateQueries({ queryKey: ["allItemsHistory"] });
     },
