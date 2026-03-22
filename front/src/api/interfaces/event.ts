@@ -70,4 +70,5 @@ export interface UpdateEventPayload {
   city: string;
   street: string;
   location_detail?: string;
+  images?: FormData;
 }

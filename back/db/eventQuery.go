@@ -298,6 +298,23 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employee
 		return fmt.Errorf("error updating event in tx: %v", err)
 	}
 
+	// Remove all existing images and replace with the new list
+	_, err = tx.Exec("DELETE FROM photos WHERE event_id = $1 AND object_type = 'event'", eventID)
+	if err != nil {
+		return fmt.Errorf("error deleting old images in tx: %v", err)
+	}
+
+	for i, imgPath := range event.Images {
+		isPrimary := i == 0
+		_, err = tx.Exec(`
+			INSERT INTO photos (path, is_primary, object_type, event_id)
+			VALUES ($1, $2, 'event', $3)
+		`, imgPath, isPrimary, eventID)
+		if err != nil {
+			return fmt.Errorf("failed to insert photo: %v", err.Error())
+		}
+	}
+
 	_, err = tx.Exec(`
 		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
 		VALUES ('event', $1, 'update', $2)

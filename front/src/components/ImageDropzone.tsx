@@ -11,8 +11,8 @@ import { type FileWithPath } from "@mantine/dropzone";
 interface ImageDropzoneProps {
   loading?: boolean;
   disabled?: boolean;
-  files: FileWithPath[];
-  setFiles: React.Dispatch<React.SetStateAction<FileWithPath[]>>;
+  files: any[];
+  setFiles: React.Dispatch<React.SetStateAction<any[]>>;
   props?: DropzoneProps;
 }
 
@@ -23,16 +23,31 @@ export default function ImageDropzone({
   setFiles,
   props,
 }: ImageDropzoneProps) {
-
   const previews = files.map((file, index) => {
-    const imageUrl = URL.createObjectURL(file);
+    const imageUrl =
+      file instanceof Blob
+        ? URL.createObjectURL(file)
+        : `${import.meta.env.VITE_API_BASE_URL}/${file.path}`;
 
     return (
       <div key={file.path || index} style={{ position: "relative" }}>
-        <Image src={imageUrl} onLoad={() => URL.revokeObjectURL(imageUrl)} />
+        <Image
+          src={imageUrl}
+          onLoad={() => {
+            if (file instanceof Blob) URL.revokeObjectURL(imageUrl);
+          }}
+          fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
+        />
         <button
           onClick={() => removeFile(index)}
-          style={{ position: "absolute", top: 0, right: 0 }}
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            cursor: "pointer",
+            background: "rgba(0,0,0,0.5)",
+            color: "white",
+          }}
         >
           ×
         </button>
