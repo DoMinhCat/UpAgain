@@ -654,7 +654,7 @@ export default function AdminEventDetails() {
             })
           ) : (
             <Table.Tr>
-              <Table.Td ta="center" colSpan={4}>
+              <Table.Td ta="center" colSpan={5}>
                 No employees assigned
               </Table.Td>
             </Table.Tr>

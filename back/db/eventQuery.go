@@ -137,10 +137,9 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	}
 
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username as employee_name 
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username 
 		FROM events e 
-		LEFT JOIN event_employee ee ON e.id=ee.id_event 
-		LEFT JOIN accounts a ON ee.id_employee=a.id 
+		JOIN accounts a ON e.created_by=a.id 
 		` + whereClause + " " + orderBy
 
 	// pagination

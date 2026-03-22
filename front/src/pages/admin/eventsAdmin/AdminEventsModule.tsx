@@ -513,7 +513,9 @@ export default function AdminEventsModule() {
                       placeholder="When does it start?"
                       value={date ? new Date(date) : null}
                       disabled={createEventMutation.isPending}
-                      onChange={(val) => setDate(val ? dayjs(val).toISOString() : null)}
+                      onChange={(val) =>
+                        setDate(val ? dayjs(val).toISOString() : null)
+                      }
                       required
                       onBlur={() => validateDate()}
                       error={errorDate}
@@ -526,7 +528,9 @@ export default function AdminEventsModule() {
                       placeholder="When does it end?"
                       value={endDate ? new Date(endDate) : null}
                       disabled={createEventMutation.isPending}
-                      onChange={(val) => setEndDate(val ? dayjs(val).toISOString() : null)}
+                      onChange={(val) =>
+                        setEndDate(val ? dayjs(val).toISOString() : null)
+                      }
                       required
                     />
                   </Grid.Col>
@@ -662,7 +666,7 @@ export default function AdminEventsModule() {
           "Created on",
           "ID",
           "Title",
-          "Employee",
+          "Creator",
           "Category",
           "Start Date",
           "End Date",
