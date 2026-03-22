@@ -73,8 +73,7 @@ func GetAvailableEmployeesByTime(from, to time.Time) (models.AvailableEmployeesR
 			JOIN events ev ON ee.id_event = ev.id 
 			WHERE ev.end_at > $1 AND ev.start_at < $2 
 			AND ev.status != 'refused' AND ev.status != 'cancelled'
-			AND e.is_admin = true
-		);
+		) AND e.is_admin = false;
 	`
 	rows, err := utils.Conn.Query(query, from, to)
 	if err != nil {

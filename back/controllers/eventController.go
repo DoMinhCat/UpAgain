@@ -424,9 +424,7 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	for _, availableEmployee := range availableEmployees.Employees {
-		for id_employee := range availableEmployee.Id {
-			validIds = append(validIds, id_employee)
-		}
+			validIds = append(validIds, availableEmployee.Id)
 	}
 
 	var valid bool
