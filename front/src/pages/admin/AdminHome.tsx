@@ -9,13 +9,13 @@ import {
   Button,
   Progress,
   Text,
-  Stack,
   Box,
   Loader,
 } from "@mantine/core";
 import {
   IconArrowUp,
   IconPigMoney,
+  IconAlertTriangle,
   IconUsers,
   IconCalendarEventFilled,
   IconClipboardCheck,
@@ -36,6 +36,7 @@ import PaginationFooter from "../../components/PaginationFooter";
 import { PATHS } from "../../../src/routes/paths";
 import { useAccountCountStats } from "../../hooks/accountHooks";
 import { useContainerCountStats } from "../../hooks/containerHooks";
+import { useValidationStats } from "../../hooks/validationHooks";
 
 export default function AdminHome() {
   // TODO: replace with real admin history data
@@ -67,6 +68,12 @@ export default function AdminHome() {
     error: errorContainerCountStats,
   } = useContainerCountStats();
 
+  const {
+    data: validationStats,
+    isLoading: isLoadingValidationStats,
+    error: errorValidationStats,
+  } = useValidationStats();
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -96,8 +103,33 @@ export default function AdminHome() {
         <AdminCardInfo
           icon={IconClipboardCheck}
           title="Pending requests"
-          value={999}
+          value={
+            validationStats?.pending_deposits ||
+            0 +
+              (validationStats?.pending_listings || 0) +
+              (validationStats?.pending_events || 0)
+          }
           path={PATHS.ADMIN.VALIDATIONS.ALL}
+          description={
+            errorValidationStats ? (
+              <Text c="red">
+                An error occurred while loading validation stats
+              </Text>
+            ) : isLoadingValidationStats ? (
+              <Loader size="sm" />
+            ) : (
+              <StatsCardDesc
+                stats={
+                  validationStats?.pending_deposits ||
+                  0 +
+                    (validationStats?.pending_listings || 0) +
+                    (validationStats?.pending_events || 0)
+                }
+                icon={IconAlertTriangle}
+                description=" requests waiting for validation"
+              />
+            )
+          }
         />
         <AdminCardInfo
           icon={IconLeaf}
