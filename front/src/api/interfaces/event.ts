@@ -49,6 +49,7 @@ export interface EventCreationPayload {
 export interface AssignedEmployee {
   id: number;
   username: string;
+  email: string;
   assigned_at: string;
 }
 

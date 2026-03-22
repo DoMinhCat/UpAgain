@@ -11,6 +11,7 @@ type EmployeeStats struct {
 type AssignedEmployee struct {
 	Id         int       `json:"id"`
 	Username   string    `json:"username"`
+	Email      string    `json:"email"`
 	AssignedAt time.Time `json:"assigned_at"`
 }
 

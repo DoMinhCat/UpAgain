@@ -560,7 +560,7 @@ export default function AdminEventDetails() {
         <AdminTable
           loading={isLoadingAssignedEmployees}
           error={errorAssignedEmployees}
-          header={["Assigned on", "ID", "Employee", "Actions"]}
+          header={["Assigned on", "ID", "Employee", "Email", "Actions"]}
         >
           {(assignedEmployees?.length ?? 0) > 0 ? (
             assignedEmployees?.map((employee) => {
@@ -584,6 +584,7 @@ export default function AdminEventDetails() {
                   </Table.Td>
                   <Table.Td ta="center">{employee?.id}</Table.Td>
                   <Table.Td ta="center">{employee?.username}</Table.Td>
+                  <Table.Td ta="center">{employee?.email}</Table.Td>
                   <Table.Td ta="center">
                     <Button
                       variant="delete"
