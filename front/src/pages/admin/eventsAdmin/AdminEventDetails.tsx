@@ -18,6 +18,7 @@ import {
   Select,
   MultiSelect,
   Loader,
+  Tooltip,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -513,13 +514,25 @@ export default function AdminEventDetails() {
           <Title order={3} mb="lg">
             Assigned employees
           </Title>
-          <Button
-            variant="primary"
-            onClick={openAssign}
-            leftSection={<IconPlus size={16} />}
+          <Tooltip
+            label="Event must be approved to assign employees"
+            /* Only enable the tooltip if the button is disabled */
+            disabled={eventDetails?.status === "aproved"}
+            closeDelay={200}
+            transitionProps={{ transition: "pop", duration: 300 }}
           >
-            Assign employee
-          </Button>
+            {/* Wrap in a div to capture hover events when the button is disabled */}
+            <div style={{ width: "fit-content" }}>
+              <Button
+                variant="primary"
+                onClick={openAssign}
+                leftSection={<IconPlus size={16} />}
+                disabled={eventDetails?.status !== "aproved"}
+              >
+                Assign employee
+              </Button>
+            </div>
+          </Tooltip>
           <Modal
             title="Assign employee"
             opened={openedAssign}
@@ -614,15 +627,27 @@ export default function AdminEventDetails() {
                   <Table.Td ta="center">{employee?.username}</Table.Td>
                   <Table.Td ta="center">{employee?.email}</Table.Td>
                   <Table.Td ta="center">
-                    <Button
-                      variant="delete"
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        handleUnassignModal(employee);
-                      }}
+                    <Tooltip
+                      label="Event must be approved to unassign employees"
+                      /* Only enable the tooltip if the button is disabled */
+                      disabled={eventDetails?.status === "aproved"}
+                      closeDelay={200}
+                      transitionProps={{ transition: "pop", duration: 300 }}
                     >
-                      Unassign
-                    </Button>
+                      {/* Wrap in a div to capture hover events when the button is disabled */}
+                      <div style={{ width: "fit-content", margin: "auto" }}>
+                        <Button
+                          variant="delete"
+                          disabled={eventDetails?.status !== "aproved"}
+                          onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            handleUnassignModal(employee);
+                          }}
+                        >
+                          Unassign
+                        </Button>
+                      </div>
+                    </Tooltip>
                   </Table.Td>
                 </Table.Tr>
               );
