@@ -15,4 +15,5 @@ func GetEventRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /events/{id_event}/assign/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.AssignEmployeeToEventByEventId))))
 	mux.Handle("DELETE /events/{id_event}/unassign/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UnAssignEmployeeByEventId))))
 	mux.Handle("PATCH /events/{id_event}/status/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CancelEventByEventId))))
+	mux.Handle("PUT /events/{id_event}/{$}", middleware.AuthMiddleware([]string{"admin", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateEventByEventId))))
 }
