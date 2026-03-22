@@ -4,11 +4,13 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/helper"
 	validation "backend/utils/validations"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -172,29 +174,71 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  nil                         "Internal server error"
 // @Router       /events/ [post]
 func CreateEvent(w http.ResponseWriter, r *http.Request) {
-	var err error
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" && role != "employee"{
+	if role != "admin" && role != "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
 
 	var event models.CreateEventRequest
-	err = json.NewDecoder(r.Body).Decode(&event)
-	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CreateEvent", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
-		return
+	// Check if the request is multipart
+	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+		err := r.ParseMultipartForm(10 << 20) // 10MB limit
+		if err != nil {
+			slog.Error("r.ParseMultipartForm() failed", "controller", "CreateEvent", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
+			return
+		}
+
+		event.Title = r.FormValue("title")
+		event.Description = r.FormValue("description")
+		event.Category = r.FormValue("category")
+		event.City = r.FormValue("city")
+		event.Street = r.FormValue("street")
+		event.Status = r.FormValue("status")
+
+		if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
+			event.Capacity.SetValid(int64(capacity))
+		}
+		if price, err := strconv.ParseFloat(r.FormValue("price"), 64); err == nil {
+			event.Price.SetValid(price)
+		}
+		if startAt, err := time.Parse(time.RFC3339, r.FormValue("start_at")); err == nil {
+			event.StartAt.SetValid(startAt)
+		}
+		if endAt, err := time.Parse(time.RFC3339, r.FormValue("end_at")); err == nil {
+			event.EndAt.SetValid(endAt)
+		}
+		event.LocationDetail.SetValid(r.FormValue("location_detail"))
+
+		// Handle files
+		files := r.MultipartForm.File["images"]
+		for _, file := range files {
+			path, err := helper.SaveUploadedFile(file, "images/events")
+			if err != nil {
+				slog.Error("SaveUploadedFile() failed", "controller", "CreateEvent", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
+				return
+			}
+			event.Images = append(event.Images, path)
+		}
+	} else {
+		err := json.NewDecoder(r.Body).Decode(&event)
+		if err != nil {
+			slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CreateEvent", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+			return
+		}
 	}
 
 	// validations
-	validation := validation.ValidateEventCreation(event)
-	if !validation.Success {
-		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+	v := validation.ValidateEventCreation(event)
+	if !v.Success {
+		utils.RespondWithError(w, v.Error, v.Message.Error())
 		return
 	}
 
-	eventId, err := db.CreateEvent(event)
+	eventId, err := db.CreateEvent(event, r.Context().Value("user").(models.AuthClaims).Id)
 	if err != nil {
 		slog.Error("CreateEvent() failed", "controller", "CreateEvent", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the event.")
@@ -202,7 +246,6 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// assign employee to event automatically if request was sent from employee
-	// if created by admin, employee is null
 	if role == "employee" {
 		err = db.AssignEmployeeToEvent(eventId, r.Context().Value("user").(models.AuthClaims).Id)
 		if err != nil {

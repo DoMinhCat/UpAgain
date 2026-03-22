@@ -35,6 +35,7 @@ type Event struct {
 	Street         string    `json:"street"`
 	LocationDetail null.String    `json:"location_detail" swaggertype:"string"`
 	EmployeeName   null.String `json:"employee_name" swaggertype:"string"`
+	Images []string `json:"images"`
 }
 
 type EventsListPagination struct {
@@ -57,6 +58,7 @@ type CreateEventRequest struct {
 	City           string    `json:"city"`
 	Street         string    `json:"street"`
 	LocationDetail null.String    `json:"location_detail" swaggertype:"string"`
+	Images []string `json:"images"`
 }
 
 type AssignEmployeeRequest struct{

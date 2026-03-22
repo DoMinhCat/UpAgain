@@ -182,6 +182,7 @@ export default function AdminEventsModule() {
   const [errorDate, setErrorDate] = useState<string>("");
   const [errorEndDate, setErrorEndDate] = useState<string>("");
   const [errorCategory, setErrorCategory] = useState<string>("");
+  const [files, setFiles] = useState<any[]>([]);
 
   const handleCloseCreate = () => {
     setTitle("");
@@ -202,6 +203,7 @@ export default function AdminEventsModule() {
     setErrorEndDate("");
     setErrorCategory("");
     setErrorDescription("");
+    setFiles([]);
     closeCreate();
   };
 
@@ -296,7 +298,10 @@ export default function AdminEventsModule() {
     )
       return;
 
-    // TODO: send picture paths
+    const filesToSend = new FormData();
+    files.forEach((file) => {
+      filesToSend.append("images", file);
+    });
     createEventMutation.mutate(
       {
         title,
@@ -310,6 +315,7 @@ export default function AdminEventsModule() {
         category,
         description,
         status: "pending",
+        images: filesToSend,
       },
       {
         onSuccess: () => {
@@ -578,7 +584,11 @@ export default function AdminEventsModule() {
                     setDescription(value);
                   }}
                 />
-                <ImageDropzone loading={createEventMutation.isPending} />
+                <ImageDropzone
+                  loading={createEventMutation.isPending}
+                  files={files}
+                  setFiles={setFiles}
+                />
               </Stack>
               <Group mt="lg" justify="center">
                 <Button onClick={handleCloseCreate} variant="grey">

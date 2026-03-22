@@ -14,6 +14,7 @@ export interface AppEvent {
   street: string;
   location_detail: string;
   employee_name: string | null;
+  images?: string[];
 }
 
 export interface EventsListPagination {
@@ -44,6 +45,7 @@ export interface EventCreationPayload {
   street: string;
   location_detail?: string;
   status: string;
+  images?: FormData;
 }
 
 export interface AssignedEmployee {

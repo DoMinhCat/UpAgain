@@ -8,7 +8,7 @@ import (
 
 func AssignEmployeeToEvent(eventId int, employeeId int) error {
 	query := `
-		INSERT INTO event_employees (id_event, id_employee)
+		INSERT INTO event_employee (id_event, id_employee)
 		VALUES ($1, $2);
 	`
 	_, err := utils.Conn.Exec(query, eventId, employeeId)

@@ -6,33 +6,30 @@ import {
 import { Group, Text, Image, SimpleGrid } from "@mantine/core";
 import { IconUpload, IconX, IconPhoto } from "@tabler/icons-react";
 import { showErrorNotification } from "./NotificationToast";
-import { useState } from "react";
 import { type FileWithPath } from "@mantine/dropzone";
 
 interface ImageDropzoneProps {
   loading?: boolean;
   disabled?: boolean;
+  files: FileWithPath[];
+  setFiles: React.Dispatch<React.SetStateAction<FileWithPath[]>>;
   props?: DropzoneProps;
 }
 
 export default function ImageDropzone({
   loading = false,
   disabled = false,
+  files,
+  setFiles,
   props,
 }: ImageDropzoneProps) {
-  const [files, setFiles] = useState<FileWithPath[]>([]);
 
   const previews = files.map((file, index) => {
     const imageUrl = URL.createObjectURL(file);
 
     return (
       <div key={file.path || index} style={{ position: "relative" }}>
-        <Image
-          src={imageUrl}
-          // It's often better to manage revocations in a useEffect,
-          // but for a simple preview, this works:
-          onLoad={() => URL.revokeObjectURL(imageUrl)}
-        />
+        <Image src={imageUrl} onLoad={() => URL.revokeObjectURL(imageUrl)} />
         <button
           onClick={() => removeFile(index)}
           style={{ position: "absolute", top: 0, right: 0 }}
