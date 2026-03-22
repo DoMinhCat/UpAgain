@@ -320,7 +320,11 @@ export default function AdminEventDetails() {
   ] = useDisclosure(false);
   const cancelEvent = useUpdateEventStatus(
     id_event,
-    eventDetails?.status === "cancelled" ? "approved" : "cancelled",
+    eventDetails?.status === "cancelled"
+      ? "approved"
+      : eventDetails?.status === "pending"
+        ? "approved"
+        : "cancelled",
   );
   const handleCancelEvent = () => {
     cancelEvent.mutate(undefined, {
@@ -470,7 +474,8 @@ export default function AdminEventDetails() {
                   </Button>
                   <Button
                     variant={
-                      eventDetails?.status === "cancelled"
+                      eventDetails?.status === "cancelled" ||
+                      eventDetails?.status === "pending"
                         ? "primary"
                         : "delete"
                     }
@@ -478,7 +483,9 @@ export default function AdminEventDetails() {
                   >
                     {eventDetails?.status === "cancelled"
                       ? "Reopen event"
-                      : "Cancel event"}
+                      : eventDetails?.status === "pending"
+                        ? "Approve event"
+                        : "Cancel event"}
                   </Button>
                 </Group>
                 <Modal
@@ -828,13 +835,21 @@ export default function AdminEventDetails() {
         opened={openedCancelEvent}
         onClose={closeCancelEvent}
         title={
-          eventDetails?.status === "cancelled" ? "Reopen Event" : "Cancel Event"
+          eventDetails?.status === "cancelled"
+            ? "Reopen Event"
+            : eventDetails?.status === "pending"
+              ? "Approve Event"
+              : "Cancel Event"
         }
       >
         <Text>
           Are you sure you want to{" "}
-          {eventDetails?.status === "cancelled" ? "reopen" : "cancel"} this
-          event?
+          {eventDetails?.status === "cancelled"
+            ? "reopen"
+            : eventDetails?.status === "pending"
+              ? "approve"
+              : "cancel"}{" "}
+          this event?
         </Text>
         <Group mt="lg" justify="end">
           <Button onClick={closeCancelEvent} variant="grey">
@@ -845,7 +860,10 @@ export default function AdminEventDetails() {
               handleCancelEvent();
             }}
             variant={
-              eventDetails?.status === "cancelled" ? "primary" : "delete"
+              eventDetails?.status === "cancelled" ||
+              eventDetails?.status === "pending"
+                ? "primary"
+                : "delete"
             }
             loading={cancelEvent.isPending}
           >
