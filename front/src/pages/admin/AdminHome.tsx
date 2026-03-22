@@ -37,6 +37,7 @@ import { PATHS } from "../../../src/routes/paths";
 import { useAccountCountStats } from "../../hooks/accountHooks";
 import { useContainerCountStats } from "../../hooks/containerHooks";
 import { useValidationStats } from "../../hooks/validationHooks";
+import { useGetTotalScore } from "../../hooks/userHooks";
 
 export default function AdminHome() {
   // TODO: replace with real admin history data
@@ -73,6 +74,12 @@ export default function AdminHome() {
     isLoading: isLoadingValidationStats,
     error: errorValidationStats,
   } = useValidationStats();
+
+  const {
+    data: totalScore,
+    isLoading: isLoadingTotalScore,
+    error: errorTotalScore,
+  } = useGetTotalScore();
 
   return (
     <Container px="md" size="xl">
@@ -133,13 +140,17 @@ export default function AdminHome() {
         />
         <AdminCardInfo
           icon={IconLeaf}
-          title="Total CO₂ saved"
-          value={9999}
+          title="Total UpScore"
+          value={totalScore?.total || 0}
           description={
             <StatsCardDesc
-              stats={9999}
-              icon={IconArrowUp}
-              description="kg since last month"
+              stats={totalScore?.co2 || 0}
+              icon={IconLeaf}
+              description={
+                totalScore?.co2 === 1
+                  ? " kg of CO2 avoided by the community"
+                  : " kg of CO2 avoided by the community"
+              }
             />
           }
         />

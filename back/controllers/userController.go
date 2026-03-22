@@ -4,16 +4,17 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/helper"
 	"log/slog"
 	"net/http"
 )
 
-// GetTotalCO2 godoc
-// @Summary      Get total CO2
-// @Description  Get the total CO2 saved
+// GetTotalScore godoc
+// @Summary      Get total CO2 of completed items (bought) and total UpScore
+// @Description  Get the total CO2 saved and total UpScore
 // @Tags         user
 // @Produce      json
-// @Router       /users/score/{$} [get]
+// @Router       /users/score/ [get]
 func GetTotalScore(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "pro" {
@@ -21,11 +22,34 @@ func GetTotalScore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stats, err := db.GetTotalScoreStats()
+	total, err := db.GetTotalScore()
 	if err != nil {
-		slog.Error("GetTotalScoreStats() failed", "controller", "GetTotalScore", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching total score stats.")
+		slog.Error("GetTotalScore() failed", "controller", "GetTotalScore", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching total score.")
 		return
+	}
+
+	var totalCO2 float64
+	materials := []string{"wood", "metal", "textile", "glass", "plastic", "mixed"}
+	for _, material := range materials {
+		weight, err := db.GetTotalWeightByMaterialByStatus(material, "approved")
+		if err != nil {
+			slog.Error("GetTotalWeightByMaterialByStatus() failed", "controller", "GetTotalScore", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching total weight.")
+			return
+		}
+		co2, err := helper.CalculateCO2(material, weight)
+		if err != nil {
+			slog.Error("CalculateCO2() failed", "controller", "GetTotalScore", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while calculating CO2.")
+			return
+		}
+		totalCO2 += co2
+	}
+
+	stats := models.TotalScoreStats{
+		Total: total.Total,
+		CO2:   totalCO2,
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, stats)
