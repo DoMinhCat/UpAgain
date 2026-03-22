@@ -8,6 +8,7 @@ import {
   getAssignedEmployees,
   unassignEmployee,
   updateEventStatus,
+  updateEvent,
 } from "../api/admin/eventModule";
 import {
   type EventCreationPayload,
@@ -16,6 +17,7 @@ import {
   type AppEvent,
   type AssignedEmployee,
   type UnassignEmployeePayload,
+  type UpdateEventPayload,
 } from "../api/interfaces/event";
 import { showSuccessNotification } from "../components/NotificationToast";
 
@@ -165,6 +167,27 @@ export const useUpdateEventStatus = (id_event: number, status: string) => {
     meta: {
       errorTitle: "Event status update failed",
       errorMessage: "An error occured while updating event status",
+    },
+  });
+};
+
+export const useUpdateEvent = (id_event: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (event: UpdateEventPayload): Promise<void> =>
+      updateEvent(id_event, event),
+    onSuccess: () => {
+      showSuccessNotification(
+        "Event updated successfully",
+        "Event has been updated",
+      );
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["event", id_event] });
+      queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+    },
+    meta: {
+      errorTitle: "Event update failed",
+      errorMessage: "An error occured while updating event",
     },
   });
 };

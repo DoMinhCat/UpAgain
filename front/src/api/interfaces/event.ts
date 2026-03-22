@@ -56,3 +56,16 @@ export interface AssignedEmployee {
 export interface UnassignEmployeePayload {
   id_employee: number;
 }
+
+export interface UpdateEventPayload {
+  title: string;
+  description: string;
+  start_at: string;
+  end_at: string;
+  price: number;
+  category: string;
+  capacity?: number;
+  city: string;
+  street: string;
+  location_detail?: string;
+}

@@ -35,6 +35,7 @@ export const ENDPOINTS = {
         `/events/employees/${id_event}/`,
       UNASSIGN: (id_event: number) => `/events/${id_event}/unassign/`,
       CANCEL: (id_event: number) => `/events/${id_event}/status/`,
+      UPDATE: (id_event: number) => `/events/${id_event}/update/`,
     },
 
     EMPLOYEES: {

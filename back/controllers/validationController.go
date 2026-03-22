@@ -281,9 +281,9 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.UpdateEventStatus(eventID, newStatus, employeeID)
+	err = db.UpdateEventStatusByEventId(eventID, newStatus, employeeID)
 	if err != nil {
-		slog.Error("UpdateEventStatus failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
+		slog.Error("UpdateEventStatusByEventId() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
