@@ -250,7 +250,6 @@ export default function AdminEventDetails() {
               {eventDetails?.location_detail && <br />}
               {eventDetails?.location_detail}
             </Text>
-            <Text>TODO: map api</Text>
           </Grid.Col>
 
           {/* RIGHT SECTION */}
@@ -480,6 +479,7 @@ export default function AdminEventDetails() {
         </Grid>
 
         {/* Assigned employee List */}
+        <Divider my="xl" />
         <Group justify="space-between">
           <Title order={3} mb="lg">
             Assigned employees

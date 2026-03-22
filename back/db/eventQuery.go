@@ -223,3 +223,11 @@ func CheckEventExistsById(id_event int) (bool, error){
 	}
 	return exists, nil
 }
+
+func CancelEventByEventId(id_event int) error {
+	_, err := utils.Conn.Exec("UPDATE events SET status='cancelled' WHERE id=$1;", id_event)
+	if err != nil {
+		return fmt.Errorf("CancelEventByEventId() failed: %v", err.Error())
+	}
+	return nil
+}

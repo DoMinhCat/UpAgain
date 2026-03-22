@@ -475,3 +475,44 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin"{
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	id_url := r.PathValue("id_event")
+	if id_url == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
+		return
+	}
+
+	id_event, err := strconv.Atoi(id_url)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "CancelEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event id.")
+		return
+	}
+
+	exist, err := db.CheckEventExistsById(id_event)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "CancelEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling the event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		return
+	}
+
+	err = db.CancelEventByEventId(id_event)
+	if err != nil {
+		slog.Error("CancelEventByEventId() failed", "controller", "CancelEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling the event.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
