@@ -32,7 +32,7 @@ func GetTotalEventsOfEmployeeById(id int) (int, error) {
 func GetAssignedEmployeesByEventId(eventId int) ([]models.AssignedEmployee, error) {
 	var employees []models.AssignedEmployee
 	query := `
-		SELECT ee.id_employee, a.username, ee.assigned_at
+		SELECT ee.id_employee, a.username, a.email, ee.assigned_at
 		FROM event_employee ee
 		JOIN accounts a ON ee.id_employee = a.id
 		WHERE ee.id_event = $1;
@@ -45,7 +45,7 @@ func GetAssignedEmployeesByEventId(eventId int) ([]models.AssignedEmployee, erro
 
 	for rows.Next() {
 		var employee models.AssignedEmployee
-		if err := rows.Scan(&employee.Id, &employee.Username, &employee.AssignedAt); err != nil {
+		if err := rows.Scan(&employee.Id, &employee.Username, &employee.Email, &employee.AssignedAt); err != nil {
 			return nil, fmt.Errorf("GetAssignedEmployeesByEventId() failed: %v", err.Error())
 		}
 		employees = append(employees, employee)
