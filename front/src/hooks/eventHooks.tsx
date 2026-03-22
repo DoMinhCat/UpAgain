@@ -191,3 +191,26 @@ export const useUpdateEvent = (id_event: number) => {
     },
   });
 };
+
+export const useApproveRefuseEvent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: number; status: string }): Promise<void> =>
+      updateEventStatus(id, status),
+    onSuccess: (_data, { status }) => {
+      showSuccessNotification(
+        status === "approved" ? "Event approved" : "Event refused",
+        status === "approved"
+          ? "Event has been approved successfully"
+          : "Event has been refused successfully",
+      );
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["validationStats"] });
+      queryClient.invalidateQueries({ queryKey: ["allItemsHistory"] });
+    },
+    meta: {
+      errorTitle: "Event action failed",
+      errorMessage: "Could not update the event status",
+    },
+  });
+};

@@ -515,7 +515,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if payload.Status != "cancelled" && payload.Status != "approved" {
+	if payload.Status != "cancelled" && payload.Status != "approved" && payload.Status != "refused" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
 		return
 	}

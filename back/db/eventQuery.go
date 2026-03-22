@@ -54,7 +54,6 @@ func GetUpcomingEventIn(in time.Time) (int, error) {
 	return count, nil
 }
 
-// TODO
 func GetTotalRegistrationsSince(since time.Time) (int, error) {
 	var count int
 	err := utils.Conn.QueryRow("select count(*) from event_registrations where created_at >= $1 and created_at < now()", since).Scan(&count)
@@ -96,7 +95,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 
 	if filters.Search != "" {
 		searchParam := "%" + filters.Search + "%"
-		whereClause += fmt.Sprintf(" AND (e.title ILIKE $%d OR (SELECT a.username FROM accounts a JOIN event_employee ee ON a.id=ee.id_employee) ILIKE $%d OR CAST(e.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		whereClause += fmt.Sprintf(" AND (e.title ILIKE $%d OR a.username ILIKE $%d OR CAST(e.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
 		params = append(params, searchParam)
 		countParams = append(countParams, searchParam)
 		paramIndex++
@@ -110,7 +109,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	}
 
 	var totalRecords int
-	countQuery := "SELECT COUNT(*) FROM events e " + whereClause
+	countQuery := "SELECT COUNT(*) FROM events e JOIN accounts a ON e.created_by=a.id " + whereClause
 	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
 	if err != nil {
 		return nil, 0, fmt.Errorf("GetAllEvents() count failed: %v", err)

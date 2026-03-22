@@ -78,38 +78,7 @@ func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-// GetPendingEventsAdmin godoc
-// @Summary      Get pending events
-// @Description  Get a paginated list of pending events for admin
-// @Tags         validation
-// @Produce      json
-// @Param        page    query     int     false  "Page number"
-// @Param        limit   query     int     false  "Limit"
-// @Param        search  query     string  false  "Search query"
-// @Param        sort    query     string  false  "Sort order"
-// @Success      200     {object}  map[string]interface{}  "Paginated events"
-// @Failure      400     {object}  nil                     "Invalid pagination parameters"
-// @Failure      500     {object}  nil                     "Internal server error"
-// @Router       /admin/validations/events [get]
-func GetPendingEventsAdmin(w http.ResponseWriter, r *http.Request) {
-	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
-	if err != nil {
-		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingEventsAdmin", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
-		return
-	}
 
-	events, total, err := db.GetPendingEvents(page, limit, filters)
-	if err != nil {
-		slog.Error("GetPendingEvents failed", "controller", "GetPendingEventsAdmin", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending events")
-		return
-	}
-
-	result := helper.BuildPaginatedResult(page, limit, total)
-	result["events"] = events
-	utils.RespondWithJSON(w, http.StatusOK, result)
-}
 
 // GetValidationStats godoc
 // @Summary      Get validation stats
