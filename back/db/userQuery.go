@@ -71,13 +71,12 @@ func GetUserStatsById(id int) (models.UserStats, error) {
 	return userStats, nil
 }
 
-
-func GetTotalScoreStats() (models.TotalScoreStats, error) {
+func GetTotalScore() (models.TotalScoreStats, error) {
 	var totalScoreStats models.TotalScoreStats
 	err := utils.Conn.QueryRow("SELECT SUM(up_score) FROM users u JOIN accounts a ON u.id_account = a.id WHERE a.deleted_at IS NULL;").Scan(&totalScoreStats.Total)
 	if err != nil {
 		return models.TotalScoreStats{}, fmt.Errorf("GetTotalScoreStats() failed: %v", err.Error())
 	}
+
 	return totalScoreStats, nil
 }
-	

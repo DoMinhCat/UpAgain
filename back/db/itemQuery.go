@@ -345,3 +345,29 @@ func GetValidationStats() (models.ValidationStats, error) {
 	}
 	return stats, nil
 }
+
+func GetTotalWeightByMaterialByStatus(material string, status string) (float64, error) {
+	if material != "wood" && material != "metal" && material != "textile" && material != "glass" && material != "plastic" && material != "mixed" && material != "all" {
+		return 0, fmt.Errorf("invalid material")
+	}
+	if status != "pending" && status != "approved" && status != "refused" && status != "all" {
+		return 0, fmt.Errorf("invalid status")
+	}
+	var totalWeight float64
+	var err error
+	if material == "all" {
+		err = utils.Conn.QueryRow("SELECT SUM(weight) FROM items WHERE status = $1", status).Scan(&totalWeight)
+	}
+	if status == "all" {
+		err = utils.Conn.QueryRow("SELECT SUM(weight) FROM items WHERE material = $1", material).Scan(&totalWeight)
+	}
+	if material == "all" && status == "all" {
+		err = utils.Conn.QueryRow("SELECT SUM(weight) FROM items").Scan(&totalWeight)
+	}
+
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalWeightByMaterialByStatus() failed: %v", err)
+	}
+
+	return totalWeight, nil
+}

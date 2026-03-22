@@ -1,0 +1,16 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUserStats } from "../api/admin/userModule";
+
+const STALE_TIME = 60 * 1000;
+
+export const useGetTotalScore = () => {
+  return useQuery({
+    queryKey: ["totalScore"],
+    queryFn: () => getUserStats(),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch total score.",
+    },
+  });
+};
