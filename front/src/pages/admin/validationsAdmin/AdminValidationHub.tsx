@@ -750,6 +750,7 @@ function EventsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 // ─── History Tab ─────────────────────────────────────────────────────────────
 
 function HistoryTab() {
+  const navigate = useNavigate();
   const [activePage, setPage] = useState(1);
   const {
     data: historyData,
@@ -794,7 +795,19 @@ function HistoryTab() {
           </Table.Tr>
         ) : (
           items.map((item: any) => (
-            <Table.Tr key={`${item.item_type}-${item.id}`}>
+            <Table.Tr
+              key={`${item.item_type}-${item.id}`}
+              style={{
+                cursor: "pointer",
+              }}
+              onClick={() =>
+                item.item_type === "Event"
+                  ? navigate(`${PATHS.ADMIN.EVENTS.ALL}/${item.id}`, {
+                      state: "validationHub",
+                    })
+                  : navigate("#")
+              }
+            >
               <Table.Td ta="center">
                 {dayjs(item.created_at).format("DD/MM/YYYY")}
               </Table.Td>

@@ -47,9 +47,12 @@ import dayjs from "dayjs";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
-
+import { useLocation } from "react-router-dom";
 export default function AdminEventDetails() {
+  const location = useLocation();
+  const origin = location.state;
   const navigate = useNavigate();
+
   // edit modal and form
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
@@ -288,7 +291,6 @@ export default function AdminEventDetails() {
     e.preventDefault();
     if (!validateAssign()) return;
     const assignIds = employeeAssign.map((id) => Number(id));
-    console.log(assignIds);
     assignEmployees.mutate(
       {
         id_event,
@@ -353,7 +355,6 @@ export default function AdminEventDetails() {
       },
     });
   };
-
   if (isLoadingEventDetails) return <FullScreenLoader />;
   return (
     <Container px="md" size="xl">
@@ -362,8 +363,15 @@ export default function AdminEventDetails() {
       </Title>
       <AdminBreadcrumbs
         breadcrumbs={[
-          { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
-          { title: "Event's Details", href: "#" },
+          ...(origin === "validationHub"
+            ? [
+                { title: "Validation Hub", href: PATHS.ADMIN.VALIDATIONS.ALL },
+                { title: "Event's Details", href: "#" },
+              ]
+            : [
+                { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
+                { title: "Event's Details", href: "#" },
+              ]),
         ]}
       />
       <Container p="lg" size="xl">
