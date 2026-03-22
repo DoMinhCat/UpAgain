@@ -40,6 +40,7 @@ import {
   useGetAssignedEmployees,
   useGetEventDetails,
   useUnAssignEmployee,
+  useUpdateEvent,
 } from "../../../hooks/eventHooks";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
@@ -78,13 +79,13 @@ export default function AdminEventDetails() {
     useGetEventDetails(id_event);
 
   const [titleEdit, setTitleEdit] = useState<string>("");
-  const [capacityEdit, setCapacityEdit] = useState<number>(0);
+  const [capacityEdit, setCapacityEdit] = useState<number | null>(null);
   const [priceEdit, setPriceEdit] = useState<number>(0);
   const [streetEdit, setStreetEdit] = useState<string>("");
   const [cityEdit, setCityEdit] = useState<string>("");
   const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
-  const [dateEdit, setDateEdit] = useState<string | null>(null);
-  const [endDateEdit, setEndDateEdit] = useState<string | null>(null);
+  const [dateEdit, setDateEdit] = useState<string>("");
+  const [endDateEdit, setEndDateEdit] = useState<string>("");
   const [categoryEdit, setCategoryEdit] = useState<string>("");
   const [descriptionEdit, setDescriptionEdit] = useState<string>("");
   const [errorTitle, setErrorTitle] = useState<string | null>(null);
@@ -105,8 +106,8 @@ export default function AdminEventDetails() {
       setStreetEdit(eventDetails.street || "");
       setCityEdit(eventDetails.city || "");
       setLocationDetailEdit(eventDetails.location_detail || "");
-      setDateEdit(eventDetails.start_at || null);
-      setEndDateEdit(eventDetails.end_at || null);
+      setDateEdit(eventDetails.start_at || "");
+      setEndDateEdit(eventDetails.end_at || "");
       setCategoryEdit(eventDetails.category || "");
       setDescriptionEdit(eventDetails.description || "");
     }
@@ -195,6 +196,7 @@ export default function AdminEventDetails() {
     return true;
   };
 
+  const updateEvent = useUpdateEvent(id_event);
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (
@@ -210,7 +212,25 @@ export default function AdminEventDetails() {
       !validateEndDate(endDateEdit)
     )
       return;
-    // call mutate
+    updateEvent.mutate(
+      {
+        title: titleEdit,
+        capacity: capacityEdit || undefined,
+        price: priceEdit,
+        street: streetEdit,
+        city: cityEdit,
+        location_detail: locationDetailEdit,
+        start_at: dateEdit,
+        end_at: endDateEdit,
+        category: categoryEdit,
+        description: descriptionEdit,
+      },
+      {
+        onSuccess: () => {
+          handleCloseEdit();
+        },
+      },
+    );
   };
   const handleCloseEdit = () => {
     if (eventDetails) {
@@ -220,8 +240,8 @@ export default function AdminEventDetails() {
       setStreetEdit(eventDetails.street || "");
       setCityEdit(eventDetails.city || "");
       setLocationDetailEdit(eventDetails.location_detail || "");
-      setDateEdit(eventDetails.start_at || null);
-      setEndDateEdit(eventDetails.end_at || null);
+      setDateEdit(eventDetails.start_at || "");
+      setEndDateEdit(eventDetails.end_at || "");
       setCategoryEdit(eventDetails.category || "");
       setDescriptionEdit(eventDetails.description || "");
       setErrorTitle("");
@@ -454,7 +474,7 @@ export default function AdminEventDetails() {
                     <IconUsers color="#315ff5" />
                     <Text>
                       {eventDetails?.capacity
-                        ? eventDetails?.capacity + " max"
+                        ? eventDetails?.capacity + " people max"
                         : "No max capacity specified"}
                     </Text>
                   </Group>
@@ -513,7 +533,7 @@ export default function AdminEventDetails() {
                       withAsterisk
                       label="Capacity"
                       min={0}
-                      value={capacityEdit}
+                      value={capacityEdit || undefined}
                       onChange={(value) => {
                         setCapacityEdit(Number(value));
                       }}
@@ -581,7 +601,7 @@ export default function AdminEventDetails() {
                           label="Start date"
                           value={dateEdit ? new Date(dateEdit) : null}
                           onChange={(val) => {
-                            setDateEdit(val ? dayjs(val).toISOString() : null);
+                            setDateEdit(val ? dayjs(val).toISOString() : "");
                             validateStartDate(dateEdit);
                           }}
                           onBlur={() => validateStartDate(dateEdit)}
@@ -596,9 +616,7 @@ export default function AdminEventDetails() {
                           label="End date"
                           value={endDateEdit ? new Date(endDateEdit) : null}
                           onChange={(val) => {
-                            setEndDateEdit(
-                              val ? dayjs(val).toISOString() : null,
-                            );
+                            setEndDateEdit(val ? dayjs(val).toISOString() : "");
                             validateEndDate(endDateEdit);
                           }}
                           onBlur={() => validateEndDate(endDateEdit)}

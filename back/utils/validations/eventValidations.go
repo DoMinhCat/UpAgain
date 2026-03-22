@@ -174,10 +174,10 @@ func ValidateEventUpdate(updateEvent models.UpdateEventRequest) models.Validatio
 		return response
 	}
 
-	if updateEvent.Capacity.Valid && updateEvent.Capacity.Int64 <= 0 {
+	if updateEvent.Capacity.Valid && updateEvent.Capacity.Int64 < 0 {
 		response = models.ValidationResponse{
 			Success: false,
-			Message: fmt.Errorf("Capacity must be greater than 0."),
+			Message: fmt.Errorf("Capacity must be greater than or equal to 0."),
 			Error:   http.StatusBadRequest,
 		}
 		return response

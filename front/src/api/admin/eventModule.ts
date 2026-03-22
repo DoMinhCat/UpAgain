@@ -7,6 +7,7 @@ import {
   type EventCreationPayload,
   type AssignedEmployee,
   type UnassignEmployeePayload,
+  type UpdateEventPayload,
 } from "../interfaces/event";
 
 // get active or deleted events
@@ -80,5 +81,16 @@ export const updateEventStatus = async (
   const response = await api.patch(ENDPOINTS.ADMIN.EVENTS.CANCEL(id_event), {
     status,
   });
+  return response.data;
+};
+
+export const updateEvent = async (
+  id_event: number,
+  event: UpdateEventPayload,
+): Promise<void> => {
+  const response = await api.put(
+    ENDPOINTS.ADMIN.EVENTS.UPDATE(id_event),
+    event,
+  );
   return response.data;
 };

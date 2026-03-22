@@ -228,7 +228,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 // @Failure      500       {object}  nil           "Internal server error"
 // @Router       /events/{id_event}/ [get]
 func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
-	id_url := r.PathValue("id_event")
+	id_url := r.PathValue("id")
 	if id_url == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
 		return
@@ -283,7 +283,7 @@ func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_url := r.PathValue("id_event")
+	id_url := r.PathValue("id")
 	if id_url == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
 		return
@@ -337,7 +337,7 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_url := r.PathValue("id_event")
+	id_url := r.PathValue("id")
 	if id_url == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
 		return
@@ -434,7 +434,7 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_url := r.PathValue("id_event")
+	id_url := r.PathValue("id")
 	if id_url == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
 		return
@@ -483,7 +483,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_url := r.PathValue("id_event")
+	id_url := r.PathValue("id")
 	if id_url == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
 		return
@@ -537,7 +537,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_url := r.PathValue("id_event")
+	id_url := r.PathValue("id")
 	if id_url == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing event id.")
 		return
