@@ -12,3 +12,7 @@ type UserStats struct {
 	TotalListings int `json:"total_listings"`
 	TotalSpent    int `json:"total_spendings"`
 }
+
+type TotalScoreStats struct{
+	Total int `json:"total"`
+}
