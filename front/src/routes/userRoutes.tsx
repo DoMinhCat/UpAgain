@@ -24,7 +24,7 @@ const UserGuard = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-export const adminRoutes: RouteObject = {
+export const userRoutes: RouteObject = {
   path: PATHS.ADMIN.HOME,
   element: (
     <UserGuard>
