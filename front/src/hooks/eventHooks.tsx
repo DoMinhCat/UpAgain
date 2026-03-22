@@ -149,18 +149,22 @@ export const useUpdateEventStatus = (id_event: number, status: string) => {
       showSuccessNotification(
         status === "cancelled"
           ? "Cancellation successful"
-          : "Reopening successful",
+          : status === "pending"
+            ? "Approval successful"
+            : "Event updated successfully",
         status === "cancelled"
           ? "Event cancelled successfully"
-          : "Event reopened successfully",
+          : status === "pending"
+            ? "Event approved successfully"
+            : "Event updated successfully",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["event", id_event] });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
     },
     meta: {
-      errorTitle: "Event cancellation failed",
-      errorMessage: "An error occured while cancelling event",
+      errorTitle: "Event status update failed",
+      errorMessage: "An error occured while updating event status",
     },
   });
 };
