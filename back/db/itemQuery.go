@@ -343,6 +343,5 @@ func GetValidationStats() (models.ValidationStats, error) {
 	); err != nil {
 		return stats, fmt.Errorf("GetValidationStats() events query failed: %v", err)
 	}
-
 	return stats, nil
 }

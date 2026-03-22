@@ -24,7 +24,7 @@ import (
 // @Success      200     {object}  map[string]interface{}  "Paginated deposits"
 // @Failure      400     {object}  nil                     "Invalid pagination parameters"
 // @Failure      500     {object}  nil                     "Internal server error"
-// @Router       /admin/validations/deposits [get]
+// @Router       /admin/validations/deposits/ [get]
 func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
 	if err != nil {
@@ -57,7 +57,7 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Success      200     {object}  map[string]interface{}  "Paginated listings"
 // @Failure      400     {object}  nil                     "Invalid pagination parameters"
 // @Failure      500     {object}  nil                     "Internal server error"
-// @Router       /admin/validations/listings [get]
+// @Router       /admin/validations/listings/ [get]
 func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
 	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
 	if err != nil {
@@ -87,7 +87,7 @@ func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Success      200  {object}  models.ValidationStats  "Validation stats"
 // @Failure      500  {object}  nil                     "Internal server error"
-// @Router       /admin/validations/stats [get]
+// @Router       /admin/validations/stats/ [get]
 func GetValidationStats(w http.ResponseWriter, r *http.Request) {
 	stats, err := db.GetValidationStats()
 	if err != nil {
@@ -110,7 +110,7 @@ func GetValidationStats(w http.ResponseWriter, r *http.Request) {
 // @Failure      400   {object}  nil                "Invalid ID or payload"
 // @Failure      401   {object}  nil                "Unauthorized"
 // @Failure      500   {object}  nil                "Internal server error"
-// @Router       /admin/validations/listings/{id} [put]
+// @Router       /admin/validations/listings/{id}/ [put]
 func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	itemID, err := strconv.Atoi(idStr)
@@ -164,7 +164,7 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 // @Success      200   {object}  map[string]string  "Deposit status updated successfully"
 // @Failure      400   {object}  nil                "Invalid ID or payload"
 // @Failure      500   {object}  nil                "Internal server error"
-// @Router       /admin/validations/deposits/{id} [put]
+// @Router       /admin/validations/deposits/{id}/ [put]
 func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	itemID, err := strconv.Atoi(idStr)
@@ -213,7 +213,7 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 // @Failure      400   {object}  nil                "Invalid ID or payload"
 // @Failure      404   {object}  nil                "Event not found"
 // @Failure      500   {object}  nil                "Internal server error"
-// @Router       /admin/validations/events/{id} [put]
+// @Router       /admin/validations/events/{id}/ [put]
 func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	eventID, err := strconv.Atoi(idStr)
@@ -276,7 +276,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 // @Failure      400     {object}  nil                              "Invalid pagination parameters"
 // @Failure      403     {object}  nil                              "Forbidden"
 // @Failure      500     {object}  nil                              "Internal server error"
-// @Router       /admin/items/history [get]
+// @Router       /admin/items/history/ [get]
 func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
