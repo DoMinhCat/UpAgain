@@ -322,10 +322,25 @@ export default function AdminUserDetails() {
       </Title>
       <AdminBreadcrumbs
         breadcrumbs={[
-          { title: "User Management", href: PATHS.ADMIN.USERS.ALL },
-          ...(origin === "deletedList"
-            ? [{ title: "Deleted Accounts", href: PATHS.ADMIN.USERS.DELETED }]
-            : []),
+          ...(origin === "allUsers"
+            ? [{ title: "User Management", href: PATHS.ADMIN.USERS.ALL }]
+            : origin === "deletedList"
+              ? [
+                  { title: "User Management", href: PATHS.ADMIN.USERS.ALL },
+                  {
+                    title: "Deleted Accounts",
+                    href: PATHS.ADMIN.USERS.DELETED,
+                  },
+                ]
+              : origin?.from === "eventDetails"
+                ? [
+                    { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
+                    {
+                      title: "Event's Details",
+                      href: PATHS.ADMIN.EVENTS.ALL + "/" + origin?.id_event,
+                    },
+                  ]
+                : []),
           { title: "User's Details", href: "#" },
         ]}
       />

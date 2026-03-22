@@ -33,6 +33,7 @@ export const ENDPOINTS = {
       ASSIGN: (id_event: number) => `/events/${id_event}/assign/`,
       ASSIGNED_EMPLOYEES: (id_event: number) =>
         `/events/employees/${id_event}/`,
+      UNASSIGN: (id_event: number) => `/events/${id_event}/unassign/`,
     },
 
     EMPLOYEES: {

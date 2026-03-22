@@ -51,3 +51,7 @@ export interface AssignedEmployee {
   username: string;
   assigned_at: string;
 }
+
+export interface UnassignEmployeePayload {
+  id_employee: number;
+}
