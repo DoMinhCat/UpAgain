@@ -17,5 +17,5 @@ type ContainerCountStats struct {
 }
 
 type UpdateStatusRequest struct {
-    Status string `json:"status" example:"running"`
+	Status string `json:"status" example:"running"`
 }

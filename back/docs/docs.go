@@ -429,9 +429,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/items/history": {
+        "/admin/items/history/": {
             "get": {
-                "description": "Get a history of all items",
+                "description": "Get a paginated history of all items",
                 "produces": [
                     "application/json"
                 ],
@@ -439,15 +439,53 @@ const docTemplate = `{
                     "validation"
                 ],
                 "summary": "Get items history",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by type",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Items history",
+                        "description": "Paginated items history",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.AllItemResponse"
-                            }
+                            "$ref": "#/definitions/models.PaginatedHistoryResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Invalid pagination parameters"
                     },
                     "403": {
                         "description": "Forbidden"
@@ -458,7 +496,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/validations/deposits": {
+        "/admin/validations/deposits/": {
             "get": {
                 "description": "Get a paginated list of pending deposits for admin",
                 "produces": [
@@ -511,7 +549,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/validations/deposits/{id}": {
+        "/admin/validations/deposits/{id}/": {
             "put": {
                 "description": "Approve or refuse a deposit",
                 "consumes": [
@@ -561,60 +599,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/validations/events": {
-            "get": {
-                "description": "Get a paginated list of pending events for admin",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "validation"
-                ],
-                "summary": "Get pending events",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search query",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort order",
-                        "name": "sort",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Paginated events",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid pagination parameters"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
-        "/admin/validations/events/{id}": {
+        "/admin/validations/events/{id}/": {
             "put": {
                 "description": "Approve or refuse an event",
                 "consumes": [
@@ -658,13 +643,16 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid ID or payload"
                     },
+                    "404": {
+                        "description": "Event not found"
+                    },
                     "500": {
                         "description": "Internal server error"
                     }
                 }
             }
         },
-        "/admin/validations/listings": {
+        "/admin/validations/listings/": {
             "get": {
                 "description": "Get a paginated list of pending listings for admin",
                 "produces": [
@@ -717,7 +705,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/validations/listings/{id}": {
+        "/admin/validations/listings/{id}/": {
             "put": {
                 "description": "Approve or refuse a listing",
                 "consumes": [
@@ -770,7 +758,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/validations/stats": {
+        "/admin/validations/stats/": {
             "get": {
                 "description": "Get counts of pending, approved, and refused for all entity types",
                 "produces": [
@@ -1011,6 +999,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/employees/available/": {
+            "get": {
+                "description": "Get a list of employees not occupied during a specific time range.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "Get available employees",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339 format, e.g., 2026-03-22T17:00:00Z)",
+                        "name": "start_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339 format, e.g., 2026-03-22T19:00:00Z)",
+                        "name": "end_at",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of available employees",
+                        "schema": {
+                            "$ref": "#/definitions/models.AvailableEmployeesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid time format"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/events/": {
             "get": {
                 "description": "Get list of all events with pagination, search, status and sort filters.",
@@ -1075,9 +1108,10 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new event from the provided payload.",
+                "description": "Create a new event from the provided payload. Supports both JSON and multipart/form-data for image uploads.",
                 "consumes": [
-                    "application/json"
+                    "application/json",
+                    " multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1088,13 +1122,79 @@ const docTemplate = `{
                 "summary": "Create new event",
                 "parameters": [
                     {
-                        "description": "Event details",
+                        "description": "Event details (required if JSON)",
                         "name": "event",
                         "in": "body",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.CreateEventRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event title (required if multipart)",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event description",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339 format)",
+                        "name": "start_at",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339 format)",
+                        "name": "end_at",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Event price",
+                        "name": "price",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event category (workshop, conference, meetups, exposition, other)",
+                        "name": "category",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Max attendees",
+                        "name": "capacity",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Street",
+                        "name": "street",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Additional location details",
+                        "name": "location_detail",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Event images (multiple allowed)",
+                        "name": "images",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1102,7 +1202,7 @@ const docTemplate = `{
                         "description": "Event created successfully"
                     },
                     "400": {
-                        "description": "Invalid payload"
+                        "description": "Invalid payload or parsing error"
                     },
                     "401": {
                         "description": "Unauthorized"
@@ -1142,7 +1242,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/events/employees/{id_event}/": {
+        "/events/employees/{id}/": {
             "get": {
                 "description": "Get list of employees assigned to an event by ID.",
                 "consumes": [
@@ -1159,7 +1259,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Event ID",
-                        "name": "id_event",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1180,13 +1280,16 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized"
                     },
+                    "404": {
+                        "description": "Event not found"
+                    },
                     "500": {
                         "description": "Internal server error"
                     }
                 }
             }
         },
-        "/events/{id_event}/": {
+        "/events/{id}/": {
             "get": {
                 "description": "Get detailed information about an event by its ID.",
                 "consumes": [
@@ -1203,7 +1306,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Event ID",
-                        "name": "id_event",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1227,7 +1330,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/events/{id_event}/assign/": {
+        "/events/{id}/assign/": {
             "post": {
                 "description": "Assign a list of employees to an event by its ID. Replaces existing assignments.",
                 "consumes": [
@@ -1244,7 +1347,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Event ID",
-                        "name": "id_event",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1267,6 +1370,229 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Event not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/events/{id}/status/": {
+            "patch": {
+                "description": "Update the status of an event (approve, refuse, cancel, or set to pending).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Update event status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Target status",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateEventStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Status updated"
+                    },
+                    "400": {
+                        "description": "Invalid status or ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Event not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/events/{id}/unassign/": {
+            "delete": {
+                "description": "Remove an employee assignment from an event by ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Unassign employee from event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Employee ID to unassign",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UnAssignEmployeeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Employee unassigned"
+                    },
+                    "400": {
+                        "description": "Invalid payload or ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Event not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/events/{id}/update/": {
+            "put": {
+                "description": "Update the details of an existing event by its ID. Supports both JSON and multipart/form-data for image updates.",
+                "consumes": [
+                    "application/json",
+                    " multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Update event details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event details (required if JSON)",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateEventRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event title (required if multipart)",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event description",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339 format)",
+                        "name": "start_at",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339 format)",
+                        "name": "end_at",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Event price",
+                        "name": "price",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event category",
+                        "name": "category",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Max attendees",
+                        "name": "capacity",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Street",
+                        "name": "street",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Additional location details",
+                        "name": "location_detail",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "List of existing image paths to keep (multiple allowed)",
+                        "name": "existing_images",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "New event images to upload (multiple allowed)",
+                        "name": "images",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Event updated successfully"
+                    },
+                    "400": {
+                        "description": "Invalid payload or ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Event not found"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -1495,11 +1821,17 @@ const docTemplate = `{
         "models.AssignEmployeeRequest": {
             "type": "object",
             "properties": {
+                "end_at": {
+                    "type": "string"
+                },
                 "ids_employee": {
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
+                },
+                "start_at": {
+                    "type": "string"
                 }
             }
         },
@@ -1509,11 +1841,39 @@ const docTemplate = `{
                 "assigned_at": {
                     "type": "string"
                 },
+                "email": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "models.AvailableEmployee": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AvailableEmployeesResponse": {
+            "type": "object",
+            "properties": {
+                "employees": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AvailableEmployee"
+                    }
                 }
             }
         },
@@ -1586,6 +1946,15 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "end_at": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "location_detail": {
                     "type": "string"
                 },
@@ -1627,8 +1996,17 @@ const docTemplate = `{
                 "employee_name": {
                     "type": "string"
                 },
+                "end_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "location_detail": {
                     "type": "string"
@@ -1704,11 +2082,42 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PaginatedHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AllItemResponse"
+                    }
+                },
+                "last_page": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "total_records": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.ToggleBanRequest": {
             "type": "object",
             "properties": {
                 "is_banned": {
                     "type": "boolean"
+                }
+            }
+        },
+        "models.UnAssignEmployeeRequest": {
+            "type": "object",
+            "properties": {
+                "id_employee": {
+                    "type": "integer"
                 }
             }
         },
@@ -1725,6 +2134,55 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateEventRequest": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_at": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "location_detail": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "start_at": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateEventStatusRequest": {
+            "type": "object",
+            "properties": {
+                "status": {
                     "type": "string"
                 }
             }

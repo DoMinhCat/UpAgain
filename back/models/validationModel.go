@@ -45,7 +45,7 @@ type PendingListingResponse struct {
 type PendingEventResponse struct {
 	EventID          int         `json:"id_event"`
 	Title            string      `json:"title"`
-	Description      string `json:"description"`
+	Description      string      `json:"description"`
 	Category         string      `json:"category"`
 	DateStart        null.Time   `json:"date_start"`
 	Capacity         null.Int    `json:"capacity"`

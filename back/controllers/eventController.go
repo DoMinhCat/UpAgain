@@ -163,13 +163,24 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 
 // CreateEvent godoc
 // @Summary      Create new event
-// @Description  Create a new event from the provided payload.
+// @Description  Create a new event from the provided payload. Supports both JSON and multipart/form-data for image uploads.
 // @Tags         event
-// @Accept       json
+// @Accept       json, multipart/form-data
 // @Produce      json
-// @Param        event  body      models.CreateEventRequest  true  "Event details"
+// @Param        event  body      models.CreateEventRequest  true  "Event details (required if JSON)"
+// @Param        title  formData  string                    false "Event title (required if multipart)"
+// @Param        description formData string              false "Event description"
+// @Param        start_at    formData string              false "Start date (RFC3339 format)"
+// @Param        end_at      formData string              false "End date (RFC3339 format)"
+// @Param        price       formData number              false "Event price"
+// @Param        category    formData string              false "Event category (workshop, conference, meetups, exposition, other)"
+// @Param        capacity    formData integer             false "Max attendees"
+// @Param        city        formData string              false "City"
+// @Param        street      formData string              false "Street"
+// @Param        location_detail formData string           false "Additional location details"
+// @Param        images      formData file                false "Event images (multiple allowed)"
 // @Success      201    {object}  nil                         "Event created successfully"
-// @Failure      400    {object}  nil                         "Invalid payload"
+// @Failure      400    {object}  nil                         "Invalid payload or parsing error"
 // @Failure      401    {object}  nil                         "Unauthorized"
 // @Failure      500    {object}  nil                         "Internal server error"
 // @Router       /events/ [post]
@@ -264,12 +275,12 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 // @Tags         event
 // @Accept       json
 // @Produce      json
-// @Param        id_event  path      int  true  "Event ID"
+// @Param        id        path      int  true  "Event ID"
 // @Success      200       {object}  models.Event  "Event details retrieved successfully"
 // @Failure      400       {object}  nil           "Invalid event ID"
 // @Failure      404       {object}  nil           "Event not found"
 // @Failure      500       {object}  nil           "Internal server error"
-// @Router       /events/{id_event}/ [get]
+// @Router       /events/{id}/ [get]
 func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
 	id_url := r.PathValue("id")
 	if id_url == "" {
@@ -302,7 +313,6 @@ func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	utils.RespondWithJSON(w, http.StatusOK, eventDetails)
 }
 
@@ -312,13 +322,13 @@ func GetEventDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Tags         event
 // @Accept       json
 // @Produce      json
-// @Param        id_event  path      int  true  "Event ID"
+// @Param        id        path      int  true  "Event ID"
 // @Success      200       {array}   models.AssignedEmployee  "List of assigned employees"
 // @Failure      400       {object}  nil                    "Invalid event ID"
 // @Failure      401       {object}  nil                    "Unauthorized"
 // @Failure      404       {object}  nil                    "Event not found"
 // @Failure      500       {object}  nil                    "Internal server error"
-// @Router       /events/employees/{id_event}/ [get]
+// @Router       /events/employees/{id}/ [get]
 func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -365,17 +375,17 @@ func GetAssignedEmployeesByEventId(w http.ResponseWriter, r *http.Request) {
 // @Tags         event
 // @Accept       json
 // @Produce      json
-// @Param        id_event  path      int                     true  "Event ID"
+// @Param        id        path      int                     true  "Event ID"
 // @Param        payload   body      models.AssignEmployeeRequest  true  "List of employee IDs"
 // @Success      200       {object}  nil                    "Employees assigned successfully"
 // @Failure      400       {object}  nil                    "Invalid payload or ID"
 // @Failure      401       {object}  nil                    "Unauthorized"
 // @Failure      404       {object}  nil                    "Event not found"
 // @Failure      500       {object}  nil                    "Internal server error"
-// @Router       /events/{id_event}/assign/ [post]
+// @Router       /events/{id}/assign/ [post]
 func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" && role != "employee"{
+	if role != "admin" && role != "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -453,33 +463,33 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if !exist {
-			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID " + strconv.Itoa(id_employee) + " not found.")
+			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID "+strconv.Itoa(id_employee)+" not found.")
 			return
 		}
 	}
-	
+
 	// check employee has no conflict
 	validIds := []int{}
 	availableEmployees, err := db.GetAvailableEmployeesByTime(payload.StartAt, payload.EndAt)
 	if err != nil {
 		slog.Error("GetAvailableEmployeesByTime() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while assigning employee(s) to the event.")
-			return
-		}
+		return
+	}
 	for _, availableEmployee := range availableEmployees.Employees {
-			validIds = append(validIds, availableEmployee.Id)
+		validIds = append(validIds, availableEmployee.Id)
 	}
 
 	var valid bool
-	for _, id_account := range payload.IdsEmployee{
+	for _, id_account := range payload.IdsEmployee {
 		valid = false
-		for _, validId := range validIds{
+		for _, validId := range validIds {
 			if validId == id_account {
 				valid = true
 			}
 		}
 		if !valid {
-			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID " + strconv.Itoa(id_account) + " is not available.")
+			utils.RespondWithError(w, http.StatusBadRequest, "Employee ID "+strconv.Itoa(id_account)+" is not available.")
 			return
 		}
 	}
@@ -494,9 +504,22 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// UnAssignEmployeeByEventId godoc
+// @Summary      Unassign employee from event
+// @Description  Remove an employee assignment from an event by ID.
+// @Tags         event
+// @Produce      json
+// @Param        id        path      int                             true  "Event ID"
+// @Param        payload   body      models.UnAssignEmployeeRequest  true  "Employee ID to unassign"
+// @Success      204       {object}  nil                             "Employee unassigned"
+// @Failure      400       {object}  nil                             "Invalid payload or ID"
+// @Failure      401       {object}  nil                             "Unauthorized"
+// @Failure      404       {object}  nil                             "Event not found"
+// @Failure      500       {object}  nil                             "Internal server error"
+// @Router       /events/{id}/unassign/ [delete]
 func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin"{
+	if role != "admin" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -543,9 +566,23 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// CancelEventByEventId godoc
+// @Summary      Update event status
+// @Description  Update the status of an event (approve, refuse, cancel, or set to pending).
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        id      path      int                           true  "Event ID"
+// @Param        payload body      models.UpdateEventStatusRequest true  "Target status"
+// @Success      204     {object}  nil                           "Status updated"
+// @Failure      400     {object}  nil                           "Invalid status or ID"
+// @Failure      401     {object}  nil                           "Unauthorized"
+// @Failure      404     {object}  nil                           "Event not found"
+// @Failure      500     {object}  nil                           "Internal server error"
+// @Router       /events/{id}/status/ [patch]
 func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin"{
+	if role != "admin" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -582,7 +619,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if payload.Status != "cancelled" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "pending"{
+	if payload.Status != "cancelled" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "pending" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
 		return
 	}
@@ -597,6 +634,32 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// UpdateEventByEventId godoc
+// @Summary      Update event details
+// @Description  Update the details of an existing event by its ID. Supports both JSON and multipart/form-data for image updates.
+// @Tags         event
+// @Accept       json, multipart/form-data
+// @Produce      json
+// @Param        id     path      int  true  "Event ID"
+// @Param        event  body      models.UpdateEventRequest  true  "Event details (required if JSON)"
+// @Param        title  formData  string                    false "Event title (required if multipart)"
+// @Param        description formData string              false "Event description"
+// @Param        start_at    formData string              false "Start date (RFC3339 format)"
+// @Param        end_at      formData string              false "End date (RFC3339 format)"
+// @Param        price       formData number              false "Event price"
+// @Param        category    formData string              false "Event category"
+// @Param        capacity    formData integer             false "Max attendees"
+// @Param        city        formData string              false "City"
+// @Param        street      formData string              false "Street"
+// @Param        location_detail formData string           false "Additional location details"
+// @Param        existing_images formData string           false "List of existing image paths to keep (multiple allowed)"
+// @Param        images      formData file                false "New event images to upload (multiple allowed)"
+// @Success      204    {object}  nil                         "Event updated successfully"
+// @Failure      400    {object}  nil                         "Invalid payload or ID"
+// @Failure      401    {object}  nil                         "Unauthorized"
+// @Failure      404    {object}  nil                         "Event not found"
+// @Failure      500    {object}  nil                         "Internal server error"
+// @Router       /events/{id}/update/ [put]
 func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "employee" {
@@ -642,7 +705,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		payload.Category = r.FormValue("category")
 		payload.City = r.FormValue("city")
 		payload.Street = r.FormValue("street")
-		
+
 		if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
 			payload.Capacity.SetValid(int64(capacity))
 		}
@@ -687,7 +750,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// require validation again if employee
-	if role == "employee"{
+	if role == "employee" {
 		err = db.UpdateEventStatusByEventId(id_event, "pending", r.Context().Value("user").(models.AuthClaims).Id)
 		if err != nil {
 			slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventByEventId", "error", err)

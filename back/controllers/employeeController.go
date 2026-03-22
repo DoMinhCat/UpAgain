@@ -9,7 +9,18 @@ import (
 	"time"
 )
 
-// GetAvailableEmployees returns all employees not being occupied during the specific time
+// GetAvailableEmployees godoc
+// @Summary      Get available employees
+// @Description  Get a list of employees not occupied during a specific time range.
+// @Tags         employee
+// @Produce      json
+// @Param        start_at  query     string  true  "Start date (RFC3339 format, e.g., 2026-03-22T17:00:00Z)"
+// @Param        end_at    query     string  true  "End date (RFC3339 format, e.g., 2026-03-22T19:00:00Z)"
+// @Success      200       {object}  models.AvailableEmployeesResponse  "List of available employees"
+// @Failure      400       {object}  nil                            "Invalid time format"
+// @Failure      401       {object}  nil                            "Unauthorized"
+// @Failure      500       {object}  nil                            "Internal server error"
+// @Router       /employees/available/ [get]
 func GetAvailableEmployees(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {

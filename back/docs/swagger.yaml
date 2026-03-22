@@ -51,19 +51,41 @@ definitions:
     type: object
   models.AssignEmployeeRequest:
     properties:
+      end_at:
+        type: string
       ids_employee:
         items:
           type: integer
         type: array
+      start_at:
+        type: string
     type: object
   models.AssignedEmployee:
     properties:
       assigned_at:
         type: string
+      email:
+        type: string
       id:
         type: integer
       username:
         type: string
+    type: object
+  models.AvailableEmployee:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.AvailableEmployeesResponse:
+    properties:
+      employees:
+        items:
+          $ref: '#/definitions/models.AvailableEmployee'
+        type: array
     type: object
   models.Container:
     properties:
@@ -110,6 +132,12 @@ definitions:
         type: string
       description:
         type: string
+      end_at:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
       location_detail:
         type: string
       price:
@@ -137,8 +165,14 @@ definitions:
         type: string
       employee_name:
         type: string
+      end_at:
+        type: string
       id:
         type: integer
+      images:
+        items:
+          type: string
+        type: array
       location_detail:
         type: string
       price:
@@ -187,10 +221,30 @@ definitions:
       password:
         type: string
     type: object
+  models.PaginatedHistoryResponse:
+    properties:
+      current_page:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/models.AllItemResponse'
+        type: array
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total_records:
+        type: integer
+    type: object
   models.ToggleBanRequest:
     properties:
       is_banned:
         type: boolean
+    type: object
+  models.UnAssignEmployeeRequest:
+    properties:
+      id_employee:
+        type: integer
     type: object
   models.UpdateAccountRequest:
     properties:
@@ -201,6 +255,38 @@ definitions:
       phone:
         type: string
       username:
+        type: string
+    type: object
+  models.UpdateEventRequest:
+    properties:
+      capacity:
+        type: integer
+      category:
+        type: string
+      city:
+        type: string
+      description:
+        type: string
+      end_at:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      location_detail:
+        type: string
+      price:
+        type: number
+      start_at:
+        type: string
+      street:
+        type: string
+      title:
+        type: string
+    type: object
+  models.UpdateEventStatusRequest:
+    properties:
+      status:
         type: string
     type: object
   models.UpdatePasswordRequest:
@@ -523,18 +609,43 @@ paths:
       summary: Get account count stats
       tags:
       - account
-  /admin/items/history:
+  /admin/items/history/:
     get:
-      description: Get a history of all items
+      description: Get a paginated history of all items
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Filter by type
+        in: query
+        name: type
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Items history
+          description: Paginated items history
           schema:
-            items:
-              $ref: '#/definitions/models.AllItemResponse'
-            type: array
+            $ref: '#/definitions/models.PaginatedHistoryResponse'
+        "400":
+          description: Invalid pagination parameters
         "403":
           description: Forbidden
         "500":
@@ -542,7 +653,7 @@ paths:
       summary: Get items history
       tags:
       - validation
-  /admin/validations/deposits:
+  /admin/validations/deposits/:
     get:
       description: Get a paginated list of pending deposits for admin
       parameters:
@@ -577,7 +688,7 @@ paths:
       summary: Get pending deposits
       tags:
       - validation
-  /admin/validations/deposits/{id}:
+  /admin/validations/deposits/{id}/:
     put:
       consumes:
       - application/json
@@ -610,42 +721,7 @@ paths:
       summary: Process deposit validation
       tags:
       - validation
-  /admin/validations/events:
-    get:
-      description: Get a paginated list of pending events for admin
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Limit
-        in: query
-        name: limit
-        type: integer
-      - description: Search query
-        in: query
-        name: search
-        type: string
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Paginated events
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid pagination parameters
-        "500":
-          description: Internal server error
-      summary: Get pending events
-      tags:
-      - validation
-  /admin/validations/events/{id}:
+  /admin/validations/events/{id}/:
     put:
       consumes:
       - application/json
@@ -673,12 +749,14 @@ paths:
             type: object
         "400":
           description: Invalid ID or payload
+        "404":
+          description: Event not found
         "500":
           description: Internal server error
       summary: Process event validation
       tags:
       - validation
-  /admin/validations/listings:
+  /admin/validations/listings/:
     get:
       description: Get a paginated list of pending listings for admin
       parameters:
@@ -713,7 +791,7 @@ paths:
       summary: Get pending listings
       tags:
       - validation
-  /admin/validations/listings/{id}:
+  /admin/validations/listings/{id}/:
     put:
       consumes:
       - application/json
@@ -748,7 +826,7 @@ paths:
       summary: Process listing validation
       tags:
       - validation
-  /admin/validations/stats:
+  /admin/validations/stats/:
     get:
       description: Get counts of pending, approved, and refused for all entity types
       produces:
@@ -907,6 +985,36 @@ paths:
       summary: Get container count stats
       tags:
       - container
+  /employees/available/:
+    get:
+      description: Get a list of employees not occupied during a specific time range.
+      parameters:
+      - description: Start date (RFC3339 format, e.g., 2026-03-22T17:00:00Z)
+        in: query
+        name: start_at
+        required: true
+        type: string
+      - description: End date (RFC3339 format, e.g., 2026-03-22T19:00:00Z)
+        in: query
+        name: end_at
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of available employees
+          schema:
+            $ref: '#/definitions/models.AvailableEmployeesResponse'
+        "400":
+          description: Invalid time format
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get available employees
+      tags:
+      - employee
   /events/:
     get:
       consumes:
@@ -953,21 +1061,67 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new event from the provided payload.
+      - ' multipart/form-data'
+      description: Create a new event from the provided payload. Supports both JSON
+        and multipart/form-data for image uploads.
       parameters:
-      - description: Event details
+      - description: Event details (required if JSON)
         in: body
         name: event
         required: true
         schema:
           $ref: '#/definitions/models.CreateEventRequest'
+      - description: Event title (required if multipart)
+        in: formData
+        name: title
+        type: string
+      - description: Event description
+        in: formData
+        name: description
+        type: string
+      - description: Start date (RFC3339 format)
+        in: formData
+        name: start_at
+        type: string
+      - description: End date (RFC3339 format)
+        in: formData
+        name: end_at
+        type: string
+      - description: Event price
+        in: formData
+        name: price
+        type: number
+      - description: Event category (workshop, conference, meetups, exposition, other)
+        in: formData
+        name: category
+        type: string
+      - description: Max attendees
+        in: formData
+        name: capacity
+        type: integer
+      - description: City
+        in: formData
+        name: city
+        type: string
+      - description: Street
+        in: formData
+        name: street
+        type: string
+      - description: Additional location details
+        in: formData
+        name: location_detail
+        type: string
+      - description: Event images (multiple allowed)
+        in: formData
+        name: images
+        type: file
       produces:
       - application/json
       responses:
         "201":
           description: Event created successfully
         "400":
-          description: Invalid payload
+          description: Invalid payload or parsing error
         "401":
           description: Unauthorized
         "500":
@@ -975,7 +1129,7 @@ paths:
       summary: Create new event
       tags:
       - event
-  /events/{id_event}/:
+  /events/{id}/:
     get:
       consumes:
       - application/json
@@ -983,7 +1137,7 @@ paths:
       parameters:
       - description: Event ID
         in: path
-        name: id_event
+        name: id
         required: true
         type: integer
       produces:
@@ -1002,7 +1156,7 @@ paths:
       summary: Get event details
       tags:
       - event
-  /events/{id_event}/assign/:
+  /events/{id}/assign/:
     post:
       consumes:
       - application/json
@@ -1011,7 +1165,7 @@ paths:
       parameters:
       - description: Event ID
         in: path
-        name: id_event
+        name: id
         required: true
         type: integer
       - description: List of employee IDs
@@ -1029,9 +1183,159 @@ paths:
           description: Invalid payload or ID
         "401":
           description: Unauthorized
+        "404":
+          description: Event not found
         "500":
           description: Internal server error
       summary: Assign employees to event
+      tags:
+      - event
+  /events/{id}/status/:
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of an event (approve, refuse, cancel, or set
+        to pending).
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Target status
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateEventStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Status updated
+        "400":
+          description: Invalid status or ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      summary: Update event status
+      tags:
+      - event
+  /events/{id}/unassign/:
+    delete:
+      description: Remove an employee assignment from an event by ID.
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Employee ID to unassign
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.UnAssignEmployeeRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Employee unassigned
+        "400":
+          description: Invalid payload or ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      summary: Unassign employee from event
+      tags:
+      - event
+  /events/{id}/update/:
+    put:
+      consumes:
+      - application/json
+      - ' multipart/form-data'
+      description: Update the details of an existing event by its ID. Supports both
+        JSON and multipart/form-data for image updates.
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Event details (required if JSON)
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateEventRequest'
+      - description: Event title (required if multipart)
+        in: formData
+        name: title
+        type: string
+      - description: Event description
+        in: formData
+        name: description
+        type: string
+      - description: Start date (RFC3339 format)
+        in: formData
+        name: start_at
+        type: string
+      - description: End date (RFC3339 format)
+        in: formData
+        name: end_at
+        type: string
+      - description: Event price
+        in: formData
+        name: price
+        type: number
+      - description: Event category
+        in: formData
+        name: category
+        type: string
+      - description: Max attendees
+        in: formData
+        name: capacity
+        type: integer
+      - description: City
+        in: formData
+        name: city
+        type: string
+      - description: Street
+        in: formData
+        name: street
+        type: string
+      - description: Additional location details
+        in: formData
+        name: location_detail
+        type: string
+      - description: List of existing image paths to keep (multiple allowed)
+        in: formData
+        name: existing_images
+        type: string
+      - description: New event images to upload (multiple allowed)
+        in: formData
+        name: images
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Event updated successfully
+        "400":
+          description: Invalid payload or ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      summary: Update event details
       tags:
       - event
   /events/count/:
@@ -1059,7 +1363,7 @@ paths:
       summary: Get event stats
       tags:
       - event
-  /events/employees/{id_event}/:
+  /events/employees/{id}/:
     get:
       consumes:
       - application/json
@@ -1067,7 +1371,7 @@ paths:
       parameters:
       - description: Event ID
         in: path
-        name: id_event
+        name: id
         required: true
         type: integer
       produces:
@@ -1083,6 +1387,8 @@ paths:
           description: Invalid event ID
         "401":
           description: Unauthorized
+        "404":
+          description: Event not found
         "500":
           description: Internal server error
       summary: Get assigned employees
