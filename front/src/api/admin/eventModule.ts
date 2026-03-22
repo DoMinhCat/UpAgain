@@ -32,6 +32,22 @@ export const getEventStats = async (): Promise<EventStats> => {
 export const createEvent = async (
   event: EventCreationPayload,
 ): Promise<void> => {
+  if (event.images) {
+    const formData = event.images;
+    // append Other fields to existing form data
+    Object.entries(event).forEach(([key, value]) => {
+      if (key !== "images" && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+
+    const response = await api.post(ENDPOINTS.ADMIN.EVENTS.ALL, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  }
   const response = await api.post(ENDPOINTS.ADMIN.EVENTS.ALL, event);
   return response.data;
 };

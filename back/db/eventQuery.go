@@ -167,16 +167,38 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	return results, totalRecords, nil
 }
 
-func CreateEvent(event models.CreateEventRequest) (int, error) {
+func CreateEvent(event models.CreateEventRequest, creatorId int) (int, error) {
 	var eventId int
+	tx, err := utils.Conn.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("CreateEvent() begin tx failed: %v", err.Error())
+	}
+	defer tx.Rollback()
+
 	query := `
-		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail, created_by)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id;
 	`
-	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail).Scan(&eventId)
+	err = tx.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId).Scan(&eventId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
+	}
+
+	// Insert photos
+	for i, imgPath := range event.Images {
+		isPrimary := i == 0
+		_, err = tx.Exec(`
+			INSERT INTO photos (path, is_primary, object_type, event_id)
+			VALUES ($1, $2, 'event', $3)
+		`, imgPath, isPrimary, eventId)
+		if err != nil {
+			return 0, fmt.Errorf("failed to insert photo: %v", err.Error())
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return 0, fmt.Errorf("CreateEvent() commit tx failed: %v", err.Error())
 	}
 	return eventId, nil
 }
@@ -191,6 +213,22 @@ func GetEventDetailsById(id_event int) (models.Event, error) {
 	if err != nil {
 		return models.Event{}, fmt.Errorf("GetEventDetailsById() failed: %v", err.Error())
 	}
+
+	// Fetch photos
+	rows, err := utils.Conn.Query("SELECT path FROM photos WHERE event_id = $1 AND object_type = 'event' ORDER BY is_primary DESC, created_at ASC", id_event)
+	if err != nil {
+		return event, fmt.Errorf("failed to fetch photos: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var path string
+		if err := rows.Scan(&path); err != nil {
+			return event, fmt.Errorf("failed to scan photo path: %v", err.Error())
+		}
+		event.Images = append(event.Images, path)
+	}
+
 	return event, nil
 }
 

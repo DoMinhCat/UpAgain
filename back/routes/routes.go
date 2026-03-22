@@ -21,5 +21,8 @@ func GetAllRoutes() *http.ServeMux {
 		// swagger API documentation
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
+	// serve uploaded files
+	mux.Handle("GET /images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
+
 	return mux
 }

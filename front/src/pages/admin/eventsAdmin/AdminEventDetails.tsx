@@ -19,9 +19,13 @@ import {
   MultiSelect,
   Loader,
   Tooltip,
+  SimpleGrid,
+  Image,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
+import { Carousel } from "@mantine/carousel";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import "@mantine/carousel/styles.css";
 import { PATHS } from "../../../routes/paths";
 import {
   IconCoinEuro,
@@ -29,10 +33,11 @@ import {
   IconMapPinFilled,
   IconPlus,
   IconUsers,
+  IconPhoto,
 } from "@tabler/icons-react";
 import AdminTable from "../../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TextEditor } from "../../../components/TextEditor";
 import {
   useAssignEmployeeToEvent,
@@ -48,7 +53,17 @@ import FullScreenLoader from "../../../components/FullScreenLoader";
 import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
+import ImageDropzone from "../../../components/ImageDropzone";
 export default function AdminEventDetails() {
+  const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
+    useDisclosure(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const handleImageClick = (index: number) => {
+    setActiveSlide(index);
+    openCarousel();
+  };
+
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -425,6 +440,69 @@ export default function AdminEventDetails() {
                 }}
               />
             </Stack>
+            {eventDetails?.images && eventDetails.images.length > 0 && (
+              <>
+                <Divider my="xl" />
+                <Group gap="sm">
+                  <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
+                  <Title order={3}>Photos</Title>
+                </Group>
+                <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
+                  {eventDetails.images.map((path, index) => (
+                    <Image
+                      key={index}
+                      src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
+                      radius="md"
+                      alt={`Event photo ${index + 1}`}
+                      fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleImageClick(index)}
+                    />
+                  ))}
+                </SimpleGrid>
+
+                <Modal
+                  opened={openedCarousel}
+                  onClose={closeCarousel}
+                  size="xl"
+                  centered
+                  title="Event's gallery"
+                  styles={{
+                    root: {
+                      zIndex: 1000,
+                    },
+                    body: {
+                      padding: "xs",
+                    },
+                  }}
+                >
+                  <Carousel
+                    initialSlide={activeSlide}
+                    withIndicators
+                    height={500}
+                    slideSize="100%"
+                    emblaOptions={{
+                      loop: true,
+                      align: "center",
+                      slidesToScroll: 1,
+                    }}
+                  >
+                    {eventDetails.images.map((path, index) => (
+                      <Carousel.Slide key={index}>
+                        <Image
+                          src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
+                          h={500}
+                          fit="contain"
+                          radius={0}
+                          alt={`Event photo ${index + 1}`}
+                          fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
+                        />
+                      </Carousel.Slide>
+                    ))}
+                  </Carousel>
+                </Modal>
+              </>
+            )}
             <Divider my="xl" />
             <Group gap="sm">
               <IconMapPinFilled color="green" size={32} />
@@ -539,7 +617,7 @@ export default function AdminEventDetails() {
                       }}
                       onBlur={() => validateTitle()}
                       error={errorTitle}
-                      // disabled={isAccountDetailsLoading}
+                      disabled={updateEvent.isPending}
                       required
                     />
                     <NumberInput
@@ -552,7 +630,7 @@ export default function AdminEventDetails() {
                       }}
                       onBlur={() => validateCapacity()}
                       error={errorCapacity}
-                      // disabled={isAccountDetailsLoading}
+                      disabled={updateEvent.isPending}
                       required
                     />
                     <NumberInput
@@ -565,7 +643,7 @@ export default function AdminEventDetails() {
                       }}
                       onBlur={() => validatePrice()}
                       error={errorPrice}
-                      // disabled={isAccountDetailsLoading}
+                      disabled={updateEvent.isPending}
                       required
                     />
                     <Grid>
@@ -579,7 +657,7 @@ export default function AdminEventDetails() {
                           }}
                           onBlur={() => validateStreet()}
                           error={errorStreet}
-                          // disabled={isAccountDetailsLoading}
+                          disabled={updateEvent.isPending}
                           required
                         />
                       </Grid.Col>
@@ -593,7 +671,7 @@ export default function AdminEventDetails() {
                           }}
                           onBlur={() => validateCity()}
                           error={errorCity}
-                          // disabled={isAccountDetailsLoading}
+                          disabled={updateEvent.isPending}
                           required
                         />
                       </Grid.Col>
@@ -604,7 +682,7 @@ export default function AdminEventDetails() {
                       onChange={(e) => {
                         setLocationDetailEdit(e.target.value);
                       }}
-                      // disabled={isAccountDetailsLoading}
+                      disabled={updateEvent.isPending}
                     />
                     <Grid>
                       <Grid.Col span={{ base: 12, md: 6 }}>
@@ -663,6 +741,14 @@ export default function AdminEventDetails() {
                         setDescriptionEdit(value);
                       }}
                       error={errorDescription ?? ""}
+                    />
+                    <ImageDropzone
+                      loading={updateEvent.isPending}
+                      value={imageEdit}
+                      onChange={(value) => {
+                        setImageEdit(value);
+                      }}
+                      loading={}
                     />
                   </Stack>
                   <Group mt="lg" justify="center">
