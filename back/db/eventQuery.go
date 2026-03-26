@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 	"time"
 )
@@ -69,9 +70,16 @@ func GetTotalEventsByStatus(status *string) (int, error) {
 	if status == nil {
 		err := utils.Conn.QueryRow("select count(*) from events").Scan(&count)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				return 0, nil
+			}
 			return 0, fmt.Errorf("GetTotalEventsByStatus() failed: %v", err.Error())
 		}
 		return count, nil
+	}
+
+	if *status != "pending" && *status != "approved" && *status != "refused" && *status != "cancelled" {
+		return 0, fmt.Errorf("GetTotalEventsByStatus() failed: invalid status '%v'", *status)
 	}
 
 	err := utils.Conn.QueryRow("select count(*) from events where status=$1", *status).Scan(&count)
