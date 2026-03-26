@@ -91,7 +91,7 @@ func TotalViewsByPostId(id *int) (int, error) {
 		query = `select view_count from posts p where p.is_deleted = false and p.id = $1;`
 		err = utils.Conn.QueryRow(query, *id).Scan(&total)
 	}else{
-		query = `select sum(view_count) from posts p where p.is_deleted = false;`
+		query = `select COALESCE(sum(view_count), 0) from posts p where p.is_deleted = false;`
 		err = utils.Conn.QueryRow(query).Scan(&total)
 	}
 	if err != nil {
@@ -112,7 +112,7 @@ func TotalLikesByPostId(id *int) (int, error) {
 		query = `select like_count from posts p where p.is_deleted = false and p.id = $1;`
 		err = utils.Conn.QueryRow(query, *id).Scan(&total)
 	}else{
-		query = `select sum(like_count) from posts p where p.is_deleted = false;`
+		query = `select COALESCE(sum(like_count), 0) from posts p where p.is_deleted = false;`
 		err = utils.Conn.QueryRow(query).Scan(&total)
 	}
 	if err != nil {
