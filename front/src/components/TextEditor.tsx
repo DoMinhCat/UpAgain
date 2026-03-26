@@ -1,31 +1,38 @@
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { RichTextEditor } from "@mantine/tiptap";
-import Underline from "@tiptap/extension-underline";
 import Highlight from "@tiptap/extension-highlight";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
-import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import { Input } from "@mantine/core";
+import Placeholder from "@tiptap/extension-placeholder";
 
 interface TextEditorProps {
   value: string;
   onChange: (value: string) => void;
   label?: string;
   error?: string;
+  placeholder?: string;
 }
 
-export function TextEditor({ value, onChange, label, error }: TextEditorProps) {
+export function TextEditor({
+  value,
+  onChange,
+  label,
+  error,
+  placeholder,
+}: TextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      // Underline,
       Highlight,
       Subscript,
       Superscript,
-      // Link,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Placeholder.configure({
+        placeholder: placeholder,
+      }),
     ],
     content: value,
     onUpdate: ({ editor }) => {

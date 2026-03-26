@@ -438,7 +438,7 @@ export default function AdminEventsModule() {
                   data-autofocus
                   withAsterisk
                   placeholder="Give the event a catchy title"
-                  label="Tile"
+                  label="Title"
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
@@ -579,6 +579,7 @@ export default function AdminEventsModule() {
                 <TextEditor
                   label="Event's description"
                   value={description}
+                  placeholder="Write your event's description here..."
                   error={errorDescription}
                   onChange={(value) => {
                     setDescription(value);
