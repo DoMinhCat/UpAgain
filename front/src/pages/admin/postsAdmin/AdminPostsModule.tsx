@@ -11,6 +11,7 @@ import {
   Grid,
   Select,
 } from "@mantine/core";
+import ImageDropzone from "../../../components/ImageDropzone";
 import {
   IconCalendarEventFilled,
   IconArrowUp,
@@ -27,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { TextEditor } from "../../../components/TextEditor";
 import { useGetPostsStats } from "../../../hooks/postHooks";
+import { useState } from "react";
 
 export const AdminPostsModule = () => {
   const navigate = useNavigate();
@@ -41,10 +43,45 @@ export const AdminPostsModule = () => {
   // CREATE MODAL
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
+  const [files, setFiles] = useState<any[]>([]);
+  const [title, setTitle] = useState<string>("");
+  const [category, setCategory] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [errorTitle, setErrorTitle] = useState<string>("");
+  const [errorCategory, setErrorCategory] = useState<string>("");
+  const [errorDescription, setErrorDescription] = useState<string>("");
+
+  const validateTitle = () => {
+    if (!title) {
+      setErrorTitle("Title is required");
+    } else {
+      setErrorTitle("");
+    }
+  };
+  const validateCategory = () => {
+    if (!category) {
+      setErrorCategory("Category is required");
+    } else if (category === "project") {
+      setErrorCategory("Only professionals can create a project");
+    } else {
+      setErrorCategory("");
+    }
+  };
+  const validateDescription = () => {
+    if (!description || description.trim() === "") {
+      setErrorDescription("Post's content is required");
+    } else {
+      setErrorDescription("");
+    }
+  };
 
   const handleCloseCreate = () => {
+    setErrorTitle("");
+    setErrorCategory("");
+    setErrorDescription("");
     closeCreate();
   };
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -108,99 +145,30 @@ export const AdminPostsModule = () => {
               leftSection={<IconPlus size={16} />}
               onClick={openCreate}
             >
-              New Event
+              New Post
             </Button>
+
+            {/* create modal */}
             <Modal
               opened={openedCreate}
               onClose={handleCloseCreate}
-              title="Create Event"
+              title="Create Post"
               size="xl"
             >
-              <Stack>
+              <Stack mb="md">
                 <TextInput
                   data-autofocus
                   withAsterisk
-                  placeholder="Give the event a catchy title"
-                  label="Tile"
-                  // value={title}
-                  // onChange={(e) => {
-                  //   setTitle(e.target.value);
-                  // }}
-                  // onBlur={() => validateTitle()}
-                  // error={errorTitle}
+                  placeholder="Give the post a catchy title"
+                  label="Title"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                  }}
+                  onBlur={() => validateTitle()}
+                  error={errorTitle}
                   // disabled={createEventMutation.isPending}
                   required
-                />
-                <NumberInput
-                  label="Capacity"
-                  placeholder="Maximum number of attendees"
-                  min={0}
-                  // disabled={createEventMutation.isPending}
-                  // value={capacity}
-                  suffix=" people"
-                  // onChange={(value) => {
-                  //   setCapacity(Number(value));
-                  // }}
-                  // onBlur={() => validateCapacity()}
-                  // error={errorCapacity}
-                  // disabled={isAccountDetailsLoading}
-                />
-                <NumberInput
-                  withAsterisk
-                  label="Price"
-                  placeholder="Entry fee - (0 if free)"
-                  min={0}
-                  prefix="€"
-                  // value={price}
-                  // disabled={createEventMutation.isPending}
-                  // onChange={(value) => {
-                  //   setPrice(Number(value));
-                  // }}
-                  // onBlur={() => validatePrice()}
-                  // error={errorPrice}
-                  // disabled={isAccountDetailsLoading}
-                  required
-                />
-                <Grid>
-                  <Grid.Col span={{ base: 12, md: 9 }}>
-                    <TextInput
-                      withAsterisk
-                      label="Street"
-                      // value={street}
-                      placeholder="21 Erard street"
-                      // onChange={(e) => {
-                      //   setStreet(e.target.value);
-                      // }}
-                      // onBlur={() => validateStreet()}
-                      // error={errorStreet}
-                      // disabled={isAccountDetailsLoading}
-                      required
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={{ base: 12, md: 3 }}>
-                    <TextInput
-                      withAsterisk
-                      placeholder="Paris"
-                      label="City"
-                      // value={city}
-                      // disabled={createEventMutation.isPending}
-                      // onChange={(e) => {
-                      //   setCity(e.target.value);
-                      // }}
-                      // onBlur={() => validateCity()}
-                      // error={errorCity}
-                      required
-                    />
-                  </Grid.Col>
-                </Grid>
-                <TextInput
-                  label="Additional location details"
-                  placeholder="Room 12, 2nd floor"
-                  // disabled={createEventMutation.isPending}
-                  // value={locationDetail}
-                  // onChange={(e) => {
-                  //   setLocationDetail(e.target.value);
-                  // }}
                 />
                 <Grid>
                   <Grid.Col span={{ base: 12, md: 6 }}></Grid.Col>
@@ -210,31 +178,38 @@ export const AdminPostsModule = () => {
                   withAsterisk
                   clearable
                   label="Category"
-                  // value={category}
+                  value={category}
                   // disabled={createEventMutation.isPending}
                   placeholder="Select a category"
-                  // error={errorCategory}
-                  // onBlur={() => validateCategory()}
+                  error={errorCategory}
+                  onBlur={() => validateCategory()}
                   data={[
-                    { value: "workshop", label: "Workshop" },
-                    { value: "conference", label: "Conference" },
-                    { value: "meetups", label: "Meetups" },
-                    { value: "exposition", label: "Exposition" },
+                    { value: "tutorial", label: "Tutorial" },
+                    { value: "tips", label: "Tips" },
+                    { value: "news", label: "News" },
+                    { value: "case_study", label: "Case Study" },
+                    { value: "project", label: "Project", disabled: true },
                     { value: "other", label: "Other" },
                   ]}
-                  // onChange={(value) => {
-                  //   setCategory(value as string);
-                  // }}
+                  onChange={(value) => {
+                    setCategory(value as string);
+                  }}
                 />
                 <TextEditor
-                  label="Event's description"
-                  value={"description"}
-                  // error={errorDescription}
-                  onChange={() => {
-                    return;
+                  label="Content"
+                  value={description}
+                  placeholder="Write your post content here..."
+                  error={errorDescription}
+                  onChange={(value) => {
+                    setDescription(value);
                   }}
                 />
               </Stack>
+              <ImageDropzone
+                // loading={createEventMutation.isPending}
+                files={files}
+                setFiles={setFiles}
+              />
               <Group mt="lg" justify="center">
                 <Button variant="grey">Cancel</Button>
                 <Button
