@@ -45,10 +45,10 @@ export const AdminPostsModule = () => {
       </Title>
 
       {/* stats cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
+      <SimpleGrid cols={{ base: 1, sm: 3, lg: 3 }} spacing="lg">
         <AdminCardInfo
           icon={IconCalendarEventFilled}
-          title="Total active events"
+          title="Total active posts"
           value={9999}
           error={false}
           loading={false}
@@ -56,13 +56,13 @@ export const AdminPostsModule = () => {
             <StatsCardDesc
               stats={9999}
               icon={IconArrowUp}
-              description={"9999"}
+              description={" posts since last month"}
             />
           }
         />
         <AdminCardInfo
           icon={IconCalendarTime}
-          title="Upcoming events"
+          title="Engagement rate"
           value={9999}
           error={false}
           loading={false}
@@ -70,21 +70,7 @@ export const AdminPostsModule = () => {
             <StatsCardDesc
               stats={9999}
               icon={IconArrowUp}
-              description={"9999"}
-            />
-          }
-        />
-        <AdminCardInfo
-          icon={IconCalendarCheck}
-          title="Registrations (last 30 days)"
-          value={9999}
-          error={false}
-          loading={false}
-          description={
-            <StatsCardDesc
-              stats={9999}
-              icon={IconArrowUp}
-              description={"9999"}
+              description={" interactions per post"}
             />
           }
         />
@@ -94,7 +80,12 @@ export const AdminPostsModule = () => {
           value={9999}
           error={false}
           loading={false}
-          description={<StatsCardDesc stats={9999} description={"9999"} />}
+          description={
+            <StatsCardDesc
+              stats={9999}
+              description={" posts require validation"}
+            />
+          }
         />
       </SimpleGrid>
 
