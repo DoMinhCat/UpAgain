@@ -15,7 +15,6 @@ import {
   IconCalendarEventFilled,
   IconArrowUp,
   IconCalendarTime,
-  IconCalendarCheck,
   IconClockCheck,
   IconPlus,
   IconSearch,
@@ -27,9 +26,17 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { TextEditor } from "../../../components/TextEditor";
+import { useGetPostsStats } from "../../../hooks/postHooks";
 
 export const AdminPostsModule = () => {
   const navigate = useNavigate();
+
+  // STATS CARD
+  const {
+    data: postStats,
+    isLoading: isLoadingPostStats,
+    isError: isErrorPostStats,
+  } = useGetPostsStats();
 
   // CREATE MODAL
   const [openedCreate, { open: openCreate, close: closeCreate }] =
@@ -49,12 +56,12 @@ export const AdminPostsModule = () => {
         <AdminCardInfo
           icon={IconCalendarEventFilled}
           title="Total active posts"
-          value={9999}
-          error={false}
-          loading={false}
+          value={postStats?.total_posts ?? 0}
+          error={isErrorPostStats}
+          loading={isLoadingPostStats}
           description={
             <StatsCardDesc
-              stats={9999}
+              stats={postStats?.total_new_posts_since ?? 0}
               icon={IconArrowUp}
               description={" posts since last month"}
             />
@@ -63,12 +70,12 @@ export const AdminPostsModule = () => {
         <AdminCardInfo
           icon={IconCalendarTime}
           title="Engagement rate"
-          value={9999}
-          error={false}
-          loading={false}
+          value={postStats?.engagement_rate ?? 0 + "%"}
+          error={isErrorPostStats}
+          loading={isLoadingPostStats}
           description={
             <StatsCardDesc
-              stats={9999}
+              stats={postStats?.total_new_posts_since ?? 0}
               icon={IconArrowUp}
               description={" interactions per post"}
             />
@@ -77,12 +84,12 @@ export const AdminPostsModule = () => {
         <AdminCardInfo
           icon={IconClockCheck}
           title="Pending approval"
-          value={9999}
-          error={false}
-          loading={false}
+          value={postStats?.pending ?? 0}
+          error={isErrorPostStats}
+          loading={isLoadingPostStats}
           description={
             <StatsCardDesc
-              stats={9999}
+              stats={postStats?.pending ?? 0}
               description={" posts require validation"}
             />
           }
