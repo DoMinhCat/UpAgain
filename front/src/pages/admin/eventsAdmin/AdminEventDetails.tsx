@@ -36,6 +36,7 @@ import {
   IconPhoto,
 } from "@tabler/icons-react";
 import AdminTable from "../../../components/admin/AdminTable";
+import PaginationFooter from "../../../components/PaginationFooter";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import { TextEditor } from "../../../components/TextEditor";
@@ -881,6 +882,17 @@ export default function AdminEventDetails() {
           loading={isLoadingAssignedEmployees}
           error={errorAssignedEmployees}
           header={["Assigned on", "ID", "Employee", "Email", "Actions"]}
+          footer={
+            <PaginationFooter
+              activePage={1}
+              setPage={() => {}}
+              total_records={assignedEmployees?.length || 0}
+              last_page={1}
+              limit={assignedEmployees?.length || 0}
+              loading={isLoadingAssignedEmployees}
+              unit="employees"
+            />
+          }
         >
           {(assignedEmployees?.length ?? 0) > 0 ? (
             assignedEmployees?.map((employee) => {

@@ -37,6 +37,7 @@ import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
 import dayjs from "dayjs";
 import { useCreateEvent } from "../../../hooks/eventHooks";
+import PaginationFooter from "../../../components/PaginationFooter";
 
 export default function AdminEventsModule() {
   const navigate = useNavigate();
@@ -699,6 +700,18 @@ export default function AdminEventsModule() {
           "End Date",
           "Status",
         ]}
+        footer={
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={events?.total_records || 0}
+            last_page={events?.last_page || 1}
+            limit={LIMIT}
+            unit="records"
+            loading={isLoadingEvents}
+            hidden={hasFilters}
+          />
+        }
       >
         {listEvents}
       </AdminTable>

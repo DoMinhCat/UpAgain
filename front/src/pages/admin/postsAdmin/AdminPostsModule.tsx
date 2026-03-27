@@ -36,6 +36,7 @@ import {
 import { useState } from "react";
 import { showSuccessNotification } from "../../../components/NotificationToast";
 import AdminTable from "../../../components/admin/AdminTable";
+import PaginationFooter from "../../../components/PaginationFooter";
 import dayjs from "dayjs";
 
 export const AdminPostsModule = () => {
@@ -411,6 +412,17 @@ export const AdminPostsModule = () => {
           "Views",
           "Likes",
         ]}
+        footer={
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={posts?.total_records || 0}
+            last_page={posts?.last_page || 1}
+            limit={LIMIT}
+            loading={isAllPostsLoading}
+            hidden={hasFilters}
+          />
+        }
       >
         {/* mapping here */}
         {filteredPosts.length > 0 ? (
