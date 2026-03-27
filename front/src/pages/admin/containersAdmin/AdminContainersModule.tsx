@@ -31,6 +31,7 @@ import { BarChart } from "@mantine/charts";
 
 import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
 import AdminTable from "../../../components/admin/AdminTable";
+import PaginationFooter from "../../../components/PaginationFooter";
 
 import {
   useContainers,
@@ -242,6 +243,16 @@ export default function AdminContainersModule() {
             "Status",
             "Actions",
           ]}
+          footer={
+            <PaginationFooter
+              activePage={1}
+              setPage={() => {}}
+              total_records={filteredData.length}
+              last_page={1}
+              limit={filteredData.length}
+              loading={isLoading}
+            />
+          }
         >
           {filteredData.map((c) => (
             <Table.Tr

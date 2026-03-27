@@ -12,7 +12,6 @@ import {
   Table,
   Pill,
   Modal,
-  Pagination,
 } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
@@ -24,6 +23,7 @@ import {
   useRecoverAccount,
   useGetAllAccounts,
 } from "../../../hooks/accountHooks";
+import PaginationFooter from "../../../components/PaginationFooter";
 
 export default function AdminUsersDeleted() {
   // hooks
@@ -256,26 +256,15 @@ export default function AdminUsersDeleted() {
           "Actions",
         ]}
         footer={
-          !hasFilters &&
-          accountsWithPagination &&
-          accountsWithPagination.total_records > 0 && (
-            <Group justify="space-between" mt="md">
-              <span style={{ fontSize: "14px", color: "gray" }}>
-                Showing {(activePage - 1) * LIMIT + 1}-
-                {Math.min(
-                  activePage * LIMIT,
-                  accountsWithPagination.total_records,
-                )}{" "}
-                of {accountsWithPagination.total_records} results
-              </span>
-              <Pagination
-                total={accountsWithPagination.last_page || 1}
-                value={activePage}
-                onChange={setPage}
-                disabled={isDeletedAccountsLoading}
-              />
-            </Group>
-          )
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={accountsWithPagination?.total_records || 0}
+            last_page={accountsWithPagination?.last_page || 1}
+            limit={LIMIT}
+            loading={isDeletedAccountsLoading}
+            hidden={hasFilters}
+          />
         }
       >
         {listDeletedUsers}

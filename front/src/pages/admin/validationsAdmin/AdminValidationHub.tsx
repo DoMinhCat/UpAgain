@@ -14,7 +14,6 @@ import {
   TextInput,
   Select,
   Stack,
-  Pagination,
   Paper,
   SimpleGrid,
   Divider,
@@ -41,6 +40,7 @@ import dayjs from "dayjs";
 
 import AdminTable from "../../../components/admin/AdminTable";
 import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
+import PaginationFooter from "../../../components/PaginationFooter";
 import { PATHS } from "../../../routes/paths";
 import {
   usePendingDeposits,
@@ -415,25 +415,8 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Material",
           "Actions",
         ]}
-        footer={
-          !hasFilters &&
-          data &&
-          data.total_records > 0 && (
-            <Group justify="space-between" mt="md">
-              <span style={{ fontSize: "14px", color: "gray" }}>
-                Showing {(activePage - 1) * LIMIT + 1}-
-                {Math.min(activePage * LIMIT, data.total_records)} of{" "}
-                {data.total_records} results
-              </span>
-              <Pagination
-                total={data.last_page || 1}
-                value={activePage}
-                onChange={setPage}
-                disabled={isLoading}
-              />
-            </Group>
-          )
-        }
+        footer={<PaginationFooter activePage={activePage} setPage={setPage} total_records={data?.total_records || 0} last_page={data?.last_page || 1} limit={LIMIT} loading={isLoading} hidden={hasFilters} />}
+
       >
         {deposits.length === 0 && !isLoading ? (
           <Table.Tr>
@@ -559,19 +542,15 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           !hasFilters &&
           data &&
           data.total_records > 0 && (
-            <Group justify="space-between" mt="md">
-              <span style={{ fontSize: "14px", color: "gray" }}>
-                Showing {(activePage - 1) * LIMIT + 1}-
-                {Math.min(activePage * LIMIT, data.total_records)} of{" "}
-                {data.total_records} results
-              </span>
-              <Pagination
-                total={data.last_page || 1}
-                value={activePage}
-                onChange={setPage}
-                disabled={isLoading}
-              />
-            </Group>
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={data?.total_records || 0}
+            last_page={data?.last_page || 1}
+            limit={LIMIT}
+            loading={isLoading}
+            hidden={hasFilters}
+          />
           )
         }
       >
@@ -732,19 +711,15 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
           !hasFilters &&
           data &&
           data.total_records > 0 && (
-            <Group justify="space-between" mt="md">
-              <span style={{ fontSize: "14px", color: "gray" }}>
-                Showing {(activePage - 1) * LIMIT + 1}-
-                {Math.min(activePage * LIMIT, data.total_records)} of{" "}
-                {data.total_records} results
-              </span>
-              <Pagination
-                total={data.last_page || 1}
-                value={activePage}
-                onChange={setPage}
-                disabled={isLoading}
-              />
-            </Group>
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={data?.total_records || 0}
+            last_page={data?.last_page || 1}
+            limit={LIMIT}
+            loading={isLoading}
+            hidden={hasFilters}
+          />
           )
         }
       >
@@ -930,23 +905,15 @@ function HistoryTab() {
         error={isError ? new Error("Could not load history.") : null}
         header={["Created on", "ID", "Title", "Type", "User", "Status"]}
         footer={
-          !hasFilters &&
-          historyData &&
-          historyData.total_records > 0 && (
-            <Group justify="space-between" mt="md">
-              <span style={{ fontSize: "14px", color: "gray" }}>
-                Showing {(activePage - 1) * LIMIT + 1}-
-                {Math.min(activePage * LIMIT, historyData.total_records)} of{" "}
-                {historyData.total_records} results
-              </span>
-              <Pagination
-                total={historyData.last_page || 1}
-                value={activePage}
-                onChange={setPage}
-                disabled={isLoading}
-              />
-            </Group>
-          )
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={historyData?.total_records || 0}
+            last_page={historyData?.last_page || 1}
+            limit={LIMIT}
+            loading={isLoading}
+            hidden={hasFilters}
+          />
         }
       >
         {items.length === 0 && !isLoading ? (

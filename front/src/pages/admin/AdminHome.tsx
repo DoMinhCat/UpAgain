@@ -267,13 +267,15 @@ export default function AdminHome() {
           header={demoAdminActivities.header}
           footer={
             <PaginationFooter
-              start_item={1}
-              end_item={10}
-              total={157}
+              activePage={1}
+              setPage={() => {}}
+              total_records={157}
+              last_page={16}
+              limit={10}
               unit="records"
-              page_count={15}
-            ></PaginationFooter>
+            />
           }
+
         >
           {demoAdminActivities.body.map((row, rowIndex) => (
             <Table.Tr key={rowIndex}>
