@@ -8,3 +8,11 @@ type PostCountStatsResponse struct {
 	EngagementRate     float64 `json:"engagement_rate"`
 	Pending            int     `json:"pending"`
 }
+
+type CreatePostRequest struct {
+	Title string
+	Content string
+	Category string
+	Image []string
+	CreatorId int
+}
