@@ -82,6 +82,27 @@ export const AdminPostsModule = () => {
     closeCreate();
   };
 
+  // TODO
+  // const createPostMutation = useCreatePost();
+  const handleCreatePost = () => {
+    validateTitle();
+    validateCategory();
+    validateDescription();
+    if (errorTitle || errorCategory || errorDescription) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category", category);
+    formData.append("description", description);
+    files.forEach((file) => {
+      formData.append("images", file);
+    });
+    // createPostMutation.mutate(formData, {onSuccess: () => {
+    //   handleCloseCreate();
+    // }});
+  };
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -213,9 +234,9 @@ export const AdminPostsModule = () => {
               <Group mt="lg" justify="center">
                 <Button variant="grey">Cancel</Button>
                 <Button
-                  // onClick={(e) => {
-                  //   handleSubmitCreate(e);
-                  // }}
+                  onClick={(e) => {
+                    handleCreatePost();
+                  }}
                   // loading={createEventMutation.isPending}
                   variant="primary"
                 >

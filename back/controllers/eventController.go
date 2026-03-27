@@ -194,7 +194,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var event models.CreateEventRequest
 	// Check if the request is multipart
 	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-		err := r.ParseMultipartForm(10 << 20) // 10MB limit
+		err := r.ParseMultipartForm(32 << 20) // 32MB limit
 		if err != nil {
 			slog.Error("r.ParseMultipartForm() failed", "controller", "CreateEvent", "error", err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
@@ -693,7 +693,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	var payload models.UpdateEventRequest
 	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-		err := r.ParseMultipartForm(10 << 20) // 10MB limit
+		err := r.ParseMultipartForm(32 << 20) // 32MB limit
 		if err != nil {
 			slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateEventByEventId", "error", err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
