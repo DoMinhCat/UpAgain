@@ -147,3 +147,65 @@ func CreatePost(w http.ResponseWriter, r *http.Request){
 
 	utils.RespondWithJSON(w, http.StatusCreated, "Post created successfully")
 }
+
+func GetAllPosts(w http.ResponseWriter, r *http.Request){
+	var err error
+	// default pagination
+	page := -1
+	limit := -1
+
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetAllPosts", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching posts.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetAllPosts", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching posts.")
+			return
+		}
+	}
+
+	filters := models.PostFilters{
+		Search: query.Get("search"),
+		Sort:   query.Get("sort"),
+		Category: query.Get("category"),
+	}
+
+	posts, total, err := db.GetAllPosts(page, limit, filters)
+	if err != nil {
+		slog.Error("GetAllPosts() failed", "controller", "GetAllPosts", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching posts.")
+		return
+	}
+
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+
+	result := models.PostListPagination{
+		Posts:       posts,
+		CurrentPage:  page,
+		LastPage:     lastPage,
+		Limit:        limit,
+		TotalRecords: total,
+	}
+	if page == -1 || limit == -1 {
+		result.CurrentPage = 1
+		result.LastPage = 1
+	}
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}

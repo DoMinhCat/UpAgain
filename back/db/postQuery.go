@@ -179,3 +179,85 @@ func CreatePost(payload models.CreatePostRequest) (int, error) {
 	}
 	return idPost, nil
 }
+
+// get only posts that are not deleted
+func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post, int, error) {
+	var results []models.Post
+	var params []interface{}
+	var countParams []interface{}
+	whereClause := "WHERE p.is_deleted = false"
+	paramIndex := 1
+
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(" AND (p.title ILIKE $%d OR a.username ILIKE $%d OR CAST(p.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		params = append(params, searchParam)
+		countParams = append(countParams, searchParam)
+		paramIndex++
+	}
+
+	if filters.Category != "" {
+		whereClause += fmt.Sprintf(" AND p.category = $%d", paramIndex)
+		params = append(params, filters.Category)
+		countParams = append(countParams, filters.Category)
+		paramIndex++
+	}
+
+	var totalRecords int
+	countQuery := "SELECT COUNT(*) FROM posts p JOIN accounts a ON p.id_account=a.id " + whereClause
+	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetAllPosts() count failed: %v", err)
+	}
+
+	orderBy := "ORDER BY p.id ASC" // Default sorting
+	if filters.Sort != "" {
+		switch filters.Sort {
+		case "highest_view":
+			orderBy = "ORDER BY p.view_count ASC"
+		case "lowest_view":
+			orderBy = "ORDER BY p.view_count DESC"
+		case "most_recent_creation":
+			orderBy = "ORDER BY p.created_at DESC"
+		case "oldest_creation":
+			orderBy = "ORDER BY p.created_at ASC"
+		case "highest_like":
+			orderBy = "ORDER BY p.like_count DESC"
+		case "lowest_like":
+			orderBy = "ORDER BY p.like_count ASC"
+		default:
+			orderBy = "ORDER BY p.id ASC"
+		}
+	}
+
+	query := `
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username 
+		FROM posts p 
+		JOIN accounts a ON p.id_account=a.id 
+		` + whereClause + " " + orderBy
+
+	// pagination
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
+	}
+
+	rows, err := utils.Conn.Query(query, params...)
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetAllPosts() query failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event models.Post
+		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Content, &event.Category, &event.ViewCount, &event.LikeCount, &event.IdAccount, &event.Creator)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllPosts() scan failed: %v", err.Error())
+		}
+		results = append(results, event)
+	}
+
+	return results, totalRecords, nil
+}
