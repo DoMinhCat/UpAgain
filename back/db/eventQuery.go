@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"time"
 )
 
@@ -177,11 +178,6 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 
 func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (int, error) {
 	var eventId int
-	tx, err := utils.Conn.Begin()
-	if err != nil {
-		return 0, fmt.Errorf("CreateEvent() begin tx failed: %v", err.Error())
-	}
-	defer tx.Rollback()
 
 	var status string
 	if role == "admin"{
@@ -195,10 +191,11 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		RETURNING id;
 	`
-	err = tx.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId, status).Scan(&eventId)
+	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId, status).Scan(&eventId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
 	}
+	slog.Debug("debug", "eventID", eventId)
 
 	// Insert photos
 	for i, imgPath := range event.Images {
@@ -214,9 +211,6 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 		}
 	}
 
-	if err = tx.Commit(); err != nil {
-		return 0, fmt.Errorf("CreateEvent() commit tx failed: %v", err.Error())
-	}
 	return eventId, nil
 }
 
