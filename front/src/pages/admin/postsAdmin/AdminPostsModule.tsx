@@ -27,8 +27,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { TextEditor } from "../../../components/TextEditor";
-import { useGetPostsStats } from "../../../hooks/postHooks";
+import { useCreatePost, useGetPostsStats } from "../../../hooks/postHooks";
 import { useState } from "react";
+import {
+  showInfoNotification,
+  showSuccessNotification,
+} from "../../../components/NotificationToast";
 
 export const AdminPostsModule = () => {
   const navigate = useNavigate();
@@ -54,24 +58,31 @@ export const AdminPostsModule = () => {
   const validateTitle = () => {
     if (!title) {
       setErrorTitle("Title is required");
+      return false;
     } else {
       setErrorTitle("");
+      return true;
     }
   };
   const validateCategory = () => {
     if (!category) {
       setErrorCategory("Category is required");
+      return false;
     } else if (category === "project") {
       setErrorCategory("Only professionals can create a project");
+      return false;
     } else {
       setErrorCategory("");
+      return true;
     }
   };
   const validateDescription = () => {
     if (!description || description.trim() === "") {
       setErrorDescription("Post's content is required");
+      return false;
     } else {
       setErrorDescription("");
+      return true;
     }
   };
 
@@ -79,11 +90,14 @@ export const AdminPostsModule = () => {
     setErrorTitle("");
     setErrorCategory("");
     setErrorDescription("");
+    setFiles([]);
+    setTitle("");
+    setCategory("");
+    setDescription("");
     closeCreate();
   };
 
-  // TODO
-  // const createPostMutation = useCreatePost();
+  const createPostMutation = useCreatePost();
   const handleCreatePost = () => {
     validateTitle();
     validateCategory();
@@ -94,13 +108,19 @@ export const AdminPostsModule = () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("category", category);
-    formData.append("description", description);
+    formData.append("content", description);
     files.forEach((file) => {
       formData.append("images", file);
     });
-    // createPostMutation.mutate(formData, {onSuccess: () => {
-    //   handleCloseCreate();
-    // }});
+    createPostMutation.mutate(formData, {
+      onSuccess: () => {
+        showSuccessNotification(
+          "Post created ",
+          "A new post has been created successfully",
+        );
+        handleCloseCreate();
+      },
+    });
   };
 
   return (
@@ -188,7 +208,7 @@ export const AdminPostsModule = () => {
                   }}
                   onBlur={() => validateTitle()}
                   error={errorTitle}
-                  // disabled={createEventMutation.isPending}
+                  disabled={createPostMutation.isPending}
                   required
                 />
                 <Grid>
@@ -200,7 +220,7 @@ export const AdminPostsModule = () => {
                   clearable
                   label="Category"
                   value={category}
-                  // disabled={createEventMutation.isPending}
+                  disabled={createPostMutation.isPending}
                   placeholder="Select a category"
                   error={errorCategory}
                   onBlur={() => validateCategory()}
@@ -227,7 +247,7 @@ export const AdminPostsModule = () => {
                 />
               </Stack>
               <ImageDropzone
-                // loading={createEventMutation.isPending}
+                loading={createPostMutation.isPending}
                 files={files}
                 setFiles={setFiles}
               />
@@ -237,7 +257,7 @@ export const AdminPostsModule = () => {
                   onClick={(e) => {
                     handleCreatePost();
                   }}
-                  // loading={createEventMutation.isPending}
+                  loading={createPostMutation.isPending}
                   variant="primary"
                 >
                   Confirm
