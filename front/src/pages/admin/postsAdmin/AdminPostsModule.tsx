@@ -30,6 +30,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { TextEditor } from "../../../components/TextEditor";
 import {
   useCreatePost,
+  useDeletePost,
   useGetAllPosts,
   useGetPostsStats,
 } from "../../../hooks/postHooks";
@@ -39,6 +40,7 @@ import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/PaginationFooter";
 import dayjs from "dayjs";
 import { PATHS } from "../../../routes/paths";
+import type { Post } from "../../../api/interfaces/post";
 
 export const AdminPostsModule = () => {
   const navigate = useNavigate();
@@ -176,6 +178,33 @@ export const AdminPostsModule = () => {
   };
   const filteredPosts = posts?.posts || [];
 
+  // DELETE POST
+  const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure();
+  const deletePostMutation = useDeletePost();
+  const [selectedDeletePost, setSelectedDeletePost] = useState<Post | null>(
+    null,
+  );
+
+  const handleModalDelete = (post: Post) => {
+    setSelectedDeletePost(post);
+    openDelete();
+  };
+
+  const handleDeletePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedDeletePost?.id) {
+      deletePostMutation.mutate(selectedDeletePost.id, {
+        onSuccess: () => {
+          closeDelete();
+          showSuccessNotification(
+            "Post deleted",
+            "The post has been deleted successfully",
+          );
+        },
+      });
+    }
+  };
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -482,10 +511,10 @@ export const AdminPostsModule = () => {
                   <Button
                     size="xs"
                     variant="delete"
-                    // onClick={(e: React.MouseEvent) => {
-                    //   e.stopPropagation();
-                    //   handleModalDelete(post);
-                    // }}
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      handleModalDelete(post);
+                    }}
                   >
                     Delete
                   </Button>
@@ -501,6 +530,28 @@ export const AdminPostsModule = () => {
           </Table.Tr>
         )}
       </AdminTable>
+      <Modal
+        title="Delete this post?"
+        opened={openedDelete}
+        onClose={closeDelete}
+      >
+        Are you sure you want to delete this post? This post will be soft
+        deleted.
+        <Group mt="lg" justify="flex-end">
+          <Button onClick={closeDelete} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={(e) => {
+              handleDeletePost(e);
+            }}
+            variant="delete"
+            loading={deletePostMutation.isPending}
+          >
+            Delete
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 };

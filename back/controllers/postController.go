@@ -213,7 +213,7 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request){
 func DeletePost(w http.ResponseWriter, r *http.Request){
 	role := r.Context().Value("user").(models.AuthClaims).Role
 
-	idStr := r.URL.Query().Get("id_post")
+	idStr := r.PathValue("id_post")
 	if idStr == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing post ID")
 		return

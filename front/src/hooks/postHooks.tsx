@@ -1,7 +1,7 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { QueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CreatePost,
+  DeletePost,
   GetAllPosts,
   GetPostsStats,
 } from "../api/admin/postModule";
@@ -22,7 +22,7 @@ export const useGetPostsStats = () => {
 };
 
 export const useCreatePost = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: CreatePost,
     meta: {
@@ -50,6 +50,21 @@ export const useGetAllPosts = (
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch posts.",
+    },
+  });
+};
+
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_post: number) => DeletePost(id_post),
+    meta: {
+      errorTitle: "Error deleting post",
+      errorMessage: "Failed to delete post",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postStats"] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 };
