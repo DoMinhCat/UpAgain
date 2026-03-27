@@ -615,7 +615,7 @@ export default function AdminEventsModule() {
               label="Search"
               variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
-              disabled={createEventMutation.isPending}
+              disabled={isLoadingEvents}
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
@@ -653,7 +653,7 @@ export default function AdminEventsModule() {
               ]}
               value={filters.sortValue}
               clearable
-              disabled={createEventMutation.isPending}
+              disabled={isLoadingEvents}
               onChange={(val) => handleFilterChange("sortValue", val)}
             />
           </Grid.Col>
@@ -667,6 +667,7 @@ export default function AdminEventsModule() {
                 { value: "banned", label: "Banned" },
               ]}
               value={filters.statusValue}
+              disabled={isLoadingEvents}
               onChange={(val) => handleFilterChange("statusValue", val)}
               clearable
             />

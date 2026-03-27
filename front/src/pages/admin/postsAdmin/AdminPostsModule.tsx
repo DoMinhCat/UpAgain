@@ -6,8 +6,9 @@ import {
   Modal,
   Group,
   Stack,
+  Pill,
   TextInput,
-  NumberInput,
+  Table,
   Grid,
   Select,
 } from "@mantine/core";
@@ -27,12 +28,15 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { TextEditor } from "../../../components/TextEditor";
-import { useCreatePost, useGetPostsStats } from "../../../hooks/postHooks";
-import { useState } from "react";
 import {
-  showInfoNotification,
-  showSuccessNotification,
-} from "../../../components/NotificationToast";
+  useCreatePost,
+  useGetAllPosts,
+  useGetPostsStats,
+} from "../../../hooks/postHooks";
+import { useState } from "react";
+import { showSuccessNotification } from "../../../components/NotificationToast";
+import AdminTable from "../../../components/admin/AdminTable";
+import dayjs from "dayjs";
 
 export const AdminPostsModule = () => {
   const navigate = useNavigate();
@@ -122,6 +126,53 @@ export const AdminPostsModule = () => {
       },
     });
   };
+
+  // GET ALL POSTS
+  const [filters, setFilters] = useState<{
+    searchValue: string | undefined;
+    sortValue: string | null;
+    categoryValue: string | null;
+  }>({ searchValue: "", sortValue: null, categoryValue: null });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [activePage, setPage] = useState(1);
+  const LIMIT = 10;
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+    appliedFilters.categoryValue ||
+    appliedFilters.sortValue,
+  );
+
+  const {
+    data: posts,
+    error: allPostsError,
+    isLoading: isAllPostsLoading,
+  } = useGetAllPosts(
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.categoryValue || undefined,
+    appliedFilters.sortValue || undefined,
+  );
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: null,
+      categoryValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+  const filteredPosts = posts?.posts || [];
 
   return (
     <Container px="md" size="xl">
@@ -274,11 +325,11 @@ export const AdminPostsModule = () => {
               variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
               rightSection={<IconSearch size={14} />}
-              // disabled={createEventMutation.isPending}
-              // value={filters.searchValue}
-              // onChange={(e) =>
-              //   handleFilterChange("searchValue", e.target.value)
-              // }
+              disabled={isAllPostsLoading}
+              value={filters.searchValue}
+              onChange={(e) =>
+                handleFilterChange("searchValue", e.target.value)
+              }
             />
           </Grid.Col>
 
@@ -293,49 +344,116 @@ export const AdminPostsModule = () => {
                 },
                 { value: "oldest_creation", label: "Oldest creation" },
                 {
-                  value: "highest_price",
-                  label: "Highest price",
+                  value: "highest_like",
+                  label: "Highest like",
                 },
                 {
-                  value: "lowest_price",
-                  label: "Lowest price",
+                  value: "lowest_like",
+                  label: "Lowest like",
                 },
                 {
-                  value: "earliest_start_date",
-                  label: "Earliest start date",
+                  value: "highest_view",
+                  label: "Highest view",
                 },
                 {
-                  value: "latest_start_date",
-                  label: "Latest start date",
+                  value: "lowest_view",
+                  label: "Lowest view",
                 },
               ]}
-              // value={filters.sortValue}
+              value={filters.sortValue}
               clearable
-              // disabled={createEventMutation.isPending}
-              // onChange={(val) => handleFilterChange("sortValue", val)}
+              disabled={isAllPostsLoading}
+              onChange={(val) => handleFilterChange("sortValue", val)}
             />
           </Grid.Col>
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Status"
-              placeholder="All status"
+              label="Category"
+              placeholder="All category"
               data={[
-                { value: "active", label: "Active" },
-                { value: "banned", label: "Banned" },
+                { value: "tutorial", label: "Tutorial" },
+                { value: "project", label: "Project" },
+                { value: "tips", label: "Tips" },
+                { value: "news", label: "News" },
+                { value: "case_study", label: "Case study" },
+                { value: "other", label: "Other" },
               ]}
+              value={filters.categoryValue}
+              disabled={isAllPostsLoading}
+              onChange={(val) => handleFilterChange("categoryValue", val)}
               clearable
             />
           </Grid.Col>
 
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
-              <Button variant="primary">Apply filters</Button>
-              <Button variant="secondary">Reset</Button>
+              <Button variant="primary" onClick={handleSearchClick}>
+                Apply filters
+              </Button>
+              <Button variant="secondary" onClick={handleResetFilters}>
+                Reset
+              </Button>
             </Group>
           </Grid.Col>
         </Grid>
       </Stack>
+
+      <AdminTable
+        loading={isAllPostsLoading}
+        error={allPostsError}
+        header={[
+          "Created on",
+          "ID",
+          "Title",
+          "Creator",
+          "Category",
+          "Views",
+          "Likes",
+        ]}
+      >
+        {/* mapping here */}
+        {filteredPosts.length > 0 ? (
+          filteredPosts.map((post) => (
+            <Table.Tr>
+              <Table.Td ta="center">
+                {dayjs(post.created_at).format("DD/MM/YYYY")}
+              </Table.Td>
+              <Table.Td ta="center">{post.id}</Table.Td>
+              <Table.Td ta="center">{post.title}</Table.Td>
+              <Table.Td ta="center">{post.creator}</Table.Td>
+              <Table.Td ta="center">
+                <Pill
+                  variant={
+                    post.category === "other"
+                      ? "gray"
+                      : post.category === "tutorial"
+                        ? "blue"
+                        : post.category === "project"
+                          ? "green"
+                          : post.category === "tips"
+                            ? "yellow"
+                            : post.category === "case_study"
+                              ? "violet"
+                              : "red"
+                  }
+                >
+                  {post.category.charAt(0).toUpperCase() +
+                    post.category.slice(1)}
+                </Pill>
+              </Table.Td>
+              <Table.Td ta="center">{post.view_count}</Table.Td>
+              <Table.Td ta="center">{post.like_count}</Table.Td>
+            </Table.Tr>
+          ))
+        ) : (
+          <Table.Tr>
+            <Table.Td colSpan={7} ta="center">
+              No posts found
+            </Table.Td>
+          </Table.Tr>
+        )}
+      </AdminTable>
     </Container>
   );
 };

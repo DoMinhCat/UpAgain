@@ -4,3 +4,23 @@ export interface PostStats {
   engagement_rate: number;
   pending: number;
 }
+
+export interface Post {
+  id: number;
+  created_at: string;
+  title: string;
+  content: string;
+  category: string;
+  view_count: number;
+  like_count: number;
+  id_account: number;
+  creator: string;
+}
+
+export interface PostsListPagination {
+  posts: Post[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+  total_records: number;
+}

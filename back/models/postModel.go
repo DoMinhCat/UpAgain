@@ -35,7 +35,7 @@ type PostListPagination struct {
 	Posts	[]Post       `json:"posts"`
 	CurrentPage	int `json:"current_page"`
 	LastPage	int    `json:"last_page"`
-	Limit	int       `json:"limiy"`
+	Limit	int       `json:"limit"`
 	TotalRecords	int`json:"total_records"`
 }
 
