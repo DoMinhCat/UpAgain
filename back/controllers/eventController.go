@@ -249,7 +249,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventId, err := db.CreateEvent(event, r.Context().Value("user").(models.AuthClaims).Id)
+	eventId, err := db.CreateEvent(event, r.Context().Value("user").(models.AuthClaims).Id, role)
 	if err != nil {
 		slog.Error("CreateEvent() failed", "controller", "CreateEvent", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the event.")

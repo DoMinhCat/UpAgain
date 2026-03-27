@@ -175,7 +175,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	return results, totalRecords, nil
 }
 
-func CreateEvent(event models.CreateEventRequest, creatorId int) (int, error) {
+func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (int, error) {
 	var eventId int
 	tx, err := utils.Conn.Begin()
 	if err != nil {
@@ -183,12 +183,19 @@ func CreateEvent(event models.CreateEventRequest, creatorId int) (int, error) {
 	}
 	defer tx.Rollback()
 
+	var status string
+	if role == "admin"{
+		status = "approved"
+	} else {
+		status = "pending"
+	}
+
 	query := `
-		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail, created_by)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail, created_by, status)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		RETURNING id;
 	`
-	err = tx.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId).Scan(&eventId)
+	err = tx.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId, status).Scan(&eventId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
 	}
@@ -201,7 +208,7 @@ func CreateEvent(event models.CreateEventRequest, creatorId int) (int, error) {
 			VALUES ($1, $2, 'event', $3)
 		`, imgPath, isPrimary, eventId)
 		if err != nil {
-			return 0, fmt.Errorf("failed to insert photo: %v", err.Error())
+			return 0, fmt.Errorf("CreateEvent() failed to insert photo: %v", err.Error())
 		}
 	}
 
