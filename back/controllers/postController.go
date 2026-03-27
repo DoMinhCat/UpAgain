@@ -4,6 +4,8 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	helper "backend/utils/helper"
+	validations "backend/utils/validations"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -81,4 +83,52 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request){
 		Pending: totalPending,
 	}
 	utils.RespondWithJSON(w, http.StatusOK, response)
+}
+
+func CreatePost(w http.ResponseWriter, r *http.Request){
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" && role != "employee" && role != "pro" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	err := r.ParseMultipartForm(32 << 20)
+    if err != nil {
+        slog.Error("r.ParseMultipartForm() failed", "controller", "CreatePost", "error", err)
+        utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+        return
+    }
+
+	var payload models.CreatePostRequest
+	payload.Title = r.FormValue("title")
+	payload.Content = r.FormValue("content")
+	payload.Category = r.FormValue("category")
+	files := r.MultipartForm.File["images"]
+	for _, file := range files {
+		path, err := helper.SaveUploadedFile(file, "images/posts")
+		if err != nil {
+			slog.Error("SaveUploadedFile() failed", "controller", "CreatePost", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images.")
+			return
+		}
+		payload.Image = append(payload.Image, path)
+	}
+
+	// validate
+	validation := validations.ValidatePostCreation(payload)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+		return
+	}
+
+	payload.CreatorId = r.Context().Value("user").(models.AuthClaims).Id
+
+	err = db.CreatePost(payload)
+	if err != nil {
+		slog.Error("db.CreatePost() failed", "controller", "CreatePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create post")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusCreated, "Post created successfully")
 }

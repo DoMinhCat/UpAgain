@@ -197,7 +197,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseMultipartForm(32 << 20) // 32MB limit
 		if err != nil {
 			slog.Error("r.ParseMultipartForm() failed", "controller", "CreateEvent", "error", err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
+			utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
 			return
 		}
 

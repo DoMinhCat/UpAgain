@@ -1,6 +1,7 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
 	"database/sql"
 	"fmt"
@@ -164,4 +165,16 @@ func TotalSavesByPostId(id *int) (int, error) {
 		return 0, fmt.Errorf("TotalSavesByPostId() failed: '%v'", err)
 	}
 	return total, nil
+}
+
+// Posts don't require validation, therefore has no field 'status' in database
+func CreatePost(payload models.CreatePostRequest) error {
+	query := `
+		insert into posts (title, content, category, id_account) values ($1, $2, $3, $4);
+	`
+	_, err := utils.Conn.Exec(query, payload.Title, payload.Content, payload.Category, payload.CreatorId)
+	if err != nil {
+		return fmt.Errorf("CreatePost() failed: '%v'", err)
+	}
+	return nil
 }
