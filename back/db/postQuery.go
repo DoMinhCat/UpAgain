@@ -179,11 +179,13 @@ func CreatePost(payload models.CreatePostRequest) error {
 	}
 
 	for i, imgPath := range payload.Image {
-		isPrimary := i == 0
-		_, err = utils.Conn.Exec(`
-			INSERT INTO photos (path, is_primary, object_type, post_id)
-			VALUES ($1, $2, 'post', $3)
-		`, imgPath, isPrimary, idPost)
+		imagePayload := models.PhotoInsertRequest{
+			Path:       imgPath,
+			IsPrimary:  i == 0,
+			ObjectType: "post",
+			FkId:       idPost,
+		}
+		err = InsertImage(imagePayload)
 		if err != nil {
 			return fmt.Errorf("CreatePost() failed to insert photo: %v", err.Error())
 		}
