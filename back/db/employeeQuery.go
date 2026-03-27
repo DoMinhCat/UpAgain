@@ -54,7 +54,7 @@ func GetEmployeeStatsById(id int) (models.EmployeeStats, error) {
 	}
 	stats.TotalEvents = events
 
-	posts, err := GetTotalPostsByIdByCategory(id, nil)
+	posts, err := GetTotalPostsByIdAccountByCategory(id, nil)
 	if err != nil {
 		return models.EmployeeStats{}, fmt.Errorf("GetEmployeeStatsById() failed: %v", err.Error())
 	}

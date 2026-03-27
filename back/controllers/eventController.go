@@ -194,10 +194,10 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var event models.CreateEventRequest
 	// Check if the request is multipart
 	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-		err := r.ParseMultipartForm(10 << 20) // 10MB limit
+		err := r.ParseMultipartForm(32 << 20) // 32MB limit
 		if err != nil {
 			slog.Error("r.ParseMultipartForm() failed", "controller", "CreateEvent", "error", err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
+			utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
 			return
 		}
 
@@ -249,11 +249,27 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventId, err := db.CreateEvent(event, r.Context().Value("user").(models.AuthClaims).Id)
+	eventId, err := db.CreateEvent(event, r.Context().Value("user").(models.AuthClaims).Id, role)
 	if err != nil {
 		slog.Error("CreateEvent() failed", "controller", "CreateEvent", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the event.")
 		return
+	}
+
+	// Insert photos
+	for i, imgPath := range event.Images {
+		imagePayload := models.PhotoInsertRequest{
+			Path:       imgPath,
+			IsPrimary:  i == 0,
+			ObjectType: "event",
+			FkId:       eventId,
+		}
+		err = db.InsertImage(imagePayload)
+		if err != nil {
+			slog.Error("db.InsertImage() failed", "controller", "CreateEvent", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the event.")
+			return
+		}
 	}
 
 	// assign employee to event automatically if request was sent from employee
@@ -693,7 +709,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	var payload models.UpdateEventRequest
 	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-		err := r.ParseMultipartForm(10 << 20) // 10MB limit
+		err := r.ParseMultipartForm(32 << 20) // 32MB limit
 		if err != nil {
 			slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateEventByEventId", "error", err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")

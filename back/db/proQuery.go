@@ -60,7 +60,7 @@ func GetProStatsById(id int) (models.ProStats, error) {
 	}
 
 	category := "project"
-	projects, err := GetTotalPostsByIdByCategory(id, &category)
+	projects, err := GetTotalPostsByIdAccountByCategory(id, &category)
 	if err != nil {
 		return models.ProStats{}, fmt.Errorf("GetProStatsById() failed: %v", err.Error())
 	}

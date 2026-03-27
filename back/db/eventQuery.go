@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 	"time"
 )
@@ -69,9 +70,16 @@ func GetTotalEventsByStatus(status *string) (int, error) {
 	if status == nil {
 		err := utils.Conn.QueryRow("select count(*) from events").Scan(&count)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				return 0, nil
+			}
 			return 0, fmt.Errorf("GetTotalEventsByStatus() failed: %v", err.Error())
 		}
 		return count, nil
+	}
+
+	if *status != "pending" && *status != "approved" && *status != "refused" && *status != "cancelled" {
+		return 0, fmt.Errorf("GetTotalEventsByStatus() failed: invalid status '%v'", *status)
 	}
 
 	err := utils.Conn.QueryRow("select count(*) from events where status=$1", *status).Scan(&count)
@@ -167,38 +175,24 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	return results, totalRecords, nil
 }
 
-func CreateEvent(event models.CreateEventRequest, creatorId int) (int, error) {
+func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (int, error) {
 	var eventId int
-	tx, err := utils.Conn.Begin()
-	if err != nil {
-		return 0, fmt.Errorf("CreateEvent() begin tx failed: %v", err.Error())
+
+	var status string
+	if role == "admin"{
+		status = "approved"
+	} else {
+		status = "pending"
 	}
-	defer tx.Rollback()
 
 	query := `
-		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail, created_by)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail, created_by, status)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		RETURNING id;
 	`
-	err = tx.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId).Scan(&eventId)
+	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId, status).Scan(&eventId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
-	}
-
-	// Insert photos
-	for i, imgPath := range event.Images {
-		isPrimary := i == 0
-		_, err = tx.Exec(`
-			INSERT INTO photos (path, is_primary, object_type, event_id)
-			VALUES ($1, $2, 'event', $3)
-		`, imgPath, isPrimary, eventId)
-		if err != nil {
-			return 0, fmt.Errorf("failed to insert photo: %v", err.Error())
-		}
-	}
-
-	if err = tx.Commit(); err != nil {
-		return 0, fmt.Errorf("CreateEvent() commit tx failed: %v", err.Error())
 	}
 	return eventId, nil
 }

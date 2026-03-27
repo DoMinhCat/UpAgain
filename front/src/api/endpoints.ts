@@ -42,6 +42,11 @@ export const ENDPOINTS = {
     EMPLOYEES: {
       AVAILABLE: "/employees/available/",
     },
+
+    POSTS: {
+      ALL: "/posts/",
+      STATS: "/posts/count/",
+    },
   },
 
   AUTH: {
