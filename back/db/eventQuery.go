@@ -202,11 +202,13 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 
 	// Insert photos
 	for i, imgPath := range event.Images {
-		isPrimary := i == 0
-		_, err = tx.Exec(`
-			INSERT INTO photos (path, is_primary, object_type, event_id)
-			VALUES ($1, $2, 'event', $3)
-		`, imgPath, isPrimary, eventId)
+		imagePayload := models.PhotoInsertRequest{
+			Path:       imgPath,
+			IsPrimary:  i == 0,
+			ObjectType: "event",
+			FkId:       eventId,
+		}
+		err = InsertImage(imagePayload)
 		if err != nil {
 			return 0, fmt.Errorf("CreateEvent() failed to insert photo: %v", err.Error())
 		}
