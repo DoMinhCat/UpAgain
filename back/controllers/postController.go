@@ -209,3 +209,54 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request){
 	}
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
+
+func DeletePost(w http.ResponseWriter, r *http.Request){
+	role := r.Context().Value("user").(models.AuthClaims).Role
+
+	idStr := r.URL.Query().Get("id_post")
+	if idStr == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing post ID")
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "DeletePost", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "DeletePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete post")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	// not admin can only delete their own posts
+	if role != "admin" {
+		id_account, err := db.GetPostCreatorIdByPostId(id)
+		if err != nil {
+			slog.Error("db.GetPostCreatorIdByPostId() failed", "controller", "DeletePost", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete post")
+			return
+		}
+		if id_account != r.Context().Value("user").(models.AuthClaims).Id {
+			utils.RespondWithError(w, http.StatusUnauthorized, "You can only delete your own posts.")
+			return
+		}
+	}
+
+	err = db.DeletePostById(id)
+	if err != nil {
+		slog.Error("db.DeletePostById() failed", "controller", "DeletePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete post")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}

@@ -261,3 +261,32 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 
 	return results, totalRecords, nil
 }
+
+func DeletePostById(id int) error {
+	query := `update posts p set is_deleted = true where p.id = $1;`
+	_, err := utils.Conn.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("DeletePostById() failed: '%v'", err)
+	}
+	return nil
+}
+
+func CheckPostExistsById(id int) (bool, error) {
+	var exists bool
+	query := `select exists(select 1 from posts p where p.id = $1 and p.is_deleted = false);`
+	err := utils.Conn.QueryRow(query, id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckPostExistsById() failed: '%v'", err)
+	}
+	return exists, nil
+}
+
+func GetPostCreatorIdByPostId(id_post int) (int, error) {
+	var id_account int
+	query := `select p.id_account from posts p where p.id = $1 and p.is_deleted = false;`
+	err := utils.Conn.QueryRow(query, id_post).Scan(&id_account)
+	if err != nil {
+		return 0, fmt.Errorf("GetPostCreatorIdByPostId() failed: '%v'", err)
+	}
+	return id_account, nil
+}
