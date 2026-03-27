@@ -438,29 +438,30 @@ export default function AdminUsersModule() {
               : "N/A"}
           </Table.Td>
           <Table.Td ta="center">
-            <Button
-              variant="edit"
-              me="sm"
-              size="xs"
-              disabled={account.role === "admin" && account.id !== user?.id}
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                handleModalEdit(account);
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              disabled={account.role === "admin" && account.id !== user?.id}
-              variant="delete"
-              size="xs"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                handleModalDelete(account);
-              }}
-            >
-              Delete
-            </Button>
+            <Group gap="xs" justify="center">
+              <Button
+                variant="edit"
+                size="xs"
+                disabled={account.role === "admin" && account.id !== user?.id}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleModalEdit(account);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                disabled={account.role === "admin" && account.id !== user?.id}
+                variant="delete"
+                size="xs"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleModalDelete(account);
+                }}
+              >
+                Delete
+              </Button>
+            </Group>
           </Table.Td>
         </Table.Tr>
       ))
