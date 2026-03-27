@@ -24,3 +24,8 @@ export const GetAllPosts = async (
   });
   return response.data;
 };
+
+export const DeletePost = async (id_post: number) => {
+  const response = await api.patch(ENDPOINTS.ADMIN.POSTS.DELETE(id_post));
+  return response.data;
+};
