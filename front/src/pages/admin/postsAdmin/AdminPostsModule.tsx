@@ -38,6 +38,7 @@ import { showSuccessNotification } from "../../../components/NotificationToast";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/PaginationFooter";
 import dayjs from "dayjs";
+import { PATHS } from "../../../routes/paths";
 
 export const AdminPostsModule = () => {
   const navigate = useNavigate();
@@ -416,6 +417,7 @@ export const AdminPostsModule = () => {
           "Category",
           "Views",
           "Likes",
+          "Actions",
         ]}
         footer={
           <PaginationFooter
@@ -432,7 +434,11 @@ export const AdminPostsModule = () => {
         {/* mapping here */}
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
-            <Table.Tr>
+            <Table.Tr
+              key={post.id}
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate(PATHS.ADMIN.POSTS + "/" + post.id)}
+            >
               <Table.Td ta="center">
                 {dayjs(post.created_at).format("DD/MM/YYYY")}
               </Table.Td>
@@ -461,11 +467,35 @@ export const AdminPostsModule = () => {
               </Table.Td>
               <Table.Td ta="center">{post.view_count}</Table.Td>
               <Table.Td ta="center">{post.like_count}</Table.Td>
+              <Table.Td ta="center">
+                <Group gap="xs" justify="center">
+                  <Button
+                    size="xs"
+                    variant="edit"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      navigate(PATHS.ADMIN.POSTS + "/" + post.id);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="delete"
+                    // onClick={(e: React.MouseEvent) => {
+                    //   e.stopPropagation();
+                    //   handleModalDelete(post);
+                    // }}
+                  >
+                    Delete
+                  </Button>
+                </Group>
+              </Table.Td>
             </Table.Tr>
           ))
         ) : (
           <Table.Tr>
-            <Table.Td colSpan={7} ta="center">
+            <Table.Td colSpan={8} ta="center">
               No posts found
             </Table.Td>
           </Table.Tr>
