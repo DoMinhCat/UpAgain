@@ -1,6 +1,8 @@
 package models
 
-// "time"
+import (
+	"time"
+)
 
 type PostCountStatsResponse struct {
 	TotalPosts         int     `json:"total_posts"`
@@ -15,4 +17,30 @@ type CreatePostRequest struct {
 	Category string
 	Image []string
 	CreatorId int
+}
+
+type Post struct{
+	Id int `json:"id"`
+	CreatedAt      time.Time   `json:"created_at"`
+	Title string	`json:"title"`
+	Content string	`json:"content"`
+	Category string 	`json:"category"`
+	ViewCount	int	`json:"view_count"`
+	LikeCount	int	`json:"like_count"`
+	IdAccount int	`json:"id_account"`
+	Creator string 	`json:"creator"`
+}
+
+type PostListPagination struct {
+	Posts	[]Post       `json:"posts"`
+	CurrentPage	int `json:"current_page"`
+	LastPage	int    `json:"last_page"`
+	Limit	int       `json:"limiy"`
+	TotalRecords	int`json:"total_records"`
+}
+
+type PostFilters struct {
+	Search	string	`json:"search"`
+	Sort	string	`json:"sort"`
+	Category	string	`json:"category"`
 }
