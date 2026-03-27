@@ -466,7 +466,11 @@ export const AdminPostsModule = () => {
             <Table.Tr
               key={post.id}
               style={{ cursor: "pointer" }}
-              onClick={() => navigate(PATHS.ADMIN.POSTS + "/" + post.id)}
+              onClick={() =>
+                navigate(PATHS.ADMIN.POSTS + "/" + post.id, {
+                  state: { from: "allPosts" },
+                })
+              }
             >
               <Table.Td ta="center">
                 {dayjs(post.created_at).format("DD/MM/YYYY")}
