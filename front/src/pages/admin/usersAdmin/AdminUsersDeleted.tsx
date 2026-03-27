@@ -188,6 +188,11 @@ export default function AdminUsersDeleted() {
               onChange={(e) =>
                 handleFilterChange("searchValue", e.target.value)
               }
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleSearchClick();
+                }
+              }}
             />
           </Grid.Col>
 
