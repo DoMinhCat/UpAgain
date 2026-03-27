@@ -168,27 +168,14 @@ func TotalSavesByPostId(id *int) (int, error) {
 }
 
 // Posts don't require validation, therefore has no field 'status' in database
-func CreatePost(payload models.CreatePostRequest) error {
+func CreatePost(payload models.CreatePostRequest) (int, error) {
 	query := `
 		insert into posts (title, content, category, id_account) values ($1, $2, $3, $4) returning id;
 	`
 	var idPost int
 	err := utils.Conn.QueryRow(query, payload.Title, payload.Content, payload.Category, payload.CreatorId).Scan(&idPost)
 	if err != nil {
-		return fmt.Errorf("CreatePost() failed: '%v'", err)
+		return 0, fmt.Errorf("CreatePost() failed: '%v'", err)
 	}
-
-	for i, imgPath := range payload.Image {
-		imagePayload := models.PhotoInsertRequest{
-			Path:       imgPath,
-			IsPrimary:  i == 0,
-			ObjectType: "post",
-			FkId:       idPost,
-		}
-		err = InsertImage(imagePayload)
-		if err != nil {
-			return fmt.Errorf("CreatePost() failed to insert photo: %v", err.Error())
-		}
-	}
-	return nil
+	return idPost, nil
 }

@@ -108,7 +108,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request){
 		path, err := helper.SaveUploadedFile(file, "images/posts")
 		if err != nil {
 			slog.Error("SaveUploadedFile() failed", "controller", "CreatePost", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images.")
+			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
 			return
 		}
 		payload.Image = append(payload.Image, path)
@@ -123,11 +123,26 @@ func CreatePost(w http.ResponseWriter, r *http.Request){
 
 	payload.CreatorId = r.Context().Value("user").(models.AuthClaims).Id
 
-	err = db.CreatePost(payload)
+	idPost, err := db.CreatePost(payload)
 	if err != nil {
 		slog.Error("db.CreatePost() failed", "controller", "CreatePost", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create post")
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create post.")
 		return
+	}
+
+	for i, imgPath := range payload.Image {
+		imagePayload := models.PhotoInsertRequest{
+			Path:       imgPath,
+			IsPrimary:  i == 0,
+			ObjectType: "post",
+			FkId:       idPost,
+		}
+		err = db.InsertImage(imagePayload)
+		if err != nil {
+			slog.Error("db.InsertImage() failed", "controller", "CreatePost", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create post.")
+			return
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, "Post created successfully")

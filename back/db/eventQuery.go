@@ -5,7 +5,6 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"time"
 )
 
@@ -195,22 +194,6 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
 	}
-	slog.Debug("debug", "eventID", eventId)
-
-	// Insert photos
-	for i, imgPath := range event.Images {
-		imagePayload := models.PhotoInsertRequest{
-			Path:       imgPath,
-			IsPrimary:  i == 0,
-			ObjectType: "event",
-			FkId:       eventId,
-		}
-		err = InsertImage(imagePayload)
-		if err != nil {
-			return 0, fmt.Errorf("CreateEvent() failed to insert photo: %v", err.Error())
-		}
-	}
-
 	return eventId, nil
 }
 

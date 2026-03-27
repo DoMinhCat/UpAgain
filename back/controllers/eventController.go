@@ -256,6 +256,22 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Insert photos
+	for i, imgPath := range event.Images {
+		imagePayload := models.PhotoInsertRequest{
+			Path:       imgPath,
+			IsPrimary:  i == 0,
+			ObjectType: "event",
+			FkId:       eventId,
+		}
+		err = db.InsertImage(imagePayload)
+		if err != nil {
+			slog.Error("db.InsertImage() failed", "controller", "CreateEvent", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the event.")
+			return
+		}
+	}
+
 	// assign employee to event automatically if request was sent from employee
 	if role == "employee" {
 		err = db.AssignEmployeeToEvent(eventId, r.Context().Value("user").(models.AuthClaims).Id)
