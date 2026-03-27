@@ -104,8 +104,11 @@ export default function ImageDropzone({
               Drag images here or click to select images
             </Text>
             <Text size="sm" c="dimmed" inline mt={7}>
-              Attach as many images as you like, each image should not exceed
-              5MB
+              Each image size should not exceed 5MB, total upload size must not
+              exceed 32MB
+            </Text>
+            <Text size="sm" c="dimmed" inline mt={2}>
+              The first image will be used as the primary / thumbnail image
             </Text>
           </div>
         </Group>

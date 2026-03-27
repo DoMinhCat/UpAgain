@@ -15,6 +15,7 @@ import AdminContainersModule from "../pages/admin/containersAdmin/AdminContainer
 import AdminContainersDetails from "../pages/admin/containersAdmin/AdminContainersDetails.tsx";
 import AdminEventsModule from "../pages/admin/eventsAdmin/AdminEventsModule.tsx";
 import AdminEventDetails from "../pages/admin/eventsAdmin/AdminEventDetails.tsx";
+import { AdminPostsModule } from "../pages/admin/postsAdmin/AdminPostsModule.tsx";
 
 // implement the same Guard component for user and pro
 const AdminGuard = ({ children }: { children: React.ReactNode }) => {
@@ -92,6 +93,10 @@ export const adminRoutes: RouteObject = {
           element: <AdminEventDetails />,
         },
       ],
+    },
+    {
+      path: "posts",
+      children: [{ index: true, element: <AdminPostsModule /> }],
     },
   ],
 };

@@ -157,7 +157,7 @@ function App() {
         },
       })}
     >
-      <Notifications limit={5} zIndex={1000} />
+      <Notifications limit={3} zIndex={1000} />
       <RouterProvider router={router} />
     </MantineProvider>
   );
