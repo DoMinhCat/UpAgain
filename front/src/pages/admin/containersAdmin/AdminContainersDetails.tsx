@@ -74,6 +74,9 @@ export default function AdminContainersDetails() {
 
   return (
     <Container px="md" size="xl">
+      <Title order={2} mt="xs" mb="sm">
+        Container's Details
+      </Title>
       <AdminBreadcrumbs
         breadcrumbs={[
           { title: "Container Management", href: PATHS.ADMIN.CONTAINERS },
