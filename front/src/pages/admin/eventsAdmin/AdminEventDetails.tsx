@@ -199,7 +199,8 @@ export default function AdminEventDetails() {
     return true;
   };
   const validateDescription = () => {
-    if (!descriptionEdit || descriptionEdit.trim() === "") {
+    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
+    if (!descriptionEdit || stripped === "") {
       setErrorDescription("A description is required");
       return false;
     }
@@ -630,7 +631,173 @@ export default function AdminEventDetails() {
                 centered
                 size="xl"
               >
-                {/* ... your existing Modal content ... */}
+                <Stack>
+                  <TextInput
+                    data-autofocus
+                    withAsterisk
+                    placeholder="Give the event a catchy title"
+                    label="Title"
+                    value={titleEdit}
+                    onChange={(e) => {
+                      setTitleEdit(e.target.value);
+                    }}
+                    onBlur={() => validateTitle()}
+                    error={errorTitle}
+                    disabled={updateEvent.isPending}
+                    required
+                  />
+                  <NumberInput
+                    label="Capacity"
+                    placeholder="Maximum number of attendees"
+                    min={0}
+                    disabled={updateEvent.isPending}
+                    value={capacityEdit ?? 0}
+                    suffix=" people"
+                    onChange={(value) => {
+                      setCapacityEdit(Number(value));
+                    }}
+                    onBlur={() => validateCapacity()}
+                    error={errorCapacity}
+                  />
+                  <NumberInput
+                    withAsterisk
+                    label="Price"
+                    placeholder="Entry fee - (0 if free)"
+                    min={0}
+                    prefix="€"
+                    value={priceEdit}
+                    disabled={updateEvent.isPending}
+                    onChange={(value) => {
+                      setPriceEdit(Number(value));
+                    }}
+                    onBlur={() => validatePrice()}
+                    error={errorPrice}
+                    required
+                  />
+                  <Grid>
+                    <Grid.Col span={{ base: 12, md: 9 }}>
+                      <TextInput
+                        withAsterisk
+                        label="Street"
+                        disabled={updateEvent.isPending}
+                        value={streetEdit}
+                        placeholder="21 Erard street"
+                        onChange={(e) => {
+                          setStreetEdit(e.target.value);
+                        }}
+                        onBlur={() => validateStreet()}
+                        error={errorStreet}
+                        required
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 3 }}>
+                      <TextInput
+                        withAsterisk
+                        placeholder="Paris"
+                        label="City"
+                        value={cityEdit}
+                        disabled={updateEvent.isPending}
+                        onChange={(e) => {
+                          setCityEdit(e.target.value);
+                        }}
+                        onBlur={() => validateCity()}
+                        error={errorCity}
+                        required
+                      />
+                    </Grid.Col>
+                  </Grid>
+                  <TextInput
+                    label="Additional location details"
+                    placeholder="Room 12, 2nd floor"
+                    disabled={updateEvent.isPending}
+                    value={locationDetailEdit}
+                    onChange={(e) => {
+                      setLocationDetailEdit(e.target.value);
+                    }}
+                  />
+                  <Grid>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <DateTimePicker
+                        clearable
+                        withAsterisk
+                        label="Start date"
+                        placeholder="When does it start?"
+                        value={dateEdit ? new Date(dateEdit) : null}
+                        disabled={updateEvent.isPending}
+                        onChange={(val) =>
+                          setDateEdit(val ? dayjs(val).toISOString() : "")
+                        }
+                        required
+                        onBlur={() => validateDate()}
+                        error={errorDate}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <DateTimePicker
+                        withAsterisk
+                        clearable
+                        label="End date"
+                        placeholder="When does it end?"
+                        onBlur={() => validateEndDate(endDateEdit)}
+                        error={errorEndDate}
+                        value={endDateEdit ? new Date(endDateEdit) : null}
+                        disabled={updateEvent.isPending}
+                        onChange={(val) =>
+                          setEndDateEdit(val ? dayjs(val).toISOString() : "")
+                        }
+                        required
+                      />
+                    </Grid.Col>
+                  </Grid>
+                  <Select
+                    withAsterisk
+                    clearable
+                    label="Category"
+                    value={categoryEdit}
+                    disabled={updateEvent.isPending}
+                    placeholder="Select a category"
+                    error={errorCategory}
+                    onBlur={() => validateCategory()}
+                    data={[
+                      { value: "workshop", label: "Workshop" },
+                      { value: "conference", label: "Conference" },
+                      { value: "meetups", label: "Meetups" },
+                      { value: "exposition", label: "Exposition" },
+                      { value: "other", label: "Other" },
+                    ]}
+                    onChange={(value) => {
+                      setCategoryEdit(value as string);
+                    }}
+                  />
+                  <TextEditor
+                    label="Event's description"
+                    value={descriptionEdit}
+                    placeholder="Write your event's description here..."
+                    error={errorDescription ?? ""}
+                    onChange={(value) => {
+                      setDescriptionEdit(value);
+                    }}
+                  />
+                  <ImageDropzone
+                    loading={updateEvent.isPending}
+                    files={fileEdit}
+                    setFiles={setFileEdit}
+                  />
+                </Stack>
+                <Group mt="lg" justify="center">
+                  <Button onClick={handleCloseEdit} variant="grey">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      handleEdit(e);
+                    }}
+                    variant="primary"
+                    loading={updateEvent.isPending}
+                  >
+                    Confirm
+                  </Button>
+                </Group>
               </Modal>
             </Card>
           </Grid.Col>

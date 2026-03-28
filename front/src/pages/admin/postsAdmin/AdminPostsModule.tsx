@@ -17,7 +17,6 @@ import {
   IconCalendarEventFilled,
   IconArrowUp,
   IconCalendarTime,
-  IconClockCheck,
   IconPlus,
   IconSearch,
 } from "@tabler/icons-react";
@@ -85,7 +84,8 @@ export const AdminPostsModule = () => {
     }
   };
   const validateDescription = () => {
-    if (!description || description.trim() === "") {
+    const stripped = description.replace(/<[^>]*>/g, "").trim();
+    if (!description || stripped === "") {
       setErrorDescription("Post's content is required");
       return false;
     } else {

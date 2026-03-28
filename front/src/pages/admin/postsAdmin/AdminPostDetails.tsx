@@ -85,7 +85,8 @@ export const AdminPostDetails = () => {
   };
 
   const validateDescriptionEdit = () => {
-    if (!descriptionEdit || descriptionEdit.trim() === "") {
+    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
+    if (!descriptionEdit || stripped === "") {
       setErrorDescription("Post's content is required");
       return false;
     }
@@ -121,6 +122,7 @@ export const AdminPostDetails = () => {
       const isValidTitle = validateTitleEdit();
       const isValidCategory = validateCategoryEdit();
       const isValidDescription = validateDescriptionEdit();
+      console.log(isValidTitle, isValidCategory, isValidDescription);
       if (!isValidTitle || !isValidCategory || !isValidDescription) {
         return;
       }
@@ -407,9 +409,9 @@ export const AdminPostDetails = () => {
                     Cancel
                   </Button>
                   <Button
-                    // onClick={(e: React.FormEvent) => {
-                    //   handleEdit(e);
-                    // }}
+                    onClick={(e: React.FormEvent) => {
+                      handleEdit(e);
+                    }}
                     variant="primary"
                     // loading={updateEvent.isPending || isLoadingpostDetails}
                   >
