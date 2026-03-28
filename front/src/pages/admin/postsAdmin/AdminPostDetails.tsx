@@ -50,10 +50,16 @@ export const AdminPostDetails = () => {
 
   const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
     useDisclosure(false);
+
   const [activeSlide, setActiveSlide] = useState(0);
 
   const { data: postDetails, isLoading: isLoadingPostDetails } =
     useGetPostDetails(postId, isValidId);
+
+  const handleImageClick = (index: number) => {
+    setActiveSlide(index);
+    openCarousel();
+  };
 
   // EDIT
   const [openedEdit, { open: openEdit, close: closeEdit }] =
@@ -241,7 +247,7 @@ export const AdminPostDetails = () => {
                       alt={`Post photo ${index + 1}`}
                       fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
                       style={{ cursor: "pointer" }}
-                      // onClick={() => handleImageClick(index)}
+                      onClick={() => handleImageClick(index)}
                     />
                   ))}
                 </SimpleGrid>
@@ -251,7 +257,7 @@ export const AdminPostDetails = () => {
                   onClose={closeCarousel}
                   size="xl"
                   centered
-                  title="Event's gallery"
+                  title="Post's gallery"
                   styles={{
                     root: {
                       zIndex: 1000,
