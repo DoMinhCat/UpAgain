@@ -28,7 +28,7 @@ import {
   IconHeart,
   IconBookmark,
   IconMessageCircle,
-  IconCalendar,
+  IconUser,
 } from "@tabler/icons-react";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
@@ -81,6 +81,7 @@ export const AdminPostDetails = () => {
   const [errorTitle, setErrorTitle] = useState<string>("");
   const [errorCategory, setErrorCategory] = useState<string>("");
   const [errorDescription, setErrorDescription] = useState<string>("");
+
   const handleOpenEdit = () => {
     if (postDetails) {
       setTitleEdit(postDetails.title || "");
@@ -95,6 +96,17 @@ export const AdminPostDetails = () => {
     }
     openEdit();
   };
+
+  const handleCloseEdit = () => {
+    setErrorTitle("");
+    setErrorCategory("");
+    setErrorDescription("");
+    closeEdit();
+  };
+
+  // DELETE
+  const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
 
   if (isLoadingPostDetails) {
     return <FullScreenLoader />;
@@ -229,20 +241,11 @@ export const AdminPostDetails = () => {
               <Card.Section withBorder inheritPadding py="xs">
                 <Group justify="space-between">
                   <Group gap="xs">
-                    <IconCalendar
-                      size={18}
-                      stroke={1.5}
-                      color="var(--mantine-color-dimmed)"
-                    />
+                    <IconUser size={18} stroke={1.5} />
                     <Text fw={600} size="sm">
-                      {/* Your dayjs logic here */}
-                      Monday, Oct 24 · 18:00
+                      Written by {postDetails?.creator}
                     </Text>
                   </Group>
-                  {/* Optional: Status Badge could go here */}
-                  <Text size="xs" c="dimmed">
-                    UTC+02:00
-                  </Text>
                 </Group>
               </Card.Section>
 
@@ -285,24 +288,8 @@ export const AdminPostDetails = () => {
                 <Button variant="edit" onClick={handleOpenEdit}>
                   Edit post
                 </Button>
-                <Button
-                // variant={
-                //   postDetails?.status === "cancelled" ||
-                //   postDetails?.status === "pending" ||
-                //   postDetails?.status === "refused"
-                //     ? "primary"
-                //     : "delete"
-                // }
-                // onClick={openUpdateStatusModal}
-                >
-                  {
-                    /* {postDetails?.status === "cancelled"
-                                  ? "Reopen event"
-                                  : postDetails?.status === "pending" ||
-                                      postDetails?.status === "refused"
-                                    ? "Approve event"
-                                    : "Cancel event"} */ "Action"
-                  }
+                <Button variant="delete" onClick={openDelete}>
+                  Delete
                 </Button>
               </Group>
               <Modal
@@ -360,10 +347,7 @@ export const AdminPostDetails = () => {
                   />
                 </Stack>
                 <Group mt="lg" justify="center">
-                  <Button
-                    // onClick={handleCloseEdit}
-                    variant="grey"
-                  >
+                  <Button onClick={handleCloseEdit} variant="grey">
                     Cancel
                   </Button>
                   <Button
@@ -372,6 +356,32 @@ export const AdminPostDetails = () => {
                     // }}
                     variant="primary"
                     // loading={updateEvent.isPending || isLoadingpostDetails}
+                  >
+                    Confirm
+                  </Button>
+                </Group>
+              </Modal>
+
+              <Modal
+                title="Delete post"
+                opened={openedDelete}
+                onClose={closeDelete}
+                centered
+                size="md"
+              >
+                <Stack>
+                  <Text>Are you sure you want to delete this post?</Text>
+                </Stack>
+                <Group mt="lg" justify="center">
+                  <Button onClick={closeDelete} variant="grey">
+                    Cancel
+                  </Button>
+                  <Button
+                    // onClick={(e: React.FormEvent) => {
+                    //   handleDelete(e);
+                    // }}
+                    variant="delete"
+                    // loading={deletePost.isPending || isLoadingPostDetails}
                   >
                     Confirm
                   </Button>
