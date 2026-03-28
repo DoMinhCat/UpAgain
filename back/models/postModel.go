@@ -32,6 +32,7 @@ type Post struct{
 	CommentCount	int	`json:"comment_count"`
 	IdAccount int	`json:"id_account"`
 	Creator string 	`json:"creator"`
+	CreatorId int	`json:"creator_id"`
 	Photos []string `json:"photos"`
 }
 

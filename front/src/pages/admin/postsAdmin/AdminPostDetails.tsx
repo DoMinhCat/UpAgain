@@ -15,8 +15,8 @@ import {
   Card,
   SimpleGrid,
   Image,
+  Anchor,
 } from "@mantine/core";
-import { Carousel } from "@mantine/carousel";
 import { useLocation, useNavigate } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { useDisclosure } from "@mantine/hooks";
@@ -110,7 +110,7 @@ export const AdminPostDetails = () => {
       setTitleEdit(postDetails.title || "");
       setCategoryEdit(postDetails.category || "");
       setDescriptionEdit(postDetails.content || "");
-      const files = postDetails.photos?.map((path, index) => {
+      const files = postDetails.photos?.map((path) => {
         return {
           path: path,
         };
@@ -298,7 +298,21 @@ export const AdminPostDetails = () => {
                   <Group gap="xs">
                     <IconUser size={18} stroke={1.5} />
                     <Text fw={600} size="sm">
-                      Written by {postDetails?.creator}
+                      Written by{" "}
+                      <Anchor
+                        onClick={() =>
+                          navigate(`/admin/users/${postDetails?.creator_id}`, {
+                            state: {
+                              from: "postDetails",
+                              id_post: postDetails?.id,
+                            },
+                          })
+                        }
+                        style={{ cursor: "pointer" }}
+                        c="var(--component-color-primary)"
+                      >
+                        {postDetails?.creator}
+                      </Anchor>
                     </Text>
                   </Group>
                 </Group>
