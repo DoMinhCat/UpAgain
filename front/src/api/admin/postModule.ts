@@ -1,6 +1,6 @@
 import { api } from "../axios";
 import { ENDPOINTS } from "../endpoints";
-import type { PostsListPagination, PostStats } from "../interfaces/post";
+import type { Post, PostsListPagination, PostStats } from "../interfaces/post";
 
 export const GetPostsStats = async (): Promise<PostStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.POSTS.STATS);
@@ -27,5 +27,10 @@ export const GetAllPosts = async (
 
 export const DeletePost = async (id_post: number) => {
   const response = await api.patch(ENDPOINTS.ADMIN.POSTS.DELETE(id_post));
+  return response.data;
+};
+
+export const GetPostDetails = async (id_post: number): Promise<Post> => {
+  const response = await api.get(ENDPOINTS.ADMIN.POSTS.DETAILS(id_post));
   return response.data;
 };

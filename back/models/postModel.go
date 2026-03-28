@@ -27,6 +27,8 @@ type Post struct{
 	Category string 	`json:"category"`
 	ViewCount	int	`json:"view_count"`
 	LikeCount	int	`json:"like_count"`
+	SaveCount	int	`json:"save_count"`
+	CommentCount	int	`json:"comment_count"`
 	IdAccount int	`json:"id_account"`
 	Creator string 	`json:"creator"`
 	Photos []string `json:"photos"`
