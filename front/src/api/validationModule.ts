@@ -1,13 +1,13 @@
-import { api } from "../axios";
-import { ENDPOINTS } from "../endpoints";
+import { api } from "./axios";
+import { ENDPOINTS } from "./endpoints";
 import {
   type ValidationStats,
   type ValidationFilters,
-} from "../interfaces/validation";
-import { type PaginatedDepositsResponse } from "../interfaces/deposit";
-import { type PaginatedListingsResponse } from "../interfaces/listing";
-import { type EventsListPagination } from "../interfaces/event";
-import { type PaginatedHistoryResponse } from "../interfaces/item";
+} from "./interfaces/validation";
+import { type PaginatedDepositsResponse } from "./interfaces/deposit";
+import { type PaginatedListingsResponse } from "./interfaces/listing";
+import { type EventsListPagination } from "./interfaces/event";
+import { type PaginatedHistoryResponse } from "./interfaces/item";
 
 // --- API functions ---
 

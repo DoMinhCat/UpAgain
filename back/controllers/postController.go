@@ -426,7 +426,7 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request){
+func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id_post")
 	if idStr == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing post ID")
@@ -451,7 +451,32 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	comments, err := db.GetPostCommentsByPostId(id)
+	// pagination
+	page := -1
+	limit := -1
+
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetPostCommentsByPostId", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching comments.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetPostCommentsByPostId", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching comments.")
+			return
+		}
+	}
+
+	comments, err := db.GetPostCommentsByPostId(id, page, limit)
 	if err != nil {
 		slog.Error("db.GetPostCommentsByPostId() failed", "controller", "GetPostCommentsByPostId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
@@ -465,10 +490,41 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	for i, comment := range comments {
+		avatar, err := db.GetPhotosPathsByObjectId(comment.IdAccount, "avatar")
+		if err != nil {
+			slog.Error("db.GetPhotosPathsByObjectId() failed", "controller", "GetPostCommentsByPostId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
+			return
+		}
+		if len(avatar) > 0 {
+			comments[i].Avatar = avatar[0]
+		}
+
+		username, err := db.GetUsernameById(comments[i].IdAccount)
+		if err != nil {
+			slog.Error("db.GetUsernameById() failed", "controller", "GetPostCommentsByPostId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
+			return
+		}
+		comments[i].UserName = username
+	}
+
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+
 	response := models.PostCommentsResponse{
 		TotalComments: total,
 		Comments:      comments,
+		CurrentPage:   page,
+		LastPage:      lastPage,
+		Limit:         limit,
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, response)
-}
+}

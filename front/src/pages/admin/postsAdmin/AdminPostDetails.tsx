@@ -39,6 +39,7 @@ import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
 import {
   useDeletePost,
+  useGetPostComments,
   useGetPostDetails,
   useUpdatePost,
 } from "../../../hooks/postHooks";
@@ -48,6 +49,7 @@ import FullScreenLoader from "../../../components/FullScreenLoader";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { showSuccessNotification } from "../../../components/NotificationToast";
 import { PhotosCarousel } from "../../../components/PhotosCarousel";
+import PaginationFooter from "../../../components/PaginationFooter";
 
 export const AdminPostDetails = () => {
   const navigate = useNavigate();
@@ -71,6 +73,16 @@ export const AdminPostDetails = () => {
     setActiveSlide(index);
     openCarousel();
   };
+
+  // COMMENTS
+  const [activePage, setPage] = useState(1);
+  const limit = 5; // You can change this
+  const { data: comments, isLoading: isLoadingComments } = useGetPostComments(
+    postId,
+    isValidId,
+    activePage,
+    limit,
+  );
 
   // EDIT
   const [openedEdit, { open: openEdit, close: closeEdit }] =
@@ -189,7 +201,7 @@ export const AdminPostDetails = () => {
     }
   };
 
-  if (isLoadingPostDetails) {
+  if (isLoadingPostDetails || isLoadingComments) {
     return <FullScreenLoader />;
   }
 
@@ -304,65 +316,96 @@ export const AdminPostDetails = () => {
             <Stack gap="md" maw={800} mx="auto" p="md">
               <Group justify="space-between">
                 <Text size="xl" fw={800}>
-                  Comments • 999
+                  Comments • {comments?.total_comments}
                 </Text>
               </Group>
 
-              <Stack gap="sm">
-                <Paper
-                  withBorder
-                  p="md"
-                  radius="md"
-                  shadow="xs"
-                  variant="primary"
-                >
-                  <Group align="flex-start" wrap="nowrap">
-                    <Avatar src={"xx"} alt={"xx"} radius="xl" size="lg" />
-
-                    <Stack gap="xs" style={{ flex: 1 }}>
-                      <Group justify="space-between">
-                        <Box>
-                          <Text size="sm" fw={700}>
-                            xx
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            xx • xx
-                          </Text>
-                        </Box>
-                      </Group>
-
-                      <Text size="sm">xx</Text>
-                    </Stack>
-
-                    <Divider orientation="vertical" />
-
-                    {/* Admin Stats & Actions Column */}
-                    <Stack align="center" gap="sm">
-                      <Tooltip label="Delete Comment" position="left">
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          // onClick={onDelete}
+              {comments?.total_comments === 0 ? (
+                <Text>No comments yet</Text>
+              ) : (
+                comments?.comments.map((comment) => (
+                  <Stack gap="sm">
+                    <Paper
+                      withBorder
+                      p="md"
+                      radius="md"
+                      shadow="xs"
+                      variant="primary"
+                    >
+                      <Group align="flex-start" wrap="nowrap">
+                        <Avatar
+                          src={
+                            comment.id_account != 0
+                              ? `${import.meta.env.VITE_API_BASE_URL}/${comment.user_avatar}`
+                              : null
+                          }
+                          alt={
+                            comment.id_account != 0
+                              ? comment.user_name
+                              : "Anonymous"
+                          }
+                          radius="xl"
                           size="lg"
-                        >
-                          <IconTrash size={20} stroke={1.5} />
-                        </ActionIcon>
-                      </Tooltip>
-
-                      <Stack gap={2} align="center">
-                        <IconHeartFilled
-                          size={18}
-                          color="var(--mantine-color-red-6)"
                         />
-                        <Text size="xs" fw={700} c="dimmed">
-                          xx
-                        </Text>
-                      </Stack>
-                    </Stack>
-                  </Group>
-                </Paper>
-              </Stack>
+
+                        <Stack gap="xs" style={{ flex: 1 }}>
+                          <Group justify="space-between">
+                            <Box>
+                              <Text size="sm" fw={700}>
+                                {comment.id_account != 0
+                                  ? comment.user_name
+                                  : "Anonymous"}
+                              </Text>
+                              <Text size="xs" c="dimmed">
+                                {dayjs(comment.created_at).format("DD/MM/YYYY")}{" "}
+                                • {dayjs(comment.created_at).format("HH:mm A")}
+                              </Text>
+                            </Box>
+                          </Group>
+
+                          <Text size="sm">{comment.content}</Text>
+                        </Stack>
+
+                        <Divider orientation="vertical" />
+
+                        {/* Admin Stats & Actions Column */}
+                        <Stack align="center" gap="sm">
+                          <Tooltip label="Delete Comment" position="left">
+                            <ActionIcon
+                              variant="subtle"
+                              color="red"
+                              // onClick={onDelete}
+                              size="lg"
+                            >
+                              <IconTrash size={20} stroke={1.5} />
+                            </ActionIcon>
+                          </Tooltip>
+
+                          <Stack gap={2} align="center">
+                            <IconHeartFilled
+                              size={18}
+                              color="var(--mantine-color-red-6)"
+                            />
+                            <Text size="xs" fw={700} c="dimmed">
+                              {comment.like_count}
+                            </Text>
+                          </Stack>
+                        </Stack>
+                      </Group>
+                    </Paper>
+                  </Stack>
+                ))
+              )}
             </Stack>
+            {comments && comments.total_comments > 0 && (
+              <PaginationFooter
+                activePage={activePage}
+                setPage={setPage}
+                total_records={comments.total_comments}
+                last_page={comments.last_page}
+                limit={limit}
+              />
+            )}
           </Grid.Col>
           {/* RIGHT SECTION */}
           <Grid.Col
@@ -457,7 +500,7 @@ export const AdminPostDetails = () => {
                     }}
                     error={errorTitle}
                     onBlur={() => validateTitleEdit()}
-                    // disabled={updateEvent.isPending}
+                    disabled={updatePostMutate.isPending}
                     required
                   />
                   <Select
@@ -488,7 +531,7 @@ export const AdminPostDetails = () => {
                     error={errorDescription ?? ""}
                   />
                   <ImageDropzone
-                    // loading={updateEvent.isPending}
+                    loading={updatePostMutate.isPending}
                     files={fileEdit}
                     setFiles={setFileEdit}
                   />
@@ -502,7 +545,7 @@ export const AdminPostDetails = () => {
                       handleEdit(e);
                     }}
                     variant="primary"
-                    // loading={updateEvent.isPending || isLoadingpostDetails}
+                    loading={updatePostMutate.isPending || isLoadingPostDetails}
                   >
                     Confirm
                   </Button>
@@ -528,7 +571,7 @@ export const AdminPostDetails = () => {
                       handleDelete(e);
                     }}
                     variant="delete"
-                    // loading={deletePost.isPending || isLoadingPostDetails}
+                    loading={deletePostMutate.isPending || isLoadingPostDetails}
                   >
                     Confirm
                   </Button>

@@ -1,5 +1,5 @@
-import { api } from "../axios";
-import { ENDPOINTS } from "../endpoints";
+import { api } from "./axios";
+import { ENDPOINTS } from "./endpoints";
 import {
   type EventsListPagination,
   type AppEvent,
@@ -8,7 +8,7 @@ import {
   type AssignedEmployee,
   type UnassignEmployeePayload,
   type UpdateEventPayload,
-} from "../interfaces/event";
+} from "./interfaces/event";
 
 // get active or deleted events
 export const getAllEvents = async (
@@ -33,7 +33,7 @@ export const createEvent = async (
   event: EventCreationPayload,
 ): Promise<void> => {
   const formData = new FormData();
-  
+
   // Append all fields except 'images' to formData
   Object.entries(event).forEach(([key, value]) => {
     if (key !== "images" && value !== undefined) {
@@ -109,7 +109,7 @@ export const updateEvent = async (
   event: UpdateEventPayload,
 ): Promise<void> => {
   const formData = new FormData();
-  
+
   // Append all fields except 'images' to formData
   Object.entries(event).forEach(([key, value]) => {
     if (key !== "images" && value !== undefined) {

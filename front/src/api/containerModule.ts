@@ -1,9 +1,9 @@
-import { api } from "../axios";
-import { ENDPOINTS } from "../endpoints";
+import { api } from "./axios";
+import { ENDPOINTS } from "./endpoints";
 import {
   type Container,
   type ContainerCountStats,
-} from "../interfaces/container";
+} from "./interfaces/container";
 
 export const getAllContainers = async (): Promise<Container[]> => {
   const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.ALL);

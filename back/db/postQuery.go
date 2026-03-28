@@ -308,16 +308,6 @@ func GetPostCreatorIdByPostId(id_post int) (int, error) {
 	return id_account, nil
 }
 
-func GetTotalCommentsByPostId(id int) (int, error) {
-	var total int
-	query := `select count(*) from comments c where c.id_post = $1 and c.is_deleted = false;`
-	err := utils.Conn.QueryRow(query, id).Scan(&total)
-	if err != nil {
-		return 0, fmt.Errorf("GetTotalCommentsByPostId() failed: '%v'", err)
-	}
-	return total, nil
-}
-
 func GetTotalSavesByPostId(id int) (int, error) {
 	var total int
 	query := `select count(*) from saved_posts s where s.id_post = $1;`
