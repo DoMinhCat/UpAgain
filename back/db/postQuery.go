@@ -298,5 +298,12 @@ func GetPostDetailsById(id int) (models.Post, error) {
 	if err != nil {
 		return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
 	}
+
+	photos, err := GetPhotosPathsByObjectId(id, "post")
+	if err != nil {
+		return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
+	}
+	post.Photos = photos
+
 	return post, nil
 }

@@ -35,10 +35,22 @@ func InsertImage(payload models.PhotoInsertRequest) error {
 
 func GetPhotosPathsByObjectId(id int, objectType string) ([]string, error) {
 	var photos []string
-	query := `
-		SELECT path FROM photos p WHERE p.object_id = $1 AND p.object_type = $2 ORDER BY p.is_primary DESC, p.created_at ASC;
-	`
-	rows, err := utils.Conn.Query(query, id, objectType)
+	var fk string
+	query := `SELECT path FROM photos p WHERE p.%s = $1 ORDER BY p.is_primary DESC, p.created_at ASC;`
+
+	switch objectType {
+	case "post":
+		fk = "post_id"
+	case "event":
+		fk = "event_id"
+	case "item":
+		fk = "item_id"
+	case "avatar":
+		fk = "account_id"
+	default:
+		return nil, fmt.Errorf("GetPhotosPathsByObjectId() failed: invalid object type '%v'", objectType)
+	}
+	rows, err := utils.Conn.Query(fmt.Sprintf(query, fk), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

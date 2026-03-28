@@ -29,6 +29,7 @@ type Post struct{
 	LikeCount	int	`json:"like_count"`
 	IdAccount int	`json:"id_account"`
 	Creator string 	`json:"creator"`
+	Photos []string `json:"photos"`
 }
 
 type PostListPagination struct {
