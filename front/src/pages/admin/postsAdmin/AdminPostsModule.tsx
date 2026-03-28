@@ -1,6 +1,5 @@
 import {
   Container,
-  SimpleGrid,
   Title,
   Button,
   Modal,
@@ -11,7 +10,10 @@ import {
   Table,
   Grid,
   Select,
+  Paper,
+  Text,
 } from "@mantine/core";
+import { BarChart } from "@mantine/charts";
 import ImageDropzone from "../../../components/ImageDropzone";
 import {
   IconCalendarEventFilled,
@@ -33,7 +35,7 @@ import {
   useGetAllPosts,
   useGetPostsStats,
 } from "../../../hooks/postHooks";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { showSuccessNotification } from "../../../components/NotificationToast";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/PaginationFooter";
@@ -50,6 +52,42 @@ export const AdminPostsModule = () => {
     isLoading: isLoadingPostStats,
     isError: isErrorPostStats,
   } = useGetPostsStats();
+
+  const chartData = useMemo(() => {
+    if (!postStats?.category_counts) return [];
+    return [
+      {
+        label: "Tutorial",
+        value: postStats.category_counts["tutorial"] || 0,
+        color: "var(--mantine-color-blue-6)",
+      },
+      {
+        label: "Project",
+        value: postStats.category_counts["project"] || 0,
+        color: "var(--mantine-color-green-6)",
+      },
+      {
+        label: "Tips",
+        value: postStats.category_counts["tips"] || 0,
+        color: "var(--mantine-color-yellow-6)",
+      },
+      {
+        label: "News",
+        value: postStats.category_counts["news"] || 0,
+        color: "var(--mantine-color-red-6)",
+      },
+      {
+        label: "Case Study",
+        value: postStats.category_counts["case_study"] || 0,
+        color: "var(--mantine-color-violet-6)",
+      },
+      {
+        label: "Other",
+        value: postStats.category_counts["other"] || 0,
+        color: "var(--mantine-color-gray-6)",
+      },
+    ];
+  }, [postStats]);
 
   // CREATE MODAL
   const [openedCreate, { open: openCreate, close: closeCreate }] =
@@ -213,36 +251,84 @@ export const AdminPostsModule = () => {
       </Title>
 
       {/* stats cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 2 }} spacing="lg">
-        <AdminCardInfo
-          icon={IconCalendarEventFilled}
-          title="Total active posts"
-          value={postStats?.total_posts ?? 0}
-          error={isErrorPostStats}
-          loading={isLoadingPostStats}
-          description={
-            <StatsCardDesc
-              stats={postStats?.total_new_posts_since ?? 0}
-              icon={IconArrowUp}
-              description={" posts since last month"}
+      <Grid mb="xl" align="stretch">
+        <Grid.Col span={{ base: 12, md: 4 }}>
+          <Stack gap="md" h="100%">
+            <AdminCardInfo
+              icon={IconCalendarEventFilled}
+              title="Total active posts"
+              value={postStats?.total_posts ?? 0}
+              error={isErrorPostStats}
+              loading={isLoadingPostStats}
+              description={
+                <StatsCardDesc
+                  stats={postStats?.total_new_posts_since ?? 0}
+                  icon={IconArrowUp}
+                  description={" posts since last month"}
+                />
+              }
             />
-          }
-        />
-        <AdminCardInfo
-          icon={IconCalendarTime}
-          title="Engagement rate"
-          value={(postStats?.engagement_rate ?? 0) + "%"}
-          error={isErrorPostStats}
-          loading={isLoadingPostStats}
-          description={
-            <StatsCardDesc
-              stats={postStats?.interaction_per_post ?? 0}
-              icon={IconArrowUp}
-              description={" interactions per post"}
+            <AdminCardInfo
+              icon={IconCalendarTime}
+              title="Engagement rate"
+              value={(postStats?.engagement_rate ?? 0) + "%"}
+              error={isErrorPostStats}
+              loading={isLoadingPostStats}
+              description={
+                <StatsCardDesc
+                  stats={postStats?.interaction_per_post ?? 0}
+                  icon={IconArrowUp}
+                  description={" interactions per post"}
+                />
+              }
             />
-          }
-        />
-      </SimpleGrid>
+          </Stack>
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 12, md: 8 }}>
+          <Paper px="md" radius="lg" shadow="sm" h="100%">
+            <Title order={4} mb="lg" pt="md">
+              Posts Distribution by Category
+            </Title>
+            <BarChart
+              h={300}
+              data={chartData}
+              dataKey="label"
+              series={[{ name: "value", color: "blue.6" }]}
+              gridAxis="xy"
+              barProps={{ radius: [8, 8, 0, 0] }}
+              getBarColor={(value) => {
+                const item = chartData.find((d) => d.value === value);
+                return item ? item.color : "blue";
+              }}
+              tooltipProps={{
+                cursor: { fill: "rgba(255, 255, 255, 0.05)" },
+                content: ({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <Paper withBorder p="xs" radius="md" shadow="md">
+                        <Text
+                          size="xs"
+                          fw={700}
+                          tt="uppercase"
+                          style={{ color: data.color }}
+                        >
+                          {data.label}
+                        </Text>
+                        <Text fw={700} size="sm">
+                          {data.value} Posts
+                        </Text>
+                      </Paper>
+                    );
+                  }
+                  return null;
+                },
+              }}
+            />
+          </Paper>
+        </Grid.Col>
+      </Grid>
 
       <Stack gap="md" my="xl">
         <Group justify="space-between" align="flex-end">

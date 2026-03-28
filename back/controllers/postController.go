@@ -76,11 +76,25 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request){
 		interactionPerPost, _ = strconv.ParseFloat(interactionPerPostStr, 64)
 	}
 
+	// counts by category
+	categories := []string{"tutorial", "project", "tips", "news", "case_study", "other"}
+	categoryCounts := make(map[string]int)
+	for _, cat := range categories {
+		count, err := db.GetTotalPosts(&is_deleted, &cat)
+		if err != nil {
+			slog.Error("GetTotalPosts by category failed", "category", cat, "error", err)
+			categoryCounts[cat] = 0
+		} else {
+			categoryCounts[cat] = count
+		}
+	}
+
 	response := models.PostCountStatsResponse{
 		TotalPosts: total,
 		TotalNewPostsSince: totalSince,
 		EngagementRate: engagementRate,
 		InteractionPerPost: interactionPerPost,
+		CategoryCounts: categoryCounts,
 	}
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }

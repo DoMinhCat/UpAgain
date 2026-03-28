@@ -3,6 +3,7 @@ export interface PostStats {
   total_new_posts_since: number;
   engagement_rate: number;
   interaction_per_post: number;
+  category_counts: Record<string, number>;
 }
 
 export interface Post {
