@@ -117,7 +117,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request){
 	payload.Title = r.FormValue("title")
 	payload.Content = r.FormValue("content")
 	payload.Category = r.FormValue("category")
-	files := r.MultipartForm.File["new_images"]
+	files := r.MultipartForm.File["images"]
 	for _, file := range files {
 		path, err := helper.SaveUploadedFile(file, "images/posts")
 		if err != nil {
@@ -359,43 +359,18 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	// Handle photo update
+	// Photo update management
 	keepImages := r.MultipartForm.Value["existing_images"]
 	newImg := r.MultipartForm.File["new_images"]
 
-	// save new img
-	for _, file := range newImg {
-		path, err := helper.SaveUploadedFile(file, "images/posts")
-		if err != nil {
-			slog.Error("SaveUploadedFile() failed", "controller", "UpdatePostById", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
-			return
-		}
-		payload.Image = append(payload.Image, path)
-	}
-	// insert new img into db
-	for i, imgPath := range payload.Image {
-		imagePayload := models.PhotoInsertRequest{
-			Path:       imgPath,
-			IsPrimary:  i == 0,
-			ObjectType: "post",
-			FkId:       id,
-		}
-		err = db.InsertImage(imagePayload)
-		if err != nil {
-			slog.Error("db.InsertImage() failed", "controller", "UpdatePostById", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update post.")
-			return
-		}
-	}
-
+	// 1. Handle deletion of removed images
 	currentImages, err := db.GetPhotosPathsByObjectId(id, "post")
 	if err != nil {
 		slog.Error("db.GetPhotosPathsByObjectId() failed", "controller", "UpdatePostById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update post.")
 		return
 	}
-	// remove from folder and db
+
 	for _, dbImg := range currentImages {
 		isKept := false
 		for _, keepPath := range keepImages {
@@ -408,8 +383,6 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request){
 			err = helper.DeleteFileByPath("images/posts", dbImg)
 			if err != nil {
 				slog.Error("helper.DeleteFileByPath() failed", "controller", "UpdatePostById", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update post.")
-				return
 			}
 			err = db.DeleteImageByPath(dbImg)
 			if err != nil {
@@ -417,6 +390,29 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request){
 				utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update post.")
 				return
 			}
+		}
+	}
+
+	// 2. Save and insert new images
+	for i, file := range newImg {
+		path, err := helper.SaveUploadedFile(file, "images/posts")
+		if err != nil {
+			slog.Error("SaveUploadedFile() failed", "controller", "UpdatePostById", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
+			return
+		}
+		
+		imagePayload := models.PhotoInsertRequest{
+			Path:       path,
+			IsPrimary:  i == 0 && len(keepImages) == 0, // Only primary if it's the first and no others are being kept
+			ObjectType: "post",
+			FkId:       id,
+		}
+		err = db.InsertImage(imagePayload)
+		if err != nil {
+			slog.Error("db.InsertImage() failed", "controller", "UpdatePostById", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update post.")
+			return
 		}
 	}
 

@@ -31,12 +31,17 @@ import {
 } from "@tabler/icons-react";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
-import { useDeletePost, useGetPostDetails } from "../../../hooks/postHooks";
+import {
+  useDeletePost,
+  useGetPostDetails,
+  useUpdatePost,
+} from "../../../hooks/postHooks";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { showSuccessNotification } from "../../../components/NotificationToast";
+import { PhotosCarousel } from "../../../components/PhotosCarousel";
 
 export const AdminPostDetails = () => {
   const navigate = useNavigate();
@@ -122,6 +127,8 @@ export const AdminPostDetails = () => {
     closeEdit();
   };
 
+  const updatePostMutate = useUpdatePost(postId);
+
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (postDetails) {
@@ -143,15 +150,15 @@ export const AdminPostDetails = () => {
           formData.append("existing_images", obj.path);
         }
       });
-      // updatePostMutate.mutate(formData, {
-      //   onSuccess: () => {
-      //     showSuccessNotification(
-      //       "Post updated",
-      //       "The post has been updated successfully.",
-      //     );
-      //     closeEdit();
-      //   },
-      // });
+      updatePostMutate.mutate(formData, {
+        onSuccess: () => {
+          showSuccessNotification(
+            "Post updated",
+            "The post has been updated successfully.",
+          );
+          closeEdit();
+        },
+      });
     }
   };
 
@@ -271,30 +278,10 @@ export const AdminPostDetails = () => {
                     },
                   }}
                 >
-                  <Carousel
+                  <PhotosCarousel
+                    photos={postDetails.photos}
                     initialSlide={activeSlide}
-                    withIndicators
-                    height={500}
-                    slideSize="100%"
-                    emblaOptions={{
-                      loop: true,
-                      align: "center",
-                      slidesToScroll: 1,
-                    }}
-                  >
-                    {postDetails.photos.map((path, index) => (
-                      <Carousel.Slide key={index}>
-                        <Image
-                          src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
-                          h={500}
-                          fit="contain"
-                          radius={0}
-                          alt={`Post photo ${index + 1}`}
-                          fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                        />
-                      </Carousel.Slide>
-                    ))}
-                  </Carousel>
+                  />
                 </Modal>
               </>
             )}

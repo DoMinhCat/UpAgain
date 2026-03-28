@@ -34,3 +34,11 @@ export const GetPostDetails = async (id_post: number): Promise<Post> => {
   const response = await api.get(ENDPOINTS.ADMIN.POSTS.DETAILS(id_post));
   return response.data;
 };
+
+export const UpdatePost = async (id_post: number, payload: FormData) => {
+  const response = await api.put(
+    ENDPOINTS.ADMIN.POSTS.UPDATE(id_post),
+    payload,
+  );
+  return response.data;
+};
