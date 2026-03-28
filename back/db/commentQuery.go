@@ -5,7 +5,7 @@ import (
 	"backend/utils"
 )
 
-func GetPostCommentsById(id int) ([]models.Comment, error) {
+func GetPostCommentsByPostId(id int) ([]models.Comment, error) {
 	query := `
 		SELECT c.id, c.content, c.created_at, c.like_count, c.id_post, c.id_account, c.is_deleted
 		FROM comments c

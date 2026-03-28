@@ -426,7 +426,7 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-func GetPostCommentsById(w http.ResponseWriter, r *http.Request){
+func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request){
 	idStr := r.PathValue("id_post")
 	if idStr == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing post ID")
@@ -435,14 +435,14 @@ func GetPostCommentsById(w http.ResponseWriter, r *http.Request){
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		slog.Error("Atoi() failed", "controller", "GetPostCommentsById", "error", err)
+		slog.Error("Atoi() failed", "controller", "GetPostCommentsByPostId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
 		return
 	}
 
 	exists, err := db.CheckPostExistsById(id)
 	if err != nil {
-		slog.Error("db.CheckPostExistsById() failed", "controller", "GetPostCommentsById", "error", err)
+		slog.Error("db.CheckPostExistsById() failed", "controller", "GetPostCommentsByPostId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
 		return
 	}
@@ -451,12 +451,24 @@ func GetPostCommentsById(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	comments, err := db.GetPostCommentsById(id)
+	comments, err := db.GetPostCommentsByPostId(id)
 	if err != nil {
-		slog.Error("db.GetPostCommentsById() failed", "controller", "GetPostCommentsById", "error", err)
+		slog.Error("db.GetPostCommentsByPostId() failed", "controller", "GetPostCommentsByPostId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, comments)
+	total, err := db.GetTotalCommentsByPostId(id)
+	if err != nil {
+		slog.Error("db.GetTotalCommentsByPostId() failed", "controller", "GetPostCommentsByPostId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
+		return
+	}
+
+	response := models.PostCommentsResponse{
+		TotalComments: total,
+		Comments:      comments,
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, response)
 }
