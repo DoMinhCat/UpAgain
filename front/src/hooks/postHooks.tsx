@@ -3,10 +3,11 @@ import {
   CreatePost,
   DeletePost,
   GetAllPosts,
+  GetPostComments,
   GetPostDetails,
   GetPostsStats,
   UpdatePost,
-} from "../api/admin/postModule";
+} from "../api/postModule";
 import type { PostsListPagination } from "../api/interfaces/post";
 
 const STALE_TIME = 60 * 1000;
@@ -96,6 +97,24 @@ export const useUpdatePost = (id_post: number) => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
+    },
+  });
+};
+
+export const useGetPostComments = (
+  id_post: number,
+  isValidId: boolean,
+  page?: number,
+  limit?: number,
+) => {
+  return useQuery({
+    queryKey: ["postComments", id_post, page, limit],
+    queryFn: () => GetPostComments(id_post, page, limit),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Error fetching post comments",
+      errorMessage: "Failed to fetch post comments",
     },
   });
 };

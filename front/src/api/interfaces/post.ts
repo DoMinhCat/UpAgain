@@ -29,3 +29,23 @@ export interface PostsListPagination {
   limit: number;
   total_records: number;
 }
+
+export interface PostComment {
+  id: number;
+  content: string;
+  created_at: string;
+  like_count: number;
+  id_post: number;
+  id_account: number;
+  user_name: string;
+  user_avatar: string;
+  is_deleted: boolean;
+}
+
+export interface PostCommentsResponse {
+  total_comments: number;
+  comments: PostComment[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+}

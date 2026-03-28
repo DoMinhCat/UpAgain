@@ -1,5 +1,5 @@
-import { api } from "../axios";
-import { ENDPOINTS } from "../endpoints";
+import { api } from "./axios";
+import { ENDPOINTS } from "./endpoints";
 import {
   type Account,
   type AccountsListPagination,
@@ -9,7 +9,7 @@ import {
   type updateAccountPayload,
   type AccountCountStats,
   type RegisterPayload,
-} from "../interfaces/account";
+} from "./interfaces/account";
 
 // get active or deleted accounts
 export const getAllAccounts = async (

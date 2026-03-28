@@ -1,9 +1,9 @@
-import { ENDPOINTS } from "../endpoints";
-import { api } from "../axios";
+import { ENDPOINTS } from "./endpoints";
+import { api } from "./axios";
 import {
   type AvailableEmployeesRequest,
   type AvailableEmployeesResponse,
-} from "../interfaces/employee";
+} from "./interfaces/employee";
 
 export const getAvailableEmployees = async (
   request: AvailableEmployeesRequest,

@@ -1,6 +1,11 @@
-import { api } from "../axios";
-import { ENDPOINTS } from "../endpoints";
-import type { Post, PostsListPagination, PostStats } from "../interfaces/post";
+import { api } from "./axios";
+import { ENDPOINTS } from "./endpoints";
+import type {
+  Post,
+  PostCommentsResponse,
+  PostsListPagination,
+  PostStats,
+} from "./interfaces/post";
 
 export const GetPostsStats = async (): Promise<PostStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.POSTS.STATS);
@@ -40,5 +45,16 @@ export const UpdatePost = async (id_post: number, payload: FormData) => {
     ENDPOINTS.ADMIN.POSTS.UPDATE(id_post),
     payload,
   );
+  return response.data;
+};
+
+export const GetPostComments = async (
+  id_post: number,
+  page?: number,
+  limit?: number,
+): Promise<PostCommentsResponse> => {
+  const response = await api.get(ENDPOINTS.ADMIN.POSTS.COMMENTS(id_post), {
+    params: { page, limit },
+  });
   return response.data;
 };
