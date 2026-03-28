@@ -32,23 +32,27 @@ export const getEventStats = async (): Promise<EventStats> => {
 export const createEvent = async (
   event: EventCreationPayload,
 ): Promise<void> => {
-  if (event.images) {
-    const formData = event.images;
-    // append Other fields to existing form data
-    Object.entries(event).forEach(([key, value]) => {
-      if (key !== "images" && value !== undefined) {
-        formData.append(key, String(value));
-      }
-    });
+  const formData = new FormData();
+  
+  // Append all fields except 'images' to formData
+  Object.entries(event).forEach(([key, value]) => {
+    if (key !== "images" && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
 
-    const response = await api.post(ENDPOINTS.ADMIN.EVENTS.ALL, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+  // Append images from the FormData passed in the payload
+  if (event.images) {
+    event.images.forEach((value, key) => {
+      formData.append(key, value);
     });
-    return response.data;
   }
-  const response = await api.post(ENDPOINTS.ADMIN.EVENTS.ALL, event);
+
+  const response = await api.post(ENDPOINTS.ADMIN.EVENTS.ALL, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 
@@ -104,31 +108,30 @@ export const updateEvent = async (
   id_event: number,
   event: UpdateEventPayload,
 ): Promise<void> => {
-  // if there is image to update, append fields to form data
-  if (event.images) {
-    const formData = event.images;
-    // append Other fields to existing form data
-    Object.entries(event).forEach(([key, value]) => {
-      if (key !== "images" && value !== undefined) {
-        formData.append(key, String(value));
-      }
-    });
+  const formData = new FormData();
+  
+  // Append all fields except 'images' to formData
+  Object.entries(event).forEach(([key, value]) => {
+    if (key !== "images" && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
 
-    const response = await api.put(
-      ENDPOINTS.ADMIN.EVENTS.UPDATE(id_event),
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
-    );
-    return response.data;
+  // Append images from the FormData passed in the payload
+  if (event.images) {
+    event.images.forEach((value, key) => {
+      formData.append(key, value);
+    });
   }
-  // if no image then update fields simple
+
   const response = await api.put(
     ENDPOINTS.ADMIN.EVENTS.UPDATE(id_event),
-    event,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
   );
   return response.data;
 };

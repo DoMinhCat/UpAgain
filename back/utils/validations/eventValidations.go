@@ -147,7 +147,8 @@ func ValidateEventUpdate(updateEvent models.UpdateEventRequest) models.Validatio
 		return response
 	}
 
-	if updateEvent.StartAt.Before(time.Now()) {
+	// if event hasn't ended yet, start date can't be in the past
+	if updateEvent.StartAt.Before(time.Now()) && updateEvent.EndAt.After(time.Now()) {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("Start date must be in the future."),
