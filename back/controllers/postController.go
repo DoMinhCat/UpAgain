@@ -29,7 +29,7 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request")
 		return
 	}
-	
+
 	// get overall stats for admin stats card
 	is_deleted := false
 	total, err := db.GetTotalPosts(&is_deleted, nil)
@@ -100,11 +100,11 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := models.PostCountStatsResponse{
-		TotalPosts: total,
+		TotalPosts:         total,
 		TotalNewPostsSince: totalSince,
-		EngagementRate: engagementRate,
+		EngagementRate:     engagementRate,
 		InteractionPerPost: interactionPerPost,
-		CategoryCounts: categoryCounts,
+		CategoryCounts:     categoryCounts,
 	}
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
@@ -133,11 +133,11 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := r.ParseMultipartForm(32 << 20)
-    if err != nil {
-        slog.Error("r.ParseMultipartForm() failed", "controller", "CreatePost", "error", err)
-        utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
-        return
-    }
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "CreatePost", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+		return
+	}
 
 	var payload models.CreatePostRequest
 	payload.Title = r.FormValue("title")
@@ -231,8 +231,8 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filters := models.PostFilters{
-		Search: query.Get("search"),
-		Sort:   query.Get("sort"),
+		Search:   query.Get("search"),
+		Sort:     query.Get("sort"),
 		Category: query.Get("category"),
 	}
 
@@ -252,7 +252,7 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result := models.PostListPagination{
-		Posts:       posts,
+		Posts:        posts,
 		CurrentPage:  page,
 		LastPage:     lastPage,
 		Limit:        limit,
@@ -423,11 +423,11 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = r.ParseMultipartForm(32 << 20)
-    if err != nil {
-        slog.Error("r.ParseMultipartForm() failed", "controller", "UpdatePostById", "error", err)
-        utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
-        return
-    }
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "UpdatePostById", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+		return
+	}
 
 	// create model just to validate
 	var payload models.CreatePostRequest
@@ -483,7 +483,7 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
 			return
 		}
-		
+
 		imagePayload := models.PhotoInsertRequest{
 			Path:       path,
 			IsPrimary:  i == 0 && len(keepImages) == 0, // Only primary if it's the first and no others are being kept
@@ -622,4 +622,4 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, response)
-}
+}

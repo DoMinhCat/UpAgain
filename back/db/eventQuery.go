@@ -179,7 +179,7 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 	var eventId int
 
 	var status string
-	if role == "admin"{
+	if role == "admin" {
 		status = "approved"
 	} else {
 		status = "pending"

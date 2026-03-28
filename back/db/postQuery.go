@@ -70,10 +70,10 @@ func GetTotalPosts(is_deleted *bool, category *string) (int, error) {
 	if is_deleted != nil {
 		param += ` and p.is_deleted = $1;`
 		err = utils.Conn.QueryRow(query+param, *is_deleted).Scan(&total)
-	}else{
-		err = utils.Conn.QueryRow(query+param).Scan(&total)
+	} else {
+		err = utils.Conn.QueryRow(query + param).Scan(&total)
 	}
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return 0, nil
@@ -105,10 +105,10 @@ func TotalViewsByPostId(id *int) (int, error) {
 	var query string
 	var err error
 
-	if id != nil{
+	if id != nil {
 		query = `select view_count from posts p where p.is_deleted = false and p.id = $1;`
 		err = utils.Conn.QueryRow(query, *id).Scan(&total)
-	}else{
+	} else {
 		query = `select COALESCE(sum(view_count), 0) from posts p where p.is_deleted = false;`
 		err = utils.Conn.QueryRow(query).Scan(&total)
 	}
@@ -126,10 +126,10 @@ func TotalLikesByPostId(id *int) (int, error) {
 	var query string
 	var err error
 
-	if id != nil{
+	if id != nil {
 		query = `select like_count from posts p where p.is_deleted = false and p.id = $1;`
 		err = utils.Conn.QueryRow(query, *id).Scan(&total)
-	}else{
+	} else {
 		query = `select COALESCE(sum(like_count), 0) from posts p where p.is_deleted = false;`
 		err = utils.Conn.QueryRow(query).Scan(&total)
 	}
@@ -147,10 +147,10 @@ func TotalCommentsByPostId(id *int) (int, error) {
 	var query string
 	var err error
 
-	if id != nil{
+	if id != nil {
 		query = `select count(*) from comments c where c.is_deleted = false and c.id_post = $1;`
 		err = utils.Conn.QueryRow(query, *id).Scan(&total)
-	}else{
+	} else {
 		query = `select count(*) from comments c where c.is_deleted = false;`
 		err = utils.Conn.QueryRow(query).Scan(&total)
 	}
@@ -168,10 +168,10 @@ func TotalSavesByPostId(id *int) (int, error) {
 	var query string
 	var err error
 
-	if id != nil{
+	if id != nil {
 		query = `select count(*) from saved_posts s where s.id_post = $1;`
 		err = utils.Conn.QueryRow(query, *id).Scan(&total)
-	}else{
+	} else {
 		query = `select count(*) from saved_posts s;`
 		err = utils.Conn.QueryRow(query).Scan(&total)
 	}
