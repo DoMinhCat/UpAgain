@@ -425,3 +425,38 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request){
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+func GetPostCommentsById(w http.ResponseWriter, r *http.Request){
+	idStr := r.PathValue("id_post")
+	if idStr == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing post ID")
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "GetPostCommentsById", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "GetPostCommentsById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	comments, err := db.GetPostCommentsById(id)
+	if err != nil {
+		slog.Error("db.GetPostCommentsById() failed", "controller", "GetPostCommentsById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, comments)
+}
