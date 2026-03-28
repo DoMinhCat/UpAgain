@@ -129,7 +129,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request){
 	}
 
 	// validate
-	validation := validations.ValidatePostCreation(payload)
+	validation := validations.ValidatePostCreationOrUpdate(payload)
 	if !validation.Success {
 		utils.RespondWithError(w, validation.Error, validation.Message.Error())
 		return
@@ -308,4 +308,75 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request){
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, post)
+}
+
+func UpdatePostById(w http.ResponseWriter, r *http.Request){
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role == "user" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update this post.")
+		return
+	}
+	idStr := r.PathValue("id_post")
+	if idStr == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing post ID")
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "UpdatePostById", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "UpdatePostById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update post")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	err = r.ParseMultipartForm(32 << 20)
+    if err != nil {
+        slog.Error("r.ParseMultipartForm() failed", "controller", "UpdatePostById", "error", err)
+        utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+        return
+    }
+
+	var payload models.CreatePostRequest
+	payload.Title = r.FormValue("title")
+	payload.Content = r.FormValue("content")
+	payload.Category = r.FormValue("category")
+	files := r.MultipartForm.File["images"]
+	for _, file := range files {
+		path, err := helper.SaveUploadedFile(file, "images/posts")
+		if err != nil {
+			slog.Error("SaveUploadedFile() failed", "controller", "UpdatePostById", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
+			return
+		}
+		payload.Image = append(payload.Image, path)
+	}
+
+	// validate
+	validation := validations.ValidatePostCreationOrUpdate(payload)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+		return
+	}
+
+	// TODO: check image change
+
+	err = db.UpdatePostById(id, payload)
+	if err != nil {
+		slog.Error("db.UpdatePostById() failed", "controller", "UpdatePostById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update post")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
