@@ -106,7 +106,8 @@ export const AdminPostsModule = () => {
   };
 
   const createPostMutation = useCreatePost();
-  const handleCreatePost = () => {
+  const handleCreatePost = (e: React.FormEvent) => {
+    e.preventDefault();
     validateTitle();
     validateCategory();
     validateDescription();
@@ -212,7 +213,7 @@ export const AdminPostsModule = () => {
       </Title>
 
       {/* stats cards */}
-      <SimpleGrid cols={{ base: 1, sm: 3, lg: 3 }} spacing="lg">
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 2 }} spacing="lg">
         <AdminCardInfo
           icon={IconCalendarEventFilled}
           title="Total active posts"
@@ -230,27 +231,14 @@ export const AdminPostsModule = () => {
         <AdminCardInfo
           icon={IconCalendarTime}
           title="Engagement rate"
-          value={postStats?.engagement_rate ?? 0 + "%"}
+          value={(postStats?.engagement_rate ?? 0) + "%"}
           error={isErrorPostStats}
           loading={isLoadingPostStats}
           description={
             <StatsCardDesc
-              stats={postStats?.total_new_posts_since ?? 0}
+              stats={postStats?.interaction_per_post ?? 0}
               icon={IconArrowUp}
               description={" interactions per post"}
-            />
-          }
-        />
-        <AdminCardInfo
-          icon={IconClockCheck}
-          title="Pending approval"
-          value={postStats?.pending ?? 0}
-          error={isErrorPostStats}
-          loading={isLoadingPostStats}
-          description={
-            <StatsCardDesc
-              stats={postStats?.pending ?? 0}
-              description={" posts require validation"}
             />
           }
         />
@@ -337,7 +325,7 @@ export const AdminPostsModule = () => {
                 <Button variant="grey">Cancel</Button>
                 <Button
                   onClick={(e) => {
-                    handleCreatePost();
+                    handleCreatePost(e);
                   }}
                   loading={createPostMutation.isPending}
                   variant="primary"
