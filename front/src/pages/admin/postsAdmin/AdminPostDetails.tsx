@@ -15,7 +15,6 @@ import {
   Card,
   SimpleGrid,
   Image,
-  ThemeIcon,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useLocation } from "react-router-dom";
@@ -36,24 +35,7 @@ import { useGetPostDetails } from "../../../hooks/postHooks";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/FullScreenLoader";
-
-function StatItem({ icon, label, value, color }: any) {
-  return (
-    <Group gap="sm" wrap="nowrap">
-      <ThemeIcon variant="light" color={color} size="md" radius="md">
-        {icon}
-      </ThemeIcon>
-      <div>
-        <Text size="sm" fw={700} lh={1}>
-          {value ?? 0}
-        </Text>
-        <Text size="xs" c="dimmed">
-          {label}
-        </Text>
-      </div>
-    </Group>
-  );
-}
+import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 
 export const AdminPostDetails = () => {
   const location = useLocation();
@@ -256,25 +238,25 @@ export const AdminPostDetails = () => {
                 </Text>
 
                 <SimpleGrid cols={2} spacing="md">
-                  <StatItem
+                  <CardStatsItem
                     icon={<IconEye size={20} />}
                     label="Views"
                     value={postDetails?.view_count}
                     color="blue"
                   />
-                  <StatItem
+                  <CardStatsItem
                     icon={<IconHeart size={20} />}
                     label="Likes"
                     value={postDetails?.like_count}
                     color="red"
                   />
-                  <StatItem
+                  <CardStatsItem
                     icon={<IconBookmark size={20} />}
                     label="Saves"
                     value={postDetails?.save_count}
                     color="yellow"
                   />
-                  <StatItem
+                  <CardStatsItem
                     icon={<IconMessageCircle size={20} />}
                     label="Comments"
                     value={postDetails?.comment_count}
