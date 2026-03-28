@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 )
 
@@ -30,4 +31,28 @@ func InsertImage(payload models.PhotoInsertRequest) error {
 		return fmt.Errorf("InsertImage() failed: '%v'", err)
 	}
 	return nil
+}
+
+func GetPhotosPathsByObjectId(id int, objectType string) ([]string, error) {
+	var photos []string
+	query := `
+		SELECT path FROM photos p WHERE p.object_id = $1 AND p.object_type = $2 ORDER BY p.is_primary DESC, p.created_at ASC;
+	`
+	rows, err := utils.Conn.Query(query, id, objectType)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("GetPhotosPathsByObjectId() failed: '%v'", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var path string
+		if err := rows.Scan(&path); err != nil {
+			return nil, fmt.Errorf("GetPhotosByObjectId() scan failed: '%v'", err)
+		}
+		photos = append(photos, path)
+	}
+	return photos, nil
 }

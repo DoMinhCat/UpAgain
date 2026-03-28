@@ -209,19 +209,11 @@ func GetEventDetailsById(id_event int) (models.Event, error) {
 	}
 
 	// Fetch photos
-	rows, err := utils.Conn.Query("SELECT path FROM photos WHERE event_id = $1 AND object_type = 'event' ORDER BY is_primary DESC, created_at ASC", id_event)
+	photos, err := GetPhotosPathsByObjectId(id_event, "event")
 	if err != nil {
 		return event, fmt.Errorf("failed to fetch photos: %v", err.Error())
 	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var path string
-		if err := rows.Scan(&path); err != nil {
-			return event, fmt.Errorf("failed to scan photo path: %v", err.Error())
-		}
-		event.Images = append(event.Images, path)
-	}
+	event.Images = photos
 
 	return event, nil
 }
