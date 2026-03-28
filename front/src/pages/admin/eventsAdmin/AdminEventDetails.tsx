@@ -409,11 +409,9 @@ export default function AdminEventDetails() {
         ]}
       />
       <Container p="lg" size="xl">
-        {/* The justify="space-between" works best when items have defined widths or flex growth */}
         <Grid gutter="xl" align="flex-start" mb="xl">
-          {/* LEFT SECTION: Added flex: 1 to occupy remaining space */}
+          {/* LEFT SECTION */}
           <Grid.Col span={{ base: 12, md: 8 }}>
-            {/* <Group style={{ flex: 1 }}> */}
             <Stack gap={0} style={{ width: "100%" }}>
               <Group>
                 <Badge
@@ -776,8 +774,7 @@ export default function AdminEventDetails() {
                         handleEdit(e);
                       }}
                       variant="primary"
-                      // loading={editMutation.isPending}
-                      // disabled={editMutation.isPending || isAccountDetailsLoading}
+                      loading={updateEvent.isPending || isLoadingEventDetails}
                     >
                       Confirm
                     </Button>
