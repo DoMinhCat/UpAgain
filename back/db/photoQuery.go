@@ -68,3 +68,12 @@ func GetPhotosPathsByObjectId(id int, objectType string) ([]string, error) {
 	}
 	return photos, nil
 }
+
+func DeleteImageByPath(path string) error {
+	query := `DELETE FROM photos p WHERE p.path = $1;`
+	_, err := utils.Conn.Exec(query, path)
+	if err != nil {
+		return fmt.Errorf("DeleteImageByPath() failed: '%v'", err)
+	}
+	return nil
+}

@@ -136,8 +136,12 @@ export const AdminPostDetails = () => {
       formData.append("title", titleEdit);
       formData.append("category", categoryEdit);
       formData.append("content", descriptionEdit);
-      fileEdit.forEach((file) => {
-        formData.append("photos", file);
+      fileEdit.forEach((obj) => {
+        if (obj instanceof File) {
+          formData.append("new_images", obj);
+        } else if (obj.path) {
+          formData.append("existing_images", obj.path);
+        }
       });
       // updatePostMutate.mutate(formData, {
       //   onSuccess: () => {
