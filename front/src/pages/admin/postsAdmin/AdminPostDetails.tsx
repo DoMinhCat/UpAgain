@@ -66,6 +66,33 @@ export const AdminPostDetails = () => {
   const [errorCategory, setErrorCategory] = useState<string>("");
   const [errorDescription, setErrorDescription] = useState<string>("");
 
+  const validateTitleEdit = () => {
+    if (!titleEdit || titleEdit.trim() === "") {
+      setErrorTitle("Title is required");
+      return false;
+    }
+    setErrorTitle("");
+    return true;
+  };
+
+  const validateCategoryEdit = () => {
+    if (!categoryEdit || categoryEdit.trim() === "") {
+      setErrorCategory("Category is required");
+      return false;
+    }
+    setErrorCategory("");
+    return true;
+  };
+
+  const validateDescriptionEdit = () => {
+    if (!descriptionEdit || descriptionEdit.trim() === "") {
+      setErrorDescription("Post's content is required");
+      return false;
+    }
+    setErrorDescription("");
+    return true;
+  };
+
   const handleOpenEdit = () => {
     if (postDetails) {
       setTitleEdit(postDetails.title || "");
@@ -86,6 +113,34 @@ export const AdminPostDetails = () => {
     setErrorCategory("");
     setErrorDescription("");
     closeEdit();
+  };
+
+  const handleEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (postDetails) {
+      const isValidTitle = validateTitleEdit();
+      const isValidCategory = validateCategoryEdit();
+      const isValidDescription = validateDescriptionEdit();
+      if (!isValidTitle || !isValidCategory || !isValidDescription) {
+        return;
+      }
+      const formData = new FormData();
+      formData.append("title", titleEdit);
+      formData.append("category", categoryEdit);
+      formData.append("content", descriptionEdit);
+      fileEdit.forEach((file) => {
+        formData.append("photos", file);
+      });
+      // updatePostMutate.mutate(formData, {
+      //   onSuccess: () => {
+      //     showSuccessNotification(
+      //       "Post updated",
+      //       "The post has been updated successfully.",
+      //     );
+      //     closeEdit();
+      //   },
+      // });
+    }
   };
 
   // DELETE
@@ -310,7 +365,7 @@ export const AdminPostDetails = () => {
                       setTitleEdit(e.target.value);
                     }}
                     error={errorTitle}
-                    // onBlur={() => validateTitle()}
+                    onBlur={() => validateTitleEdit()}
                     // disabled={updateEvent.isPending}
                     required
                   />
@@ -320,7 +375,7 @@ export const AdminPostDetails = () => {
                     label="Category"
                     value={categoryEdit}
                     error={errorCategory}
-                    // onBlur={() => validateCategory()}
+                    onBlur={() => validateCategoryEdit()}
                     data={[
                       { value: "tutorial", label: "Tutorial" },
                       { value: "project", label: "Project" },
