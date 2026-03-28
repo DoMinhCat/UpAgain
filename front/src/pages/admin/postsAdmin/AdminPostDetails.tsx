@@ -17,7 +17,7 @@ import {
   Image,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
@@ -31,13 +31,15 @@ import {
 } from "@tabler/icons-react";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
-import { useGetPostDetails } from "../../../hooks/postHooks";
+import { useDeletePost, useGetPostDetails } from "../../../hooks/postHooks";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
+import { showSuccessNotification } from "../../../components/NotificationToast";
 
 export const AdminPostDetails = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const origin = location.state || {};
 
@@ -87,8 +89,25 @@ export const AdminPostDetails = () => {
   };
 
   // DELETE
+  const deletePostMutate = useDeletePost();
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure(false);
+
+  const handleDelete = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (postDetails) {
+      deletePostMutate.mutate(postDetails.id, {
+        onSuccess: () => {
+          showSuccessNotification(
+            "Post deleted",
+            "The post has been deleted successfully.",
+          );
+          closeDelete();
+          navigate("/admin/posts");
+        },
+      });
+    }
+  };
 
   if (isLoadingPostDetails) {
     return <FullScreenLoader />;
@@ -359,9 +378,9 @@ export const AdminPostDetails = () => {
                     Cancel
                   </Button>
                   <Button
-                    // onClick={(e: React.FormEvent) => {
-                    //   handleDelete(e);
-                    // }}
+                    onClick={(e: React.FormEvent) => {
+                      handleDelete(e);
+                    }}
                     variant="delete"
                     // loading={deletePost.isPending || isLoadingPostDetails}
                   >

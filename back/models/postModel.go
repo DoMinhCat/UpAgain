@@ -8,7 +8,7 @@ type PostCountStatsResponse struct {
 	TotalPosts         int     `json:"total_posts"`
 	TotalNewPostsSince int     `json:"total_new_posts_since"`
 	EngagementRate     float64 `json:"engagement_rate"`
-	Pending            int     `json:"pending"`
+	InteractionPerPost float64 `json:"interaction_per_post"`
 }
 
 type CreatePostRequest struct {

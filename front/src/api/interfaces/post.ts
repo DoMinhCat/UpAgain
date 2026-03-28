@@ -2,7 +2,7 @@ export interface PostStats {
   total_posts: number;
   total_new_posts_since: number;
   engagement_rate: number;
-  pending: number;
+  interaction_per_post: number;
 }
 
 export interface Post {

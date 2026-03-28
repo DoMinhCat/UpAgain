@@ -22,7 +22,7 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request){
 	
 	// get overall stats for admin stats card
 	is_deleted := false
-	total, err := db.GetTotalPosts(&is_deleted)
+	total, err := db.GetTotalPosts(&is_deleted, nil)
 	if err != nil {
 		slog.Error("GetTotalPosts() failed", "controller", "GetPostsStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get stats of posts")
@@ -64,23 +64,23 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request){
 	}
 
 	totalInteractions := totalComments + totalLikes + totalSaves
-	engagementRateStr := fmt.Sprintf("%.2f", float64(totalInteractions)/float64(totalViews)*100)
-	engagementRate, _ := strconv.ParseFloat(engagementRateStr, 64)
+	engagementRate := 0.0
+	if totalViews > 0 {
+		engagementRateStr := fmt.Sprintf("%.2f", float64(totalInteractions)/float64(totalViews)*100)
+		engagementRate, _ = strconv.ParseFloat(engagementRateStr, 64)
+	}
 
-	// pending approval
-	status := "pending"
-	totalPending, err := db.GetTotalEventsByStatus(&status)
-	if err != nil {
-		slog.Error("GetTotalEventsByStatus() failed", "controller", "GetPostsStats", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get stats of posts")
-		return
+	interactionPerPost := 0.0
+	if total > 0 {
+		interactionPerPostStr := fmt.Sprintf("%.2f", float64(totalInteractions)/float64(total))
+		interactionPerPost, _ = strconv.ParseFloat(interactionPerPostStr, 64)
 	}
 
 	response := models.PostCountStatsResponse{
 		TotalPosts: total,
 		TotalNewPostsSince: totalSince,
 		EngagementRate: engagementRate,
-		Pending: totalPending,
+		InteractionPerPost: interactionPerPost,
 	}
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }

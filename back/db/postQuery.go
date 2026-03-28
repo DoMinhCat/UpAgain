@@ -44,17 +44,34 @@ func GetTotalPostsByIdAccountByCategory(id int, category *string) (int, error) {
 	return total, nil
 }
 
-func GetTotalPosts(is_deleted *bool) (int, error) {
+func GetTotalPosts(is_deleted *bool, category *string) (int, error) {
 	var total int
-	var query string
+	query := `select count(*) from posts p where p.id is not null`
 	var err error
-
+	param := ""
+	if category != nil {
+		switch *category {
+		case "tutorial":
+			param = " and category = 'tutorial'"
+		case "project":
+			param = " and category = 'project'"
+		case "tips":
+			param = " and category = 'tips'"
+		case "news":
+			param = " and category = 'news'"
+		case "case_study":
+			param = " and category = 'case_study'"
+		case "other":
+			param = " and category = 'other'"
+		default:
+			return 0, fmt.Errorf("GetTotalPosts() failed: invalid category '%v'", *category)
+		}
+	}
 	if is_deleted != nil {
-		query = `select count(*) from posts p where p.is_deleted = $1;`
-		err = utils.Conn.QueryRow(query, *is_deleted).Scan(&total)
-	} else {
-		query = `select count(*) from posts p;`
-		err = utils.Conn.QueryRow(query).Scan(&total)
+		param += ` and p.is_deleted = $1;`
+		err = utils.Conn.QueryRow(query+param, *is_deleted).Scan(&total)
+	}else{
+		err = utils.Conn.QueryRow(query+param).Scan(&total)
 	}
 	
 	if err != nil {
