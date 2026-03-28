@@ -10,11 +10,15 @@ import {
   Button,
   Box,
   Modal,
+  Paper,
+  Tooltip,
   Divider,
   Select,
   Card,
   SimpleGrid,
   Image,
+  Avatar,
+  ActionIcon,
   Anchor,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -28,6 +32,8 @@ import {
   IconBookmark,
   IconMessageCircle,
   IconUser,
+  IconTrash,
+  IconHeartFilled,
 } from "@tabler/icons-react";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
@@ -244,50 +250,103 @@ export const AdminPostDetails = () => {
                   __html: postDetails?.content ?? "",
                 }}
               />
+              {/* TODO: show some kind of step with progress vertical bar if post is a project */}
             </Stack>
-            {postDetails?.photos && postDetails.photos.length > 0 && (
-              <>
-                <Divider my="xl" />
-                <Group gap="sm">
-                  <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
-                  <Title order={3}>Photos</Title>
-                </Group>
-                <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
-                  {postDetails.photos.map((path, index) => (
-                    <Image
-                      key={index}
-                      src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
-                      radius="md"
-                      alt={`Post photo ${index + 1}`}
-                      fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleImageClick(index)}
-                    />
-                  ))}
-                </SimpleGrid>
+            {postDetails?.photos &&
+              postDetails.photos.length > 0 &&
+              postDetails?.category !== "project" && (
+                <>
+                  <Divider my="xl" />
+                  <Group gap="sm">
+                    <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
+                    <Title order={3}>Photos</Title>
+                  </Group>
+                  <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
+                    {postDetails.photos.map((path, index) => (
+                      <Image
+                        key={index}
+                        src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
+                        radius="md"
+                        alt={`Post photo ${index + 1}`}
+                        fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleImageClick(index)}
+                      />
+                    ))}
+                  </SimpleGrid>
 
-                <Modal
-                  opened={openedCarousel}
-                  onClose={closeCarousel}
-                  size="xl"
-                  centered
-                  title="Post's gallery"
-                  styles={{
-                    root: {
-                      zIndex: 1000,
-                    },
-                    body: {
-                      padding: "xs",
-                    },
-                  }}
-                >
-                  <PhotosCarousel
-                    photos={postDetails.photos}
-                    initialSlide={activeSlide}
-                  />
-                </Modal>
-              </>
-            )}
+                  <Modal
+                    opened={openedCarousel}
+                    onClose={closeCarousel}
+                    size="xl"
+                    centered
+                    title="Post's gallery"
+                    styles={{
+                      root: {
+                        zIndex: 1000,
+                      },
+                      body: {
+                        padding: "xs",
+                      },
+                    }}
+                  >
+                    <PhotosCarousel
+                      photos={postDetails.photos}
+                      initialSlide={activeSlide}
+                    />
+                  </Modal>
+                </>
+              )}
+
+            <Divider my="xl" />
+
+            {/* COMMENTS */}
+            <Paper withBorder p="md" radius="md" shadow="xs" variant="primary">
+              <Group align="flex-start" wrap="nowrap">
+                <Avatar src={"xx"} alt={"xx"} radius="xl" size="lg" />
+
+                <Stack gap="xs" style={{ flex: 1 }}>
+                  <Group justify="space-between">
+                    <Box>
+                      <Text size="sm" fw={700}>
+                        xx
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        xx • xx
+                      </Text>
+                    </Box>
+                  </Group>
+
+                  <Text size="sm">xx</Text>
+                </Stack>
+
+                <Divider orientation="vertical" />
+
+                {/* Admin Stats & Actions Column */}
+                <Stack align="center" gap="sm">
+                  <Tooltip label="Delete Comment" position="left">
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                      // onClick={onDelete}
+                      size="lg"
+                    >
+                      <IconTrash size={20} stroke={1.5} />
+                    </ActionIcon>
+                  </Tooltip>
+
+                  <Stack gap={2} align="center">
+                    <IconHeartFilled
+                      size={18}
+                      color="var(--mantine-color-red-6)"
+                    />
+                    <Text size="xs" fw={700} c="dimmed">
+                      xx
+                    </Text>
+                  </Stack>
+                </Stack>
+              </Group>
+            </Paper>
           </Grid.Col>
           {/* RIGHT SECTION */}
           <Grid.Col
