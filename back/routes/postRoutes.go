@@ -11,4 +11,5 @@ func GetPostRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /posts/count/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetPostsStats))))
 	mux.Handle("POST /posts/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CreatePost))))
 	mux.Handle("PATCH /posts/{id_post}/delete/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.DeletePost))))
+	mux.Handle("GET /posts/{id_post}/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetPostDetailsById))))
 }

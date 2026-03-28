@@ -260,3 +260,38 @@ func DeletePost(w http.ResponseWriter, r *http.Request){
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+func GetPostDetailsById(w http.ResponseWriter, r *http.Request){
+	idStr := r.PathValue("id_post")
+	if idStr == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing post ID")
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "GetPostDetailsById", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "GetPostDetailsById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post details")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	post, err := db.GetPostDetailsById(id)
+	if err != nil {
+		slog.Error("db.GetPostDetailsById() failed", "controller", "GetPostDetailsById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post details")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, post)
+}
