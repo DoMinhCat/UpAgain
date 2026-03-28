@@ -13,3 +13,8 @@ type Comment struct {
 	IdAccount int `json:"id_account"`
 	IsDeleted bool `json:"is_deleted"`
 }
+
+type PostCommentsResponse struct {
+	TotalComments int `json:"total_comments"`
+	Comments []Comment `json:"comments"`
+}

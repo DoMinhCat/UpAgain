@@ -301,52 +301,68 @@ export const AdminPostDetails = () => {
             <Divider my="xl" />
 
             {/* COMMENTS */}
-            <Paper withBorder p="md" radius="md" shadow="xs" variant="primary">
-              <Group align="flex-start" wrap="nowrap">
-                <Avatar src={"xx"} alt={"xx"} radius="xl" size="lg" />
-
-                <Stack gap="xs" style={{ flex: 1 }}>
-                  <Group justify="space-between">
-                    <Box>
-                      <Text size="sm" fw={700}>
-                        xx
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        xx • xx
-                      </Text>
-                    </Box>
-                  </Group>
-
-                  <Text size="sm">xx</Text>
-                </Stack>
-
-                <Divider orientation="vertical" />
-
-                {/* Admin Stats & Actions Column */}
-                <Stack align="center" gap="sm">
-                  <Tooltip label="Delete Comment" position="left">
-                    <ActionIcon
-                      variant="subtle"
-                      color="red"
-                      // onClick={onDelete}
-                      size="lg"
-                    >
-                      <IconTrash size={20} stroke={1.5} />
-                    </ActionIcon>
-                  </Tooltip>
-
-                  <Stack gap={2} align="center">
-                    <IconHeartFilled
-                      size={18}
-                      color="var(--mantine-color-red-6)"
-                    />
-                    <Text size="xs" fw={700} c="dimmed">
-                      xx
-                    </Text>
-                  </Stack>
-                </Stack>
+            <Stack gap="md" maw={800} mx="auto" p="md">
+              <Group justify="space-between">
+                <Text size="xl" fw={800}>
+                  Comments • 999
+                </Text>
               </Group>
-            </Paper>
+
+              <Stack gap="sm">
+                <Paper
+                  withBorder
+                  p="md"
+                  radius="md"
+                  shadow="xs"
+                  variant="primary"
+                >
+                  <Group align="flex-start" wrap="nowrap">
+                    <Avatar src={"xx"} alt={"xx"} radius="xl" size="lg" />
+
+                    <Stack gap="xs" style={{ flex: 1 }}>
+                      <Group justify="space-between">
+                        <Box>
+                          <Text size="sm" fw={700}>
+                            xx
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            xx • xx
+                          </Text>
+                        </Box>
+                      </Group>
+
+                      <Text size="sm">xx</Text>
+                    </Stack>
+
+                    <Divider orientation="vertical" />
+
+                    {/* Admin Stats & Actions Column */}
+                    <Stack align="center" gap="sm">
+                      <Tooltip label="Delete Comment" position="left">
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          // onClick={onDelete}
+                          size="lg"
+                        >
+                          <IconTrash size={20} stroke={1.5} />
+                        </ActionIcon>
+                      </Tooltip>
+
+                      <Stack gap={2} align="center">
+                        <IconHeartFilled
+                          size={18}
+                          color="var(--mantine-color-red-6)"
+                        />
+                        <Text size="xs" fw={700} c="dimmed">
+                          xx
+                        </Text>
+                      </Stack>
+                    </Stack>
+                  </Group>
+                </Paper>
+              </Stack>
+            </Stack>
           </Grid.Col>
           {/* RIGHT SECTION */}
           <Grid.Col
