@@ -6,3 +6,4 @@ type PhotoInsertRequest struct {
 	ObjectType string
 	FkId       int
 }
+
