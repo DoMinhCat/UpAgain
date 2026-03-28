@@ -162,12 +162,11 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 
 // CreateEvent godoc
 // @Summary      Create new event
-// @Description  Create a new event from the provided payload. Supports both JSON and multipart/form-data for image uploads.
+// @Description  Create a new event from the provided multipart form data.
 // @Tags         event
-// @Accept       json, multipart/form-data
+// @Accept       multipart/form-data
 // @Produce      json
-// @Param        event  body      models.CreateEventRequest  true  "Event details (required if JSON)"
-// @Param        title  formData  string                    false "Event title (required if multipart)"
+// @Param        title  formData  string                    true "Event title"
 // @Param        description formData string              false "Event description"
 // @Param        start_at    formData string              false "Start date (RFC3339 format)"
 // @Param        end_at      formData string              false "End date (RFC3339 format)"
@@ -641,13 +640,12 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 // UpdateEventByEventId godoc
 // @Summary      Update event details
-// @Description  Update the details of an existing event by its ID. Supports both JSON and multipart/form-data for image updates.
+// @Description  Update the details of an existing event by its ID using multipart form data.
 // @Tags         event
-// @Accept       json, multipart/form-data
+// @Accept       multipart/form-data
 // @Produce      json
 // @Param        id     path      int  true  "Event ID"
-// @Param        event  body      models.UpdateEventRequest  true  "Event details (required if JSON)"
-// @Param        title  formData  string                    false "Event title (required if multipart)"
+// @Param        title  formData  string                    false "Event title"
 // @Param        description formData string              false "Event description"
 // @Param        start_at    formData string              false "Start date (RFC3339 format)"
 // @Param        end_at      formData string              false "End date (RFC3339 format)"
@@ -658,7 +656,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 // @Param        street      formData string              false "Street"
 // @Param        location_detail formData string           false "Additional location details"
 // @Param        existing_images formData string           false "List of existing image paths to keep (multiple allowed)"
-// @Param        images      formData file                false "New event images to upload (multiple allowed)"
+// @Param        new_images  formData file                false "New event images to upload (multiple allowed)"
 // @Success      204    {object}  nil                         "Event updated successfully"
 // @Failure      400    {object}  nil                         "Invalid payload or ID"
 // @Failure      401    {object}  nil                         "Unauthorized"
