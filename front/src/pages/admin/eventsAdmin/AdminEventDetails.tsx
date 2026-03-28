@@ -56,6 +56,7 @@ import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
 import ImageDropzone from "../../../components/ImageDropzone";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
+import { PhotosCarousel } from "../../../components/PhotosCarousel";
 export default function AdminEventDetails() {
   const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
     useDisclosure(false);
@@ -243,7 +244,7 @@ export default function AdminEventDetails() {
     const imagesData = new FormData();
     fileEdit.forEach((obj) => {
       if (obj instanceof File) {
-        imagesData.append("images", obj);
+        imagesData.append("new_images", obj);
       } else if (obj.path) {
         imagesData.append("existing_images", obj.path);
       }
@@ -494,30 +495,10 @@ export default function AdminEventDetails() {
                     },
                   }}
                 >
-                  <Carousel
+                  <PhotosCarousel
+                    photos={eventDetails?.images}
                     initialSlide={activeSlide}
-                    withIndicators
-                    height={500}
-                    slideSize="100%"
-                    emblaOptions={{
-                      loop: true,
-                      align: "center",
-                      slidesToScroll: 1,
-                    }}
-                  >
-                    {eventDetails.images.map((path, index) => (
-                      <Carousel.Slide key={index}>
-                        <Image
-                          src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
-                          h={500}
-                          fit="contain"
-                          radius={0}
-                          alt={`Event photo ${index + 1}`}
-                          fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                        />
-                      </Carousel.Slide>
-                    ))}
-                  </Carousel>
+                  />
                 </Modal>
               </>
             )}

@@ -289,6 +289,7 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employee
 		return fmt.Errorf("error deleting old images in tx: %v", err)
 	}
 
+	// TODO: remove to the logic checking and update photo paths
 	for i, imgPath := range event.Images {
 		isPrimary := i == 0
 		_, err = tx.Exec(`
