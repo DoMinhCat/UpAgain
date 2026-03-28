@@ -357,3 +357,11 @@ func GetPostDetailsById(id int) (models.Post, error) {
 	return post, nil
 }
 
+func UpdatePostById(id_post int, payload models.CreatePostRequest) error {
+	query := `update posts set title = $1, content = $2, category = $3 where id = $4 and is_deleted = false;`
+	_, err := utils.Conn.Exec(query, payload.Title, payload.Content, payload.Category, id_post)
+	if err != nil {
+		return fmt.Errorf("UpdatePostById() failed: '%v'", err)
+	}
+	return nil
+}
