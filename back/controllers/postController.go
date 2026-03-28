@@ -13,7 +13,17 @@ import (
 	"time"
 )
 
-func GetPostsStats(w http.ResponseWriter, r *http.Request){
+// GetPostsStats godoc
+// @Summary Get post statistics
+// @Description Get general statistics about posts, including total count, new posts, engagement rate, and counts per category.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} models.PostCountStatsResponse
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Failed to get stats of posts"
+// @Router /posts/stats [get]
+func GetPostsStats(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request")
@@ -99,7 +109,23 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
-func CreatePost(w http.ResponseWriter, r *http.Request){
+// CreatePost godoc
+// @Summary Create a new post
+// @Description Create a new post with title, content, category, and images.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Accept multipart/form-data
+// @Produce json
+// @Param title formData string true "Post Title"
+// @Param content formData string true "Post Content (HTML allowed)"
+// @Param category formData string true "Post Category"
+// @Param images formData file false "Post Images"
+// @Success 201 {string} string "Post created successfully"
+// @Failure 400 {string} string "Bad Request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts [post]
+func CreatePost(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "employee" && role != "pro" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
@@ -162,7 +188,22 @@ func CreatePost(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusCreated, "Post created successfully")
 }
 
-func GetAllPosts(w http.ResponseWriter, r *http.Request){
+// GetAllPosts godoc
+// @Summary Get all posts
+// @Description Get a paginated list of all posts with filters for search, category, and sorting.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param search query string false "Search query"
+// @Param category query string false "Filter by category"
+// @Param sort query string false "Sort by (highest_view, lowest_view, most_recent_creation, oldest_creation, highest_like, lowest_like)"
+// @Success 200 {object} models.PostListPagination
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts [get]
+func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// default pagination
 	page := -1
@@ -224,7 +265,19 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-func DeletePost(w http.ResponseWriter, r *http.Request){
+// DeletePost godoc
+// @Summary Delete a post
+// @Description Delete a post by ID. Users can only delete their own posts unless they are admin.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Success 204 "No Content"
+// @Failure 400 {string} string "Bad Request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post}/delete [patch]
+func DeletePost(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 
 	idStr := r.PathValue("id_post")
@@ -275,7 +328,18 @@ func DeletePost(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-func GetPostDetailsById(w http.ResponseWriter, r *http.Request){
+// GetPostDetailsById godoc
+// @Summary Get post details
+// @Description Get detailed information about a single post by ID.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Success 200 {object} models.Post
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post} [get]
+func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id_post")
 	if idStr == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Missing post ID")
@@ -310,7 +374,25 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusOK, post)
 }
 
-func UpdatePostById(w http.ResponseWriter, r *http.Request){
+// UpdatePostById godoc
+// @Summary Update a post
+// @Description Update an existing post's data and images.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Accept multipart/form-data
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Param title formData string true "Post Title"
+// @Param content formData string true "Post Content"
+// @Param category formData string true "Post Category"
+// @Param existing_images formData []string false "Image paths to keep"
+// @Param new_images formData file false "New images to upload"
+// @Success 204 "No Content"
+// @Failure 400 {string} string "Bad Request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post} [put]
+func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "user" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update this post.")
@@ -426,6 +508,19 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// GetPostCommentsByPostId godoc
+// @Summary Get post comments
+// @Description Get a paginated list of comments for a specific post.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} models.PostCommentsResponse
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post}/comments [get]
 func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id_post")
 	if idStr == "" {
