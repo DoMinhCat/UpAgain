@@ -12,9 +12,12 @@ export interface Post {
   content: string;
   category: string;
   view_count: number;
+  save_count: number;
+  comment_count: number;
   like_count: number;
   id_account: number;
   creator: string;
+  photos?: string[];
 }
 
 export interface PostsListPagination {

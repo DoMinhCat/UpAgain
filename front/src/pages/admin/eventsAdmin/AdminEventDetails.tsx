@@ -627,7 +627,7 @@ export default function AdminEventDetails() {
                     <TextInput
                       data-autofocus
                       withAsterisk
-                      label="Tile"
+                      label="Title"
                       value={titleEdit}
                       onChange={(e) => {
                         setTitleEdit(e.target.value);

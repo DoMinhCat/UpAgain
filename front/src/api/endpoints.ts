@@ -47,6 +47,7 @@ export const ENDPOINTS = {
       ALL: "/posts/",
       STATS: "/posts/count/",
       DELETE: (id_post: number) => `/posts/${id_post}/delete/`,
+      DETAILS: (id_post: number) => `/posts/${id_post}/`,
     },
   },
 

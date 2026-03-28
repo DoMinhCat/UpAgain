@@ -3,6 +3,7 @@ import {
   CreatePost,
   DeletePost,
   GetAllPosts,
+  GetPostDetails,
   GetPostsStats,
 } from "../api/admin/postModule";
 import type { PostsListPagination } from "../api/interfaces/post";
@@ -65,6 +66,19 @@ export const useDeletePost = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+};
+
+export const useGetPostDetails = (id_post: number, isValidId: boolean) => {
+  return useQuery({
+    queryKey: ["postDetails", id_post],
+    queryFn: () => GetPostDetails(id_post),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Error fetching post details",
+      errorMessage: "Failed to fetch post details",
     },
   });
 };
