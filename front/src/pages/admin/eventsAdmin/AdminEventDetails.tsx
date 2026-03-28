@@ -23,7 +23,6 @@ import {
   Image,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
-import { Carousel } from "@mantine/carousel";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import "@mantine/carousel/styles.css";
 import { PATHS } from "../../../routes/paths";
@@ -132,7 +131,7 @@ export default function AdminEventDetails() {
       setEndDateEdit(eventDetails.end_at || "");
       setCategoryEdit(eventDetails.category || "");
       setDescriptionEdit(eventDetails.description || "");
-      const files = eventDetails.images?.map((path, index) => {
+      const files = eventDetails.images?.map((path) => {
         return {
           path: path,
         };
@@ -792,12 +791,10 @@ export default function AdminEventDetails() {
           </Title>
           <Tooltip
             label="Event must be approved to assign employees"
-            /* Only enable the tooltip if the button is disabled */
             disabled={eventDetails?.status === "approved"}
             closeDelay={200}
             transitionProps={{ transition: "pop", duration: 300 }}
           >
-            {/* Wrap in a div to capture hover events when the button is disabled */}
             <div style={{ width: "fit-content" }}>
               <Button
                 variant="primary"

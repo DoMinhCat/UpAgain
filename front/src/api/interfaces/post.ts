@@ -18,6 +18,7 @@ export interface Post {
   like_count: number;
   id_account: number;
   creator: string;
+  creator_id: number;
   photos?: string[];
 }
 
