@@ -7,7 +7,7 @@ export interface History {
   old_state: string;
   new_state: string;
   admin_id: number;
-  admin_username: string;
+  admin_name: string;
 }
 
 export interface HistoryListPagination {

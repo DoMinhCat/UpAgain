@@ -67,10 +67,10 @@ export default function AdminHome() {
 
   const hasFilters = Boolean(
     appliedFilters.searchValue ||
-      appliedFilters.moduleValue ||
-      appliedFilters.actionValue ||
-      (appliedFilters.sortValue &&
-        appliedFilters.sortValue !== "most_recent_activity"),
+    appliedFilters.moduleValue ||
+    appliedFilters.actionValue ||
+    (appliedFilters.sortValue &&
+      appliedFilters.sortValue !== "most_recent_activity"),
   );
 
   const handleSearchClick = () => {
@@ -435,10 +435,14 @@ export default function AdminHome() {
                 <Table.Td ta="center">
                   {dayjs(row.created_at).format("DD/MM/YYYY HH:mm")}
                 </Table.Td>
-                <Table.Td ta="center">{row.admin_username}</Table.Td>
-                <Table.Td ta="center">{row.module}</Table.Td>
+                <Table.Td ta="center">{row.admin_name}</Table.Td>
+                <Table.Td ta="center">
+                  {row.module.charAt(0).toUpperCase() + row.module.slice(1)}
+                </Table.Td>
                 <Table.Td ta="center">{row.item_id}</Table.Td>
-                <Table.Td ta="center">{row.action}</Table.Td>
+                <Table.Td ta="center">
+                  {row.action.charAt(0).toUpperCase() + row.action.slice(1)}
+                </Table.Td>
               </Table.Tr>
             ))
           )}

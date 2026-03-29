@@ -39,7 +39,7 @@ func GetAllAdminHistory(page int, limit int, filters models.HistoryFilters) ([]m
 	}
 
 	var totalRecords int
-	countQuery := "SELECT COUNT(*) FROM admin_history h " + whereClause
+	countQuery := "SELECT COUNT(*) FROM admin_history h JOIN accounts a ON h.id_employee = a.id " + whereClause
 	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
 	if err != nil {
 		return nil, 0, fmt.Errorf("GetAllAdminHistory() count failed: %v", err)
@@ -53,7 +53,10 @@ func GetAllAdminHistory(page int, limit int, filters models.HistoryFilters) ([]m
 		orderBy = "ORDER BY created_at ASC"
 	}
 
-	query := "SELECT h.id, h.created_at, h.entity_type, h.entity_id, h.action, h.old_state, h.new_state, h.id_employee FROM admin_history h " + whereClause + " " + orderBy
+	query := `
+	SELECT h.id, h.created_at, h.entity_type, h.entity_id, h.action, h.old_state, h.new_state, h.id_employee 
+	FROM admin_history h JOIN accounts a ON h.id_employee = a.id
+	` + whereClause + " " + orderBy
 
 	if limit != -1 && page != -1 {
 		offset := (page - 1) * limit
@@ -73,7 +76,13 @@ func GetAllAdminHistory(page int, limit int, filters models.HistoryFilters) ([]m
 		if err := rows.Scan(&history.Id, &history.CreatedAt, &history.Module, &history.ItemId, &history.Action, &history.OldState, &history.NewState, &history.AdminId); err != nil {
 			return nil, 0, fmt.Errorf("GetAllAdminHistory() scan failed: %v", err.Error())
 		}
+		username, err := GetUsernameById(history.AdminId)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllAdminHistory() GetUsernameById failed: %v", err.Error())
+		}
+		history.AdminName = username
 		histories = append(histories, history)
+
 	}
 
 	return histories, totalRecords, nil
