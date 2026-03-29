@@ -79,10 +79,15 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	var payload models.UpdateStatusRequest
 	json.NewDecoder(r.Body).Decode(&payload)
 
+	oldContainer, _ := db.FindContainerByID(id)
 	if err := db.UpdateStatusContainer(id, payload.Status); err != nil {
 		slog.Error("UpdateStatusContainer() failed", "controller", "UpdateContainerStatus", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
+	}
+
+	if role == "admin" {
+		db.InsertHistory("container", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldContainer, payload)
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -109,6 +114,10 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 		slog.Error("SoftDeleteContainer() failed", "controller", "DeleteContainer", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
+	}
+
+	if role == "admin" {
+		db.InsertHistory("container", id, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -182,6 +191,10 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Failed to create container", "error", err)
 		http.Error(w, "Creation failed", http.StatusInternalServerError)
 		return
+	}
+
+	if r.Context().Value("user").(models.AuthClaims).Role == "admin" {
+		db.InsertHistory("container", id, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, c)
 	}
 
 	c.ID = id

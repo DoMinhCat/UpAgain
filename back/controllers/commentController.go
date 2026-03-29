@@ -34,5 +34,12 @@ func DeleteCommentById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if role == "admin" {
+		err = db.InsertHistory("comment", id_comment, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "DeleteCommentById", "error", err)
+		}
+	}
+
 	utils.RespondWithJSON(w, http.StatusOK, "Comment deleted successfully.")
 }

@@ -134,11 +134,16 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	oldStatus, _ := db.GetListingStatusById(itemID)
 	err = db.UpdateListingStatus(itemID, newStatus, employeeID)
 	if err != nil {
 		slog.Error("UpdateListingStatus failed", "controller", "ProcessListingValidation", "itemId", itemID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during validation")
 		return
+	}
+
+	if claims.Role == "admin" {
+		db.InsertHistory("listing", itemID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus, "reason": payload.Reason})
 	}
 
 	//  TODO: Appel Fictif à l'API OneSignal pour notifier l'utilisateur
@@ -188,11 +193,16 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	oldStatus, _ := db.GetDepositStatusById(itemID)
 	err = db.ProcessDepositValidation(itemID, newStatus, employeeID)
 	if err != nil {
 		slog.Error("ProcessDepositValidation failed", "controller", "ProcessDepositValidation", "itemId", itemID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during deposit validation")
 		return
+	}
+
+	if claims.Role == "admin" {
+		db.InsertHistory("deposit", itemID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus})
 	}
 
 	// TODO: Notification OneSignal (et envoi du code-barres par email/push si approved)
@@ -248,11 +258,16 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	oldStatus, _ := db.GetEventStatusById(eventID)
 	err = db.UpdateEventStatusByEventId(eventID, newStatus, employeeID)
 	if err != nil {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
+	}
+
+	if claims.Role == "admin" {
+		db.InsertHistory("event", eventID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus})
 	}
 
 	// TODO: Notification OneSignal au salarié qui a proposé l'atelier

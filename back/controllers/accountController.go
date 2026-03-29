@@ -53,11 +53,20 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.CreateAccount(newAccount)
+	id_inserted, err := db.CreateAccount(newAccount)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
 		slog.Error("CreateAccount() failed", "controller", "CreateAccount", "error", err)
 		return
+	}
+
+	if role == "admin" {
+		err = db.InsertHistory(newAccount.Role, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
+			slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
+			return
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
@@ -226,6 +235,20 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	role_deleted, err := db.GetRoleById(id_account)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while soft deleting an account.")
+		slog.Error("SoftDeleteAccount() failed", "controller", "SoftDeleteAccount", "error", err)
+		return
+	}
+	if role == "admin" {
+		err = db.InsertHistory(role_deleted, id_account, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while soft deleting an account.")
+			slog.Error("InsertHistory() failed", "controller", "SoftDeleteAccount", "error", err)
+			return
+		}
+	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
@@ -350,6 +373,15 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if role == "admin" {
+		err = db.InsertHistory(deleteRole, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, nil, nil)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating account's password.")
+			slog.Error("InsertHistory() failed", "controller", "UpdatePassword", "error", err)
+			return
+		}
+	}
+
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
@@ -396,6 +428,8 @@ func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 	} else {
 		errMsg = "An error occurred while banning account."
 	}
+	oldState := models.ToggleBanRequest{CurrentlyBanned: currentStatus.CurrentlyBanned}
+	newState := models.ToggleBanRequest{CurrentlyBanned: !currentStatus.CurrentlyBanned}
 
 	id_account, err := strconv.Atoi(id_input)
 	if err != nil {
@@ -437,6 +471,15 @@ func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, errMsg)
 		slog.Error("BanAccount() failed", "controller", "ToggleBanAccount", "error", err)
 		return
+	}
+
+	if role == "admin" {
+		err = db.InsertHistory(banRole, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, oldState, newState)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, errMsg)
+			slog.Error("InsertHistory() failed", "controller", "ToggleBanAccount", "error", err)
+			return
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -489,6 +532,21 @@ func RecoverAccount(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while recovering an account.")
 		slog.Error("RecoverAccount() failed", "controller", "RecoverAccount", "error", err)
 		return
+	}
+
+	role_recovered, err := db.GetRoleById(id_account)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while recovering an account.")
+		slog.Error("GetRoleById() failed", "controller", "RecoverAccount", "error", err)
+		return
+	}
+	if role == "admin" {
+		err = db.InsertHistory(role_recovered, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": true}, map[string]interface{}{"is_deleted": false})
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while recovering an account.")
+			slog.Error("InsertHistory() failed", "controller", "RecoverAccount", "error", err)
+			return
+		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -665,12 +723,29 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get old state for history before update
+	oldAccount, err := db.GetAccountDetailsById(id_account)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+		slog.Error("GetAccountDetailsById() failed", "controller", "UpdateAccount", "error", err)
+		return
+	}
+
 	payload.Id = id_account
 	err = db.UpdateAccount(payload, role)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
 		slog.Error("UpdateAccount() failed", "controller", "UpdateAccount", "error", err)
 		return
+	}
+
+	if claims.Role == "admin" {
+		err = db.InsertHistory(role, id_account, "update", claims.Id, oldAccount, payload)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+			slog.Error("InsertHistory() failed", "controller", "UpdateAccount", "error", err)
+			return
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)

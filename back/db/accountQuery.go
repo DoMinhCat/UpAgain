@@ -39,7 +39,7 @@ func CheckEmailExists(email string) (bool, error) {
 	return exists, err
 }
 
-func CreateAccount(newAccount models.CreateAccountRequest) error {
+func CreateAccount(newAccount models.CreateAccountRequest) (int, error) {
 	//hash password
 	isAdmin := false
 	hashedPassword := authUtils.HashPassword(newAccount.Password)
@@ -58,7 +58,7 @@ func CreateAccount(newAccount models.CreateAccountRequest) error {
 		"INSERT INTO accounts(email, username, password, role) VALUES ($1,$2,$3,$4) RETURNING id;",
 		newAccount.Email, newAccount.Username, hashedPassword, newAccount.Role).Scan(&insertedId)
 	if err != nil {
-		return fmt.Errorf("error inserting new account into database: %v", err.Error())
+		return 0, fmt.Errorf("error inserting new account into database: %v", err.Error())
 	}
 
 	// insert into 'users/pros/employees'
@@ -66,26 +66,26 @@ func CreateAccount(newAccount models.CreateAccountRequest) error {
 	case "user":
 		err = CreateUser(newAccount, insertedId)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 	case "pro":
 		err = CreatePro(newAccount, insertedId)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 	case "employee":
 		err = CreateEmployee(insertedId, isAdmin)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 	default:
-		return fmt.Errorf("invalid role '%s'.", newAccount.Role)
+		return 0, fmt.Errorf("invalid role '%s'.", newAccount.Role)
 	}
 
-	return nil
+	return insertedId, nil
 }
 
 // DO NOT use for endpoints, only for api internal use, all records should be soft deleted
