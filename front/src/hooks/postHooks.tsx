@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CreatePost,
+  DeleteComment,
   DeletePost,
   GetAllPosts,
   GetPostComments,
@@ -115,6 +116,21 @@ export const useGetPostComments = (
     meta: {
       errorTitle: "Error fetching post comments",
       errorMessage: "Failed to fetch post comments",
+    },
+  });
+};
+
+export const useDeleteComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_comment: number) => DeleteComment(id_comment),
+    meta: {
+      errorTitle: "Error deleting comment",
+      errorMessage: "Failed to delete comment",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postComments"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails"] });
     },
   });
 };
