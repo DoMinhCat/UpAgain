@@ -29,7 +29,8 @@ export default function PaginationFooter({
     <Group justify="space-between" mt="md">
       <Text c="dimmed" size="sm">
         Showing {(activePage - 1) * limit + 1} -{" "}
-        {Math.min(activePage * limit, total_records)} of {total_records} {unit}
+        {Math.min(activePage * limit, total_records)} of {total_records}{" "}
+        {total_records != 1 ? unit : unit.slice(0, -1)}
       </Text>
       <Pagination
         total={last_page || 1}
@@ -40,4 +41,3 @@ export default function PaginationFooter({
     </Group>
   );
 }
-

@@ -435,6 +435,7 @@ export const AdminPostDetails = () => {
                 total_records={comments.total_comments}
                 last_page={comments.last_page}
                 limit={limit}
+                unit="comments"
               />
             )}
           </Grid.Col>
