@@ -371,3 +371,15 @@ func GetTotalWeightByMaterialByStatus(material string, status string) (float64, 
 
 	return totalWeight, nil
 }
+
+func GetListingStatusById(id int) (string, error) {
+	var status string
+	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
+	return status, err
+}
+
+func GetDepositStatusById(id int) (string, error) {
+	var status string
+	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
+	return status, err
+}
