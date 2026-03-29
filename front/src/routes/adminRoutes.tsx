@@ -105,5 +105,14 @@ export const adminRoutes: RouteObject = {
         },
       ],
     },
+    {
+      path: "history",
+      children: [
+        {
+          path: ":id",
+          element: <div>History Details (empty for now)</div>,
+        },
+      ],
+    },
   ],
 };

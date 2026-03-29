@@ -129,6 +129,7 @@ export const useProcessValidation = () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["validationStats"] });
       queryClient.invalidateQueries({ queryKey: ["allItemsHistory"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
       errorTitle: "Validation Failed",

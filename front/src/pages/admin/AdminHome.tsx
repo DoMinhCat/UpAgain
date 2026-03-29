@@ -16,6 +16,9 @@ import {
   Loader,
   Group,
 } from "@mantine/core";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 import {
   IconArrowUp,
   IconPigMoney,
@@ -43,24 +46,60 @@ import { useAccountCountStats } from "../../hooks/accountHooks";
 import { useContainerCountStats } from "../../hooks/containerHooks";
 import { useValidationStats } from "../../hooks/validationHooks";
 import { useGetTotalScore } from "../../hooks/userHooks";
+import { useGetAdminHistory } from "../../hooks/historyHooks";
 
 export default function AdminHome() {
-  // TODO: replace with real admin history data
-  const demoAdminActivities = {
-    header: ["Timestamp", "Admin", "Module", "Item's ID", "Action"],
-    body: [
-      [6, 12.011, "C", "Carbon", "Update"],
-      [7, 14.007, "N", "Nitrogen", "Update"],
-      [39, 88.906, "Y", "Yttrium", "Update"],
-      [56, 137.33, "Ba", "Barium", "Update"],
-      [58, 140.12, "Ce", "Cerium", "Update"],
-      [6, 12.011, "C", "Carbon", "Update"],
-      [7, 14.007, "N", "Nitrogen", "Update"],
-      [39, 88.906, "Y", "Yttrium", "Update"],
-      [56, 137.33, "Ba", "Barium", "Update"],
-      [58, 140.12, "Ce", "Cerium", "Update"],
-    ],
+  const navigate = useNavigate();
+
+  const [filters, setFilters] = useState({
+    searchValue: "",
+    sortValue: "most_recent_activity" as string | null,
+    moduleValue: null as string | null,
+    actionValue: null as string | null,
+  });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [page, setPage] = useState(1);
+  const LIMIT = 10;
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
+
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+      appliedFilters.moduleValue ||
+      appliedFilters.actionValue ||
+      (appliedFilters.sortValue &&
+        appliedFilters.sortValue !== "most_recent_activity"),
+  );
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: "most_recent_activity",
+      moduleValue: null,
+      actionValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+
+  const { data: historyData, isLoading: isLoadingHistory } = useGetAdminHistory(
+    hasFilters ? -1 : page,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.sortValue ?? undefined,
+    appliedFilters.moduleValue ?? undefined,
+    appliedFilters.actionValue ?? undefined,
+  );
+
+  const historyHeader = ["Timestamp", "Admin", "Module", "Item's ID", "Action"];
 
   const {
     data: accountCountStats,
@@ -148,15 +187,21 @@ export default function AdminHome() {
           title="Total UpScore"
           value={totalScore?.total || 0}
           description={
-            <StatsCardDesc
-              stats={totalScore?.co2 || 0}
-              icon={IconLeaf}
-              description={
-                totalScore?.co2 === 1
-                  ? " kg of CO2 avoided by the community"
-                  : " kg of CO2 avoided by the community"
-              }
-            />
+            isLoadingTotalScore ? (
+              <Loader size="sm" />
+            ) : errorTotalScore ? (
+              <Text c="red">An error occurred while loading total score</Text>
+            ) : (
+              <StatsCardDesc
+                stats={totalScore?.co2 || 0}
+                icon={IconLeaf}
+                description={
+                  totalScore?.co2 === 1
+                    ? " kg of CO2 avoided by the community"
+                    : " kg of CO2 avoided by the community"
+                }
+              />
+            )
           }
         />
         <AdminCardInfo
@@ -262,17 +307,15 @@ export default function AdminHome() {
             label="Search"
             variant="filled"
             placeholder="Search by admin's name or item's ID..."
-            // disabled={isLoadingEvents}
+            disabled={isLoadingHistory}
             rightSection={<IconSearch size={14} />}
-            // value={filters.searchValue}
-            // onChange={(e) =>
-            //   handleFilterChange("searchValue", e.target.value)
-            // }
-            // onKeyDown={(event) => {
-            //   if (event.key === "Enter") {
-            //     handleSearchClick();
-            //   }
-            // }}
+            value={filters.searchValue}
+            onChange={(e) => handleFilterChange("searchValue", e.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                handleSearchClick();
+              }
+            }}
           />
         </Grid.Col>
 
@@ -287,10 +330,10 @@ export default function AdminHome() {
               },
               { value: "oldest_activity", label: "Oldest activity" },
             ]}
-            // value={filters.sortValue}
+            value={filters.sortValue}
             clearable
-            // disabled={isLoadingEvents}
-            // onChange={(val) => handleFilterChange("sortValue", val)}
+            disabled={isLoadingHistory}
+            onChange={(val) => handleFilterChange("sortValue", val)}
           />
         </Grid.Col>
 
@@ -313,9 +356,9 @@ export default function AdminHome() {
               { value: "posts", label: "Posts" },
               { value: "finance", label: "Finance" },
             ]}
-            // value={filters.statusValue}
-            // disabled={isLoadingEvents}
-            // onChange={(val) => handleFilterChange("statusValue", val)}
+            value={filters.moduleValue}
+            disabled={isLoadingHistory}
+            onChange={(val) => handleFilterChange("moduleValue", val)}
             clearable
           />
         </Grid.Col>
@@ -328,17 +371,21 @@ export default function AdminHome() {
               { value: "update", label: "Update" },
               { value: "delete", label: "Delete" },
             ]}
-            // value={filters.statusValue}
-            // disabled={isLoadingEvents}
-            // onChange={(val) => handleFilterChange("statusValue", val)}
+            value={filters.actionValue}
+            disabled={isLoadingHistory}
+            onChange={(val) => handleFilterChange("actionValue", val)}
             clearable
           />
         </Grid.Col>
 
         <Grid.Col span={{ base: 6, sm: 12, md: 3 }}>
           <Group gap="xs" grow>
-            <Button variant="primary">Apply filters</Button>
-            <Button variant="secondary">Reset</Button>
+            <Button variant="primary" onClick={handleSearchClick}>
+              Apply filters
+            </Button>
+            <Button variant="secondary" onClick={handleResetFilters}>
+              Reset
+            </Button>
           </Group>
         </Grid.Col>
       </Grid>
@@ -350,27 +397,51 @@ export default function AdminHome() {
         className={classes.customBorder}
       >
         <AdminTable
-          header={demoAdminActivities.header}
+          header={historyHeader}
           footer={
             <PaginationFooter
-              activePage={1}
-              setPage={() => {}}
-              total_records={157}
-              last_page={16}
-              limit={10}
-              unit="records"
+              activePage={page}
+              setPage={setPage}
+              total_records={historyData?.total_records ?? 0}
+              last_page={historyData?.last_page ?? 1}
+              limit={LIMIT}
+              unit="activities"
+              hidden={hasFilters}
             />
           }
         >
-          {demoAdminActivities.body.map((row, rowIndex) => (
-            <Table.Tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <Table.Td ta="center" key={cellIndex}>
-                  {cell}
-                </Table.Td>
-              ))}
+          {isLoadingHistory ? (
+            <Table.Tr>
+              <Table.Td colSpan={5}>
+                <Flex justify="center" py="md">
+                  <Loader />
+                </Flex>
+              </Table.Td>
             </Table.Tr>
-          ))}
+          ) : (
+            historyData?.histories.map((row) => (
+              <Table.Tr
+                key={row.id}
+                onClick={() =>
+                  navigate(
+                    PATHS.ADMIN.HISTORY.DETAILS.replace(
+                      ":id",
+                      row.id.toString(),
+                    ),
+                  )
+                }
+                style={{ cursor: "pointer" }}
+              >
+                <Table.Td ta="center">
+                  {dayjs(row.created_at).format("DD/MM/YYYY HH:mm")}
+                </Table.Td>
+                <Table.Td ta="center">{row.admin_username}</Table.Td>
+                <Table.Td ta="center">{row.module}</Table.Td>
+                <Table.Td ta="center">{row.item_id}</Table.Td>
+                <Table.Td ta="center">{row.action}</Table.Td>
+              </Table.Tr>
+            ))
+          )}
         </AdminTable>
       </Paper>
     </Container>

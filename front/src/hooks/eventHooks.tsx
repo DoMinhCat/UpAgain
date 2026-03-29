@@ -59,6 +59,7 @@ export const useCreateEvent = () => {
     onSuccess: () => {
       showSuccessNotification("Success", "New event created");
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
       errorTitle: "Event creation failed",
@@ -90,6 +91,7 @@ export const useAssignEmployeeToEvent = () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
       errorTitle: "Employee assignation failed",
@@ -135,6 +137,7 @@ export const useUnAssignEmployee = (id_event: number) => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
       errorTitle: "Employee unassignation failed",
@@ -163,6 +166,7 @@ export const useUpdateEventStatus = (id_event: number, status: string) => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["event", id_event] });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
       errorTitle: "Event status update failed",
@@ -184,6 +188,7 @@ export const useUpdateEvent = (id_event: number) => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["event", id_event] });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
       errorTitle: "Event update failed",
@@ -212,6 +217,7 @@ export const useApproveRefuseEvent = () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["validationStats"] });
       queryClient.invalidateQueries({ queryKey: ["allItemsHistory"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
       errorTitle: "Event action failed",
