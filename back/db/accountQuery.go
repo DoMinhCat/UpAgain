@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-// ALL QUERY TO TABLE 'ACCOUNTS'
 func GetAccountCredsByEmail(email string) (*models.AccountCreds, error) {
 	var user models.AccountCreds
 
