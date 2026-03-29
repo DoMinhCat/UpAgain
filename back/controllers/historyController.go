@@ -26,8 +26,8 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 	if pageStr != "" {
 		page, err = strconv.Atoi(pageStr)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching accounts.")
-			slog.Error("Atoi() failed", "controller", "GetAllAccountsAdmin", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching history.")
+			slog.Error("Atoi() failed", "controller", "GetAllAdminHistory", "error", err)
 			return
 		}
 	}
@@ -36,8 +36,8 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 	if limitStr != "" {
 		limit, err = strconv.Atoi(limitStr)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching accounts.")
-			slog.Error("Atoi() failed", "controller", "GetAllAccountsAdmin", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching history.")
+			slog.Error("Atoi() failed", "controller", "GetAllAdminHistory", "error", err)
 			return
 		}
 	}
@@ -51,8 +51,8 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 
 	histories, total, err := db.GetAllAdminHistory(page, limit, filters)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching accounts.")
-		slog.Error("GetAllAccounts() failed", "controller", "GetAllAccountsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")
+		slog.Error("GetAllAdminHistory() failed", "controller", "GetAllAdminHistory", "error", err)
 		return
 	}
 

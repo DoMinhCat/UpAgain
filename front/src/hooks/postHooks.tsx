@@ -36,6 +36,7 @@ export const useCreatePost = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
   });
 };
@@ -69,6 +70,7 @@ export const useDeletePost = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
   });
 };
@@ -98,6 +100,7 @@ export const useUpdatePost = (id_post: number) => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
   });
 };
@@ -131,6 +134,7 @@ export const useDeleteComment = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postComments"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
   });
 };

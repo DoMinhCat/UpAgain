@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/guregu/null"
+)
 
 type HistoryFilters struct {
 	Search string
@@ -15,8 +19,8 @@ type History struct {
 	Module      string    `json:"module"`
 	ItemId      int       `json:"item_id"`
 	Action      string    `json:"action"`
-	OldState    string    `json:"old_state"`
-	NewState    string    `json:"new_state"`
+	OldState    null.String `json:"old_state"`
+	NewState    null.String `json:"new_state"`
 	AdminId     int       `json:"admin_id"`
 	AdminName   string    `json:"admin_name"`
 }

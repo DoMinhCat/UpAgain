@@ -36,6 +36,7 @@ export const useCreateContainer = () => {
     onSuccess: () => {
       showSuccessNotification("Success", "New container deployed");
       queryClient.invalidateQueries({ queryKey: ["containers"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
   });
 };
@@ -51,6 +52,7 @@ export const useUpdateStatus = () => {
       showSuccessNotification("Updated", "Container status modified");
 
       queryClient.invalidateQueries({ queryKey: ["containers"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
 
       queryClient.invalidateQueries({
         queryKey: ["containerDetails", variables.id],
@@ -74,6 +76,7 @@ export const useDeleteContainer = () => {
     onSuccess: () => {
       showSuccessNotification("Deleted", "Container archived successfully");
       queryClient.invalidateQueries({ queryKey: ["containers"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
   });
 };
