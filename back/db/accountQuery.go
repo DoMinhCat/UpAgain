@@ -413,3 +413,12 @@ func GetAccountIncreaseSince(since time.Time) (int, error) {
 	}
 	return count, nil
 }
+
+func GetUsernameById(id int) (string, error) {
+	var username string
+	err := utils.Conn.QueryRow("select username from accounts where id=$1;", id).Scan(&username)
+	if err != nil {
+		return "", fmt.Errorf("GetUsernameById() failed: %v", err.Error())
+	}
+	return username, nil
+}

@@ -1,31 +1,43 @@
-import { Text, Pagination, Flex } from "@mantine/core";
+import { Text, Pagination, Group } from "@mantine/core";
 
-interface PaginationProps {
-  page_count: number;
-  start_item: number;
-  total: number;
-  end_item: number;
-  unit: string;
+interface PaginationFooterProps {
+  activePage: number;
+  setPage: (page: number) => void;
+  total_records: number;
+  last_page: number;
+  limit: number;
+  unit?: string;
+  loading?: boolean;
+  hidden?: boolean;
 }
+
 export default function PaginationFooter({
-  page_count,
-  start_item,
-  end_item,
-  total,
-  unit,
-}: PaginationProps) {
+  activePage,
+  setPage,
+  total_records,
+  last_page,
+  limit,
+  unit = "results",
+  loading = false,
+  hidden = false,
+}: PaginationFooterProps) {
+  if (hidden || total_records <= 0) {
+    return null;
+  }
+
   return (
-    <Flex
-      gap="xl"
-      justify="space-between"
-      align="center"
-      direction="row"
-      wrap="wrap"
-    >
+    <Group justify="space-between" mt="md">
       <Text c="dimmed" size="sm">
-        Showing {start_item} to {end_item} of {total} {unit}
+        Showing {(activePage - 1) * limit + 1} -{" "}
+        {Math.min(activePage * limit, total_records)} of {total_records}{" "}
+        {total_records != 1 ? unit : unit.slice(0, -1)}
       </Text>
-      <Pagination total={page_count} defaultValue={1} />
-    </Flex>
+      <Pagination
+        total={last_page || 1}
+        value={activePage}
+        onChange={setPage}
+        disabled={loading}
+      />
+    </Group>
   );
 }

@@ -9,7 +9,7 @@ import {
   unassignEmployee,
   updateEventStatus,
   updateEvent,
-} from "../api/admin/eventModule";
+} from "../api/eventModule";
 import {
   type EventCreationPayload,
   type EventStats,
@@ -195,8 +195,13 @@ export const useUpdateEvent = (id_event: number) => {
 export const useApproveRefuseEvent = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }): Promise<void> =>
-      updateEventStatus(id, status),
+    mutationFn: ({
+      id,
+      status,
+    }: {
+      id: number;
+      status: string;
+    }): Promise<void> => updateEventStatus(id, status),
     onSuccess: (_data, { status }) => {
       showSuccessNotification(
         status === "approved" ? "Event approved" : "Event refused",

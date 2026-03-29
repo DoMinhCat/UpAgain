@@ -37,6 +37,7 @@ import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
 import dayjs from "dayjs";
 import { useCreateEvent } from "../../../hooks/eventHooks";
+import PaginationFooter from "../../../components/PaginationFooter";
 
 export default function AdminEventsModule() {
   const navigate = useNavigate();
@@ -615,12 +616,17 @@ export default function AdminEventsModule() {
               label="Search"
               variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
-              disabled={createEventMutation.isPending}
+              disabled={isLoadingEvents}
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
                 handleFilterChange("searchValue", e.target.value)
               }
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleSearchClick();
+                }
+              }}
             />
           </Grid.Col>
 
@@ -653,7 +659,7 @@ export default function AdminEventsModule() {
               ]}
               value={filters.sortValue}
               clearable
-              disabled={createEventMutation.isPending}
+              disabled={isLoadingEvents}
               onChange={(val) => handleFilterChange("sortValue", val)}
             />
           </Grid.Col>
@@ -667,6 +673,7 @@ export default function AdminEventsModule() {
                 { value: "banned", label: "Banned" },
               ]}
               value={filters.statusValue}
+              disabled={isLoadingEvents}
               onChange={(val) => handleFilterChange("statusValue", val)}
               clearable
             />
@@ -698,6 +705,18 @@ export default function AdminEventsModule() {
           "End Date",
           "Status",
         ]}
+        footer={
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={events?.total_records || 0}
+            last_page={events?.last_page || 1}
+            limit={LIMIT}
+            unit="records"
+            loading={isLoadingEvents}
+            hidden={hasFilters}
+          />
+        }
       >
         {listEvents}
       </AdminTable>

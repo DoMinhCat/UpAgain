@@ -23,7 +23,6 @@ import {
   Image,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
-import { Carousel } from "@mantine/carousel";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import "@mantine/carousel/styles.css";
 import { PATHS } from "../../../routes/paths";
@@ -36,6 +35,7 @@ import {
   IconPhoto,
 } from "@tabler/icons-react";
 import AdminTable from "../../../components/admin/AdminTable";
+import PaginationFooter from "../../../components/PaginationFooter";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import { TextEditor } from "../../../components/TextEditor";
@@ -54,7 +54,8 @@ import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
 import ImageDropzone from "../../../components/ImageDropzone";
-import type { FileWithPath } from "@mantine/dropzone";
+import { CardStatsItem } from "../../../components/admin/CardStatsItem";
+import { PhotosCarousel } from "../../../components/PhotosCarousel";
 export default function AdminEventDetails() {
   const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
     useDisclosure(false);
@@ -130,7 +131,7 @@ export default function AdminEventDetails() {
       setEndDateEdit(eventDetails.end_at || "");
       setCategoryEdit(eventDetails.category || "");
       setDescriptionEdit(eventDetails.description || "");
-      const files = eventDetails.images?.map((path, index) => {
+      const files = eventDetails.images?.map((path) => {
         return {
           path: path,
         };
@@ -198,7 +199,8 @@ export default function AdminEventDetails() {
     return true;
   };
   const validateDescription = () => {
-    if (!descriptionEdit || descriptionEdit.trim() === "") {
+    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
+    if (!descriptionEdit || stripped === "") {
       setErrorDescription("A description is required");
       return false;
     }
@@ -241,7 +243,7 @@ export default function AdminEventDetails() {
     const imagesData = new FormData();
     fileEdit.forEach((obj) => {
       if (obj instanceof File) {
-        imagesData.append("images", obj);
+        imagesData.append("new_images", obj);
       } else if (obj.path) {
         imagesData.append("existing_images", obj.path);
       }
@@ -408,11 +410,9 @@ export default function AdminEventDetails() {
         ]}
       />
       <Container p="lg" size="xl">
-        {/* The justify="space-between" works best when items have defined widths or flex growth */}
         <Grid gutter="xl" align="flex-start" mb="xl">
-          {/* LEFT SECTION: Added flex: 1 to occupy remaining space */}
+          {/* LEFT SECTION */}
           <Grid.Col span={{ base: 12, md: 8 }}>
-            {/* <Group style={{ flex: 1 }}> */}
             <Stack gap={0} style={{ width: "100%" }}>
               <Group>
                 <Badge
@@ -494,30 +494,10 @@ export default function AdminEventDetails() {
                     },
                   }}
                 >
-                  <Carousel
+                  <PhotosCarousel
+                    photos={eventDetails?.images}
                     initialSlide={activeSlide}
-                    withIndicators
-                    height={500}
-                    slideSize="100%"
-                    emblaOptions={{
-                      loop: true,
-                      align: "center",
-                      slidesToScroll: 1,
-                    }}
-                  >
-                    {eventDetails.images.map((path, index) => (
-                      <Carousel.Slide key={index}>
-                        <Image
-                          src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
-                          h={500}
-                          fit="contain"
-                          radius={0}
-                          alt={`Event photo ${index + 1}`}
-                          fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                        />
-                      </Carousel.Slide>
-                    ))}
-                  </Carousel>
+                  />
                 </Modal>
               </>
             )}
@@ -538,72 +518,75 @@ export default function AdminEventDetails() {
             span={{ base: 12, md: 4 }}
             style={{ position: "sticky", top: "5px" }}
           >
-            <Card withBorder shadow="sm" radius="md" padding="md">
+            <Card withBorder shadow="sm" radius="md" padding="lg">
               {/* Header/Date Section */}
-              <Group gap="xs">
-                <Text fw={700} size="md">
-                  {eventDetails?.start_at
-                    ? dayjs(eventDetails?.start_at).format("dddd, MMM DD") +
-                      " · " +
-                      dayjs(eventDetails?.start_at).format("HH:mm") +
-                      (eventDetails?.end_at
-                        ? " - " +
-                          dayjs(eventDetails?.end_at).format("dddd, MMM DD") +
-                          " · " +
-                          dayjs(eventDetails?.end_at).format("HH:mm")
-                        : "") +
-                      ", UTC" +
-                      dayjs(eventDetails?.start_at).format("Z")
-                    : "No specified date"}
-                </Text>
-              </Group>
-
-              <Divider my="sm" />
-
-              {/* Body Content */}
-              <Stack gap="lg">
+              <Card.Section withBorder inheritPadding py="xs">
                 <Group justify="space-between">
-                  <Group gap="xs">
-                    <IconCoinEuro color="gold" />
+                  <Text fw={700} size="sm">
+                    {eventDetails?.start_at
+                      ? `${dayjs(eventDetails.start_at).format("dddd, MMM DD · HH:mm")}${
+                          eventDetails.end_at
+                            ? " - " +
+                              dayjs(eventDetails.end_at).format(
+                                "dddd, MMM DD · HH:mm",
+                              )
+                            : ""
+                        }`
+                      : "No specified date"}
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    UTC {dayjs(eventDetails?.start_at).format("Z")}
+                  </Text>
+                </Group>
+              </Card.Section>
+
+              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg" mt="md">
+                <CardStatsItem
+                  icon={<IconCoinEuro size={18} />}
+                  label="Price"
+                  color="yellow"
+                  value={
                     <Text
-                      c={!eventDetails?.price ? "green" : ""}
-                      fw={!eventDetails?.price ? 700 : 500}
+                      span
+                      c={!eventDetails?.price ? "green" : "inherit"}
+                      fw={!eventDetails?.price ? 700 : 600}
                     >
-                      {eventDetails?.price
-                        ? eventDetails?.price + " €"
-                        : "Free"}
+                      {eventDetails?.price ? `${eventDetails.price} €` : "Free"}
                     </Text>
-                  </Group>
-                </Group>
+                  }
+                />
 
-                <Group justify="space-between">
-                  <Group gap="xs">
-                    <IconUsers color="#315ff5" />
-                    <Text>
-                      {eventDetails?.capacity
-                        ? eventDetails?.capacity + " people max"
-                        : "No max capacity specified"}
-                    </Text>
-                  </Group>
-                </Group>
+                <CardStatsItem
+                  icon={<IconUsers size={18} />}
+                  label="Capacity"
+                  color="blue"
+                  value={
+                    eventDetails?.capacity
+                      ? `${eventDetails.capacity} people max`
+                      : "Unlimited"
+                  }
+                />
 
-                <Group justify="space-between">
-                  <Group gap="xs">
-                    <IconMapPin color="green" />
-                    <Text>
-                      {eventDetails?.street + " · " + eventDetails?.city}
-                    </Text>
-                  </Group>
-                </Group>
-                <Group justify="space-between" grow>
-                  <Button variant="edit" onClick={handleOpenEdit}>
+                <CardStatsItem
+                  icon={<IconMapPin size={18} />}
+                  label="Location"
+                  color="green"
+                  value={`${eventDetails?.street}, ${eventDetails?.city}`}
+                />
+              </SimpleGrid>
+
+              {/* Footer Actions */}
+              <Stack mt="xl">
+                <Group grow>
+                  <Button variant="edit" onClick={handleOpenEdit} fullWidth>
                     Edit event
                   </Button>
                   <Button
+                    fullWidth
                     variant={
-                      eventDetails?.status === "cancelled" ||
-                      eventDetails?.status === "pending" ||
-                      eventDetails?.status === "refused"
+                      ["cancelled", "pending", "refused"].includes(
+                        eventDetails?.status ?? "",
+                      )
                         ? "primary"
                         : "delete"
                     }
@@ -611,178 +594,191 @@ export default function AdminEventDetails() {
                   >
                     {eventDetails?.status === "cancelled"
                       ? "Reopen event"
-                      : eventDetails?.status === "pending" ||
-                          eventDetails?.status === "refused"
+                      : ["pending", "refused"].includes(
+                            eventDetails?.status ?? "",
+                          )
                         ? "Approve event"
                         : "Cancel event"}
                   </Button>
                 </Group>
-                <Modal
-                  title="Edit event"
-                  opened={openedEdit}
-                  onClose={handleCloseEdit}
-                  centered
-                  size="xl"
-                >
-                  <Stack>
-                    <TextInput
-                      data-autofocus
-                      withAsterisk
-                      label="Tile"
-                      value={titleEdit}
-                      onChange={(e) => {
-                        setTitleEdit(e.target.value);
-                      }}
-                      onBlur={() => validateTitle()}
-                      error={errorTitle}
-                      disabled={updateEvent.isPending}
-                      required
-                    />
-                    <NumberInput
-                      withAsterisk
-                      label="Capacity"
-                      min={0}
-                      value={capacityEdit || undefined}
-                      onChange={(value) => {
-                        setCapacityEdit(Number(value));
-                      }}
-                      onBlur={() => validateCapacity()}
-                      error={errorCapacity}
-                      disabled={updateEvent.isPending}
-                      required
-                    />
-                    <NumberInput
-                      withAsterisk
-                      label="Price"
-                      min={0}
-                      value={priceEdit}
-                      onChange={(value) => {
-                        setPriceEdit(Number(value));
-                      }}
-                      onBlur={() => validatePrice()}
-                      error={errorPrice}
-                      disabled={updateEvent.isPending}
-                      required
-                    />
-                    <Grid>
-                      <Grid.Col span={{ base: 12, md: 9 }}>
-                        <TextInput
-                          withAsterisk
-                          label="Street"
-                          value={streetEdit}
-                          onChange={(e) => {
-                            setStreetEdit(e.target.value);
-                          }}
-                          onBlur={() => validateStreet()}
-                          error={errorStreet}
-                          disabled={updateEvent.isPending}
-                          required
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={{ base: 12, md: 3 }}>
-                        <TextInput
-                          withAsterisk
-                          label="City"
-                          value={cityEdit}
-                          onChange={(e) => {
-                            setCityEdit(e.target.value);
-                          }}
-                          onBlur={() => validateCity()}
-                          error={errorCity}
-                          disabled={updateEvent.isPending}
-                          required
-                        />
-                      </Grid.Col>
-                    </Grid>
-                    <TextInput
-                      label="Additional location details"
-                      value={locationDetailEdit}
-                      onChange={(e) => {
-                        setLocationDetailEdit(e.target.value);
-                      }}
-                      disabled={updateEvent.isPending}
-                    />
-                    <Grid>
-                      <Grid.Col span={{ base: 12, md: 6 }}>
-                        <DateTimePicker
-                          withAsterisk
-                          clearable
-                          label="Start date"
-                          value={dateEdit ? new Date(dateEdit) : null}
-                          onChange={(val) => {
-                            setDateEdit(val ? dayjs(val).toISOString() : "");
-                            validateStartDate(dateEdit);
-                          }}
-                          onBlur={() => validateStartDate(dateEdit)}
-                          error={errorDate}
-                          required
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={{ base: 12, md: 6 }}>
-                        <DateTimePicker
-                          clearable
-                          withAsterisk
-                          label="End date"
-                          value={endDateEdit ? new Date(endDateEdit) : null}
-                          onChange={(val) => {
-                            setEndDateEdit(val ? dayjs(val).toISOString() : "");
-                            validateEndDate(endDateEdit);
-                          }}
-                          onBlur={() => validateEndDate(endDateEdit)}
-                          error={errorEndDate}
-                          required
-                        />
-                      </Grid.Col>
-                    </Grid>
-                    <Select
-                      withAsterisk
-                      clearable
-                      label="Category"
-                      value={categoryEdit}
-                      error={errorCategory}
-                      onBlur={() => validateCategory()}
-                      data={[
-                        { value: "workshop", label: "Workshop" },
-                        { value: "conference", label: "Conference" },
-                        { value: "meetups", label: "Meetups" },
-                        { value: "exposition", label: "Exposition" },
-                        { value: "other", label: "Other" },
-                      ]}
-                      onChange={(value) => {
-                        setCategoryEdit(value as string);
-                      }}
-                    />
-                    <TextEditor
-                      label="Event's description"
-                      value={descriptionEdit}
-                      onChange={(value) => {
-                        setDescriptionEdit(value);
-                      }}
-                      error={errorDescription ?? ""}
-                    />
-                    <ImageDropzone
-                      loading={updateEvent.isPending}
-                      files={fileEdit}
-                      setFiles={setFileEdit}
-                    />
-                  </Stack>
-                  <Group mt="lg" justify="center">
-                    <Button onClick={handleCloseEdit} variant="grey">
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={(e: React.FormEvent) => {
-                        handleEdit(e);
-                      }}
-                      variant="primary"
-                      // loading={editMutation.isPending}
-                      // disabled={editMutation.isPending || isAccountDetailsLoading}
-                    >
-                      Confirm
-                    </Button>
-                  </Group>
-                </Modal>
               </Stack>
+
+              {/* Edit Modal Logic remains here */}
+              <Modal
+                opened={openedEdit}
+                onClose={handleCloseEdit}
+                title="Edit event"
+                centered
+                size="xl"
+              >
+                <Stack>
+                  <TextInput
+                    data-autofocus
+                    withAsterisk
+                    placeholder="Give the event a catchy title"
+                    label="Title"
+                    value={titleEdit}
+                    onChange={(e) => {
+                      setTitleEdit(e.target.value);
+                    }}
+                    onBlur={() => validateTitle()}
+                    error={errorTitle}
+                    disabled={updateEvent.isPending}
+                    required
+                  />
+                  <NumberInput
+                    label="Capacity"
+                    placeholder="Maximum number of attendees"
+                    min={0}
+                    disabled={updateEvent.isPending}
+                    value={capacityEdit ?? 0}
+                    suffix=" people"
+                    onChange={(value) => {
+                      setCapacityEdit(Number(value));
+                    }}
+                    onBlur={() => validateCapacity()}
+                    error={errorCapacity}
+                  />
+                  <NumberInput
+                    withAsterisk
+                    label="Price"
+                    placeholder="Entry fee - (0 if free)"
+                    min={0}
+                    prefix="€"
+                    value={priceEdit}
+                    disabled={updateEvent.isPending}
+                    onChange={(value) => {
+                      setPriceEdit(Number(value));
+                    }}
+                    onBlur={() => validatePrice()}
+                    error={errorPrice}
+                    required
+                  />
+                  <Grid>
+                    <Grid.Col span={{ base: 12, md: 9 }}>
+                      <TextInput
+                        withAsterisk
+                        label="Street"
+                        disabled={updateEvent.isPending}
+                        value={streetEdit}
+                        placeholder="21 Erard street"
+                        onChange={(e) => {
+                          setStreetEdit(e.target.value);
+                        }}
+                        onBlur={() => validateStreet()}
+                        error={errorStreet}
+                        required
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 3 }}>
+                      <TextInput
+                        withAsterisk
+                        placeholder="Paris"
+                        label="City"
+                        value={cityEdit}
+                        disabled={updateEvent.isPending}
+                        onChange={(e) => {
+                          setCityEdit(e.target.value);
+                        }}
+                        onBlur={() => validateCity()}
+                        error={errorCity}
+                        required
+                      />
+                    </Grid.Col>
+                  </Grid>
+                  <TextInput
+                    label="Additional location details"
+                    placeholder="Room 12, 2nd floor"
+                    disabled={updateEvent.isPending}
+                    value={locationDetailEdit}
+                    onChange={(e) => {
+                      setLocationDetailEdit(e.target.value);
+                    }}
+                  />
+                  <Grid>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <DateTimePicker
+                        clearable
+                        withAsterisk
+                        label="Start date"
+                        placeholder="When does it start?"
+                        value={dateEdit ? new Date(dateEdit) : null}
+                        disabled={updateEvent.isPending}
+                        onChange={(val) =>
+                          setDateEdit(val ? dayjs(val).toISOString() : "")
+                        }
+                        required
+                        onBlur={() => validateDate()}
+                        error={errorDate}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <DateTimePicker
+                        withAsterisk
+                        clearable
+                        label="End date"
+                        placeholder="When does it end?"
+                        onBlur={() => validateEndDate(endDateEdit)}
+                        error={errorEndDate}
+                        value={endDateEdit ? new Date(endDateEdit) : null}
+                        disabled={updateEvent.isPending}
+                        onChange={(val) =>
+                          setEndDateEdit(val ? dayjs(val).toISOString() : "")
+                        }
+                        required
+                      />
+                    </Grid.Col>
+                  </Grid>
+                  <Select
+                    withAsterisk
+                    clearable
+                    label="Category"
+                    value={categoryEdit}
+                    disabled={updateEvent.isPending}
+                    placeholder="Select a category"
+                    error={errorCategory}
+                    onBlur={() => validateCategory()}
+                    data={[
+                      { value: "workshop", label: "Workshop" },
+                      { value: "conference", label: "Conference" },
+                      { value: "meetups", label: "Meetups" },
+                      { value: "exposition", label: "Exposition" },
+                      { value: "other", label: "Other" },
+                    ]}
+                    onChange={(value) => {
+                      setCategoryEdit(value as string);
+                    }}
+                  />
+                  <TextEditor
+                    label="Event's description"
+                    value={descriptionEdit}
+                    placeholder="Write your event's description here..."
+                    error={errorDescription ?? ""}
+                    onChange={(value) => {
+                      setDescriptionEdit(value);
+                    }}
+                  />
+                  <ImageDropzone
+                    loading={updateEvent.isPending}
+                    files={fileEdit}
+                    setFiles={setFileEdit}
+                  />
+                </Stack>
+                <Group mt="lg" justify="center">
+                  <Button onClick={handleCloseEdit} variant="grey">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      handleEdit(e);
+                    }}
+                    variant="primary"
+                    loading={updateEvent.isPending}
+                  >
+                    Confirm
+                  </Button>
+                </Group>
+              </Modal>
             </Card>
           </Grid.Col>
         </Grid>
@@ -795,12 +791,10 @@ export default function AdminEventDetails() {
           </Title>
           <Tooltip
             label="Event must be approved to assign employees"
-            /* Only enable the tooltip if the button is disabled */
             disabled={eventDetails?.status === "approved"}
             closeDelay={200}
             transitionProps={{ transition: "pop", duration: 300 }}
           >
-            {/* Wrap in a div to capture hover events when the button is disabled */}
             <div style={{ width: "fit-content" }}>
               <Button
                 variant="primary"
@@ -881,6 +875,17 @@ export default function AdminEventDetails() {
           loading={isLoadingAssignedEmployees}
           error={errorAssignedEmployees}
           header={["Assigned on", "ID", "Employee", "Email", "Actions"]}
+          footer={
+            <PaginationFooter
+              activePage={1}
+              setPage={() => {}}
+              total_records={assignedEmployees?.length || 0}
+              last_page={1}
+              limit={assignedEmployees?.length || 0}
+              loading={isLoadingAssignedEmployees}
+              unit="employees"
+            />
+          }
         >
           {(assignedEmployees?.length ?? 0) > 0 ? (
             assignedEmployees?.map((employee) => {

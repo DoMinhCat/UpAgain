@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getAvailableEmployees } from "../api/admin/employeeModule";
+import { getAvailableEmployees } from "../api/employeeModule";
 import { type AvailableEmployeesRequest } from "../api/interfaces/employee";
 
 const STALE_TIME = 60 * 1000;

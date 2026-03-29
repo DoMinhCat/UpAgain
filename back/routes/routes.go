@@ -19,6 +19,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetEmployeeRoutes(mux)
 	GetUserRoutes(mux)
 	GetPostRoutes(mux)
+	GetCommentRoutes(mux)
 
 	// swagger API documentation
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)

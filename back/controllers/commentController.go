@@ -1,0 +1,38 @@
+package controllers
+
+import (
+	"backend/db"
+	"backend/models"
+	"backend/utils"
+	"log/slog"
+	"net/http"
+	"strconv"
+)
+
+func DeleteCommentById(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+
+	id_comment, err := strconv.Atoi(r.PathValue("id_comment"))
+	if err != nil {
+		slog.Error("strconv.Atoi() failed", "controller", "DeleteCommentById", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid comment ID.")
+		return
+	}
+
+	// only admin or emp can delete all comments
+	if role != "admin" && role != "employee" {
+		if r.Context().Value("user").(models.AuthClaims).Id != id_comment {
+			utils.RespondWithError(w, http.StatusUnauthorized, "You can only delete your own comment.")
+			return
+		}
+	}
+
+	err = db.DeleteCommentById(id_comment)
+	if err != nil {
+		slog.Error("db.DeleteCommentById() failed", "controller", "DeleteCommentById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete comment.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, "Comment deleted successfully.")
+}

@@ -10,7 +10,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -163,12 +162,11 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 
 // CreateEvent godoc
 // @Summary      Create new event
-// @Description  Create a new event from the provided payload. Supports both JSON and multipart/form-data for image uploads.
+// @Description  Create a new event from the provided multipart form data.
 // @Tags         event
-// @Accept       json, multipart/form-data
+// @Accept       multipart/form-data
 // @Produce      json
-// @Param        event  body      models.CreateEventRequest  true  "Event details (required if JSON)"
-// @Param        title  formData  string                    false "Event title (required if multipart)"
+// @Param        title  formData  string                    true "Event title"
 // @Param        description formData string              false "Event description"
 // @Param        start_at    formData string              false "Start date (RFC3339 format)"
 // @Param        end_at      formData string              false "End date (RFC3339 format)"
@@ -192,54 +190,44 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var event models.CreateEventRequest
-	// Check if the request is multipart
-	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-		err := r.ParseMultipartForm(32 << 20) // 32MB limit
+	err := r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "CreateEvent", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+		return
+	}
+
+	event.Title = r.FormValue("title")
+	event.Description = r.FormValue("description")
+	event.Category = r.FormValue("category")
+	event.City = r.FormValue("city")
+	event.Street = r.FormValue("street")
+	event.Status = r.FormValue("status")
+
+	if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
+		event.Capacity.SetValid(int64(capacity))
+	}
+	if price, err := strconv.ParseFloat(r.FormValue("price"), 64); err == nil {
+		event.Price.SetValid(price)
+	}
+	if startAt, err := time.Parse(time.RFC3339, r.FormValue("start_at")); err == nil {
+		event.StartAt.SetValid(startAt)
+	}
+	if endAt, err := time.Parse(time.RFC3339, r.FormValue("end_at")); err == nil {
+		event.EndAt.SetValid(endAt)
+	}
+	event.LocationDetail.SetValid(r.FormValue("location_detail"))
+
+	// Handle files
+	files := r.MultipartForm.File["images"]
+	for _, file := range files {
+		path, err := helper.SaveUploadedFile(file, "images/events")
 		if err != nil {
-			slog.Error("r.ParseMultipartForm() failed", "controller", "CreateEvent", "error", err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+			slog.Error("SaveUploadedFile() failed", "controller", "CreateEvent", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
 			return
 		}
-
-		event.Title = r.FormValue("title")
-		event.Description = r.FormValue("description")
-		event.Category = r.FormValue("category")
-		event.City = r.FormValue("city")
-		event.Street = r.FormValue("street")
-		event.Status = r.FormValue("status")
-
-		if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
-			event.Capacity.SetValid(int64(capacity))
-		}
-		if price, err := strconv.ParseFloat(r.FormValue("price"), 64); err == nil {
-			event.Price.SetValid(price)
-		}
-		if startAt, err := time.Parse(time.RFC3339, r.FormValue("start_at")); err == nil {
-			event.StartAt.SetValid(startAt)
-		}
-		if endAt, err := time.Parse(time.RFC3339, r.FormValue("end_at")); err == nil {
-			event.EndAt.SetValid(endAt)
-		}
-		event.LocationDetail.SetValid(r.FormValue("location_detail"))
-
-		// Handle files
-		files := r.MultipartForm.File["images"]
-		for _, file := range files {
-			path, err := helper.SaveUploadedFile(file, "images/events")
-			if err != nil {
-				slog.Error("SaveUploadedFile() failed", "controller", "CreateEvent", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
-				return
-			}
-			event.Images = append(event.Images, path)
-		}
-	} else {
-		err := json.NewDecoder(r.Body).Decode(&event)
-		if err != nil {
-			slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CreateEvent", "error", err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
-			return
-		}
+		event.Images = append(event.Images, path)
 	}
 
 	// validations
@@ -652,13 +640,12 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 // UpdateEventByEventId godoc
 // @Summary      Update event details
-// @Description  Update the details of an existing event by its ID. Supports both JSON and multipart/form-data for image updates.
+// @Description  Update the details of an existing event by its ID using multipart form data.
 // @Tags         event
-// @Accept       json, multipart/form-data
+// @Accept       multipart/form-data
 // @Produce      json
 // @Param        id     path      int  true  "Event ID"
-// @Param        event  body      models.UpdateEventRequest  true  "Event details (required if JSON)"
-// @Param        title  formData  string                    false "Event title (required if multipart)"
+// @Param        title  formData  string                    false "Event title"
 // @Param        description formData string              false "Event description"
 // @Param        start_at    formData string              false "Start date (RFC3339 format)"
 // @Param        end_at      formData string              false "End date (RFC3339 format)"
@@ -669,7 +656,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 // @Param        street      formData string              false "Street"
 // @Param        location_detail formData string           false "Additional location details"
 // @Param        existing_images formData string           false "List of existing image paths to keep (multiple allowed)"
-// @Param        images      formData file                false "New event images to upload (multiple allowed)"
+// @Param        new_images  formData file                false "New event images to upload (multiple allowed)"
 // @Success      204    {object}  nil                         "Event updated successfully"
 // @Failure      400    {object}  nil                         "Invalid payload or ID"
 // @Failure      401    {object}  nil                         "Unauthorized"
@@ -708,55 +695,72 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var payload models.UpdateEventRequest
-	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-		err := r.ParseMultipartForm(32 << 20) // 32MB limit
-		if err != nil {
-			slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateEventByEventId", "error", err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
-			return
-		}
+	err = r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
+		return
+	}
 
-		payload.Title = r.FormValue("title")
-		payload.Description = r.FormValue("description")
-		payload.Category = r.FormValue("category")
-		payload.City = r.FormValue("city")
-		payload.Street = r.FormValue("street")
+	payload.Title = r.FormValue("title")
+	payload.Description = r.FormValue("description")
+	payload.Category = r.FormValue("category")
+	payload.City = r.FormValue("city")
+	payload.Street = r.FormValue("street")
 
-		if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
-			payload.Capacity.SetValid(int64(capacity))
-		}
-		if price, err := strconv.ParseFloat(r.FormValue("price"), 64); err == nil {
-			payload.Price.SetValid(price)
-		}
-		if startAt, err := time.Parse(time.RFC3339, r.FormValue("start_at")); err == nil {
-			payload.StartAt = startAt
-		}
-		if endAt, err := time.Parse(time.RFC3339, r.FormValue("end_at")); err == nil {
-			payload.EndAt = endAt
-		}
-		payload.LocationDetail.SetValid(r.FormValue("location_detail"))
+	if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
+		payload.Capacity.SetValid(int64(capacity))
+	}
+	if price, err := strconv.ParseFloat(r.FormValue("price"), 64); err == nil {
+		payload.Price.SetValid(price)
+	}
+	if startAt, err := time.Parse(time.RFC3339, r.FormValue("start_at")); err == nil {
+		payload.StartAt = startAt
+	}
+	if endAt, err := time.Parse(time.RFC3339, r.FormValue("end_at")); err == nil {
+		payload.EndAt = endAt
+	}
+	payload.LocationDetail.SetValid(r.FormValue("location_detail"))
 
-		// Handle existing images
-		payload.Images = r.MultipartForm.Value["existing_images"]
+	// Handle photo update management
+	keepImages := r.MultipartForm.Value["existing_images"]
+	newImg := r.MultipartForm.File["new_images"]
 
-		// Handle new files
-		files := r.MultipartForm.File["images"]
-		for _, file := range files {
-			path, err := helper.SaveUploadedFile(file, "images/events")
-			if err != nil {
-				slog.Error("SaveUploadedFile() failed", "controller", "UpdateEventByEventId", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
-				return
+	// 1. Handle deletion of removed physical files
+	currentImages, err := db.GetPhotosPathsByObjectId(id_event, "event")
+	if err != nil {
+		slog.Error("db.GetPhotosPathsByObjectId() failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update event.")
+		return
+	}
+
+	for _, dbImg := range currentImages {
+		isKept := false
+		for _, keepPath := range keepImages {
+			if dbImg == keepPath {
+				isKept = true
+				break
 			}
-			payload.Images = append(payload.Images, path)
 		}
-	} else {
-		err = json.NewDecoder(r.Body).Decode(&payload)
+		if !isKept {
+			err = helper.DeleteFileByPath("images/events", dbImg)
+			if err != nil {
+				slog.Error("helper.DeleteFileByPath() failed", "controller", "UpdateEventByEventId", "error", err)
+			}
+			// db.UpdateEventByEventId will handle the database side deletions
+		}
+	}
+
+	// 2. Prepare payload images list (existing + new)
+	payload.Images = keepImages
+	for _, file := range newImg {
+		path, err := helper.SaveUploadedFile(file, "images/events")
 		if err != nil {
-			slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "UpdateEventByEventId", "error", err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+			slog.Error("SaveUploadedFile() failed", "controller", "UpdateEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
 			return
 		}
+		payload.Images = append(payload.Images, path)
 	}
 
 	validation := validation.ValidateEventUpdate(payload)

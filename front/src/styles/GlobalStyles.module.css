@@ -193,10 +193,6 @@
   justify-content: center;
   white-space: nowrap;
 
-  &[data-variant="green"] {
-    background-color: #45a575;
-  }
-
   &[data-variant="red"] {
     background-color: var(--mantine-color-red-6);
   }
@@ -207,12 +203,14 @@
   &[data-variant="blue"] {
     background-color: var(--mantine-color-blue-6);
   }
-
   &[data-variant="yellow"] {
     background-color: var(--mantine-color-yellow-6);
   }
   &[data-variant="green"] {
     background-color: var(--mantine-color-green-6);
+  }
+  &[data-variant="violet"] {
+    background-color: var(--mantine-color-violet-6);
   }
 }
 
