@@ -270,6 +270,10 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if role == "admin" {
+		db.InsertHistory("event", eventId, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, event)
+	}
+
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }
 
@@ -505,6 +509,10 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if role == "admin" {
+		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "assign_employees"}, payload)
+	}
+
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
@@ -567,6 +575,10 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if role == "admin" {
+		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "unassign_employee"}, payload)
+	}
+
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
@@ -616,6 +628,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var payload models.UpdateEventStatusRequest
+	oldStatus, _ := db.GetEventStatusById(id_event)
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CancelEventByEventId", "error", err)
@@ -633,6 +646,10 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event status.")
 		return
+	}
+
+	if role == "admin" {
+		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": payload.Status})
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -689,7 +706,8 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
 		return
 	}
-	if !exist {
+	oldEvent, _ := db.GetEventDetailsById(id_event)
+		if !exist {
 		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
 		return
 	}
@@ -784,6 +802,10 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		slog.Error("UpdateEventByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
 		return
+	}
+
+	if role == "admin" {
+		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, oldEvent, payload)
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
