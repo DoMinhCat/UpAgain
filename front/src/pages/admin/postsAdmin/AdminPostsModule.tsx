@@ -1,22 +1,24 @@
 import {
   Container,
-  SimpleGrid,
   Title,
   Button,
   Modal,
   Group,
   Stack,
+  Pill,
   TextInput,
-  NumberInput,
+  Table,
   Grid,
   Select,
+  Paper,
+  Text,
 } from "@mantine/core";
+import { BarChart } from "@mantine/charts";
 import ImageDropzone from "../../../components/ImageDropzone";
 import {
   IconCalendarEventFilled,
   IconArrowUp,
   IconCalendarTime,
-  IconClockCheck,
   IconPlus,
   IconSearch,
 } from "@tabler/icons-react";
@@ -27,12 +29,19 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { TextEditor } from "../../../components/TextEditor";
-import { useCreatePost, useGetPostsStats } from "../../../hooks/postHooks";
-import { useState } from "react";
 import {
-  showInfoNotification,
-  showSuccessNotification,
-} from "../../../components/NotificationToast";
+  useCreatePost,
+  useDeletePost,
+  useGetAllPosts,
+  useGetPostsStats,
+} from "../../../hooks/postHooks";
+import { useState, useMemo } from "react";
+import { showSuccessNotification } from "../../../components/NotificationToast";
+import AdminTable from "../../../components/admin/AdminTable";
+import PaginationFooter from "../../../components/PaginationFooter";
+import dayjs from "dayjs";
+import { PATHS } from "../../../routes/paths";
+import type { Post } from "../../../api/interfaces/post";
 
 export const AdminPostsModule = () => {
   const navigate = useNavigate();
@@ -43,6 +52,42 @@ export const AdminPostsModule = () => {
     isLoading: isLoadingPostStats,
     isError: isErrorPostStats,
   } = useGetPostsStats();
+
+  const chartData = useMemo(() => {
+    if (!postStats?.category_counts) return [];
+    return [
+      {
+        label: "Tutorial",
+        value: postStats.category_counts["tutorial"] || 0,
+        color: "var(--mantine-color-blue-6)",
+      },
+      {
+        label: "Project",
+        value: postStats.category_counts["project"] || 0,
+        color: "var(--mantine-color-green-6)",
+      },
+      {
+        label: "Tips",
+        value: postStats.category_counts["tips"] || 0,
+        color: "var(--mantine-color-yellow-6)",
+      },
+      {
+        label: "News",
+        value: postStats.category_counts["news"] || 0,
+        color: "var(--mantine-color-red-6)",
+      },
+      {
+        label: "Case Study",
+        value: postStats.category_counts["case_study"] || 0,
+        color: "var(--mantine-color-violet-6)",
+      },
+      {
+        label: "Other",
+        value: postStats.category_counts["other"] || 0,
+        color: "var(--mantine-color-gray-6)",
+      },
+    ];
+  }, [postStats]);
 
   // CREATE MODAL
   const [openedCreate, { open: openCreate, close: closeCreate }] =
@@ -77,7 +122,8 @@ export const AdminPostsModule = () => {
     }
   };
   const validateDescription = () => {
-    if (!description || description.trim() === "") {
+    const stripped = description.replace(/<[^>]*>/g, "").trim();
+    if (!description || stripped === "") {
       setErrorDescription("Post's content is required");
       return false;
     } else {
@@ -98,7 +144,8 @@ export const AdminPostsModule = () => {
   };
 
   const createPostMutation = useCreatePost();
-  const handleCreatePost = () => {
+  const handleCreatePost = (e: React.FormEvent) => {
+    e.preventDefault();
     validateTitle();
     validateCategory();
     validateDescription();
@@ -123,6 +170,80 @@ export const AdminPostsModule = () => {
     });
   };
 
+  // GET ALL POSTS
+  const [filters, setFilters] = useState<{
+    searchValue: string | undefined;
+    sortValue: string | null;
+    categoryValue: string | null;
+  }>({ searchValue: "", sortValue: null, categoryValue: null });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [activePage, setPage] = useState(1);
+  const LIMIT = 10;
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+    appliedFilters.categoryValue ||
+    appliedFilters.sortValue,
+  );
+
+  const {
+    data: posts,
+    error: allPostsError,
+    isLoading: isAllPostsLoading,
+  } = useGetAllPosts(
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.categoryValue || undefined,
+    appliedFilters.sortValue || undefined,
+  );
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: null,
+      categoryValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+  const filteredPosts = posts?.posts || [];
+
+  // DELETE POST
+  const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure();
+  const deletePostMutation = useDeletePost();
+  const [selectedDeletePost, setSelectedDeletePost] = useState<Post | null>(
+    null,
+  );
+
+  const handleModalDelete = (post: Post) => {
+    setSelectedDeletePost(post);
+    openDelete();
+  };
+
+  const handleDeletePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedDeletePost?.id) {
+      deletePostMutation.mutate(selectedDeletePost.id, {
+        onSuccess: () => {
+          closeDelete();
+          showSuccessNotification(
+            "Post deleted",
+            "The post has been deleted successfully",
+          );
+        },
+      });
+    }
+  };
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -130,49 +251,84 @@ export const AdminPostsModule = () => {
       </Title>
 
       {/* stats cards */}
-      <SimpleGrid cols={{ base: 1, sm: 3, lg: 3 }} spacing="lg">
-        <AdminCardInfo
-          icon={IconCalendarEventFilled}
-          title="Total active posts"
-          value={postStats?.total_posts ?? 0}
-          error={isErrorPostStats}
-          loading={isLoadingPostStats}
-          description={
-            <StatsCardDesc
-              stats={postStats?.total_new_posts_since ?? 0}
-              icon={IconArrowUp}
-              description={" posts since last month"}
+      <Grid mb="xl" align="stretch">
+        <Grid.Col span={{ base: 12, md: 4 }}>
+          <Stack gap="md" h="100%">
+            <AdminCardInfo
+              icon={IconCalendarEventFilled}
+              title="Total active posts"
+              value={postStats?.total_posts ?? 0}
+              error={isErrorPostStats}
+              loading={isLoadingPostStats}
+              description={
+                <StatsCardDesc
+                  stats={postStats?.total_new_posts_since ?? 0}
+                  icon={IconArrowUp}
+                  description={" posts since last month"}
+                />
+              }
             />
-          }
-        />
-        <AdminCardInfo
-          icon={IconCalendarTime}
-          title="Engagement rate"
-          value={postStats?.engagement_rate ?? 0 + "%"}
-          error={isErrorPostStats}
-          loading={isLoadingPostStats}
-          description={
-            <StatsCardDesc
-              stats={postStats?.total_new_posts_since ?? 0}
-              icon={IconArrowUp}
-              description={" interactions per post"}
+            <AdminCardInfo
+              icon={IconCalendarTime}
+              title="Engagement rate"
+              value={(postStats?.engagement_rate ?? 0) + "%"}
+              error={isErrorPostStats}
+              loading={isLoadingPostStats}
+              description={
+                <StatsCardDesc
+                  stats={postStats?.interaction_per_post ?? 0}
+                  icon={IconArrowUp}
+                  description={" interactions per post"}
+                />
+              }
             />
-          }
-        />
-        <AdminCardInfo
-          icon={IconClockCheck}
-          title="Pending approval"
-          value={postStats?.pending ?? 0}
-          error={isErrorPostStats}
-          loading={isLoadingPostStats}
-          description={
-            <StatsCardDesc
-              stats={postStats?.pending ?? 0}
-              description={" posts require validation"}
+          </Stack>
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 12, md: 8 }}>
+          <Paper px="md" radius="lg" shadow="sm" h="100%">
+            <Title order={4} mb="lg" pt="md">
+              Posts Distribution by Category
+            </Title>
+            <BarChart
+              h={300}
+              data={chartData}
+              dataKey="label"
+              series={[{ name: "value", color: "blue.6" }]}
+              gridAxis="xy"
+              barProps={{ radius: [8, 8, 0, 0] }}
+              getBarColor={(value) => {
+                const item = chartData.find((d) => d.value === value);
+                return item ? item.color : "blue";
+              }}
+              tooltipProps={{
+                cursor: { fill: "rgba(255, 255, 255, 0.05)" },
+                content: ({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <Paper withBorder p="xs" radius="md" shadow="md">
+                        <Text
+                          size="xs"
+                          fw={700}
+                          tt="uppercase"
+                          style={{ color: data.color }}
+                        >
+                          {data.label}
+                        </Text>
+                        <Text fw={700} size="sm">
+                          {data.value} Posts
+                        </Text>
+                      </Paper>
+                    );
+                  }
+                  return null;
+                },
+              }}
             />
-          }
-        />
-      </SimpleGrid>
+          </Paper>
+        </Grid.Col>
+      </Grid>
 
       <Stack gap="md" my="xl">
         <Group justify="space-between" align="flex-end">
@@ -255,7 +411,7 @@ export const AdminPostsModule = () => {
                 <Button variant="grey">Cancel</Button>
                 <Button
                   onClick={(e) => {
-                    handleCreatePost();
+                    handleCreatePost(e);
                   }}
                   loading={createPostMutation.isPending}
                   variant="primary"
@@ -274,11 +430,16 @@ export const AdminPostsModule = () => {
               variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
               rightSection={<IconSearch size={14} />}
-              // disabled={createEventMutation.isPending}
-              // value={filters.searchValue}
-              // onChange={(e) =>
-              //   handleFilterChange("searchValue", e.target.value)
-              // }
+              disabled={isAllPostsLoading}
+              value={filters.searchValue}
+              onChange={(e) =>
+                handleFilterChange("searchValue", e.target.value)
+              }
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleSearchClick();
+                }
+              }}
             />
           </Grid.Col>
 
@@ -293,49 +454,182 @@ export const AdminPostsModule = () => {
                 },
                 { value: "oldest_creation", label: "Oldest creation" },
                 {
-                  value: "highest_price",
-                  label: "Highest price",
+                  value: "highest_like",
+                  label: "Highest like",
                 },
                 {
-                  value: "lowest_price",
-                  label: "Lowest price",
+                  value: "lowest_like",
+                  label: "Lowest like",
                 },
                 {
-                  value: "earliest_start_date",
-                  label: "Earliest start date",
+                  value: "highest_view",
+                  label: "Highest view",
                 },
                 {
-                  value: "latest_start_date",
-                  label: "Latest start date",
+                  value: "lowest_view",
+                  label: "Lowest view",
                 },
               ]}
-              // value={filters.sortValue}
+              value={filters.sortValue}
               clearable
-              // disabled={createEventMutation.isPending}
-              // onChange={(val) => handleFilterChange("sortValue", val)}
+              disabled={isAllPostsLoading}
+              onChange={(val) => handleFilterChange("sortValue", val)}
             />
           </Grid.Col>
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Status"
-              placeholder="All status"
+              label="Category"
+              placeholder="All category"
               data={[
-                { value: "active", label: "Active" },
-                { value: "banned", label: "Banned" },
+                { value: "tutorial", label: "Tutorial" },
+                { value: "project", label: "Project" },
+                { value: "tips", label: "Tips" },
+                { value: "news", label: "News" },
+                { value: "case_study", label: "Case study" },
+                { value: "other", label: "Other" },
               ]}
+              value={filters.categoryValue}
+              disabled={isAllPostsLoading}
+              onChange={(val) => handleFilterChange("categoryValue", val)}
               clearable
             />
           </Grid.Col>
 
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
-              <Button variant="primary">Apply filters</Button>
-              <Button variant="secondary">Reset</Button>
+              <Button variant="primary" onClick={handleSearchClick}>
+                Apply filters
+              </Button>
+              <Button variant="secondary" onClick={handleResetFilters}>
+                Reset
+              </Button>
             </Group>
           </Grid.Col>
         </Grid>
       </Stack>
+
+      <AdminTable
+        loading={isAllPostsLoading}
+        error={allPostsError}
+        header={[
+          "Created on",
+          "ID",
+          "Title",
+          "Creator",
+          "Category",
+          "Views",
+          "Likes",
+          "Actions",
+        ]}
+        footer={
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={posts?.total_records || 0}
+            last_page={posts?.last_page || 1}
+            limit={LIMIT}
+            loading={isAllPostsLoading}
+            hidden={hasFilters}
+          />
+        }
+      >
+        {/* mapping here */}
+        {filteredPosts.length > 0 ? (
+          filteredPosts.map((post) => (
+            <Table.Tr
+              key={post.id}
+              style={{ cursor: "pointer" }}
+              onClick={() =>
+                navigate(PATHS.ADMIN.POSTS + "/" + post.id, {
+                  state: { from: "allPosts" },
+                })
+              }
+            >
+              <Table.Td ta="center">
+                {dayjs(post.created_at).format("DD/MM/YYYY")}
+              </Table.Td>
+              <Table.Td ta="center">{post.id}</Table.Td>
+              <Table.Td ta="center">{post.title}</Table.Td>
+              <Table.Td ta="center">{post.creator}</Table.Td>
+              <Table.Td ta="center">
+                <Pill
+                  variant={
+                    post.category === "other"
+                      ? "gray"
+                      : post.category === "tutorial"
+                        ? "blue"
+                        : post.category === "project"
+                          ? "green"
+                          : post.category === "tips"
+                            ? "yellow"
+                            : post.category === "case_study"
+                              ? "violet"
+                              : "red"
+                  }
+                >
+                  {post.category.charAt(0).toUpperCase() +
+                    post.category.slice(1)}
+                </Pill>
+              </Table.Td>
+              <Table.Td ta="center">{post.view_count}</Table.Td>
+              <Table.Td ta="center">{post.like_count}</Table.Td>
+              <Table.Td ta="center">
+                <Group gap="xs" justify="center">
+                  <Button
+                    size="xs"
+                    variant="edit"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      navigate(PATHS.ADMIN.POSTS + "/" + post.id);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="delete"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      handleModalDelete(post);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </Group>
+              </Table.Td>
+            </Table.Tr>
+          ))
+        ) : (
+          <Table.Tr>
+            <Table.Td colSpan={8} ta="center">
+              No posts found
+            </Table.Td>
+          </Table.Tr>
+        )}
+      </AdminTable>
+      <Modal
+        title="Delete this post?"
+        opened={openedDelete}
+        onClose={closeDelete}
+      >
+        Are you sure you want to delete this post? This post will be soft
+        deleted.
+        <Group mt="lg" justify="flex-end">
+          <Button onClick={closeDelete} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={(e) => {
+              handleDeletePost(e);
+            }}
+            variant="delete"
+            loading={deletePostMutation.isPending}
+          >
+            Delete
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 };

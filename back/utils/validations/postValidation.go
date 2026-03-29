@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ValidatePostCreation(newPost models.CreatePostRequest) models.ValidationResponse {
+func ValidatePostCreationOrUpdate(newPost models.CreatePostRequest) models.ValidationResponse {
 	var response models.ValidationResponse
 
 	if strings.TrimSpace(newPost.Title) == "" {

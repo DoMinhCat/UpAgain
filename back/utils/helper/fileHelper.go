@@ -41,3 +41,20 @@ func SaveUploadedFile(file *multipart.FileHeader, destDir string) (string, error
 
 	return filepath.ToSlash(destPath), nil
 }
+
+func DeleteFileByPath(baseDir string, path string) error {
+	safeName := filepath.Base(path)
+	fullPath := filepath.Join(baseDir, safeName)
+
+	_, err := os.Stat(fullPath)
+	if os.IsNotExist(err) {
+		return nil
+	}
+
+	err = os.Remove(fullPath)
+	if err != nil {
+		return fmt.Errorf("could not delete file at %s: %v", fullPath, err)
+	}
+
+	return nil
+}

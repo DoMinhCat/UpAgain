@@ -11,7 +11,6 @@ import {
   Group,
   Modal,
   PasswordInput,
-  Pagination,
 } from "@mantine/core";
 import AdminTable from "../../../components/admin/AdminTable";
 import {
@@ -35,6 +34,7 @@ import { useDisclosure } from "@mantine/hooks";
 
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
+import PaginationFooter from "../../../components/PaginationFooter";
 
 const requirements = [
   { re: /[0-9]/, label: "Includes number" },
@@ -438,29 +438,30 @@ export default function AdminUsersModule() {
               : "N/A"}
           </Table.Td>
           <Table.Td ta="center">
-            <Button
-              variant="edit"
-              me="sm"
-              size="xs"
-              disabled={account.role === "admin" && account.id !== user?.id}
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                handleModalEdit(account);
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              disabled={account.role === "admin" && account.id !== user?.id}
-              variant="delete"
-              size="xs"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                handleModalDelete(account);
-              }}
-            >
-              Delete
-            </Button>
+            <Group gap="xs" justify="center">
+              <Button
+                variant="edit"
+                size="xs"
+                disabled={account.role === "admin" && account.id !== user?.id}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleModalEdit(account);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                disabled={account.role === "admin" && account.id !== user?.id}
+                variant="delete"
+                size="xs"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleModalDelete(account);
+                }}
+              >
+                Delete
+              </Button>
+            </Group>
           </Table.Td>
         </Table.Tr>
       ))
@@ -515,6 +516,11 @@ export default function AdminUsersModule() {
               onChange={(e) =>
                 handleFilterChange("searchValue", e.target.value)
               }
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleSearchClick();
+                }
+              }}
             />
           </Grid.Col>
 
@@ -599,26 +605,15 @@ export default function AdminUsersModule() {
           "Actions",
         ]}
         footer={
-          !hasFilters &&
-          accountsWithPagination &&
-          accountsWithPagination.total_records > 0 && (
-            <Group justify="space-between" mt="md">
-              <span style={{ fontSize: "14px", color: "gray" }}>
-                Showing {(activePage - 1) * LIMIT + 1}-
-                {Math.min(
-                  activePage * LIMIT,
-                  accountsWithPagination.total_records,
-                )}{" "}
-                of {accountsWithPagination.total_records} results
-              </span>
-              <Pagination
-                total={accountsWithPagination.last_page || 1}
-                value={activePage}
-                onChange={setPage}
-                disabled={isAccountsLoading}
-              />
-            </Group>
-          )
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={accountsWithPagination?.total_records || 0}
+            last_page={accountsWithPagination?.last_page || 1}
+            limit={LIMIT}
+            loading={isAccountsLoading}
+            hidden={hasFilters}
+          />
         }
       >
         {listUsers}

@@ -6,7 +6,7 @@ import {
   deleteContainer,
   getContainerDetails,
   getContainerCountStats,
-} from "../api/admin/containerModule";
+} from "../api/containerModule";
 import {
   type ContainerCountStats,
   type Container,

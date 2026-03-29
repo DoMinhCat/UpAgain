@@ -1,11 +1,23 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { QueryClient } from "@tanstack/react-query";
-import { CreatePost, GetPostsStats } from "../api/admin/postModule";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  CreatePost,
+  DeleteComment,
+  DeletePost,
+  GetAllPosts,
+  GetPostComments,
+  GetPostDetails,
+  GetPostsStats,
+  UpdatePost,
+} from "../api/postModule";
+import type { PostsListPagination } from "../api/interfaces/post";
+
+const STALE_TIME = 60 * 1000;
 
 export const useGetPostsStats = () => {
   return useQuery({
     queryKey: ["postStats"],
     queryFn: GetPostsStats,
+    staleTime: STALE_TIME,
     meta: {
       errorTitle: "Error fetching post stats",
       errorMessage: "Failed to fetch post stats",
@@ -14,7 +26,7 @@ export const useGetPostsStats = () => {
 };
 
 export const useCreatePost = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: CreatePost,
     meta: {
@@ -23,7 +35,102 @@ export const useCreatePost = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
-      // TODO: anything else to invalidate? all posts?
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+};
+
+export const useGetAllPosts = (
+  page?: number,
+  limit?: number,
+  search?: string,
+  category?: string,
+  sort?: string,
+) => {
+  return useQuery<PostsListPagination>({
+    queryKey: ["posts", page, limit, search, category, sort],
+    queryFn: () => GetAllPosts(page, limit, search, category, sort),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch posts.",
+    },
+  });
+};
+
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_post: number) => DeletePost(id_post),
+    meta: {
+      errorTitle: "Error deleting post",
+      errorMessage: "Failed to delete post",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postStats"] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+};
+
+export const useGetPostDetails = (id_post: number, isValidId: boolean) => {
+  return useQuery({
+    queryKey: ["postDetails", id_post],
+    queryFn: () => GetPostDetails(id_post),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Error fetching post details",
+      errorMessage: "Failed to fetch post details",
+    },
+  });
+};
+
+export const useUpdatePost = (id_post: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: FormData) => UpdatePost(id_post, payload),
+    meta: {
+      errorTitle: "Error updating post",
+      errorMessage: "Failed to update post",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postStats"] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
+    },
+  });
+};
+
+export const useGetPostComments = (
+  id_post: number,
+  isValidId: boolean,
+  page?: number,
+  limit?: number,
+) => {
+  return useQuery({
+    queryKey: ["postComments", id_post, page, limit],
+    queryFn: () => GetPostComments(id_post, page, limit),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Error fetching post comments",
+      errorMessage: "Failed to fetch post comments",
+    },
+  });
+};
+
+export const useDeleteComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_comment: number) => DeleteComment(id_comment),
+    meta: {
+      errorTitle: "Error deleting comment",
+      errorMessage: "Failed to delete comment",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postComments"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails"] });
     },
   });
 };

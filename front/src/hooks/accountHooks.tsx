@@ -12,7 +12,7 @@ import {
   getAccountStats,
   updateAccount,
   getAccountCountStats,
-} from "../api/admin/accountModule";
+} from "../api/accountModule";
 import {
   type Account,
   type updateIsBannedPayload,

@@ -6,7 +6,7 @@ import {
   fetchValidationStats,
   fetchAllItemsHistory,
   processValidationAction,
-} from "../api/admin/validationModule";
+} from "../api/validationModule";
 import {
   type ValidationFilters,
   type ValidationStats,

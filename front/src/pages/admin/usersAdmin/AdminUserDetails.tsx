@@ -340,7 +340,18 @@ export default function AdminUserDetails() {
                       href: PATHS.ADMIN.EVENTS.ALL + "/" + origin?.id_event,
                     },
                   ]
-                : []),
+                : origin?.from === "postDetails"
+                  ? [
+                      {
+                        title: "Post Management",
+                        href: PATHS.ADMIN.POSTS,
+                      },
+                      {
+                        title: "Post's Details",
+                        href: PATHS.ADMIN.POSTS + "/" + origin?.id_post,
+                      },
+                    ]
+                  : []),
           { title: "User's Details", href: "#" },
         ]}
       />
