@@ -47,18 +47,18 @@ import { useGetTotalScore } from "../../hooks/userHooks";
 export default function AdminHome() {
   // TODO: replace with real admin history data
   const demoAdminActivities = {
-    header: ["Timestamp", "Admin", "Module", "Item's ID", "Action", "Action"],
+    header: ["Timestamp", "Admin", "Module", "Item's ID", "Action"],
     body: [
-      [6, 12.011, "C", "Carbon", "Update", "None"],
-      [7, 14.007, "N", "Nitrogen", "Update", "None"],
-      [39, 88.906, "Y", "Yttrium", "Update", "None"],
-      [56, 137.33, "Ba", "Barium", "Update", "None"],
-      [58, 140.12, "Ce", "Cerium", "Update", "None"],
-      [6, 12.011, "C", "Carbon", "Update", "None"],
-      [7, 14.007, "N", "Nitrogen", "Update", "None"],
-      [39, 88.906, "Y", "Yttrium", "Update", "None"],
-      [56, 137.33, "Ba", "Barium", "Update", "None"],
-      [58, 140.12, "Ce", "Cerium", "Update", "None"],
+      [6, 12.011, "C", "Carbon", "Update"],
+      [7, 14.007, "N", "Nitrogen", "Update"],
+      [39, 88.906, "Y", "Yttrium", "Update"],
+      [56, 137.33, "Ba", "Barium", "Update"],
+      [58, 140.12, "Ce", "Cerium", "Update"],
+      [6, 12.011, "C", "Carbon", "Update"],
+      [7, 14.007, "N", "Nitrogen", "Update"],
+      [39, 88.906, "Y", "Yttrium", "Update"],
+      [56, 137.33, "Ba", "Barium", "Update"],
+      [58, 140.12, "Ce", "Cerium", "Update"],
     ],
   };
 
