@@ -59,7 +59,7 @@ func GetTotalCommentsByPostId(id int) (int, error) {
 }
 
 func DeleteCommentById(id int) error {
-	query := `update comments c set c.is_deleted = true where c.id = $1;`
+	query := `update comments set is_deleted = true where id = $1;`
 	_, err := utils.Conn.Exec(query, id)
 	if err != nil {
 		return err

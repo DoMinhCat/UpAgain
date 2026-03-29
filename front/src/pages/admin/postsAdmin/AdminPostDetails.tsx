@@ -38,6 +38,7 @@ import {
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
 import {
+  useDeleteComment,
   useDeletePost,
   useGetPostComments,
   useGetPostDetails,
@@ -180,7 +181,7 @@ export const AdminPostDetails = () => {
     }
   };
 
-  // DELETE
+  // DELETE POST
   const deletePostMutate = useDeletePost();
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure(false);
@@ -196,6 +197,34 @@ export const AdminPostDetails = () => {
           );
           closeDelete();
           navigate("/admin/posts");
+        },
+      });
+    }
+  };
+
+  // DELETE COMMENT
+  const [idCommentToDelete, setIdCommentToDelete] = useState<number | null>(
+    null,
+  );
+  const [
+    openedDeleteComment,
+    { open: openDeleteComment, close: closeDeleteComment },
+  ] = useDisclosure(false);
+  const handleOpenDeleteComment = (id_comment: number) => {
+    setIdCommentToDelete(id_comment);
+    openDeleteComment();
+  };
+  const deleteComment = useDeleteComment();
+  const handleDeleteComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (idCommentToDelete) {
+      deleteComment.mutate(idCommentToDelete, {
+        onSuccess: () => {
+          showSuccessNotification(
+            "Comment deleted",
+            "The comment has been deleted successfully.",
+          );
+          closeDeleteComment();
         },
       });
     }
@@ -374,7 +403,9 @@ export const AdminPostDetails = () => {
                             <ActionIcon
                               variant="subtle"
                               color="red"
-                              // onClick={onDelete}
+                              onClick={() =>
+                                handleOpenDeleteComment(comment.id)
+                              }
                               size="lg"
                             >
                               <IconTrash size={20} stroke={1.5} />
@@ -572,6 +603,32 @@ export const AdminPostDetails = () => {
                     }}
                     variant="delete"
                     loading={deletePostMutate.isPending || isLoadingPostDetails}
+                  >
+                    Confirm
+                  </Button>
+                </Group>
+              </Modal>
+
+              <Modal
+                title="Delete comment"
+                opened={openedDeleteComment}
+                onClose={closeDeleteComment}
+                centered
+                size="md"
+              >
+                <Stack>
+                  <Text>Are you sure you want to delete this comment?</Text>
+                </Stack>
+                <Group mt="lg" justify="center">
+                  <Button onClick={closeDeleteComment} variant="grey">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={(e: React.FormEvent) => {
+                      handleDeleteComment(e);
+                    }}
+                    variant="delete"
+                    loading={deleteComment.isPending}
                   >
                     Confirm
                   </Button>

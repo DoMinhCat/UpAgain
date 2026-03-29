@@ -58,3 +58,10 @@ export const GetPostComments = async (
   });
   return response.data;
 };
+
+export const DeleteComment = async (id_comment: number) => {
+  const response = await api.delete(
+    ENDPOINTS.ADMIN.POSTS.DELETE_COMMENT(id_comment),
+  );
+  return response.data;
+};
