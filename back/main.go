@@ -47,3 +47,4 @@ func main() {
 		slog.Error("server failed to start", "error", err)
 	}
 }
+// useless comments to test CI workflow
