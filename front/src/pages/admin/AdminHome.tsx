@@ -8,9 +8,13 @@ import {
   Flex,
   Button,
   Progress,
+  Grid,
+  TextInput,
+  Select,
   Text,
   Box,
   Loader,
+  Group,
 } from "@mantine/core";
 import {
   IconArrowUp,
@@ -24,6 +28,7 @@ import {
   IconArticle,
   IconBuildingStore,
   IconLeaf,
+  IconSearch,
 } from "@tabler/icons-react";
 import {
   AdminCardInfo,
@@ -42,7 +47,7 @@ import { useGetTotalScore } from "../../hooks/userHooks";
 export default function AdminHome() {
   // TODO: replace with real admin history data
   const demoAdminActivities = {
-    header: ["Timestamp", "Admin", "Module", "Item's ID", "Action", "Detail"],
+    header: ["Timestamp", "Admin", "Module", "Item's ID", "Action", "Action"],
     body: [
       [6, 12.011, "C", "Carbon", "Update", "None"],
       [7, 14.007, "N", "Nitrogen", "Update", "None"],
@@ -247,10 +252,96 @@ export default function AdminHome() {
 
       <Divider my="xl" size="xs" color="gray.3" />
 
-      <Title order={1} mb="xl">
-        Admin Activities
+      <Title order={2} mb="xl">
+        Admin History
       </Title>
 
+      <Grid align="flex-end" mb="md">
+        <Grid.Col span={{ base: 12, md: 3 }}>
+          <TextInput
+            label="Search"
+            variant="filled"
+            placeholder="Search by admin's name or item's ID..."
+            // disabled={isLoadingEvents}
+            rightSection={<IconSearch size={14} />}
+            // value={filters.searchValue}
+            // onChange={(e) =>
+            //   handleFilterChange("searchValue", e.target.value)
+            // }
+            // onKeyDown={(event) => {
+            //   if (event.key === "Enter") {
+            //     handleSearchClick();
+            //   }
+            // }}
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+          <Select
+            label="Sort by"
+            placeholder="Pick one sort method"
+            data={[
+              {
+                value: "most_recent_activity",
+                label: "Most recent activity",
+              },
+              { value: "oldest_activity", label: "Oldest activity" },
+            ]}
+            // value={filters.sortValue}
+            clearable
+            // disabled={isLoadingEvents}
+            // onChange={(val) => handleFilterChange("sortValue", val)}
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+          <Select
+            label="Module"
+            placeholder="All modules"
+            data={[
+              { value: "employee", label: "Employee" },
+              { value: "user", label: "User" },
+              { value: "pro", label: "Pro" },
+              { value: "event", label: "Event" },
+              { value: "container", label: "Container" },
+              { value: "post", label: "Post" },
+              { value: "comment", label: "Comment" },
+              { value: "listing", label: "Listing" },
+              { value: "deposit", label: "Deposit" },
+              { value: "subscription", label: "Subscription" },
+              { value: "finance_setting", label: "Finance Setting" },
+              { value: "posts", label: "Posts" },
+              { value: "finance", label: "Finance" },
+            ]}
+            // value={filters.statusValue}
+            // disabled={isLoadingEvents}
+            // onChange={(val) => handleFilterChange("statusValue", val)}
+            clearable
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+          <Select
+            label="Action"
+            placeholder="All actions"
+            data={[
+              { value: "create", label: "Create" },
+              { value: "update", label: "Update" },
+              { value: "delete", label: "Delete" },
+            ]}
+            // value={filters.statusValue}
+            // disabled={isLoadingEvents}
+            // onChange={(val) => handleFilterChange("statusValue", val)}
+            clearable
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 6, sm: 12, md: 3 }}>
+          <Group gap="xs" grow>
+            <Button variant="primary">Apply filters</Button>
+            <Button variant="secondary">Reset</Button>
+          </Group>
+        </Grid.Col>
+      </Grid>
       <Paper
         withBorder
         p="md"
@@ -258,11 +349,6 @@ export default function AdminHome() {
         shadow="md"
         className={classes.customBorder}
       >
-        <Flex justify="flex-end" align="center" gap="md" mb="md">
-          <Button>Sort</Button>
-          <Button>Filter</Button>
-        </Flex>
-        {/* TODO: sort and filter button */}
         <AdminTable
           header={demoAdminActivities.header}
           footer={
@@ -275,7 +361,6 @@ export default function AdminHome() {
               unit="records"
             />
           }
-
         >
           {demoAdminActivities.body.map((row, rowIndex) => (
             <Table.Tr key={rowIndex}>
