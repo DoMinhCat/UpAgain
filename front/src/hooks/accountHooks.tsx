@@ -1,6 +1,11 @@
 // all hooks for account management
 
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useQuery,
+  queryOptions,
+} from "@tanstack/react-query";
 import {
   recoverAccount,
   getAccountDetails,
@@ -36,6 +41,7 @@ export const useRecoverAccount = () => {
       if (response?.status === 204) {
         queryClient.invalidateQueries({ queryKey: ["deletedAccounts"] });
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
+        queryClient.invalidateQueries({ queryKey: ["histories"] });
         queryClient.invalidateQueries({
           queryKey: ["accountDetails", accountId],
         });
@@ -59,6 +65,7 @@ export const useDeleteAccount = () => {
     onSuccess: (response) => {
       if (response?.status === 204) {
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
+        queryClient.invalidateQueries({ queryKey: ["histories"] });
         queryClient.invalidateQueries({ queryKey: ["deletedAccounts"] });
         showSuccessNotification(
           "Account deleted",
@@ -115,19 +122,19 @@ export const useGetAllAccounts = (
 };
 
 export const useUpdatePassword = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: updatePasswordPayload) => updatePassword(payload),
     meta: {
       errorTitle: "Password update failed",
       errorMessage: "Could not update the password",
     },
-    onSuccess: (response) => {
-      if (response?.status === 204) {
-        showSuccessNotification(
-          "Password updated",
-          "Password changed successfully.",
-        );
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Password updated",
+        "Password changed successfully.",
+      );
     },
   });
 };
@@ -151,6 +158,7 @@ export const useToggleBanAccount = () => {
         queryClient.invalidateQueries({
           queryKey: ["accountDetails", variables.id],
         });
+        queryClient.invalidateQueries({ queryKey: ["histories"] });
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       }
     },
@@ -171,6 +179,7 @@ export const useCreateAccount = () => {
           "Account creation success",
           "Account created successfully.",
         );
+        queryClient.invalidateQueries({ queryKey: ["histories"] });
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       }
     },
@@ -207,6 +216,7 @@ export const useUpdateAccount = () => {
         queryClient.invalidateQueries({
           queryKey: ["accountDetails", variables.id_account],
         });
+        queryClient.invalidateQueries({ queryKey: ["histories"] });
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
       }
     },

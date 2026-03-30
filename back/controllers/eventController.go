@@ -707,7 +707,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	oldEvent, _ := db.GetEventDetailsById(id_event)
-		if !exist {
+	if !exist {
 		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
 		return
 	}

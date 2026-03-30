@@ -1,7 +1,6 @@
 import {
   Container,
   Box,
-  Flex,
   Paper,
   Stack,
   Group,
@@ -14,7 +13,12 @@ import {
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import InfoField from "../../../components/InfoField";
 import dayjs from "dayjs";
@@ -28,6 +32,7 @@ import {
 } from "../../../hooks/containerHooks";
 
 export default function AdminContainersDetails() {
+  const origin = useLocation().state;
   const navigate = useNavigate();
   const params = useParams();
   const [openedDelete, { open: openDelete, close: closeDelete }] =
@@ -78,10 +83,20 @@ export default function AdminContainersDetails() {
         Container's Details
       </Title>
       <AdminBreadcrumbs
-        breadcrumbs={[
-          { title: "Container Management", href: PATHS.ADMIN.CONTAINERS },
-          { title: `Container #${containerId}`, href: "#" },
-        ]}
+        breadcrumbs={
+          origin?.from === "historyDetails"
+            ? [
+                {
+                  title: "History Details",
+                  href: "/admin/history/" + origin.id_history,
+                },
+                { title: `Container #${containerId}`, href: "#" },
+              ]
+            : [
+                { title: "Container Management", href: PATHS.ADMIN.CONTAINERS },
+                { title: `Container #${containerId}`, href: "#" },
+              ]
+        }
       />
 
       <Container px="md" size="sm" mt="xl">

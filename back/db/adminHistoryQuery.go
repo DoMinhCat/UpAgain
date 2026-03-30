@@ -20,10 +20,10 @@ import (
 // newState: new state of the entity (interface)
 func InsertHistory(entityType string, entityId int, action string, adminId int, oldState interface{}, newState interface{}) error {
 	oldJSON, _ := json.Marshal(oldState)
-    newJSON, _ := json.Marshal(newState)
-	
+	newJSON, _ := json.Marshal(newState)
+
 	query := `INSERT INTO admin_history (entity_type, entity_id, action, id_employee, old_state, new_state) VALUES ($1, $2, $3, $4, $5, $6)`
-	
+
 	_, err := utils.Conn.Exec(query, entityType, entityId, action, adminId, oldJSON, newJSON)
 	return err
 }
