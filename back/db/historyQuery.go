@@ -54,7 +54,7 @@ func GetAllAdminHistory(page int, limit int, filters models.HistoryFilters) ([]m
 	}
 
 	query := `
-	SELECT h.id, h.created_at, h.entity_type, h.entity_id, h.action, h.old_state, h.new_state, h.id_employee 
+	SELECT h.id, h.created_at, h.entity_type, h.entity_id, h.action, h.old_state, h.new_state, h.id_employee, a.username
 	FROM admin_history h JOIN accounts a ON h.id_employee = a.id
 	` + whereClause + " " + orderBy
 
@@ -73,17 +73,26 @@ func GetAllAdminHistory(page int, limit int, filters models.HistoryFilters) ([]m
 
 	for rows.Next() {
 		var history models.History
-		if err := rows.Scan(&history.Id, &history.CreatedAt, &history.Module, &history.ItemId, &history.Action, &history.OldState, &history.NewState, &history.AdminId); err != nil {
+		if err := rows.Scan(&history.Id, &history.CreatedAt, &history.Module, &history.ItemId, &history.Action, &history.OldState, &history.NewState, &history.AdminId, &history.AdminName); err != nil {
 			return nil, 0, fmt.Errorf("GetAllAdminHistory() scan failed: %v", err.Error())
 		}
-		username, err := GetUsernameById(history.AdminId)
-		if err != nil {
-			return nil, 0, fmt.Errorf("GetAllAdminHistory() GetUsernameById failed: %v", err.Error())
-		}
-		history.AdminName = username
 		histories = append(histories, history)
 
 	}
 
 	return histories, totalRecords, nil
+}
+
+func GetHistoryDetailsById(id_history int) (models.History, error) {
+	var history models.History
+	query := `
+	SELECT h.id, h.created_at, h.entity_type, h.entity_id, h.action, h.old_state, h.new_state, h.id_employee, a.username
+	FROM admin_history h JOIN accounts a ON h.id_employee = a.id
+	WHERE h.id = $1
+	`
+	err := utils.Conn.QueryRow(query, id_history).Scan(&history.Id, &history.CreatedAt, &history.Module, &history.ItemId, &history.Action, &history.OldState, &history.NewState, &history.AdminId, &history.AdminName)
+	if err != nil {
+		return models.History{}, fmt.Errorf("GetHistoryDetailsById() query failed: %v", err.Error())
+	}
+	return history, nil
 }
