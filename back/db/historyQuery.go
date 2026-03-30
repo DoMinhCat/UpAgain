@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 )
 
@@ -92,6 +93,9 @@ func GetHistoryDetailsById(id_history int) (models.History, error) {
 	`
 	err := utils.Conn.QueryRow(query, id_history).Scan(&history.Id, &history.CreatedAt, &history.Module, &history.ItemId, &history.Action, &history.OldState, &history.NewState, &history.AdminId, &history.AdminName)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.History{}, nil
+		}
 		return models.History{}, fmt.Errorf("GetHistoryDetailsById() query failed: %v", err.Error())
 	}
 	return history, nil

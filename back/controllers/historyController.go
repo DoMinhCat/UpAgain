@@ -136,6 +136,10 @@ func GetHistoryDetails(w http.ResponseWriter, r *http.Request) {
 		slog.Error("GetHistoryDetails() failed", "controller", "GetHistoryDetails", "error", err)
 		return
 	}
+	if history.Id == 0 {
+		utils.RespondWithError(w, http.StatusNotFound, "History entry not found.")
+		return
+	}
 
 	utils.RespondWithJSON(w, http.StatusOK, history)
 }
