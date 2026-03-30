@@ -15,30 +15,42 @@ import {
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
 import { IconUser, IconBox, IconHash, IconClock } from "@tabler/icons-react";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetHistoryDetails } from "../../../hooks/historyHooks";
+import FullScreenLoader from "../../../components/FullScreenLoader";
+import dayjs from "dayjs";
 
 export function AdminHistoryDetails() {
-  //placeholder
-  const historyData = {
-    adminName: "Alex Rivera",
-    module: "Event Management",
-    itemId: "EVT-2026-XYZ",
-    timestamp: "March 30, 2026 · 14:32",
-    oldState: { status: "pending", price: 20, capacity: 100 },
-    newState: { status: "published", price: 25, capacity: 150 },
+  const navigate = useNavigate();
+  const params = useParams();
+
+  const formatState = (state: any) => {
+    if (!state) return "{}";
+    try {
+      const parsed = typeof state === "string" ? JSON.parse(state) : state;
+      return JSON.stringify(parsed, null, 2);
+    } catch (e) {
+      return String(state);
+    }
   };
+
+  // GET DETAILS
+  const idStr = params.id;
+  const idHistory = Number(idStr);
+  const enabled = !!idStr && !isNaN(idHistory);
+  const { data: historyData, isLoading } = useGetHistoryDetails(
+    idHistory,
+    enabled,
+  );
+
+  if (isLoading) {
+    return <FullScreenLoader />;
+  }
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
         History Details
       </Title>
-
-      <AdminBreadcrumbs
-        breadcrumbs={[
-          { title: "Home", href: PATHS.ADMIN.HOME },
-          { title: "History's Details", href: "/admin/history/:id" },
-        ]}
-      />
 
       <Grid mt="xl" gutter="lg">
         {/* Left Column: Metadata Summary */}
@@ -64,7 +76,7 @@ export function AdminHistoryDetails() {
                         AR
                       </Avatar>
                       <Text size="sm" fw={600}>
-                        {historyData.adminName}
+                        {historyData?.admin_name}
                       </Text>
                     </Group>
                   }
@@ -75,7 +87,7 @@ export function AdminHistoryDetails() {
                   label="Module / Section"
                   value={
                     <Badge variant="light" mt={4}>
-                      {historyData.module}
+                      {historyData?.module}
                     </Badge>
                   }
                 />
@@ -83,11 +95,7 @@ export function AdminHistoryDetails() {
                 <DetailItem
                   icon={<IconHash size={18} />}
                   label="Reference ID"
-                  value={
-                    <Code mt={4} fw={700}>
-                      {historyData.itemId}
-                    </Code>
-                  }
+                  value={historyData?.item_id}
                 />
 
                 <DetailItem
@@ -95,7 +103,9 @@ export function AdminHistoryDetails() {
                   label="Date & Time"
                   value={
                     <Text size="sm" mt={4} fw={500}>
-                      {historyData.timestamp}
+                      {dayjs(historyData?.created_at).format(
+                        "DD/MM/YYYY - HH:mm:ss",
+                      )}
                     </Text>
                   }
                 />
@@ -128,7 +138,7 @@ export function AdminHistoryDetails() {
                     radius="sm"
                   >
                     <Code block style={{ background: "transparent" }}>
-                      {JSON.stringify(historyData.oldState, null, 2)}
+                      {formatState(historyData?.old_state)}
                     </Code>
                   </Paper>
                 </Box>
@@ -147,7 +157,7 @@ export function AdminHistoryDetails() {
                     radius="sm"
                   >
                     <Code block style={{ background: "transparent" }}>
-                      {JSON.stringify(historyData.newState, null, 2)}
+                      {formatState(historyData?.new_state)}
                     </Code>
                   </Paper>
                 </Box>

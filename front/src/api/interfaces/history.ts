@@ -1,4 +1,4 @@
-export interface History {
+export interface AdminHistory {
   id: number;
   created_at: string;
   module: string;
@@ -11,7 +11,7 @@ export interface History {
 }
 
 export interface HistoryListPagination {
-  histories: History[];
+  histories: AdminHistory[];
   current_page: number;
   last_page: number;
   limit: number;

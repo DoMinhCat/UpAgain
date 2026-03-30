@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllHistories } from "../api/historyModule";
+import { getAllHistories, getHistoryDetails } from "../api/historyModule";
 
 export const useGetAdminHistory = (
   page?: number,
@@ -14,7 +14,19 @@ export const useGetAdminHistory = (
     queryFn: () => getAllHistories(page, limit, search, sort, module, action),
     meta: {
       errorTitle: "Error",
-      errorMessage: "Failed to fetch admin activities.",
+      errorMessage: "Failed to fetch admin history.",
+    },
+  });
+};
+
+export const useGetHistoryDetails = (id_history: number, enabled: boolean) => {
+  return useQuery({
+    queryKey: ["history", id_history],
+    queryFn: () => getHistoryDetails(id_history),
+    enabled: enabled,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch history details.",
     },
   });
 };
