@@ -106,6 +106,7 @@ export function AdminHistoryDetails() {
                   }
                 />
 
+                {/* TODO: Link to listing/depo + subscription + finance settings */}
                 <DetailItem
                   icon={<IconHash size={18} />}
                   label="Reference ID"
