@@ -15,6 +15,7 @@ import {
   Box,
   Loader,
   Group,
+  Badge,
 } from "@mantine/core";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -418,6 +419,14 @@ export default function AdminHome() {
                 </Flex>
               </Table.Td>
             </Table.Tr>
+          ) : historyData?.histories.length === 0 ? (
+            <Table.Tr>
+              <Table.Td colSpan={5}>
+                <Flex justify="center" py="md">
+                  <Text>No history records found</Text>
+                </Flex>
+              </Table.Td>
+            </Table.Tr>
           ) : (
             historyData?.histories.map((row) => (
               <Table.Tr
@@ -441,7 +450,17 @@ export default function AdminHome() {
                 </Table.Td>
                 <Table.Td ta="center">{row.item_id}</Table.Td>
                 <Table.Td ta="center">
-                  {row.action.charAt(0).toUpperCase() + row.action.slice(1)}
+                  <Badge
+                    variant={
+                      row.action === "create"
+                        ? "green"
+                        : row.action === "update"
+                          ? "yellow"
+                          : "red"
+                    }
+                  >
+                    {row.action.charAt(0).toUpperCase() + row.action.slice(1)}
+                  </Badge>
                 </Table.Td>
               </Table.Tr>
             ))
