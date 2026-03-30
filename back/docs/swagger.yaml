@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   models.AccountCountStats:
     properties:
@@ -87,6 +86,27 @@ definitions:
           $ref: '#/definitions/models.AvailableEmployee'
         type: array
     type: object
+  models.Comment:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      id_account:
+        type: integer
+      id_post:
+        type: integer
+      is_deleted:
+        type: boolean
+      like_count:
+        type: integer
+      user_avatar:
+        type: string
+      user_name:
+        type: string
+    type: object
   models.Container:
     properties:
       city_name:
@@ -120,35 +140,6 @@ definitions:
       role:
         type: string
       username:
-        type: string
-    type: object
-  models.CreateEventRequest:
-    properties:
-      capacity:
-        type: integer
-      category:
-        type: string
-      city:
-        type: string
-      description:
-        type: string
-      end_at:
-        type: string
-      images:
-        items:
-          type: string
-        type: array
-      location_detail:
-        type: string
-      price:
-        type: number
-      start_at:
-        type: string
-      status:
-        type: string
-      street:
-        type: string
-      title:
         type: string
     type: object
   models.Event:
@@ -214,6 +205,42 @@ definitions:
       total_records:
         type: integer
     type: object
+  models.History:
+    properties:
+      action:
+        type: string
+      admin_id:
+        type: integer
+      admin_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      item_id:
+        type: integer
+      module:
+        type: string
+      new_state:
+        type: string
+      old_state:
+        type: string
+    type: object
+  models.HistoryListPagination:
+    properties:
+      current_page:
+        type: integer
+      histories:
+        items:
+          $ref: '#/definitions/models.History'
+        type: array
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total_records:
+        type: integer
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -236,6 +263,82 @@ definitions:
       total_records:
         type: integer
     type: object
+  models.Post:
+    properties:
+      category:
+        type: string
+      comment_count:
+        type: integer
+      content:
+        type: string
+      created_at:
+        type: string
+      creator:
+        type: string
+      creator_id:
+        type: integer
+      id:
+        type: integer
+      id_account:
+        type: integer
+      like_count:
+        type: integer
+      photos:
+        items:
+          type: string
+        type: array
+      save_count:
+        type: integer
+      title:
+        type: string
+      view_count:
+        type: integer
+    type: object
+  models.PostCommentsResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/models.Comment'
+        type: array
+      current_page:
+        type: integer
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total_comments:
+        type: integer
+    type: object
+  models.PostCountStatsResponse:
+    properties:
+      category_counts:
+        additionalProperties:
+          type: integer
+        type: object
+      engagement_rate:
+        type: number
+      interaction_per_post:
+        type: number
+      total_new_posts_since:
+        type: integer
+      total_posts:
+        type: integer
+    type: object
+  models.PostListPagination:
+    properties:
+      current_page:
+        type: integer
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      posts:
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+      total_records:
+        type: integer
+    type: object
   models.ToggleBanRequest:
     properties:
       is_banned:
@@ -255,33 +358,6 @@ definitions:
       phone:
         type: string
       username:
-        type: string
-    type: object
-  models.UpdateEventRequest:
-    properties:
-      capacity:
-        type: integer
-      category:
-        type: string
-      city:
-        type: string
-      description:
-        type: string
-      end_at:
-        type: string
-      images:
-        items:
-          type: string
-        type: array
-      location_detail:
-        type: string
-      price:
-        type: number
-      start_at:
-        type: string
-      street:
-        type: string
-      title:
         type: string
     type: object
   models.UpdateEventStatusRequest:
@@ -328,12 +404,8 @@ definitions:
       refused_listings:
         type: integer
     type: object
-host: localhost:8080
 info:
   contact: {}
-  description: Backend API written in Golang that handles requests from the frontend.
-  title: UpAgain backend Golang API
-  version: "1.0"
 paths:
   /accounts/:
     get:
@@ -1060,20 +1132,13 @@ paths:
       - event
     post:
       consumes:
-      - application/json
-      - ' multipart/form-data'
-      description: Create a new event from the provided payload. Supports both JSON
-        and multipart/form-data for image uploads.
+      - multipart/form-data
+      description: Create a new event from the provided multipart form data.
       parameters:
-      - description: Event details (required if JSON)
-        in: body
-        name: event
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateEventRequest'
-      - description: Event title (required if multipart)
+      - description: Event title
         in: formData
         name: title
+        required: true
         type: string
       - description: Event description
         in: formData
@@ -1258,23 +1323,16 @@ paths:
   /events/{id}/update/:
     put:
       consumes:
-      - application/json
-      - ' multipart/form-data'
-      description: Update the details of an existing event by its ID. Supports both
-        JSON and multipart/form-data for image updates.
+      - multipart/form-data
+      description: Update the details of an existing event by its ID using multipart
+        form data.
       parameters:
       - description: Event ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Event details (required if JSON)
-        in: body
-        name: event
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateEventRequest'
-      - description: Event title (required if multipart)
+      - description: Event title
         in: formData
         name: title
         type: string
@@ -1320,7 +1378,7 @@ paths:
         type: string
       - description: New event images to upload (multiple allowed)
         in: formData
-        name: images
+        name: new_images
         type: file
       produces:
       - application/json
@@ -1411,6 +1469,102 @@ paths:
       summary: Health Check
       tags:
       - health
+  /history/:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all admin's activites from the database with pagination
+        and filters.
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of records per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search by admin name or item ID
+        in: query
+        name: search
+        type: string
+      - description: Sort order (most_recent_activity, oldest_activity)
+        in: query
+        name: sort
+        type: string
+      - description: Filter by module
+        in: query
+        name: module
+        type: string
+      - description: Filter by action
+        in: query
+        name: action
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HistoryListPagination'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all admin activities
+      tags:
+      - Admin History
+  /history/{history_id}/:
+    get:
+      consumes:
+      - application/json
+      description: Fetches the details of a specific admin activity.
+      parameters:
+      - description: History ID
+        in: path
+        name: history_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.History'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get history details
+      tags:
+      - Admin History
   /login/:
     post:
       consumes:
@@ -1442,6 +1596,280 @@ paths:
       summary: Login
       tags:
       - auth
+  /posts:
+    get:
+      description: Get a paginated list of all posts with filters for search, category,
+        and sorting.
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      - description: Sort by (highest_view, lowest_view, most_recent_creation, oldest_creation,
+          highest_like, lowest_like)
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PostListPagination'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get all posts
+      tags:
+      - Posts
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new post with title, content, category, and images.
+      parameters:
+      - description: Post Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Post Content (HTML allowed)
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: Post Category
+        in: formData
+        name: category
+        required: true
+        type: string
+      - description: Post Images
+        in: formData
+        name: images
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Post created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new post
+      tags:
+      - Posts
+  /posts/{id_post}:
+    get:
+      description: Get detailed information about a single post by ID.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get post details
+      tags:
+      - Posts
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update an existing post's data and images.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      - description: Post Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Post Content
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: Post Category
+        in: formData
+        name: category
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Image paths to keep
+        in: formData
+        items:
+          type: string
+        name: existing_images
+        type: array
+      - description: New images to upload
+        in: formData
+        name: new_images
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Update a post
+      tags:
+      - Posts
+  /posts/{id_post}/comments:
+    get:
+      description: Get a paginated list of comments for a specific post.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PostCommentsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get post comments
+      tags:
+      - Posts
+  /posts/{id_post}/delete:
+    patch:
+      description: Delete a post by ID. Users can only delete their own posts unless
+        they are admin.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a post
+      tags:
+      - Posts
+  /posts/stats:
+    get:
+      description: Get general statistics about posts, including total count, new
+        posts, engagement rate, and counts per category.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PostCountStatsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Failed to get stats of posts
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get post statistics
+      tags:
+      - Posts
   /refresh/:
     post:
       description: Refresh the JWT token using the refresh token cookie
@@ -1487,4 +1915,13 @@ paths:
       summary: Create an account
       tags:
       - account
+  /users/score/:
+    get:
+      description: Get the total CO2 saved and total UpScore
+      produces:
+      - application/json
+      responses: {}
+      summary: Get total CO2 of completed items (bought) and total UpScore
+      tags:
+      - user
 swagger: "2.0"

@@ -19,8 +19,8 @@ type History struct {
 	Module    string      `json:"module"`
 	ItemId    int         `json:"item_id"`
 	Action    string      `json:"action"`
-	OldState  null.String `json:"old_state"`
-	NewState  null.String `json:"new_state"`
+	OldState  null.String `json:"old_state" swaggertype:"string"`
+	NewState  null.String `json:"new_state" swaggertype:"string"`
 	AdminId   int         `json:"admin_id"`
 	AdminName string      `json:"admin_name"`
 }
