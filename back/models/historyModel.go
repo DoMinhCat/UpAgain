@@ -14,15 +14,15 @@ type HistoryFilters struct {
 }
 
 type History struct {
-	Id          int       `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	Module      string    `json:"module"`
-	ItemId      int       `json:"item_id"`
-	Action      string    `json:"action"`
-	OldState    null.String `json:"old_state"`
-	NewState    null.String `json:"new_state"`
-	AdminId     int       `json:"admin_id"`
-	AdminName   string    `json:"admin_name"`
+	Id        int         `json:"id"`
+	CreatedAt time.Time   `json:"created_at"`
+	Module    string      `json:"module"`
+	ItemId    int         `json:"item_id"`
+	Action    string      `json:"action"`
+	OldState  null.String `json:"old_state"`
+	NewState  null.String `json:"new_state"`
+	AdminId   int         `json:"admin_id"`
+	AdminName string      `json:"admin_name"`
 }
 
 type HistoryListPagination struct {

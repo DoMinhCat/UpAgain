@@ -27,7 +27,7 @@ func GetAllAdminHistory(page int, limit int, filters models.HistoryFilters) ([]m
 		params = append(params, filters.Module)
 		countParams = append(countParams, filters.Module)
 		paramIndex++
-		
+
 	}
 
 	if filters.Action == "create" {
