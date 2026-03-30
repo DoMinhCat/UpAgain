@@ -78,3 +78,34 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
+
+func GetHistoryDetails(w http.ResponseWriter, r *http.Request) {
+	var err error
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	historyIDStr := r.PathValue("history_id")
+	if historyIDStr == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "History ID is required.")
+		return
+	}
+
+	historyID, err := strconv.Atoi(historyIDStr)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid history ID.")
+		slog.Error("Atoi() failed", "controller", "GetHistoryDetails", "error", err)
+		return
+	}
+
+	history, err := db.GetHistoryDetailsById(historyID)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")
+		slog.Error("GetHistoryDetails() failed", "controller", "GetHistoryDetails", "error", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, history)
+}
