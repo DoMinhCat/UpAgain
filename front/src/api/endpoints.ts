@@ -55,6 +55,7 @@ export const ENDPOINTS = {
 
     HISTORIES: {
       ALL: "/history/",
+      DETAILS: (id_history: number) => `/history/${id_history}/`,
     },
   },
 
