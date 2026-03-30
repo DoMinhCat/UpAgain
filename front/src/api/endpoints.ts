@@ -52,6 +52,11 @@ export const ENDPOINTS = {
       COMMENTS: (id_post: number) => `/posts/${id_post}/comments/`,
       DELETE_COMMENT: (id_comment: number) => `/comments/${id_comment}/`,
     },
+
+    HISTORIES: {
+      ALL: "/history/",
+      DETAILS: (id_history: number) => `/history/${id_history}/`,
+    },
   },
 
   AUTH: {

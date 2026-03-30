@@ -246,10 +246,15 @@ export const AdminPostDetails = () => {
                 { title: "Post Management", href: "/admin/posts" },
                 { title: "Post's Details", href: "/admin/posts/:id" },
               ]
-            : [
-                { title: "Post Management", href: "/admin/posts" },
-                { title: "Post's Details", href: "/admin/posts/:id" },
-              ]),
+            : origin.from === "historyDetails"
+              ? [
+                  { title: "History Details", href: "/admin/history/:id" },
+                  { title: "Post's Details", href: "/admin/posts/:id" },
+                ]
+              : [
+                  { title: "Post Management", href: "/admin/posts" },
+                  { title: "Post's Details", href: "/admin/posts/:id" },
+                ]),
         ]}
       />
 

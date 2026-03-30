@@ -8,10 +8,18 @@ import {
   Flex,
   Button,
   Progress,
+  Grid,
+  TextInput,
+  Select,
   Text,
   Box,
   Loader,
+  Group,
+  Badge,
 } from "@mantine/core";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 import {
   IconArrowUp,
   IconPigMoney,
@@ -24,6 +32,7 @@ import {
   IconArticle,
   IconBuildingStore,
   IconLeaf,
+  IconSearch,
 } from "@tabler/icons-react";
 import {
   AdminCardInfo,
@@ -38,24 +47,60 @@ import { useAccountCountStats } from "../../hooks/accountHooks";
 import { useContainerCountStats } from "../../hooks/containerHooks";
 import { useValidationStats } from "../../hooks/validationHooks";
 import { useGetTotalScore } from "../../hooks/userHooks";
+import { useGetAdminHistory } from "../../hooks/historyHooks";
 
 export default function AdminHome() {
-  // TODO: replace with real admin history data
-  const demoAdminActivities = {
-    header: ["Timestamp", "Admin", "Module", "Item's ID", "Action", "Detail"],
-    body: [
-      [6, 12.011, "C", "Carbon", "Update", "None"],
-      [7, 14.007, "N", "Nitrogen", "Update", "None"],
-      [39, 88.906, "Y", "Yttrium", "Update", "None"],
-      [56, 137.33, "Ba", "Barium", "Update", "None"],
-      [58, 140.12, "Ce", "Cerium", "Update", "None"],
-      [6, 12.011, "C", "Carbon", "Update", "None"],
-      [7, 14.007, "N", "Nitrogen", "Update", "None"],
-      [39, 88.906, "Y", "Yttrium", "Update", "None"],
-      [56, 137.33, "Ba", "Barium", "Update", "None"],
-      [58, 140.12, "Ce", "Cerium", "Update", "None"],
-    ],
+  const navigate = useNavigate();
+
+  const [filters, setFilters] = useState({
+    searchValue: "",
+    sortValue: "most_recent_activity" as string | null,
+    moduleValue: null as string | null,
+    actionValue: null as string | null,
+  });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [page, setPage] = useState(1);
+  const LIMIT = 10;
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
+
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+    appliedFilters.moduleValue ||
+    appliedFilters.actionValue ||
+    (appliedFilters.sortValue &&
+      appliedFilters.sortValue !== "most_recent_activity"),
+  );
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: "most_recent_activity",
+      moduleValue: null,
+      actionValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+
+  const { data: historyData, isLoading: isLoadingHistory } = useGetAdminHistory(
+    hasFilters ? -1 : page,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.sortValue ?? undefined,
+    appliedFilters.moduleValue ?? undefined,
+    appliedFilters.actionValue ?? undefined,
+  );
+
+  const historyHeader = ["Timestamp", "Admin", "Module", "Item's ID", "Action"];
 
   const {
     data: accountCountStats,
@@ -143,15 +188,21 @@ export default function AdminHome() {
           title="Total UpScore"
           value={totalScore?.total || 0}
           description={
-            <StatsCardDesc
-              stats={totalScore?.co2 || 0}
-              icon={IconLeaf}
-              description={
-                totalScore?.co2 === 1
-                  ? " kg of CO2 avoided by the community"
-                  : " kg of CO2 avoided by the community"
-              }
-            />
+            isLoadingTotalScore ? (
+              <Loader size="sm" />
+            ) : errorTotalScore ? (
+              <Text c="red">An error occurred while loading total score</Text>
+            ) : (
+              <StatsCardDesc
+                stats={totalScore?.co2 || 0}
+                icon={IconLeaf}
+                description={
+                  totalScore?.co2 === 1
+                    ? " kg of CO2 avoided by the community"
+                    : " kg of CO2 avoided by the community"
+                }
+              />
+            )
           }
         />
         <AdminCardInfo
@@ -247,10 +298,98 @@ export default function AdminHome() {
 
       <Divider my="xl" size="xs" color="gray.3" />
 
-      <Title order={1} mb="xl">
-        Admin Activities
+      <Title order={2} mb="xl">
+        Admin History
       </Title>
 
+      <Grid align="flex-end" mb="md">
+        <Grid.Col span={{ base: 12, md: 3 }}>
+          <TextInput
+            label="Search"
+            variant="filled"
+            placeholder="Search by admin's name or item's ID..."
+            disabled={isLoadingHistory}
+            rightSection={<IconSearch size={14} />}
+            value={filters.searchValue}
+            onChange={(e) => handleFilterChange("searchValue", e.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                handleSearchClick();
+              }
+            }}
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+          <Select
+            label="Sort by"
+            placeholder="Pick one sort method"
+            data={[
+              {
+                value: "most_recent_activity",
+                label: "Most recent activity",
+              },
+              { value: "oldest_activity", label: "Oldest activity" },
+            ]}
+            value={filters.sortValue}
+            clearable
+            disabled={isLoadingHistory}
+            onChange={(val) => handleFilterChange("sortValue", val)}
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+          <Select
+            label="Module"
+            placeholder="All modules"
+            data={[
+              { value: "employee", label: "Employee" },
+              { value: "user", label: "User" },
+              { value: "pro", label: "Pro" },
+              { value: "event", label: "Event" },
+              { value: "container", label: "Container" },
+              { value: "post", label: "Post" },
+              { value: "comment", label: "Comment" },
+              { value: "listing", label: "Listing" },
+              { value: "deposit", label: "Deposit" },
+              { value: "subscription", label: "Subscription" },
+              { value: "finance_setting", label: "Finance Setting" },
+              { value: "posts", label: "Posts" },
+              { value: "finance", label: "Finance" },
+            ]}
+            value={filters.moduleValue}
+            disabled={isLoadingHistory}
+            onChange={(val) => handleFilterChange("moduleValue", val)}
+            clearable
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+          <Select
+            label="Action"
+            placeholder="All actions"
+            data={[
+              { value: "create", label: "Create" },
+              { value: "update", label: "Update" },
+              { value: "delete", label: "Delete" },
+            ]}
+            value={filters.actionValue}
+            disabled={isLoadingHistory}
+            onChange={(val) => handleFilterChange("actionValue", val)}
+            clearable
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 6, sm: 12, md: 3 }}>
+          <Group gap="xs" grow>
+            <Button variant="primary" onClick={handleSearchClick}>
+              Apply filters
+            </Button>
+            <Button variant="secondary" onClick={handleResetFilters}>
+              Reset
+            </Button>
+          </Group>
+        </Grid.Col>
+      </Grid>
       <Paper
         withBorder
         p="md"
@@ -258,34 +397,74 @@ export default function AdminHome() {
         shadow="md"
         className={classes.customBorder}
       >
-        <Flex justify="flex-end" align="center" gap="md" mb="md">
-          <Button>Sort</Button>
-          <Button>Filter</Button>
-        </Flex>
-        {/* TODO: sort and filter button */}
         <AdminTable
-          header={demoAdminActivities.header}
+          header={historyHeader}
           footer={
             <PaginationFooter
-              activePage={1}
-              setPage={() => {}}
-              total_records={157}
-              last_page={16}
-              limit={10}
-              unit="records"
+              activePage={page}
+              setPage={setPage}
+              total_records={historyData?.total_records ?? 0}
+              last_page={historyData?.last_page ?? 1}
+              limit={LIMIT}
+              unit="activities"
+              hidden={hasFilters}
             />
           }
-
         >
-          {demoAdminActivities.body.map((row, rowIndex) => (
-            <Table.Tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <Table.Td ta="center" key={cellIndex}>
-                  {cell}
-                </Table.Td>
-              ))}
+          {isLoadingHistory ? (
+            <Table.Tr>
+              <Table.Td colSpan={5}>
+                <Flex justify="center" py="md">
+                  <Loader />
+                </Flex>
+              </Table.Td>
             </Table.Tr>
-          ))}
+          ) : historyData?.histories.length === 0 ? (
+            <Table.Tr>
+              <Table.Td colSpan={5}>
+                <Flex justify="center" py="md">
+                  <Text>No history records found</Text>
+                </Flex>
+              </Table.Td>
+            </Table.Tr>
+          ) : (
+            historyData?.histories.map((row) => (
+              <Table.Tr
+                key={row.id}
+                onClick={() =>
+                  navigate(
+                    PATHS.ADMIN.HISTORY.DETAILS.replace(
+                      ":id",
+                      row.id.toString(),
+                    ),
+                  )
+                }
+                style={{ cursor: "pointer" }}
+              >
+                <Table.Td ta="center">
+                  {dayjs(row.created_at).format("DD/MM/YYYY HH:mm")}
+                </Table.Td>
+                <Table.Td ta="center">{row.admin_name}</Table.Td>
+                <Table.Td ta="center">
+                  {row.module.charAt(0).toUpperCase() + row.module.slice(1)}
+                </Table.Td>
+                <Table.Td ta="center">{row.item_id}</Table.Td>
+                <Table.Td ta="center">
+                  <Badge
+                    variant={
+                      row.action === "create"
+                        ? "green"
+                        : row.action === "update"
+                          ? "yellow"
+                          : "red"
+                    }
+                  >
+                    {row.action.charAt(0).toUpperCase() + row.action.slice(1)}
+                  </Badge>
+                </Table.Td>
+              </Table.Tr>
+            ))
+          )}
         </AdminTable>
       </Paper>
     </Container>

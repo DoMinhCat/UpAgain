@@ -22,6 +22,10 @@ export const PATHS = {
     EVENTS: {
       ALL: "/admin/events",
     },
+    HISTORY: {
+      ALL: "/admin/history",
+      DETAILS: "/admin/history/:id",
+    },
     LISTINGS: "/admin/listings",
     SUBSCRIPTIONS: "/admin/subscriptions",
   },

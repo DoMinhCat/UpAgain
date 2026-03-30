@@ -351,7 +351,15 @@ export default function AdminUserDetails() {
                         href: PATHS.ADMIN.POSTS + "/" + origin?.id_post,
                       },
                     ]
-                  : []),
+                  : origin?.from === "historyDetails"
+                    ? [
+                        {
+                          title: "History's Details",
+                          href:
+                            PATHS.ADMIN.HISTORY.ALL + "/" + origin?.id_history,
+                        },
+                      ]
+                    : []),
           { title: "User's Details", href: "#" },
         ]}
       />
