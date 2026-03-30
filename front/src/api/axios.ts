@@ -18,6 +18,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    if (error.response?.status === 404) {
+      window.location.replace("/404");
+      return new Promise(() => {});
+    }
     const originalRequest = error.config;
     if (
       error.response?.status === 401 &&
