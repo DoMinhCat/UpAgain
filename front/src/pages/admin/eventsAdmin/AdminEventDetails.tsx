@@ -403,10 +403,18 @@ export default function AdminEventDetails() {
                 { title: "Validation Hub", href: PATHS.ADMIN.VALIDATIONS.ALL },
                 { title: "Event's Details", href: "#" },
               ]
-            : [
-                { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
-                { title: "Event's Details", href: "#" },
-              ]),
+            : origin?.from === "historyDetails"
+              ? [
+                  {
+                    title: "History Details",
+                    href: "/admin/history/" + origin.id_history,
+                  },
+                  { title: "Event's Details", href: "#" },
+                ]
+              : [
+                  { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
+                  { title: "Event's Details", href: "#" },
+                ]),
         ]}
       />
       <Container p="lg" size="xl">
