@@ -12,6 +12,7 @@ import {
   Avatar,
   Code,
   ThemeIcon,
+  Anchor,
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
 import { IconUser, IconBox, IconHash, IconClock } from "@tabler/icons-react";
@@ -75,9 +76,22 @@ export function AdminHistoryDetails() {
                       <Avatar size="sm" radius="xl" color="blue">
                         AR
                       </Avatar>
-                      <Text size="sm" fw={600}>
+                      <Anchor
+                        size="sm"
+                        fw={600}
+                        style={{ cursor: "pointer" }}
+                        c="var(--component-color-primary)"
+                        onClick={() =>
+                          navigate(`/admin/users/${historyData?.admin_id}`, {
+                            state: {
+                              from: "historyDetails",
+                              id_history: historyData?.id,
+                            },
+                          })
+                        }
+                      >
                         {historyData?.admin_name}
-                      </Text>
+                      </Anchor>
                     </Group>
                   }
                 />
