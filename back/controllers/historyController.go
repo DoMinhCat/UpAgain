@@ -9,6 +9,23 @@ import (
 	"strconv"
 )
 
+// GetAllAdminHistory godoc
+// @Summary Get all admin activities
+// @Description Fetches all admin's activites from the database with pagination and filters.
+// @Tags Admin History
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of records per page"
+// @Param search query string false "Search by admin name or item ID"
+// @Param sort query string false "Sort order (most_recent_activity, oldest_activity)"
+// @Param module query string false "Filter by module"
+// @Param action query string false "Filter by action"
+// @Security BearerAuth
+// @Success 200 {object} models.HistoryListPagination
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /history/ [get]
 func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 	var err error
 	role := r.Context().Value("user").(models.AuthClaims).Role
@@ -79,6 +96,19 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
+// GetHistoryDetails godoc
+// @Summary Get history details
+// @Description Fetches the details of a specific admin activity.
+// @Tags Admin History
+// @Accept json
+// @Produce json
+// @Param history_id path int true "History ID"
+// @Security BearerAuth
+// @Success 200 {object} models.History
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /history/{history_id}/ [get]
 func GetHistoryDetails(w http.ResponseWriter, r *http.Request) {
 	var err error
 	role := r.Context().Value("user").(models.AuthClaims).Role
