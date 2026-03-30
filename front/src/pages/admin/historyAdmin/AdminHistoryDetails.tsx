@@ -109,7 +109,68 @@ export function AdminHistoryDetails() {
                 <DetailItem
                   icon={<IconHash size={18} />}
                   label="Reference ID"
-                  value={historyData?.item_id}
+                  value={
+                    <Anchor
+                      size="sm"
+                      fw={600}
+                      style={{ cursor: "pointer" }}
+                      c="var(--component-color-primary)"
+                      onClick={() => {
+                        if (historyData?.action !== "delete") {
+                          if (
+                            historyData?.module === "user" ||
+                            historyData?.module === "pro" ||
+                            historyData?.module === "employee"
+                          ) {
+                            navigate(`/admin/users/${historyData?.item_id}`, {
+                              state: {
+                                from: "historyDetails",
+                                id_history: historyData?.id,
+                              },
+                            });
+                          } else if (historyData?.module === "post") {
+                            navigate(`/admin/posts/${historyData?.item_id}`, {
+                              state: {
+                                from: "historyDetails",
+                                id_history: historyData?.id,
+                              },
+                            });
+                          } else if (historyData?.module === "event") {
+                            navigate(`/admin/events/${historyData?.item_id}`, {
+                              state: {
+                                from: "historyDetails",
+                                id_history: historyData?.id,
+                              },
+                            });
+                          } else if (historyData?.module === "container") {
+                            navigate(
+                              `/admin/containers/${historyData?.item_id}`,
+                              {
+                                state: {
+                                  from: "historyDetails",
+                                  id_history: historyData?.id,
+                                },
+                              },
+                            );
+                          }
+                        }
+                      }}
+                    >
+                      {(historyData?.module === "user" ||
+                      historyData?.module === "pro" ||
+                      historyData?.module === "employee"
+                        ? "Account #"
+                        : historyData?.module === "container"
+                          ? "Container #"
+                          : historyData?.module === "post"
+                            ? "Post #"
+                            : historyData?.module === "event"
+                              ? "Event #"
+                              : historyData?.module === "comment"
+                                ? "Comment #"
+                                : "") + historyData?.item_id}
+                    </Anchor>
+                  }
                 />
 
                 <DetailItem
