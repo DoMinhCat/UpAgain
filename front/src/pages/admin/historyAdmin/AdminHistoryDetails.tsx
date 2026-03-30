@@ -104,7 +104,6 @@ export function AdminHistoryDetails() {
           </Stack>
         </Grid.Col>
 
-        {/* Right Column: State Diff */}
         <Grid.Col span={{ base: 12, md: 8, lg: 9 }}>
           <Paper withBorder radius="md" p={0} style={{ overflow: "hidden" }}>
             <Box p="md" bg="var(--paper-border-color)">
@@ -138,11 +137,9 @@ export function AdminHistoryDetails() {
               {/* New State */}
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Box p="md" style={{ border: "1px solid var(--border-color)" }}>
-                  <Group justify="space-between" mb="sm">
-                    <Badge color="green" variant="dot">
-                      Updated State
-                    </Badge>
-                  </Group>
+                  <Badge color="green" variant="dot" mb="sm">
+                    Updated State
+                  </Badge>
                   <Paper
                     withBorder
                     p="sm"
