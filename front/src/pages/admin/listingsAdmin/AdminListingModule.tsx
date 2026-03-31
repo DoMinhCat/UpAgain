@@ -143,7 +143,7 @@ export function AdminListingModule() {
             <TextInput
               label="Search"
               variant="filled"
-              placeholder="Search by employee's name, event's ID or title..."
+              placeholder="Search by owner's name, item's ID or title..."
               rightSection={<IconSearch size={14} />}
               // disabled={isLoadingEvents}
               // value={filters.searchValue}
@@ -158,7 +158,7 @@ export function AdminListingModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
               label="Sort by"
               placeholder="Pick one sort method"
@@ -176,14 +176,6 @@ export function AdminListingModule() {
                   value: "lowest_price",
                   label: "Lowest price",
                 },
-                {
-                  value: "earliest_start_date",
-                  label: "Earliest start date",
-                },
-                {
-                  value: "latest_start_date",
-                  label: "Latest start date",
-                },
               ]}
               clearable
               // value={filters.sortValue}
@@ -197,8 +189,10 @@ export function AdminListingModule() {
               label="Status"
               placeholder="All status"
               data={[
-                { value: "active", label: "Active" },
-                { value: "banned", label: "Banned" },
+                { value: "pending", label: "Pending" },
+                { value: "approved", label: "Approved" },
+                { value: "refused", label: "Refused" },
+                { value: "completed", label: "Completed" },
               ]}
               // value={filters.statusValue}
               // disabled={isLoadingEvents}
@@ -207,7 +201,42 @@ export function AdminListingModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+            <Select
+              label="Material"
+              placeholder="All materials"
+              data={[
+                { value: "wood", label: "Wood" },
+                { value: "metal", label: "Metal" },
+                { value: "textile", label: "Textile" },
+                { value: "glass", label: "Glass" },
+                { value: "plastic", label: "Plastic" },
+                { value: "other", label: "Other" },
+                { value: "mixed", label: "Mixed" },
+              ]}
+              // value={filters.statusValue}
+              // disabled={isLoadingEvents}
+              // onChange={(val) => handleFilterChange("statusValue", val)}
+              clearable
+            />
+          </Grid.Col>
+
+          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+            <Select
+              label="Category"
+              placeholder="All categories"
+              data={[
+                { value: "listing", label: "Listing" },
+                { value: "deposit", label: "Deposit" },
+              ]}
+              // value={filters.statusValue}
+              // disabled={isLoadingEvents}
+              // onChange={(val) => handleFilterChange("statusValue", val)}
+              clearable
+            />
+          </Grid.Col>
+
+          <Grid.Col span={{ base: 12, md: 12 }}>
             <Group gap="xs" grow>
               <Button variant="primary">Apply filters</Button>
               <Button variant="secondary">Reset</Button>
@@ -226,7 +255,7 @@ export function AdminListingModule() {
           "Creator",
           "Category",
           "Material",
-          "State",
+          "Price",
           "Status",
         ]}
         //   footer={
