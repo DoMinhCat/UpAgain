@@ -31,6 +31,8 @@ import {
   useDeleteContainer,
 } from "../../../hooks/containerHooks";
 
+// TODO: add street and field to table containers
+// TODO: link to listing/deposit object if its currently occupied
 export default function AdminContainersDetails() {
   const origin = useLocation().state;
   const navigate = useNavigate();
