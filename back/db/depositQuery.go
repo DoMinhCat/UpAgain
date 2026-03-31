@@ -1,7 +1,9 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 	"math/rand"
 	"time"
@@ -102,4 +104,93 @@ func GetUserTotalDepositsById(id int, is_validated *bool) (int, error) {
 		return 0, fmt.Errorf("GetUserTotalDepositsById() failed: %v", err.Error())
 	}
 	return total, nil
+}
+
+// GetPendingDeposits returns paginated pending deposits with optional search/sort.
+// page=-1 and limit=-1 returns all records.
+func GetPendingDeposits(page, limit int, filters models.ValidationFilters) ([]models.PendingDepositResponse, int, error) {
+	var params []interface{}
+	var countParams []interface{}
+	paramIndex := 1
+
+	whereClause := "WHERE i.status = 'pending' AND i.is_deleted = false"
+
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(
+			" AND (i.title ILIKE $%d OR a.username ILIKE $%d OR CAST(i.id AS TEXT) ILIKE $%d OR c.city_name ILIKE $%d)",
+			paramIndex, paramIndex, paramIndex, paramIndex,
+		)
+		params = append(params, searchParam)
+		countParams = append(countParams, searchParam)
+		paramIndex++
+	}
+
+	orderBy := "ORDER BY i.created_at ASC"
+	if filters.Sort == "most_recent" {
+		orderBy = "ORDER BY i.created_at DESC"
+	}
+
+	countQuery := `
+		SELECT COUNT(DISTINCT i.id)
+		FROM items i
+		LEFT JOIN deposits d ON i.id = d.id_item
+		LEFT JOIN containers c ON d.id_container = c.id
+		LEFT JOIN accounts a ON i.id_user = a.id
+		` + whereClause
+
+	var totalRecords int
+	if err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords); err != nil {
+		return nil, 0, fmt.Errorf("GetPendingDeposits() count failed: %v", err)
+	}
+
+	query := `
+		SELECT
+			i.id, i.title, i.description, i.material, i.state, i.weight, i.created_at,
+			d.id_container, c.city_name, c.postal_code,
+			i.id_user, a.username
+		FROM items i
+		JOIN deposits d ON i.id = d.id_item
+		JOIN containers c ON d.id_container = c.id
+		JOIN accounts a ON i.id_user = a.id
+		` + whereClause + " " + orderBy
+
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
+	}
+
+	rows, err := utils.Conn.Query(query, params...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetPendingDeposits() query failed: %v", err)
+	}
+	defer rows.Close()
+
+	deposits := []models.PendingDepositResponse{}
+	for rows.Next() {
+		var deposit models.PendingDepositResponse
+		var description sql.NullString
+		if err := rows.Scan(
+			&deposit.ItemID, &deposit.Title, &description, &deposit.Material, &deposit.State, &deposit.Weight, &deposit.CreatedAt,
+			&deposit.ContainerID, &deposit.CityName, &deposit.PostalCode,
+			&deposit.UserID, &deposit.Username,
+		); err != nil {
+			return nil, 0, fmt.Errorf("GetPendingDeposits() scan failed: %v", err)
+		}
+		if description.Valid {
+			deposit.Description = description.String
+		}
+		deposits = append(deposits, deposit)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("GetPendingDeposits() rows error: %v", err)
+	}
+	return deposits, totalRecords, nil
+}
+
+func GetDepositStatusById(id int) (string, error) {
+	var status string
+	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
+	return status, err
 }

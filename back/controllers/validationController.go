@@ -26,6 +26,7 @@ import (
 // @Failure      500     {object}  nil                     "Internal server error"
 // @Router       /admin/validations/deposits/ [get]
 func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
+	// TODO: move this to deposit controller later
 	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
 	if err != nil {
 		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingDepositsAdmin", "error", err)
@@ -59,6 +60,7 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Failure      500     {object}  nil                     "Internal server error"
 // @Router       /admin/validations/listings/ [get]
 func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
+	// TODO: move this to listing controller later
 	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
 	if err != nil {
 		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingListingsAdmin", "error", err)
@@ -169,6 +171,7 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 // @Failure      500   {object}  nil                "Internal server error"
 // @Router       /admin/validations/deposits/{id}/ [put]
 func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
+	// TODO: move to depositController
 	idStr := r.PathValue("id")
 	itemID, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -209,7 +212,7 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Deposit status updated successfully"})
 }
 
-// ProcessEventValidation godoc
+// UpdateEventStatus godoc
 // @Summary      Process event validation
 // @Description  Approve or refuse an event
 // @Tags         validation
@@ -222,18 +225,18 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 // @Failure      404   {object}  nil                "Event not found"
 // @Failure      500   {object}  nil                "Internal server error"
 // @Router       /admin/validations/events/{id}/ [put]
-func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
+func UpdateEventStatus(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	eventID, err := strconv.Atoi(idStr)
 	if err != nil {
-		slog.Error("Atoi failed", "controller", "ProcessEventValidation", "error", err)
+		slog.Error("Atoi failed", "controller", "UpdateEventStatus", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event ID")
 		return
 	}
 
 	exist, err := db.CheckEventExistsById(eventID)
 	if err != nil {
-		slog.Error("CheckEventExistsById() failed", "controller", "ProcessEventValidation", "error", err)
+		slog.Error("CheckEventExistsById() failed", "controller", "UpdateEventStatus", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
 		return
 	}
@@ -244,7 +247,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		slog.Error("r.Context().Value failed", "controller", "ProcessEventValidation")
+		slog.Error("r.Context().Value failed", "controller", "UpdateEventStatus")
 		utils.RespondWithError(w, http.StatusInternalServerError, "Unable to authenticate request")
 		return
 	}
@@ -253,7 +256,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 
 	_, newStatus, err := helper.ParseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
 	if err != nil {
-		slog.Error("ParseValidationPayload failed", "controller", "ProcessEventValidation", "error", err)
+		slog.Error("ParseValidationPayload failed", "controller", "UpdateEventStatus", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -261,7 +264,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	oldStatus, _ := db.GetEventStatusById(eventID)
 	err = db.UpdateEventStatusByEventId(eventID, newStatus, employeeID)
 	if err != nil {
-		slog.Error("UpdateEventStatusByEventId() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
+		slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventStatus", "eventId", eventID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
