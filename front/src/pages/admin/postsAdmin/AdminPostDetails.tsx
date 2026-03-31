@@ -444,7 +444,9 @@ export const AdminPostDetails = () => {
               />
             )}
           </Grid.Col>
+
           {/* RIGHT SECTION */}
+          {/* TODO: show ads status + options to prolong, revoke */}
           <Grid.Col
             span={{ base: 12, md: 4 }}
             style={{ position: "sticky", top: "5px" }}
