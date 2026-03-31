@@ -6,6 +6,8 @@ import {
   TextInput,
   SimpleGrid,
   Select,
+  Table,
+  Badge,
   Button,
   Stack,
 } from "@mantine/core";
@@ -20,6 +22,8 @@ import {
 } from "@tabler/icons-react";
 import { PieChart } from "@mantine/charts";
 import { Paper, Text } from "@mantine/core";
+import AdminTable from "../../../components/admin/AdminTable";
+import PaginationFooter from "../../../components/PaginationFooter";
 
 export function AdminListingModule() {
   return (
@@ -32,13 +36,13 @@ export function AdminListingModule() {
       <SimpleGrid cols={{ base: 1, sm: 3 }} mb="xl">
         <AdminCardInfo
           icon={IconCalendarEvent}
-          title="Active Events"
+          title="Active objects"
           value={124}
           description={
             <StatsCardDesc
               stats={12}
               icon={IconArrowUpRight}
-              description="since last month"
+              description=" objects posted since last month"
             />
           }
         />
@@ -58,7 +62,7 @@ export function AdminListingModule() {
             <StatsCardDesc
               stats={84}
               icon={IconArrowUpRight}
-              description="new completions"
+              description=" new transactions since last month"
             />
           }
         />
@@ -88,14 +92,17 @@ export function AdminListingModule() {
                   labelsPosition="outside"
                   labelsType="value"
                   withLabels
+                  withTooltip
+                  tooltipDataSource="segment"
                   h={280}
                   data={[
-                    { name: "Tutorial", value: 10, color: "blue.6" },
-                    { name: "Project", value: 20, color: "green.6" },
-                    { name: "Tips", value: 30, color: "yellow.6" },
-                    { name: "News", value: 40, color: "red.6" },
-                    { name: "Case Study", value: 50, color: "violet.6" },
+                    { name: "Wood", value: 10, color: "blue.6" },
+                    { name: "Metal", value: 20, color: "green.6" },
+                    { name: "Textile", value: 30, color: "yellow.6" },
+                    { name: "Glass", value: 40, color: "red.6" },
+                    { name: "Plastic", value: 50, color: "violet.6" },
                     { name: "Other", value: 60, color: "gray.6" },
+                    { name: "Mixed", value: 60, color: "cyan.6" },
                   ]}
                 />
               </Stack>
@@ -108,6 +115,10 @@ export function AdminListingModule() {
                 <PieChart
                   withTooltip
                   strokeWidth={2}
+                  tooltipDataSource="segment"
+                  labelsPosition="inside"
+                  labelsType="percent"
+                  withLabels
                   h={280}
                   data={[
                     { name: "Listing", value: 70, color: "indigo.6" },
@@ -204,6 +215,120 @@ export function AdminListingModule() {
           </Grid.Col>
         </Grid>
       </Stack>
+
+      <AdminTable
+        //   loading={isAllPostsLoading}
+        //   error={allPostsError}
+        header={[
+          "Created on",
+          "ID",
+          "Title",
+          "Creator",
+          "Category",
+          "Material",
+          "State",
+          "Status",
+        ]}
+        //   footer={
+        //     <PaginationFooter
+        //       activePage={activePage}
+        //       setPage={setPage}
+        //       total_records={posts?.total_records || 0}
+        //       last_page={posts?.last_page || 1}
+        //       limit={LIMIT}
+        //       loading={isAllPostsLoading}
+        //       hidden={hasFilters}
+        //     />
+        //   }
+      >
+        {/* mapping here */}
+        {/* {filteredPosts.length > 0 ? (
+                filteredPosts.map((post) => (
+                  <Table.Tr
+                    key={post.id}
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      navigate(PATHS.ADMIN.POSTS + "/" + post.id, {
+                        state: { from: "allPosts" },
+                      })
+                    }
+                  >
+                    <Table.Td ta="center">
+                      {dayjs(post.created_at).format("DD/MM/YYYY")}
+                    </Table.Td>
+                    <Table.Td ta="center">{post.id}</Table.Td>
+                    <Table.Td ta="center">{post.title}</Table.Td>
+                    <Table.Td ta="center">{post.creator}</Table.Td>
+                    <Table.Td ta="center">
+                      <Pill
+                        variant={
+                          post.category === "other"
+                            ? "gray"
+                            : post.category === "tutorial"
+                              ? "blue"
+                              : post.category === "project"
+                                ? "green"
+                                : post.category === "tips"
+                                  ? "yellow"
+                                  : post.category === "case_study"
+                                    ? "violet"
+                                    : "red"
+                        }
+                      >
+                        {post.category.charAt(0).toUpperCase() +
+                          post.category.slice(1)}
+                      </Pill>
+                    </Table.Td>
+                    <Table.Td ta="center">{post.view_count}</Table.Td>
+                    <Table.Td ta="center">{post.like_count}</Table.Td>
+                    <Table.Td ta="center">
+                      <Group gap="xs" justify="center">
+                        <Button
+                          size="xs"
+                          variant="edit"
+                          onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            navigate(PATHS.ADMIN.POSTS + "/" + post.id);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="delete"
+                          onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            handleModalDelete(post);
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              ) : (
+                <Table.Tr>
+                  <Table.Td colSpan={8} ta="center">
+                    No posts found
+                  </Table.Td>
+                </Table.Tr> */}
+        {/* )} */}
+        <Table.Tr>
+          <Table.Td ta="center">20/03/2026</Table.Td>
+          <Table.Td ta="center">1</Table.Td>
+          <Table.Td ta="center">Title</Table.Td>
+          <Table.Td ta="center">Creator</Table.Td>
+          <Table.Td ta="center">
+            <Badge variant="blue">Listing</Badge>
+          </Table.Td>
+          <Table.Td ta="center">Wood</Table.Td>
+          <Table.Td ta="center">Active</Table.Td>
+          <Table.Td ta="center">
+            <Badge>Pending</Badge>
+          </Table.Td>
+        </Table.Tr>
+      </AdminTable>
     </Container>
   );
 }

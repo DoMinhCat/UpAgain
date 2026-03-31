@@ -20,7 +20,7 @@ import {
   IconPlus,
   IconCalendarTime,
   IconCalendarCheck,
-  IconClockCheck,
+  IconClockPause,
 } from "@tabler/icons-react";
 import {
   AdminCardInfo,
@@ -396,7 +396,7 @@ export default function AdminEventsModule() {
           }
         />
         <AdminCardInfo
-          icon={IconClockCheck}
+          icon={IconClockPause}
           title="Pending approval"
           value={eventStats?.pending ?? 0}
           error={errorEventStats}
