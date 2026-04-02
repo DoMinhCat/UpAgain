@@ -81,6 +81,27 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	var timeParam time.Time
+	var err error
+	timeUrl := r.URL.Query().Get("timeframe")
+	if timeUrl != "" && timeUrl != "all"{
+		switch timeUrl {
+		case "today":
+			timeParam = time.Now().AddDate(0, 0, -1)
+		case "last_3_days":
+			timeParam = time.Now().AddDate(0, 0, -3)
+		case "last_week":
+			timeParam = time.Now().AddDate(0, 0, -7)
+		case "last_month":
+			timeParam = time.Now().AddDate(0, -1, 0)
+		case "last_year":
+			timeParam = time.Now().AddDate(-1, 0, 0)
+		default:
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid timeframe.")
+			return
+		}
+	}
+
 	// total active items
 	status := "approved"
 	activeItems, err := db.GetItemsCountByStatus(&status)
@@ -117,7 +138,7 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 
 	// total transactions
 	status="purchased"
-	totalTransactions, err := db.GetTotalTransactionsByStatus(status)
+	totalTransactions, err := db.GetTotalTransactionsByStatus(status, &timeParam)
 	if err != nil {
 		slog.Error("GetTotalTransactions() failed", "controller", "GetAllItemsStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
