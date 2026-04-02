@@ -290,14 +290,6 @@ func GetTotalWeightByMaterialByStatus(material string, status string) (float64, 
 	return totalWeight, nil
 }
 
-func GetListingStatusById(id int) (string, error) {
-	// TODO: move to listing query
-	var status string
-	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
-	return status, err
-}
-
-
 func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, int, error) {
 	var results []models.Item
 	var params []interface{}
@@ -305,6 +297,7 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	whereClause := "WHERE i.created_at IS NOT NULL"
 	paramIndex := 1
 
+	// Multi select filters
 	if filters.Search != "" {
 		searchParam := "%" + filters.Search + "%"
 		whereClause += fmt.Sprintf(" AND (i.title ILIKE $%d OR a.username ILIKE $%d OR CAST(i.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
@@ -312,15 +305,24 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 		countParams = append(countParams, searchParam)
 		paramIndex++
 	}
-
 	if filters.Status != "" {
 		whereClause += fmt.Sprintf(" AND i.status = $%d", paramIndex)
 		params = append(params, filters.Status)
 		countParams = append(countParams, filters.Status)
 		paramIndex++
 	}
-
-	// TODO: add filters for category, material
+	if filters.Category != "" {
+		whereClause += fmt.Sprintf(" AND i.category = $%d", paramIndex)
+		params = append(params, filters.Category)
+		countParams = append(countParams, filters.Category)
+		paramIndex++
+	}
+	if filters.Material != "" {
+		whereClause += fmt.Sprintf(" AND i.material = $%d", paramIndex)
+		params = append(params, filters.Material)
+		countParams = append(countParams, filters.Material)
+		paramIndex++
+	}
 
 	var totalRecords int
 	countQuery := "SELECT COUNT(*) FROM items i JOIN accounts a ON i.id_user=a.id " + whereClause
@@ -329,32 +331,26 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 		return nil, 0, fmt.Errorf("GetAllItems() count failed: %v", err)
 	}
 
-	// TODO
-	orderBy := "ORDER BY e.id ASC" // Default sorting
+	orderBy := "ORDER BY i.id ASC" // Default sorting
 	if filters.Sort != "" {
 		switch filters.Sort {
-		case "earliest_start_date":
-			orderBy = "ORDER BY e.start_at ASC"
-		case "latest_start_date":
-			orderBy = "ORDER BY e.start_at DESC"
 		case "most_recent_creation":
-			orderBy = "ORDER BY e.created_at DESC"
+			orderBy = "ORDER BY i.created_at DESC"
 		case "oldest_creation":
-			orderBy = "ORDER BY e.created_at ASC"
+			orderBy = "ORDER BY i.created_at ASC"
 		case "highest_price":
-			orderBy = "ORDER BY e.price DESC"
+			orderBy = "ORDER BY i.price DESC"
 		case "lowest_price":
-			orderBy = "ORDER BY e.price ASC"
+			orderBy = "ORDER BY i.price ASC"
 		default:
-			orderBy = "ORDER BY e.id ASC"
+			orderBy = "ORDER BY i.id ASC"
 		}
 	}
 
-	// TODO
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username 
-		FROM events e 
-		JOIN accounts a ON e.created_by=a.id 
+		SELECT i.created_at, i.id, i.title, i.description, i.weight, i.state, i.id_user, a.username, i.category, i.material, i.price, i.status
+		FROM items i
+		JOIN accounts a ON i.id_user=a.id 
 		` + whereClause + " " + orderBy
 
 	// pagination
@@ -367,13 +363,13 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	rows, err := utils.Conn.Query(query, params...)
 
 	if err != nil {
-		return nil, 0, fmt.Errorf("GetAllEvents() query failed: %v", err.Error())
+		return nil, 0, fmt.Errorf("GetAllItems() query failed: %v", err.Error())
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var item models.Item
-		err := rows.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.StartAt, &item.EndAt, &item.Price, &item.Category, &item.Capacity, &item.Status, &item.City, &item.Street, &item.LocationDetail, &item.EmployeeName)
+		err := rows.Scan(&item.CreatedAt, &item.Id, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Username, &item.Category, &item.Material, &item.Price, &item.Status)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllItems() scan failed: %v", err.Error())
 		}
