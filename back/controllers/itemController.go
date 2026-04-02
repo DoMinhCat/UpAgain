@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func GetAllItems(w http.ResponseWriter, r *http.Request){
@@ -70,5 +71,66 @@ func GetAllItems(w http.ResponseWriter, r *http.Request){
 		result.CurrentPage = 1
 		result.LastPage = 1
 	}
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}
+
+func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	// total active items
+	status := "approved"
+	activeItems, err := db.GetItemsCountByStatus(&status)
+	if err != nil {
+		slog.Error("GetActiveItemsCount() failed", "controller", "GetAllItemsStats", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+
+	// total new items since last month
+	newItemsSince, err := db.GetTotalItemsSince(time.Now().AddDate(0, -1, 0))
+	if err != nil {
+		slog.Error("GetTotalItemsSince() failed", "controller", "GetAllItemsStats", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+
+	// total pending items
+	status = "pending"
+	pendingItems, err := db.GetItemsCountByStatus(&status)
+	if err != nil {
+		slog.Error("GetItemsCountByStatus() failed", "controller", "GetAllItemsStats", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+
+	// total transactions since last month
+	newTransactionsSince, err := db.GetTotalTransactionsSince(time.Now().AddDate(0, -1, 0))
+	if err != nil {
+		slog.Error("GetTotalTransactionsSince() failed", "controller", "GetAllItemsStats", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+
+	// total transactions
+	status="purchased"
+	totalTransactions, err := db.GetTotalTransactionsByStatus(status)
+	if err != nil {
+		slog.Error("GetTotalTransactions() failed", "controller", "GetAllItemsStats", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+
+	result := models.ItemAdminStats{
+		ActiveItems:          activeItems,
+		PendingItems:         pendingItems,
+		NewItemsSince:        newItemsSince,
+		NewTransactionsSince: newTransactionsSince,
+		TotalTransactions:    totalTransactions,
+	}
+
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
