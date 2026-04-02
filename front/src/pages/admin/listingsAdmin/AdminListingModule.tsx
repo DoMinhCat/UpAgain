@@ -128,7 +128,7 @@ export function AdminListingModule() {
         />
         <AdminCardInfo
           icon={IconChecklist}
-          title="Transactions"
+          title="Completed Transactions"
           value={1420}
           description={
             <StatsCardDesc

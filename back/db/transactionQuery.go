@@ -3,6 +3,7 @@ package db
 import (
 	"backend/utils"
 	"fmt"
+	"time"
 )
 
 // if param action_type is nil => get all kind of transaction
@@ -94,7 +95,7 @@ func GetProTotalItemsSpendingsById(id int) (int, error) {
 	return total, nil
 }
 
-func GetTotalActiveTransactionById(id_account int) (int, error) {
+func GetTotalActiveTransactionByIdAccount(id_account int) (int, error) {
 	var total int
 	query := `
 		select count(*) from transactions t
@@ -102,7 +103,33 @@ func GetTotalActiveTransactionById(id_account int) (int, error) {
 	`
 	err := utils.Conn.QueryRow(query, id_account).Scan(&total)
 	if err != nil {
-		return 0, fmt.Errorf("GetTotalActiveTransactionById() failed: %v", err.Error())
+		return 0, fmt.Errorf("GetTotalActiveTransactionByIdAccount() failed: %v", err.Error())
+	}
+	return total, nil
+}
+
+func GetTotalTransactionsByStatus(status string) (int, error) {
+	var total int
+	query := `
+		select count(*) from transactions t
+		where t.action=$1
+	`
+	err := utils.Conn.QueryRow(query, status).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalTransactionsByStatus() failed: %v", err.Error())
+	}
+	return total, nil
+}
+
+func GetTotalTransactionsSince(date time.Time) (int, error) {
+	var total int
+	query := `
+		select count(*) from transactions t
+		where t.created_at >= $1
+	`
+	err := utils.Conn.QueryRow(query, date).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalTransactionsSince() failed: %v", err.Error())
 	}
 	return total, nil
 }

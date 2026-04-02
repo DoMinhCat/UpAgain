@@ -4,6 +4,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"fmt"
+	"time"
 )
 
 func GetAllItemsHistory(page, limit int, filters models.ValidationFilters) ([]models.AllItemResponse, int, error) {
@@ -385,4 +386,31 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	}
 
 	return results, totalRecords, nil
+}
+
+func GetItemsCountByStatus(status *string) (int, error) {
+	if status != nil && *status != "pending" && *status != "approved" && *status != "refused" && *status != "completed" {
+		return 0, fmt.Errorf("invalid status")
+	}
+
+	var count int
+	var err error
+	if status == nil {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE is_deleted = false").Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE status = $1 AND is_deleted = false", *status).Scan(&count)
+	}
+	if err != nil {
+		return 0, fmt.Errorf("GetItemsCountByStatus() failed: %v", err)
+	}
+	return count, nil
+}
+
+func GetTotalItemsSince(date time.Time) (int, error) {
+	var count int
+	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE created_at >= $1 AND is_deleted = false", date).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalItemsSince() failed: %v", err)
+	}
+	return count, nil
 }
