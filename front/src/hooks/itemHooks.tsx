@@ -22,10 +22,10 @@ export const useGetAllItems = (
   });
 };
 
-export const useGetItemStats = () => {
+export const useGetItemStats = (time?: string) => {
   return useQuery({
-    queryKey: ["item-stats"],
-    queryFn: () => getItemStats(),
+    queryKey: ["item-stats", time],
+    queryFn: () => getItemStats(time),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Error",

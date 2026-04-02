@@ -95,17 +95,37 @@ export function AdminListingModule() {
   );
   const allItems = items?.items || [];
 
-  // STATS CARDS
-  const { data: itemStats, isLoading: isItemStatsLoading } = useGetItemStats();
+  // STATS
+  const [chartTime, setChartTime] = useState<string | null>("all");
+  const { data: itemStats, isLoading: isItemStatsLoading } = useGetItemStats(
+    chartTime || undefined,
+  );
 
   if (isItemsLoading) {
     return <FullScreenLoader />;
   }
   return (
     <Container px="md" size="xl">
-      <Title order={2} mt="lg" mb="xl">
-        Listing Management
-      </Title>
+      <Group justify="space-between" mb="xl">
+        <Title order={2} mt="lg">
+          Listing Management
+        </Title>
+        <Select
+          label="Timeframe"
+          placeholder="All time"
+          value={chartTime}
+          disabled={isItemStatsLoading}
+          onChange={(value) => setChartTime(value)}
+          data={[
+            { value: "all", label: "All Time" },
+            { value: "today", label: "Today" },
+            { value: "last_3_days", label: "Last 3 days" },
+            { value: "last_week", label: "Last Week" },
+            { value: "last_month", label: "Last Month" },
+            { value: "last_year", label: "Last Year" },
+          ]}
+        />
+      </Group>
 
       {/* stats cards */}
       <SimpleGrid cols={{ base: 1, sm: 3 }} mb="xl">

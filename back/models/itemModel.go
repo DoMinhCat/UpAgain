@@ -39,13 +39,13 @@ type ItemAdminStats struct {
 	PendingItems 			int `json:"pending"`
 	NewTransactionsSince 	int `json:"new_transactions_since"`
 	TotalTransactions 		int `json:"total_transactions"`
-	// TotalListings 			int `json:"total_listings"`
-	// TotalDeposits 			int `json:"total_deposits"`
-	// TotalWood 				int `json:"total_wood"`
-	// TotalMetal 				int `json:"total_metal"`
-	// TotalPlastic 			int `json:"total_plastic"`
-	// TotalGlass 				int `json:"total_glass"`
-	// TotalTextile 			int `json:"total_textile"`
-	// TotalMixed 				int `json:"total_mixed"`
-	// TotalOther 				int `json:"total_other"`
+	TotalListings 			int `json:"total_listings"`
+	TotalDeposits 			int `json:"total_deposits"`
+	TotalWood 				int `json:"total_wood"`
+	TotalMetal 				int `json:"total_metal"`
+	TotalPlastic 			int `json:"total_plastic"`
+	TotalGlass 				int `json:"total_glass"`
+	TotalTextile 			int `json:"total_textile"`
+	TotalMixed 				int `json:"total_mixed"`
+	TotalOther 				int `json:"total_other"`
 }

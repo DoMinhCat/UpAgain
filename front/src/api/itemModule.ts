@@ -17,7 +17,9 @@ export const getAllItems = async (
   return response.data;
 };
 
-export const getItemStats = async (): Promise<ItemAdminStats> => {
-  const response = await api.get(ENDPOINTS.ADMIN.ITEMS.COUNT);
+export const getItemStats = async (time?: string): Promise<ItemAdminStats> => {
+  const response = await api.get(ENDPOINTS.ADMIN.ITEMS.COUNT, {
+    params: { timeframe: time },
+  });
   return response.data;
 };

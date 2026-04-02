@@ -108,26 +108,30 @@ func GetTotalActiveTransactionByIdAccount(id_account int) (int, error) {
 	return total, nil
 }
 
-func GetTotalTransactionsByStatus(status string) (int, error) {
+func GetTotalTransactionsByStatus(status string, since *time.Time) (int, error) {
 	var total int
+	time:= " AND created_at IS NOT NULL"
 	query := `
 		select count(*) from transactions t
 		where t.action=$1
 	`
-	err := utils.Conn.QueryRow(query, status).Scan(&total)
+	if since != nil{
+		time = " AND created_at >= $2"
+	}
+	err := utils.Conn.QueryRow(query+time+";", status, since).Scan(&total)
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalTransactionsByStatus() failed: %v", err.Error())
 	}
 	return total, nil
 }
 
-func GetTotalTransactionsSince(date time.Time) (int, error) {
+func GetTotalTransactionsSince(since time.Time) (int, error) {
 	var total int
 	query := `
 		select count(*) from transactions t
 		where t.created_at >= $1
 	`
-	err := utils.Conn.QueryRow(query, date).Scan(&total)
+	err := utils.Conn.QueryRow(query, since).Scan(&total)
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalTransactionsSince() failed: %v", err.Error())
 	}
