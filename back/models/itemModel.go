@@ -11,14 +11,18 @@ type ItemFilters struct {
 }
 
 type Item struct {
-	CreatedAt time.Time `json:"created_at"`
-	ID        int       `json:"id"`
-	Title     string    `json:"title"`
-	Creator   string    `json:"creator"`
-	Category  string    `json:"category"`  // listing or deposit
-	Material  string    `json:"material"`
-	Price     float64   `json:"price"`
-	Status    string    `json:"status"`
+	CreatedAt time.Time 	`json:"created_at"`
+	Id        	int       	`json:"id"`
+	Title     	string    	`json:"title"`
+	Description string  	`json:"description"`
+    Weight      float64 	`json:"weight"`
+    State       string 		`json:"state"`
+    IdUser 		int   		`json:"id_user"`
+	Username   	string    	`json:"username"`
+	Category  	string    	`json:"category"`  // listing or deposit
+	Material  	string    	`json:"material"`
+	Price     	float64   	`json:"price"`
+	Status    	string    	`json:"status"`
 }
 
 type ItemListPagination struct {

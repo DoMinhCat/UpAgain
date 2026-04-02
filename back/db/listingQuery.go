@@ -33,3 +33,9 @@ func GetUserTotalListingsById(id int, is_validated *bool) (int, error) {
 
 	return total, nil
 }
+
+func GetListingStatusById(id int) (string, error) {
+	var status string
+	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
+	return status, err
+}
