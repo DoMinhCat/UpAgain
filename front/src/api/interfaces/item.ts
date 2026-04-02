@@ -1,13 +1,19 @@
 export interface Item {
+  created_at: string;
   id: number;
   title: string;
-  status: string;
-  created_at: string;
+  description: string;
+  weight: number;
+  state: string;
+  id_user: number;
   username: string;
-  item_type: string;
+  category: string;
+  material: string;
+  price: number;
+  status: string;
 }
 
-export interface PaginatedHistoryResponse {
+export interface ItemsListPagination {
   items: Item[];
   current_page: number;
   last_page: number;
