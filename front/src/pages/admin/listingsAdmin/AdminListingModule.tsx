@@ -25,7 +25,7 @@ import { PieChart } from "@mantine/charts";
 import { Paper, Text } from "@mantine/core";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/PaginationFooter";
-import { useGetAllItems } from "../../../hooks/itemHooks";
+import { useGetAllItems, useGetItemStats } from "../../../hooks/itemHooks";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
@@ -95,6 +95,9 @@ export function AdminListingModule() {
   );
   const allItems = items?.items || [];
 
+  // STATS CARDS
+  const { data: itemStats, isLoading: isItemStatsLoading } = useGetItemStats();
+
   if (isItemsLoading) {
     return <FullScreenLoader />;
   }
@@ -108,33 +111,51 @@ export function AdminListingModule() {
       <SimpleGrid cols={{ base: 1, sm: 3 }} mb="xl">
         <AdminCardInfo
           icon={IconCalendarEvent}
-          title="Active objects"
-          value={124}
+          title="Total Active Objects"
+          value={itemStats?.active || 0}
+          loading={isItemStatsLoading}
           description={
             <StatsCardDesc
-              stats={12}
+              stats={itemStats?.new_since || 0}
               icon={IconArrowUpRight}
-              description=" objects posted since last month"
+              description={
+                itemStats?.new_since != 1
+                  ? " new objects posted since last month"
+                  : " new object posted since last month"
+              }
             />
           }
         />
         <AdminCardInfo
           icon={IconClockPause}
           title="Pending Approval"
-          value={8}
+          value={itemStats?.pending || 0}
+          loading={isItemStatsLoading}
           description={
-            <StatsCardDesc stats={3} description="require validation" />
+            <StatsCardDesc
+              stats={itemStats?.pending || 0}
+              description={
+                itemStats?.pending != 1
+                  ? " objects require validation"
+                  : " object require validation"
+              }
+            />
           }
         />
         <AdminCardInfo
           icon={IconChecklist}
           title="Completed Transactions"
-          value={1420}
+          value={itemStats?.total_transactions || 0}
+          loading={isItemStatsLoading}
           description={
             <StatsCardDesc
-              stats={84}
+              stats={itemStats?.new_transactions_since || 0}
               icon={IconArrowUpRight}
-              description=" new transactions since last month"
+              description={
+                itemStats?.new_transactions_since != 1
+                  ? " new transactions since last month"
+                  : " new transaction since last month"
+              }
             />
           }
         />

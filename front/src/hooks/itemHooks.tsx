@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllItems } from "../api/itemModule";
+import { getAllItems, getItemStats } from "../api/itemModule";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -18,6 +18,18 @@ export const useGetAllItems = (
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch items",
+    },
+  });
+};
+
+export const useGetItemStats = () => {
+  return useQuery({
+    queryKey: ["item-stats"],
+    queryFn: () => getItemStats(),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch item stats",
     },
   });
 };

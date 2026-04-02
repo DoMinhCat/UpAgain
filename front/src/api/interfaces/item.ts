@@ -20,3 +20,11 @@ export interface ItemsListPagination {
   limit: number;
   total_records: number;
 }
+
+export interface ItemAdminStats {
+  new_since: number;
+  active: number;
+  pending: number;
+  new_transactions_since: number;
+  total_transactions: number;
+}
