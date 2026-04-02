@@ -294,7 +294,7 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	var results []models.Item
 	var params []interface{}
 	var countParams []interface{}
-	whereClause := "WHERE i.created_at IS NOT NULL"
+	whereClause := "WHERE i.is_deleted = false"
 	paramIndex := 1
 
 	// Multi select filters
@@ -312,10 +312,7 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 		paramIndex++
 	}
 	if filters.Category != "" {
-		whereClause += fmt.Sprintf(" AND i.category = $%d", paramIndex)
-		params = append(params, filters.Category)
-		countParams = append(countParams, filters.Category)
-		paramIndex++
+		whereClause += " AND EXISTS (SELECT 1 FROM listings l WHERE l.id_item = i.id)"
 	}
 	if filters.Material != "" {
 		whereClause += fmt.Sprintf(" AND i.material = $%d", paramIndex)
@@ -348,7 +345,7 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	}
 
 	query := `
-		SELECT i.created_at, i.id, i.title, i.description, i.weight, i.state, i.id_user, a.username, i.category, i.material, i.price, i.status
+		SELECT i.created_at, i.id, i.title, i.description, i.weight, i.state, i.id_user, a.username, i.material, i.price, i.status
 		FROM items i
 		JOIN accounts a ON i.id_user=a.id 
 		` + whereClause + " " + orderBy
@@ -369,9 +366,20 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 
 	for rows.Next() {
 		var item models.Item
-		err := rows.Scan(&item.CreatedAt, &item.Id, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Username, &item.Category, &item.Material, &item.Price, &item.Status)
+		err := rows.Scan(&item.CreatedAt, &item.Id, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Username, &item.Material, &item.Price, &item.Status)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllItems() scan failed: %v", err.Error())
+		}
+		// get category
+		var isListing bool
+		err = utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM listings WHERE id_item = $1);", item.Id).Scan(&isListing)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllItems() scan failed: %v", err.Error())
+		}
+		if isListing {
+			item.Category = "listing"
+		} else {
+			item.Category = "deposit"
 		}
 		results = append(results, item)
 	}

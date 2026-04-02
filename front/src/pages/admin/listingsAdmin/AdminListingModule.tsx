@@ -10,6 +10,7 @@ import {
   Badge,
   Button,
   Stack,
+  Pill,
 } from "@mantine/core";
 import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
 import { StatsCardDesc } from "../../../components/admin/AdminCardInfo";
@@ -24,8 +25,79 @@ import { PieChart } from "@mantine/charts";
 import { Paper, Text } from "@mantine/core";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/PaginationFooter";
+import { useGetAllItems } from "../../../hooks/itemHooks";
+import FullScreenLoader from "../../../components/FullScreenLoader";
+import { useState } from "react";
+import { PATHS } from "../../../routes/paths";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 export function AdminListingModule() {
+  const navigate = useNavigate();
+
+  // Get table data
+  const [filters, setFilters] = useState<{
+    searchValue: string | undefined;
+    sortValue: string | null;
+    categoryValue: string | null;
+    statusValue: string | null;
+    materialValue: string | null;
+  }>({
+    searchValue: "",
+    sortValue: null,
+    categoryValue: null,
+    statusValue: null,
+    materialValue: null,
+  });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [activePage, setPage] = useState(1);
+  const LIMIT = 10;
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+    appliedFilters.categoryValue ||
+    appliedFilters.sortValue ||
+    appliedFilters.statusValue ||
+    appliedFilters.materialValue,
+  );
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: null,
+      categoryValue: null,
+      statusValue: null,
+      materialValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+  const {
+    data: items,
+    isLoading: isItemsLoading,
+    error: itemsError,
+  } = useGetAllItems(
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue,
+    appliedFilters.sortValue || undefined,
+    appliedFilters.statusValue || undefined,
+    appliedFilters.materialValue || undefined,
+    appliedFilters.categoryValue || undefined,
+  );
+  const allItems = items?.items || [];
+
+  if (isItemsLoading) {
+    return <FullScreenLoader />;
+  }
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -145,16 +217,16 @@ export function AdminListingModule() {
               variant="filled"
               placeholder="Search by owner's name, item's ID or title..."
               rightSection={<IconSearch size={14} />}
-              // disabled={isLoadingEvents}
-              // value={filters.searchValue}
-              // onChange={(e) =>
-              //   handleFilterChange("searchValue", e.target.value)
-              // }
-              // onKeyDown={(event) => {
-              //   if (event.key === "Enter") {
-              //     handleSearchClick();
-              //   }
-              // }}
+              disabled={isItemsLoading}
+              value={filters.searchValue}
+              onChange={(e) =>
+                handleFilterChange("searchValue", e.target.value)
+              }
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleSearchClick();
+                }
+              }}
             />
           </Grid.Col>
 
@@ -178,9 +250,9 @@ export function AdminListingModule() {
                 },
               ]}
               clearable
-              // value={filters.sortValue}
-              // disabled={isLoadingEvents}
-              // onChange={(val) => handleFilterChange("sortValue", val)}
+              value={filters.sortValue}
+              disabled={isItemsLoading}
+              onChange={(val) => handleFilterChange("sortValue", val)}
             />
           </Grid.Col>
 
@@ -194,9 +266,9 @@ export function AdminListingModule() {
                 { value: "refused", label: "Refused" },
                 { value: "completed", label: "Completed" },
               ]}
-              // value={filters.statusValue}
-              // disabled={isLoadingEvents}
-              // onChange={(val) => handleFilterChange("statusValue", val)}
+              value={filters.statusValue}
+              disabled={isItemsLoading}
+              onChange={(val) => handleFilterChange("statusValue", val)}
               clearable
             />
           </Grid.Col>
@@ -214,9 +286,9 @@ export function AdminListingModule() {
                 { value: "other", label: "Other" },
                 { value: "mixed", label: "Mixed" },
               ]}
-              // value={filters.statusValue}
-              // disabled={isLoadingEvents}
-              // onChange={(val) => handleFilterChange("statusValue", val)}
+              value={filters.materialValue}
+              disabled={isItemsLoading}
+              onChange={(val) => handleFilterChange("materialValue", val)}
               clearable
             />
           </Grid.Col>
@@ -229,25 +301,29 @@ export function AdminListingModule() {
                 { value: "listing", label: "Listing" },
                 { value: "deposit", label: "Deposit" },
               ]}
-              // value={filters.statusValue}
-              // disabled={isLoadingEvents}
-              // onChange={(val) => handleFilterChange("statusValue", val)}
+              value={filters.categoryValue}
+              disabled={isItemsLoading}
+              onChange={(val) => handleFilterChange("categoryValue", val)}
               clearable
             />
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 12 }}>
             <Group gap="xs" grow>
-              <Button variant="primary">Apply filters</Button>
-              <Button variant="secondary">Reset</Button>
+              <Button variant="primary" onClick={handleSearchClick}>
+                Apply filters
+              </Button>
+              <Button variant="secondary" onClick={handleResetFilters}>
+                Reset
+              </Button>
             </Group>
           </Grid.Col>
         </Grid>
       </Stack>
 
       <AdminTable
-        //   loading={isAllPostsLoading}
-        //   error={allPostsError}
+        loading={isItemsLoading}
+        error={itemsError}
         header={[
           "Created on",
           "ID",
@@ -258,105 +334,65 @@ export function AdminListingModule() {
           "Price",
           "Status",
         ]}
-        //   footer={
-        //     <PaginationFooter
-        //       activePage={activePage}
-        //       setPage={setPage}
-        //       total_records={posts?.total_records || 0}
-        //       last_page={posts?.last_page || 1}
-        //       limit={LIMIT}
-        //       loading={isAllPostsLoading}
-        //       hidden={hasFilters}
-        //     />
-        //   }
+        footer={
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={items?.total_records || 0}
+            last_page={items?.last_page || 1}
+            limit={LIMIT}
+            loading={isItemsLoading}
+            hidden={hasFilters}
+          />
+        }
       >
         {/* mapping here */}
-        {/* {filteredPosts.length > 0 ? (
-                filteredPosts.map((post) => (
-                  <Table.Tr
-                    key={post.id}
-                    style={{ cursor: "pointer" }}
-                    onClick={() =>
-                      navigate(PATHS.ADMIN.POSTS + "/" + post.id, {
-                        state: { from: "allPosts" },
-                      })
-                    }
-                  >
-                    <Table.Td ta="center">
-                      {dayjs(post.created_at).format("DD/MM/YYYY")}
-                    </Table.Td>
-                    <Table.Td ta="center">{post.id}</Table.Td>
-                    <Table.Td ta="center">{post.title}</Table.Td>
-                    <Table.Td ta="center">{post.creator}</Table.Td>
-                    <Table.Td ta="center">
-                      <Pill
-                        variant={
-                          post.category === "other"
-                            ? "gray"
-                            : post.category === "tutorial"
-                              ? "blue"
-                              : post.category === "project"
-                                ? "green"
-                                : post.category === "tips"
-                                  ? "yellow"
-                                  : post.category === "case_study"
-                                    ? "violet"
-                                    : "red"
-                        }
-                      >
-                        {post.category.charAt(0).toUpperCase() +
-                          post.category.slice(1)}
-                      </Pill>
-                    </Table.Td>
-                    <Table.Td ta="center">{post.view_count}</Table.Td>
-                    <Table.Td ta="center">{post.like_count}</Table.Td>
-                    <Table.Td ta="center">
-                      <Group gap="xs" justify="center">
-                        <Button
-                          size="xs"
-                          variant="edit"
-                          onClick={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            navigate(PATHS.ADMIN.POSTS + "/" + post.id);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="xs"
-                          variant="delete"
-                          onClick={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            handleModalDelete(post);
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </Group>
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              ) : (
-                <Table.Tr>
-                  <Table.Td colSpan={8} ta="center">
-                    No posts found
-                  </Table.Td>
-                </Table.Tr> */}
-        {/* )} */}
-        <Table.Tr>
-          <Table.Td ta="center">20/03/2026</Table.Td>
-          <Table.Td ta="center">1</Table.Td>
-          <Table.Td ta="center">Title</Table.Td>
-          <Table.Td ta="center">Creator</Table.Td>
-          <Table.Td ta="center">
-            <Badge variant="blue">Listing</Badge>
-          </Table.Td>
-          <Table.Td ta="center">Wood</Table.Td>
-          <Table.Td ta="center">Active</Table.Td>
-          <Table.Td ta="center">
-            <Badge>Pending</Badge>
-          </Table.Td>
-        </Table.Tr>
+        {allItems.length > 0 ? (
+          allItems.map((item) => (
+            <Table.Tr
+              key={item.id}
+              style={{ cursor: "pointer" }}
+              // onClick={() =>
+              //   navigate(PATHS.ADMIN.POSTS + "/" + post.id, {
+              //     state: { from: "allPosts" },
+              //   })
+              // }
+            >
+              <Table.Td ta="center">
+                {dayjs(item.created_at).format("DD/MM/YYYY")}
+              </Table.Td>
+              <Table.Td ta="center">{item.id}</Table.Td>
+              <Table.Td ta="center">{item.title}</Table.Td>
+              <Table.Td ta="center">{item.username}</Table.Td>
+              <Table.Td ta="center">
+                <Pill variant={item.category === "listing" ? "green" : "blue"}>
+                  {item.category.toUpperCase()}
+                </Pill>
+              </Table.Td>
+              <Table.Td ta="center">
+                {item.material.charAt(0).toUpperCase() + item.material.slice(1)}
+              </Table.Td>
+              <Table.Td ta="center">{item.price}</Table.Td>
+              <Table.Td ta="center">
+                {item.status === "pending" ? (
+                  <Badge variant="blue">Pending</Badge>
+                ) : item.status === "approved" ? (
+                  <Badge variant="green">Approved</Badge>
+                ) : item.status === "refused" ? (
+                  <Badge variant="red">Refused</Badge>
+                ) : (
+                  <Badge variant="gray">Completed</Badge>
+                )}
+              </Table.Td>
+            </Table.Tr>
+          ))
+        ) : (
+          <Table.Tr>
+            <Table.Td colSpan={8} ta="center">
+              No items found
+            </Table.Td>
+          </Table.Tr>
+        )}
       </AdminTable>
     </Container>
   );

@@ -57,6 +57,11 @@ export const ENDPOINTS = {
       ALL: "/history/",
       DETAILS: (id_history: number) => `/history/${id_history}/`,
     },
+
+    ITEMS: {
+      ALL: "/items/",
+      COUNT: "/items/count/",
+    },
   },
 
   AUTH: {
