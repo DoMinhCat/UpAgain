@@ -36,11 +36,15 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
-import { useGetItemDetails } from "../../../hooks/itemHooks";
+import {
+  useGetItemDetails,
+  useUpdateItemStatus,
+} from "../../../hooks/itemHooks";
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../../../components/PhotosCarousel";
 import { useState } from "react";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
+import { showSuccessNotification } from "../../../components/NotificationToast";
 
 export default function AdminListingDetails() {
   const location = useLocation();
@@ -71,6 +75,22 @@ export default function AdminListingDetails() {
     { open: openUpdateStatusModal, close: closeUpdateStatusModal },
   ] = useDisclosure(false);
 
+  const updateItemStatus = useUpdateItemStatus(id_event);
+
+  const handleUpdateItemStatus = (status: string) => {
+    updateItemStatus.mutate(status, {
+      onSuccess: () => {
+        status === "deleted"
+          ? showSuccessNotification("Item deleted", "Item deleted successfully")
+          : showSuccessNotification(
+              "Item updated",
+              "Item status updated successfully",
+            );
+        navigate(PATHS.ADMIN.LISTINGS);
+      },
+    });
+  };
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
@@ -82,14 +102,14 @@ export default function AdminListingDetails() {
             ? [
                 { title: "Listing Management", href: PATHS.ADMIN.LISTINGS },
                 {
-                  title: "Listing Details",
+                  title: "Listing's Details",
                   href: PATHS.ADMIN.LISTINGS + "/" + id,
                 },
               ]
             : [
                 { title: "Listing Management", href: PATHS.ADMIN.LISTINGS },
                 {
-                  title: "Listing Details",
+                  title: "Listing's Details",
                   href: PATHS.ADMIN.LISTINGS + "/" + id,
                 },
               ]),
@@ -134,7 +154,6 @@ export default function AdminListingDetails() {
                   __html: itemDetails?.description ?? "",
                 }}
               />
-              <div>Content</div>
             </Stack>
             {itemDetails?.images && itemDetails.images.length > 0 && (
               <>
@@ -267,33 +286,39 @@ export default function AdminListingDetails() {
               </SimpleGrid>
 
               {/* Footer Actions */}
-              <Stack mt="xl">
-                <Group grow>
-                  <Button
-                    variant="edit"
-                    // onClick={handleOpenEdit}
-                    fullWidth
-                  >
-                    Edit item
-                  </Button>
-                  <Button
-                    disabled={itemDetails?.status === "completed"}
-                    fullWidth
-                    variant={
-                      ["pending", "refused"].includes(itemDetails?.status ?? "")
-                        ? "primary"
-                        : "delete"
-                    }
-                    onClick={openUpdateStatusModal}
-                  >
-                    {itemDetails?.status === "refused"
-                      ? "Reopen item"
-                      : itemDetails?.status === "pending"
-                        ? "Approve item"
-                        : "Delete item"}
-                  </Button>
-                </Group>
-              </Stack>
+              {itemDetails?.status !== "completed" && (
+                <>
+                  <Stack mt="xl">
+                    <Group grow>
+                      <Button
+                        variant="edit"
+                        // onClick={handleOpenEdit}
+                        fullWidth
+                      >
+                        Edit item
+                      </Button>
+
+                      <Button
+                        fullWidth
+                        variant={
+                          ["pending", "refused"].includes(
+                            itemDetails?.status ?? "",
+                          )
+                            ? "primary"
+                            : "delete"
+                        }
+                        onClick={openUpdateStatusModal}
+                      >
+                        {itemDetails?.status === "refused"
+                          ? "Reopen item"
+                          : itemDetails?.status === "pending"
+                            ? "Approve item"
+                            : "Delete item"}
+                      </Button>
+                    </Group>
+                  </Stack>
+                </>
+              )}
 
               {/* Edit Modal */}
               {/* <Modal
@@ -478,7 +503,7 @@ export default function AdminListingDetails() {
         <Divider my="xl" />
         <Group justify="space-between">
           <Title order={3} mb="lg">
-            Transactions
+            Transaction history
           </Title>
         </Group>
         <AdminTable
@@ -520,16 +545,21 @@ export default function AdminListingDetails() {
             Cancel
           </Button>
           <Button
-            //   onClick={() => {
-            //     handleUpdateEventStatus();
-            //   }}
+            onClick={() => {
+              handleUpdateItemStatus(
+                itemDetails?.status === "refused" ||
+                  itemDetails?.status === "pending"
+                  ? "approved"
+                  : "deleted",
+              );
+            }}
             variant={
               itemDetails?.status === "refused" ||
               itemDetails?.status === "pending"
                 ? "primary"
                 : "delete"
             }
-            //   loading={cancelEvent.isPending}
+            loading={updateItemStatus.isPending}
           >
             Confirm
           </Button>

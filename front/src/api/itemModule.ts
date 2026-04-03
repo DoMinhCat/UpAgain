@@ -32,6 +32,10 @@ export const deleteItem = async (id: number) => {
   await api.delete(ENDPOINTS.ADMIN.ITEMS.DELETE(id));
 };
 
+export const updateItemStatus = async (id: number, status: string) => {
+  await api.patch(ENDPOINTS.ADMIN.ITEMS.DETAILS(id), { status });
+};
+
 export const getItemDetails = async (id: number): Promise<Item> => {
   const response = await api.get(ENDPOINTS.ADMIN.ITEMS.DETAILS(id));
   return response.data;

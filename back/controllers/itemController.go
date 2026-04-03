@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -310,4 +311,60 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request){
 	item.Username = username
 
 	utils.RespondWithJSON(w, http.StatusOK, item)
+}
+
+func UpdateItemStatusById(w http.ResponseWriter, r *http.Request){
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role == "employee" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	idString := r.PathValue("item_id")
+	if idString == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item ID is required.")
+		return
+	}
+
+	id_item, err := strconv.Atoi(idString)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "UpdateItemStatusById", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID.")
+		return
+	}
+
+	// check exist
+	exist, err := db.CheckItemExistByItemId(id_item)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "UpdateItemStatusById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item.")
+		return
+	}
+
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID " + idString + " not found.")
+		return
+	}
+
+	var payload models.ItemStatusUpdateRequest
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		slog.Error("Decode() failed", "controller", "UpdateItemStatusById", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+		return
+	}
+
+	if payload.Status != "pending" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "deleted" &&payload.Status != "completed" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
+		return
+	}
+
+	err = db.UpdateItemStatusById(id_item, payload.Status)
+	if err != nil {
+		slog.Error("UpdateItemStatusById() failed", "controller", "UpdateItemStatusById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item status updated successfully."})
 }
