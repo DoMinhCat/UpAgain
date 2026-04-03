@@ -432,3 +432,19 @@ func GetTotalItemsByMaterialSince(material string, since *time.Time) (int, error
 	return count, nil
 }
 
+func CheckItemExistByItemId(id int) (bool, error) {
+	var exists bool
+	err := utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM items WHERE id = $1 AND is_deleted = false)", id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckItemExistByItemId() failed: %v", err)
+	}
+	return exists, nil
+}
+
+func DeleteItem(id int) error {
+	_, err := utils.Conn.Exec("UPDATE items SET is_deleted = true WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("DeleteItem() failed: %v", err)
+	}
+	return nil
+}

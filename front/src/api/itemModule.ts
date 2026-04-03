@@ -23,3 +23,7 @@ export const getItemStats = async (time?: string): Promise<ItemAdminStats> => {
   });
   return response.data;
 };
+
+export const deleteItem = async (id: number) => {
+  await api.delete(ENDPOINTS.ADMIN.ITEMS.DELETE(id));
+};
