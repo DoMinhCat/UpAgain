@@ -36,6 +36,9 @@ export default function AdminListingDetails() {
   const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
     useDisclosure(false);
 
+  // GET COMMON ITEM ATTRIBUTES
+  // const { data: itemAttributes, isLoading: isItemAttributesLoading } = useGetItemAttributes(id_event);
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
@@ -68,19 +71,9 @@ export default function AdminListingDetails() {
             <Stack gap={0} style={{ width: "100%" }}>
               <Group>
                 <Badge
-                //   variant={
-                //     eventDetails?.category === "other"
-                //       ? "gray"
-                //       : eventDetails?.category === "workshop"
-                //         ? "blue"
-                //         : eventDetails?.category === "conference"
-                //           ? "green"
-                //           : eventDetails?.category === "meetups"
-                //             ? "yellow"
-                //             : "red"
-                //   }
+                  variant={origin?.category === "listing" ? "green" : "blue"}
                 >
-                  {/* {eventDetails?.category} */}Category
+                  {origin?.category}
                 </Badge>
                 <Badge
                 //   variant={

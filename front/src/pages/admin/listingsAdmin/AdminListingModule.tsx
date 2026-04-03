@@ -490,7 +490,7 @@ export function AdminListingModule() {
               style={{ cursor: "pointer" }}
               onClick={() =>
                 navigate(PATHS.ADMIN.LISTINGS + "/" + item.id, {
-                  state: { from: "allItems" },
+                  state: { from: "allItems", category: item.category },
                 })
               }
             >

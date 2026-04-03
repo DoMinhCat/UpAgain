@@ -194,7 +194,7 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-func DeleteItem(w http.ResponseWriter, r *http.Request){
+func DeleteItemById(w http.ResponseWriter, r *http.Request){
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "user" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
@@ -209,7 +209,7 @@ func DeleteItem(w http.ResponseWriter, r *http.Request){
 
 	id_event, err := strconv.Atoi(idString)
 	if err != nil {
-		slog.Error("Atoi() failed", "controller", "DeleteItem", "error", err)
+		slog.Error("Atoi() failed", "controller", "DeleteItemById", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID.")
 		return
 	}
@@ -217,7 +217,7 @@ func DeleteItem(w http.ResponseWriter, r *http.Request){
 	// check exist
 	exist, err := db.CheckItemExistByItemId(id_event)
 	if err != nil {
-		slog.Error("CheckItemExistByItemId() failed", "controller", "DeleteItem", "error", err)
+		slog.Error("CheckItemExistByItemId() failed", "controller", "DeleteItemById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
 		return
 	}
@@ -227,12 +227,49 @@ func DeleteItem(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	err = db.DeleteItem(id_event)
+	err = db.DeleteItemById(id_event)
 	if err != nil {
-		slog.Error("DeleteItem() failed", "controller", "DeleteItem", "error", err)
+		slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
 		return
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+
+func GetItemDetails(w http.ResponseWriter, r *http.Request){
+	idString := r.PathValue("item_id")
+	if idString == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item ID is required.")
+		return
+	}
+
+	id_event, err := strconv.Atoi(idString)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "GetItemDetails", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID.")
+		return
+	}
+
+	exist, err := db.CheckItemExistByItemId(id_event)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "GetItemDetails", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
+		return
+	}
+
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID " + idString + " not found.")
+		return
+	}
+
+	item, err := db.GetItemDetailsByItemId(id_event)
+	if err != nil {
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "GetItemDetails", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, item)
 }
