@@ -488,11 +488,11 @@ export function AdminListingModule() {
             <Table.Tr
               key={item.id}
               style={{ cursor: "pointer" }}
-              // onClick={() =>
-              //   navigate(PATHS.ADMIN.POSTS + "/" + post.id, {
-              //     state: { from: "allPosts" },
-              //   })
-              // }
+              onClick={() =>
+                navigate(PATHS.ADMIN.LISTINGS + "/" + item.id, {
+                  state: { from: "allItems" },
+                })
+              }
             >
               <Table.Td ta="center">
                 {dayjs(item.created_at).format("DD/MM/YYYY")}
