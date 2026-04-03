@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getAllItems, getItemStats } from "../api/itemModule";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteItem, getAllItems, getItemStats } from "../api/itemModule";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -30,6 +30,22 @@ export const useGetItemStats = (time?: string) => {
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch item stats",
+    },
+  });
+};
+
+export const useDeleteItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteItem(id),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to delete item",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      // TODO: invalidate item detail page
     },
   });
 };

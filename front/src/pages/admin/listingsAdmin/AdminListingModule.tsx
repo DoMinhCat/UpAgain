@@ -12,6 +12,7 @@ import {
   Stack,
   Pill,
   Loader,
+  Modal,
 } from "@mantine/core";
 import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
 import { StatsCardDesc } from "../../../components/admin/AdminCardInfo";
@@ -26,12 +27,19 @@ import { PieChart } from "@mantine/charts";
 import { Paper, Text } from "@mantine/core";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/PaginationFooter";
-import { useGetAllItems, useGetItemStats } from "../../../hooks/itemHooks";
+import {
+  useDeleteItem,
+  useGetAllItems,
+  useGetItemStats,
+} from "../../../hooks/itemHooks";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import type { Item } from "../../../api/interfaces/item";
+import { useDisclosure } from "@mantine/hooks";
+import { showSuccessNotification } from "../../../components/NotificationToast";
 
 export function AdminListingModule() {
   const navigate = useNavigate();
@@ -101,6 +109,30 @@ export function AdminListingModule() {
   const { data: itemStats, isLoading: isItemStatsLoading } = useGetItemStats(
     chartTime || undefined,
   );
+
+  // DELETE MODAL
+  const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+
+  const handleModalDelete = (item: Item) => {
+    setSelectedItem(item);
+    openDelete();
+  };
+
+  const deleteItemMutation = useDeleteItem();
+
+  const handleDeleteItem = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedItem) {
+      deleteItemMutation.mutate(selectedItem.id, {
+        onSuccess: () => {
+          showSuccessNotification("Item deleted", "Item deleted successfully");
+          closeDelete();
+        },
+      });
+    }
+  };
 
   if (isItemsLoading) {
     return <FullScreenLoader />;
@@ -439,6 +471,7 @@ export function AdminListingModule() {
           "Material",
           "Price",
           "Status",
+          "Actions",
         ]}
         footer={
           <PaginationFooter
@@ -490,16 +523,47 @@ export function AdminListingModule() {
                   <Badge variant="gray">Completed</Badge>
                 )}
               </Table.Td>
+              <Table.Td ta="center">
+                <Button
+                  variant="delete"
+                  size="xs"
+                  onClick={() => handleModalDelete(item)}
+                >
+                  Delete
+                </Button>
+              </Table.Td>
             </Table.Tr>
           ))
         ) : (
           <Table.Tr>
-            <Table.Td colSpan={8} ta="center">
+            <Table.Td colSpan={9} ta="center">
               No items found
             </Table.Td>
           </Table.Tr>
         )}
       </AdminTable>
+      <Modal
+        title="Delete this object?"
+        opened={openedDelete}
+        onClose={closeDelete}
+      >
+        Are you sure you want to delete this object? This object will be soft
+        deleted.
+        <Group mt="lg" justify="flex-end">
+          <Button onClick={closeDelete} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={(e) => {
+              handleDeleteItem(e);
+            }}
+            variant="delete"
+            loading={deleteItemMutation.isPending}
+          >
+            Delete
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 }

@@ -193,3 +193,46 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
+
+func DeleteItem(w http.ResponseWriter, r *http.Request){
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" && role != "user" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	idString := r.PathValue("item_id")
+	if idString == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item ID is required.")
+		return
+	}
+
+	id_event, err := strconv.Atoi(idString)
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "DeleteItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID.")
+		return
+	}
+
+	// check exist
+	exist, err := db.CheckItemExistByItemId(id_event)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "DeleteItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID " + idString + " not found.")
+		return
+	}
+
+	err = db.DeleteItem(id_event)
+	if err != nil {
+		slog.Error("DeleteItem() failed", "controller", "DeleteItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}

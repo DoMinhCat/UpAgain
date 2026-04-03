@@ -61,6 +61,7 @@ export const ENDPOINTS = {
     ITEMS: {
       ALL: "/items/",
       COUNT: "/items/count/",
+      DELETE: (id_item: number) => `/items/${id_item}/`,
     },
   },
 
