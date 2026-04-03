@@ -11,6 +11,7 @@ import {
   Button,
   Stack,
   Pill,
+  Loader,
 } from "@mantine/core";
 import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
 import { StatsCardDesc } from "../../../components/admin/AdminCardInfo";
@@ -120,18 +121,18 @@ export function AdminListingModule() {
             { value: "all", label: "All Time" },
             { value: "today", label: "Today" },
             { value: "last_3_days", label: "Last 3 days" },
-            { value: "last_week", label: "Last Week" },
-            { value: "last_month", label: "Last Month" },
-            { value: "last_year", label: "Last Year" },
+            { value: "last_week", label: "Last 7 days" },
+            { value: "last_month", label: "Last 30 days" },
+            { value: "last_year", label: "Last 365 days" },
           ]}
         />
       </Group>
 
       {/* stats cards */}
-      <SimpleGrid cols={{ base: 1, sm: 3 }} mb="xl">
+      <SimpleGrid cols={{ base: 1, sm: 3 }} mb="sm">
         <AdminCardInfo
           icon={IconCalendarEvent}
-          title="Total Active Objects"
+          title="Total Active Objects *"
           value={itemStats?.active || 0}
           loading={isItemStatsLoading}
           description={
@@ -148,7 +149,7 @@ export function AdminListingModule() {
         />
         <AdminCardInfo
           icon={IconClockPause}
-          title="Pending Approval"
+          title="Pending Approval *"
           value={itemStats?.pending || 0}
           loading={isItemStatsLoading}
           description={
@@ -182,9 +183,12 @@ export function AdminListingModule() {
       </SimpleGrid>
 
       {/* 2. Bottom Row: Distribution Analysis */}
+      <Text size="sm" c="dimmed" mb="xl">
+        * Timeframe not applicable for these metrics
+      </Text>
       <Grid align="stretch">
         <Grid.Col span={12}>
-          <Paper withBorder p="lg" radius="md" shadow="sm">
+          <Paper withBorder p="lg" radius="md" shadow="sm" variant="primary">
             <Group justify="space-between" mb="xl">
               <Stack gap={0}>
                 <Title order={4}>Objects Analytics</Title>
@@ -200,24 +204,67 @@ export function AdminListingModule() {
                 <Text fw={700} size="sm" c="dimmed" tt="uppercase">
                   By Material
                 </Text>
-                <PieChart
-                  withLabelsLine
-                  labelsPosition="outside"
-                  labelsType="value"
-                  withLabels
-                  withTooltip
-                  tooltipDataSource="segment"
-                  h={280}
-                  data={[
-                    { name: "Wood", value: 10, color: "blue.6" },
-                    { name: "Metal", value: 20, color: "green.6" },
-                    { name: "Textile", value: 30, color: "yellow.6" },
-                    { name: "Glass", value: 40, color: "red.6" },
-                    { name: "Plastic", value: 50, color: "violet.6" },
-                    { name: "Other", value: 60, color: "gray.6" },
-                    { name: "Mixed", value: 60, color: "cyan.6" },
-                  ]}
-                />
+                {isItemStatsLoading ? (
+                  <Loader size="xl" />
+                ) : (itemStats?.total_wood || 0) +
+                    (itemStats?.total_metal || 0) +
+                    (itemStats?.total_textile || 0) +
+                    (itemStats?.total_glass || 0) +
+                    (itemStats?.total_plastic || 0) +
+                    (itemStats?.total_other || 0) +
+                    (itemStats?.total_mixed || 0) ===
+                  0 ? (
+                  <Text c="dimmed">
+                    No data available during the selected timeframe
+                  </Text>
+                ) : (
+                  <PieChart
+                    withLabelsLine
+                    labelsPosition="outside"
+                    labelsType="value"
+                    withLabels
+                    withTooltip
+                    tooltipDataSource="segment"
+                    h={280}
+                    data={[
+                      {
+                        name: "Wood",
+                        value: itemStats?.total_wood || 0,
+                        color: "blue.6",
+                      },
+                      {
+                        name: "Metal",
+                        value: itemStats?.total_metal || 0,
+                        color: "green.6",
+                      },
+                      {
+                        name: "Textile",
+                        value: itemStats?.total_textile || 0,
+                        color: "yellow.6",
+                      },
+                      {
+                        name: "Glass",
+                        value: itemStats?.total_glass || 0,
+                        color: "red.6",
+                      },
+                      {
+                        name: "Plastic",
+                        value: itemStats?.total_plastic || 0,
+                        color: "violet.6",
+                      },
+                      {
+                        name: "Other",
+                        value: itemStats?.total_other || 0,
+                        color: "gray.6",
+                      },
+                      {
+                        name: "Mixed",
+                        value: itemStats?.total_mixed || 0,
+                        color: "cyan.6",
+                      },
+                    ]}
+                  />
+                )}
               </Stack>
 
               {/* Category Chart */}
@@ -225,19 +272,37 @@ export function AdminListingModule() {
                 <Text fw={700} size="sm" c="dimmed" tt="uppercase">
                   By Type
                 </Text>
-                <PieChart
-                  withTooltip
-                  strokeWidth={2}
-                  tooltipDataSource="segment"
-                  labelsPosition="inside"
-                  labelsType="percent"
-                  withLabels
-                  h={280}
-                  data={[
-                    { name: "Listing", value: 70, color: "indigo.6" },
-                    { name: "Deposit", value: 30, color: "cyan.6" },
-                  ]}
-                />
+                {(itemStats?.total_listings || 0) +
+                  (itemStats?.total_deposits || 0) ===
+                0 ? (
+                  <Text c="dimmed">
+                    No data available during the selected timeframe
+                  </Text>
+                ) : isItemStatsLoading ? (
+                  <Loader size="xl" />
+                ) : (
+                  <PieChart
+                    withTooltip
+                    strokeWidth={2}
+                    tooltipDataSource="segment"
+                    labelsPosition="inside"
+                    labelsType="percent"
+                    withLabels
+                    h={280}
+                    data={[
+                      {
+                        name: "Listing",
+                        value: itemStats?.total_listings || 0,
+                        color: "indigo.6",
+                      },
+                      {
+                        name: "Deposit",
+                        value: itemStats?.total_deposits || 0,
+                        color: "cyan.6",
+                      },
+                    ]}
+                  />
+                )}
               </Stack>
             </SimpleGrid>
           </Paper>

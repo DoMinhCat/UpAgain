@@ -27,4 +27,14 @@ export interface ItemAdminStats {
   pending: number;
   new_transactions_since: number;
   total_transactions: number;
+  // chart data
+  total_wood: number;
+  total_metal: number;
+  total_textile: number;
+  total_glass: number;
+  total_plastic: number;
+  total_other: number;
+  total_mixed: number;
+  total_listings: number;
+  total_deposits: number;
 }

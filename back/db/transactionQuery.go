@@ -110,6 +110,7 @@ func GetTotalActiveTransactionByIdAccount(id_account int) (int, error) {
 
 func GetTotalTransactionsByStatus(status string, since *time.Time) (int, error) {
 	var total int
+	param := []interface{}{status}
 	time:= " AND created_at IS NOT NULL"
 	query := `
 		select count(*) from transactions t
@@ -117,8 +118,9 @@ func GetTotalTransactionsByStatus(status string, since *time.Time) (int, error) 
 	`
 	if since != nil{
 		time = " AND created_at >= $2"
+		param = append(param, since)
 	}
-	err := utils.Conn.QueryRow(query+time+";", status, since).Scan(&total)
+	err := utils.Conn.QueryRow(query+time+";", param...).Scan(&total)
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalTransactionsByStatus() failed: %v", err.Error())
 	}

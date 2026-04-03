@@ -194,3 +194,18 @@ func GetDepositStatusById(id int) (string, error) {
 	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
 	return status, err
 }
+
+func GetTotalDeposits(since *time.Time) (int, error) {
+	var total int
+	var row *sql.Row
+	if since != nil {
+		row = utils.Conn.QueryRow("SELECT count(*) FROM deposits d join items i on d.id_item=i.id where i.is_deleted=false and i.created_at >= $1;", *since)
+	} else {
+		row = utils.Conn.QueryRow("SELECT count(*) FROM deposits d join items i on d.id_item=i.id where i.is_deleted=false;")
+	}
+	err := row.Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalDeposits() failed: %v", err.Error())
+	}
+	return total, nil
+}
