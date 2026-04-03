@@ -134,9 +134,6 @@ export function AdminListingModule() {
     }
   };
 
-  if (isItemsLoading) {
-    return <FullScreenLoader />;
-  }
   return (
     <Container px="md" size="xl">
       <Group justify="space-between" mb="xl">
@@ -304,14 +301,14 @@ export function AdminListingModule() {
                 <Text fw={700} size="sm" c="dimmed" tt="uppercase">
                   By Type
                 </Text>
-                {(itemStats?.total_listings || 0) +
-                  (itemStats?.total_deposits || 0) ===
-                0 ? (
+                {isItemStatsLoading ? (
+                  <Loader size="xl" />
+                ) : (itemStats?.total_listings || 0) +
+                    (itemStats?.total_deposits || 0) ===
+                  0 ? (
                   <Text c="dimmed">
                     No data available during the selected timeframe
                   </Text>
-                ) : isItemStatsLoading ? (
-                  <Loader size="xl" />
                 ) : (
                   <PieChart
                     withTooltip
