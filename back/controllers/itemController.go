@@ -81,27 +81,31 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	var timeParam time.Time
+	var timeParam *time.Time
 	var err error
 	timeUrl := r.URL.Query().Get("timeframe")
 	if timeUrl != "" && timeUrl != "all"{
+		var t time.Time
 		switch timeUrl {
 		case "today":
-			timeParam = time.Now().AddDate(0, 0, -1)
+			t = time.Now().AddDate(0, 0, -1)
 		case "last_3_days":
-			timeParam = time.Now().AddDate(0, 0, -3)
+			t = time.Now().AddDate(0, 0, -3)
 		case "last_week":
-			timeParam = time.Now().AddDate(0, 0, -7)
+			t = time.Now().AddDate(0, 0, -7)
 		case "last_month":
-			timeParam = time.Now().AddDate(0, -1, 0)
+			t = time.Now().AddDate(0, -1, 0)
 		case "last_year":
-			timeParam = time.Now().AddDate(-1, 0, 0)
+			t = time.Now().AddDate(-1, 0, 0)
 		default:
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid timeframe.")
 			return
 		}
+		timeParam = &t
 	}
-
+	
+	slog.Debug("debug", "timeParam", timeParam)
+	
 	// total active items
 	status := "approved"
 	activeItems, err := db.GetItemsCountByStatus(&status)
@@ -138,11 +142,36 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 
 	// total transactions
 	status="purchased"
-	totalTransactions, err := db.GetTotalTransactionsByStatus(status, &timeParam)
+	totalTransactions, err := db.GetTotalTransactionsByStatus(status, timeParam)
 	if err != nil {
 		slog.Error("GetTotalTransactions() failed", "controller", "GetAllItemsStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
 		return
+	}
+
+	totalListings, err := db.GetTotalListings(timeParam)
+	if err != nil {
+		slog.Error("GetTotalListings() failed", "controller", "GetAllItemsStats", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+	totalDeposits, err := db.GetTotalDeposits(timeParam)
+	if err != nil {
+		slog.Error("GetTotalDeposits() failed", "controller", "GetAllItemsStats", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+
+	materials := []string{"wood", "metal", "textile", "glass", "plastic", "other", "mixed"}
+	var totalMaterials []int
+	for _, material := range materials {
+		count, err := db.GetTotalItemsByMaterialSince(material, timeParam)
+		if err != nil {
+			slog.Error("GetTotalItemsByMaterialSince() failed", "controller", "GetAllItemsStats", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+			return
+		}
+		totalMaterials = append(totalMaterials, count)
 	}
 
 	result := models.ItemAdminStats{
@@ -151,6 +180,15 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 		NewItemsSince:        newItemsSince,
 		NewTransactionsSince: newTransactionsSince,
 		TotalTransactions:    totalTransactions,
+		TotalListings:        totalListings,
+		TotalDeposits:        totalDeposits,
+		TotalWood:            totalMaterials[0],
+		TotalMetal:           totalMaterials[1],
+		TotalTextile:         totalMaterials[2],
+		TotalGlass:           totalMaterials[3],
+		TotalPlastic:         totalMaterials[4],
+		TotalOther:           totalMaterials[5],
+		TotalMixed:           totalMaterials[6],
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, result)

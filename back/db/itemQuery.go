@@ -414,3 +414,21 @@ func GetTotalItemsSince(date time.Time) (int, error) {
 	}
 	return count, nil
 }
+
+func GetTotalItemsByMaterialSince(material string, since *time.Time) (int, error) {
+	if material != "wood" && material != "metal" && material != "textile" && material != "glass" && material != "plastic" && material != "mixed" && material != "other" {
+		return 0, fmt.Errorf("invalid material")
+	}
+	var count int
+	var err error
+	if since == nil {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE material = $1 AND is_deleted = false", material).Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE material = $1 AND is_deleted = false AND created_at >= $2", material, since).Scan(&count)
+		if err != nil {
+			return 0, fmt.Errorf("GetTotalItemsByMaterial() failed: %v", err)
+		}
+	}
+	return count, nil
+}
+

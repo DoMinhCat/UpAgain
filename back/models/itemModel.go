@@ -39,6 +39,7 @@ type ItemAdminStats struct {
 	PendingItems 			int `json:"pending"`
 	NewTransactionsSince 	int `json:"new_transactions_since"`
 	TotalTransactions 		int `json:"total_transactions"`
+	// chart
 	TotalListings 			int `json:"total_listings"`
 	TotalDeposits 			int `json:"total_deposits"`
 	TotalWood 				int `json:"total_wood"`
