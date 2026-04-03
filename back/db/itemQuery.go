@@ -456,6 +456,17 @@ func GetItemDetailsByItemId(id int) (models.Item, error) {
 	if err != nil {
 		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() failed: %v", err)
 	}
+
+	var isListing bool
+	err = utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM listings WHERE id_item = $1);", item.Id).Scan(&isListing)
+	if err != nil {
+		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() failed: %v", err)
+	}
+	if isListing {
+		item.Category = "listing"
+	} else {
+		item.Category = "deposit"
+		}
 	return item, nil
 }
 	

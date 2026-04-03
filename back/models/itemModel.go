@@ -23,6 +23,7 @@ type Item struct {
 	Material  	string    	`json:"material"`
 	Price     	float64   	`json:"price"`
 	Status    	string    	`json:"status"`
+	Photos    	[]string  	`json:"images"`
 }
 
 type ItemListPagination struct {
