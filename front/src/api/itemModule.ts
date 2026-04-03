@@ -1,6 +1,10 @@
 import { api } from "./axios";
 import { ENDPOINTS } from "./endpoints";
-import type { ItemAdminStats, ItemsListPagination } from "./interfaces/item";
+import type {
+  Item,
+  ItemAdminStats,
+  ItemsListPagination,
+} from "./interfaces/item";
 
 export const getAllItems = async (
   page?: number,
@@ -26,4 +30,9 @@ export const getItemStats = async (time?: string): Promise<ItemAdminStats> => {
 
 export const deleteItem = async (id: number) => {
   await api.delete(ENDPOINTS.ADMIN.ITEMS.DELETE(id));
+};
+
+export const getItemDetails = async (id: number): Promise<Item> => {
+  const response = await api.get(ENDPOINTS.ADMIN.ITEMS.DETAILS(id));
+  return response.data;
 };

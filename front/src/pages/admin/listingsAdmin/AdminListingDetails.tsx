@@ -15,13 +15,32 @@ import {
   Divider,
   Loader,
   Modal,
+  Image,
+  Anchor,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
-import { IconPhoto } from "@tabler/icons-react";
+import {
+  IconPhoto,
+  IconWood,
+  IconWeight,
+  IconCoinEuro,
+  IconMagnet,
+  IconSock,
+  IconGlass,
+  IconRecycle,
+  IconQuestionMark,
+  IconArrowsShuffle,
+  IconStars,
+} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
+import { useGetItemDetails } from "../../../hooks/itemHooks";
+import dayjs from "dayjs";
+import { PhotosCarousel } from "../../../components/PhotosCarousel";
+import { useState } from "react";
+import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 
 export default function AdminListingDetails() {
   const location = useLocation();
@@ -35,9 +54,22 @@ export default function AdminListingDetails() {
   // DETAILS
   const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
     useDisclosure(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const handleImageClick = (index: number) => {
+    setActiveSlide(index);
+    openCarousel();
+  };
 
   // GET COMMON ITEM ATTRIBUTES
-  // const { data: itemAttributes, isLoading: isItemAttributesLoading } = useGetItemAttributes(id_event);
+  const { data: itemDetails, isLoading: isItemDetailsLoading } =
+    useGetItemDetails(id_event, isValidId);
+
+  // UPDATE STATUS
+  const [
+    openedUpdateStatusModal,
+    { open: openUpdateStatusModal, close: closeUpdateStatusModal },
+  ] = useDisclosure(false);
 
   return (
     <Container px="md" size="xl">
@@ -73,79 +105,80 @@ export default function AdminListingDetails() {
                 <Badge
                   variant={origin?.category === "listing" ? "green" : "blue"}
                 >
-                  {origin?.category}
+                  {origin?.category ?? itemDetails?.category}
                 </Badge>
                 <Badge
-                //   variant={
-                //     eventDetails?.status === "pending"
-                //       ? "yellow"
-                //       : eventDetails?.status === "approved"
-                //         ? "green"
-                //         : eventDetails?.status === "refused"
-                //           ? "red"
-                //           : "gray"
-                //   }
+                  variant={
+                    itemDetails?.status === "pending"
+                      ? "yellow"
+                      : itemDetails?.status === "approved"
+                        ? "green"
+                        : itemDetails?.status === "refused"
+                          ? "red"
+                          : "gray"
+                  }
                 >
-                  {/* {eventDetails?.status} */} Status
+                  {itemDetails?.status}
                 </Badge>
               </Group>
 
               <Title order={2} mt="lg" mb="xs">
-                {/* {eventDetails?.title} */} Title
+                {itemDetails?.title}
               </Title>
               <Text c="dimmed" size="xs" mb="xl">
                 Created on{" "}
-                {/* {dayjs(eventDetails?.created_at).format("DD/MM/YYYY HH:mm A")} */}
+                {dayjs(itemDetails?.created_at).format("DD/MM/YYYY HH:mm A")}
               </Text>
               <div
-              // dangerouslySetInnerHTML={{
-              //   __html: eventDetails?.description ?? "",
-              // }}
+                dangerouslySetInnerHTML={{
+                  __html: itemDetails?.description ?? "",
+                }}
               />
               <div>Content</div>
             </Stack>
-            {/* {eventDetails?.images && eventDetails.images.length > 0 && ( */}
-            <>
-              <Divider my="xl" />
-              <Group gap="sm">
-                <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
-                <Title order={3}>Photos</Title>
-              </Group>
-              {/* <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
-                  {eventDetails.images.map((path, index) => (
+            {itemDetails?.images && itemDetails.images.length > 0 && (
+              <>
+                <Divider my="xl" />
+                <Group gap="sm">
+                  <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
+                  <Title order={3}>Photos</Title>
+                </Group>
+                <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
+                  {itemDetails.images.map((path, index) => (
                     <Image
                       key={index}
                       src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
                       radius="md"
-                      alt={`Event photo ${index + 1}`}
+                      alt={`Item photo ${index + 1}`}
                       fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
                       style={{ cursor: "pointer" }}
                       onClick={() => handleImageClick(index)}
                     />
                   ))}
-                </SimpleGrid> */}
+                </SimpleGrid>
 
-              <Modal
-                opened={openedCarousel}
-                onClose={closeCarousel}
-                size="xl"
-                centered
-                title="Event's gallery"
-                styles={{
-                  root: {
-                    zIndex: 1000,
-                  },
-                  body: {
-                    padding: "xs",
-                  },
-                }}
-              >
-                {/* <PhotosCarousel
-                    photos={eventDetails?.images}
+                <Modal
+                  opened={openedCarousel}
+                  onClose={closeCarousel}
+                  size="xl"
+                  centered
+                  title="Event's gallery"
+                  styles={{
+                    root: {
+                      zIndex: 1000,
+                    },
+                    body: {
+                      padding: "xs",
+                    },
+                  }}
+                >
+                  <PhotosCarousel
+                    photos={itemDetails?.images}
                     initialSlide={activeSlide}
-                  /> */}
-              </Modal>
-            </>
+                  />
+                </Modal>
+              </>
+            )}
           </Grid.Col>
 
           {/* RIGHT SECTION */}
@@ -154,44 +187,83 @@ export default function AdminListingDetails() {
             style={{ position: "sticky", top: "5px" }}
           >
             <Card withBorder shadow="sm" radius="md" padding="lg">
-              {/* Header/Date Section */}
               <Card.Section withBorder inheritPadding py="xs">
-                <Group justify="space-between">Something header here</Group>
+                <Group justify="space-between">
+                  <Text>
+                    Created by{" "}
+                    <Anchor
+                      style={{ cursor: "pointer" }}
+                      c="var(--component-color-primary)"
+                      onClick={() =>
+                        navigate(`/admin/users/${itemDetails?.id_user}`, {
+                          state: {
+                            from: "listingDetail",
+                            listingId: itemDetails?.id,
+                          },
+                        })
+                      }
+                    >
+                      {itemDetails?.username}
+                    </Anchor>
+                  </Text>
+                </Group>
               </Card.Section>
 
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg" mt="md">
-                {/* <CardStatsItem
+                <CardStatsItem
                   icon={<IconCoinEuro size={18} />}
                   label="Price"
                   color="yellow"
                   value={
                     <Text
                       span
-                      c={!eventDetails?.price ? "green" : "inherit"}
-                      fw={!eventDetails?.price ? 700 : 600}
+                      c={!itemDetails?.price ? "green" : "inherit"}
+                      fw={!itemDetails?.price ? 700 : 600}
                     >
-                      {eventDetails?.price ? `${eventDetails.price} €` : "Free"}
+                      {itemDetails?.price ? `${itemDetails.price} €` : "Free"}
                     </Text>
                   }
                 />
 
                 <CardStatsItem
-                  icon={<IconUsers size={18} />}
-                  label="Capacity"
+                  icon={<IconWeight size={18} />}
+                  label="Weight"
                   color="blue"
+                  value={`${itemDetails?.weight} kg`}
+                />
+
+                <CardStatsItem
+                  icon={
+                    itemDetails?.material === "wood" ? (
+                      <IconWood size={18} />
+                    ) : itemDetails?.material === "metal" ? (
+                      <IconMagnet size={18} />
+                    ) : itemDetails?.material === "textile" ? (
+                      <IconSock size={18} />
+                    ) : itemDetails?.material === "glass" ? (
+                      <IconGlass size={18} />
+                    ) : itemDetails?.material === "plastic" ? (
+                      <IconRecycle size={18} />
+                    ) : itemDetails?.material === "other" ? (
+                      <IconQuestionMark size={18} />
+                    ) : (
+                      <IconArrowsShuffle size={18} />
+                    )
+                  }
+                  label="Material"
+                  color="green"
                   value={
-                    eventDetails?.capacity
-                      ? `${eventDetails.capacity} people max`
-                      : "Unlimited"
+                    itemDetails?.material.charAt(0).toUpperCase() +
+                    (itemDetails?.material.slice(1) ?? "")
                   }
                 />
 
                 <CardStatsItem
-                  icon={<IconMapPin size={18} />}
-                  label="Location"
-                  color="green"
-                  value={`${eventDetails?.street}, ${eventDetails?.city}`}
-                /> */}
+                  icon={<IconStars size={18} />}
+                  label="State"
+                  color="white"
+                  value={`${itemDetails?.state.charAt(0).toUpperCase() + (itemDetails?.state.slice(1).replace(/_/g, " ") ?? "")}`}
+                />
               </SimpleGrid>
 
               {/* Footer Actions */}
@@ -202,27 +274,23 @@ export default function AdminListingDetails() {
                     // onClick={handleOpenEdit}
                     fullWidth
                   >
-                    Edit event
+                    Edit item
                   </Button>
                   <Button
+                    disabled={itemDetails?.status === "completed"}
                     fullWidth
-                    //     variant={
-                    //       ["cancelled", "pending", "refused"].includes(
-                    //         eventDetails?.status ?? "",
-                    //       )
-                    //         ? "primary"
-                    //         : "delete"
-                    //     }
-                    //     onClick={openUpdateStatusModal}
+                    variant={
+                      ["pending", "refused"].includes(itemDetails?.status ?? "")
+                        ? "primary"
+                        : "delete"
+                    }
+                    onClick={openUpdateStatusModal}
                   >
-                    Something here
-                    {/* {eventDetails?.status === "cancelled"
-                       ? "Reopen event"
-                       : ["pending", "refused"].includes(
-                             eventDetails?.status ?? "",
-                           )
-                         ? "Approve event"
-                         : "Cancel event"} */}
+                    {itemDetails?.status === "refused"
+                      ? "Reopen item"
+                      : itemDetails?.status === "pending"
+                        ? "Approve item"
+                        : "Delete item"}
                   </Button>
                 </Group>
               </Stack>
@@ -426,6 +494,47 @@ export default function AdminListingDetails() {
           </Table.Tr>
         </AdminTable>
       </Container>
+
+      <Modal
+        opened={openedUpdateStatusModal}
+        onClose={closeUpdateStatusModal}
+        title={
+          itemDetails?.status === "refused"
+            ? "Reopen Item"
+            : itemDetails?.status === "pending"
+              ? "Approve Item"
+              : "Delete Item"
+        }
+      >
+        <Text>
+          Are you sure you want to{" "}
+          {itemDetails?.status === "refused"
+            ? "reopen"
+            : itemDetails?.status === "pending"
+              ? "approve"
+              : "delete"}{" "}
+          this item?
+        </Text>
+        <Group mt="lg" justify="end">
+          <Button onClick={closeUpdateStatusModal} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            //   onClick={() => {
+            //     handleUpdateEventStatus();
+            //   }}
+            variant={
+              itemDetails?.status === "refused" ||
+              itemDetails?.status === "pending"
+                ? "primary"
+                : "delete"
+            }
+            //   loading={cancelEvent.isPending}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 }

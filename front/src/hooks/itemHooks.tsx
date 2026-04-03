@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteItem, getAllItems, getItemStats } from "../api/itemModule";
+import {
+  deleteItem,
+  getAllItems,
+  getItemDetails,
+  getItemStats,
+} from "../api/itemModule";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -45,7 +50,19 @@ export const useDeleteItem = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
       queryClient.invalidateQueries({ queryKey: ["item-stats"] });
-      // TODO: invalidate item detail page
+    },
+  });
+};
+
+export const useGetItemDetails = (id: number, isValidId: boolean) => {
+  return useQuery({
+    queryKey: ["item-details", id],
+    queryFn: () => getItemDetails(id),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch item details",
     },
   });
 };

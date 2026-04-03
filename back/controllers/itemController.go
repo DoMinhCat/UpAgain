@@ -207,7 +207,7 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	id_event, err := strconv.Atoi(idString)
+	id_item, err := strconv.Atoi(idString)
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "DeleteItemById", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID.")
@@ -215,7 +215,7 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request){
 	}
 
 	// check exist
-	exist, err := db.CheckItemExistByItemId(id_event)
+	exist, err := db.CheckItemExistByItemId(id_item)
 	if err != nil {
 		slog.Error("CheckItemExistByItemId() failed", "controller", "DeleteItemById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
@@ -227,7 +227,7 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	err = db.DeleteItemById(id_event)
+	err = db.DeleteItemById(id_item)
 	if err != nil {
 		slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
@@ -245,14 +245,14 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	id_event, err := strconv.Atoi(idString)
+	id_item, err := strconv.Atoi(idString)
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "GetItemDetails", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID.")
 		return
 	}
 
-	exist, err := db.CheckItemExistByItemId(id_event)
+	exist, err := db.CheckItemExistByItemId(id_item)
 	if err != nil {
 		slog.Error("CheckItemExistByItemId() failed", "controller", "GetItemDetails", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
@@ -264,12 +264,30 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	item, err := db.GetItemDetailsByItemId(id_event)
+	item, err := db.GetItemDetailsByItemId(id_item)
 	if err != nil {
 		slog.Error("GetItemDetailsByItemId() failed", "controller", "GetItemDetails", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
 		return
 	}
+	
+	// get photo
+	photos, err := db.GetPhotosPathsByObjectId(id_item, "item")
+	if err != nil {
+		slog.Error("GetPhotosPathsByObjectId() failed", "controller", "GetItemDetails", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
+		return
+	}
+	item.Photos = photos
+
+	// get username of user who posted the item
+	username, err := db.GetUsernameById(item.IdUser)
+	if err != nil {
+		slog.Error("GetUsernameById() failed", "controller", "GetItemDetails", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
+		return
+	}
+	item.Username = username
 
 	utils.RespondWithJSON(w, http.StatusOK, item)
 }
