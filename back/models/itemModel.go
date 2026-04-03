@@ -51,3 +51,7 @@ type ItemAdminStats struct {
 	TotalMixed 				int `json:"total_mixed"`
 	TotalOther 				int `json:"total_other"`
 }
+
+type ItemStatusUpdateRequest struct {
+	Status string `json:"status"`
+}

@@ -359,7 +359,19 @@ export default function AdminUserDetails() {
                             PATHS.ADMIN.HISTORY.ALL + "/" + origin?.id_history,
                         },
                       ]
-                    : []),
+                    : origin?.from === "listingDetail"
+                      ? [
+                          {
+                            title: "Listing Management",
+                            href: PATHS.ADMIN.LISTINGS,
+                          },
+                          {
+                            title: "Listing's Details",
+                            href:
+                              PATHS.ADMIN.LISTINGS + "/" + origin?.listingId,
+                          },
+                        ]
+                      : []),
           { title: "User's Details", href: "#" },
         ]}
       />

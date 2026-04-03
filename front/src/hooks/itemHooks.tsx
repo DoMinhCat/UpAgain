@@ -4,6 +4,7 @@ import {
   getAllItems,
   getItemDetails,
   getItemStats,
+  updateItemStatus,
 } from "../api/itemModule";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
@@ -63,6 +64,22 @@ export const useGetItemDetails = (id: number, isValidId: boolean) => {
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch item details",
+    },
+  });
+};
+
+export const useUpdateItemStatus = (id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (status: string) => updateItemStatus(id, status),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to update item status",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
     },
   });
 };

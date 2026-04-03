@@ -374,3 +374,19 @@ func CheckListingOrDepositByItemId(id int) (bool, error) {
 	}
 	return isListing, nil
 }
+
+func UpdateItemStatusById(id int, new_status string) error {
+	var err error
+	if new_status == "deleted" {
+		err = DeleteItemById(id)
+		if err != nil {
+			return fmt.Errorf("UpdateItemStatusById() failed: %v", err)
+		}
+		return nil
+	}
+	_, err = utils.Conn.Exec("UPDATE items SET status = $1 WHERE id = $2", new_status, id)
+	if err != nil {
+		return fmt.Errorf("UpdateItemStatusById() failed: %v", err)
+	}
+	return nil
+}
