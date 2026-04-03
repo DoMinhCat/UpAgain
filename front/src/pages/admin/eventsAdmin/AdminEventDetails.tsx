@@ -611,7 +611,7 @@ export default function AdminEventDetails() {
                 </Group>
               </Stack>
 
-              {/* Edit Modal Logic remains here */}
+              {/* Edit Modal Logic */}
               <Modal
                 opened={openedEdit}
                 onClose={handleCloseEdit}
