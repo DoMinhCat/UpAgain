@@ -441,10 +441,21 @@ func CheckItemExistByItemId(id int) (bool, error) {
 	return exists, nil
 }
 
-func DeleteItem(id int) error {
+func DeleteItemById(id int) error {
 	_, err := utils.Conn.Exec("UPDATE items SET is_deleted = true WHERE id = $1", id)
 	if err != nil {
-		return fmt.Errorf("DeleteItem() failed: %v", err)
+		return fmt.Errorf("DeleteItemById() failed: %v", err)
 	}
 	return nil
 }
+
+func GetItemDetailsByItemId(id int) (models.Item, error) {
+	var item models.Item
+	row := utils.Conn.QueryRow("SELECT id, created_at, title, description, weight, state, id_user, material, price, status FROM items WHERE id = $1 AND is_deleted = false", id)
+	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status); 
+	if err != nil {
+		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() failed: %v", err)
+	}
+	return item, nil
+}
+	
