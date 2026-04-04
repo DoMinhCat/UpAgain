@@ -125,8 +125,7 @@ export default function AdminListingDetails() {
   const [postalCodeEdit, setPostalCodeEdit] = useState<string>(
     listingDetails?.postal_code || "",
   );
-  // TODO: images
-  //   const [fileEdit, setFileEdit] = useState<any[]>([]);
+  const [fileEdit, setFileEdit] = useState<any[]>([]);
 
   const [errorTitle, setErrorTitle] = useState("");
   const [errorDescription, setErrorDescription] = useState("");
@@ -138,15 +137,23 @@ export default function AdminListingDetails() {
   const [errorPrice, setErrorPrice] = useState("");
 
   const handleOpenEdit = () => {
-    setTitleEdit(itemDetails?.title || "");
-    setDescriptionEdit(itemDetails?.description || "");
-    setMaterialEdit(itemDetails?.material || "");
-    setStateEdit(itemDetails?.state || "");
-    setWeightEdit(itemDetails?.weight || 0);
-    setPriceEdit(itemDetails?.price || 0);
-    if (isListing) {
-      setCityEdit(listingDetails?.city || "");
-      setPostalCodeEdit(listingDetails?.postal_code || "");
+    if (itemDetails) {
+      setTitleEdit(itemDetails?.title || "");
+      setDescriptionEdit(itemDetails?.description || "");
+      setMaterialEdit(itemDetails?.material || "");
+      setStateEdit(itemDetails?.state || "");
+      setWeightEdit(itemDetails?.weight || 0);
+      setPriceEdit(itemDetails?.price || 0);
+      const files = itemDetails?.images?.map((image) => {
+        return {
+          path: image,
+        };
+      });
+      setFileEdit(files || []);
+      if (isListing) {
+        setCityEdit(listingDetails?.city || "");
+        setPostalCodeEdit(listingDetails?.postal_code || "");
+      }
     }
     openEdit();
   };
@@ -160,19 +167,10 @@ export default function AdminListingDetails() {
     setErrorCity("");
     setErrorPostalCode("");
 
-    setTitleEdit(itemDetails?.title || "");
-    setDescriptionEdit(itemDetails?.description || "");
-    setMaterialEdit(itemDetails?.material || "");
-    setStateEdit(itemDetails?.state || "");
-    setWeightEdit(itemDetails?.weight || 0);
-    setPriceEdit(itemDetails?.price || 0);
     if (isListing) {
       setCityEdit(listingDetails?.city || "");
       setPostalCodeEdit(listingDetails?.postal_code || "");
     }
-    // TODO: reset images
-    // setFileEdit([]);
-
     closeEdit();
   };
 
@@ -363,7 +361,7 @@ export default function AdminListingDetails() {
                   onClose={closeCarousel}
                   size="xl"
                   centered
-                  title="Event's gallery"
+                  title="Item's photos"
                   styles={{
                     root: {
                       zIndex: 1000,
@@ -670,11 +668,11 @@ export default function AdminListingDetails() {
                       setDescriptionEdit(value);
                     }}
                   />
-                  {/* <ImageDropzone
-                    loading={updateEvent.isPending}
+                  <ImageDropzone
+                    // loading={updateEvent.isPending}
                     files={fileEdit}
                     setFiles={setFileEdit}
-                  /> */}
+                  />
                 </Stack>
                 <Group mt="lg" justify="center">
                   <Button onClick={handleCloseEdit} variant="grey">
