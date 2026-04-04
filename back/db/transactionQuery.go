@@ -147,6 +147,7 @@ func GetTransactionsByItemId(itemId int) ([]models.Transaction, error) {
 		select t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username from transactions t
 		join accounts a on a.id = t.id_pro
 		where t.id_item = $1
+		order by t.created_at desc
 	`
 	rows, err := utils.Conn.Query(query, itemId)
 	if err != nil {

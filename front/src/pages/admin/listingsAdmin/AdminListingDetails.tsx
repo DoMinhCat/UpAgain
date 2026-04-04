@@ -60,6 +60,8 @@ import {
 } from "../../../hooks/depositHooks";
 import ImageDropzone from "../../../components/ImageDropzone";
 import { TextEditor } from "../../../components/TextEditor";
+import FullScreenLoader from "../../../components/FullScreenLoader";
+import type { Transaction } from "../../../api/interfaces/transaction";
 
 export default function AdminListingDetails() {
   const location = useLocation();
@@ -330,6 +332,27 @@ export default function AdminListingDetails() {
 
   const transactions = transactionsData || [];
 
+  // FORCE CANCEL TRANSACTION
+  const [cancelTransactionId, setCancelTransactionId] =
+    useState<Transaction | null>(null);
+  const [
+    openedCancelModal,
+    { open: openCancelModal, close: closeCancelModal },
+  ] = useDisclosure(false);
+
+  const handleOpenCancelModal = (transaction: Transaction) => {
+    setCancelTransactionId(transaction);
+    openCancelModal();
+  };
+
+  // call mutation
+
+  if (
+    isDepositDetailsLoading ||
+    isListingDetailsLoading ||
+    isItemDetailsLoading
+  )
+    return <FullScreenLoader />;
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
@@ -843,7 +866,10 @@ export default function AdminListingDetails() {
                   <Button
                     variant="delete"
                     size="xs"
-                    // onClick={handleOpenCancelModal}
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      handleOpenCancelModal(transaction);
+                    }}
                   >
                     Cancel
                   </Button>
@@ -900,6 +926,32 @@ export default function AdminListingDetails() {
                 : "delete"
             }
             loading={updateItemStatus.isPending}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
+
+      <Modal
+        opened={openedCancelModal}
+        onClose={closeCancelModal}
+        title="Cancel Transaction"
+        size="lg"
+      >
+        <Text>
+          Are you sure you want to cancel transaction{" "}
+          {cancelTransactionId?.id_transaction} on behalf of the buyer?
+        </Text>
+        <Group mt="lg" justify="end">
+          <Button onClick={closeCancelModal} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            // onClick={() => {
+            //   handleCancelTransaction(cancelTransactionId?.id || 0);
+            // }}
+            variant="delete"
+            // loading={cancelTransaction.isPending}
           >
             Confirm
           </Button>
