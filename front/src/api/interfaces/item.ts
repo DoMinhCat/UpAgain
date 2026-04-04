@@ -11,7 +11,7 @@ export interface Item {
   material: string;
   price: number;
   status: string;
-  images: string[];
+  images?: string[];
 }
 
 export interface ItemsListPagination {
