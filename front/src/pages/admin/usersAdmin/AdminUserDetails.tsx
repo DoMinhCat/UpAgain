@@ -362,11 +362,11 @@ export default function AdminUserDetails() {
                     : origin?.from === "listingDetail"
                       ? [
                           {
-                            title: "Listing Management",
+                            title: "Object Management",
                             href: PATHS.ADMIN.LISTINGS,
                           },
                           {
-                            title: "Listing's Details",
+                            title: "Object's Details",
                             href:
                               PATHS.ADMIN.LISTINGS + "/" + origin?.listingId,
                           },

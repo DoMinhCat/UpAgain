@@ -327,11 +327,16 @@ export default function AdminListingDetails() {
       </Title>
       <AdminBreadcrumbs
         breadcrumbs={[
-          ...(origin?.from === "allItems"
-            ? [{ title: "Listing Management", href: PATHS.ADMIN.LISTINGS }]
-            : [{ title: "Listing Management", href: PATHS.ADMIN.LISTINGS }]),
+          ...(origin?.from === "historyDetails"
+            ? [
+                {
+                  title: "History Details",
+                  href: PATHS.ADMIN.HISTORY.ALL + "/" + origin.id_history,
+                },
+              ]
+            : [{ title: "Object Management", href: PATHS.ADMIN.LISTINGS }]),
           {
-            title: "Listing's Details",
+            title: "Object's Details",
             href: PATHS.ADMIN.LISTINGS + "/" + id,
           },
         ]}
