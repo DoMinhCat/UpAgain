@@ -31,7 +31,7 @@ import {
   useDeleteContainer,
 } from "../../../hooks/containerHooks";
 
-// TODO: add street and field to table containers
+// TODO: add street field to table containers
 // TODO: link to listing/deposit object if its currently occupied
 export default function AdminContainersDetails() {
   const origin = useLocation().state;
@@ -198,7 +198,6 @@ export default function AdminContainersDetails() {
           placeholder="Pick one"
           data={[
             { value: "ready", label: "Ready" },
-            { value: "occupied", label: "Occupied" },
             { value: "maintenance", label: "Maintenance" },
           ]}
           defaultValue={container?.status}

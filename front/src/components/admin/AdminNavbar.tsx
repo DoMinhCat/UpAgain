@@ -157,7 +157,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
             </Menu.Target>
 
             <Menu.Dropdown>
-              {/* TODO: navigate to profile page */}
+              {/* TODO: navigate to personal profile page */}
               <Menu.Item leftSection={<IconUser size={14} />}>
                 Profile
               </Menu.Item>
