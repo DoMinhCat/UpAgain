@@ -96,11 +96,11 @@ export default function AdminContainersDetails() {
             : origin?.from === "listingDetails"
               ? [
                   {
-                    title: "Listing Management",
+                    title: "Object Management",
                     href: PATHS.ADMIN.LISTINGS,
                   },
                   {
-                    title: "Listing's Details",
+                    title: "Object's Details",
                     href: PATHS.ADMIN.LISTINGS + "/" + origin.id_listing,
                   },
                 ]

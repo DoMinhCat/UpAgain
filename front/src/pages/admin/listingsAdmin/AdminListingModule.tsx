@@ -137,7 +137,7 @@ export function AdminListingModule() {
     <Container px="md" size="xl">
       <Group justify="space-between" mb="xl">
         <Title order={2} mt="lg">
-          Listing Management
+          Object Management
         </Title>
         <Select
           label="Timeframe"
