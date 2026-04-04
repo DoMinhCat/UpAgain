@@ -24,6 +24,7 @@ import (
 // @Tags         event
 // @Accept       json
 // @Produce      json
+// @Param        timeframe  query     string  false  "Timeframe filter: today, last_3_days, last_week, last_month, last_year, all"
 // @Success      200   {object}  models.EventStats  "Event stats retrieved successfully"
 // @Failure      400   {object}  nil                "Invalid ID or payload"
 // @Failure      500   {object}  nil                "Internal server error"
@@ -35,28 +36,50 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	total, err := db.GetTotalCountActiveEvents()
+	var timeParam *time.Time
+	timeUrl := r.URL.Query().Get("timeframe")
+	if timeUrl != "" && timeUrl != "all" {
+		var t time.Time
+		switch timeUrl {
+		case "today":
+			t = time.Now().AddDate(0, 0, -1)
+		case "last_3_days":
+			t = time.Now().AddDate(0, 0, -3)
+		case "last_week":
+			t = time.Now().AddDate(0, 0, -7)
+		case "last_month":
+			t = time.Now().AddDate(0, -1, 0)
+		case "last_year":
+			t = time.Now().AddDate(-1, 0, 0)
+		default:
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid timeframe.")
+			return
+		}
+		timeParam = &t
+	}
+
+	total, err := db.GetTotalCountActiveEvents(timeParam)
 	if err != nil {
 		slog.Error("GetTotalCountActiveEvents() failed", "controller", "GetEventStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
-	newEvents, err := db.GetEventIncreaseSince(time.Now().AddDate(0, -1, 0)) // get new events created since last month
+	newEvents, err := db.GetEventIncreaseSince(timeParam)
 	if err != nil {
 		slog.Error("GetEventIncreaseSince() failed", "controller", "GetEventStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
-	upcomingEvents, err := db.GetUpcomingEventIn(time.Now().AddDate(0, 1, 0)) // get upcoming events in next 30 days
+	upcomingEvents, err := db.GetUpcomingEventIn(nil) // always show next 30 days regardless of timeframe
 	if err != nil {
-		slog.Error("GetEventIncreaseSince() failed", "controller", "GetEventStats", "error", err)
+		slog.Error("GetUpcomingEventIn() failed", "controller", "GetEventStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
-	registrations, err := db.GetTotalRegistrationsSince(time.Now().AddDate(0, -1, 0)) // get total registrations since last month
+	registrations, err := db.GetTotalRegistrationsSince(timeParam)
 	if err != nil {
 		slog.Error("GetTotalRegistrationsSince() failed", "controller", "GetEventStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
