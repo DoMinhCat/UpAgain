@@ -399,3 +399,12 @@ func GetItemStatusByItemId(id int) (string, error) {
 	}
 	return status, nil
 }
+
+func CheckItemBelongsToUser(idItem int, userId int) (bool, error) {
+	var belongsToUser bool
+	err := utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM items WHERE id = $1 AND id_user = $2)", idItem, userId).Scan(&belongsToUser)
+	if err != nil {
+		return false, fmt.Errorf("CheckItemBelongsToUser() failed: %v", err)
+	}
+	return belongsToUser, nil
+}

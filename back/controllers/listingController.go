@@ -63,7 +63,7 @@ func GetListingDetails(w http.ResponseWriter, r *http.Request) {
 
 // UpdateListing godoc
 // @Summary      Update listing
-// @Description  Update an existing listing item's details and images. If updated by a user, status resets to pending for re-validation.
+// @Description  Update an existing listing item's details and images. If updated by a user, status resets to pending for re-validation. User can only update their own listings.
 // @Tags         listing
 // @Security     ApiKeyAuth
 // @Accept       multipart/form-data
@@ -110,6 +110,20 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		slog.Error("CheckItemExistByItemId() failed", "controller", "UpdateListing", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the listing.")
 		return
+	}
+
+	// user can only edit their own listings
+	if role != "admin"{
+		belongsToUser, err := db.CheckItemBelongsToUser(id, r.Context().Value("user").(models.AuthClaims).Id)
+		if err != nil {
+			slog.Error("CheckItemBelongsToUser() failed", "controller", "UpdateListing", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the listing.")
+			return
+		}
+		if !belongsToUser {
+			utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
+			return
+		}
 	}
 
 	// get old version
