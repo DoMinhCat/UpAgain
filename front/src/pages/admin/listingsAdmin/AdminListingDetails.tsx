@@ -137,6 +137,20 @@ export default function AdminListingDetails() {
   const [errorPostalCode, setErrorPostalCode] = useState("");
   const [errorPrice, setErrorPrice] = useState("");
 
+  const handleOpenEdit = () => {
+    setTitleEdit(itemDetails?.title || "");
+    setDescriptionEdit(itemDetails?.description || "");
+    setMaterialEdit(itemDetails?.material || "");
+    setStateEdit(itemDetails?.state || "");
+    setWeightEdit(itemDetails?.weight || 0);
+    setPriceEdit(itemDetails?.price || 0);
+    if (isListing) {
+      setCityEdit(listingDetails?.city || "");
+      setPostalCodeEdit(listingDetails?.postal_code || "");
+    }
+    openEdit();
+  };
+
   const handleCloseEdit = () => {
     setErrorTitle("");
     setErrorDescription("");
@@ -152,13 +166,118 @@ export default function AdminListingDetails() {
     setStateEdit(itemDetails?.state || "");
     setWeightEdit(itemDetails?.weight || 0);
     setPriceEdit(itemDetails?.price || 0);
-    setCityEdit(listingDetails?.city || "");
-    setPostalCodeEdit(listingDetails?.postal_code || "");
+    if (isListing) {
+      setCityEdit(listingDetails?.city || "");
+      setPostalCodeEdit(listingDetails?.postal_code || "");
+    }
     // TODO: reset images
     // setFileEdit([]);
 
     closeEdit();
   };
+
+  const validateTitle = () => {
+    if (!titleEdit) {
+      setErrorTitle("Title is required");
+      return false;
+    } else {
+      setErrorTitle("");
+      return true;
+    }
+  };
+
+  const validateDescription = () => {
+    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
+    if (!descriptionEdit || stripped === "") {
+      setErrorDescription("Post's content is required");
+      return false;
+    }
+    setErrorDescription("");
+    return true;
+  };
+
+  const validateMaterial = () => {
+    if (!materialEdit) {
+      setErrorMaterial("Material is required");
+      return false;
+    } else {
+      setErrorMaterial("");
+      return true;
+    }
+  };
+
+  const validateState = () => {
+    if (!stateEdit) {
+      setErrorState("State is required");
+      return false;
+    } else {
+      setErrorState("");
+      return true;
+    }
+  };
+
+  const validateWeight = () => {
+    if (!weightEdit) {
+      setErrorWeight("Weight is required");
+      return false;
+    } else {
+      setErrorWeight("");
+      return true;
+    }
+  };
+
+  const validateCity = () => {
+    if (!cityEdit) {
+      setErrorCity("City is required");
+      return false;
+    } else {
+      setErrorCity("");
+      return true;
+    }
+  };
+
+  const validatePostalCode = () => {
+    if (!postalCodeEdit) {
+      setErrorPostalCode("Postal code is required");
+      return false;
+    } else {
+      setErrorPostalCode("");
+      return true;
+    }
+  };
+
+  const validatePrice = () => {
+    if (!priceEdit && priceEdit !== 0) {
+      setErrorPrice("Price is required");
+      return false;
+    } else {
+      setErrorPrice("");
+      return true;
+    }
+  };
+
+  const handleEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !validateTitle() ||
+      !validateDescription() ||
+      !validateMaterial() ||
+      !validateState() ||
+      !validateWeight() ||
+      !validatePrice()
+    ) {
+      return;
+    }
+
+    if (itemDetails?.category === "listing") {
+      if (!validateCity() || !validatePostalCode()) {
+        return;
+      }
+    }
+
+    // call edit mutate, on success close edit modal and show success notification
+  };
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
@@ -384,7 +503,12 @@ export default function AdminListingDetails() {
                 <>
                   <Stack mt="xl">
                     <Group grow>
-                      <Button variant="edit" onClick={openEdit} fullWidth>
+                      <Button
+                        variant="edit"
+                        onClick={handleOpenEdit}
+                        disabled={isItemDetailsLoading}
+                        fullWidth
+                      >
                         Edit item
                       </Button>
 
@@ -437,7 +561,7 @@ export default function AdminListingDetails() {
                     onChange={(e) => {
                       setTitleEdit(e.target.value);
                     }}
-                    // onBlur={() => validateTitle()}
+                    onBlur={() => validateTitle()}
                     error={errorTitle}
                     // disabled={updateItem.isPending}
                     required
@@ -450,7 +574,7 @@ export default function AdminListingDetails() {
                     onChange={(value) => {
                       setPriceEdit(Number(value));
                     }}
-                    // onBlur={() => validateWeight()}
+                    onBlur={() => validatePrice()}
                     error={errorPrice}
                     // disabled={updateItem.isPending}
                     required
@@ -463,7 +587,7 @@ export default function AdminListingDetails() {
                     onChange={(value) => {
                       setWeightEdit(Number(value));
                     }}
-                    // onBlur={() => validateWeight()}
+                    onBlur={() => validateWeight()}
                     error={errorWeight}
                     // disabled={updateItem.isPending}
                     required
@@ -473,7 +597,7 @@ export default function AdminListingDetails() {
                     label="Material"
                     value={materialEdit}
                     error={errorMaterial}
-                    // onBlur={() => validateCategory()}
+                    onBlur={() => validateMaterial()}
                     // disabled={updateEvent.isPending}
                     data={[
                       { value: "wood", label: "Wood" },
@@ -493,7 +617,7 @@ export default function AdminListingDetails() {
                     label="State"
                     value={stateEdit}
                     error={errorState}
-                    // onBlur={() => validateCategory()}
+                    onBlur={() => validateState()}
                     // disabled={updateEvent.isPending}
                     data={[
                       { value: "new", label: "New" },
@@ -525,9 +649,9 @@ export default function AdminListingDetails() {
                     Cancel
                   </Button>
                   <Button
-                    // onClick={(e) => {
-                    //   handleEdit(e);
-                    // }}
+                    onClick={(e) => {
+                      handleEdit(e);
+                    }}
                     // loading={updateEvent.isPending}
                     variant="primary"
                   >

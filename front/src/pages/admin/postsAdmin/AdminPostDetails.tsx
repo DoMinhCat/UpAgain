@@ -154,7 +154,6 @@ export const AdminPostDetails = () => {
       const isValidTitle = validateTitleEdit();
       const isValidCategory = validateCategoryEdit();
       const isValidDescription = validateDescriptionEdit();
-      console.log(isValidTitle, isValidCategory, isValidDescription);
       if (!isValidTitle || !isValidCategory || !isValidDescription) {
         return;
       }
