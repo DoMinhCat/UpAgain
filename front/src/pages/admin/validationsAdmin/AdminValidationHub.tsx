@@ -167,6 +167,8 @@ function OverviewTab() {
                 withLabels
                 withTooltip
                 tooltipDataSource="segment"
+                h={280}
+                w={280}
                 mx="auto"
               />
             )}

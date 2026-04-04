@@ -13,15 +13,12 @@ import {
   Select,
   Pill,
   Modal,
-  ActionIcon,
 } from "@mantine/core";
 import {
   IconBox,
   IconPackage,
   IconPlus,
   IconSearch,
-  IconTrash,
-  IconEdit,
 } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -160,7 +157,7 @@ export default function AdminContainersModule() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 8 }}>
-          <Paper px="md" radius="lg" shadow="sm" h="100%">
+          <Paper px="md" radius="lg" shadow="sm" h="100%" py="sm">
             <Title order={4} mb="lg">
               Inventory Distribution
             </Title>

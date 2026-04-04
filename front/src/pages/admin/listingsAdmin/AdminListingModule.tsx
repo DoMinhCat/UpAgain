@@ -255,6 +255,7 @@ export function AdminListingModule() {
                     withTooltip
                     tooltipDataSource="segment"
                     h={280}
+                    w={280}
                     data={[
                       {
                         name: "Wood",
@@ -329,6 +330,7 @@ export function AdminListingModule() {
                     labelsType="percent"
                     withLabels
                     h={280}
+                    w={280}
                     data={[
                       {
                         name: "Listing",
