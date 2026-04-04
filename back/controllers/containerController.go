@@ -79,6 +79,11 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	var payload models.UpdateStatusRequest
 	json.NewDecoder(r.Body).Decode(&payload)
 
+	if payload.Status != "ready" && payload.Status != "maintenance" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
+		return
+	}
+
 	oldContainer, _ := db.FindContainerByID(id)
 	if err := db.UpdateStatusContainer(id, payload.Status); err != nil {
 		slog.Error("UpdateStatusContainer() failed", "controller", "UpdateContainerStatus", "id", id, "error", err)
@@ -128,7 +133,6 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-// to show info in stats card on admin home
 // GetContainerCountStats godoc
 // @Summary      Get container count stats
 // @Description  Get statistics about container counts (total and active)

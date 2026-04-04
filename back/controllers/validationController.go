@@ -10,8 +10,6 @@ import (
 	"strconv"
 )
 
-// TODO: check exist for all
-
 // GetValidationStats godoc
 // @Summary      Get validation stats
 // @Description  Get counts of pending, approved, and refused for all entity types
