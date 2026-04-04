@@ -139,10 +139,14 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the listing.")
 		return
 	}
+	old_photos, err := db.GetPhotosPathsByObjectId(id, "item")
+	if err != nil {
+		slog.Error("GetPhotosPathsByObjectId() failed", "controller", "UpdateListing", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the listing.")
+		return
+	}
 	// mapping
 	listingFullDetails := models.ListingFullDetails{
-		CreatedAt:   itemDetails.CreatedAt,
-		Id:          itemDetails.Id,
 		Title:       itemDetails.Title,
 		Description: itemDetails.Description,
 		Weight:      itemDetails.Weight,
@@ -151,9 +155,9 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		Material:    itemDetails.Material,
 		Price:       itemDetails.Price,
 		Status:      itemDetails.Status,
-		Photos:      itemDetails.Photos,
 		City:        listingDetails.City,
 		PostalCode:  listingDetails.PostalCode,
+		Photos:      old_photos,
 	}
 
 	// form ingest and validation
@@ -254,7 +258,10 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
     }
 	// admin history
 	if role == "admin"{
-		db.InsertHistory("listing", id, "update", r.Context().Value("user").(models.AuthClaims).Id, listingFullDetails, payload)
+		err = db.InsertHistory("listing", id, "update", r.Context().Value("user").(models.AuthClaims).Id, listingFullDetails, payload)
+		if err != nil {
+			slog.Error("db.InsertHistory() failed", "controller", "UpdateListing", "error", err)
+		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }

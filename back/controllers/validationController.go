@@ -145,7 +145,10 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if claims.Role == "admin" {
-		db.InsertHistory("listing", itemID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus, "reason": payload.Reason})
+		err = db.InsertHistory("listing", itemID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus, "reason": payload.Reason})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "ProcessListingValidation", "itemId", itemID, "error", err)
+		}
 	}
 
 	//  TODO: Appel Fictif à l'API OneSignal pour notifier l'utilisateur
@@ -205,7 +208,10 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if claims.Role == "admin" {
-		db.InsertHistory("deposit", itemID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus})
+		err = db.InsertHistory("deposit", itemID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "ProcessDepositValidation", "itemId", itemID, "error", err)
+		}
 	}
 
 	// TODO: Notification OneSignal (et envoi du code-barres par email/push si approved)
@@ -270,7 +276,10 @@ func UpdateEventStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if claims.Role == "admin" {
-		db.InsertHistory("event", eventID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus})
+		err = db.InsertHistory("event", eventID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "UpdateEventStatus", "eventId", eventID, "error", err)
+		}
 	}
 
 	// TODO: Notification OneSignal au salarié qui a proposé l'atelier
