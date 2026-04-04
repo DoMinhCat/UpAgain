@@ -429,6 +429,118 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/items/": {
+            "get": {
+                "description": "Get a paginated list of all items with optional filters for search, sort, status, material, and category.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Get all items",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by title or username",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by material",
+                        "name": "material",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category (listing or deposit)",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ItemListPagination"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/admin/items/count/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get admin-level statistics for items including counts by status, material, category, and timeframe.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Get item statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Timeframe filter: today, last_3_days, last_week, last_month, last_year, all",
+                        "name": "timeframe",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ItemAdminStats"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid timeframe"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/admin/items/history/": {
             "get": {
                 "description": "Get a paginated history of all items",
@@ -489,6 +601,149 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/admin/items/{item_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get detailed information for a specific item including photos and owner username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Get item details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Item"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "404": {
+                        "description": "Item not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Soft-delete an item (listing or deposit) by its ID. Admin can delete any item; users can only delete their own.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Delete item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Item not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update the status of an item (pending, approved, refused, deleted, completed). Admin and users only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Update item status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New status",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ItemStatusUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item status updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or status"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Item not found"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -1217,6 +1472,14 @@ const docTemplate = `{
                     "event"
                 ],
                 "summary": "Get event stats",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Timeframe filter: today, last_3_days, last_week, last_month, last_year, all",
+                        "name": "timeframe",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Event stats retrieved successfully",
@@ -1755,6 +2018,161 @@ const docTemplate = `{
                 }
             }
         },
+        "/listings/{listing_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get detailed information about a specific listing item, including city and postal code.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "listing"
+                ],
+                "summary": "Get listing details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Listing item ID",
+                        "name": "listing_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listing details",
+                        "schema": {
+                            "$ref": "#/definitions/models.Listing"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "404": {
+                        "description": "Listing not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update an existing listing item's details and images. If updated by a user, status resets to pending for re-validation.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "listing"
+                ],
+                "summary": "Update listing",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Listing item ID",
+                        "name": "listing_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item description (HTML)",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Item weight",
+                        "name": "weight",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item state (new, good, very_good, need_repair)",
+                        "name": "state",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item material (wood, metal, textile, glass, plastic, other, mixed)",
+                        "name": "material",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Item price",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Postal code (5-9 digits)",
+                        "name": "postal_code",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Paths of existing images to keep (multiple allowed)",
+                        "name": "existing_images",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "New images to upload (multiple allowed)",
+                        "name": "new_images",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Listing not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/login/": {
             "post": {
                 "description": "Authenticate a user and return a JWT token and set a refresh token cookie",
@@ -1939,6 +2357,49 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    }
+                }
+            }
+        },
+        "/posts/comments/{id_comment}/": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a comment by ID. Admins and employees can delete any comment; users can only delete their own.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comment"
+                ],
+                "summary": "Delete a comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Comment ID",
+                        "name": "id_comment",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }
@@ -2675,6 +3136,144 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Item": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "listing or deposit",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "id_user": {
+                    "type": "integer"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "material": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.ItemAdminStats": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "integer"
+                },
+                "new_since": {
+                    "type": "integer"
+                },
+                "new_transactions_since": {
+                    "type": "integer"
+                },
+                "pending": {
+                    "type": "integer"
+                },
+                "total_deposits": {
+                    "type": "integer"
+                },
+                "total_glass": {
+                    "type": "integer"
+                },
+                "total_listings": {
+                    "description": "chart",
+                    "type": "integer"
+                },
+                "total_metal": {
+                    "type": "integer"
+                },
+                "total_mixed": {
+                    "type": "integer"
+                },
+                "total_other": {
+                    "type": "integer"
+                },
+                "total_plastic": {
+                    "type": "integer"
+                },
+                "total_textile": {
+                    "type": "integer"
+                },
+                "total_transactions": {
+                    "type": "integer"
+                },
+                "total_wood": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.ItemListPagination": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Item"
+                    }
+                },
+                "last_page": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "total_records": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.ItemStatusUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Listing": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "postal_code": {
+                    "type": "string"
+                }
+            }
+        },
         "models.LoginRequest": {
             "type": "object",
             "properties": {
@@ -2931,12 +3530,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "UpAgain backend Golang API",
+	Description:      "Backend API written in Golang that handles requests from the frontend.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

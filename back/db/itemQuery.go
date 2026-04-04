@@ -390,3 +390,12 @@ func UpdateItemStatusById(id int, new_status string) error {
 	}
 	return nil
 }
+
+func GetItemStatusByItemId(id int) (string, error) {
+	var status string
+	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1 AND is_deleted = false", id).Scan(&status)
+	if err != nil {
+		return "", fmt.Errorf("GetItemStatusByItemId() failed: %v", err)
+	}
+	return status, nil
+}

@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   models.AccountCountStats:
     properties:
@@ -241,6 +242,97 @@ definitions:
       total_records:
         type: integer
     type: object
+  models.Item:
+    properties:
+      category:
+        description: listing or deposit
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      id_user:
+        type: integer
+      images:
+        items:
+          type: string
+        type: array
+      material:
+        type: string
+      price:
+        type: number
+      state:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      username:
+        type: string
+      weight:
+        type: number
+    type: object
+  models.ItemAdminStats:
+    properties:
+      active:
+        type: integer
+      new_since:
+        type: integer
+      new_transactions_since:
+        type: integer
+      pending:
+        type: integer
+      total_deposits:
+        type: integer
+      total_glass:
+        type: integer
+      total_listings:
+        description: chart
+        type: integer
+      total_metal:
+        type: integer
+      total_mixed:
+        type: integer
+      total_other:
+        type: integer
+      total_plastic:
+        type: integer
+      total_textile:
+        type: integer
+      total_transactions:
+        type: integer
+      total_wood:
+        type: integer
+    type: object
+  models.ItemListPagination:
+    properties:
+      current_page:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/models.Item'
+        type: array
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  models.ItemStatusUpdateRequest:
+    properties:
+      status:
+        type: string
+    type: object
+  models.Listing:
+    properties:
+      city:
+        type: string
+      postal_code:
+        type: string
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -404,8 +496,12 @@ definitions:
       refused_listings:
         type: integer
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: Backend API written in Golang that handles requests from the frontend.
+  title: UpAgain backend Golang API
+  version: "1.0"
 paths:
   /accounts/:
     get:
@@ -681,6 +777,175 @@ paths:
       summary: Get account count stats
       tags:
       - account
+  /admin/items/:
+    get:
+      description: Get a paginated list of all items with optional filters for search,
+        sort, status, material, and category.
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search by title or username
+        in: query
+        name: search
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Filter by material
+        in: query
+        name: material
+        type: string
+      - description: Filter by category (listing or deposit)
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ItemListPagination'
+        "400":
+          description: Invalid query parameters
+        "500":
+          description: Internal server error
+      summary: Get all items
+      tags:
+      - item
+  /admin/items/{item_id}/:
+    delete:
+      description: Soft-delete an item (listing or deposit) by its ID. Admin can delete
+        any item; users can only delete their own.
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Item not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Delete item
+      tags:
+      - item
+    get:
+      description: Get detailed information for a specific item including photos and
+        owner username.
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Item'
+        "400":
+          description: Invalid ID
+        "404":
+          description: Item not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get item details
+      tags:
+      - item
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of an item (pending, approved, refused, deleted,
+        completed). Admin and users only.
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      - description: New status
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ItemStatusUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Item status updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID or status
+        "401":
+          description: Unauthorized
+        "404":
+          description: Item not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Update item status
+      tags:
+      - item
+  /admin/items/count/:
+    get:
+      description: Get admin-level statistics for items including counts by status,
+        material, category, and timeframe.
+      parameters:
+      - description: 'Timeframe filter: today, last_3_days, last_week, last_month,
+          last_year, all'
+        in: query
+        name: timeframe
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ItemAdminStats'
+        "400":
+          description: Invalid timeframe
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get item statistics
+      tags:
+      - item
   /admin/items/history/:
     get:
       description: Get a paginated history of all items
@@ -1407,6 +1672,12 @@ paths:
         - upcoming events in next 30 days
         - total registrations since last month
         - total pending approvals for events
+      parameters:
+      - description: 'Timeframe filter: today, last_3_days, last_week, last_month,
+          last_year, all'
+        in: query
+        name: timeframe
+        type: string
       produces:
       - application/json
       responses:
@@ -1565,6 +1836,111 @@ paths:
       summary: Get history details
       tags:
       - Admin History
+  /listings/{listing_id}/:
+    get:
+      description: Get detailed information about a specific listing item, including
+        city and postal code.
+      parameters:
+      - description: Listing item ID
+        in: path
+        name: listing_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Listing details
+          schema:
+            $ref: '#/definitions/models.Listing'
+        "400":
+          description: Invalid ID
+        "404":
+          description: Listing not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get listing details
+      tags:
+      - listing
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update an existing listing item's details and images. If updated
+        by a user, status resets to pending for re-validation.
+      parameters:
+      - description: Listing item ID
+        in: path
+        name: listing_id
+        required: true
+        type: integer
+      - description: Item title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Item description (HTML)
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Item weight
+        in: formData
+        name: weight
+        required: true
+        type: number
+      - description: Item state (new, good, very_good, need_repair)
+        in: formData
+        name: state
+        required: true
+        type: string
+      - description: Item material (wood, metal, textile, glass, plastic, other, mixed)
+        in: formData
+        name: material
+        required: true
+        type: string
+      - description: Item price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: City
+        in: formData
+        name: city
+        required: true
+        type: string
+      - description: Postal code (5-9 digits)
+        in: formData
+        name: postal_code
+        required: true
+        type: string
+      - description: Paths of existing images to keep (multiple allowed)
+        in: formData
+        name: existing_images
+        type: string
+      - description: New images to upload (multiple allowed)
+        in: formData
+        name: new_images
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Listing not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Update listing
+      tags:
+      - listing
   /login/:
     post:
       consumes:
@@ -1846,6 +2222,34 @@ paths:
       summary: Delete a post
       tags:
       - Posts
+  /posts/comments/{id_comment}/:
+    delete:
+      description: Delete a comment by ID. Admins and employees can delete any comment;
+        users can only delete their own.
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id_comment
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a comment
+      tags:
+      - comment
   /posts/stats:
     get:
       description: Get general statistics about posts, including total count, new

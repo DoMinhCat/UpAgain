@@ -9,6 +9,18 @@ import (
 	"strconv"
 )
 
+// DeleteCommentById godoc
+// @Summary      Delete a comment
+// @Description  Delete a comment by ID. Admins and employees can delete any comment; users can only delete their own.
+// @Tags         comment
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_comment  path      int  true  "Comment ID"
+// @Success      200         {string}  string  "Comment deleted successfully"
+// @Failure      400         {object}  nil     "Invalid ID"
+// @Failure      401         {object}  nil     "Unauthorized"
+// @Failure      500         {object}  nil     "Internal server error"
+// @Router       /posts/comments/{id_comment}/ [delete]
 func DeleteCommentById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 

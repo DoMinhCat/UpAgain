@@ -11,6 +11,22 @@ import (
 	"time"
 )
 
+// GetAllItems godoc
+// @Summary      Get all items
+// @Description  Get a paginated list of all items with optional filters for search, sort, status, material, and category.
+// @Tags         item
+// @Produce      json
+// @Param        page      query     int     false  "Page number"
+// @Param        limit     query     int     false  "Items per page"
+// @Param        search    query     string  false  "Search by title or username"
+// @Param        sort      query     string  false  "Sort order"
+// @Param        status    query     string  false  "Filter by status"
+// @Param        material  query     string  false  "Filter by material"
+// @Param        category  query     string  false  "Filter by category (listing or deposit)"
+// @Success      200       {object}  models.ItemListPagination
+// @Failure      400       {object}  nil  "Invalid query parameters"
+// @Failure      500       {object}  nil  "Internal server error"
+// @Router       /admin/items/ [get]
 func GetAllItems(w http.ResponseWriter, r *http.Request){
 	var err error
 	// default pagination
@@ -75,6 +91,18 @@ func GetAllItems(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
+// GetAllItemsStats godoc
+// @Summary      Get item statistics
+// @Description  Get admin-level statistics for items including counts by status, material, category, and timeframe.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        timeframe  query     string  false  "Timeframe filter: today, last_3_days, last_week, last_month, last_year, all"
+// @Success      200        {object}  models.ItemAdminStats
+// @Failure      400        {object}  nil  "Invalid timeframe"
+// @Failure      401        {object}  nil  "Unauthorized"
+// @Failure      500        {object}  nil  "Internal server error"
+// @Router       /admin/items/count/ [get]
 func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -195,6 +223,19 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
+// DeleteItemById godoc
+// @Summary      Delete item
+// @Description  Soft-delete an item (listing or deposit) by its ID. Admin can delete any item; users can only delete their own.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        item_id  path      int  true  "Item ID"
+// @Success      204      {object}  nil  "No Content"
+// @Failure      400      {object}  nil  "Invalid ID"
+// @Failure      401      {object}  nil  "Unauthorized"
+// @Failure      404      {object}  nil  "Item not found"
+// @Failure      500      {object}  nil  "Internal server error"
+// @Router       /admin/items/{item_id}/ [delete]
 func DeleteItemById(w http.ResponseWriter, r *http.Request){
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "user" {
@@ -259,6 +300,18 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request){
 }
 
 
+// GetItemDetails godoc
+// @Summary      Get item details
+// @Description  Get detailed information for a specific item including photos and owner username.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        item_id  path      int  true  "Item ID"
+// @Success      200      {object}  models.Item
+// @Failure      400      {object}  nil  "Invalid ID"
+// @Failure      404      {object}  nil  "Item not found"
+// @Failure      500      {object}  nil  "Internal server error"
+// @Router       /admin/items/{item_id}/ [get]
 func GetItemDetails(w http.ResponseWriter, r *http.Request){
 	idString := r.PathValue("item_id")
 	if idString == "" {
@@ -313,6 +366,21 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusOK, item)
 }
 
+// UpdateItemStatusById godoc
+// @Summary      Update item status
+// @Description  Update the status of an item (pending, approved, refused, deleted, completed). Admin and users only.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        item_id  path      int                          true  "Item ID"
+// @Param        body     body      models.ItemStatusUpdateRequest  true  "New status"
+// @Success      200      {object}  map[string]string  "Item status updated successfully"
+// @Failure      400      {object}  nil  "Invalid ID or status"
+// @Failure      401      {object}  nil  "Unauthorized"
+// @Failure      404      {object}  nil  "Item not found"
+// @Failure      500      {object}  nil  "Internal server error"
+// @Router       /admin/items/{item_id}/ [patch]
 func UpdateItemStatusById(w http.ResponseWriter, r *http.Request){
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" {
@@ -359,11 +427,30 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	oldStatus, _ := db.GetItemStatusByItemId(id_item)
+
 	err = db.UpdateItemStatusById(id_item, payload.Status)
 	if err != nil {
 		slog.Error("UpdateItemStatusById() failed", "controller", "UpdateItemStatusById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item.")
 		return
+	}
+
+	if role == "admin" {
+		isListing, err := db.CheckListingOrDepositByItemId(id_item)
+		if err != nil {
+			slog.Error("CheckListingOrDepositByItemId() failed", "controller", "UpdateItemStatusById", "error", err)
+		} else {
+			entityType := "deposit"
+			if isListing {
+				entityType = "listing"
+			}
+			if payload.Status != "deleted"{
+				db.InsertHistory(entityType, id_item, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": payload.Status})
+			} else {
+				db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+			}
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item status updated successfully."})
