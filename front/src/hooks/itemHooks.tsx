@@ -88,10 +88,15 @@ export const useUpdateItemStatus = (id: number) => {
   });
 };
 
-export const useGetItemTransactions = (id_item: number, isValidId: boolean) => {
+export const useGetItemTransactions = (
+  id_item: number,
+  isValidId: boolean,
+  page?: number,
+  limit?: number,
+) => {
   return useQuery({
-    queryKey: ["item-transactions", id_item],
-    queryFn: () => getItemTransactions(id_item),
+    queryKey: ["item-transactions", id_item, page, limit],
+    queryFn: () => getItemTransactions(id_item, page, limit),
     staleTime: STALE_TIME,
     enabled: isValidId,
     meta: {

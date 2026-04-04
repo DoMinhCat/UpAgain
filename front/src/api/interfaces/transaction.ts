@@ -8,3 +8,11 @@ export interface Transaction {
   id_pro: number;
   username_pro: string;
 }
+
+export interface TransactionsPagination {
+  total_transactions: number;
+  transactions: Transaction[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+}
