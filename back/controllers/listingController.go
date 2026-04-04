@@ -277,3 +277,36 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+// GetPendingListingsAdmin godoc
+// @Summary      Get pending listings
+// @Description  Get a paginated list of pending listings for admin
+// @Tags         validation
+// @Produce      json
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Param        search  query     string  false  "Search query"
+// @Param        sort    query     string  false  "Sort order"
+// @Success      200     {object}  map[string]interface{}  "Paginated listings"
+// @Failure      400     {object}  nil                     "Invalid pagination parameters"
+// @Failure      500     {object}  nil                     "Internal server error"
+// @Router       /admin/validations/listings/ [get]
+func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
+	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
+	if err != nil {
+		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingListingsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
+		return
+	}
+
+	listings, total, err := db.GetPendingListings(page, limit, filters)
+	if err != nil {
+		slog.Error("GetPendingListings failed", "controller", "GetPendingListingsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending listings")
+		return
+	}
+
+	result := helper.BuildPaginatedResult(page, limit, total)
+	result["listings"] = listings
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}

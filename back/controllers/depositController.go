@@ -226,3 +226,36 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+// GetPendingDepositsAdmin godoc
+// @Summary      Get pending deposits
+// @Description  Get a paginated list of pending deposits for admin
+// @Tags         validation
+// @Produce      json
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Param        search  query     string  false  "Search query"
+// @Param        sort    query     string  false  "Sort order"
+// @Success      200     {object}  map[string]interface{}  "Paginated deposits"
+// @Failure      400     {object}  nil                     "Invalid pagination parameters"
+// @Failure      500     {object}  nil                     "Internal server error"
+// @Router       /admin/validations/deposits/ [get]
+func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
+	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
+	if err != nil {
+		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingDepositsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
+		return
+	}
+
+	deposits, total, err := db.GetPendingDeposits(page, limit, filters)
+	if err != nil {
+		slog.Error("GetPendingDeposits failed", "controller", "GetPendingDepositsAdmin", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending deposits")
+		return
+	}
+
+	result := helper.BuildPaginatedResult(page, limit, total)
+	result["deposits"] = deposits
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}
