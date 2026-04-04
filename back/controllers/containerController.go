@@ -87,7 +87,10 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("container", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldContainer, payload)
+		err := db.InsertHistory("container", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldContainer, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "UpdateContainerStatus", "id", id, "error", err)
+		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -117,7 +120,10 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("container", id, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		err := db.InsertHistory("container", id, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "DeleteContainer", "id", id, "error", err)
+		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -194,7 +200,10 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Context().Value("user").(models.AuthClaims).Role == "admin" {
-		db.InsertHistory("container", id, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, c)
+		err = db.InsertHistory("container", id, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, c)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CreateContainerHandler", "id", id, "error", err)
+		}
 	}
 
 	c.ID = id

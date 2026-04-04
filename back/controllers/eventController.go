@@ -294,7 +294,10 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", eventId, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, event)
+		err = db.InsertHistory("event", eventId, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, event)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CreateEvent", "id", eventId, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
@@ -533,7 +536,10 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "assign_employees"}, payload)
+		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "assign_employees"}, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "AssignEmployeeToEventByEventId", "id", id_event, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -599,7 +605,10 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "unassign_employee"}, payload)
+		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "unassign_employee"}, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "UnAssignEmployeeByEventId", "id", id_event, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -672,7 +681,10 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": payload.Status})
+		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": payload.Status})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CancelEventByEventId", "id", id_event, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -810,7 +822,10 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, oldEvent, payload)
+		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, oldEvent, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "UpdateEventByEventId", "id", id_event, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)

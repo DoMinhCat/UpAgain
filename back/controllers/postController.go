@@ -186,7 +186,10 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("post", idPost, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, payload)
+		err = db.InsertHistory("post", idPost, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CreatePost", "id", idPost, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, "Post created successfully")
@@ -330,7 +333,10 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("post", id, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		err = db.InsertHistory("post", id, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "DeletePost", "id", id, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -511,7 +517,10 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("post", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldPost, payload)
+		err = db.InsertHistory("post", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldPost, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "UpdatePostById", "id", id, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
