@@ -1,6 +1,7 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
 	"fmt"
 	"time"
@@ -138,4 +139,26 @@ func GetTotalTransactionsSince(since time.Time) (int, error) {
 		return 0, fmt.Errorf("GetTotalTransactionsSince() failed: %v", err.Error())
 	}
 	return total, nil
+}
+
+func GetTransactionsByItemId(itemId int) ([]models.Transaction, error) {
+	var transactions []models.Transaction
+	query := `
+		select t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username from transactions t
+		join accounts a on a.id = t.id_pro
+		where t.id_item = $1
+	`
+	rows, err := utils.Conn.Query(query, itemId)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransactionsByItemId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t models.Transaction
+		if err := rows.Scan(&t.Id, &t.IdTransaction, &t.CreatedAt, &t.Action, &t.IdItem, &t.IdPro, &t.UsernamePro); err != nil {
+			return nil, fmt.Errorf("GetTransactionsByItemId() failed: %v", err.Error())
+		}
+		transactions = append(transactions, t)
+	}
+	return transactions, nil
 }
