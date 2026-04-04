@@ -225,7 +225,7 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 
 // DeleteItemById godoc
 // @Summary      Delete item
-// @Description  Soft-delete an item (listing or deposit) by its ID. Admin can delete any item; users can only delete their own.
+// @Description  Soft-delete an item (listing or deposit) by its ID. Admin can delete any item; users can only delete their own. Item that is reserved or completed can't be deleted
 // @Tags         item
 // @Security     ApiKeyAuth
 // @Produce      json
@@ -261,6 +261,19 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		slog.Error("CheckItemExistByItemId() failed", "controller", "DeleteItemById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+
+	// check status
+	status, err := db.GetItemStatusByItemId(id_item)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+
+	if status == "completed" || status == "reserved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID " + idString + " is already purchased or reserved.")
 		return
 	}
 
