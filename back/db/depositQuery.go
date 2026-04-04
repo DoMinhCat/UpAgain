@@ -189,12 +189,6 @@ func GetPendingDeposits(page, limit int, filters models.ValidationFilters) ([]mo
 	return deposits, totalRecords, nil
 }
 
-func GetDepositStatusById(id int) (string, error) {
-	var status string
-	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
-	return status, err
-}
-
 func GetTotalDeposits(since *time.Time) (int, error) {
 	var total int
 	var row *sql.Row
@@ -214,4 +208,39 @@ func GetDepositDetailsById(id int) (models.DepositDetails, error) {
 	var deposit models.DepositDetails
 	err := utils.Conn.QueryRow("SELECT id_container FROM deposits WHERE id_item = $1", id).Scan(&deposit.ContainerId)
 	return deposit, err
+}
+
+func UpdateDepositById(depositID int, deposit models.UpdateDepositRequest) error {
+	tx, err := utils.Conn.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`UPDATE items SET title = $1, description = $2, price = $3, weight = $4, state = $5,  material = $6 WHERE id = $7`, deposit.Title, deposit.Description, deposit.Price, deposit.Weight, deposit.State, deposit.Material, depositID)
+	if err != nil {
+		return fmt.Errorf("error updating item in tx: %v", err)
+	}
+
+	// Remove all existing images and replace with the new list
+	_, err = tx.Exec("DELETE FROM photos WHERE item_id = $1 AND object_type = 'item'", depositID)
+	if err != nil {
+		return fmt.Errorf("error deleting old images in tx: %v", err)
+	}
+
+	for i, imgPath := range deposit.Photos {
+		isPrimary := i == 0
+		_, err = tx.Exec(`
+			INSERT INTO photos (path, is_primary, object_type, item_id)
+			VALUES ($1, $2, 'item', $3)
+		`, imgPath, isPrimary, depositID)
+		if err != nil {
+			return fmt.Errorf("failed to insert photo: %v", err.Error())
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error committing item transaction: %v", err)
+	}
+	return nil
 }

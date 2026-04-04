@@ -199,7 +199,7 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oldStatus, _ := db.GetDepositStatusById(itemID)
+	oldStatus, _ := db.GetItemStatusByItemId(itemID)
 	err = db.ProcessDepositValidation(itemID, newStatus, employeeID)
 	if err != nil {
 		slog.Error("ProcessDepositValidation failed", "controller", "ProcessDepositValidation", "itemId", itemID, "error", err)

@@ -8,4 +8,5 @@ import (
 
 func GetDepositRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /deposits/{deposit_id}/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetDepositDetailsById))))
+	mux.Handle("PUT /deposits/{deposit_id}/{$}", middleware.AuthMiddleware([]string{"admin", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateDepositByDepositId))))
 }

@@ -126,6 +126,18 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// if completed then can't update
+	status, err := db.GetItemStatusByItemId(id)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "UpdateDepositByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the deposit.")
+		return
+	}
+	if status == "completed" || status == "reserved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Listing is completed or reserved and cannot be updated.")
+		return
+	}
+
 	// get old version
 	listingDetails, err := db.GetListingDetailsById(id)
 	if err != nil {
