@@ -52,7 +52,10 @@ import {
   useGetListingDetails,
   useUpdateListing,
 } from "../../../hooks/listingHooks";
-import { useGetDepositDetails } from "../../../hooks/depositHooks";
+import {
+  useGetDepositDetails,
+  useUpdateDeposit,
+} from "../../../hooks/depositHooks";
 import ImageDropzone from "../../../components/ImageDropzone";
 import { TextEditor } from "../../../components/TextEditor";
 
@@ -262,6 +265,8 @@ export default function AdminListingDetails() {
 
   // EDIT HANDLING
   const updateListingMutation = useUpdateListing(id_event);
+  const updateDepositMutation = useUpdateDeposit(id_event);
+
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (
@@ -307,6 +312,11 @@ export default function AdminListingDetails() {
         },
       });
     } else {
+      updateDepositMutation.mutate(formData, {
+        onSuccess: () => {
+          closeEdit();
+        },
+      });
     }
   };
 
