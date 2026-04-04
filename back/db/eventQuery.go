@@ -27,37 +27,57 @@ func GetTotalEventSpendingsById(id int) (int, error) {
 	return total, nil
 }
 
-// get total count of events not cancelled and not not refused
-func GetTotalCountActiveEvents() (int, error) {
+// get total count of events not cancelled and not refused
+func GetTotalCountActiveEvents(since *time.Time) (int, error) {
 	var total int
-	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM events WHERE status!='cancelled' AND status!='refused'").Scan(&total)
+	var err error
+	if since != nil {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM events WHERE status!='cancelled' AND status!='refused' AND created_at >= $1", *since).Scan(&total)
+	} else {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM events WHERE status!='cancelled' AND status!='refused'").Scan(&total)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalCountActiveEvents() failed: %v", err.Error())
 	}
 	return total, nil
 }
 
-func GetEventIncreaseSince(since time.Time) (int, error) {
+func GetEventIncreaseSince(since *time.Time) (int, error) {
 	var count int
-	err := utils.Conn.QueryRow("select count(*) from events where created_at >= $1 and created_at < now()", since).Scan(&count)
+	var err error
+	if since != nil {
+		err = utils.Conn.QueryRow("select count(*) from events where created_at >= $1 and created_at < now()", *since).Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("select count(*) from events where created_at < now()").Scan(&count)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("GetEventIncreaseSince() failed: %v", err.Error())
 	}
 	return count, nil
 }
 
-func GetUpcomingEventIn(in time.Time) (int, error) {
+func GetUpcomingEventIn(since *time.Time) (int, error) {
 	var count int
-	err := utils.Conn.QueryRow("select count(*) from events where start_at <= $1 AND start_at > now() AND status!='cancelled' AND status!='refused'", in).Scan(&count)
+	var err error
+	if since != nil {
+		err = utils.Conn.QueryRow("select count(*) from events where start_at >= $1 AND start_at > now() AND status!='cancelled' AND status!='refused'", *since).Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("select count(*) from events where start_at > now() AND status!='cancelled' AND status!='refused'").Scan(&count)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("GetUpcomingEventIn() failed: %v", err.Error())
 	}
 	return count, nil
 }
 
-func GetTotalRegistrationsSince(since time.Time) (int, error) {
+func GetTotalRegistrationsSince(since *time.Time) (int, error) {
 	var count int
-	err := utils.Conn.QueryRow("select count(*) from event_registrations where created_at >= $1 and created_at < now()", since).Scan(&count)
+	var err error
+	if since != nil {
+		err = utils.Conn.QueryRow("select count(*) from event_registrations where created_at >= $1 and created_at < now()", *since).Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("select count(*) from event_registrations where created_at < now()").Scan(&count)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalRegistrationsSince() failed: %v", err.Error())
 	}
