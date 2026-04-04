@@ -291,7 +291,7 @@ func UpdateEventStatusByEventId(eventID int, newStatus string, employeeID int) e
 	return nil
 }
 
-func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employeeID int) error {
+func UpdateEventByEventId(eventID int, event models.UpdateEventRequest) error {
 	tx, err := utils.Conn.Begin()
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %v", err)
@@ -309,7 +309,6 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employee
 		return fmt.Errorf("error deleting old images in tx: %v", err)
 	}
 
-	// TODO: remove to the logic checking and update photo paths
 	for i, imgPath := range event.Images {
 		isPrimary := i == 0
 		_, err = tx.Exec(`
@@ -319,14 +318,6 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employee
 		if err != nil {
 			return fmt.Errorf("failed to insert photo: %v", err.Error())
 		}
-	}
-
-	_, err = tx.Exec(`
-		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
-		VALUES ('event', $1, 'update', $2)
-	`, eventID, employeeID)
-	if err != nil {
-		return fmt.Errorf("error inserting into admin_history in tx: %v", err)
 	}
 
 	if err = tx.Commit(); err != nil {

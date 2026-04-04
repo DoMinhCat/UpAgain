@@ -170,3 +170,44 @@ func GetListingDetailsById(id int) (models.Listing, error) {
 	}
 	return listing, nil
 }
+
+func UpdateListingById(listingID int, listing models.UpdateListingRequest) error {
+	tx, err := utils.Conn.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`UPDATE items SET title = $1, description = $2, price = $3, weight = $4, state = $5,  material = $6 WHERE id = $7`, listing.Title, listing.Description, listing.Price, listing.Weight, listing.State, listing.Material, listingID)
+	if err != nil {
+		return fmt.Errorf("error updating item in tx: %v", err)
+	}
+
+	// Remove all existing images and replace with the new list
+	_, err = tx.Exec("DELETE FROM photos WHERE item_id = $1 AND object_type = 'item'", listingID)
+	if err != nil {
+		return fmt.Errorf("error deleting old images in tx: %v", err)
+	}
+
+	for i, imgPath := range listing.Photos {
+		isPrimary := i == 0
+		_, err = tx.Exec(`
+			INSERT INTO photos (path, is_primary, object_type, item_id)
+			VALUES ($1, $2, 'item', $3)
+		`, imgPath, isPrimary, listingID)
+		if err != nil {
+			return fmt.Errorf("failed to insert photo: %v", err.Error())
+		}
+	}
+
+	// update listing details
+	_, err = tx.Exec(`UPDATE listings SET city_name = $1, postal_code = $2 WHERE id_item = $3`, listing.City, listing.PostalCode, listingID)
+	if err != nil {
+		return fmt.Errorf("error updating listing details in tx: %v", err)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error committing item transaction: %v", err)
+	}
+	return nil
+}

@@ -770,7 +770,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	// 1. Handle deletion of removed physical files
 	currentImages, err := db.GetPhotosPathsByObjectId(id_event, "event")
 	if err != nil {
-		slog.Error("db.GetPhotosPathsByObjectId() failed", "controller", "UpdateEventByEventId", "error", err)
+		slog.Error("GetPhotosPathsByObjectId() failed", "controller", "UpdateEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update event.")
 		return
 	}
@@ -820,7 +820,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = db.UpdateEventByEventId(id_event, payload, r.Context().Value("user").(models.AuthClaims).Id)
+	err = db.UpdateEventByEventId(id_event, payload)
 	if err != nil {
 		slog.Error("UpdateEventByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")

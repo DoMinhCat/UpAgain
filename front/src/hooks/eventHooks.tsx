@@ -53,7 +53,6 @@ export const useGetEventStats = (time?: string) => {
 
 export const useCreateEvent = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (event: EventCreationPayload) => createEvent(event),
     onSuccess: () => {
