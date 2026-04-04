@@ -687,12 +687,14 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// TODO: notify users participating in event
+
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
 // UpdateEventByEventId godoc
 // @Summary      Update event details
-// @Description  Update the details of an existing event by its ID using multipart form data.
+// @Description  Update the details of an existing event by its ID using multipart form data. Employee can't update event if it's already cancelled and updating will require re-validation from admin. Only admin, creator or assigned employee can edit. Can't update critical fields: start_at, city, street, location_detail, price if event has participants already registered.
 // @Tags         event
 // @Accept       multipart/form-data
 // @Produce      json
@@ -717,6 +719,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 // @Router       /events/{id}/update/ [put]
 func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
+	idUpdater := r.Context().Value("user").(models.AuthClaims).Id
 	if role != "admin" && role != "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
@@ -747,6 +750,26 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// employee can't update event if it's already cancelled
+	if role == "employee" && oldEvent.Status == "cancelled" {
+		utils.RespondWithError(w, http.StatusConflict, "Event is cancelled.")
+		return
+	}
+
+	// only creator or assigned employee
+	if role != "admin" {
+		isValid, err := db.CheckIsCreatorOrAssignedEmployee(id_event, idUpdater)
+		if err != nil {
+			slog.Error("CheckIsCreatorOrAssignedEmployee() failed", "controller", "CancelEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while checking if the user is the creator or assigned employee.")
+			return
+		}
+		if !isValid {
+			utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+			return
+		}
+	}
+
 	var payload models.UpdateEventRequest
 	err = r.ParseMultipartForm(32 << 20) // 32MB limit
 	if err != nil {
@@ -775,6 +798,20 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.LocationDetail.SetValid(r.FormValue("location_detail"))
 
+	// if there is participant and updating critical fields, update not allowed
+	hasParticipant, err := db.CheckEventHasParticipant(id_event)
+	if err != nil {
+		slog.Error("CheckEventHasParticipant() failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while checking if the event has participants.")
+		return
+	}
+	if hasParticipant {
+		if payload.StartAt != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
+			utils.RespondWithError(w, http.StatusConflict, "Event's critical fields cannot be updated because it has participants registered.")
+			return
+		}
+	}
+	
 	// Handle photo update management
 	keepImages := r.MultipartForm.Value["existing_images"]
 	newImg := r.MultipartForm.File["new_images"]
@@ -828,5 +865,6 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// TODO: notify users participating in event
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }

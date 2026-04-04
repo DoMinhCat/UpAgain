@@ -337,3 +337,15 @@ func GetEventStatusById(id_event int) (string, error) {
 	}
 	return status, nil
 }
+
+func CheckIsCreatorOrAssignedEmployee(id_event int, id_account int) (bool, error) {
+	var exists bool
+	query := `
+		SELECT EXISTS(SELECT 1 FROM events WHERE id=$1 AND created_by=$2) OR EXISTS(SELECT 1 FROM event_employee WHERE id_event=$1 AND id_employee=$2);
+	`
+	err := utils.Conn.QueryRow(query, id_event, id_account).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckIsCreatorOrAssignedEmployee() failed: %v", err.Error())
+	}
+	return exists, nil
+}

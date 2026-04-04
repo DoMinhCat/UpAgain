@@ -20,3 +20,16 @@ func GetTotalActiveEventsRegisteredById(id_account int) (int, error) {
 	}
 	return total, nil
 }
+
+func CheckEventHasParticipant(id_event int) (bool, error) {
+	var exists bool
+	query := `
+		SELECT EXISTS(SELECT 1 FROM event_registrations WHERE id_event=$1 AND status='registered');
+	`
+	err := utils.Conn.QueryRow(query, id_event).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckEventHasParticipant() failed: %v", err.Error())
+	}
+	return exists, nil
+}
+
