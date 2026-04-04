@@ -36,6 +36,7 @@ import {
   IconStars,
   IconBox,
   IconMapPin,
+  IconKey,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
@@ -421,6 +422,18 @@ export default function AdminListingDetails() {
                     initialSlide={activeSlide}
                   />
                 </Modal>
+              </>
+            )}
+
+            {itemDetails?.category === "deposit" && (
+              <>
+                <Divider my="xl" />
+                <Group gap="sm">
+                  <IconKey color="var(--mantine-color-yellow-6)" size={32} />
+                  <Title order={3}>Access information</Title>
+                </Group>
+                <Text>6 digit code and barcode of user + expiry date</Text>
+                <Text>6 digit code and barcode of pro + expiry date</Text>
               </>
             )}
           </Grid.Col>

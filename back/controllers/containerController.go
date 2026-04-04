@@ -58,7 +58,7 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 
 // UpdateContainerStatus godoc
 // @Summary      Update container status
-// @Description  Update the status of a container
+// @Description  Update the status of a container. Can't update if status is waiting or occupied.
 // @Tags         container
 // @Accept       json
 // @Produce      json
@@ -85,6 +85,11 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldContainer, _ := db.FindContainerByID(id)
+	if oldContainer.Status == "waiting" || oldContainer.Status == "occupied" {
+		utils.RespondWithError(w, http.StatusConflict, "Container is waiting for an object or being occupied.")
+		return
+	}
+
 	if err := db.UpdateStatusContainer(id, payload.Status); err != nil {
 		slog.Error("UpdateStatusContainer() failed", "controller", "UpdateContainerStatus", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
