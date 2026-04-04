@@ -447,7 +447,7 @@ export default function AdminListingDetails() {
               <Card.Section withBorder inheritPadding py="xs">
                 <Group justify="space-between">
                   <Text>
-                    Created by{" "}
+                    Posted by{" "}
                     <Anchor
                       style={{ cursor: "pointer" }}
                       c="var(--component-color-primary)"
