@@ -20,3 +20,7 @@ export interface PaginatedDepositsResponse {
   limit: number;
   total_records: number;
 }
+
+export interface DepositDetails {
+  container_id: number;
+}

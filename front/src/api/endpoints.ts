@@ -71,4 +71,12 @@ export const ENDPOINTS = {
     REFRESH: "/refresh/",
     REGISTER: "/register/",
   },
+
+  LISTINGS: {
+    DETAILS: (id_listing: number) => `/listings/${id_listing}/`,
+  },
+
+  DEPOSITS: {
+    DETAILS: (id_deposit: number) => `/deposits/${id_deposit}/`,
+  },
 } as const;

@@ -33,6 +33,8 @@ import {
   IconQuestionMark,
   IconArrowsShuffle,
   IconStars,
+  IconBox,
+  IconMapPin,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
@@ -45,6 +47,8 @@ import { PhotosCarousel } from "../../../components/PhotosCarousel";
 import { useState } from "react";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { showSuccessNotification } from "../../../components/NotificationToast";
+import { useGetListingDetails } from "../../../hooks/listingHooks";
+import { useGetDepositDetails } from "../../../hooks/depositHooks";
 
 export default function AdminListingDetails() {
   const location = useLocation();
@@ -68,6 +72,14 @@ export default function AdminListingDetails() {
   // GET COMMON ITEM ATTRIBUTES
   const { data: itemDetails, isLoading: isItemDetailsLoading } =
     useGetItemDetails(id_event, isValidId);
+
+  // GET LISTING/DEPOSIT DETAILS
+  const isListing = itemDetails?.category === "listing";
+  const isDeposit = itemDetails?.category === "deposit";
+  const { data: listingDetails, isLoading: isListingDetailsLoading } =
+    useGetListingDetails(id_event, isValidId && isListing);
+  const { data: depositDetails, isLoading: isDepositDetailsLoading } =
+    useGetDepositDetails(id_event, isValidId && isDeposit);
 
   // UPDATE STATUS
   const [
@@ -99,20 +111,12 @@ export default function AdminListingDetails() {
       <AdminBreadcrumbs
         breadcrumbs={[
           ...(origin?.from === "allItems"
-            ? [
-                { title: "Listing Management", href: PATHS.ADMIN.LISTINGS },
-                {
-                  title: "Listing's Details",
-                  href: PATHS.ADMIN.LISTINGS + "/" + id,
-                },
-              ]
-            : [
-                { title: "Listing Management", href: PATHS.ADMIN.LISTINGS },
-                {
-                  title: "Listing's Details",
-                  href: PATHS.ADMIN.LISTINGS + "/" + id,
-                },
-              ]),
+            ? [{ title: "Listing Management", href: PATHS.ADMIN.LISTINGS }]
+            : [{ title: "Listing Management", href: PATHS.ADMIN.LISTINGS }]),
+          {
+            title: "Listing's Details",
+            href: PATHS.ADMIN.LISTINGS + "/" + id,
+          },
         ]}
       />
 
@@ -283,6 +287,40 @@ export default function AdminListingDetails() {
                   color="white"
                   value={`${itemDetails?.state.charAt(0).toUpperCase() + (itemDetails?.state.slice(1).replace(/_/g, " ") ?? "")}`}
                 />
+
+                {itemDetails?.category === "listing" ? (
+                  <CardStatsItem
+                    icon={<IconMapPin size={18} />}
+                    label="Location"
+                    color="white"
+                    value={`${listingDetails?.city} ${listingDetails?.postal_code}`}
+                  />
+                ) : (
+                  <CardStatsItem
+                    icon={<IconBox size={18} />}
+                    label="Container"
+                    color="white"
+                    value={
+                      <Anchor
+                        onClick={() =>
+                          navigate(
+                            `/admin/containers/${depositDetails?.container_id}`,
+                            {
+                              state: {
+                                from: "listingDetails",
+                                id_listing: itemDetails?.id,
+                              },
+                            },
+                          )
+                        }
+                        style={{ cursor: "pointer" }}
+                        c="var(--component-color-primary)"
+                      >
+                        Container #{depositDetails?.container_id}
+                      </Anchor>
+                    }
+                  />
+                )}
               </SimpleGrid>
 
               {/* Footer Actions */}

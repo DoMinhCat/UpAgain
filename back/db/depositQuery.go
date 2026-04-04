@@ -209,3 +209,9 @@ func GetTotalDeposits(since *time.Time) (int, error) {
 	}
 	return total, nil
 }
+
+func GetDepositDetailsById(id int) (models.DepositDetails, error) {
+	var deposit models.DepositDetails
+	err := utils.Conn.QueryRow("SELECT id_container FROM deposits WHERE id_item = $1", id).Scan(&deposit.ContainerId)
+	return deposit, err
+}
