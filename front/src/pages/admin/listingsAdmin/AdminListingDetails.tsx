@@ -42,6 +42,7 @@ import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
 import {
   useGetItemDetails,
+  useGetItemTransactions,
   useUpdateItemStatus,
 } from "../../../hooks/itemHooks";
 import dayjs from "dayjs";
@@ -319,6 +320,15 @@ export default function AdminListingDetails() {
       });
     }
   };
+
+  // TRANSACTIONS
+  const {
+    data: transactionsData,
+    isLoading: isLoadingTransactions,
+    error: errorTransactions,
+  } = useGetItemTransactions(id_event, isValidId);
+
+  const transactions = transactionsData || [];
 
   return (
     <Container px="md" size="xl">
@@ -785,20 +795,68 @@ export default function AdminListingDetails() {
           </Title>
         </Group>
         <AdminTable
-          // loading={isLoadingAssignedEmployees}
-          // error={errorAssignedEmployees}
-          header={["Started on", "TransactionID", "Buyer", "Status", "Action"]}
+          loading={isLoadingTransactions}
+          error={errorTransactions}
+          header={["Executed on", "TransactionID", "Buyer", "Status", "Action"]}
         >
-          <Table.Tr>
-            <Table.Td ta="center">20/02/2026</Table.Td>
-            <Table.Td ta="center">123456789</Table.Td>
-            <Table.Td ta="center">John Doe</Table.Td>
-            <Table.Td ta="center">Completed</Table.Td>
-            <Table.Td ta="center">
-              <Button variant="delete">Cancel</Button>
-              {/* Are you sure you want to cancel transaction uuid ... */}
-            </Table.Td>
-          </Table.Tr>
+          {transactions.length > 0 ? (
+            transactions?.map((transaction) => (
+              <Table.Tr key={transaction?.id}>
+                <Table.Td ta="center">
+                  {dayjs(transaction?.created_at).format("DD/MM/YYYY HH:mm A")}
+                </Table.Td>
+                <Table.Td ta="center">{transaction?.id_transaction}</Table.Td>
+                <Table.Td ta="center">
+                  <Anchor
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      navigate(`/admin/users/${transaction?.id_pro}`, {
+                        state: {
+                          from: "listingDetail",
+                          listingId: itemDetails?.id,
+                        },
+                      });
+                    }}
+                    style={{ cursor: "pointer" }}
+                    c="var(--component-color-primary)"
+                  >
+                    {transaction?.username_pro}
+                  </Anchor>
+                </Table.Td>
+                <Table.Td ta="center">
+                  <Badge
+                    color={
+                      transaction?.action === "purchased"
+                        ? "green"
+                        : transaction?.action === "cancelled"
+                          ? "red"
+                          : transaction?.action === "expired"
+                            ? "yellow"
+                            : "blue"
+                    }
+                  >
+                    {transaction?.action.charAt(0).toUpperCase() +
+                      transaction?.action.slice(1)}
+                  </Badge>
+                </Table.Td>
+                <Table.Td ta="center">
+                  <Button
+                    variant="delete"
+                    size="xs"
+                    // onClick={handleOpenCancelModal}
+                  >
+                    Cancel
+                  </Button>
+                </Table.Td>
+              </Table.Tr>
+            ))
+          ) : (
+            <Table.Tr>
+              <Table.Td ta="center" colSpan={5}>
+                No transactions found for this object
+              </Table.Td>
+            </Table.Tr>
+          )}
         </AdminTable>
       </Container>
 
@@ -852,4 +910,3 @@ export default function AdminListingDetails() {
 }
 
 // TODO: show specific details for deposit: code (click to reveal modal, copy button) and barcode (direct)
-// TODO: add action to force cancel transaction

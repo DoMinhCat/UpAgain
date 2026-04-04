@@ -4,6 +4,7 @@ import {
   getAllItems,
   getItemDetails,
   getItemStats,
+  getItemTransactions,
   updateItemStatus,
 } from "../api/itemModule";
 import { showSuccessNotification } from "../components/NotificationToast";
@@ -82,6 +83,19 @@ export const useUpdateItemStatus = (id: number) => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
       queryClient.invalidateQueries({ queryKey: ["item-stats"] });
       queryClient.invalidateQueries({ queryKey: ["item-details", id] });
+    },
+  });
+};
+
+export const useGetItemTransactions = (id: number, isValidId: boolean) => {
+  return useQuery({
+    queryKey: ["item-transactions", id],
+    queryFn: () => getItemTransactions(id),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch item's transactions",
     },
   });
 };
