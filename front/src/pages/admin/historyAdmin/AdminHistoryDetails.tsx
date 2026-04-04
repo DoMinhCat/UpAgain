@@ -14,7 +14,6 @@ import {
   ThemeIcon,
   Anchor,
 } from "@mantine/core";
-import { PATHS } from "../../../routes/paths";
 import { IconUser, IconBox, IconHash, IconClock } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetHistoryDetails } from "../../../hooks/historyHooks";
@@ -106,7 +105,7 @@ export function AdminHistoryDetails() {
                   }
                 />
 
-                {/* TODO: Link to listing/depo + subscription + finance settings */}
+                {/* TODO: Link to subscription + finance settings */}
                 <DetailItem
                   icon={<IconHash size={18} />}
                   label="Reference ID"
