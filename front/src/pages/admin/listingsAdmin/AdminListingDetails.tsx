@@ -240,10 +240,13 @@ export default function AdminListingDetails() {
     if (!postalCodeEdit) {
       setErrorPostalCode("Postal code is required");
       return false;
-    } else {
-      setErrorPostalCode("");
-      return true;
     }
+    if (!/^\d{5,9}$/.test(postalCodeEdit)) {
+      setErrorPostalCode("Invalid postal code");
+      return false;
+    }
+    setErrorPostalCode("");
+    return true;
   };
 
   const validatePrice = () => {
@@ -629,6 +632,35 @@ export default function AdminListingDetails() {
                       setStateEdit(value as string);
                     }}
                   />
+                  {itemDetails?.category === "listing" && (
+                    <SimpleGrid cols={2}>
+                      <TextInput
+                        withAsterisk
+                        label="City"
+                        value={cityEdit}
+                        error={errorCity}
+                        onBlur={() => validateCity()}
+                        onChange={(e) => {
+                          setCityEdit(e.target.value);
+                        }}
+                        // disabled={updateEvent.isPending}
+                        required
+                      />
+                      <TextInput
+                        withAsterisk
+                        label="Postal code"
+                        value={postalCodeEdit}
+                        error={errorPostalCode}
+                        onBlur={() => validatePostalCode()}
+                        onChange={(e) => {
+                          setPostalCodeEdit(e.target.value);
+                        }}
+                        // disabled={updateEvent.isPending}
+                        required
+                      />
+                    </SimpleGrid>
+                  )}
+
                   <TextEditor
                     label="Item's description"
                     placeholder="Write your item's description here..."
