@@ -210,11 +210,11 @@ export function AdminListingModule() {
           }
         />
       </SimpleGrid>
-
-      {/* 2. Bottom Row: Distribution Analysis */}
       <Text size="sm" c="dimmed" mb="xl">
         * Timeframe not applicable for these metrics
       </Text>
+
+      {/* 2. Bottom Row: Distribution Analysis */}
       <Grid align="stretch">
         <Grid.Col span={12}>
           <Paper withBorder p="lg" radius="md" shadow="sm" variant="primary">
@@ -541,7 +541,10 @@ export function AdminListingModule() {
                 <Button
                   variant="delete"
                   size="xs"
-                  onClick={() => handleModalDelete(item)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleModalDelete(item);
+                  }}
                 >
                   Delete
                 </Button>
