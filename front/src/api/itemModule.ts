@@ -5,6 +5,7 @@ import type {
   ItemAdminStats,
   ItemsListPagination,
 } from "./interfaces/item";
+import type { Transaction } from "./interfaces/transaction";
 
 export const getAllItems = async (
   page?: number,
@@ -38,5 +39,12 @@ export const updateItemStatus = async (id: number, status: string) => {
 
 export const getItemDetails = async (id: number): Promise<Item> => {
   const response = await api.get(ENDPOINTS.ADMIN.ITEMS.DETAILS(id));
+  return response.data;
+};
+
+export const getItemTransactions = async (
+  id: number,
+): Promise<Transaction[]> => {
+  const response = await api.get(ENDPOINTS.ADMIN.ITEMS.TRANSACTIONS(id));
   return response.data;
 };

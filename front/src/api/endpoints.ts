@@ -63,6 +63,7 @@ export const ENDPOINTS = {
       COUNT: "/items/count/",
       DELETE: (id_item: number) => `/items/${id_item}/`,
       DETAILS: (id_item: number) => `/items/${id_item}/`,
+      TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions/`,
     },
   },
 
