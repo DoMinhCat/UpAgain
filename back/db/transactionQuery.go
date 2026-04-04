@@ -163,3 +163,50 @@ func GetTransactionsByItemId(itemId int) ([]models.Transaction, error) {
 	}
 	return transactions, nil
 }
+
+func CheckTransactionExistByUuid(transactionUuid string) (bool, error) {
+	var exist bool
+	query := `
+		select exists(select 1 from transactions where id_transaction = $1)
+	`
+	err := utils.Conn.QueryRow(query, transactionUuid).Scan(&exist)
+	if err != nil {
+		return false, fmt.Errorf("CheckTransactionExistByUuid() failed: %v", err.Error())
+	}
+	return exist, nil
+}
+
+func GetTransactionLatestStatusByUuid(transactionUuid string) (string, error) {
+	var status string
+	query := `
+		select action from transactions where id_transaction = $1 order by created_at desc limit 1;
+	`
+	err := utils.Conn.QueryRow(query, transactionUuid).Scan(&status)
+	if err != nil {
+		return "", fmt.Errorf("GetTransactionLatestStatusByUuid() failed: %v", err.Error())
+	}
+	return status, nil
+}
+
+func CancelTransactionByUuid(transactionUuid string, idItem int, idPro int) error {
+	query := `
+		insert into transactions (id_transaction, action, id_item, id_pro) values ($1, 'cancelled', $2, $3);
+	`
+	_, err := utils.Conn.Exec(query, transactionUuid, idItem, idPro)
+	if err != nil {
+		return fmt.Errorf("CancelTransactionByUuid() failed: %v", err.Error())
+	}
+	return nil
+}
+
+func GetProIdByTransUuid(transactionUuid string) (int, error) {
+	var idPro int
+	query := `
+		select id_pro from transactions where id_transaction = $1;
+	`
+	err := utils.Conn.QueryRow(query, transactionUuid).Scan(&idPro)
+	if err != nil {
+		return 0, fmt.Errorf("GetProIdByTransUuid() failed: %v", err.Error())
+	}
+	return idPro, nil
+}
