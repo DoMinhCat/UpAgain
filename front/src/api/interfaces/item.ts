@@ -39,3 +39,11 @@ export interface ItemAdminStats {
   total_listings: number;
   total_deposits: number;
 }
+
+export interface PaginatedHistoryResponse {
+  items: Item[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+  total_records: number;
+}
