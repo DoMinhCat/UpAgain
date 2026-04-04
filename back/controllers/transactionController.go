@@ -115,6 +115,13 @@ func CancelTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if role == "admin" {
+		err = db.InsertHistory("transaction", transactionUuid, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"id_item": itemId, "action": currentStatus}, map[string]interface{}{"id_item": itemId, "action": "cancelled"})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CancelTransaction", "transaction_uuid", transactionUuid, "error", err)
+		}	
+	}
+
 	// Notification to user
 	utils.RespondWithJSON(w, http.StatusOK, "Transaction cancelled successfully")
 }
