@@ -32,7 +32,6 @@ import {
   useGetAllItems,
   useGetItemStats,
 } from "../../../hooks/itemHooks";
-import FullScreenLoader from "../../../components/FullScreenLoader";
 import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
 import dayjs from "dayjs";
@@ -40,6 +39,7 @@ import { useNavigate } from "react-router-dom";
 import type { Item } from "../../../api/interfaces/item";
 import { useDisclosure } from "@mantine/hooks";
 import { showSuccessNotification } from "../../../components/NotificationToast";
+import { ChartLegend } from "../../../components/ChartLegend";
 
 export function AdminListingModule() {
   const navigate = useNavigate();
@@ -294,6 +294,17 @@ export function AdminListingModule() {
                     ]}
                   />
                 )}
+                <ChartLegend
+                  data={[
+                    { label: "Wood", color: "blue.6" },
+                    { label: "Metal", color: "green.6" },
+                    { label: "Textile", color: "yellow.6" },
+                    { label: "Glass", color: "red.6" },
+                    { label: "Plastic", color: "violet.6" },
+                    { label: "Other", color: "gray.6" },
+                    { label: "Mixed", color: "cyan.6" },
+                  ]}
+                />
               </Stack>
 
               {/* Category Chart */}
@@ -332,6 +343,12 @@ export function AdminListingModule() {
                     ]}
                   />
                 )}
+                <ChartLegend
+                  data={[
+                    { label: "Listing", color: "indigo.6" },
+                    { label: "Deposit", color: "cyan.6" },
+                  ]}
+                />
               </Stack>
             </SimpleGrid>
           </Paper>
