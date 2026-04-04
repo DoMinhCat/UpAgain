@@ -98,7 +98,7 @@ func CancelTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if currentStatus != "reserved" {
-		utils.RespondWithError(w, http.StatusConflict, "Transaction cannot be cancelled since current status is '" + currentStatus + "'")
+		utils.RespondWithError(w, http.StatusConflict, "Transaction cannot be cancelled since the transaction's current status is '" + currentStatus + "'")
 		return
 	}
 

@@ -13,7 +13,6 @@ import {
   Card,
   Text,
   Divider,
-  Loader,
   Modal,
   Image,
   Anchor,
@@ -41,6 +40,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
 import {
+  useCancelTransaction,
   useGetItemDetails,
   useGetItemTransactions,
   useUpdateItemStatus,
@@ -69,8 +69,8 @@ export default function AdminListingDetails() {
   const navigate = useNavigate();
   const params = useParams();
   const id = params.id;
-  const id_event = Number(id);
-  const isValidId = !isNaN(id_event) && id_event > 0;
+  const id_item = Number(id);
+  const isValidId = !isNaN(id_item) && id_item > 0;
 
   // DETAILS
   const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
@@ -84,15 +84,15 @@ export default function AdminListingDetails() {
 
   // GET COMMON ITEM ATTRIBUTES
   const { data: itemDetails, isLoading: isItemDetailsLoading } =
-    useGetItemDetails(id_event, isValidId);
+    useGetItemDetails(id_item, isValidId);
 
   // GET LISTING/DEPOSIT DETAILS
   const isListing = itemDetails?.category === "listing";
   const isDeposit = itemDetails?.category === "deposit";
   const { data: listingDetails, isLoading: isListingDetailsLoading } =
-    useGetListingDetails(id_event, isValidId && isListing);
+    useGetListingDetails(id_item, isValidId && isListing);
   const { data: depositDetails, isLoading: isDepositDetailsLoading } =
-    useGetDepositDetails(id_event, isValidId && isDeposit);
+    useGetDepositDetails(id_item, isValidId && isDeposit);
 
   // UPDATE STATUS
   const [
@@ -100,7 +100,7 @@ export default function AdminListingDetails() {
     { open: openUpdateStatusModal, close: closeUpdateStatusModal },
   ] = useDisclosure(false);
 
-  const updateItemStatus = useUpdateItemStatus(id_event);
+  const updateItemStatus = useUpdateItemStatus(id_item);
 
   const handleUpdateItemStatus = (status: string) => {
     updateItemStatus.mutate(status, {
@@ -268,8 +268,8 @@ export default function AdminListingDetails() {
   };
 
   // EDIT HANDLING
-  const updateListingMutation = useUpdateListing(id_event);
-  const updateDepositMutation = useUpdateDeposit(id_event);
+  const updateListingMutation = useUpdateListing(id_item);
+  const updateDepositMutation = useUpdateDeposit(id_item);
 
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -328,7 +328,7 @@ export default function AdminListingDetails() {
     data: transactionsData,
     isLoading: isLoadingTransactions,
     error: errorTransactions,
-  } = useGetItemTransactions(id_event, isValidId);
+  } = useGetItemTransactions(id_item, isValidId);
 
   const transactions = transactionsData || [];
 
@@ -345,7 +345,21 @@ export default function AdminListingDetails() {
     openCancelModal();
   };
 
-  // call mutation
+  const cancelTransactionMutation = useCancelTransaction(id_item);
+
+  const handleCancelTransaction = () => {
+    cancelTransactionMutation.mutate(
+      cancelTransactionId?.id_transaction || "",
+      {
+        onSuccess: () => {
+          closeCancelModal();
+        },
+        onError: () => {
+          closeCancelModal();
+        },
+      },
+    );
+  };
 
   if (
     isDepositDetailsLoading ||
@@ -947,11 +961,11 @@ export default function AdminListingDetails() {
             Cancel
           </Button>
           <Button
-            // onClick={() => {
-            //   handleCancelTransaction(cancelTransactionId?.id || 0);
-            // }}
+            onClick={() => {
+              handleCancelTransaction();
+            }}
             variant="delete"
-            // loading={cancelTransaction.isPending}
+            loading={cancelTransactionMutation.isPending}
           >
             Confirm
           </Button>

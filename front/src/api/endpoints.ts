@@ -64,6 +64,8 @@ export const ENDPOINTS = {
       DELETE: (id_item: number) => `/items/${id_item}/`,
       DETAILS: (id_item: number) => `/items/${id_item}/`,
       TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions/`,
+      CANCEL_TRANSACTION: (id_item: number, transactionUuid: string) =>
+        `/items/${id_item}/transactions/${transactionUuid}/cancel/`,
     },
   },
 

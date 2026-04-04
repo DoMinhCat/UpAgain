@@ -48,3 +48,10 @@ export const getItemTransactions = async (
   const response = await api.get(ENDPOINTS.ADMIN.ITEMS.TRANSACTIONS(id));
   return response.data;
 };
+
+export const cancelTransaction = async (
+  id: number,
+  transactionUuid: string,
+) => {
+  await api.post(ENDPOINTS.ADMIN.ITEMS.CANCEL_TRANSACTION(id, transactionUuid));
+};
