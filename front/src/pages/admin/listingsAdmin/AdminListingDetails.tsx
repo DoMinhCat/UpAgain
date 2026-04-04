@@ -323,7 +323,7 @@ export default function AdminListingDetails() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
-        Listing Details
+        Object Details
       </Title>
       <AdminBreadcrumbs
         breadcrumbs={[
@@ -610,7 +610,10 @@ export default function AdminListingDetails() {
                     }}
                     onBlur={() => validateTitle()}
                     error={errorTitle}
-                    // disabled={updateItem.isPending}
+                    disabled={
+                      updateDepositMutation.isPending ||
+                      updateListingMutation.isPending
+                    }
                     required
                   />
                   <NumberInput
@@ -623,7 +626,10 @@ export default function AdminListingDetails() {
                     }}
                     onBlur={() => validatePrice()}
                     error={errorPrice}
-                    // disabled={updateItem.isPending}
+                    disabled={
+                      updateDepositMutation.isPending ||
+                      updateListingMutation.isPending
+                    }
                     required
                   />
                   <NumberInput
@@ -636,7 +642,10 @@ export default function AdminListingDetails() {
                     }}
                     onBlur={() => validateWeight()}
                     error={errorWeight}
-                    // disabled={updateItem.isPending}
+                    disabled={
+                      updateDepositMutation.isPending ||
+                      updateListingMutation.isPending
+                    }
                     required
                   />
                   <Select
@@ -645,7 +654,10 @@ export default function AdminListingDetails() {
                     value={materialEdit}
                     error={errorMaterial}
                     onBlur={() => validateMaterial()}
-                    // disabled={updateEvent.isPending}
+                    disabled={
+                      updateDepositMutation.isPending ||
+                      updateListingMutation.isPending
+                    }
                     data={[
                       { value: "wood", label: "Wood" },
                       { value: "glass", label: "Glass" },
@@ -665,7 +677,10 @@ export default function AdminListingDetails() {
                     value={stateEdit}
                     error={errorState}
                     onBlur={() => validateState()}
-                    // disabled={updateEvent.isPending}
+                    disabled={
+                      updateDepositMutation.isPending ||
+                      updateListingMutation.isPending
+                    }
                     data={[
                       { value: "new", label: "New" },
                       { value: "very_good", label: "Very good" },
@@ -687,7 +702,10 @@ export default function AdminListingDetails() {
                         onChange={(e) => {
                           setCityEdit(e.target.value);
                         }}
-                        // disabled={updateEvent.isPending}
+                        disabled={
+                          updateDepositMutation.isPending ||
+                          updateListingMutation.isPending
+                        }
                         required
                       />
                       <TextInput
@@ -699,7 +717,10 @@ export default function AdminListingDetails() {
                         onChange={(e) => {
                           setPostalCodeEdit(e.target.value);
                         }}
-                        // disabled={updateEvent.isPending}
+                        disabled={
+                          updateDepositMutation.isPending ||
+                          updateListingMutation.isPending
+                        }
                         required
                       />
                     </SimpleGrid>
@@ -808,4 +829,4 @@ export default function AdminListingDetails() {
   );
 }
 
-// TODO: show specific details for listing/deposit
+// TODO: show specific details for deposit
