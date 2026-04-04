@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  cancelTransaction,
   deleteItem,
   getAllItems,
   getItemDetails,
@@ -87,15 +88,36 @@ export const useUpdateItemStatus = (id: number) => {
   });
 };
 
-export const useGetItemTransactions = (id: number, isValidId: boolean) => {
+export const useGetItemTransactions = (id_item: number, isValidId: boolean) => {
   return useQuery({
-    queryKey: ["item-transactions", id],
-    queryFn: () => getItemTransactions(id),
+    queryKey: ["item-transactions", id_item],
+    queryFn: () => getItemTransactions(id_item),
     staleTime: STALE_TIME,
     enabled: isValidId,
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch item's transactions",
+    },
+  });
+};
+
+export const useCancelTransaction = (id_item: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (transactionUuid: string) =>
+      cancelTransaction(id_item, transactionUuid),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to cancel transaction",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["item-transactions", id_item],
+      });
+      showSuccessNotification(
+        "Transaction cancelled",
+        "Transaction cancelled successfully",
+      );
     },
   });
 };
