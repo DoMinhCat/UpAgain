@@ -203,7 +203,6 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	keepImages := r.MultipartForm.Value["existing_images"]
 	newImg := r.MultipartForm.File["new_images"]
 
-	// 1. Handle deletion of removed physical files
 	currentImages, err := db.GetPhotosPathsByObjectId(id, "item")
 	if err != nil {
 		slog.Error("GetPhotosPathsByObjectId() failed", "controller", "UpdateListing", "error", err)
@@ -211,33 +210,16 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, dbImg := range currentImages {
-		isKept := false
-		for _, keepPath := range keepImages {
-			if dbImg == keepPath {
-				isKept = true
-				break
-			}
-		}
-		if !isKept {
-			err = helper.DeleteFileByPath("images/items", dbImg)
-			if err != nil {
-				slog.Error("helper.DeleteFileByPath() failed", "controller", "UpdateListing", "error", err)
-			}
-		}
+	finalPhotos, delErrs, err := helper.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
+	for _, delErr := range delErrs {
+		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateListing", "error", delErr)
 	}
-
-	// 2. Prepare payload images list (existing + new)
-	payload.Photos = keepImages
-	for _, file := range newImg {
-		path, err := helper.SaveUploadedFile(file, "images/items")
-		if err != nil {
-			slog.Error("SaveUploadedFile() failed", "controller", "UpdateListing", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
-			return
-		}
-		payload.Photos = append(payload.Photos, path)
+	if err != nil {
+		slog.Error("ProcessPhotoUpdate() save failed", "controller", "UpdateListing", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
+		return
 	}
+	payload.Photos = finalPhotos
 
 	// if is user then require validation from admin again
 	if role == "user"{
