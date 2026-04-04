@@ -286,7 +286,6 @@ export default function AdminListingDetails() {
       }
     }
 
-    // call edit mutate, on success close edit modal
     const formData = new FormData();
     formData.append("title", titleEdit);
     formData.append("description", descriptionEdit);
@@ -736,7 +735,10 @@ export default function AdminListingDetails() {
                     }}
                   />
                   <ImageDropzone
-                    // loading={updateEvent.isPending}
+                    loading={
+                      updateDepositMutation.isPending ||
+                      updateListingMutation.isPending
+                    }
                     files={fileEdit}
                     setFiles={setFileEdit}
                   />
@@ -749,7 +751,10 @@ export default function AdminListingDetails() {
                     onClick={(e) => {
                       handleEdit(e);
                     }}
-                    // loading={updateEvent.isPending}
+                    loading={
+                      updateDepositMutation.isPending ||
+                      updateListingMutation.isPending
+                    }
                     variant="primary"
                   >
                     Confirm
@@ -767,15 +772,19 @@ export default function AdminListingDetails() {
           </Title>
         </Group>
         <AdminTable
-          //   loading={isLoadingAssignedEmployees}
-          //   error={errorAssignedEmployees}
-          header={["Started on", "TransactionID", "Buyer", "Status"]}
+          // loading={isLoadingAssignedEmployees}
+          // error={errorAssignedEmployees}
+          header={["Started on", "TransactionID", "Buyer", "Status", "Action"]}
         >
           <Table.Tr>
             <Table.Td ta="center">20/02/2026</Table.Td>
             <Table.Td ta="center">123456789</Table.Td>
             <Table.Td ta="center">John Doe</Table.Td>
             <Table.Td ta="center">Completed</Table.Td>
+            <Table.Td ta="center">
+              <Button variant="delete">Cancel</Button>
+              {/* Are you sure you want to cancel transaction uuid ... */}
+            </Table.Td>
           </Table.Tr>
         </AdminTable>
       </Container>
@@ -829,4 +838,5 @@ export default function AdminListingDetails() {
   );
 }
 
-// TODO: show specific details for deposit
+// TODO: show specific details for deposit: code (click to reveal modal, copy button) and barcode (direct)
+// TODO: add action to force cancel transaction
