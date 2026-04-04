@@ -48,7 +48,6 @@ import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
-import { showSuccessNotification } from "../../../components/NotificationToast";
 import { PhotosCarousel } from "../../../components/PhotosCarousel";
 import PaginationFooter from "../../../components/PaginationFooter";
 
@@ -170,10 +169,6 @@ export const AdminPostDetails = () => {
       });
       updatePostMutate.mutate(formData, {
         onSuccess: () => {
-          showSuccessNotification(
-            "Post updated",
-            "The post has been updated successfully.",
-          );
           closeEdit();
         },
       });
@@ -190,10 +185,6 @@ export const AdminPostDetails = () => {
     if (postDetails) {
       deletePostMutate.mutate(postDetails.id, {
         onSuccess: () => {
-          showSuccessNotification(
-            "Post deleted",
-            "The post has been deleted successfully.",
-          );
           closeDelete();
           navigate("/admin/posts");
         },
@@ -219,10 +210,6 @@ export const AdminPostDetails = () => {
     if (idCommentToDelete) {
       deleteComment.mutate(idCommentToDelete, {
         onSuccess: () => {
-          showSuccessNotification(
-            "Comment deleted",
-            "The comment has been deleted successfully.",
-          );
           closeDeleteComment();
         },
       });

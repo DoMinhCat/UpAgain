@@ -127,7 +127,6 @@ export function AdminListingModule() {
     if (selectedItem) {
       deleteItemMutation.mutate(selectedItem.id, {
         onSuccess: () => {
-          showSuccessNotification("Item deleted", "Item deleted successfully");
           closeDelete();
         },
       });

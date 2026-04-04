@@ -48,7 +48,10 @@ import { PhotosCarousel } from "../../../components/PhotosCarousel";
 import { useState } from "react";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { showSuccessNotification } from "../../../components/NotificationToast";
-import { useGetListingDetails } from "../../../hooks/listingHooks";
+import {
+  useGetListingDetails,
+  useUpdateListing,
+} from "../../../hooks/listingHooks";
 import { useGetDepositDetails } from "../../../hooks/depositHooks";
 import ImageDropzone from "../../../components/ImageDropzone";
 import { TextEditor } from "../../../components/TextEditor";
@@ -257,6 +260,8 @@ export default function AdminListingDetails() {
     }
   };
 
+  // EDIT HANDLING
+  const updateListingMutation = useUpdateListing(id_event);
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (
@@ -276,7 +281,28 @@ export default function AdminListingDetails() {
       }
     }
 
-    // call edit mutate, on success close edit modal and show success notification
+    // call edit mutate, on success close edit modal
+    const formData = new FormData();
+    formData.append("title", titleEdit);
+    formData.append("description", descriptionEdit);
+    formData.append("material", materialEdit);
+    formData.append("state", stateEdit);
+    formData.append("weight", weightEdit.toString());
+    formData.append("price", priceEdit.toString());
+    formData.append("city", cityEdit);
+    formData.append("postal_code", postalCodeEdit);
+    fileEdit.forEach((obj) => {
+      if (obj instanceof File) {
+        formData.append("new_images", obj);
+      } else if (obj.path) {
+        formData.append("existing_images", obj.path);
+      }
+    });
+    updateListingMutation.mutate(formData, {
+      onSuccess: () => {
+        closeEdit();
+      },
+    });
   };
 
   return (

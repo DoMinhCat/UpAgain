@@ -6,6 +6,7 @@ import {
   getItemStats,
   updateItemStatus,
 } from "../api/itemModule";
+import { showSuccessNotification } from "../components/NotificationToast";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -51,6 +52,7 @@ export const useDeleteItem = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
       queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      showSuccessNotification("Item deleted", "Item deleted successfully");
     },
   });
 };

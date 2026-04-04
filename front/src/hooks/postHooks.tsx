@@ -10,6 +10,7 @@ import {
   UpdatePost,
 } from "../api/postModule";
 import type { PostsListPagination } from "../api/interfaces/post";
+import { showSuccessNotification } from "../components/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
 
@@ -71,6 +72,10 @@ export const useDeletePost = () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Post deleted",
+        "The post has been deleted successfully.",
+      );
     },
   });
 };
@@ -101,6 +106,10 @@ export const useUpdatePost = (id_post: number) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Post updated",
+        "The post has been updated successfully.",
+      );
     },
   });
 };
@@ -135,6 +144,10 @@ export const useDeleteComment = () => {
       queryClient.invalidateQueries({ queryKey: ["postComments"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Comment deleted",
+        "The comment has been deleted successfully.",
+      );
     },
   });
 };
