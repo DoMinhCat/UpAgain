@@ -61,6 +61,7 @@ import {
 import ImageDropzone from "../../../components/ImageDropzone";
 import { TextEditor } from "../../../components/TextEditor";
 import FullScreenLoader from "../../../components/FullScreenLoader";
+import PaginationFooter from "../../../components/PaginationFooter";
 import type { Transaction } from "../../../api/interfaces/transaction";
 
 export default function AdminListingDetails() {
@@ -324,13 +325,15 @@ export default function AdminListingDetails() {
   };
 
   // TRANSACTIONS
+  const [activePage, setPage] = useState(1);
+  const limit = 5;
   const {
     data: transactionsData,
     isLoading: isLoadingTransactions,
     error: errorTransactions,
-  } = useGetItemTransactions(id_item, isValidId);
+  } = useGetItemTransactions(id_item, isValidId, activePage, limit);
 
-  const transactions = transactionsData || [];
+  const transactions = transactionsData?.transactions || [];
 
   // FORCE CANCEL TRANSACTION
   const [cancelTransactionId, setCancelTransactionId] =
@@ -836,8 +839,8 @@ export default function AdminListingDetails() {
           error={errorTransactions}
           header={["Executed on", "TransactionID", "Buyer", "Status", "Action"]}
         >
-          {transactions.length > 0 ? (
-            transactions?.map((transaction) => (
+          {transactions && transactions.length > 0 ? (
+            transactions.map((transaction: Transaction) => (
               <Table.Tr key={transaction?.id}>
                 <Table.Td ta="center">
                   {dayjs(transaction?.created_at).format("DD/MM/YYYY HH:mm A")}
@@ -898,6 +901,16 @@ export default function AdminListingDetails() {
             </Table.Tr>
           )}
         </AdminTable>
+        {transactionsData && transactionsData.total_transactions > 0 && (
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={transactionsData.total_transactions}
+            last_page={transactionsData.last_page}
+            limit={limit}
+            unit="transactions"
+          />
+        )}
       </Container>
 
       <Modal

@@ -11,3 +11,11 @@ type Transaction struct {
 	IdPro         int       `json:"id_pro"`
 	UsernamePro   string    `json:"username_pro"`
 }
+
+type TransactionsPaginationResponse struct {
+	TotalTransactions int           `json:"total_transactions"`
+	Transactions      []Transaction `json:"transactions"`
+	CurrentPage       int           `json:"current_page"`
+	LastPage          int           `json:"last_page"`
+	Limit             int           `json:"limit"`
+}

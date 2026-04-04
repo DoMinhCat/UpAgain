@@ -13,8 +13,8 @@ func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action")
-		return	
-	}	
+		return
+	}
 
 	itemId, err := strconv.Atoi(r.PathValue("item_id"))
 	if err != nil {
@@ -31,18 +31,70 @@ func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Item with ID " + strconv.Itoa(itemId) + " not found")
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID "+strconv.Itoa(itemId)+" not found")
 		return
 	}
 
-	transactions, err := db.GetTransactionsByItemId(itemId)
+	// pagination
+	page := -1
+	limit := -1
+
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetItemTransactions", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching transactions.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetItemTransactions", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching transactions.")
+			return
+		}
+	}
+
+	transactions, err := db.GetTransactionsByItemId(itemId, page, limit)
 	if err != nil {
 		slog.Error("GetTransactionsByItemId() failed", "controller", "GetItemTransactions", "item_id", itemId, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching object's transactions")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, transactions)
+	total, err := db.GetTotalTransactionsByItemId(itemId)
+	if err != nil {
+		slog.Error("GetTotalTransactionsByItemId() failed", "controller", "GetItemTransactions", "item_id", itemId, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching object's transactions")
+		return
+	}
+
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+
+	response := models.TransactionsPaginationResponse{
+		TotalTransactions: total,
+		Transactions:      transactions,
+		CurrentPage:       page,
+		LastPage:          lastPage,
+		Limit:             limit,
+	}
+	if page == -1 || limit == -1 {
+		response.CurrentPage = 1
+		response.LastPage = 1
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
 func CancelTransaction(w http.ResponseWriter, r *http.Request) {

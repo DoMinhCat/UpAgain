@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 	"time"
 )
@@ -141,7 +142,7 @@ func GetTotalTransactionsSince(since time.Time) (int, error) {
 	return total, nil
 }
 
-func GetTransactionsByItemId(itemId int) ([]models.Transaction, error) {
+func GetTransactionsByItemId(itemId int, page int, limit int) ([]models.Transaction, error) {
 	var transactions []models.Transaction
 	query := `
 		select t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username from transactions t
@@ -149,7 +150,15 @@ func GetTransactionsByItemId(itemId int) ([]models.Transaction, error) {
 		where t.id_item = $1
 		order by t.created_at desc
 	`
-	rows, err := utils.Conn.Query(query, itemId)
+
+	var rows *sql.Rows
+	var err error
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		rows, err = utils.Conn.Query(query+" LIMIT $2 OFFSET $3", itemId, limit, offset)
+	} else {
+		rows, err = utils.Conn.Query(query, itemId)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("GetTransactionsByItemId() failed: %v", err.Error())
 	}
@@ -162,6 +171,16 @@ func GetTransactionsByItemId(itemId int) ([]models.Transaction, error) {
 		transactions = append(transactions, t)
 	}
 	return transactions, nil
+}
+
+func GetTotalTransactionsByItemId(itemId int) (int, error) {
+	var total int
+	query := `select count(*) from transactions t where t.id_item = $1`
+	err := utils.Conn.QueryRow(query, itemId).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalTransactionsByItemId() failed: %v", err.Error())
+	}
+	return total, nil
 }
 
 func CheckTransactionExistByUuid(transactionUuid string) (bool, error) {
