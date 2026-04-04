@@ -23,6 +23,7 @@ export const useUpdateListing = (id: number) => {
     mutationFn: (payload: FormData) => updateListing(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listingDetails", id] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
       showSuccessNotification(
         "Listing updated",
         "Listing updated successfully",
