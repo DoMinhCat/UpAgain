@@ -17,6 +17,7 @@ import {
   Modal,
   Image,
   Anchor,
+  NumberInput,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -49,6 +50,8 @@ import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { showSuccessNotification } from "../../../components/NotificationToast";
 import { useGetListingDetails } from "../../../hooks/listingHooks";
 import { useGetDepositDetails } from "../../../hooks/depositHooks";
+import ImageDropzone from "../../../components/ImageDropzone";
+import { TextEditor } from "../../../components/TextEditor";
 
 export default function AdminListingDetails() {
   const location = useLocation();
@@ -103,6 +106,59 @@ export default function AdminListingDetails() {
     });
   };
 
+  // EDIT MODAL
+  const [openedEdit, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
+  const [titleEdit, setTitleEdit] = useState<string>(itemDetails?.title || "");
+  const [descriptionEdit, setDescriptionEdit] = useState<string>(
+    itemDetails?.description || "",
+  );
+  const [materialEdit, setMaterialEdit] = useState<string>(
+    itemDetails?.material || "",
+  );
+  const [stateEdit, setStateEdit] = useState<string>(itemDetails?.state || "");
+  const [weightEdit, setWeightEdit] = useState<number>(
+    itemDetails?.weight || 0,
+  );
+  const [priceEdit, setPriceEdit] = useState<number>(itemDetails?.price || 0);
+  const [cityEdit, setCityEdit] = useState<string>(listingDetails?.city || "");
+  const [postalCodeEdit, setPostalCodeEdit] = useState<string>(
+    listingDetails?.postal_code || "",
+  );
+  // TODO: images
+  //   const [fileEdit, setFileEdit] = useState<any[]>([]);
+
+  const [errorTitle, setErrorTitle] = useState("");
+  const [errorDescription, setErrorDescription] = useState("");
+  const [errorMaterial, setErrorMaterial] = useState("");
+  const [errorState, setErrorState] = useState("");
+  const [errorWeight, setErrorWeight] = useState("");
+  const [errorCity, setErrorCity] = useState("");
+  const [errorPostalCode, setErrorPostalCode] = useState("");
+  const [errorPrice, setErrorPrice] = useState("");
+
+  const handleCloseEdit = () => {
+    setErrorTitle("");
+    setErrorDescription("");
+    setErrorMaterial("");
+    setErrorState("");
+    setErrorWeight("");
+    setErrorCity("");
+    setErrorPostalCode("");
+
+    setTitleEdit(itemDetails?.title || "");
+    setDescriptionEdit(itemDetails?.description || "");
+    setMaterialEdit(itemDetails?.material || "");
+    setStateEdit(itemDetails?.state || "");
+    setWeightEdit(itemDetails?.weight || 0);
+    setPriceEdit(itemDetails?.price || 0);
+    setCityEdit(listingDetails?.city || "");
+    setPostalCodeEdit(listingDetails?.postal_code || "");
+    // TODO: reset images
+    // setFileEdit([]);
+
+    closeEdit();
+  };
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
@@ -274,7 +330,7 @@ export default function AdminListingDetails() {
                     )
                   }
                   label="Material"
-                  color="green"
+                  color="brown"
                   value={
                     itemDetails?.material.charAt(0).toUpperCase() +
                     (itemDetails?.material.slice(1) ?? "")
@@ -284,7 +340,7 @@ export default function AdminListingDetails() {
                 <CardStatsItem
                   icon={<IconStars size={18} />}
                   label="State"
-                  color="white"
+                  color="silver"
                   value={`${itemDetails?.state.charAt(0).toUpperCase() + (itemDetails?.state.slice(1).replace(/_/g, " ") ?? "")}`}
                 />
 
@@ -299,7 +355,7 @@ export default function AdminListingDetails() {
                   <CardStatsItem
                     icon={<IconBox size={18} />}
                     label="Container"
-                    color="white"
+                    color="green"
                     value={
                       <Anchor
                         onClick={() =>
@@ -328,11 +384,7 @@ export default function AdminListingDetails() {
                 <>
                   <Stack mt="xl">
                     <Group grow>
-                      <Button
-                        variant="edit"
-                        // onClick={handleOpenEdit}
-                        fullWidth
-                      >
+                      <Button variant="edit" onClick={openEdit} fullWidth>
                         Edit item
                       </Button>
 
@@ -354,15 +406,24 @@ export default function AdminListingDetails() {
                             : "Delete item"}
                       </Button>
                     </Group>
+                    {itemDetails?.category === "deposit" && (
+                      <Button
+                        fullWidth
+                        variant="secondary"
+                        // onClick={openDeleteModal}
+                      >
+                        Transfer container
+                      </Button>
+                    )}
                   </Stack>
                 </>
               )}
 
               {/* Edit Modal */}
-              {/* <Modal
+              <Modal
                 opened={openedEdit}
                 onClose={handleCloseEdit}
-                title="Edit event"
+                title="Edit item"
                 centered
                 size="xl"
               >
@@ -370,170 +431,110 @@ export default function AdminListingDetails() {
                   <TextInput
                     data-autofocus
                     withAsterisk
-                    placeholder="Give the event a catchy title"
+                    placeholder="Give the item a catchy title"
                     label="Title"
                     value={titleEdit}
                     onChange={(e) => {
                       setTitleEdit(e.target.value);
                     }}
-                    onBlur={() => validateTitle()}
+                    // onBlur={() => validateTitle()}
                     error={errorTitle}
-                    disabled={updateEvent.isPending}
+                    // disabled={updateItem.isPending}
                     required
                   />
                   <NumberInput
-                    label="Capacity"
-                    placeholder="Maximum number of attendees"
                     min={0}
-                    disabled={updateEvent.isPending}
-                    value={capacityEdit ?? 0}
-                    suffix=" people"
-                    onChange={(value) => {
-                      setCapacityEdit(Number(value));
-                    }}
-                    onBlur={() => validateCapacity()}
-                    error={errorCapacity}
-                  />
-                  <NumberInput
                     withAsterisk
                     label="Price"
-                    placeholder="Entry fee - (0 if free)"
-                    min={0}
-                    prefix="€"
                     value={priceEdit}
-                    disabled={updateEvent.isPending}
                     onChange={(value) => {
                       setPriceEdit(Number(value));
                     }}
-                    onBlur={() => validatePrice()}
+                    // onBlur={() => validateWeight()}
                     error={errorPrice}
+                    // disabled={updateItem.isPending}
                     required
                   />
-                  <Grid>
-                    <Grid.Col span={{ base: 12, md: 9 }}>
-                      <TextInput
-                        withAsterisk
-                        label="Street"
-                        disabled={updateEvent.isPending}
-                        value={streetEdit}
-                        placeholder="21 Erard street"
-                        onChange={(e) => {
-                          setStreetEdit(e.target.value);
-                        }}
-                        onBlur={() => validateStreet()}
-                        error={errorStreet}
-                        required
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, md: 3 }}>
-                      <TextInput
-                        withAsterisk
-                        placeholder="Paris"
-                        label="City"
-                        value={cityEdit}
-                        disabled={updateEvent.isPending}
-                        onChange={(e) => {
-                          setCityEdit(e.target.value);
-                        }}
-                        onBlur={() => validateCity()}
-                        error={errorCity}
-                        required
-                      />
-                    </Grid.Col>
-                  </Grid>
-                  <TextInput
-                    label="Additional location details"
-                    placeholder="Room 12, 2nd floor"
-                    disabled={updateEvent.isPending}
-                    value={locationDetailEdit}
-                    onChange={(e) => {
-                      setLocationDetailEdit(e.target.value);
+                  <NumberInput
+                    min={0}
+                    withAsterisk
+                    label="Weight"
+                    value={weightEdit}
+                    onChange={(value) => {
+                      setWeightEdit(Number(value));
                     }}
+                    // onBlur={() => validateWeight()}
+                    error={errorWeight}
+                    // disabled={updateItem.isPending}
+                    required
                   />
-                  <Grid>
-                    <Grid.Col span={{ base: 12, md: 6 }}>
-                      <DateTimePicker
-                        clearable
-                        withAsterisk
-                        label="Start date"
-                        placeholder="When does it start?"
-                        value={dateEdit ? new Date(dateEdit) : null}
-                        disabled={updateEvent.isPending}
-                        onChange={(val) =>
-                          setDateEdit(val ? dayjs(val).toISOString() : "")
-                        }
-                        required
-                        onBlur={() => validateDate()}
-                        error={errorDate}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, md: 6 }}>
-                      <DateTimePicker
-                        withAsterisk
-                        clearable
-                        label="End date"
-                        placeholder="When does it end?"
-                        onBlur={() => validateEndDate(endDateEdit)}
-                        error={errorEndDate}
-                        value={endDateEdit ? new Date(endDateEdit) : null}
-                        disabled={updateEvent.isPending}
-                        onChange={(val) =>
-                          setEndDateEdit(val ? dayjs(val).toISOString() : "")
-                        }
-                        required
-                      />
-                    </Grid.Col>
-                  </Grid>
                   <Select
                     withAsterisk
-                    clearable
-                    label="Category"
-                    value={categoryEdit}
-                    disabled={updateEvent.isPending}
-                    placeholder="Select a category"
-                    error={errorCategory}
-                    onBlur={() => validateCategory()}
+                    label="Material"
+                    value={materialEdit}
+                    error={errorMaterial}
+                    // onBlur={() => validateCategory()}
+                    // disabled={updateEvent.isPending}
                     data={[
-                      { value: "workshop", label: "Workshop" },
-                      { value: "conference", label: "Conference" },
-                      { value: "meetups", label: "Meetups" },
-                      { value: "exposition", label: "Exposition" },
+                      { value: "wood", label: "Wood" },
+                      { value: "glass", label: "Glass" },
+                      { value: "plastic", label: "Plastic" },
+                      { value: "metal", label: "Metal" },
+                      { value: "textile", label: "Textile" },
+                      { value: "mixed", label: "Mixed" },
                       { value: "other", label: "Other" },
                     ]}
                     onChange={(value) => {
-                      setCategoryEdit(value as string);
+                      setMaterialEdit(value as string);
+                    }}
+                  />
+                  <Select
+                    withAsterisk
+                    label="State"
+                    value={stateEdit}
+                    error={errorState}
+                    // onBlur={() => validateCategory()}
+                    // disabled={updateEvent.isPending}
+                    data={[
+                      { value: "new", label: "New" },
+                      { value: "very_good", label: "Very good" },
+                      { value: "good", label: "Good" },
+                      { value: "need_repair", label: "Need repair" },
+                    ]}
+                    onChange={(value) => {
+                      setStateEdit(value as string);
                     }}
                   />
                   <TextEditor
-                    label="Event's description"
+                    label="Item's description"
+                    placeholder="Write your item's description here..."
                     value={descriptionEdit}
-                    placeholder="Write your event's description here..."
                     error={errorDescription ?? ""}
                     onChange={(value) => {
                       setDescriptionEdit(value);
                     }}
                   />
-                  <ImageDropzone
+                  {/* <ImageDropzone
                     loading={updateEvent.isPending}
                     files={fileEdit}
                     setFiles={setFileEdit}
-                  />
+                  /> */}
                 </Stack>
                 <Group mt="lg" justify="center">
                   <Button onClick={handleCloseEdit} variant="grey">
                     Cancel
                   </Button>
                   <Button
-                    onClick={(e) => {
-                      handleEdit(e);
-                    }}
+                    // onClick={(e) => {
+                    //   handleEdit(e);
+                    // }}
+                    // loading={updateEvent.isPending}
                     variant="primary"
-                    loading={updateEvent.isPending}
                   >
                     Confirm
                   </Button>
                 </Group>
-              </Modal> */}
+              </Modal>
             </Card>
           </Grid.Col>
         </Grid>
