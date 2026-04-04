@@ -12,6 +12,18 @@ import (
 	"strings"
 )
 
+// GetListingDetails godoc
+// @Summary      Get listing details
+// @Description  Get detailed information about a specific listing item, including city and postal code.
+// @Tags         listing
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        listing_id  path      int  true  "Listing item ID"
+// @Success      200         {object}  models.Listing  "Listing details"
+// @Failure      400         {object}  nil             "Invalid ID"
+// @Failure      404         {object}  nil             "Listing not found"
+// @Failure      500         {object}  nil             "Internal server error"
+// @Router       /listings/{listing_id}/ [get]
 func GetListingDetails(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" {
@@ -49,6 +61,30 @@ func GetListingDetails(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, listing)
 }
 
+// UpdateListing godoc
+// @Summary      Update listing
+// @Description  Update an existing listing item's details and images. If updated by a user, status resets to pending for re-validation.
+// @Tags         listing
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        listing_id       path      int     true   "Listing item ID"
+// @Param        title            formData  string  true   "Item title"
+// @Param        description      formData  string  true   "Item description (HTML)"
+// @Param        weight           formData  number  true   "Item weight"
+// @Param        state            formData  string  true   "Item state (new, good, very_good, need_repair)"
+// @Param        material         formData  string  true   "Item material (wood, metal, textile, glass, plastic, other, mixed)"
+// @Param        price            formData  number  true   "Item price"
+// @Param        city             formData  string  true   "City"
+// @Param        postal_code      formData  string  true   "Postal code (5-9 digits)"
+// @Param        existing_images  formData  string  false  "Paths of existing images to keep (multiple allowed)"
+// @Param        new_images       formData  file    false  "New images to upload (multiple allowed)"
+// @Success      204              {object}  nil     "No Content"
+// @Failure      400              {object}  nil     "Invalid request"
+// @Failure      401              {object}  nil     "Unauthorized"
+// @Failure      404              {object}  nil     "Listing not found"
+// @Failure      500              {object}  nil     "Internal server error"
+// @Router       /listings/{listing_id}/ [put]
 func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" || role == "pro" {
