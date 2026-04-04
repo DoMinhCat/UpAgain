@@ -12,74 +12,6 @@ import (
 
 // TODO: check exist for all
 
-// GetPendingDepositsAdmin godoc
-// @Summary      Get pending deposits
-// @Description  Get a paginated list of pending deposits for admin
-// @Tags         validation
-// @Produce      json
-// @Param        page    query     int     false  "Page number"
-// @Param        limit   query     int     false  "Limit"
-// @Param        search  query     string  false  "Search query"
-// @Param        sort    query     string  false  "Sort order"
-// @Success      200     {object}  map[string]interface{}  "Paginated deposits"
-// @Failure      400     {object}  nil                     "Invalid pagination parameters"
-// @Failure      500     {object}  nil                     "Internal server error"
-// @Router       /admin/validations/deposits/ [get]
-func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
-	// TODO: move this to deposit controller later
-	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
-	if err != nil {
-		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingDepositsAdmin", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
-		return
-	}
-
-	deposits, total, err := db.GetPendingDeposits(page, limit, filters)
-	if err != nil {
-		slog.Error("GetPendingDeposits failed", "controller", "GetPendingDepositsAdmin", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending deposits")
-		return
-	}
-
-	result := helper.BuildPaginatedResult(page, limit, total)
-	result["deposits"] = deposits
-	utils.RespondWithJSON(w, http.StatusOK, result)
-}
-
-// GetPendingListingsAdmin godoc
-// @Summary      Get pending listings
-// @Description  Get a paginated list of pending listings for admin
-// @Tags         validation
-// @Produce      json
-// @Param        page    query     int     false  "Page number"
-// @Param        limit   query     int     false  "Limit"
-// @Param        search  query     string  false  "Search query"
-// @Param        sort    query     string  false  "Sort order"
-// @Success      200     {object}  map[string]interface{}  "Paginated listings"
-// @Failure      400     {object}  nil                     "Invalid pagination parameters"
-// @Failure      500     {object}  nil                     "Internal server error"
-// @Router       /admin/validations/listings/ [get]
-func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
-	// TODO: move this to listing controller later
-	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
-	if err != nil {
-		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingListingsAdmin", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
-		return
-	}
-
-	listings, total, err := db.GetPendingListings(page, limit, filters)
-	if err != nil {
-		slog.Error("GetPendingListings failed", "controller", "GetPendingListingsAdmin", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching pending listings")
-		return
-	}
-
-	result := helper.BuildPaginatedResult(page, limit, total)
-	result["listings"] = listings
-	utils.RespondWithJSON(w, http.StatusOK, result)
-}
-
 // GetValidationStats godoc
 // @Summary      Get validation stats
 // @Description  Get counts of pending, approved, and refused for all entity types
@@ -117,6 +49,18 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("Atoi failed", "controller", "ProcessListingValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid listing ID")
+		return
+	}
+
+	exists, err := db.CheckItemExistByItemId(itemID)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId failed", "controller", "ProcessListingValidation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while checking listing existence")
+		return
+	}
+	if !exists {
+		slog.Error("CheckItemExistByItemId failed", "controller", "ProcessListingValidation", "error", err)
+		utils.RespondWithError(w, http.StatusNotFound, "Listing not found")
 		return
 	}
 
@@ -174,12 +118,23 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 // @Failure      500   {object}  nil                "Internal server error"
 // @Router       /admin/validations/deposits/{id}/ [put]
 func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
-	// TODO: move to depositController
 	idStr := r.PathValue("id")
 	itemID, err := strconv.Atoi(idStr)
 	if err != nil {
 		slog.Error("Atoi failed", "controller", "ProcessDepositValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid deposit ID")
+		return
+	}
+
+	exists, err := db.CheckItemExistByItemId(itemID)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId failed", "controller", "ProcessDepositValidation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while checking deposit existence")
+		return
+	}
+	if !exists {
+		slog.Error("CheckItemExistByItemId failed", "controller", "ProcessDepositValidation", "error", err)
+		utils.RespondWithError(w, http.StatusNotFound, "Deposit not found")
 		return
 	}
 
@@ -218,7 +173,7 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Deposit status updated successfully"})
 }
 
-// UpdateEventStatus godoc
+// ProcessEventValidation godoc
 // @Summary      Process event validation
 // @Description  Approve or refuse an event
 // @Tags         validation
@@ -231,18 +186,18 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 // @Failure      404   {object}  nil                "Event not found"
 // @Failure      500   {object}  nil                "Internal server error"
 // @Router       /admin/validations/events/{id}/ [put]
-func UpdateEventStatus(w http.ResponseWriter, r *http.Request) {
+func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	eventID, err := strconv.Atoi(idStr)
 	if err != nil {
-		slog.Error("Atoi failed", "controller", "UpdateEventStatus", "error", err)
+		slog.Error("Atoi failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event ID")
 		return
 	}
 
 	exist, err := db.CheckEventExistsById(eventID)
 	if err != nil {
-		slog.Error("CheckEventExistsById() failed", "controller", "UpdateEventStatus", "error", err)
+		slog.Error("CheckEventExistsById() failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
 		return
 	}
@@ -253,7 +208,7 @@ func UpdateEventStatus(w http.ResponseWriter, r *http.Request) {
 
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		slog.Error("r.Context().Value failed", "controller", "UpdateEventStatus")
+		slog.Error("r.Context().Value failed", "controller", "ProcessEventValidation")
 		utils.RespondWithError(w, http.StatusInternalServerError, "Unable to authenticate request")
 		return
 	}
@@ -262,7 +217,7 @@ func UpdateEventStatus(w http.ResponseWriter, r *http.Request) {
 
 	_, newStatus, err := helper.ParseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
 	if err != nil {
-		slog.Error("ParseValidationPayload failed", "controller", "UpdateEventStatus", "error", err)
+		slog.Error("ParseValidationPayload failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -270,7 +225,7 @@ func UpdateEventStatus(w http.ResponseWriter, r *http.Request) {
 	oldStatus, _ := db.GetEventStatusById(eventID)
 	err = db.UpdateEventStatusByEventId(eventID, newStatus, employeeID)
 	if err != nil {
-		slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventStatus", "eventId", eventID, "error", err)
+		slog.Error("UpdateEventStatusByEventId() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
@@ -278,7 +233,7 @@ func UpdateEventStatus(w http.ResponseWriter, r *http.Request) {
 	if claims.Role == "admin" {
 		err = db.InsertHistory("event", eventID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus})
 		if err != nil {
-			slog.Error("InsertHistory() failed", "controller", "UpdateEventStatus", "eventId", eventID, "error", err)
+			slog.Error("InsertHistory() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
 		}
 	}
 
