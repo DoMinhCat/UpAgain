@@ -289,8 +289,10 @@ export default function AdminListingDetails() {
     formData.append("state", stateEdit);
     formData.append("weight", weightEdit.toString());
     formData.append("price", priceEdit.toString());
-    formData.append("city", cityEdit);
-    formData.append("postal_code", postalCodeEdit);
+    if (isListing) {
+      formData.append("city", cityEdit);
+      formData.append("postal_code", postalCodeEdit);
+    }
     fileEdit.forEach((obj) => {
       if (obj instanceof File) {
         formData.append("new_images", obj);
@@ -298,11 +300,14 @@ export default function AdminListingDetails() {
         formData.append("existing_images", obj.path);
       }
     });
-    updateListingMutation.mutate(formData, {
-      onSuccess: () => {
-        closeEdit();
-      },
-    });
+    if (isListing) {
+      updateListingMutation.mutate(formData, {
+        onSuccess: () => {
+          closeEdit();
+        },
+      });
+    } else {
+    }
   };
 
   return (

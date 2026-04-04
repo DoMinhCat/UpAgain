@@ -767,7 +767,6 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	keepImages := r.MultipartForm.Value["existing_images"]
 	newImg := r.MultipartForm.File["new_images"]
 
-	// 1. Handle deletion of removed physical files
 	currentImages, err := db.GetPhotosPathsByObjectId(id_event, "event")
 	if err != nil {
 		slog.Error("GetPhotosPathsByObjectId() failed", "controller", "UpdateEventByEventId", "error", err)
@@ -775,34 +774,17 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, dbImg := range currentImages {
-		isKept := false
-		for _, keepPath := range keepImages {
-			if dbImg == keepPath {
-				isKept = true
-				break
-			}
-		}
-		if !isKept {
-			err = helper.DeleteFileByPath("images/events", dbImg)
-			if err != nil {
-				slog.Error("helper.DeleteFileByPath() failed", "controller", "UpdateEventByEventId", "error", err)
-			}
-			// db.UpdateEventByEventId will handle the database side deletions
-		}
+	// db.UpdateEventByEventId handles the database side; here we only manage physical files + build final list to insert into db
+	finalImages, delErrs, err := helper.ProcessPhotoUpdate("images/events", currentImages, keepImages, newImg)
+	for _, delErr := range delErrs {
+		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateEventByEventId", "error", delErr)
 	}
-
-	// 2. Prepare payload images list (existing + new)
-	payload.Images = keepImages
-	for _, file := range newImg {
-		path, err := helper.SaveUploadedFile(file, "images/events")
-		if err != nil {
-			slog.Error("SaveUploadedFile() failed", "controller", "UpdateEventByEventId", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
-			return
-		}
-		payload.Images = append(payload.Images, path)
+	if err != nil {
+		slog.Error("ProcessPhotoUpdate() save failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
+		return
 	}
+	payload.Images = finalImages
 
 	validation := validation.ValidateEventUpdate(payload)
 	if !validation.Success {
