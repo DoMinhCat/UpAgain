@@ -480,6 +480,9 @@ export default function AdminListingDetails() {
                 <Divider my="xl" />
                 <Group gap="sm">
                   <IconKey color="var(--mantine-color-yellow-6)" size={32} />
+                  {/* Show only active codes and used codes for user and pro separately
+                  If deposit item is not bought => nothing
+                  If bought but code not used to deposer or retrieve => code with expired date */}
                   <Title order={3}>Access information</Title>
                 </Group>
                 <Text>6 digit code and barcode of user + expiry date</Text>
@@ -664,7 +667,6 @@ export default function AdminListingDetails() {
                   <TextInput
                     data-autofocus
                     withAsterisk
-                    placeholder="Give the item a catchy title"
                     label="Title"
                     value={titleEdit}
                     onChange={(e) => {
@@ -790,7 +792,6 @@ export default function AdminListingDetails() {
 
                   <TextEditor
                     label="Item's description"
-                    placeholder="Write your item's description here..."
                     value={descriptionEdit}
                     error={errorDescription ?? ""}
                     onChange={(value) => {
