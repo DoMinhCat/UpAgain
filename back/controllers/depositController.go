@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"backend/utils/helper"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -310,28 +311,57 @@ func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
 		return
 	}
+
 	depositId, err := strconv.Atoi(r.PathValue("deposit_id"))
 	if err != nil {
 		slog.Error("strconv.Atoi() failed", "controller", "TransferContainerByDepositId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid deposit ID")
 		return
 	}
-	idContainer, err := strconv.Atoi(r.PathValue("container_id"))
+	exist, err := db.CheckItemExistByItemId(depositId)
 	if err != nil {
-		slog.Error("strconv.Atoi() failed", "controller", "TransferContainerByDepositId", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid container ID")
+		slog.Error("db.CheckItemExistByItemId() failed", "controller", "TransferContainerByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transferring container")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Deposit ID "+strconv.Itoa(depositId)+" not found.")
+		return
+	}
+
+	payload := models.TransferContainerRequest{}
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+	idCurrentContainer := payload.CurrentContainerId
+	idNewContainer := payload.NewContainerId
+
+	if idCurrentContainer == idNewContainer {
+	utils.RespondWithJSON(w, http.StatusOK, "Transfer succeeded.")
+		return
+	}
+	existNewContainer, err := db.CheckContainerExistById(idNewContainer)
+	if err != nil {
+		slog.Error("db.CheckContainerExistById() failed", "controller", "TransferContainerByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transferring container")
+		return
+	}
+	if !existNewContainer {
+		utils.RespondWithError(w, http.StatusNotFound, "Container #"+strconv.Itoa(idNewContainer)+" not found.")
 		return
 	}
 
 	// check if container is available
-	containerStatus, err := db.GetContainerStatusById(idContainer)
+	containerStatus, err := db.GetContainerStatusById(idNewContainer)
 	if err != nil {
 		slog.Error("db.GetContainerStatusById() failed", "controller", "TransferContainerByDepositId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transferring container")
 		return
 	}
 	if containerStatus == "maintenance" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Container #"+strconv.Itoa(idContainer)+" is in maintenance.")
+		utils.RespondWithError(w, http.StatusBadRequest, "Container #"+strconv.Itoa(idNewContainer)+" is in maintenance.")
 		return
 	}
 
@@ -343,18 +373,21 @@ func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, code := range codes {
-		status := code.Status
-		if status == "active" {
-			utils.RespondWithError(w, http.StatusBadRequest, "Container #"+strconv.Itoa(idContainer)+" is already in transaction.")
+		if code.Status == "active" && code.IdContainer == idCurrentContainer {
+			utils.RespondWithError(w, http.StatusBadRequest, "The current container has an active transaction. Please cancel the current transaction before transferring the container.")
 			return
 		}
 	}
 
-	err = db.UpdateContainerByDepositId(depositId, idContainer)
+	err = db.UpdateContainerByDepositId(depositId, idNewContainer)
 	if err != nil {
 		slog.Error("db.UpdateContainerByDepositId() failed", "controller", "TransferContainerByDepositId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transfering container")
 		return
+	}
+
+	if role == "admin" {
+		db.InsertHistory("deposit", depositId, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]int{"id_container": idCurrentContainer}, map[string]int{"id_container": idNewContainer})	
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, "Transfer succeeded.")

@@ -16,6 +16,7 @@ export const ENDPOINTS = {
     CONTAINERS: {
       ALL: "/containers/",
       COUNT: "/containers/count/",
+      AVAILABLE: "/containers/available/",
     },
 
     VALIDATIONS: {
@@ -82,7 +83,6 @@ export const ENDPOINTS = {
   DEPOSITS: {
     DETAILS: (id_deposit: number) => `/deposits/${id_deposit}/`,
     CODES: (id_deposit: number) => `/deposits/${id_deposit}/codes/`,
-    TRANSFER: (id_deposit: number, id_container: number) =>
-      `/deposits/${id_deposit}/transfer/${id_container}/`,
+    TRANSFER: (id_deposit: number) => `/deposits/${id_deposit}/transfer/`,
   },
 } as const;

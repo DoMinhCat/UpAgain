@@ -142,3 +142,28 @@ func GetContainerStatusById(id int) (string, error) {
 	err := utils.Conn.QueryRow(query, id).Scan(&status)
 	return status, err
 }
+
+func GetAvailableContainers() ([]models.Container, error) {
+	var containers []models.Container
+	query := `SELECT id FROM containers WHERE status != 'maintenance' AND is_deleted = false`
+	rows, err := utils.Conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var c models.Container
+		if err := rows.Scan(&c.ID); err != nil {
+			return nil, err
+		}
+		containers = append(containers, c)
+	}
+	return containers, err
+}
+
+func CheckContainerExistById(id int) (bool, error) {
+	var exist bool
+	query := `SELECT EXISTS(SELECT 1 FROM containers WHERE id = $1 AND is_deleted = false)`
+	err := utils.Conn.QueryRow(query, id).Scan(&exist)
+	return exist, err
+}

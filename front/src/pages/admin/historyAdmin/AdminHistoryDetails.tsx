@@ -72,9 +72,13 @@ export function AdminHistoryDetails() {
                   label="Performed By"
                   value={
                     <Group gap="xs" mt={4}>
-                      <Avatar size="sm" radius="xl" color="blue">
-                        AR
-                      </Avatar>
+                      <Avatar
+                        size="sm"
+                        radius="xl"
+                        name={historyData?.admin_name}
+                        color="initials"
+                      />
+
                       <Anchor
                         size="sm"
                         fw={600}

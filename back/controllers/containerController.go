@@ -274,3 +274,19 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(c)
 }
+
+func GetAvailableContainers(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	containers, err := db.GetAvailableContainers()
+	if err != nil {
+		slog.Error("GetAvailableContainers() failed", "controller", "GetAvailableContainers", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching available containers.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, containers)
+}

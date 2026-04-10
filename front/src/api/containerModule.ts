@@ -10,7 +10,7 @@ export const getAllContainers = async (
   page: number = -1,
   limit: number = -1,
   search?: string,
-  status?: string
+  status?: string,
 ): Promise<ContainerListPagination> => {
   const params: Record<string, string | number> = {};
   if (page !== -1) params.page = page;
@@ -49,3 +49,8 @@ export const getContainerCountStats =
     const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.COUNT);
     return response.data;
   };
+
+export const getAvailableContainers = async (): Promise<Container[]> => {
+  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.AVAILABLE);
+  return response.data;
+};

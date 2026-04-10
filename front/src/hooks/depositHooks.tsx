@@ -60,8 +60,18 @@ export const useGetDepositCodesOfLatestTransaction = (
 export const useTransferDepositContainer = (id_deposit: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id_container: number) =>
-      transferDepositContainer(id_deposit, id_container),
+    mutationFn: ({
+      id_new_container,
+      id_current_container,
+    }: {
+      id_new_container: number;
+      id_current_container: number;
+    }) =>
+      transferDepositContainer(
+        id_deposit,
+        id_new_container,
+        id_current_container,
+      ),
     meta: {
       errorTitle: "Transfer failed",
       errorMessage: "Failed to transfer deposit container",
