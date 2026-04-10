@@ -5,7 +5,7 @@ import type {
   ItemAdminStats,
   ItemsListPagination,
 } from "./interfaces/item";
-import type { Transaction, TransactionsPagination } from "./interfaces/transaction";
+import type { TransactionsPagination } from "./interfaces/transaction";
 
 export const getAllItems = async (
   page?: number,
