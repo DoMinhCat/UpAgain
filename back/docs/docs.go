@@ -656,7 +656,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Soft-delete an item (listing or deposit) by its ID. Admin can delete any item; users can only delete their own.",
+                "description": "Soft-delete an item (listing or deposit) by its ID. Admin can delete any item; users can only delete their own. Item that is reserved or completed can't be deleted",
                 "produces": [
                     "application/json"
                 ],
@@ -1046,14 +1046,37 @@ const docTemplate = `{
                     "container"
                 ],
                 "summary": "Get all containers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Container"
-                            }
+                            "$ref": "#/definitions/models.ContainerListPagination"
                         }
                     },
                     "500": {
@@ -1099,6 +1122,38 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Creation failed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/containers/available/": {
+            "get": {
+                "description": "Get a list of available containers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "container"
+                ],
+                "summary": "Get available containers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Container"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "type": "string"
                         }
@@ -1176,7 +1231,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update the status of a container",
+                "description": "Update the status of a container. Can't update if status is waiting or occupied.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1250,6 +1305,228 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    }
+                }
+            }
+        },
+        "/deposits/{deposit_id}/": {
+            "get": {
+                "description": "Get details of a specific deposit",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deposit"
+                ],
+                "summary": "Get deposit details by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deposit ID",
+                        "name": "deposit_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DepositDetails"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid deposit ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Deposit not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the details of a specific deposit (only by owner or admin)",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deposit"
+                ],
+                "summary": "Update deposit details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deposit ID",
+                        "name": "deposit_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Weight",
+                        "name": "weight",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "State",
+                        "name": "state",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Material",
+                        "name": "material",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Price",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "description": "Existing images to keep",
+                        "name": "existing_images",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "New images to upload",
+                        "name": "new_images",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successfully updated"
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Deposit not found"
+                    },
+                    "409": {
+                        "description": "Deposit is completed or reserved"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/deposits/{deposit_id}/codes/": {
+            "get": {
+                "description": "Get deposit code of pro and user of the latest transaction for a deposit",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deposit"
+                ],
+                "summary": "Get deposit codes for user and/or pro of the latest transaction",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deposit ID",
+                        "name": "deposit_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deposit codes and their status",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CodeForAdmin"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid deposit ID"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/deposits/{deposit_id}/transfer/": {
+            "patch": {
+                "description": "Change the container of a deposit to a another available container",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deposit"
+                ],
+                "summary": "Transfer container by deposit ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deposit ID",
+                        "name": "deposit_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Transfer Container payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.TransferContainerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Container transferred successfully"
+                    },
+                    "400": {
+                        "description": "Invalid deposit ID or container ID"
+                    },
+                    "404": {
+                        "description": "Deposit or Container not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }
@@ -1733,7 +2010,7 @@ const docTemplate = `{
         },
         "/events/{id}/update/": {
             "put": {
-                "description": "Update the details of an existing event by its ID using multipart form data.",
+                "description": "Update the details of an existing event by its ID using multipart form data. Employee can't update event if it's already cancelled and updating will require re-validation from admin. Only admin, creator or assigned employee can edit. Can't update critical fields: start_at, city, street, location_detail, price if event has participants already registered.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -2018,6 +2295,107 @@ const docTemplate = `{
                 }
             }
         },
+        "/items/{item_id}/transactions/": {
+            "get": {
+                "description": "Get paginated transactions for a specific item (admin/pro/user owner)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transaction"
+                ],
+                "summary": "Get transactions for an item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TransactionsPaginationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Item not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/items/{item_id}/transactions/{transaction_uuid}/cancel/": {
+            "post": {
+                "description": "Cancel an active reserved transaction for an item",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transaction"
+                ],
+                "summary": "Cancel transaction",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Transaction UUID",
+                        "name": "transaction_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction cancelled successfully"
+                    },
+                    "400": {
+                        "description": "Invalid parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Transaction or item not found"
+                    },
+                    "409": {
+                        "description": "Transaction cannot be cancelled"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/listings/{listing_id}/": {
             "get": {
                 "security": [
@@ -2066,7 +2444,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Update an existing listing item's details and images. If updated by a user, status resets to pending for re-validation.",
+                "description": "Update an existing listing item's details and images. If updated by a user, status resets to pending for re-validation. User can only update their own listings.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -2899,6 +3277,41 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CodeForAdmin": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "id_account": {
+                    "type": "integer"
+                },
+                "id_container": {
+                    "type": "integer"
+                },
+                "id_deposit": {
+                    "type": "integer"
+                },
+                "id_transaction": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_type": {
+                    "type": "string"
+                },
+                "valid_from": {
+                    "type": "string"
+                },
+                "valid_to": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Comment": {
             "type": "object",
             "properties": {
@@ -2965,6 +3378,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ContainerListPagination": {
+            "type": "object",
+            "properties": {
+                "containers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Container"
+                    }
+                },
+                "current_page": {
+                    "type": "integer"
+                },
+                "last_page": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "total_records": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.CreateAccountRequest": {
             "type": "object",
             "properties": {
@@ -2982,6 +3418,14 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "models.DepositDetails": {
+            "type": "object",
+            "properties": {
+                "container_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -3099,9 +3543,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "item_id": {
-                    "type": "integer"
-                },
+                "item_id": {},
                 "module": {
                     "type": "string"
                 },
@@ -3429,6 +3871,66 @@ const docTemplate = `{
             "properties": {
                 "is_banned": {
                     "type": "boolean"
+                }
+            }
+        },
+        "models.Transaction": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "id_item": {
+                    "type": "integer"
+                },
+                "id_pro": {
+                    "type": "integer"
+                },
+                "id_transaction": {
+                    "type": "string"
+                },
+                "username_pro": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TransactionsPaginationResponse": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "last_page": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "total_transactions": {
+                    "type": "integer"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Transaction"
+                    }
+                }
+            }
+        },
+        "models.TransferContainerRequest": {
+            "type": "object",
+            "properties": {
+                "current_container_id": {
+                    "type": "integer"
+                },
+                "new_container_id": {
+                    "type": "integer"
                 }
             }
         },

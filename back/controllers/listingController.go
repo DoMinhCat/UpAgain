@@ -30,7 +30,7 @@ func GetListingDetails(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
 		return
 	}
-	
+
 	idStr := r.PathValue("listing_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -91,7 +91,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
 		return
 	}
-	
+
 	idStr := r.PathValue("listing_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -113,7 +113,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// user can only edit their own listings
-	if role != "admin"{
+	if role != "admin" {
 		belongsToUser, err := db.CheckItemBelongsToUser(id, r.Context().Value("user").(models.AuthClaims).Id)
 		if err != nil {
 			slog.Error("CheckItemBelongsToUser() failed", "controller", "UpdateListing", "error", err)
@@ -252,7 +252,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	payload.Photos = finalPhotos
 
 	// if is user then require validation from admin again
-	if role == "user"{
+	if role == "user" {
 		err = db.UpdateItemStatusById(id, "pending")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateListing", "error", err)
@@ -262,14 +262,14 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// update
-    err = db.UpdateListingById(id, payload)
-    if err != nil {
-        slog.Error("db.UpdateListingById() failed", "controller", "UpdateListing", "error", err)
-        utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
-        return
-    }
+	err = db.UpdateListingById(id, payload)
+	if err != nil {
+		slog.Error("db.UpdateListingById() failed", "controller", "UpdateListing", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
+		return
+	}
 	// admin history
-	if role == "admin"{
+	if role == "admin" {
 		err = db.InsertHistory("listing", id, "update", r.Context().Value("user").(models.AuthClaims).Id, listingFullDetails, payload)
 		if err != nil {
 			slog.Error("db.InsertHistory() failed", "controller", "UpdateListing", "error", err)

@@ -113,12 +113,12 @@ func GetTotalActiveTransactionByIdAccount(id_account int) (int, error) {
 func GetTotalTransactionsByStatus(status string, since *time.Time) (int, error) {
 	var total int
 	param := []interface{}{status}
-	time:= " AND created_at IS NOT NULL"
+	time := " AND created_at IS NOT NULL"
 	query := `
 		select count(*) from transactions t
 		where t.action=$1
 	`
-	if since != nil{
+	if since != nil {
 		time = " AND created_at >= $2"
 		param = append(param, since)
 	}

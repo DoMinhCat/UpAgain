@@ -32,4 +32,3 @@ func CheckEventHasParticipant(id_event int) (bool, error) {
 	}
 	return exists, nil
 }
-

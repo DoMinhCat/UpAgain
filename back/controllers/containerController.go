@@ -24,7 +24,7 @@ import (
 // @Router       /containers/ [get]
 func GetAllContainersHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	
+
 	page := -1
 	limit := -1
 
@@ -47,7 +47,7 @@ func GetAllContainersHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	filters := models.ContainerFilters{
 		Search: query.Get("search"),
 		Status: query.Get("status"),
@@ -275,6 +275,15 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(c)
 }
 
+// GetAvailableContainers godoc
+// @Summary      Get available containers
+// @Description  Get a list of available containers
+// @Tags         container
+// @Produce      json
+// @Success      200  {array}   models.Container
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      500  {string}  string  "Internal server error"
+// @Router       /containers/available/ [get]
 func GetAvailableContainers(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
