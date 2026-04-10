@@ -23,7 +23,11 @@ export const getDepositCodesOfLatestTransaction = async (
 
 export const transferDepositContainer = async (
   id_deposit: number,
-  id_container: number,
+  id_new_container: number,
+  id_current_container: number,
 ) => {
-  await api.put(ENDPOINTS.DEPOSITS.TRANSFER(id_deposit, id_container));
+  await api.patch(ENDPOINTS.DEPOSITS.TRANSFER(id_deposit), {
+    current_container_id: id_current_container,
+    new_container_id: id_new_container,
+  });
 };

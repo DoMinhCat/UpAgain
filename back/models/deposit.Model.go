@@ -27,3 +27,8 @@ type DepositFullDetails struct {
 	Photos      []string `json:"photos"`
 	IdContainer int      `json:"id_container"`
 }
+
+type TransferContainerRequest struct {
+	CurrentContainerId int `json:"current_container_id"`
+	NewContainerId     int `json:"new_container_id"`
+}

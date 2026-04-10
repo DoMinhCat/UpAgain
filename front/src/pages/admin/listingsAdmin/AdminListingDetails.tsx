@@ -73,6 +73,7 @@ import PaginationFooter from "../../../components/PaginationFooter";
 import type { Transaction } from "../../../api/interfaces/transaction";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/PhotoModal";
+import { useGetAvailableContainers } from "../../../hooks/containerHooks";
 
 export default function AdminListingDetails() {
   const location = useLocation();
@@ -391,9 +392,11 @@ export default function AdminListingDetails() {
   };
 
   // TRANSFER CONTAINER
-  // const { data: availableContainersData, isLoading: isLoadingAvailableContainers } =
-  //   ();
-  // const availableContainers = availableContainersData || [];
+  const {
+    data: availableContainersData,
+    isLoading: isLoadingAvailableContainers,
+  } = useGetAvailableContainers();
+  const availableContainers = availableContainersData || [];
   const [
     openedTransferContainerModal,
     { open: openTransferContainerModal, close: closeTransferContainerModal },
@@ -403,12 +406,23 @@ export default function AdminListingDetails() {
   );
   const transferContainerMutation = useTransferDepositContainer(id_item);
 
+  const handleOpenTransferContainerModal = () => {
+    setTransferContainer(depositDetails?.container_id.toString() || "");
+    openTransferContainerModal();
+  };
+
   const handleTransferContainer = () => {
-    transferContainerMutation.mutate(parseInt(transferContainer), {
-      onSuccess: () => {
-        closeTransferContainerModal();
+    transferContainerMutation.mutate(
+      {
+        id_new_container: parseInt(transferContainer),
+        id_current_container: depositDetails?.container_id || 0,
       },
-    });
+      {
+        onSuccess: () => {
+          closeTransferContainerModal();
+        },
+      },
+    );
   };
 
   if (
@@ -811,7 +825,12 @@ export default function AdminListingDetails() {
                       <Button
                         fullWidth
                         variant="secondary"
-                        onClick={openTransferContainerModal}
+                        disabled={
+                          updateDepositMutation.isPending ||
+                          updateListingMutation.isPending ||
+                          isLoadingAvailableContainers
+                        }
+                        onClick={handleOpenTransferContainerModal}
                       >
                         Transfer container
                       </Button>
@@ -1170,16 +1189,14 @@ export default function AdminListingDetails() {
           withAsterisk
           value={transferContainer}
           disabled={
-            updateDepositMutation.isPending || updateListingMutation.isPending
+            updateDepositMutation.isPending ||
+            updateListingMutation.isPending ||
+            isLoadingAvailableContainers
           }
-          data={[
-            { value: "1", label: "Container 1" },
-            { value: "2", label: "Container 2" },
-            { value: "3", label: "Container 3" },
-            { value: "4", label: "Container 4" },
-            { value: "5", label: "Container 5" },
-            { value: "6", label: "Container 6" },
-          ]}
+          data={availableContainers.map((container) => ({
+            value: container.id.toString(),
+            label: `Container #${container.id}`,
+          }))}
           onChange={(value) => {
             setTransferContainer(value as string);
           }}

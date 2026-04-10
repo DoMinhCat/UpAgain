@@ -11,5 +11,6 @@ type CodeForAdmin struct {
 	UserType  string    `json:"user_type"`
 	IdAccount int       `json:"id_account"`
 	IdDeposit int       `json:"id_deposit"`
-	IdTransaction string       `json:"id_transaction"`
+	IdTransaction string    `json:"id_transaction"`
+	IdContainer int       `json:"id_container"`
 }

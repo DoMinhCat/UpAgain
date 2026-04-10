@@ -9,8 +9,9 @@ func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.CodeForAdmi
 	var codes []models.CodeForAdmin
 	query := `
 	SELECT c.path, c.code, c.valid_from, c.valid_to, c.status, 
-       c.user_type, c.id_account, c.id_deposit, c.id_transaction
+       c.user_type, c.id_account, c.id_deposit, c.id_transaction, d.id_container
 	FROM barcodes c
+	JOIN deposits d ON c.id_deposit = d.id_item
 	JOIN (
 		SELECT id_transaction, id_item
 		FROM transactions
@@ -27,7 +28,7 @@ func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.CodeForAdmi
 	defer rows.Close()
 	for rows.Next() {
 		var code models.CodeForAdmin
-		err = rows.Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction)
+		err = rows.Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction, &code.IdContainer)
 		if err != nil {
 			return nil, err
 		}
