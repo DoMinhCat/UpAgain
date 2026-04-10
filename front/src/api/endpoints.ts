@@ -81,7 +81,8 @@ export const ENDPOINTS = {
 
   DEPOSITS: {
     DETAILS: (id_deposit: number) => `/deposits/${id_deposit}/`,
-    // This is for admin to see code of both user and pro
     CODES: (id_deposit: number) => `/deposits/${id_deposit}/codes/`,
+    TRANSFER: (id_deposit: number, id_container: number) =>
+      `/deposits/${id_deposit}/transfer/${id_container}/`,
   },
 } as const;
