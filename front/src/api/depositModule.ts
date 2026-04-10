@@ -1,6 +1,6 @@
 import { api } from "./axios";
 import { ENDPOINTS } from "./endpoints";
-import type { CodeForAdmin } from "./interfaces/code";
+import type { CodeForAdmin } from "./interfaces/barcode";
 import type { DepositDetails } from "./interfaces/deposit";
 
 export const getDepositDetails = async (
