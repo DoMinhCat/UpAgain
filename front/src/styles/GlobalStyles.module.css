@@ -229,24 +229,24 @@
 
   &[data-variant="red"] {
     background-color: var(--mantine-color-red-6);
-    color: #f9f7f2;
+    color: var(--mantine-color-red-1);
   }
   &[data-variant="gray"] {
-    color: #f9f7f2;
+    color: var(--mantine-color-gray-1);
     background-color: var(--mantine-color-gray-6);
   }
 
   &[data-variant="blue"] {
-    color: #f9f7f2;
+    color: var(--mantine-color-blue-1);
     background-color: var(--mantine-color-blue-6);
   }
 
   &[data-variant="yellow"] {
-    color: #f9f7f2;
+    color: var(--mantine-color-yellow-1);
     background-color: var(--mantine-color-yellow-6);
   }
   &[data-variant="green"] {
-    color: var(--mantine-color-text);
+    color: var(--mantine-color-green-1);
     background-color: var(--mantine-color-green-6);
   }
 }
