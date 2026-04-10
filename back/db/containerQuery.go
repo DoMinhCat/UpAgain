@@ -7,11 +7,46 @@ import (
 	"log/slog"
 )
 
-func GetAllContainers() ([]models.Container, error) {
-	query := `SELECT id, created_at, city_name, postal_code, status, is_deleted FROM containers WHERE is_deleted = false`
-	rows, err := utils.Conn.Query(query)
+func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]models.Container, int, error) {
+	var count int
+	var params []interface{}
+	var countParams []interface{}
+	paramIndex := 1
+
+	whereClause := "WHERE is_deleted = false"
+
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(" AND (city_name ILIKE $%d OR postal_code ILIKE $%d OR CAST(id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		params = append(params, searchParam)
+		countParams = append(countParams, searchParam)
+		paramIndex++
+	}
+
+	if filters.Status != "" {
+		whereClause += fmt.Sprintf(" AND status = $%d", paramIndex)
+		params = append(params, filters.Status)
+		countParams = append(countParams, filters.Status)
+		paramIndex++
+	}
+
+	countQuery := "SELECT COUNT(*) FROM containers " + whereClause
+	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&count)
 	if err != nil {
-		return nil, fmt.Errorf("error getting containers from DB: %v", err)
+		return nil, 0, fmt.Errorf("GetAllContainers() count failed: %v", err)
+	}
+
+	query := "SELECT id, created_at, city_name, postal_code, status, is_deleted FROM containers " + whereClause + " ORDER BY id ASC"
+
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
+	}
+
+	rows, err := utils.Conn.Query(query, params...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetAllContainers() query failed: %v", err)
 	}
 	defer rows.Close()
 
@@ -19,11 +54,16 @@ func GetAllContainers() ([]models.Container, error) {
 	for rows.Next() {
 		var c models.Container
 		if err := rows.Scan(&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Status, &c.IsDeleted); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		containers = append(containers, c)
 	}
-	return containers, nil
+	
+	if containers == nil {
+		containers = make([]models.Container, 0)
+	}
+
+	return containers, count, nil
 }
 
 func FindContainerByID(id int) (models.Container, error) {

@@ -15,18 +15,72 @@ import (
 // @Description  Get a list of all containers
 // @Tags         container
 // @Produce      json
-// @Success      200  {array}   models.Container
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Param        search  query     string  false  "Search query"
+// @Param        status  query     string  false  "Filter by status"
+// @Success      200  {object}   models.ContainerListPagination
 // @Failure      500  {object}  nil  "Internal server error"
 // @Router       /containers/ [get]
 func GetAllContainersHandler(w http.ResponseWriter, r *http.Request) {
-	containers, err := db.GetAllContainers()
+	query := r.URL.Query()
+	
+	page := -1
+	limit := -1
+
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		var err error
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid page parameter.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		var err error
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid limit parameter.")
+			return
+		}
+	}
+	
+	filters := models.ContainerFilters{
+		Search: query.Get("search"),
+		Status: query.Get("status"),
+	}
+
+	containers, total, err := db.GetAllContainers(page, limit, filters)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching containers.")
 		slog.Error("GetAllContainers() failed", "controller", "GetAllContainersHandler", "error", err)
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, containers)
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+
+	result := models.ContainerListPagination{
+		Containers:   containers,
+		CurrentPage:  page,
+		LastPage:     lastPage,
+		Limit:        limit,
+		TotalRecords: total,
+	}
+	if page == -1 || limit == -1 {
+		result.CurrentPage = 1
+		result.LastPage = 1
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
 // GetContainerByID godoc
