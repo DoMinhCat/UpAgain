@@ -95,3 +95,10 @@ func InsertContainer(c models.Container) (int, error) {
 
 	return newId, err
 }
+
+func GetContainerStatusById(id int) (string, error) {
+	var status string
+	query := `SELECT status FROM containers WHERE id = $1 AND is_deleted = false`
+	err := utils.Conn.QueryRow(query, id).Scan(&status)
+	return status, err
+}
