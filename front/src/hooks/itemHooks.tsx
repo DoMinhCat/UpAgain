@@ -112,7 +112,7 @@ export const useCancelTransaction = (id_item: number) => {
     mutationFn: (transactionUuid: string) =>
       cancelTransaction(id_item, transactionUuid),
     meta: {
-      errorTitle: "Error",
+      errorTitle: "Failed to cancel transaction",
       errorMessage: "Failed to cancel transaction",
     },
     onSuccess: () => {
