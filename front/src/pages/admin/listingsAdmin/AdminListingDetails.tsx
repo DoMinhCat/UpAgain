@@ -18,6 +18,7 @@ import {
   Anchor,
   NumberInput,
   ThemeIcon,
+  Paper,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -38,6 +39,7 @@ import {
   IconMapPin,
   IconKey,
   IconUserShield,
+  IconBasketCheck,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
@@ -66,6 +68,8 @@ import { TextEditor } from "../../../components/TextEditor";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import PaginationFooter from "../../../components/PaginationFooter";
 import type { Transaction } from "../../../api/interfaces/transaction";
+import type { CodeForAdmin } from "../../../api/interfaces/code";
+import PhotoModal from "../../../components/PhotoModal";
 
 export default function AdminListingDetails() {
   const location = useLocation();
@@ -77,14 +81,6 @@ export default function AdminListingDetails() {
   const isValidId = !isNaN(id_item) && id_item > 0;
 
   // DETAILS
-  const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
-    useDisclosure(false);
-  const [activeSlide, setActiveSlide] = useState(0);
-
-  const handleImageClick = (index: number) => {
-    setActiveSlide(index);
-    openCarousel();
-  };
 
   // GET COMMON ITEM ATTRIBUTES
   const { data: itemDetails, isLoading: isItemDetailsLoading } =
@@ -368,21 +364,28 @@ export default function AdminListingDetails() {
   };
 
   // DEPOSIT CODES
+  const [
+    openedCodeCarousel,
+    { open: openCodeCarousel, close: closeCodeCarousel },
+  ] = useDisclosure(false);
+  const [chosenCode, setChosenCode] = useState<string[]>([]);
   const { data: depositCodesData, isLoading: isLoadingDepositCodes } =
     useGetDepositCodesOfLatestTransaction(id_item, isValidId);
 
   const depositCodes = depositCodesData || [];
-  let userCode = "";
-  let proCode = "";
-  // user coed will be generated first then pro (based on workflow I defined)
+  let userCode: CodeForAdmin | undefined;
+  let proCode: CodeForAdmin | undefined;
+  // user code will be generated first then pro (based on workflow I defined)
   if (depositCodes.length > 0) {
-    userCode =
-      depositCodes.find((code) => code.user_type === "user")?.code || "";
+    userCode = depositCodes.find((code) => code.user_type === "user");
     if (depositCodes.length > 1) {
-      proCode =
-        depositCodes.find((code) => code.user_type === "pro")?.code || "";
+      proCode = depositCodes.find((code) => code.user_type === "pro");
     }
   }
+  const handleCodeClick = (path: string[]) => {
+    setChosenCode(path);
+    openCodeCarousel();
+  };
 
   if (
     isDepositDetailsLoading ||
@@ -458,81 +461,156 @@ export default function AdminListingDetails() {
                   <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
                   <Title order={3}>Photos</Title>
                 </Group>
-                <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
-                  {itemDetails.images.map((path, index) => (
-                    <Image
-                      key={index}
-                      src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
-                      radius="md"
-                      alt={`Item photo ${index + 1}`}
-                      fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleImageClick(index)}
-                    />
-                  ))}
-                </SimpleGrid>
-
-                <Modal
-                  opened={openedCarousel}
-                  onClose={closeCarousel}
-                  size="xl"
-                  centered
-                  title="Item's photos"
-                  styles={{
-                    root: {
-                      zIndex: 1000,
-                    },
-                    body: {
-                      padding: "xs",
-                    },
-                  }}
-                >
+                <div style={{ marginTop: "16px" }}>
                   <PhotosCarousel
-                    photos={itemDetails?.images}
-                    initialSlide={activeSlide}
+                    photos={itemDetails?.images || []}
+                    initialSlide={0}
                   />
-                </Modal>
+                </div>
               </>
             )}
 
             {itemDetails?.category === "deposit" && (
               <>
                 <Divider my="xl" />
-                <Group gap="sm">
+                <Group>
                   <IconKey color="var(--mantine-color-yellow-6)" size={32} />
-                  <SimpleGrid cols={{ base: 1, md: 2 }} mt="md">
-                    <Group justify="space-between">
-                      <Group gap="sm">
-                        <ThemeIcon>
-                          <IconUserShield
-                            style={{ width: "70%", height: "70%" }}
-                          />
-                        </ThemeIcon>
-                        <Text c="dimmed">Access level</Text>
-                        <Text>Owner</Text>
-                        <Text>User code: {userCode}</Text>
-                      </Group>
-                      <Badge
-                        variant={
-                          itemDetails?.status === "used"
-                            ? "gray"
-                            : itemDetails?.status === "expired"
-                              ? "red"
-                              : "green"
-                        }
-                      >
-                        {itemDetails?.status.toUpperCase()}
-                      </Badge>
-                    </Group>
-                    <Group>Placeholder for pro code</Group>
-                  </SimpleGrid>
-                  {/* Show only active codes and used codes for user and pro separately
-                  If deposit item is not bought => nothing
-                  If bought but code not used to deposer or retrieve => code with expired date */}
                   <Title order={3}>Access information</Title>
                 </Group>
-                <Text>6 digit code and barcode of user + expiry date</Text>
-                <Text>6 digit code and barcode of pro + expiry date</Text>
+
+                {!userCode && !proCode && (
+                  <Text c="dimmed" mt="lg">
+                    No access code generated yet for this deposit
+                  </Text>
+                )}
+                {/* User code */}
+                <Stack mt="md" gap={"lg"}>
+                  {userCode && (
+                    <Group gap="sm">
+                      <Stack>
+                        <Group justify="space-between">
+                          <Group gap="sm">
+                            <ThemeIcon>
+                              <IconUserShield />
+                            </ThemeIcon>
+                            <Text>
+                              <strong>Owner</strong>
+                            </Text>
+                          </Group>
+                          <Badge
+                            variant={
+                              userCode?.status === "used"
+                                ? "gray"
+                                : userCode?.status === "expired"
+                                  ? "red"
+                                  : "green"
+                            }
+                          >
+                            {userCode?.status.toUpperCase()}
+                          </Badge>
+                        </Group>
+                        <Paper variant="primary" p="lg">
+                          <Title order={5} c="dimmed" ta="center">
+                            6 DIGITS CODE
+                          </Title>
+                          <Title order={3} ta="center" my="md">
+                            {userCode?.code.slice(0, 3)}{" "}
+                            {userCode?.code.slice(3)}
+                          </Title>
+                          <Image
+                            src={`${import.meta.env.VITE_API_BASE_URL}/${userCode?.path}`}
+                            radius="md"
+                            alt={"Owner's access code"}
+                            fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
+                            style={{ cursor: "pointer" }}
+                            onClick={() =>
+                              handleCodeClick([userCode?.path || ""])
+                            }
+                          />
+                          <Divider my="md" />
+                          <Text c="dimmed">
+                            Valid from:{" "}
+                            {dayjs(userCode?.valid_from).format(
+                              "DD/MM/YYYY HH:mm A",
+                            )}
+                          </Text>
+                          <Text c="dimmed">
+                            Valid until:{" "}
+                            {dayjs(userCode?.valid_to).format(
+                              "DD/MM/YYYY HH:mm A",
+                            )}
+                          </Text>
+                        </Paper>
+                      </Stack>
+                    </Group>
+                  )}
+
+                  {/* Pro code */}
+                  {proCode && (
+                    <Group gap="sm">
+                      <Stack>
+                        <Group justify="space-between">
+                          <Group gap="sm">
+                            <ThemeIcon color="blue">
+                              <IconBasketCheck />
+                            </ThemeIcon>
+                            <Text>
+                              <strong>Buyer</strong>
+                            </Text>
+                          </Group>
+                          <Badge
+                            variant={
+                              proCode?.status === "used"
+                                ? "gray"
+                                : proCode?.status === "expired"
+                                  ? "red"
+                                  : "green"
+                            }
+                          >
+                            {proCode?.status.toUpperCase()}
+                          </Badge>
+                        </Group>
+                        <Paper variant="primary" p="lg">
+                          <Title order={5} c="dimmed" ta="center">
+                            6 DIGITS CODE
+                          </Title>
+                          <Title order={3} ta="center" my="md">
+                            {proCode?.code.slice(0, 3)} {proCode?.code.slice(3)}
+                          </Title>
+                          <Image
+                            src={`${import.meta.env.VITE_API_BASE_URL}/${proCode?.path}`}
+                            radius="md"
+                            alt={"Buyer's access code"}
+                            fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
+                            style={{ cursor: "pointer" }}
+                            onClick={() =>
+                              handleCodeClick([proCode?.path || ""])
+                            }
+                          />
+                          <Divider my="md" />
+                          <Text c="dimmed">
+                            Valid from:{" "}
+                            {dayjs(userCode?.valid_from).format(
+                              "DD/MM/YYYY HH:mm A",
+                            )}
+                          </Text>
+                          <Text c="dimmed">
+                            Valid until:{" "}
+                            {dayjs(userCode?.valid_to).format(
+                              "DD/MM/YYYY HH:mm A",
+                            )}
+                          </Text>
+                        </Paper>
+                      </Stack>
+                    </Group>
+                  )}
+                  {userCode && !proCode && (
+                    <Text c="dimmed" mt="lg">
+                      Access code for buyer will be generated once owner
+                      delivers the object
+                    </Text>
+                  )}
+                </Stack>
               </>
             )}
           </Grid.Col>
@@ -1031,6 +1109,14 @@ export default function AdminListingDetails() {
           </Button>
         </Group>
       </Modal>
+
+      <PhotoModal
+        opened={openedCodeCarousel}
+        setOpened={closeCodeCarousel}
+        photos={chosenCode}
+        baseUrl={import.meta.env.VITE_API_BASE_URL}
+        activeSlide={0}
+      />
     </Container>
   );
 }
