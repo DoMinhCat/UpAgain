@@ -51,7 +51,7 @@ func GetTotalListings(since *time.Time) (int, error) {
 	} else {
 		row = utils.Conn.QueryRow("SELECT count(*) FROM listings l join items i on l.id_item=i.id where i.is_deleted=false;")
 	}
-	
+
 	err := row.Scan(&total)
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalListings() failed: %v", err.Error())

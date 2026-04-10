@@ -12,13 +12,25 @@ import (
 	"strings"
 )
 
+// GetDepositDetailsById godoc
+// @Summary      Get deposit details by ID
+// @Description  Get details of a specific deposit
+// @Tags         deposit
+// @Produce      json
+// @Param        deposit_id  path      int  true  "Deposit ID"
+// @Success      200         {object}  models.DepositDetails
+// @Failure      400         {object}  nil  "Invalid deposit ID"
+// @Failure      401         {object}  nil  "Unauthorized"
+// @Failure      404         {object}  nil  "Deposit not found"
+// @Failure      500         {object}  nil  "Internal server error"
+// @Router       /deposits/{deposit_id}/ [get]
 func GetDepositDetailsById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
 		return
 	}
-	
+
 	idStr := r.PathValue("deposit_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -47,6 +59,28 @@ func GetDepositDetailsById(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, deposit)
 }
 
+// UpdateDepositByDepositId godoc
+// @Summary      Update deposit details
+// @Description  Update the details of a specific deposit (only by owner or admin)
+// @Tags         deposit
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        deposit_id       path      int     true   "Deposit ID"
+// @Param        title            formData  string  true   "Title"
+// @Param        description      formData  string  true   "Description"
+// @Param        weight           formData  number  true   "Weight"
+// @Param        state            formData  string  true   "State"
+// @Param        material         formData  string  true   "Material"
+// @Param        price            formData  number  true   "Price"
+// @Param        existing_images  formData  array   false  "Existing images to keep"
+// @Param        new_images       formData  file    false  "New images to upload"
+// @Success      204              {object}  nil     "Successfully updated"
+// @Failure      400              {object}  nil     "Invalid request parameters"
+// @Failure      401              {object}  nil     "Unauthorized"
+// @Failure      404              {object}  nil     "Deposit not found"
+// @Failure      409              {object}  nil     "Deposit is completed or reserved"
+// @Failure      500              {object}  nil     "Internal server error"
+// @Router       /deposits/{deposit_id}/ [put]
 func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" || role == "pro" {
@@ -73,7 +107,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// user can only edit their own deposits
-	if role != "admin"{
+	if role != "admin" {
 		belongsToUser, err := db.CheckItemBelongsToUser(id, r.Context().Value("user").(models.AuthClaims).Id)
 		if err != nil {
 			slog.Error("CheckItemBelongsToUser() failed", "controller", "UpdateDepositByDepositId", "error", err)
@@ -200,7 +234,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	payload.Photos = finalPhotos
 
 	// if is user then require validation from admin again and invalidate barcode
-	if role == "user"{
+	if role == "user" {
 		err = db.UpdateItemStatusById(id, "pending")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateDepositByDepositId", "error", err)
@@ -212,14 +246,14 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// update
-    err = db.UpdateDepositById(id, payload)
-    if err != nil {
-        slog.Error("db.UpdateDepositById() failed", "controller", "UpdateDepositByDepositId", "error", err)
-        utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
-        return
-    }
+	err = db.UpdateDepositById(id, payload)
+	if err != nil {
+		slog.Error("db.UpdateDepositById() failed", "controller", "UpdateDepositByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
+		return
+	}
 	// admin history
-	if role == "admin"{
+	if role == "admin" {
 		err = db.InsertHistory("deposit", id, "update", r.Context().Value("user").(models.AuthClaims).Id, depositFullDetails, payload)
 		if err != nil {
 			slog.Error("db.InsertHistory() failed", "controller", "UpdateDepositByDepositId", "error", err)
@@ -298,13 +332,15 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 // @Summary      Transfer container by deposit ID
 // @Description  Change the container of a deposit to a another available container
 // @Tags         deposit
+// @Accept       json
 // @Produce      json
-// @Param        deposit_id    path     int     true  "Deposit ID"
-// @Param        id_container  path     int     true  "Container ID"
-// @Success      200     {object}  nil                     "Container transferred successfully"
-// @Failure      400     {object}  nil                     "Invalid deposit ID or container ID"
-// @Failure      500     {object}  nil                     "Internal server error"
-// @Router       /deposits/{deposit_id}/transfer/{id_container} [patch]
+// @Param        deposit_id  path      int                              true  "Deposit ID"
+// @Param        body        body      models.TransferContainerRequest  true  "Transfer Container payload"
+// @Success      200         {object}  nil                              "Container transferred successfully"
+// @Failure      400         {object}  nil                              "Invalid deposit ID or container ID"
+// @Failure      404         {object}  nil                              "Deposit or Container not found"
+// @Failure      500         {object}  nil                              "Internal server error"
+// @Router       /deposits/{deposit_id}/transfer/ [patch]
 func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -339,7 +375,7 @@ func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 	idNewContainer := payload.NewContainerId
 
 	if idCurrentContainer == idNewContainer {
-	utils.RespondWithJSON(w, http.StatusOK, "Transfer succeeded.")
+		utils.RespondWithJSON(w, http.StatusOK, "Transfer succeeded.")
 		return
 	}
 	existNewContainer, err := db.CheckContainerExistById(idNewContainer)
@@ -387,8 +423,13 @@ func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("deposit", depositId, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]int{"id_container": idCurrentContainer}, map[string]int{"id_container": idNewContainer})	
+		err = db.InsertHistory("deposit", depositId, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]int{"id_container": idCurrentContainer}, map[string]int{"id_container": idNewContainer})
+		if err != nil {
+			slog.Error("db.InsertHistory() failed", "controller", "TransferContainerByDepositId", "error", err)
+		}
 	}
+
+	// TODO: notification to user and pro (if pro reserved, since if purchased code will be generated therefore cant trasnfer container) that container is changed
 
 	utils.RespondWithJSON(w, http.StatusOK, "Transfer succeeded.")
 }

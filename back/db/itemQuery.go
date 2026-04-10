@@ -346,7 +346,7 @@ func DeleteItemById(id int) error {
 func GetItemDetailsByItemId(id int) (models.Item, error) {
 	var item models.Item
 	row := utils.Conn.QueryRow("SELECT id, created_at, title, description, weight, state, id_user, material, price, status FROM items WHERE id = $1 AND is_deleted = false", id)
-	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status); 
+	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status)
 	if err != nil {
 		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() failed: %v", err)
 	}
@@ -359,7 +359,7 @@ func GetItemDetailsByItemId(id int) (models.Item, error) {
 		item.Category = "listing"
 	} else {
 		item.Category = "deposit"
-		}
+	}
 	return item, nil
 }
 

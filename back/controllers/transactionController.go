@@ -9,6 +9,20 @@ import (
 	"strconv"
 )
 
+// GetItemTransactions godoc
+// @Summary      Get transactions for an item
+// @Description  Get paginated transactions for a specific item (admin/pro/user owner)
+// @Tags         transaction
+// @Produce      json
+// @Param        item_id  path      int     true   "Item ID"
+// @Param        page     query     int     false  "Page number"
+// @Param        limit    query     int     false  "Limit per page"
+// @Success      200      {object}  models.TransactionsPaginationResponse
+// @Failure      400      {object}  nil     "Invalid parameters"
+// @Failure      401      {object}  nil     "Unauthorized"
+// @Failure      404      {object}  nil     "Item not found"
+// @Failure      500      {object}  nil     "Internal server error"
+// @Router       /items/{item_id}/transactions/ [get]
 func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" {
@@ -97,12 +111,26 @@ func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
+// CancelTransaction godoc
+// @Summary      Cancel transaction
+// @Description  Cancel an active reserved transaction for an item
+// @Tags         transaction
+// @Produce      json
+// @Param        item_id           path      int     true  "Item ID"
+// @Param        transaction_uuid  path      string  true  "Transaction UUID"
+// @Success      200               {object}  nil     "Transaction cancelled successfully"
+// @Failure      400               {object}  nil     "Invalid parameters"
+// @Failure      401               {object}  nil     "Unauthorized"
+// @Failure      404               {object}  nil     "Transaction or item not found"
+// @Failure      409               {object}  nil     "Transaction cannot be cancelled"
+// @Failure      500               {object}  nil     "Internal server error"
+// @Router       /items/{item_id}/transactions/{transaction_uuid}/cancel/ [post]
 func CancelTransaction(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" || role == "user" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action")
-		return	
-	}	
+		return
+	}
 
 	itemId, err := strconv.Atoi(r.PathValue("item_id"))
 	if err != nil {
@@ -119,7 +147,7 @@ func CancelTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Item with ID " + strconv.Itoa(itemId) + " not found")
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID "+strconv.Itoa(itemId)+" not found")
 		return
 	}
 
@@ -137,7 +165,7 @@ func CancelTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Transaction with UUID " + transactionUuid + " not found")
+		utils.RespondWithError(w, http.StatusNotFound, "Transaction with UUID "+transactionUuid+" not found")
 		return
 	}
 
@@ -150,7 +178,7 @@ func CancelTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if currentStatus != "reserved" {
-		utils.RespondWithError(w, http.StatusConflict, "Transaction cannot be cancelled since the transaction's current status is '" + currentStatus + "'")
+		utils.RespondWithError(w, http.StatusConflict, "Transaction cannot be cancelled since the transaction's current status is '"+currentStatus+"'")
 		return
 	}
 
@@ -171,7 +199,7 @@ func CancelTransaction(w http.ResponseWriter, r *http.Request) {
 		err = db.InsertHistory("transaction", transactionUuid, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"id_item": itemId, "action": currentStatus}, map[string]interface{}{"id_item": itemId, "action": "cancelled"})
 		if err != nil {
 			slog.Error("InsertHistory() failed", "controller", "CancelTransaction", "transaction_uuid", transactionUuid, "error", err)
-		}	
+		}
 	}
 
 	// Notification to user

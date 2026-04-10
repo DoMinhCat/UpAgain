@@ -87,6 +87,29 @@ definitions:
           $ref: '#/definitions/models.AvailableEmployee'
         type: array
     type: object
+  models.CodeForAdmin:
+    properties:
+      code:
+        type: string
+      id_account:
+        type: integer
+      id_container:
+        type: integer
+      id_deposit:
+        type: integer
+      id_transaction:
+        type: string
+      path:
+        type: string
+      status:
+        type: string
+      user_type:
+        type: string
+      valid_from:
+        type: string
+      valid_to:
+        type: string
+    type: object
   models.Comment:
     properties:
       content:
@@ -130,6 +153,21 @@ definitions:
       total:
         type: integer
     type: object
+  models.ContainerListPagination:
+    properties:
+      containers:
+        items:
+          $ref: '#/definitions/models.Container'
+        type: array
+      current_page:
+        type: integer
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total_records:
+        type: integer
+    type: object
   models.CreateAccountRequest:
     properties:
       email:
@@ -142,6 +180,11 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  models.DepositDetails:
+    properties:
+      container_id:
+        type: integer
     type: object
   models.Event:
     properties:
@@ -218,8 +261,7 @@ definitions:
         type: string
       id:
         type: integer
-      item_id:
-        type: integer
+      item_id: {}
       module:
         type: string
       new_state:
@@ -435,6 +477,45 @@ definitions:
     properties:
       is_banned:
         type: boolean
+    type: object
+  models.Transaction:
+    properties:
+      action:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      id_item:
+        type: integer
+      id_pro:
+        type: integer
+      id_transaction:
+        type: string
+      username_pro:
+        type: string
+    type: object
+  models.TransactionsPaginationResponse:
+    properties:
+      current_page:
+        type: integer
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total_transactions:
+        type: integer
+      transactions:
+        items:
+          $ref: '#/definitions/models.Transaction'
+        type: array
+    type: object
+  models.TransferContainerRequest:
+    properties:
+      current_container_id:
+        type: integer
+      new_container_id:
+        type: integer
     type: object
   models.UnAssignEmployeeRequest:
     properties:
@@ -827,7 +908,8 @@ paths:
   /admin/items/{item_id}/:
     delete:
       description: Soft-delete an item (listing or deposit) by its ID. Admin can delete
-        any item; users can only delete their own.
+        any item; users can only delete their own. Item that is reserved or completed
+        can't be deleted
       parameters:
       - description: Item ID
         in: path
@@ -1181,15 +1263,30 @@ paths:
   /containers/:
     get:
       description: Get a list of all containers
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Container'
-            type: array
+            $ref: '#/definitions/models.ContainerListPagination'
         "500":
           description: Internal server error
       summary: Get all containers
@@ -1276,7 +1373,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update the status of a container
+      description: Update the status of a container. Can't update if status is waiting
+        or occupied.
       parameters:
       - description: Container ID
         in: path
@@ -1303,6 +1401,27 @@ paths:
       summary: Update container status
       tags:
       - container
+  /containers/available/:
+    get:
+      description: Get a list of available containers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Container'
+            type: array
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get available containers
+      tags:
+      - container
   /containers/count/:
     get:
       description: Get statistics about container counts (total and active)
@@ -1322,6 +1441,156 @@ paths:
       summary: Get container count stats
       tags:
       - container
+  /deposits/{deposit_id}/:
+    get:
+      description: Get details of a specific deposit
+      parameters:
+      - description: Deposit ID
+        in: path
+        name: deposit_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DepositDetails'
+        "400":
+          description: Invalid deposit ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Deposit not found
+        "500":
+          description: Internal server error
+      summary: Get deposit details by ID
+      tags:
+      - deposit
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update the details of a specific deposit (only by owner or admin)
+      parameters:
+      - description: Deposit ID
+        in: path
+        name: deposit_id
+        required: true
+        type: integer
+      - description: Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Weight
+        in: formData
+        name: weight
+        required: true
+        type: number
+      - description: State
+        in: formData
+        name: state
+        required: true
+        type: string
+      - description: Material
+        in: formData
+        name: material
+        required: true
+        type: string
+      - description: Price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: Existing images to keep
+        in: formData
+        name: existing_images
+        type: array
+      - description: New images to upload
+        in: formData
+        name: new_images
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully updated
+        "400":
+          description: Invalid request parameters
+        "401":
+          description: Unauthorized
+        "404":
+          description: Deposit not found
+        "409":
+          description: Deposit is completed or reserved
+        "500":
+          description: Internal server error
+      summary: Update deposit details
+      tags:
+      - deposit
+  /deposits/{deposit_id}/codes/:
+    get:
+      description: Get deposit code of pro and user of the latest transaction for
+        a deposit
+      parameters:
+      - description: Deposit ID
+        in: path
+        name: deposit_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deposit codes and their status
+          schema:
+            items:
+              $ref: '#/definitions/models.CodeForAdmin'
+            type: array
+        "400":
+          description: Invalid deposit ID
+        "500":
+          description: Internal server error
+      summary: Get deposit codes for user and/or pro of the latest transaction
+      tags:
+      - deposit
+  /deposits/{deposit_id}/transfer/:
+    patch:
+      consumes:
+      - application/json
+      description: Change the container of a deposit to a another available container
+      parameters:
+      - description: Deposit ID
+        in: path
+        name: deposit_id
+        required: true
+        type: integer
+      - description: Transfer Container payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.TransferContainerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Container transferred successfully
+        "400":
+          description: Invalid deposit ID or container ID
+        "404":
+          description: Deposit or Container not found
+        "500":
+          description: Internal server error
+      summary: Transfer container by deposit ID
+      tags:
+      - deposit
   /employees/available/:
     get:
       description: Get a list of employees not occupied during a specific time range.
@@ -1589,8 +1858,11 @@ paths:
     put:
       consumes:
       - multipart/form-data
-      description: Update the details of an existing event by its ID using multipart
-        form data.
+      description: 'Update the details of an existing event by its ID using multipart
+        form data. Employee can''t update event if it''s already cancelled and updating
+        will require re-validation from admin. Only admin, creator or assigned employee
+        can edit. Can''t update critical fields: start_at, city, street, location_detail,
+        price if event has participants already registered.'
       parameters:
       - description: Event ID
         in: path
@@ -1836,6 +2108,74 @@ paths:
       summary: Get history details
       tags:
       - Admin History
+  /items/{item_id}/transactions/:
+    get:
+      description: Get paginated transactions for a specific item (admin/pro/user
+        owner)
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TransactionsPaginationResponse'
+        "400":
+          description: Invalid parameters
+        "401":
+          description: Unauthorized
+        "404":
+          description: Item not found
+        "500":
+          description: Internal server error
+      summary: Get transactions for an item
+      tags:
+      - transaction
+  /items/{item_id}/transactions/{transaction_uuid}/cancel/:
+    post:
+      description: Cancel an active reserved transaction for an item
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      - description: Transaction UUID
+        in: path
+        name: transaction_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction cancelled successfully
+        "400":
+          description: Invalid parameters
+        "401":
+          description: Unauthorized
+        "404":
+          description: Transaction or item not found
+        "409":
+          description: Transaction cannot be cancelled
+        "500":
+          description: Internal server error
+      summary: Cancel transaction
+      tags:
+      - transaction
   /listings/{listing_id}/:
     get:
       description: Get detailed information about a specific listing item, including
@@ -1868,7 +2208,8 @@ paths:
       consumes:
       - multipart/form-data
       description: Update an existing listing item's details and images. If updated
-        by a user, status resets to pending for re-validation.
+        by a user, status resets to pending for re-validation. User can only update
+        their own listings.
       parameters:
       - description: Listing item ID
         in: path

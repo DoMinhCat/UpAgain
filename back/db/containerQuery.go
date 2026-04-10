@@ -58,7 +58,7 @@ func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]m
 		}
 		containers = append(containers, c)
 	}
-	
+
 	if containers == nil {
 		containers = make([]models.Container, 0)
 	}

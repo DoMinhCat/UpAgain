@@ -27,7 +27,7 @@ import (
 // @Failure      400       {object}  nil  "Invalid query parameters"
 // @Failure      500       {object}  nil  "Internal server error"
 // @Router       /admin/items/ [get]
-func GetAllItems(w http.ResponseWriter, r *http.Request){
+func GetAllItems(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// default pagination
 	page := -1
@@ -58,7 +58,7 @@ func GetAllItems(w http.ResponseWriter, r *http.Request){
 		Search:   query.Get("search"),
 		Sort:     query.Get("sort"),
 		Category: query.Get("category"),
-		Status: query.Get("status"),
+		Status:   query.Get("status"),
 		Material: query.Get("material"),
 	}
 
@@ -103,7 +103,7 @@ func GetAllItems(w http.ResponseWriter, r *http.Request){
 // @Failure      401        {object}  nil  "Unauthorized"
 // @Failure      500        {object}  nil  "Internal server error"
 // @Router       /admin/items/count/ [get]
-func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
+func GetAllItemsStats(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
@@ -113,7 +113,7 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 	var timeParam *time.Time
 	var err error
 	timeUrl := r.URL.Query().Get("timeframe")
-	if timeUrl != "" && timeUrl != "all"{
+	if timeUrl != "" && timeUrl != "all" {
 		var t time.Time
 		switch timeUrl {
 		case "today":
@@ -132,9 +132,9 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 		}
 		timeParam = &t
 	}
-	
+
 	slog.Debug("debug", "timeParam", timeParam)
-	
+
 	// total active items
 	status := "approved"
 	activeItems, err := db.GetItemsCountByStatus(&status)
@@ -170,7 +170,7 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 	}
 
 	// total transactions
-	status="purchased"
+	status = "purchased"
 	totalTransactions, err := db.GetTotalTransactionsByStatus(status, timeParam)
 	if err != nil {
 		slog.Error("GetTotalTransactions() failed", "controller", "GetAllItemsStats", "error", err)
@@ -236,7 +236,7 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request){
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
 // @Router       /admin/items/{item_id}/ [delete]
-func DeleteItemById(w http.ResponseWriter, r *http.Request){
+func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "user" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
@@ -273,12 +273,12 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request){
 	}
 
 	if status == "completed" || status == "reserved" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID " + idString + " is already purchased or reserved.")
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
 		return
 	}
 
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Item with ID " + idString + " not found.")
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID "+idString+" not found.")
 		return
 	}
 
@@ -312,7 +312,6 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request){
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-
 // GetItemDetails godoc
 // @Summary      Get item details
 // @Description  Get detailed information for a specific item including photos and owner username.
@@ -325,7 +324,7 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request){
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
 // @Router       /admin/items/{item_id}/ [get]
-func GetItemDetails(w http.ResponseWriter, r *http.Request){
+func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("item_id")
 	if idString == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Item ID is required.")
@@ -347,7 +346,7 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request){
 	}
 
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Item with ID " + idString + " not found.")
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID "+idString+" not found.")
 		return
 	}
 
@@ -357,7 +356,7 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request){
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
 		return
 	}
-	
+
 	// get photo
 	photos, err := db.GetPhotosPathsByObjectId(id_item, "item")
 	if err != nil {
@@ -394,7 +393,7 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request){
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
 // @Router       /admin/items/{item_id}/ [patch]
-func UpdateItemStatusById(w http.ResponseWriter, r *http.Request){
+func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
@@ -423,7 +422,7 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request){
 	}
 
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Item with ID " + idString + " not found.")
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID "+idString+" not found.")
 		return
 	}
 
@@ -435,7 +434,7 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	if payload.Status != "pending" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "deleted" &&payload.Status != "completed" {
+	if payload.Status != "pending" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "deleted" && payload.Status != "completed" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
 		return
 	}
@@ -458,7 +457,7 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request){
 			if isListing {
 				entityType = "listing"
 			}
-			if payload.Status != "deleted"{
+			if payload.Status != "deleted" {
 				db.InsertHistory(entityType, id_item, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": payload.Status})
 			} else {
 				db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})

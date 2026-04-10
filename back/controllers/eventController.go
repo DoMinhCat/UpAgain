@@ -811,7 +811,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	// Handle photo update management
 	keepImages := r.MultipartForm.Value["existing_images"]
 	newImg := r.MultipartForm.File["new_images"]
