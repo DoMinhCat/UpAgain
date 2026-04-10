@@ -4,7 +4,11 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { getDepositDetails, updateDeposit } from "../api/depositModule";
+import {
+  getDepositCodesOfLatestTransaction,
+  getDepositDetails,
+  updateDeposit,
+} from "../api/depositModule";
 import { showSuccessNotification } from "../components/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
@@ -37,6 +41,22 @@ export const useUpdateDeposit = (id: number) => {
         "Deposit updated",
         "Deposit updated successfully",
       );
+    },
+  });
+};
+
+export const useGetDepositCodesOfLatestTransaction = (
+  id: number,
+  isValidId: boolean,
+) => {
+  return useQuery({
+    queryKey: ["depositCodes", id],
+    queryFn: () => getDepositCodesOfLatestTransaction(id),
+    enabled: isValidId,
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error fetching deposit codes",
+      errorMessage: "Failed to fetch deposit codes",
     },
   });
 };

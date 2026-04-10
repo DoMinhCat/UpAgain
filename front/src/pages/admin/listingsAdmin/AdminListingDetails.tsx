@@ -17,6 +17,7 @@ import {
   Image,
   Anchor,
   NumberInput,
+  ThemeIcon,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -36,6 +37,7 @@ import {
   IconBox,
   IconMapPin,
   IconKey,
+  IconUserShield,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
@@ -55,6 +57,7 @@ import {
   useUpdateListing,
 } from "../../../hooks/listingHooks";
 import {
+  useGetDepositCodesOfLatestTransaction,
   useGetDepositDetails,
   useUpdateDeposit,
 } from "../../../hooks/depositHooks";
@@ -364,6 +367,23 @@ export default function AdminListingDetails() {
     );
   };
 
+  // DEPOSIT CODES
+  const { data: depositCodesData, isLoading: isLoadingDepositCodes } =
+    useGetDepositCodesOfLatestTransaction(id_item, isValidId);
+
+  const depositCodes = depositCodesData || [];
+  let userCode = "";
+  let proCode = "";
+  // user coed will be generated first then pro (based on workflow I defined)
+  if (depositCodes.length > 0) {
+    userCode =
+      depositCodes.find((code) => code.user_type === "user")?.code || "";
+    if (depositCodes.length > 1) {
+      proCode =
+        depositCodes.find((code) => code.user_type === "pro")?.code || "";
+    }
+  }
+
   if (
     isDepositDetailsLoading ||
     isListingDetailsLoading ||
@@ -480,6 +500,32 @@ export default function AdminListingDetails() {
                 <Divider my="xl" />
                 <Group gap="sm">
                   <IconKey color="var(--mantine-color-yellow-6)" size={32} />
+                  <SimpleGrid cols={{ base: 1, md: 2 }} mt="md">
+                    <Group justify="space-between">
+                      <Group gap="sm">
+                        <ThemeIcon>
+                          <IconUserShield
+                            style={{ width: "70%", height: "70%" }}
+                          />
+                        </ThemeIcon>
+                        <Text c="dimmed">Access level</Text>
+                        <Text>Owner</Text>
+                        <Text>User code: {userCode}</Text>
+                      </Group>
+                      <Badge
+                        variant={
+                          itemDetails?.status === "used"
+                            ? "gray"
+                            : itemDetails?.status === "expired"
+                              ? "red"
+                              : "green"
+                        }
+                      >
+                        {itemDetails?.status.toUpperCase()}
+                      </Badge>
+                    </Group>
+                    <Group>Placeholder for pro code</Group>
+                  </SimpleGrid>
                   {/* Show only active codes and used codes for user and pro separately
                   If deposit item is not bought => nothing
                   If bought but code not used to deposer or retrieve => code with expired date */}

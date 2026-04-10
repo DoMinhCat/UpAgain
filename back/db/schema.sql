@@ -263,8 +263,8 @@ create table barcodes
     created_at   timestamptz       not null default now(),
     path         varchar(255)      not null,
     code         char(6)           not null,
-    valid_from   timestamptz,
-    valid_to     timestamptz,
+    valid_from   timestamptz       not null default now(),
+    valid_to     timestamptz       not null,
     status       barcode_status    not null default 'active',
     user_type    barcode_user_type not null, -- this code is for user or pro?
     id_account   integer           not null references account (id) on delete cascade,
