@@ -45,7 +45,7 @@ export function PhotosCarousel({
             width: 8,
             height: 8,
             transition: "width 250ms ease",
-            "&[data-active]": { width: 24 },
+            "&[dataActive]": { width: 24 },
           },
         }}
       >
