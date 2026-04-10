@@ -713,8 +713,19 @@ export default function AdminListingDetails() {
                 <CardStatsItem
                   icon={<IconStars size={18} />}
                   label="State"
-                  color="silver"
-                  value={`${itemDetails?.state.charAt(0).toUpperCase() + (itemDetails?.state.slice(1).replace(/_/g, " ") ?? "")}`}
+                  color={
+                    itemDetails?.state === "new"
+                      ? "green"
+                      : itemDetails?.state === "very_good"
+                        ? "yellow"
+                        : itemDetails?.state === "good"
+                          ? "orange"
+                          : "red"
+                  }
+                  value={
+                    itemDetails?.state.charAt(0).toUpperCase() +
+                    (itemDetails?.state.slice(1).replace(/_/g, " ") ?? "")
+                  }
                 />
 
                 {itemDetails?.category === "listing" ? (
@@ -1171,7 +1182,6 @@ export default function AdminListingDetails() {
             // onClick={() => {
             //   handleTransferContainer();
             // }}
-            disabled
             variant="primary"
             // loading={transferContainerMutation.isPending}
           >
