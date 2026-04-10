@@ -63,6 +63,7 @@ import {
 import {
   useGetDepositCodesOfLatestTransaction,
   useGetDepositDetails,
+  useTransferDepositContainer,
   useUpdateDeposit,
 } from "../../../hooks/depositHooks";
 import ImageDropzone from "../../../components/ImageDropzone";
@@ -400,6 +401,15 @@ export default function AdminListingDetails() {
   const [transferContainer, setTransferContainer] = useState<string>(
     depositDetails?.container_id.toString() || "",
   );
+  const transferContainerMutation = useTransferDepositContainer(id_item);
+
+  const handleTransferContainer = () => {
+    transferContainerMutation.mutate(parseInt(transferContainer), {
+      onSuccess: () => {
+        closeTransferContainerModal();
+      },
+    });
+  };
 
   if (
     isDepositDetailsLoading ||
@@ -1159,11 +1169,9 @@ export default function AdminListingDetails() {
         <Select
           withAsterisk
           value={transferContainer}
-          // error={errorTransferContainer}
-          // onBlur={() => validateTransferContainer()}
-          // disabled={
-          //   updateDepositMutation.isPending || updateListingMutation.isPending
-          // }
+          disabled={
+            updateDepositMutation.isPending || updateListingMutation.isPending
+          }
           data={[
             { value: "1", label: "Container 1" },
             { value: "2", label: "Container 2" },
@@ -1181,11 +1189,11 @@ export default function AdminListingDetails() {
             Cancel
           </Button>
           <Button
-            // onClick={() => {
-            //   handleTransferContainer();
-            // }}
+            onClick={() => {
+              handleTransferContainer();
+            }}
             variant="primary"
-            // loading={transferContainerMutation.isPending}
+            loading={transferContainerMutation.isPending}
           >
             Confirm
           </Button>

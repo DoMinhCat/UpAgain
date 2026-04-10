@@ -75,6 +75,16 @@ export default function AdminContainersModule() {
     setPage(1);
   };
 
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      statusValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+
   const hasFilters = Boolean(
     appliedFilters.searchValue || appliedFilters.statusValue,
   );
@@ -157,9 +167,7 @@ export default function AdminContainersModule() {
 
   return (
     <MantineContainer px="md" size="xl">
-      <Group justify="space-between" mt="lg" mb="xl">
-        <Title order={2}>Container Management</Title>
-      </Group>
+      <Title order={2}>Container Management</Title>
 
       <Grid mb="xl" align="stretch">
         <Grid.Col span={{ base: 12, md: 4 }}>
@@ -227,7 +235,16 @@ export default function AdminContainersModule() {
       <Divider my="xl" label="Detailed Records" labelPosition="center" />
 
       <Stack gap="md">
-        <Group>
+        <Group justify="flex-end">
+          <Button
+            leftSection={<IconPlus size={16} />}
+            variant="primary"
+            onClick={openCreate}
+          >
+            Add New Container
+          </Button>
+        </Group>
+        <Group align="flex-end">
           <TextInput
             label="Search"
             placeholder="Search by city or zip..."
@@ -253,16 +270,14 @@ export default function AdminContainersModule() {
             onChange={(val) => handleFilterChange("statusValue", val)}
             clearable
           />
-          <Button onClick={handleSearchClick} variant="primary">
-            Apply Filters
-          </Button>
-          <Button
-            leftSection={<IconPlus size={16} />}
-            variant="primary"
-            onClick={openCreate}
-          >
-            Add New Container
-          </Button>
+          <Group gap="xs">
+            <Button onClick={handleSearchClick} variant="primary">
+              Apply Filters
+            </Button>
+            <Button onClick={handleResetFilters} variant="secondary">
+              Reset
+            </Button>
+          </Group>
         </Group>
 
         <AdminTable
