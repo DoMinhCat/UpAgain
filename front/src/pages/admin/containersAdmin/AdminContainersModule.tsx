@@ -31,7 +31,7 @@ import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/PaginationFooter";
 
 import {
-  useContainers,
+  useGetAllContainers,
   useCreateContainer,
   useDeleteContainer,
 } from "../../../hooks/containerHooks";
@@ -55,12 +55,42 @@ export default function AdminContainersModule() {
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(
     null,
   );
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    searchValue: string;
+    statusValue: string | null;
+  }>({
     searchValue: "",
-    statusValue: null as string | null,
+    statusValue: null,
   });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [activePage, setPage] = useState(1);
+  const LIMIT = 10;
 
-  const { data: containers = [], isLoading } = useContainers();
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+
+  const hasFilters = Boolean(
+    appliedFilters.searchValue || appliedFilters.statusValue
+  );
+
+  const { data: allData } = useGetAllContainers();
+  const allContainers = allData?.containers || [];
+
+  const { data: paginatedData, isLoading } = useGetAllContainers(
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue || undefined,
+    appliedFilters.statusValue || undefined
+  );
+
+  const filteredData = paginatedData?.containers || [];
+
   const createMutation = useCreateContainer();
   const deleteMutation = useDeleteContainer();
   const handleDeleteContainer = (id: number) => {
@@ -73,12 +103,12 @@ export default function AdminContainersModule() {
 
   const stats = useMemo(
     () => ({
-      total: containers.length,
-      ready: containers.filter((c) => c.status === "ready").length,
-      occupied: containers.filter((c) => c.status === "occupied").length,
-      maintenance: containers.filter((c) => c.status === "maintenance").length,
+      total: allContainers.length,
+      ready: allContainers.filter((c: Container) => c.status === "ready").length,
+      occupied: allContainers.filter((c: Container) => c.status === "occupied").length,
+      maintenance: allContainers.filter((c: Container) => c.status === "maintenance").length,
     }),
-    [containers],
+    [allContainers],
   );
 
   const chartData = useMemo(
@@ -97,17 +127,6 @@ export default function AdminContainersModule() {
     ],
     [stats],
   );
-
-  const filteredData = useMemo(() => {
-    return containers.filter((c) => {
-      const matchesSearch =
-        c.city_name.toLowerCase().includes(filters.searchValue.toLowerCase()) ||
-        c.postal_code.includes(filters.searchValue);
-      const matchesStatus =
-        !filters.statusValue || c.status === filters.statusValue;
-      return matchesSearch && matchesStatus && !c.is_deleted;
-    });
-  }, [containers, filters]);
 
   const handleCreateSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -210,17 +229,25 @@ export default function AdminContainersModule() {
             rightSection={<IconSearch size={16} />}
             value={filters.searchValue}
             onChange={(e) =>
-              setFilters({ ...filters, searchValue: e.target.value })
+              handleFilterChange("searchValue", e.target.value)
             }
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                handleSearchClick();
+              }
+            }}
             style={{ flex: 1 }}
           />
           <Select
             placeholder="Filter by Status"
             data={["ready", "occupied", "maintenance"]}
             value={filters.statusValue}
-            onChange={(val) => setFilters({ ...filters, statusValue: val })}
+            onChange={(val) => handleFilterChange("statusValue", val)}
             clearable
           />
+          <Button onClick={handleSearchClick} variant="primary">
+            Apply
+          </Button>
           <Button
             leftSection={<IconPlus size={16} />}
             variant="primary"
@@ -242,12 +269,13 @@ export default function AdminContainersModule() {
           ]}
           footer={
             <PaginationFooter
-              activePage={1}
-              setPage={() => {}}
-              total_records={filteredData.length}
-              last_page={1}
-              limit={filteredData.length}
+              activePage={activePage}
+              setPage={setPage}
+              total_records={paginatedData?.total_records || 0}
+              last_page={paginatedData?.last_page || 1}
+              limit={LIMIT}
               loading={isLoading}
+              hidden={hasFilters}
             />
           }
         >

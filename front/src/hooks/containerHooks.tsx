@@ -13,10 +13,15 @@ import {
 } from "../api/interfaces/container";
 import { showSuccessNotification } from "../components/NotificationToast";
 
-export const useContainers = () => {
+export const useGetAllContainers = (
+  page: number = -1,
+  limit: number = -1,
+  search?: string,
+  status?: string
+) => {
   return useQuery({
-    queryKey: ["containers"],
-    queryFn: getAllContainers,
+    queryKey: ["containers", page, limit, search, status],
+    queryFn: () => getAllContainers(page, limit, search, status),
     staleTime: 60 * 1000,
     meta: {
       errorTitle: "Inventory Error",
@@ -93,7 +98,7 @@ export const useContainerDetails = (id: number) => {
   });
 };
 
-export const useContainerCountStats = () => {
+export const useGetContainerStats = () => {
   return useQuery<ContainerCountStats>({
     queryKey: ["containerCountStats"],
     queryFn: getContainerCountStats,

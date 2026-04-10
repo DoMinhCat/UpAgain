@@ -44,7 +44,7 @@ import classes from "../../styles/Admin.module.css";
 import PaginationFooter from "../../components/PaginationFooter";
 import { PATHS } from "../../../src/routes/paths";
 import { useAccountCountStats } from "../../hooks/accountHooks";
-import { useContainerCountStats } from "../../hooks/containerHooks";
+import { useGetContainerStats } from "../../hooks/containerHooks";
 import { useValidationStats } from "../../hooks/validationHooks";
 import { useGetTotalScore } from "../../hooks/userHooks";
 import { useGetAdminHistory } from "../../hooks/historyHooks";
@@ -112,7 +112,7 @@ export default function AdminHome() {
     data: containerCountStats,
     isLoading: isLoadingContainerCountStats,
     error: errorContainerCountStats,
-  } = useContainerCountStats();
+  } = useGetContainerStats();
 
   const {
     data: validationStats,
