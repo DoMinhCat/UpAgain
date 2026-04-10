@@ -20,3 +20,10 @@ export const getDepositCodesOfLatestTransaction = async (
   const response = await api.get(ENDPOINTS.DEPOSITS.CODES(id));
   return response.data;
 };
+
+export const transferDepositContainer = async (
+  id_deposit: number,
+  id_container: number,
+) => {
+  await api.put(ENDPOINTS.DEPOSITS.TRANSFER(id_deposit, id_container));
+};

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getDepositCodesOfLatestTransaction,
   getDepositDetails,
+  transferDepositContainer,
   updateDeposit,
 } from "../api/depositModule";
 import { showSuccessNotification } from "../components/NotificationToast";
@@ -52,6 +53,28 @@ export const useGetDepositCodesOfLatestTransaction = (
     meta: {
       errorTitle: "Error fetching deposit codes",
       errorMessage: "Failed to fetch deposit codes",
+    },
+  });
+};
+
+export const useTransferDepositContainer = (id_deposit: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_container: number) =>
+      transferDepositContainer(id_deposit, id_container),
+    meta: {
+      errorTitle: "Transfer failed",
+      errorMessage: "Failed to transfer deposit container",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["item-details", id_deposit] });
+      queryClient.invalidateQueries({
+        queryKey: ["depositDetails", id_deposit],
+      });
+      showSuccessNotification(
+        "Container transferred",
+        "Container transferred successfully",
+      );
     },
   });
 };

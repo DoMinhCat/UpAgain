@@ -76,7 +76,7 @@ export default function AdminContainersModule() {
   };
 
   const hasFilters = Boolean(
-    appliedFilters.searchValue || appliedFilters.statusValue
+    appliedFilters.searchValue || appliedFilters.statusValue,
   );
 
   const { data: allData } = useGetAllContainers();
@@ -86,7 +86,7 @@ export default function AdminContainersModule() {
     hasFilters ? -1 : activePage,
     hasFilters ? -1 : LIMIT,
     appliedFilters.searchValue || undefined,
-    appliedFilters.statusValue || undefined
+    appliedFilters.statusValue || undefined,
   );
 
   const filteredData = paginatedData?.containers || [];
@@ -104,9 +104,13 @@ export default function AdminContainersModule() {
   const stats = useMemo(
     () => ({
       total: allContainers.length,
-      ready: allContainers.filter((c: Container) => c.status === "ready").length,
-      occupied: allContainers.filter((c: Container) => c.status === "occupied").length,
-      maintenance: allContainers.filter((c: Container) => c.status === "maintenance").length,
+      ready: allContainers.filter((c: Container) => c.status === "ready")
+        .length,
+      occupied: allContainers.filter((c: Container) => c.status === "occupied")
+        .length,
+      maintenance: allContainers.filter(
+        (c: Container) => c.status === "maintenance",
+      ).length,
     }),
     [allContainers],
   );
@@ -225,12 +229,11 @@ export default function AdminContainersModule() {
       <Stack gap="md">
         <Group>
           <TextInput
+            label="Search"
             placeholder="Search by city or zip..."
             rightSection={<IconSearch size={16} />}
             value={filters.searchValue}
-            onChange={(e) =>
-              handleFilterChange("searchValue", e.target.value)
-            }
+            onChange={(e) => handleFilterChange("searchValue", e.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 handleSearchClick();
@@ -239,14 +242,19 @@ export default function AdminContainersModule() {
             style={{ flex: 1 }}
           />
           <Select
+            label="Status"
             placeholder="Filter by Status"
-            data={["ready", "occupied", "maintenance"]}
+            data={[
+              { label: "Ready", value: "ready" },
+              { label: "Occupied", value: "occupied" },
+              { label: "Maintenance", value: "maintenance" },
+            ]}
             value={filters.statusValue}
             onChange={(val) => handleFilterChange("statusValue", val)}
             clearable
           />
           <Button onClick={handleSearchClick} variant="primary">
-            Apply
+            Apply Filters
           </Button>
           <Button
             leftSection={<IconPlus size={16} />}

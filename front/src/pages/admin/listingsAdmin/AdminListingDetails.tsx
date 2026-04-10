@@ -390,7 +390,9 @@ export default function AdminListingDetails() {
   };
 
   // TRANSFER CONTAINER
-  // TODO: get all available containers via /containers then filter by available status
+  // const { data: availableContainersData, isLoading: isLoadingAvailableContainers } =
+  //   ();
+  // const availableContainers = availableContainersData || [];
   const [
     openedTransferContainerModal,
     { open: openTransferContainerModal, close: closeTransferContainerModal },
