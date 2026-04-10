@@ -19,6 +19,9 @@ import {
   ThemeIcon,
   Paper,
   SimpleGrid,
+  Loader,
+  Center,
+  MultiSelect,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -68,7 +71,7 @@ import { TextEditor } from "../../../components/TextEditor";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import PaginationFooter from "../../../components/PaginationFooter";
 import type { Transaction } from "../../../api/interfaces/transaction";
-import type { CodeForAdmin } from "../../../api/interfaces/code";
+import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/PhotoModal";
 
 export default function AdminListingDetails() {
@@ -375,7 +378,7 @@ export default function AdminListingDetails() {
   const depositCodes = depositCodesData || [];
   let userCode: CodeForAdmin | undefined;
   let proCode: CodeForAdmin | undefined;
-  // user code will be generated first then pro (based on workflow I defined)
+  // user code will always be generated first then pro (based on workflow I defined)
   if (depositCodes.length > 0) {
     userCode = depositCodes.find((code) => code.user_type === "user");
     if (depositCodes.length > 1) {
@@ -386,6 +389,15 @@ export default function AdminListingDetails() {
     setChosenCode(path);
     openCodeCarousel();
   };
+
+  // TRANSFER CONTAINER
+  const [
+    openedTransferContainerModal,
+    { open: openTransferContainerModal, close: closeTransferContainerModal },
+  ] = useDisclosure(false);
+  const [transferContainer, setTransferContainer] = useState<string>(
+    depositDetails?.container_id.toString() || "",
+  );
 
   if (
     isDepositDetailsLoading ||
@@ -477,7 +489,11 @@ export default function AdminListingDetails() {
                   <IconKey color="var(--mantine-color-yellow-6)" size={32} />
                   <Title order={3}>Access information</Title>
                 </Group>
-
+                {isLoadingDepositCodes && (
+                  <Center>
+                    <Loader />
+                  </Center>
+                )}
                 {!userCode && !proCode && (
                   <Text c="dimmed" mt="lg">
                     No access code generated yet for this deposit
@@ -772,7 +788,7 @@ export default function AdminListingDetails() {
                       <Button
                         fullWidth
                         variant="secondary"
-                        // onClick={openDeleteModal}
+                        onClick={openTransferContainerModal}
                       >
                         Transfer container
                       </Button>
@@ -1119,6 +1135,50 @@ export default function AdminListingDetails() {
         baseUrl={import.meta.env.VITE_API_BASE_URL}
         activeSlide={0}
       />
+
+      <Modal
+        opened={openedTransferContainerModal}
+        onClose={closeTransferContainerModal}
+        title="Transfer Container"
+        size="lg"
+      >
+        <Text mb="sm">Please choose from available containers</Text>
+        <Select
+          withAsterisk
+          value={transferContainer}
+          // error={errorTransferContainer}
+          // onBlur={() => validateTransferContainer()}
+          // disabled={
+          //   updateDepositMutation.isPending || updateListingMutation.isPending
+          // }
+          data={[
+            { value: "1", label: "Container 1" },
+            { value: "2", label: "Container 2" },
+            { value: "3", label: "Container 3" },
+            { value: "4", label: "Container 4" },
+            { value: "5", label: "Container 5" },
+            { value: "6", label: "Container 6" },
+          ]}
+          onChange={(value) => {
+            setTransferContainer(value as string);
+          }}
+        />
+        <Group mt="lg" justify="center">
+          <Button onClick={closeTransferContainerModal} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            // onClick={() => {
+            //   handleTransferContainer();
+            // }}
+            disabled
+            variant="primary"
+            // loading={transferContainerMutation.isPending}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 }
