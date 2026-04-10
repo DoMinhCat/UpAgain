@@ -292,3 +292,70 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 
 	utils.RespondWithJSON(w, http.StatusOK, codes)
 }
+
+// TransferContainerByDepositId godoc
+// @Summary      Transfer container by deposit ID
+// @Description  Change the container of a deposit to a another available container
+// @Tags         deposit
+// @Produce      json
+// @Param        deposit_id    path     int     true  "Deposit ID"
+// @Param        id_container  path     int     true  "Container ID"
+// @Success      200     {object}  nil                     "Container transferred successfully"
+// @Failure      400     {object}  nil                     "Invalid deposit ID or container ID"
+// @Failure      500     {object}  nil                     "Internal server error"
+// @Router       /deposits/{deposit_id}/transfer/{id_container} [patch]
+func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
+		return
+	}
+	depositId, err := strconv.Atoi(r.PathValue("deposit_id"))
+	if err != nil {
+		slog.Error("strconv.Atoi() failed", "controller", "TransferContainerByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid deposit ID")
+		return
+	}
+	idContainer, err := strconv.Atoi(r.PathValue("container_id"))
+	if err != nil {
+		slog.Error("strconv.Atoi() failed", "controller", "TransferContainerByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid container ID")
+		return
+	}
+
+	// check if container is available
+	containerStatus, err := db.GetContainerStatusById(idContainer)
+	if err != nil {
+		slog.Error("db.GetContainerStatusById() failed", "controller", "TransferContainerByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transferring container")
+		return
+	}
+	if containerStatus == "maintenance" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Container #"+strconv.Itoa(idContainer)+" is in maintenance.")
+		return
+	}
+
+	// if current container chosen is in transaction already (which means has active codes for the user or the buyer of this deposit) then can't transfer
+	codes, err := db.GetCodesOfLatestTransactionByDepositId(depositId)
+	if err != nil {
+		slog.Error("db.GetCodesOfLatestTransactionByDepositId() failed", "controller", "TransferContainerByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transferring container")
+		return
+	}
+	for _, code := range codes {
+		status := code.Status
+		if status == "active" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Container #"+strconv.Itoa(idContainer)+" is already in transaction.")
+			return
+		}
+	}
+
+	err = db.UpdateContainerByDepositId(depositId, idContainer)
+	if err != nil {
+		slog.Error("db.UpdateContainerByDepositId() failed", "controller", "TransferContainerByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transfering container")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, "Transfer succeeded.")
+}

@@ -21,7 +21,6 @@ import {
   SimpleGrid,
   Loader,
   Center,
-  MultiSelect,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -391,6 +390,7 @@ export default function AdminListingDetails() {
   };
 
   // TRANSFER CONTAINER
+  // TODO: get all available containers via /containers then filter by available status
   const [
     openedTransferContainerModal,
     { open: openTransferContainerModal, close: closeTransferContainerModal },

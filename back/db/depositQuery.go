@@ -174,3 +174,11 @@ func UpdateDepositById(depositID int, deposit models.UpdateDepositRequest) error
 	}
 	return nil
 }
+
+func UpdateContainerByDepositId(depositID int, idContainer int) error {
+	_, err := utils.Conn.Exec("UPDATE deposits SET id_container = $1 WHERE id_item = $2", idContainer, depositID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
