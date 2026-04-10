@@ -261,16 +261,21 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetDepositCodesOfLatestTransactionByDepositId godoc
-// @Summary      Get deposit codes of latest transaction
-// @Description  Get deposit code of pro and user of latest transaction for a deposit
+// @Summary      Get deposit codes for user and/or pro of the latest transaction
+// @Description  Get deposit code of pro and user of the latest transaction for a deposit
 // @Tags         deposit
 // @Produce      json
 // @Param        deposit_id    path     int     true  "Deposit ID"
-// @Success      200     {object}  map[string]interface{}  "Deposit codes and their status"
+// @Success      200     {object}  []models.CodeForAdmin  "Deposit codes and their status"
 // @Failure      400     {object}  nil                     "Invalid deposit ID"
 // @Failure      500     {object}  nil                     "Internal server error"
 // @Router       /deposits/{deposit_id}/codes/ [get]
 func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
+		return
+	}
 	depositId, err := strconv.Atoi(r.PathValue("deposit_id"))
 	if err != nil {
 		slog.Error("strconv.Atoi() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
@@ -278,13 +283,12 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 		return
 	}
 
-	// TODO
-	// codes, err := db.GetDepositCodesOfLatestTransactionByDepositId(depositId)
-	// if err != nil {
-	// 	slog.Error("db.GetDepositCodesOfLatestTransactionByDepositId() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
-	// 	return
-	// }
+	codes, err := db.GetCodesOfLatestTransactionByDepositId(depositId)
+	if err != nil {
+		slog.Error("db.GetCodesOfLatestTransactionByDepositId() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
+		return
+	}
 
-	utils.RespondWithJSON(w, http.StatusOK, nil)
+	utils.RespondWithJSON(w, http.StatusOK, codes)
 }
