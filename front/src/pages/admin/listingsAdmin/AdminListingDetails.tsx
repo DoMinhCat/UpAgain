@@ -4,7 +4,6 @@ import {
   Group,
   Grid,
   TextInput,
-  SimpleGrid,
   Select,
   Table,
   Badge,
@@ -19,6 +18,7 @@ import {
   NumberInput,
   ThemeIcon,
   Paper,
+  SimpleGrid,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -484,7 +484,7 @@ export default function AdminListingDetails() {
                   </Text>
                 )}
                 {/* User code */}
-                <Stack mt="md" gap={"lg"}>
+                <SimpleGrid cols={{ base: 1, md: 2 }} mt="md" spacing={"lg"}>
                   {userCode && (
                     <Group gap="sm">
                       <Stack>
@@ -605,12 +605,14 @@ export default function AdminListingDetails() {
                     </Group>
                   )}
                   {userCode && !proCode && (
-                    <Text c="dimmed" mt="lg">
-                      Access code for buyer will be generated once owner
-                      delivers the object
-                    </Text>
+                    <Stack justify="center">
+                      <Text c="dimmed" mt="lg" ta="center">
+                        Access code for buyer will be generated once owner
+                        delivers the object
+                      </Text>
+                    </Stack>
                   )}
-                </Stack>
+                </SimpleGrid>
               </>
             )}
           </Grid.Col>

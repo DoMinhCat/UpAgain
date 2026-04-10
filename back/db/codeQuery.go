@@ -8,15 +8,16 @@ import (
 func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.CodeForAdmin, error) {
 	var codes []models.CodeForAdmin
 	query := `
-	SELECT c.path, c.code, c.valid_from, c.valid_to, c.status, c.user_type, c.id_account, c.id_deposit, c.id_transaction
-	FROM barcodes c 
+	SELECT c.path, c.code, c.valid_from, c.valid_to, c.status, 
+       c.user_type, c.id_account, c.id_deposit, c.id_transaction
+	FROM barcodes c
 	JOIN (
-		SELECT DISTINCT ON (id_transaction)
-			id_transaction, id_item
+		SELECT id_transaction, id_item
 		FROM transactions
-		ORDER BY id_transaction, created_at DESC
+		WHERE id_item = $1
+		ORDER BY created_at DESC
+		LIMIT 1
 	) t ON c.id_deposit = t.id_item
-	WHERE t.id_item = $1
 	LIMIT 2;
 	`
 	rows, err := utils.Conn.Query(query, depositId)
