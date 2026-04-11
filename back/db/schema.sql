@@ -298,22 +298,20 @@ create table transactions(
 );
 CREATE INDEX idx_transactions_uuid ON transactions(id_transaction);
 
-create table projects(
-  id serial primary key,
-  created_at timestamptz  not null default now(),
-  is_deleted boolean not null default false,
-  id_pro integer not null references pros(id_account),
-  title varchar(255) not null,
-  description text not null
-);
-
 CREATE TABLE project_steps (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  id_post INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  id_item INTEGER NOT NULL REFERENCES items(id) ON DELETE RESTRICT,
   title VARCHAR(255) NOT NULL,
   description TEXT NOT NULL,
   step_order INTEGER NOT NULL DEFAULT 1
+  id_post INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+);
+
+-- a project step can have multiple items
+-- an item can be in multiple project steps
+CREATE TABLE step_items (
+  id_step INTEGER NOT NULL REFERENCES project_steps(id) ON DELETE CASCADE,
+  id_item INTEGER NOT NULL REFERENCES items(id) ON DELETE RESTRICT,
+  PRIMARY KEY (id_step, id_item)
 );
