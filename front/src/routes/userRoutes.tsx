@@ -28,7 +28,6 @@ export const userRoutes: RouteObject = {
   path: PATHS.ADMIN.HOME,
   element: (
     <UserGuard>
-      {/* TODO */}
       {/* <UserLayout /> */}
       <div>User layout</div>
     </UserGuard>
@@ -36,7 +35,6 @@ export const userRoutes: RouteObject = {
   children: [
     {
       index: true,
-      // TODO
       // element: <UserHome />, // page
       element: <div>User home</div>,
     },

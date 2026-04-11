@@ -13,15 +13,12 @@ import {
   Select,
   Pill,
   Modal,
-  ActionIcon,
 } from "@mantine/core";
 import {
   IconBox,
   IconPackage,
   IconPlus,
   IconSearch,
-  IconTrash,
-  IconEdit,
 } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +31,7 @@ import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/PaginationFooter";
 
 import {
-  useContainers,
+  useGetAllContainers,
   useCreateContainer,
   useDeleteContainer,
 } from "../../../hooks/containerHooks";
@@ -58,12 +55,52 @@ export default function AdminContainersModule() {
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(
     null,
   );
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    searchValue: string;
+    statusValue: string | null;
+  }>({
     searchValue: "",
-    statusValue: null as string | null,
+    statusValue: null,
   });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [activePage, setPage] = useState(1);
+  const LIMIT = 10;
 
-  const { data: containers = [], isLoading } = useContainers();
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      searchValue: "",
+      statusValue: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
+
+  const hasFilters = Boolean(
+    appliedFilters.searchValue || appliedFilters.statusValue,
+  );
+
+  const { data: allData } = useGetAllContainers();
+  const allContainers = allData?.containers || [];
+
+  const { data: paginatedData, isLoading } = useGetAllContainers(
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
+    appliedFilters.searchValue || undefined,
+    appliedFilters.statusValue || undefined,
+  );
+
+  const filteredData = paginatedData?.containers || [];
+
   const createMutation = useCreateContainer();
   const deleteMutation = useDeleteContainer();
   const handleDeleteContainer = (id: number) => {
@@ -76,12 +113,16 @@ export default function AdminContainersModule() {
 
   const stats = useMemo(
     () => ({
-      total: containers.length,
-      ready: containers.filter((c) => c.status === "ready").length,
-      occupied: containers.filter((c) => c.status === "occupied").length,
-      maintenance: containers.filter((c) => c.status === "maintenance").length,
+      total: allContainers.length,
+      ready: allContainers.filter((c: Container) => c.status === "ready")
+        .length,
+      occupied: allContainers.filter((c: Container) => c.status === "occupied")
+        .length,
+      maintenance: allContainers.filter(
+        (c: Container) => c.status === "maintenance",
+      ).length,
     }),
-    [containers],
+    [allContainers],
   );
 
   const chartData = useMemo(
@@ -100,17 +141,6 @@ export default function AdminContainersModule() {
     ],
     [stats],
   );
-
-  const filteredData = useMemo(() => {
-    return containers.filter((c) => {
-      const matchesSearch =
-        c.city_name.toLowerCase().includes(filters.searchValue.toLowerCase()) ||
-        c.postal_code.includes(filters.searchValue);
-      const matchesStatus =
-        !filters.statusValue || c.status === filters.statusValue;
-      return matchesSearch && matchesStatus && !c.is_deleted;
-    });
-  }, [containers, filters]);
 
   const handleCreateSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -137,9 +167,7 @@ export default function AdminContainersModule() {
 
   return (
     <MantineContainer px="md" size="xl">
-      <Group justify="space-between" mt="lg" mb="xl">
-        <Title order={2}>Container Management</Title>
-      </Group>
+      <Title order={2}>Container Management</Title>
 
       <Grid mb="xl" align="stretch">
         <Grid.Col span={{ base: 12, md: 4 }}>
@@ -160,7 +188,7 @@ export default function AdminContainersModule() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 8 }}>
-          <Paper px="md" radius="lg" shadow="sm" h="100%">
+          <Paper px="md" radius="lg" shadow="sm" h="100%" py="sm">
             <Title order={4} mb="lg">
               Inventory Distribution
             </Title>
@@ -207,23 +235,7 @@ export default function AdminContainersModule() {
       <Divider my="xl" label="Detailed Records" labelPosition="center" />
 
       <Stack gap="md">
-        <Group>
-          <TextInput
-            placeholder="Search by city or zip..."
-            rightSection={<IconSearch size={16} />}
-            value={filters.searchValue}
-            onChange={(e) =>
-              setFilters({ ...filters, searchValue: e.target.value })
-            }
-            style={{ flex: 1 }}
-          />
-          <Select
-            placeholder="Filter by Status"
-            data={["ready", "occupied", "maintenance"]}
-            value={filters.statusValue}
-            onChange={(val) => setFilters({ ...filters, statusValue: val })}
-            clearable
-          />
+        <Group justify="flex-end">
           <Button
             leftSection={<IconPlus size={16} />}
             variant="primary"
@@ -231,6 +243,41 @@ export default function AdminContainersModule() {
           >
             Add New Container
           </Button>
+        </Group>
+        <Group align="flex-end">
+          <TextInput
+            label="Search"
+            placeholder="Search by city or zip..."
+            rightSection={<IconSearch size={16} />}
+            value={filters.searchValue}
+            onChange={(e) => handleFilterChange("searchValue", e.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                handleSearchClick();
+              }
+            }}
+            style={{ flex: 1 }}
+          />
+          <Select
+            label="Status"
+            placeholder="Filter by Status"
+            data={[
+              { label: "Ready", value: "ready" },
+              { label: "Occupied", value: "occupied" },
+              { label: "Maintenance", value: "maintenance" },
+            ]}
+            value={filters.statusValue}
+            onChange={(val) => handleFilterChange("statusValue", val)}
+            clearable
+          />
+          <Group gap="xs">
+            <Button onClick={handleSearchClick} variant="primary">
+              Apply Filters
+            </Button>
+            <Button onClick={handleResetFilters} variant="secondary">
+              Reset
+            </Button>
+          </Group>
         </Group>
 
         <AdminTable
@@ -245,12 +292,13 @@ export default function AdminContainersModule() {
           ]}
           footer={
             <PaginationFooter
-              activePage={1}
-              setPage={() => {}}
-              total_records={filteredData.length}
-              last_page={1}
-              limit={filteredData.length}
+              activePage={activePage}
+              setPage={setPage}
+              total_records={paginatedData?.total_records || 0}
+              last_page={paginatedData?.last_page || 1}
+              limit={LIMIT}
               loading={isLoading}
+              hidden={hasFilters}
             />
           }
         >

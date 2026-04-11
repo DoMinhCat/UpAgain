@@ -2,7 +2,7 @@ export interface AdminHistory {
   id: number;
   created_at: string;
   module: string;
-  item_id: number;
+  item_id: number | string;
   action: string;
   old_state: string;
   new_state: string;

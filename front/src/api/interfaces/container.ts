@@ -11,3 +11,11 @@ export interface ContainerCountStats {
   active: number;
   total: number;
 }
+
+export interface ContainerListPagination {
+  containers: Container[];
+  current_page: number;
+  last_page: number;
+  limit: number;
+  total_records: number;
+}

@@ -39,10 +39,10 @@ export const useGetAllEvents = (
   });
 };
 
-export const useGetEventStats = () => {
+export const useGetEventStats = (time?: string) => {
   return useQuery<EventStats>({
-    queryKey: ["eventStats"],
-    queryFn: getEventStats,
+    queryKey: ["eventStats", time],
+    queryFn: () => getEventStats(time),
     staleTime: 60 * 1000,
     meta: {
       errorTitle: "Error",
@@ -53,7 +53,6 @@ export const useGetEventStats = () => {
 
 export const useCreateEvent = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (event: EventCreationPayload) => createEvent(event),
     onSuccess: () => {

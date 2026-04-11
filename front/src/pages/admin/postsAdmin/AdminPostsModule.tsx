@@ -509,6 +509,7 @@ export const AdminPostsModule = () => {
         </Grid>
       </Stack>
 
+      {/* TODO: ads status col */}
       <AdminTable
         loading={isAllPostsLoading}
         error={allPostsError}

@@ -3,13 +3,16 @@ import {
   CreatePost,
   DeleteComment,
   DeletePost,
+  DeleteProjectStep,
   GetAllPosts,
   GetPostComments,
   GetPostDetails,
   GetPostsStats,
+  GetProjectStepsByPostId,
   UpdatePost,
 } from "../api/postModule";
 import type { PostsListPagination } from "../api/interfaces/post";
+import { showSuccessNotification } from "../components/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
 
@@ -71,6 +74,10 @@ export const useDeletePost = () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Post deleted",
+        "The post has been deleted successfully.",
+      );
     },
   });
 };
@@ -101,6 +108,10 @@ export const useUpdatePost = (id_post: number) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Post updated",
+        "The post has been updated successfully.",
+      );
     },
   });
 };
@@ -135,6 +146,46 @@ export const useDeleteComment = () => {
       queryClient.invalidateQueries({ queryKey: ["postComments"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Comment deleted",
+        "The comment has been deleted successfully.",
+      );
+    },
+  });
+};
+
+export const useGetProjectStepsByPostId = (
+  id_post: number,
+  isValidId: boolean,
+) => {
+  return useQuery({
+    queryKey: ["projectSteps", id_post],
+    queryFn: () => GetProjectStepsByPostId(id_post),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Error fetching project details",
+      errorMessage: "Failed to fetch project details",
+    },
+  });
+};
+
+export const useDeleteProjectStep = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_step: number) => DeleteProjectStep(id_step),
+    meta: {
+      errorTitle: "Error deleting project step",
+      errorMessage: "Failed to delete project step",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Project step deleted",
+        "The project step has been deleted successfully.",
+      );
     },
   });
 };

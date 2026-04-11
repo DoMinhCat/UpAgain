@@ -15,18 +15,72 @@ import (
 // @Description  Get a list of all containers
 // @Tags         container
 // @Produce      json
-// @Success      200  {array}   models.Container
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Param        search  query     string  false  "Search query"
+// @Param        status  query     string  false  "Filter by status"
+// @Success      200  {object}   models.ContainerListPagination
 // @Failure      500  {object}  nil  "Internal server error"
 // @Router       /containers/ [get]
 func GetAllContainersHandler(w http.ResponseWriter, r *http.Request) {
-	containers, err := db.GetAllContainers()
+	query := r.URL.Query()
+
+	page := -1
+	limit := -1
+
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		var err error
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid page parameter.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		var err error
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid limit parameter.")
+			return
+		}
+	}
+
+	filters := models.ContainerFilters{
+		Search: query.Get("search"),
+		Status: query.Get("status"),
+	}
+
+	containers, total, err := db.GetAllContainers(page, limit, filters)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching containers.")
 		slog.Error("GetAllContainers() failed", "controller", "GetAllContainersHandler", "error", err)
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, containers)
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+
+	result := models.ContainerListPagination{
+		Containers:   containers,
+		CurrentPage:  page,
+		LastPage:     lastPage,
+		Limit:        limit,
+		TotalRecords: total,
+	}
+	if page == -1 || limit == -1 {
+		result.CurrentPage = 1
+		result.LastPage = 1
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
 // GetContainerByID godoc
@@ -58,7 +112,7 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 
 // UpdateContainerStatus godoc
 // @Summary      Update container status
-// @Description  Update the status of a container
+// @Description  Update the status of a container. Can't update if status is waiting or occupied.
 // @Tags         container
 // @Accept       json
 // @Produce      json
@@ -79,7 +133,17 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	var payload models.UpdateStatusRequest
 	json.NewDecoder(r.Body).Decode(&payload)
 
+	if payload.Status != "ready" && payload.Status != "maintenance" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
+		return
+	}
+
 	oldContainer, _ := db.FindContainerByID(id)
+	if oldContainer.Status == "waiting" || oldContainer.Status == "occupied" {
+		utils.RespondWithError(w, http.StatusConflict, "Container is waiting for an object or being occupied.")
+		return
+	}
+
 	if err := db.UpdateStatusContainer(id, payload.Status); err != nil {
 		slog.Error("UpdateStatusContainer() failed", "controller", "UpdateContainerStatus", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -87,7 +151,10 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("container", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldContainer, payload)
+		err := db.InsertHistory("container", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldContainer, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "UpdateContainerStatus", "id", id, "error", err)
+		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -117,12 +184,14 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("container", id, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		err := db.InsertHistory("container", id, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "DeleteContainer", "id", id, "error", err)
+		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-// to show info in stats card on admin home
 // GetContainerCountStats godoc
 // @Summary      Get container count stats
 // @Description  Get statistics about container counts (total and active)
@@ -194,11 +263,39 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Context().Value("user").(models.AuthClaims).Role == "admin" {
-		db.InsertHistory("container", id, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, c)
+		err = db.InsertHistory("container", id, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, c)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CreateContainerHandler", "id", id, "error", err)
+		}
 	}
 
 	c.ID = id
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(c)
+}
+
+// GetAvailableContainers godoc
+// @Summary      Get available containers
+// @Description  Get a list of available containers
+// @Tags         container
+// @Produce      json
+// @Success      200  {array}   models.Container
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      500  {string}  string  "Internal server error"
+// @Router       /containers/available/ [get]
+func GetAvailableContainers(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	containers, err := db.GetAvailableContainers()
+	if err != nil {
+		slog.Error("GetAvailableContainers() failed", "controller", "GetAvailableContainers", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching available containers.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, containers)
 }

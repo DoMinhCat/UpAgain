@@ -16,6 +16,7 @@ export const ENDPOINTS = {
     CONTAINERS: {
       ALL: "/containers/",
       COUNT: "/containers/count/",
+      AVAILABLE: "/containers/available/",
     },
 
     VALIDATIONS: {
@@ -51,11 +52,23 @@ export const ENDPOINTS = {
       UPDATE: (id_post: number) => `/posts/${id_post}/`,
       COMMENTS: (id_post: number) => `/posts/${id_post}/comments/`,
       DELETE_COMMENT: (id_comment: number) => `/comments/${id_comment}/`,
+      STEPS: (id_post: number) => `/posts/${id_post}/steps/`,
+      DELETE_STEP: (id_step: number) => `/posts/steps/${id_step}/`,
     },
 
     HISTORIES: {
       ALL: "/history/",
       DETAILS: (id_history: number) => `/history/${id_history}/`,
+    },
+
+    ITEMS: {
+      ALL: "/items/",
+      COUNT: "/items/count/",
+      DELETE: (id_item: number) => `/items/${id_item}/`,
+      DETAILS: (id_item: number) => `/items/${id_item}/`,
+      TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions/`,
+      CANCEL_TRANSACTION: (id_item: number, transactionUuid: string) =>
+        `/items/${id_item}/transactions/${transactionUuid}/cancel/`,
     },
   },
 
@@ -63,5 +76,15 @@ export const ENDPOINTS = {
     LOGIN: "/login/",
     REFRESH: "/refresh/",
     REGISTER: "/register/",
+  },
+
+  LISTINGS: {
+    DETAILS: (id_listing: number) => `/listings/${id_listing}/`,
+  },
+
+  DEPOSITS: {
+    DETAILS: (id_deposit: number) => `/deposits/${id_deposit}/`,
+    CODES: (id_deposit: number) => `/deposits/${id_deposit}/codes/`,
+    TRANSFER: (id_deposit: number) => `/deposits/${id_deposit}/transfer/`,
   },
 } as const;

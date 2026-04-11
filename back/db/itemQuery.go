@@ -3,8 +3,8 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
-	"database/sql"
 	"fmt"
+	"time"
 )
 
 func GetAllItemsHistory(page, limit int, filters models.ValidationFilters) ([]models.AllItemResponse, int, error) {
@@ -121,192 +121,6 @@ func GetAllItemsHistory(page, limit int, filters models.ValidationFilters) ([]mo
 	return items, totalRecords, nil
 }
 
-// GetPendingDeposits returns paginated pending deposits with optional search/sort.
-// page=-1 and limit=-1 returns all records.
-func GetPendingDeposits(page, limit int, filters models.ValidationFilters) ([]models.PendingDepositResponse, int, error) {
-	var params []interface{}
-	var countParams []interface{}
-	paramIndex := 1
-
-	whereClause := "WHERE i.status = 'pending' AND i.is_deleted = false"
-
-	if filters.Search != "" {
-		searchParam := "%" + filters.Search + "%"
-		whereClause += fmt.Sprintf(
-			" AND (i.title ILIKE $%d OR a.username ILIKE $%d OR CAST(i.id AS TEXT) ILIKE $%d OR c.city_name ILIKE $%d)",
-			paramIndex, paramIndex, paramIndex, paramIndex,
-		)
-		params = append(params, searchParam)
-		countParams = append(countParams, searchParam)
-		paramIndex++
-	}
-
-	orderBy := "ORDER BY i.created_at ASC"
-	if filters.Sort == "most_recent" {
-		orderBy = "ORDER BY i.created_at DESC"
-	}
-
-	countQuery := `
-		SELECT COUNT(DISTINCT i.id)
-		FROM items i
-		LEFT JOIN deposits d ON i.id = d.id_item
-		LEFT JOIN containers c ON d.id_container = c.id
-		LEFT JOIN accounts a ON i.id_user = a.id
-		` + whereClause
-
-	var totalRecords int
-	if err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords); err != nil {
-		return nil, 0, fmt.Errorf("GetPendingDeposits() count failed: %v", err)
-	}
-
-	query := `
-		SELECT
-			i.id, i.title, i.description, i.material, i.state, i.weight, i.created_at,
-			d.id_container, c.city_name, c.postal_code,
-			i.id_user, a.username
-		FROM items i
-		JOIN deposits d ON i.id = d.id_item
-		JOIN containers c ON d.id_container = c.id
-		JOIN accounts a ON i.id_user = a.id
-		` + whereClause + " " + orderBy
-
-	if limit != -1 && page != -1 {
-		offset := (page - 1) * limit
-		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
-		params = append(params, limit, offset)
-	}
-
-	rows, err := utils.Conn.Query(query, params...)
-	if err != nil {
-		return nil, 0, fmt.Errorf("GetPendingDeposits() query failed: %v", err)
-	}
-	defer rows.Close()
-
-	deposits := []models.PendingDepositResponse{}
-	for rows.Next() {
-		var deposit models.PendingDepositResponse
-		var description sql.NullString
-		if err := rows.Scan(
-			&deposit.ItemID, &deposit.Title, &description, &deposit.Material, &deposit.State, &deposit.Weight, &deposit.CreatedAt,
-			&deposit.ContainerID, &deposit.CityName, &deposit.PostalCode,
-			&deposit.UserID, &deposit.Username,
-		); err != nil {
-			return nil, 0, fmt.Errorf("GetPendingDeposits() scan failed: %v", err)
-		}
-		if description.Valid {
-			deposit.Description = description.String
-		}
-		deposits = append(deposits, deposit)
-	}
-	if err = rows.Err(); err != nil {
-		return nil, 0, fmt.Errorf("GetPendingDeposits() rows error: %v", err)
-	}
-	return deposits, totalRecords, nil
-}
-
-// GetPendingListings returns paginated pending listings with optional search/sort.
-// page=-1 and limit=-1 returns all records.
-func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]models.PendingListingResponse, int, error) {
-	var params []interface{}
-	var countParams []interface{}
-	paramIndex := 1
-
-	whereClause := "WHERE i.status = 'pending' AND i.is_deleted = false"
-
-	if filters.Search != "" {
-		searchParam := "%" + filters.Search + "%"
-		whereClause += fmt.Sprintf(
-			" AND (i.title ILIKE $%d OR a.username ILIKE $%d OR CAST(i.id AS TEXT) ILIKE $%d OR l.city_name ILIKE $%d)",
-			paramIndex, paramIndex, paramIndex, paramIndex,
-		)
-		params = append(params, searchParam)
-		countParams = append(countParams, searchParam)
-		paramIndex++
-	}
-
-	orderBy := "ORDER BY i.created_at ASC"
-	if filters.Sort == "most_recent" {
-		orderBy = "ORDER BY i.created_at DESC"
-	}
-
-	countQuery := `
-		SELECT COUNT(DISTINCT i.id)
-		FROM items i
-		LEFT JOIN listings l ON l.id_item = i.id
-		LEFT JOIN accounts a ON a.id = i.id_user
-		` + whereClause
-
-	var totalRecords int
-	if err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords); err != nil {
-		return nil, 0, fmt.Errorf("GetPendingListings() count failed: %v", err)
-	}
-
-	query := `
-		SELECT
-			i.id, i.title, i.description, i.material, i.state, i.weight, i.price, i.created_at,
-			l.city_name, l.postal_code,
-			i.id_user, a.username
-		FROM items i
-		JOIN listings l ON l.id_item = i.id
-		JOIN accounts a ON a.id = i.id_user
-		` + whereClause + " " + orderBy
-
-	if limit != -1 && page != -1 {
-		offset := (page - 1) * limit
-		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
-		params = append(params, limit, offset)
-	}
-
-	rows, err := utils.Conn.Query(query, params...)
-	if err != nil {
-		return nil, 0, fmt.Errorf("GetPendingListings() query failed: %v", err)
-	}
-	defer rows.Close()
-
-	listings := []models.PendingListingResponse{}
-	for rows.Next() {
-		var listing models.PendingListingResponse
-		if err := rows.Scan(
-			&listing.ItemID, &listing.Title, &listing.Description, &listing.Material, &listing.State, &listing.Weight, &listing.Price, &listing.CreatedAt,
-			&listing.CityName, &listing.PostalCode,
-			&listing.UserID, &listing.Username,
-		); err != nil {
-			return nil, 0, fmt.Errorf("GetPendingListings() scan failed: %v", err)
-		}
-		listings = append(listings, listing)
-	}
-	if err = rows.Err(); err != nil {
-		return nil, 0, fmt.Errorf("GetPendingListings() rows error: %v", err)
-	}
-	return listings, totalRecords, nil
-}
-
-func UpdateListingStatus(itemID int, newStatus string, employeeID int) error {
-	tx, err := utils.Conn.Begin()
-	if err != nil {
-		return fmt.Errorf("error starting transaction: %v", err)
-	}
-	defer tx.Rollback()
-
-	_, err = tx.Exec(`UPDATE items SET status = $1 WHERE id = $2`, newStatus, itemID)
-	if err != nil {
-		return fmt.Errorf("error updating item status in tx: %v", err)
-	}
-
-	_, err = tx.Exec(`
-		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
-		VALUES ('listing', $1, 'update', $2)
-	`, itemID, employeeID)
-	if err != nil {
-		return fmt.Errorf("error inserting into admin_history in tx: %v", err)
-	}
-
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("error committing transaction: %v", err)
-	}
-	return nil
-}
-
 // GetValidationStats returns counts of pending/approved/refused for deposits, listings, and events.
 func GetValidationStats() (models.ValidationStats, error) {
 	var stats models.ValidationStats
@@ -372,14 +186,225 @@ func GetTotalWeightByMaterialByStatus(material string, status string) (float64, 
 	return totalWeight, nil
 }
 
-func GetListingStatusById(id int) (string, error) {
-	var status string
-	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
-	return status, err
+func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, int, error) {
+	var results []models.Item
+	var params []interface{}
+	var countParams []interface{}
+	whereClause := "WHERE i.is_deleted = false"
+	paramIndex := 1
+
+	// Multi select filters
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(" AND (i.title ILIKE $%d OR a.username ILIKE $%d OR CAST(i.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		params = append(params, searchParam)
+		countParams = append(countParams, searchParam)
+		paramIndex++
+	}
+	if filters.Status != "" {
+		whereClause += fmt.Sprintf(" AND i.status = $%d", paramIndex)
+		params = append(params, filters.Status)
+		countParams = append(countParams, filters.Status)
+		paramIndex++
+	}
+	if filters.Category != "" {
+		whereClause += " AND EXISTS (SELECT 1 FROM listings l WHERE l.id_item = i.id)"
+	}
+	if filters.Material != "" {
+		whereClause += fmt.Sprintf(" AND i.material = $%d", paramIndex)
+		params = append(params, filters.Material)
+		countParams = append(countParams, filters.Material)
+		paramIndex++
+	}
+
+	var totalRecords int
+	countQuery := "SELECT COUNT(*) FROM items i JOIN accounts a ON i.id_user=a.id " + whereClause
+	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetAllItems() count failed: %v", err)
+	}
+
+	orderBy := "ORDER BY i.id ASC" // Default sorting
+	if filters.Sort != "" {
+		switch filters.Sort {
+		case "most_recent_creation":
+			orderBy = "ORDER BY i.created_at DESC"
+		case "oldest_creation":
+			orderBy = "ORDER BY i.created_at ASC"
+		case "highest_price":
+			orderBy = "ORDER BY i.price DESC"
+		case "lowest_price":
+			orderBy = "ORDER BY i.price ASC"
+		default:
+			orderBy = "ORDER BY i.id ASC"
+		}
+	}
+
+	query := `
+		SELECT i.created_at, i.id, i.title, i.description, i.weight, i.state, i.id_user, a.username, i.material, i.price, i.status
+		FROM items i
+		JOIN accounts a ON i.id_user=a.id 
+		` + whereClause + " " + orderBy
+
+	// pagination
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
+	}
+
+	rows, err := utils.Conn.Query(query, params...)
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetAllItems() query failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.Item
+		err := rows.Scan(&item.CreatedAt, &item.Id, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Username, &item.Material, &item.Price, &item.Status)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllItems() scan failed: %v", err.Error())
+		}
+		// get category
+		isListing, err := CheckListingOrDepositByItemId(item.Id)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllItems() check listing or deposit failed: %v", err.Error())
+		}
+		if isListing {
+			item.Category = "listing"
+		} else {
+			item.Category = "deposit"
+		}
+		results = append(results, item)
+	}
+
+	return results, totalRecords, nil
 }
 
-func GetDepositStatusById(id int) (string, error) {
+func GetItemsCountByStatus(status *string) (int, error) {
+	if status != nil && *status != "pending" && *status != "approved" && *status != "refused" && *status != "completed" {
+		return 0, fmt.Errorf("invalid status")
+	}
+
+	var count int
+	var err error
+	if status == nil {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE is_deleted = false").Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE status = $1 AND is_deleted = false", *status).Scan(&count)
+	}
+	if err != nil {
+		return 0, fmt.Errorf("GetItemsCountByStatus() failed: %v", err)
+	}
+	return count, nil
+}
+
+func GetTotalItemsSince(date time.Time) (int, error) {
+	var count int
+	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE created_at >= $1 AND is_deleted = false", date).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalItemsSince() failed: %v", err)
+	}
+	return count, nil
+}
+
+func GetTotalItemsByMaterialSince(material string, since *time.Time) (int, error) {
+	if material != "wood" && material != "metal" && material != "textile" && material != "glass" && material != "plastic" && material != "mixed" && material != "other" {
+		return 0, fmt.Errorf("invalid material")
+	}
+	var count int
+	var err error
+	if since == nil {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE material = $1 AND is_deleted = false", material).Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE material = $1 AND is_deleted = false AND created_at >= $2", material, since).Scan(&count)
+		if err != nil {
+			return 0, fmt.Errorf("GetTotalItemsByMaterial() failed: %v", err)
+		}
+	}
+	return count, nil
+}
+
+func CheckItemExistByItemId(id int) (bool, error) {
+	var exists bool
+	err := utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM items WHERE id = $1 AND is_deleted = false)", id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckItemExistByItemId() failed: %v", err)
+	}
+	return exists, nil
+}
+
+func DeleteItemById(id int) error {
+	_, err := utils.Conn.Exec("UPDATE items SET is_deleted = true WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("DeleteItemById() failed: %v", err)
+	}
+	return nil
+}
+
+func GetItemDetailsByItemId(id int) (models.Item, error) {
+	var item models.Item
+	row := utils.Conn.QueryRow("SELECT id, created_at, title, description, weight, state, id_user, material, price, status FROM items WHERE id = $1 AND is_deleted = false", id)
+	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status)
+	if err != nil {
+		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() failed: %v", err)
+	}
+
+	isListing, err := CheckListingOrDepositByItemId(id)
+	if err != nil {
+		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() check listing or deposit failed: %v", err)
+	}
+	if isListing {
+		item.Category = "listing"
+	} else {
+		item.Category = "deposit"
+	}
+	return item, nil
+}
+
+// helper function
+//
+// return true if is listing, false if is deposit
+func CheckListingOrDepositByItemId(id int) (bool, error) {
+	var isListing bool
+	err := utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM listings WHERE id_item = $1);", id).Scan(&isListing)
+	if err != nil {
+		return false, fmt.Errorf("CheckListingOrDepositByItemId() failed: %v", err)
+	}
+	return isListing, nil
+}
+
+func UpdateItemStatusById(id int, new_status string) error {
+	var err error
+	if new_status == "deleted" {
+		err = DeleteItemById(id)
+		if err != nil {
+			return fmt.Errorf("UpdateItemStatusById() failed: %v", err)
+		}
+		return nil
+	}
+	_, err = utils.Conn.Exec("UPDATE items SET status = $1 WHERE id = $2", new_status, id)
+	if err != nil {
+		return fmt.Errorf("UpdateItemStatusById() failed: %v", err)
+	}
+	return nil
+}
+
+func GetItemStatusByItemId(id int) (string, error) {
 	var status string
-	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1", id).Scan(&status)
-	return status, err
+	err := utils.Conn.QueryRow("SELECT status FROM items WHERE id = $1 AND is_deleted = false", id).Scan(&status)
+	if err != nil {
+		return "", fmt.Errorf("GetItemStatusByItemId() failed: %v", err)
+	}
+	return status, nil
+}
+
+func CheckItemBelongsToUser(idItem int, userId int) (bool, error) {
+	var belongsToUser bool
+	err := utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM items WHERE id = $1 AND id_user = $2)", idItem, userId).Scan(&belongsToUser)
+	if err != nil {
+		return false, fmt.Errorf("CheckItemBelongsToUser() failed: %v", err)
+	}
+	return belongsToUser, nil
 }

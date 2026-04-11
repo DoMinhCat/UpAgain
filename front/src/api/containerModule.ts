@@ -3,10 +3,22 @@ import { ENDPOINTS } from "./endpoints";
 import {
   type Container,
   type ContainerCountStats,
+  type ContainerListPagination,
 } from "./interfaces/container";
 
-export const getAllContainers = async (): Promise<Container[]> => {
-  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.ALL);
+export const getAllContainers = async (
+  page: number = -1,
+  limit: number = -1,
+  search?: string,
+  status?: string,
+): Promise<ContainerListPagination> => {
+  const params: Record<string, string | number> = {};
+  if (page !== -1) params.page = page;
+  if (limit !== -1) params.limit = limit;
+  if (search) params.search = search;
+  if (status) params.status = status;
+
+  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.ALL, { params });
   return response.data;
 };
 
@@ -37,3 +49,8 @@ export const getContainerCountStats =
     const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.COUNT);
     return response.data;
   };
+
+export const getAvailableContainers = async (): Promise<Container[]> => {
+  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.AVAILABLE);
+  return response.data;
+};

@@ -53,6 +53,7 @@ import {
   useGetAllEvents,
   useApproveRefuseEvent,
 } from "../../../hooks/eventHooks";
+import { ChartLegend } from "../../../components/ChartLegend";
 
 const LIMIT = 10;
 
@@ -166,9 +167,18 @@ function OverviewTab() {
                 withLabels
                 withTooltip
                 tooltipDataSource="segment"
+                h={280}
+                w={280}
                 mx="auto"
               />
             )}
+            <ChartLegend
+              data={[
+                { label: "Approved", color: "green.6" },
+                { label: "Pending", color: "orange.5" },
+                { label: "Refused", color: "red.6" },
+              ]}
+            />
           </Paper>
         </Grid.Col>
 
@@ -415,8 +425,17 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           "Material",
           "Actions",
         ]}
-        footer={<PaginationFooter activePage={activePage} setPage={setPage} total_records={data?.total_records || 0} last_page={data?.last_page || 1} limit={LIMIT} loading={isLoading} hidden={hasFilters} />}
-
+        footer={
+          <PaginationFooter
+            activePage={activePage}
+            setPage={setPage}
+            total_records={data?.total_records || 0}
+            last_page={data?.last_page || 1}
+            limit={LIMIT}
+            loading={isLoading}
+            hidden={hasFilters}
+          />
+        }
       >
         {deposits.length === 0 && !isLoading ? (
           <Table.Tr>
@@ -542,15 +561,15 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           !hasFilters &&
           data &&
           data.total_records > 0 && (
-          <PaginationFooter
-            activePage={activePage}
-            setPage={setPage}
-            total_records={data?.total_records || 0}
-            last_page={data?.last_page || 1}
-            limit={LIMIT}
-            loading={isLoading}
-            hidden={hasFilters}
-          />
+            <PaginationFooter
+              activePage={activePage}
+              setPage={setPage}
+              total_records={data?.total_records || 0}
+              last_page={data?.last_page || 1}
+              limit={LIMIT}
+              loading={isLoading}
+              hidden={hasFilters}
+            />
           )
         }
       >
@@ -711,15 +730,15 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
           !hasFilters &&
           data &&
           data.total_records > 0 && (
-          <PaginationFooter
-            activePage={activePage}
-            setPage={setPage}
-            total_records={data?.total_records || 0}
-            last_page={data?.last_page || 1}
-            limit={LIMIT}
-            loading={isLoading}
-            hidden={hasFilters}
-          />
+            <PaginationFooter
+              activePage={activePage}
+              setPage={setPage}
+              total_records={data?.total_records || 0}
+              last_page={data?.last_page || 1}
+              limit={LIMIT}
+              loading={isLoading}
+              hidden={hasFilters}
+            />
           )
         }
       >

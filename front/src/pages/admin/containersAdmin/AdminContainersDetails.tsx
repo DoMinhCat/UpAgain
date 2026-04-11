@@ -31,6 +31,8 @@ import {
   useDeleteContainer,
 } from "../../../hooks/containerHooks";
 
+// TODO: add street field to table containers
+// TODO: link to listing/deposit object if its currently occupied
 export default function AdminContainersDetails() {
   const origin = useLocation().state;
   const navigate = useNavigate();
@@ -83,20 +85,33 @@ export default function AdminContainersDetails() {
         Container's Details
       </Title>
       <AdminBreadcrumbs
-        breadcrumbs={
-          origin?.from === "historyDetails"
+        breadcrumbs={[
+          ...(origin?.from === "historyDetails"
             ? [
                 {
                   title: "History Details",
-                  href: "/admin/history/" + origin.id_history,
+                  href: PATHS.ADMIN.HISTORY + "/" + origin.id_history,
                 },
-                { title: `Container #${containerId}`, href: "#" },
               ]
-            : [
-                { title: "Container Management", href: PATHS.ADMIN.CONTAINERS },
-                { title: `Container #${containerId}`, href: "#" },
-              ]
-        }
+            : origin?.from === "listingDetails"
+              ? [
+                  {
+                    title: "Object Management",
+                    href: PATHS.ADMIN.LISTINGS,
+                  },
+                  {
+                    title: "Object's Details",
+                    href: PATHS.ADMIN.LISTINGS + "/" + origin.id_listing,
+                  },
+                ]
+              : [
+                  {
+                    title: "Container Management",
+                    href: PATHS.ADMIN.CONTAINERS,
+                  },
+                ]),
+          { title: `Container's Details`, href: "#" },
+        ]}
       />
 
       <Container px="md" size="sm" mt="xl">
@@ -183,7 +198,6 @@ export default function AdminContainersDetails() {
           placeholder="Pick one"
           data={[
             { value: "ready", label: "Ready" },
-            { value: "occupied", label: "Occupied" },
             { value: "maintenance", label: "Maintenance" },
           ]}
           defaultValue={container?.status}
