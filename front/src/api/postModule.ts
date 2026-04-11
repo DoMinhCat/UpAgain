@@ -73,3 +73,8 @@ export const GetProjectStepsByPostId = async (
   const response = await api.get(ENDPOINTS.ADMIN.POSTS.STEPS(id_post));
   return response.data;
 };
+
+export const DeleteProjectStep = async (id_step: number) => {
+  const response = await api.delete(ENDPOINTS.ADMIN.POSTS.DELETE_STEP(id_step));
+  return response.data;
+};

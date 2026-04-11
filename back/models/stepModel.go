@@ -13,7 +13,6 @@ type ProjectStep struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	IdPost      int       `json:"id_post"`
-	StepOrder   int       `json:"step_order"`
 	Items       []StepItem `json:"items"`
 	Photos      []string  `json:"photos"`
 }

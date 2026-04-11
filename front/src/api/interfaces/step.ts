@@ -8,7 +8,6 @@ export interface Step {
   id_post: number;
   title: string;
   description: string;
-  step_order: number;
   created_at: string;
   photos: string[];
   items: StepItem[];

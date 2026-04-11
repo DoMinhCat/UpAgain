@@ -3,6 +3,7 @@ import {
   CreatePost,
   DeleteComment,
   DeletePost,
+  DeleteProjectStep,
   GetAllPosts,
   GetPostComments,
   GetPostDetails,
@@ -169,4 +170,22 @@ export const useGetProjectStepsByPostId = (
   });
 };
 
-// TODO: delete step (invalidate projectSteps)
+export const useDeleteProjectStep = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_step: number) => DeleteProjectStep(id_step),
+    meta: {
+      errorTitle: "Error deleting project step",
+      errorMessage: "Failed to delete project step",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "Project step deleted",
+        "The project step has been deleted successfully.",
+      );
+    },
+  });
+};
