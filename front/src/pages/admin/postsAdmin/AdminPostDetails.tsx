@@ -45,6 +45,7 @@ import ImageDropzone from "../../../components/ImageDropzone";
 import {
   useDeleteComment,
   useDeletePost,
+  useDeleteProjectStep,
   useGetPostComments,
   useGetPostDetails,
   useGetProjectStepsByPostId,
@@ -219,6 +220,26 @@ export const AdminPostDetails = () => {
       isValidId && postDetails?.category === "project",
     );
 
+  // DELETE STEP
+  const [idStepToDelete, setIdStepToDelete] = useState<number | null>(null);
+  const [openedDeleteStep, { open: openDeleteStep, close: closeDeleteStep }] =
+    useDisclosure(false);
+  const handleOpenDeleteStep = (id_step: number) => {
+    setIdStepToDelete(id_step);
+    openDeleteStep();
+  };
+  const deleteStep = useDeleteProjectStep();
+  const handleDeleteStep = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (idStepToDelete) {
+      deleteStep.mutate(idStepToDelete, {
+        onSuccess: () => {
+          closeDeleteStep();
+        },
+      });
+    }
+  };
+
   if (isLoadingPostDetails || isLoadingComments) {
     return <FullScreenLoader />;
   }
@@ -320,7 +341,7 @@ export const AdminPostDetails = () => {
                     </Center>
                   ) : (
                     <Timeline mt="xl" lineWidth={4} active={1} bulletSize={24}>
-                      {projectSteps?.map((step) => (
+                      {projectSteps?.map((step, index) => (
                         <Timeline.Item
                           key={step.id}
                           title={
@@ -331,7 +352,7 @@ export const AdminPostDetails = () => {
                             >
                               <Stack gap={2}>
                                 <Text fw={700} size="lg">
-                                  {step.title}
+                                  {index + 1}. {step.title}
                                 </Text>
                                 <Text c="dimmed" size="xs">
                                   {dayjs(step.created_at).format(
@@ -345,7 +366,7 @@ export const AdminPostDetails = () => {
                                   variant="subtle"
                                   color="red"
                                   onClick={() => {
-                                    /* handle delete */
+                                    handleOpenDeleteStep(step.id);
                                   }}
                                   size="lg"
                                 >
@@ -733,6 +754,32 @@ export const AdminPostDetails = () => {
           </Grid.Col>
         </Grid>
       </Container>
+
+      <Modal
+        title="Delete project step"
+        opened={openedDeleteStep}
+        onClose={closeDeleteStep}
+        centered
+        size="md"
+      >
+        <Stack>
+          <Text>Are you sure you want to delete this project step?</Text>
+        </Stack>
+        <Group mt="lg" justify="center">
+          <Button onClick={closeDeleteStep} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={(e: React.FormEvent) => {
+              handleDeleteStep(e);
+            }}
+            variant="delete"
+            loading={deleteStep.isPending}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 };

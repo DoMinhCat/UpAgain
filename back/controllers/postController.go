@@ -669,3 +669,37 @@ func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusOK, steps)
 }
+
+func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action")
+		return
+	}
+
+	idStep, err := strconv.Atoi(r.PathValue("step_id"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid step ID")
+		return
+	}
+
+	exists, err := db.CheckProjectStepExistsById(idStep)
+	if err != nil {
+		slog.Error("db.CheckProjectStepExistsById() failed", "controller", "DeleteProjectStepByPostId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete project step")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Step ID "+strconv.Itoa(idStep)+" not found")
+		return
+	}
+	
+	err = db.DeleteProjectStepByPostId(idStep)
+	if err != nil {
+		slog.Error("db.DeleteProjectStepByPostId() failed", "controller", "DeleteProjectStepByPostId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete project step")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, nil)
+}
