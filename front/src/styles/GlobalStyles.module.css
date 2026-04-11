@@ -254,3 +254,30 @@
 .divider {
   border-color: var(--border-color);
 }
+
+.timelineItem {
+  &::before {
+    border-left-color: #45a575;
+  }
+
+  &[data-active]::before {
+    border-left-color: #2d6e4d;
+  }
+}
+
+.timelineBullet {
+  /* This targets the circle container */
+  background-color: white;
+  border: 2px solid #bee2c7;
+  box-shadow: 0 0 0 2px var(--component-color-primary);
+
+  /* When the item is active, change the ring color */
+  &[data-active] {
+    border-color: var(--component-color-primary);
+  }
+}
+
+.timelineTitle {
+  color: var(--mantine-color-text);
+  font-weight: 700;
+}

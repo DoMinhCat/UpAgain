@@ -5,11 +5,13 @@ import { useState } from "react";
 interface PhotosCarouselProps {
   photos: string[];
   initialSlide?: number;
+  slidesToScroll?: number;
 }
 
 export function PhotosCarousel({
   photos,
   initialSlide = 0,
+  slidesToScroll = 1,
 }: PhotosCarouselProps) {
   const [opened, setOpened] = useState(false);
   const [activeSlide, setActiveSlide] = useState(initialSlide);
@@ -36,7 +38,7 @@ export function PhotosCarousel({
         slideSize="100%"
         emblaOptions={{
           align: "center",
-          slidesToScroll: 1,
+          slidesToScroll: slidesToScroll,
           loop: photos.length > 1,
         }}
         // Style the progress indicators to be more prominent

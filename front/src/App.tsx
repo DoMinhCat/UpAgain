@@ -13,6 +13,7 @@ import {
   NumberInput,
   Badge,
   Divider,
+  Timeline,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -119,6 +120,15 @@ const UpAgainTheme = createTheme({
       defaultProps: {
         classNames: {
           section: classes.progress,
+        },
+      },
+    }),
+    Timeline: Timeline.extend({
+      defaultProps: {
+        classNames: {
+          item: classes.timelineItem,
+          itemBullet: classes.timelineBullet,
+          itemTitle: classes.timelineTitle,
         },
       },
     }),
