@@ -38,7 +38,6 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import type { Item } from "../../../api/interfaces/item";
 import { useDisclosure } from "@mantine/hooks";
-import { showSuccessNotification } from "../../../components/NotificationToast";
 import { ChartLegend } from "../../../components/ChartLegend";
 
 export function AdminListingModule() {

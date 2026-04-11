@@ -20,7 +20,6 @@ import {
   ActionIcon,
   Anchor,
   Timeline,
-  TypographyStylesProvider,
   Loader,
   Center,
 } from "@mantine/core";

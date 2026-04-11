@@ -1,11 +1,4 @@
-// all hooks for account management
-
-import {
-  useMutation,
-  useQueryClient,
-  useQuery,
-  queryOptions,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   recoverAccount,
   getAccountDetails,
