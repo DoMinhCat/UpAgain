@@ -183,7 +183,7 @@ create table ads
 );
 CREATE INDEX idx_ads_status ON ads (status);
 
-CREATE TYPE photo_object_type AS ENUM ('item', 'post', 'event', 'avatar');
+CREATE TYPE photo_object_type AS ENUM ('item', 'post', 'step', 'event', 'avatar');
 CREATE TABLE photos (
     id          serial PRIMARY KEY,
     created_at  timestamptz NOT NULL DEFAULT now(),
