@@ -641,3 +641,31 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
+
+func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
+	idPost, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(idPost)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "GetProjectStepsByPostId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get project steps")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post ID "+strconv.Itoa(idPost)+" not found")
+		return
+	}
+
+	steps, err := db.GetProjectStepsByPostId(idPost)
+	if err != nil {
+		slog.Error("db.GetProjectStepsByPostId() failed", "controller", "GetProjectStepsByPostId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get project details")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, steps)
+}
