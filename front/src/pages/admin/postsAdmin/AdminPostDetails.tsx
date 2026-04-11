@@ -21,6 +21,8 @@ import {
   Anchor,
   Timeline,
   TypographyStylesProvider,
+  Loader,
+  Center,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -45,6 +47,7 @@ import {
   useDeletePost,
   useGetPostComments,
   useGetPostDetails,
+  useGetProjectStepsByPostId,
   useUpdatePost,
 } from "../../../hooks/postHooks";
 import dayjs from "dayjs";
@@ -209,6 +212,13 @@ export const AdminPostDetails = () => {
     }
   };
 
+  // PROJECT STEPS
+  const { data: projectSteps, isLoading: isLoadingProjectSteps } =
+    useGetProjectStepsByPostId(
+      postId,
+      isValidId && postDetails?.category === "project",
+    );
+
   if (isLoadingPostDetails || isLoadingComments) {
     return <FullScreenLoader />;
   }
@@ -276,111 +286,132 @@ export const AdminPostDetails = () => {
                 }}
               />
 
-              {/* TODO: show some kind of step with progress vertical bar if post is a project */}
-              {/* TODO: api call to get project steps */}
-              {
-                // postDetails?.category === "project"
-                true && (
-                  <>
-                    <Divider my="xl" />
-                    <Group gap="sm">
-                      <IconRouteSquare
-                        color="var(--component-color-primary)"
-                        size={32}
-                      />
-                      <Title order={3}>Project Steps</Title>
-                    </Group>
+              {postDetails?.photos && postDetails.photos.length > 0 && (
+                <>
+                  <Divider my="xl" />
+                  <Group gap="sm">
+                    <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
+                    <Title order={3}>Photos</Title>
+                  </Group>
+                  <div style={{ marginTop: "16px" }}>
+                    <PhotosCarousel
+                      photos={postDetails?.photos || []}
+                      initialSlide={0}
+                    />
+                  </div>
+                </>
+              )}
 
+              {/* PROJECT STEPS TIMELINE */}
+              {postDetails?.category === "project" && (
+                <>
+                  <Divider my="xl" />
+                  <Group gap="sm">
+                    <IconRouteSquare
+                      color="var(--component-color-primary)"
+                      size={32}
+                    />
+                    <Title order={3}>Project Steps</Title>
+                  </Group>
+
+                  {isLoadingProjectSteps ? (
+                    <Center mt="xl">
+                      <Loader />
+                    </Center>
+                  ) : (
                     <Timeline mt="xl" lineWidth={4} active={1} bulletSize={24}>
-                      {/* Timeline Item mapping starts here */}
-                      <Timeline.Item
-                        title={
-                          <Group
-                            justify="space-between"
-                            align="flex-start"
-                            wrap="nowrap"
-                          >
-                            <Stack gap={2}>
-                              <Text fw={700} size="lg">
-                                New branch
-                              </Text>
-                              <Text c="dimmed" size="xs">
-                                Created at Oct 12, 2023 · 10:30 AM
-                              </Text>
-                            </Stack>
+                      {projectSteps?.map((step) => (
+                        <Timeline.Item
+                          key={step.id}
+                          title={
+                            <Group
+                              justify="space-between"
+                              align="flex-start"
+                              wrap="nowrap"
+                            >
+                              <Stack gap={2}>
+                                <Text fw={700} size="lg">
+                                  {step.title}
+                                </Text>
+                                <Text c="dimmed" size="xs">
+                                  {dayjs(step.created_at).format(
+                                    "DD/MM/YYYY HH:mm A",
+                                  )}
+                                </Text>
+                              </Stack>
 
-                            <Tooltip label="Delete this step" position="left">
-                              <ActionIcon
-                                variant="subtle"
-                                color="red"
-                                onClick={() => {
-                                  /* handle delete */
-                                }}
-                                size="lg"
-                              >
-                                <IconTrash size={20} stroke={1.5} />
-                              </ActionIcon>
-                            </Tooltip>
-                          </Group>
-                        }
-                      >
-                        {/* Body Content */}
-                        <Box mt="md">
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html:
-                                "<div>Content body placeholder text...</div>",
-                            }}
-                          />
-                        </Box>
-
-                        {/* Media Section */}
-                        <Box mt="lg">
-                          <PhotosCarousel
-                            photos={[]}
-                            initialSlide={0}
-                            slidesToScroll={3}
-                          />
-                        </Box>
-
-                        {/* Metadata/Assets Section */}
-                        <Stack gap="xs" mt="xl" p="sm">
-                          <Text size="sm" fw={700} c="dimmed" tt="uppercase">
-                            Items used in this step
-                          </Text>
-                          <Group gap="sm">
-                            <IconLink
-                              size={14}
-                              color="var(--mantine-color-dimmed)"
+                              <Tooltip label="Delete this step" position="left">
+                                <ActionIcon
+                                  variant="subtle"
+                                  color="red"
+                                  onClick={() => {
+                                    /* handle delete */
+                                  }}
+                                  size="lg"
+                                >
+                                  <IconTrash size={20} stroke={1.5} />
+                                </ActionIcon>
+                              </Tooltip>
+                            </Group>
+                          }
+                        >
+                          {/* Body Content */}
+                          <Box mt="md">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: step.description,
+                              }}
                             />
-                            <Anchor
-                              size="sm"
-                              fw={500}
-                              style={{
-                                color: "var(--component-color-primary)",
-                              }}
-                              href="#"
-                            >
-                              Item 1 used (placeholder)
-                            </Anchor>
-                            <Anchor
-                              size="sm"
-                              fw={500}
-                              style={{
-                                color: "var(--component-color-primary)",
-                              }}
-                              href="#"
-                            >
-                              Item 1 used (placeholder)
-                            </Anchor>
-                          </Group>
-                        </Stack>
-                      </Timeline.Item>
-                      {/* End Mapping */}
+                          </Box>
+
+                          {/* Media Section */}
+                          <Box mt="lg">
+                            <PhotosCarousel
+                              photos={step.photos}
+                              initialSlide={0}
+                              slidesToScroll={
+                                (step.photos?.length ?? 0) > 1 ? 3 : 1
+                              }
+                            />
+                          </Box>
+
+                          {/* Metadata/Assets Section */}
+                          <Stack gap="xs" mt="xl" p="sm">
+                            <Text size="sm" fw={700} c="dimmed" tt="uppercase">
+                              Items used in this step
+                            </Text>
+                            <Group gap="sm">
+                              <IconLink
+                                size={14}
+                                color="var(--mantine-color-dimmed)"
+                              />
+                              {step.items.map((item) => (
+                                <Anchor
+                                  size="sm"
+                                  fw={500}
+                                  style={{
+                                    color: "var(--component-color-primary)",
+                                  }}
+                                  onClick={() =>
+                                    navigate(`/admin/listings/${item.id}`, {
+                                      state: {
+                                        from: "postDetails",
+                                        id_post: postDetails?.id,
+                                      },
+                                    })
+                                  }
+                                >
+                                  {item.title}
+                                </Anchor>
+                              ))}
+                            </Group>
+                          </Stack>
+                        </Timeline.Item>
+                      ))}
                     </Timeline>
-                  </>
-                )
-              }
+                  )}
+                </>
+              )}
             </Stack>
             {postDetails?.photos &&
               postDetails.photos.length > 0 &&

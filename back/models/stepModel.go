@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+type StepItem struct {
+	Id    int    `json:"id"`
+	Title string `json:"title"`
+}
+
 type ProjectStep struct {
 	Id          int       `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -9,6 +14,6 @@ type ProjectStep struct {
 	Description string    `json:"description"`
 	IdPost      int       `json:"id_post"`
 	StepOrder   int       `json:"step_order"`
-	ItemIds     []int     `json:"item_ids"`
-	Photos      []string   `json:"photos"`
+	Items       []StepItem `json:"items"`
+	Photos      []string  `json:"photos"`
 }

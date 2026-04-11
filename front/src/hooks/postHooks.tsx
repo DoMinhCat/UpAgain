@@ -7,6 +7,7 @@ import {
   GetPostComments,
   GetPostDetails,
   GetPostsStats,
+  GetProjectStepsByPostId,
   UpdatePost,
 } from "../api/postModule";
 import type { PostsListPagination } from "../api/interfaces/post";
@@ -151,3 +152,21 @@ export const useDeleteComment = () => {
     },
   });
 };
+
+export const useGetProjectStepsByPostId = (
+  id_post: number,
+  isValidId: boolean,
+) => {
+  return useQuery({
+    queryKey: ["projectSteps", id_post],
+    queryFn: () => GetProjectStepsByPostId(id_post),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Error fetching project details",
+      errorMessage: "Failed to fetch project details",
+    },
+  });
+};
+
+// TODO: delete step (invalidate projectSteps)
