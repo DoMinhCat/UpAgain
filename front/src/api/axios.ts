@@ -3,8 +3,22 @@ import { getNewAccessToken } from "./auth";
 import { ENDPOINTS } from "./endpoints";
 import { router } from "../routes/routes";
 
+let backendPort;
+if (import.meta.env.VITE_ENV === "DEV") {
+  backendPort = import.meta.env.VITE_PORT_BACKEND_DEV;
+} else {
+  backendPort = import.meta.env.VITE_PORT_BACKEND_PROD;
+}
+
+let baseURL;
+if (import.meta.env.VITE_ENV === "DEV") {
+  baseURL = import.meta.env.VITE_API_BASE_URL_DEV;
+} else {
+  baseURL = import.meta.env.VITE_API_BASE_URL_PROD;
+}
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: baseURL + ":" + backendPort,
   withCredentials: true,
 });
 
