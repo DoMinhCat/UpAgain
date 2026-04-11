@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getUserStats } from "../api/userModule";
 
 const STALE_TIME = 60 * 1000;
