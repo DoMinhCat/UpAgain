@@ -20,7 +20,6 @@ import {
   Loader,
   Tooltip,
   SimpleGrid,
-  Image,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -57,15 +56,6 @@ import ImageDropzone from "../../../components/ImageDropzone";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { PhotosCarousel } from "../../../components/PhotosCarousel";
 export default function AdminEventDetails() {
-  const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
-    useDisclosure(false);
-  const [activeSlide, setActiveSlide] = useState(0);
-
-  const handleImageClick = (index: number) => {
-    setActiveSlide(index);
-    openCarousel();
-  };
-
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -473,40 +463,12 @@ export default function AdminEventDetails() {
                   <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
                   <Title order={3}>Photos</Title>
                 </Group>
-                <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
-                  {eventDetails.images.map((path, index) => (
-                    <Image
-                      key={index}
-                      src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
-                      radius="md"
-                      alt={`Event photo ${index + 1}`}
-                      fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleImageClick(index)}
-                    />
-                  ))}
-                </SimpleGrid>
-
-                <Modal
-                  opened={openedCarousel}
-                  onClose={closeCarousel}
-                  size="xl"
-                  centered
-                  title="Event's gallery"
-                  styles={{
-                    root: {
-                      zIndex: 1000,
-                    },
-                    body: {
-                      padding: "xs",
-                    },
-                  }}
-                >
+                <div style={{ marginTop: "16px" }}>
                   <PhotosCarousel
-                    photos={eventDetails?.images}
-                    initialSlide={activeSlide}
+                    photos={eventDetails?.images || []}
+                    initialSlide={0}
                   />
-                </Modal>
+                </div>
               </>
             )}
             <Divider my="xl" />

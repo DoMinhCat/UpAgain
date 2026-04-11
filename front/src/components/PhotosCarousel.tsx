@@ -1,5 +1,5 @@
 import { Carousel } from "@mantine/carousel";
-import { Box, Center, Image, Modal, UnstyledButton } from "@mantine/core";
+import { Center, Image, Modal, UnstyledButton } from "@mantine/core";
 import { useState } from "react";
 
 interface PhotosCarouselProps {

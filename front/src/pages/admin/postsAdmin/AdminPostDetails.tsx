@@ -16,7 +16,6 @@ import {
   Select,
   Card,
   SimpleGrid,
-  Image,
   Avatar,
   ActionIcon,
   Anchor,
@@ -61,18 +60,8 @@ export const AdminPostDetails = () => {
   const postId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(postId) && postId > 0;
 
-  const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
-    useDisclosure(false);
-
-  const [activeSlide, setActiveSlide] = useState(0);
-
   const { data: postDetails, isLoading: isLoadingPostDetails } =
     useGetPostDetails(postId, isValidId);
-
-  const handleImageClick = (index: number) => {
-    setActiveSlide(index);
-    openCarousel();
-  };
 
   // COMMENTS
   const [activePage, setPage] = useState(1);
@@ -293,40 +282,12 @@ export const AdminPostDetails = () => {
                     <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
                     <Title order={3}>Photos</Title>
                   </Group>
-                  <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
-                    {postDetails.photos.map((path, index) => (
-                      <Image
-                        key={index}
-                        src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
-                        radius="md"
-                        alt={`Post photo ${index + 1}`}
-                        fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleImageClick(index)}
-                      />
-                    ))}
-                  </SimpleGrid>
-
-                  <Modal
-                    opened={openedCarousel}
-                    onClose={closeCarousel}
-                    size="xl"
-                    centered
-                    title="Post's gallery"
-                    styles={{
-                      root: {
-                        zIndex: 1000,
-                      },
-                      body: {
-                        padding: "xs",
-                      },
-                    }}
-                  >
+                  <div style={{ marginTop: "16px" }}>
                     <PhotosCarousel
                       photos={postDetails.photos}
-                      initialSlide={activeSlide}
+                      initialSlide={0}
                     />
-                  </Modal>
+                  </div>
                 </>
               )}
 
