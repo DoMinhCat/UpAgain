@@ -39,10 +39,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		slog.Error("GetAccountCredsByEmail() failed", "controller", "Login", "error", err)
 		return
 	}
+	if existing == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "Oops, incorrect email or password.")
+		slog.Error("No account found", "controller", "Login", "email", creds.Email)
+		return
+	}
 
-	slog.Info("Login Attempt", "input_email", creds.Email, "db_email", existing.Email)
 
-	if existing == nil || creds.Email != existing.Email || !utils.IsPasswordCorrect(existing.Password, creds.Password) {
+	if creds.Email != existing.Email || !utils.IsPasswordCorrect(existing.Password, creds.Password) {
 		response.RespondWithError(w, http.StatusUnauthorized, "Oops, incorrect email or password.")
 		return
 	}
