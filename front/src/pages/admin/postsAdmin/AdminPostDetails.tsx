@@ -19,6 +19,8 @@ import {
   Avatar,
   ActionIcon,
   Anchor,
+  Timeline,
+  TypographyStylesProvider,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -33,6 +35,8 @@ import {
   IconUser,
   IconTrash,
   IconHeartFilled,
+  IconRouteSquare,
+  IconLink,
 } from "@tabler/icons-react";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
@@ -271,7 +275,112 @@ export const AdminPostDetails = () => {
                   __html: postDetails?.content ?? "",
                 }}
               />
+
               {/* TODO: show some kind of step with progress vertical bar if post is a project */}
+              {/* TODO: api call to get project steps */}
+              {
+                // postDetails?.category === "project"
+                true && (
+                  <>
+                    <Divider my="xl" />
+                    <Group gap="sm">
+                      <IconRouteSquare
+                        color="var(--component-color-primary)"
+                        size={32}
+                      />
+                      <Title order={3}>Project Steps</Title>
+                    </Group>
+
+                    <Timeline mt="xl" lineWidth={4} active={1} bulletSize={24}>
+                      {/* Timeline Item mapping starts here */}
+                      <Timeline.Item
+                        title={
+                          <Group
+                            justify="space-between"
+                            align="flex-start"
+                            wrap="nowrap"
+                          >
+                            <Stack gap={2}>
+                              <Text fw={700} size="lg">
+                                New branch
+                              </Text>
+                              <Text c="dimmed" size="xs">
+                                Created at Oct 12, 2023 · 10:30 AM
+                              </Text>
+                            </Stack>
+
+                            <Tooltip label="Delete this step" position="left">
+                              <ActionIcon
+                                variant="subtle"
+                                color="red"
+                                onClick={() => {
+                                  /* handle delete */
+                                }}
+                                size="lg"
+                              >
+                                <IconTrash size={20} stroke={1.5} />
+                              </ActionIcon>
+                            </Tooltip>
+                          </Group>
+                        }
+                      >
+                        {/* Body Content */}
+                        <Box mt="md">
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html:
+                                "<div>Content body placeholder text...</div>",
+                            }}
+                          />
+                        </Box>
+
+                        {/* Media Section */}
+                        <Box mt="lg">
+                          <PhotosCarousel
+                            photos={[]}
+                            initialSlide={0}
+                            slidesToScroll={3}
+                          />
+                        </Box>
+
+                        {/* Metadata/Assets Section */}
+                        <Stack gap="xs" mt="xl" p="sm">
+                          <Text size="sm" fw={700} c="dimmed" tt="uppercase">
+                            Items used in this step
+                          </Text>
+                          <Group gap="sm">
+                            <IconLink
+                              size={14}
+                              color="var(--mantine-color-dimmed)"
+                            />
+                            <Anchor
+                              size="sm"
+                              fw={500}
+                              style={{
+                                color: "var(--component-color-primary)",
+                              }}
+                              href="#"
+                            >
+                              Item 1 used (placeholder)
+                            </Anchor>
+                            <Anchor
+                              size="sm"
+                              fw={500}
+                              style={{
+                                color: "var(--component-color-primary)",
+                              }}
+                              href="#"
+                            >
+                              Item 1 used (placeholder)
+                            </Anchor>
+                          </Group>
+                        </Stack>
+                      </Timeline.Item>
+                      {/* End Mapping */}
+                    </Timeline>
+                  </>
+                )
+              }
             </Stack>
             {postDetails?.photos &&
               postDetails.photos.length > 0 &&
