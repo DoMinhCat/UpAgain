@@ -19,3 +19,16 @@ type ContainerCountStats struct {
 type UpdateStatusRequest struct {
 	Status string `json:"status" example:"running"`
 }
+
+type ContainerFilters struct {
+	Search string `json:"search"`
+	Status string `json:"status"`
+}
+
+type ContainerListPagination struct {
+	Containers   []Container `json:"containers"`
+	CurrentPage  int         `json:"current_page"`
+	LastPage     int         `json:"last_page"`
+	Limit        int         `json:"limit"`
+	TotalRecords int         `json:"total_records"`
+}

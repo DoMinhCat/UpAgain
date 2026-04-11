@@ -7,7 +7,7 @@ import (
 
 // InsertHistory insert a new history record in admin_history table
 //
-// entityType: 'employee', 'user', 'pro', 'event', 'container', 'post', 'comment', 'listing', 'deposit', 'subscription', 'finance_setting'
+// entityType: 'employee', 'user', 'pro', 'event', 'container', 'post', 'comment', 'listing', 'deposit', 'transaction', 'subscription', 'finance_setting'
 //
 // entityId: id of the entity
 //
@@ -18,7 +18,7 @@ import (
 // oldState: old state of the entity (interface)
 //
 // newState: new state of the entity (interface)
-func InsertHistory(entityType string, entityId int, action string, adminId int, oldState interface{}, newState interface{}) error {
+func InsertHistory(entityType string, entityId interface{}, action string, adminId int, oldState interface{}, newState interface{}) error {
 	oldJSON, _ := json.Marshal(oldState)
 	newJSON, _ := json.Marshal(newState)
 

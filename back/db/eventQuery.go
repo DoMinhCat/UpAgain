@@ -27,37 +27,57 @@ func GetTotalEventSpendingsById(id int) (int, error) {
 	return total, nil
 }
 
-// get total count of events not cancelled and not not refused
-func GetTotalCountActiveEvents() (int, error) {
+// get total count of events not cancelled and not refused
+func GetTotalCountActiveEvents(since *time.Time) (int, error) {
 	var total int
-	err := utils.Conn.QueryRow("SELECT COUNT(*) FROM events WHERE status!='cancelled' AND status!='refused'").Scan(&total)
+	var err error
+	if since != nil {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM events WHERE status!='cancelled' AND status!='refused' AND created_at >= $1", *since).Scan(&total)
+	} else {
+		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM events WHERE status!='cancelled' AND status!='refused'").Scan(&total)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalCountActiveEvents() failed: %v", err.Error())
 	}
 	return total, nil
 }
 
-func GetEventIncreaseSince(since time.Time) (int, error) {
+func GetEventIncreaseSince(since *time.Time) (int, error) {
 	var count int
-	err := utils.Conn.QueryRow("select count(*) from events where created_at >= $1 and created_at < now()", since).Scan(&count)
+	var err error
+	if since != nil {
+		err = utils.Conn.QueryRow("select count(*) from events where created_at >= $1 and created_at < now()", *since).Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("select count(*) from events where created_at < now()").Scan(&count)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("GetEventIncreaseSince() failed: %v", err.Error())
 	}
 	return count, nil
 }
 
-func GetUpcomingEventIn(in time.Time) (int, error) {
+func GetUpcomingEventIn(since *time.Time) (int, error) {
 	var count int
-	err := utils.Conn.QueryRow("select count(*) from events where start_at <= $1 AND start_at > now() AND status!='cancelled' AND status!='refused'", in).Scan(&count)
+	var err error
+	if since != nil {
+		err = utils.Conn.QueryRow("select count(*) from events where start_at >= $1 AND start_at > now() AND status!='cancelled' AND status!='refused'", *since).Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("select count(*) from events where start_at > now() AND status!='cancelled' AND status!='refused'").Scan(&count)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("GetUpcomingEventIn() failed: %v", err.Error())
 	}
 	return count, nil
 }
 
-func GetTotalRegistrationsSince(since time.Time) (int, error) {
+func GetTotalRegistrationsSince(since *time.Time) (int, error) {
 	var count int
-	err := utils.Conn.QueryRow("select count(*) from event_registrations where created_at >= $1 and created_at < now()", since).Scan(&count)
+	var err error
+	if since != nil {
+		err = utils.Conn.QueryRow("select count(*) from event_registrations where created_at >= $1 and created_at < now()", *since).Scan(&count)
+	} else {
+		err = utils.Conn.QueryRow("select count(*) from event_registrations where created_at < now()").Scan(&count)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("GetTotalRegistrationsSince() failed: %v", err.Error())
 	}
@@ -271,7 +291,7 @@ func UpdateEventStatusByEventId(eventID int, newStatus string, employeeID int) e
 	return nil
 }
 
-func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employeeID int) error {
+func UpdateEventByEventId(eventID int, event models.UpdateEventRequest) error {
 	tx, err := utils.Conn.Begin()
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %v", err)
@@ -289,7 +309,6 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employee
 		return fmt.Errorf("error deleting old images in tx: %v", err)
 	}
 
-	// TODO: remove to the logic checking and update photo paths
 	for i, imgPath := range event.Images {
 		isPrimary := i == 0
 		_, err = tx.Exec(`
@@ -299,14 +318,6 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest, employee
 		if err != nil {
 			return fmt.Errorf("failed to insert photo: %v", err.Error())
 		}
-	}
-
-	_, err = tx.Exec(`
-		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
-		VALUES ('event', $1, 'update', $2)
-	`, eventID, employeeID)
-	if err != nil {
-		return fmt.Errorf("error inserting into admin_history in tx: %v", err)
 	}
 
 	if err = tx.Commit(); err != nil {
@@ -325,4 +336,16 @@ func GetEventStatusById(id_event int) (string, error) {
 		return "", fmt.Errorf("GetEventStatusById() failed: %v", err.Error())
 	}
 	return status, nil
+}
+
+func CheckIsCreatorOrAssignedEmployee(id_event int, id_account int) (bool, error) {
+	var exists bool
+	query := `
+		SELECT EXISTS(SELECT 1 FROM events WHERE id=$1 AND created_by=$2) OR EXISTS(SELECT 1 FROM event_employee WHERE id_event=$1 AND id_employee=$2);
+	`
+	err := utils.Conn.QueryRow(query, id_event, id_account).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckIsCreatorOrAssignedEmployee() failed: %v", err.Error())
+	}
+	return exists, nil
 }

@@ -1,8 +1,11 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
+	"time"
 )
 
 // if param action_type is nil => get all kind of transaction
@@ -94,7 +97,7 @@ func GetProTotalItemsSpendingsById(id int) (int, error) {
 	return total, nil
 }
 
-func GetTotalActiveTransactionById(id_account int) (int, error) {
+func GetTotalActiveTransactionByIdAccount(id_account int) (int, error) {
 	var total int
 	query := `
 		select count(*) from transactions t
@@ -102,7 +105,127 @@ func GetTotalActiveTransactionById(id_account int) (int, error) {
 	`
 	err := utils.Conn.QueryRow(query, id_account).Scan(&total)
 	if err != nil {
-		return 0, fmt.Errorf("GetTotalActiveTransactionById() failed: %v", err.Error())
+		return 0, fmt.Errorf("GetTotalActiveTransactionByIdAccount() failed: %v", err.Error())
 	}
 	return total, nil
+}
+
+func GetTotalTransactionsByStatus(status string, since *time.Time) (int, error) {
+	var total int
+	param := []interface{}{status}
+	time := " AND created_at IS NOT NULL"
+	query := `
+		select count(*) from transactions t
+		where t.action=$1
+	`
+	if since != nil {
+		time = " AND created_at >= $2"
+		param = append(param, since)
+	}
+	err := utils.Conn.QueryRow(query+time+";", param...).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalTransactionsByStatus() failed: %v", err.Error())
+	}
+	return total, nil
+}
+
+func GetTotalTransactionsSince(since time.Time) (int, error) {
+	var total int
+	query := `
+		select count(*) from transactions t
+		where t.created_at >= $1
+	`
+	err := utils.Conn.QueryRow(query, since).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalTransactionsSince() failed: %v", err.Error())
+	}
+	return total, nil
+}
+
+func GetTransactionsByItemId(itemId int, page int, limit int) ([]models.Transaction, error) {
+	var transactions []models.Transaction
+	query := `
+		select t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username from transactions t
+		join accounts a on a.id = t.id_pro
+		where t.id_item = $1
+		order by t.created_at desc
+	`
+
+	var rows *sql.Rows
+	var err error
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		rows, err = utils.Conn.Query(query+" LIMIT $2 OFFSET $3", itemId, limit, offset)
+	} else {
+		rows, err = utils.Conn.Query(query, itemId)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("GetTransactionsByItemId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t models.Transaction
+		if err := rows.Scan(&t.Id, &t.IdTransaction, &t.CreatedAt, &t.Action, &t.IdItem, &t.IdPro, &t.UsernamePro); err != nil {
+			return nil, fmt.Errorf("GetTransactionsByItemId() failed: %v", err.Error())
+		}
+		transactions = append(transactions, t)
+	}
+	return transactions, nil
+}
+
+func GetTotalTransactionsByItemId(itemId int) (int, error) {
+	var total int
+	query := `select count(*) from transactions t where t.id_item = $1`
+	err := utils.Conn.QueryRow(query, itemId).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("GetTotalTransactionsByItemId() failed: %v", err.Error())
+	}
+	return total, nil
+}
+
+func CheckTransactionExistByUuid(transactionUuid string) (bool, error) {
+	var exist bool
+	query := `
+		select exists(select 1 from transactions where id_transaction = $1)
+	`
+	err := utils.Conn.QueryRow(query, transactionUuid).Scan(&exist)
+	if err != nil {
+		return false, fmt.Errorf("CheckTransactionExistByUuid() failed: %v", err.Error())
+	}
+	return exist, nil
+}
+
+func GetTransactionLatestStatusByUuid(transactionUuid string) (string, error) {
+	var status string
+	query := `
+		select action from transactions where id_transaction = $1 order by created_at desc limit 1;
+	`
+	err := utils.Conn.QueryRow(query, transactionUuid).Scan(&status)
+	if err != nil {
+		return "", fmt.Errorf("GetTransactionLatestStatusByUuid() failed: %v", err.Error())
+	}
+	return status, nil
+}
+
+func CancelTransactionByUuid(transactionUuid string, idItem int, idPro int) error {
+	query := `
+		insert into transactions (id_transaction, action, id_item, id_pro) values ($1, 'cancelled', $2, $3);
+	`
+	_, err := utils.Conn.Exec(query, transactionUuid, idItem, idPro)
+	if err != nil {
+		return fmt.Errorf("CancelTransactionByUuid() failed: %v", err.Error())
+	}
+	return nil
+}
+
+func GetProIdByTransUuid(transactionUuid string) (int, error) {
+	var idPro int
+	query := `
+		select id_pro from transactions where id_transaction = $1;
+	`
+	err := utils.Conn.QueryRow(query, transactionUuid).Scan(&idPro)
+	if err != nil {
+		return 0, fmt.Errorf("GetProIdByTransUuid() failed: %v", err.Error())
+	}
+	return idPro, nil
 }

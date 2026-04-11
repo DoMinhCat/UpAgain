@@ -47,6 +47,8 @@ func GetPhotosPathsByObjectId(id int, objectType string) ([]string, error) {
 		fk = "item_id"
 	case "avatar":
 		fk = "account_id"
+	case "step":
+		fk = "step_id"
 	default:
 		return nil, fmt.Errorf("GetPhotosPathsByObjectId() failed: invalid object type '%v'", objectType)
 	}

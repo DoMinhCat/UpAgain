@@ -24,6 +24,7 @@ import (
 // @Tags         event
 // @Accept       json
 // @Produce      json
+// @Param        timeframe  query     string  false  "Timeframe filter: today, last_3_days, last_week, last_month, last_year, all"
 // @Success      200   {object}  models.EventStats  "Event stats retrieved successfully"
 // @Failure      400   {object}  nil                "Invalid ID or payload"
 // @Failure      500   {object}  nil                "Internal server error"
@@ -35,28 +36,50 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	total, err := db.GetTotalCountActiveEvents()
+	var timeParam *time.Time
+	timeUrl := r.URL.Query().Get("timeframe")
+	if timeUrl != "" && timeUrl != "all" {
+		var t time.Time
+		switch timeUrl {
+		case "today":
+			t = time.Now().AddDate(0, 0, -1)
+		case "last_3_days":
+			t = time.Now().AddDate(0, 0, -3)
+		case "last_week":
+			t = time.Now().AddDate(0, 0, -7)
+		case "last_month":
+			t = time.Now().AddDate(0, -1, 0)
+		case "last_year":
+			t = time.Now().AddDate(-1, 0, 0)
+		default:
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid timeframe.")
+			return
+		}
+		timeParam = &t
+	}
+
+	total, err := db.GetTotalCountActiveEvents(timeParam)
 	if err != nil {
 		slog.Error("GetTotalCountActiveEvents() failed", "controller", "GetEventStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
-	newEvents, err := db.GetEventIncreaseSince(time.Now().AddDate(0, -1, 0)) // get new events created since last month
+	newEvents, err := db.GetEventIncreaseSince(timeParam)
 	if err != nil {
 		slog.Error("GetEventIncreaseSince() failed", "controller", "GetEventStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
-	upcomingEvents, err := db.GetUpcomingEventIn(time.Now().AddDate(0, 1, 0)) // get upcoming events in next 30 days
+	upcomingEvents, err := db.GetUpcomingEventIn(nil) // always show next 30 days regardless of timeframe
 	if err != nil {
-		slog.Error("GetEventIncreaseSince() failed", "controller", "GetEventStats", "error", err)
+		slog.Error("GetUpcomingEventIn() failed", "controller", "GetEventStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
 		return
 	}
 
-	registrations, err := db.GetTotalRegistrationsSince(time.Now().AddDate(0, -1, 0)) // get total registrations since last month
+	registrations, err := db.GetTotalRegistrationsSince(timeParam)
 	if err != nil {
 		slog.Error("GetTotalRegistrationsSince() failed", "controller", "GetEventStats", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event stats.")
@@ -271,7 +294,10 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", eventId, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, event)
+		err = db.InsertHistory("event", eventId, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, event)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CreateEvent", "id", eventId, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
@@ -510,7 +536,10 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "assign_employees"}, payload)
+		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "assign_employees"}, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "AssignEmployeeToEventByEventId", "id", id_event, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -576,7 +605,10 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "unassign_employee"}, payload)
+		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "unassign_employee"}, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "UnAssignEmployeeByEventId", "id", id_event, "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -649,15 +681,20 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": payload.Status})
+		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": payload.Status})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CancelEventByEventId", "id", id_event, "error", err)
+		}
 	}
+
+	// TODO: notify users participating in event
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
 // UpdateEventByEventId godoc
 // @Summary      Update event details
-// @Description  Update the details of an existing event by its ID using multipart form data.
+// @Description  Update the details of an existing event by its ID using multipart form data. Employee can't update event if it's already cancelled and updating will require re-validation from admin. Only admin, creator or assigned employee can edit. Can't update critical fields: start_at, city, street, location_detail, price if event has participants already registered.
 // @Tags         event
 // @Accept       multipart/form-data
 // @Produce      json
@@ -682,6 +719,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 // @Router       /events/{id}/update/ [put]
 func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
+	idUpdater := r.Context().Value("user").(models.AuthClaims).Id
 	if role != "admin" && role != "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
@@ -712,6 +750,26 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// employee can't update event if it's already cancelled
+	if role == "employee" && oldEvent.Status == "cancelled" {
+		utils.RespondWithError(w, http.StatusConflict, "Event is cancelled.")
+		return
+	}
+
+	// only creator or assigned employee
+	if role != "admin" {
+		isValid, err := db.CheckIsCreatorOrAssignedEmployee(id_event, idUpdater)
+		if err != nil {
+			slog.Error("CheckIsCreatorOrAssignedEmployee() failed", "controller", "CancelEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while checking if the user is the creator or assigned employee.")
+			return
+		}
+		if !isValid {
+			utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+			return
+		}
+	}
+
 	var payload models.UpdateEventRequest
 	err = r.ParseMultipartForm(32 << 20) // 32MB limit
 	if err != nil {
@@ -740,46 +798,42 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.LocationDetail.SetValid(r.FormValue("location_detail"))
 
+	// if there is participant and updating critical fields, update not allowed
+	hasParticipant, err := db.CheckEventHasParticipant(id_event)
+	if err != nil {
+		slog.Error("CheckEventHasParticipant() failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while checking if the event has participants.")
+		return
+	}
+	if hasParticipant {
+		if payload.StartAt != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
+			utils.RespondWithError(w, http.StatusConflict, "Event's critical fields cannot be updated because it has participants registered.")
+			return
+		}
+	}
+
 	// Handle photo update management
 	keepImages := r.MultipartForm.Value["existing_images"]
 	newImg := r.MultipartForm.File["new_images"]
 
-	// 1. Handle deletion of removed physical files
 	currentImages, err := db.GetPhotosPathsByObjectId(id_event, "event")
 	if err != nil {
-		slog.Error("db.GetPhotosPathsByObjectId() failed", "controller", "UpdateEventByEventId", "error", err)
+		slog.Error("GetPhotosPathsByObjectId() failed", "controller", "UpdateEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update event.")
 		return
 	}
 
-	for _, dbImg := range currentImages {
-		isKept := false
-		for _, keepPath := range keepImages {
-			if dbImg == keepPath {
-				isKept = true
-				break
-			}
-		}
-		if !isKept {
-			err = helper.DeleteFileByPath("images/events", dbImg)
-			if err != nil {
-				slog.Error("helper.DeleteFileByPath() failed", "controller", "UpdateEventByEventId", "error", err)
-			}
-			// db.UpdateEventByEventId will handle the database side deletions
-		}
+	// db.UpdateEventByEventId handles the database side; here we only manage physical files + build final list to insert into db
+	finalImages, delErrs, err := helper.ProcessPhotoUpdate("images/events", currentImages, keepImages, newImg)
+	for _, delErr := range delErrs {
+		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateEventByEventId", "error", delErr)
 	}
-
-	// 2. Prepare payload images list (existing + new)
-	payload.Images = keepImages
-	for _, file := range newImg {
-		path, err := helper.SaveUploadedFile(file, "images/events")
-		if err != nil {
-			slog.Error("SaveUploadedFile() failed", "controller", "UpdateEventByEventId", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
-			return
-		}
-		payload.Images = append(payload.Images, path)
+	if err != nil {
+		slog.Error("ProcessPhotoUpdate() save failed", "controller", "UpdateEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
+		return
 	}
+	payload.Images = finalImages
 
 	validation := validation.ValidateEventUpdate(payload)
 	if !validation.Success {
@@ -797,7 +851,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = db.UpdateEventByEventId(id_event, payload, r.Context().Value("user").(models.AuthClaims).Id)
+	err = db.UpdateEventByEventId(id_event, payload)
 	if err != nil {
 		slog.Error("UpdateEventByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
@@ -805,8 +859,12 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, oldEvent, payload)
+		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, oldEvent, payload)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "UpdateEventByEventId", "id", id_event, "error", err)
+		}
 	}
 
+	// TODO: notify users participating in event
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }

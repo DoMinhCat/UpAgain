@@ -24,8 +24,10 @@ export const getAllEvents = async (
   return response.data;
 };
 
-export const getEventStats = async (): Promise<EventStats> => {
-  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.STATS);
+export const getEventStats = async (time?: string): Promise<EventStats> => {
+  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.STATS, {
+    params: { timeframe: time },
+  });
   return response.data;
 };
 

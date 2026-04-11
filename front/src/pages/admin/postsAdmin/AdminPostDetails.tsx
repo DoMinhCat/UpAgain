@@ -16,10 +16,13 @@ import {
   Select,
   Card,
   SimpleGrid,
-  Image,
   Avatar,
   ActionIcon,
   Anchor,
+  Timeline,
+  TypographyStylesProvider,
+  Loader,
+  Center,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -34,21 +37,24 @@ import {
   IconUser,
   IconTrash,
   IconHeartFilled,
+  IconRouteSquare,
+  IconLink,
 } from "@tabler/icons-react";
 import { TextEditor } from "../../../components/TextEditor";
 import ImageDropzone from "../../../components/ImageDropzone";
 import {
   useDeleteComment,
   useDeletePost,
+  useDeleteProjectStep,
   useGetPostComments,
   useGetPostDetails,
+  useGetProjectStepsByPostId,
   useUpdatePost,
 } from "../../../hooks/postHooks";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/FullScreenLoader";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
-import { showSuccessNotification } from "../../../components/NotificationToast";
 import { PhotosCarousel } from "../../../components/PhotosCarousel";
 import PaginationFooter from "../../../components/PaginationFooter";
 
@@ -62,18 +68,8 @@ export const AdminPostDetails = () => {
   const postId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(postId) && postId > 0;
 
-  const [openedCarousel, { open: openCarousel, close: closeCarousel }] =
-    useDisclosure(false);
-
-  const [activeSlide, setActiveSlide] = useState(0);
-
   const { data: postDetails, isLoading: isLoadingPostDetails } =
     useGetPostDetails(postId, isValidId);
-
-  const handleImageClick = (index: number) => {
-    setActiveSlide(index);
-    openCarousel();
-  };
 
   // COMMENTS
   const [activePage, setPage] = useState(1);
@@ -154,7 +150,6 @@ export const AdminPostDetails = () => {
       const isValidTitle = validateTitleEdit();
       const isValidCategory = validateCategoryEdit();
       const isValidDescription = validateDescriptionEdit();
-      console.log(isValidTitle, isValidCategory, isValidDescription);
       if (!isValidTitle || !isValidCategory || !isValidDescription) {
         return;
       }
@@ -171,10 +166,6 @@ export const AdminPostDetails = () => {
       });
       updatePostMutate.mutate(formData, {
         onSuccess: () => {
-          showSuccessNotification(
-            "Post updated",
-            "The post has been updated successfully.",
-          );
           closeEdit();
         },
       });
@@ -191,10 +182,6 @@ export const AdminPostDetails = () => {
     if (postDetails) {
       deletePostMutate.mutate(postDetails.id, {
         onSuccess: () => {
-          showSuccessNotification(
-            "Post deleted",
-            "The post has been deleted successfully.",
-          );
           closeDelete();
           navigate("/admin/posts");
         },
@@ -220,11 +207,34 @@ export const AdminPostDetails = () => {
     if (idCommentToDelete) {
       deleteComment.mutate(idCommentToDelete, {
         onSuccess: () => {
-          showSuccessNotification(
-            "Comment deleted",
-            "The comment has been deleted successfully.",
-          );
           closeDeleteComment();
+        },
+      });
+    }
+  };
+
+  // PROJECT STEPS
+  const { data: projectSteps, isLoading: isLoadingProjectSteps } =
+    useGetProjectStepsByPostId(
+      postId,
+      isValidId && postDetails?.category === "project",
+    );
+
+  // DELETE STEP
+  const [idStepToDelete, setIdStepToDelete] = useState<number | null>(null);
+  const [openedDeleteStep, { open: openDeleteStep, close: closeDeleteStep }] =
+    useDisclosure(false);
+  const handleOpenDeleteStep = (id_step: number) => {
+    setIdStepToDelete(id_step);
+    openDeleteStep();
+  };
+  const deleteStep = useDeleteProjectStep();
+  const handleDeleteStep = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (idStepToDelete) {
+      deleteStep.mutate(idStepToDelete, {
+        onSuccess: () => {
+          closeDeleteStep();
         },
       });
     }
@@ -296,7 +306,133 @@ export const AdminPostDetails = () => {
                   __html: postDetails?.content ?? "",
                 }}
               />
-              {/* TODO: show some kind of step with progress vertical bar if post is a project */}
+
+              {postDetails?.photos && postDetails.photos.length > 0 && (
+                <>
+                  <Divider my="xl" />
+                  <Group gap="sm">
+                    <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
+                    <Title order={3}>Photos</Title>
+                  </Group>
+                  <div style={{ marginTop: "16px" }}>
+                    <PhotosCarousel
+                      photos={postDetails?.photos || []}
+                      initialSlide={0}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* PROJECT STEPS TIMELINE */}
+              {postDetails?.category === "project" && (
+                <>
+                  <Divider my="xl" />
+                  <Group gap="sm">
+                    <IconRouteSquare
+                      color="var(--component-color-primary)"
+                      size={32}
+                    />
+                    <Title order={3}>Project Steps</Title>
+                  </Group>
+
+                  {isLoadingProjectSteps ? (
+                    <Center mt="xl">
+                      <Loader />
+                    </Center>
+                  ) : (
+                    <Timeline mt="xl" lineWidth={4} active={1} bulletSize={24}>
+                      {projectSteps?.map((step, index) => (
+                        <Timeline.Item
+                          key={step.id}
+                          title={
+                            <Group
+                              justify="space-between"
+                              align="flex-start"
+                              wrap="nowrap"
+                            >
+                              <Stack gap={2}>
+                                <Text fw={700} size="lg">
+                                  {index + 1}. {step.title}
+                                </Text>
+                                <Text c="dimmed" size="xs">
+                                  {dayjs(step.created_at).format(
+                                    "DD/MM/YYYY HH:mm A",
+                                  )}
+                                </Text>
+                              </Stack>
+
+                              <Tooltip label="Delete this step" position="left">
+                                <ActionIcon
+                                  variant="subtle"
+                                  color="red"
+                                  onClick={() => {
+                                    handleOpenDeleteStep(step.id);
+                                  }}
+                                  size="lg"
+                                >
+                                  <IconTrash size={20} stroke={1.5} />
+                                </ActionIcon>
+                              </Tooltip>
+                            </Group>
+                          }
+                        >
+                          {/* Body Content */}
+                          <Box mt="md">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: step.description,
+                              }}
+                            />
+                          </Box>
+
+                          {/* Media Section */}
+                          <Box mt="lg">
+                            <PhotosCarousel
+                              photos={step.photos}
+                              initialSlide={0}
+                              slidesToScroll={
+                                (step.photos?.length ?? 0) > 1 ? 3 : 1
+                              }
+                            />
+                          </Box>
+
+                          {/* Metadata/Assets Section */}
+                          <Stack gap="xs" mt="xl" p="sm">
+                            <Text size="sm" fw={700} c="dimmed" tt="uppercase">
+                              Items used in this step
+                            </Text>
+                            <Group gap="sm">
+                              <IconLink
+                                size={14}
+                                color="var(--mantine-color-dimmed)"
+                              />
+                              {step.items.map((item) => (
+                                <Anchor
+                                  size="sm"
+                                  fw={500}
+                                  style={{
+                                    color: "var(--component-color-primary)",
+                                  }}
+                                  onClick={() =>
+                                    navigate(`/admin/listings/${item.id}`, {
+                                      state: {
+                                        from: "postDetails",
+                                        id_post: postDetails?.id,
+                                      },
+                                    })
+                                  }
+                                >
+                                  {item.title}
+                                </Anchor>
+                              ))}
+                            </Group>
+                          </Stack>
+                        </Timeline.Item>
+                      ))}
+                    </Timeline>
+                  )}
+                </>
+              )}
             </Stack>
             {postDetails?.photos &&
               postDetails.photos.length > 0 &&
@@ -307,40 +443,12 @@ export const AdminPostDetails = () => {
                     <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
                     <Title order={3}>Photos</Title>
                   </Group>
-                  <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} mt="md">
-                    {postDetails.photos.map((path, index) => (
-                      <Image
-                        key={index}
-                        src={`${import.meta.env.VITE_API_BASE_URL}/${path}`}
-                        radius="md"
-                        alt={`Post photo ${index + 1}`}
-                        fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleImageClick(index)}
-                      />
-                    ))}
-                  </SimpleGrid>
-
-                  <Modal
-                    opened={openedCarousel}
-                    onClose={closeCarousel}
-                    size="xl"
-                    centered
-                    title="Post's gallery"
-                    styles={{
-                      root: {
-                        zIndex: 1000,
-                      },
-                      body: {
-                        padding: "xs",
-                      },
-                    }}
-                  >
+                  <div style={{ marginTop: "16px" }}>
                     <PhotosCarousel
                       photos={postDetails.photos}
-                      initialSlide={activeSlide}
+                      initialSlide={0}
                     />
-                  </Modal>
+                  </div>
                 </>
               )}
 
@@ -444,7 +552,9 @@ export const AdminPostDetails = () => {
               />
             )}
           </Grid.Col>
+
           {/* RIGHT SECTION */}
+          {/* TODO: show ads status + options to prolong, revoke */}
           <Grid.Col
             span={{ base: 12, md: 4 }}
             style={{ position: "sticky", top: "5px" }}
@@ -644,6 +754,32 @@ export const AdminPostDetails = () => {
           </Grid.Col>
         </Grid>
       </Container>
+
+      <Modal
+        title="Delete project step"
+        opened={openedDeleteStep}
+        onClose={closeDeleteStep}
+        centered
+        size="md"
+      >
+        <Stack>
+          <Text>Are you sure you want to delete this project step?</Text>
+        </Stack>
+        <Group mt="lg" justify="center">
+          <Button onClick={closeDeleteStep} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={(e: React.FormEvent) => {
+              handleDeleteStep(e);
+            }}
+            variant="delete"
+            loading={deleteStep.isPending}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 };

@@ -6,6 +6,7 @@ import type {
   PostsListPagination,
   PostStats,
 } from "./interfaces/post";
+import type { Step } from "./interfaces/step";
 
 export const GetPostsStats = async (): Promise<PostStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.POSTS.STATS);
@@ -63,5 +64,17 @@ export const DeleteComment = async (id_comment: number) => {
   const response = await api.delete(
     ENDPOINTS.ADMIN.POSTS.DELETE_COMMENT(id_comment),
   );
+  return response.data;
+};
+
+export const GetProjectStepsByPostId = async (
+  id_post: number,
+): Promise<Step[]> => {
+  const response = await api.get(ENDPOINTS.ADMIN.POSTS.STEPS(id_post));
+  return response.data;
+};
+
+export const DeleteProjectStep = async (id_step: number) => {
+  const response = await api.delete(ENDPOINTS.ADMIN.POSTS.DELETE_STEP(id_step));
   return response.data;
 };

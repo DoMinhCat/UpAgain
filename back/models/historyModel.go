@@ -17,7 +17,7 @@ type History struct {
 	Id        int         `json:"id"`
 	CreatedAt time.Time   `json:"created_at"`
 	Module    string      `json:"module"`
-	ItemId    int         `json:"item_id"`
+	ItemId    interface{} `json:"item_id"`
 	Action    string      `json:"action"`
 	OldState  null.String `json:"old_state" swaggertype:"string"`
 	NewState  null.String `json:"new_state" swaggertype:"string"`

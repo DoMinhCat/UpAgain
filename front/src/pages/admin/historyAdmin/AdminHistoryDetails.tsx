@@ -14,7 +14,6 @@ import {
   ThemeIcon,
   Anchor,
 } from "@mantine/core";
-import { PATHS } from "../../../routes/paths";
 import { IconUser, IconBox, IconHash, IconClock } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetHistoryDetails } from "../../../hooks/historyHooks";
@@ -73,9 +72,13 @@ export function AdminHistoryDetails() {
                   label="Performed By"
                   value={
                     <Group gap="xs" mt={4}>
-                      <Avatar size="sm" radius="xl" color="blue">
-                        AR
-                      </Avatar>
+                      <Avatar
+                        size="sm"
+                        radius="xl"
+                        name={historyData?.admin_name}
+                        color="initials"
+                      />
+
                       <Anchor
                         size="sm"
                         fw={600}
@@ -106,7 +109,7 @@ export function AdminHistoryDetails() {
                   }
                 />
 
-                {/* TODO: Link to listing/depo + subscription + finance settings */}
+                {/* TODO: Link to subscription + finance settings */}
                 <DetailItem
                   icon={<IconHash size={18} />}
                   label="Reference ID"
@@ -153,6 +156,19 @@ export function AdminHistoryDetails() {
                                 },
                               },
                             );
+                          } else if (
+                            historyData?.module === "listing" ||
+                            historyData?.module === "deposit"
+                          ) {
+                            navigate(
+                              `/admin/listings/${historyData?.item_id}`,
+                              {
+                                state: {
+                                  from: "historyDetails",
+                                  id_history: historyData?.id,
+                                },
+                              },
+                            );
                           }
                         }
                       }}
@@ -169,7 +185,11 @@ export function AdminHistoryDetails() {
                               ? "Event #"
                               : historyData?.module === "comment"
                                 ? "Comment #"
-                                : "") + historyData?.item_id}
+                                : historyData?.module === "listing"
+                                  ? "Listing #"
+                                  : historyData?.module === "deposit"
+                                    ? "Deposit #"
+                                    : "") + historyData?.item_id}
                     </Anchor>
                   }
                 />

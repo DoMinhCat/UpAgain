@@ -12,6 +12,7 @@ import {
   Modal,
   NumberInput,
   Pill,
+  Text,
 } from "@mantine/core";
 import {
   IconCalendarEventFilled,
@@ -20,7 +21,7 @@ import {
   IconPlus,
   IconCalendarTime,
   IconCalendarCheck,
-  IconClockCheck,
+  IconClockPause,
 } from "@tabler/icons-react";
 import {
   AdminCardInfo,
@@ -327,20 +328,49 @@ export default function AdminEventsModule() {
   };
 
   // event stats
+  const [chartTime, setChartTime] = useState<string | null>("all");
+
+  const timeframeLabel: Record<string, string> = {
+    all: "all time",
+    today: "today",
+    last_3_days: "the last 3 days",
+    last_week: "the last 7 days",
+    last_month: "the last 30 days",
+    last_year: "the last 365 days",
+  };
+  const timeLabel = timeframeLabel[chartTime ?? "all"] ?? "all time";
+
   const {
     data: eventStats,
     isLoading: isLoadingEventStats,
     isError: errorEventStats,
-  } = useGetEventStats();
+  } = useGetEventStats(chartTime || undefined);
 
   return (
     <Container px="md" size="xl">
-      <Title order={2} mt="lg" mb="xl">
-        Event Management
-      </Title>
+      <Group justify="space-between" mb="xl">
+        <Title order={2} mt="lg">
+          Event Management
+        </Title>
+        <Select
+          label="Timeframe"
+          placeholder="All time"
+          value={chartTime}
+          disabled={isLoadingEventStats}
+          onChange={(value) => setChartTime(value)}
+          data={[
+            { value: "all", label: "All Time" },
+            { value: "today", label: "Today" },
+            { value: "last_3_days", label: "Last 3 days" },
+            { value: "last_week", label: "Last 7 days" },
+            { value: "last_month", label: "Last 30 days" },
+            { value: "last_year", label: "Last 365 days" },
+          ]}
+        />
+      </Group>
 
       {/* stats cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg" mb="sm">
         <AdminCardInfo
           icon={IconCalendarEventFilled}
           title="Total active events"
@@ -353,15 +383,15 @@ export default function AdminEventsModule() {
               icon={IconArrowUp}
               description={
                 eventStats?.increase === 1
-                  ? " new event since last month"
-                  : " new events since last month"
+                  ? ` new event in ${timeLabel}`
+                  : ` new events in ${timeLabel}`
               }
             />
           }
         />
         <AdminCardInfo
           icon={IconCalendarTime}
-          title="Upcoming events"
+          title="Upcoming events *"
           value={eventStats?.upcoming ?? 0}
           error={errorEventStats}
           loading={isLoadingEventStats}
@@ -379,7 +409,7 @@ export default function AdminEventsModule() {
         />
         <AdminCardInfo
           icon={IconCalendarCheck}
-          title="Registrations (last 30 days)"
+          title="Registrations"
           value={eventStats?.registrations ?? 0}
           error={errorEventStats}
           loading={isLoadingEventStats}
@@ -389,15 +419,15 @@ export default function AdminEventsModule() {
               icon={IconArrowUp}
               description={
                 eventStats?.registrations === 1
-                  ? " registration since last month"
-                  : " registrations since last month"
+                  ? ` registration in ${timeLabel}`
+                  : ` registrations in ${timeLabel}`
               }
             />
           }
         />
         <AdminCardInfo
-          icon={IconClockCheck}
-          title="Pending approval"
+          icon={IconClockPause}
+          title="Pending approval *"
           value={eventStats?.pending ?? 0}
           error={errorEventStats}
           loading={isLoadingEventStats}
@@ -413,6 +443,9 @@ export default function AdminEventsModule() {
           }
         />
       </SimpleGrid>
+      <Text size="sm" c="dimmed">
+        * Timeframe not applicable for these metrics
+      </Text>
 
       <Stack gap="md" my="xl">
         <Group justify="space-between" align="flex-end">

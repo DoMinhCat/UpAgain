@@ -6,6 +6,7 @@ import {
   deleteContainer,
   getContainerDetails,
   getContainerCountStats,
+  getAvailableContainers,
 } from "../api/containerModule";
 import {
   type ContainerCountStats,
@@ -13,10 +14,15 @@ import {
 } from "../api/interfaces/container";
 import { showSuccessNotification } from "../components/NotificationToast";
 
-export const useContainers = () => {
+export const useGetAllContainers = (
+  page: number = -1,
+  limit: number = -1,
+  search?: string,
+  status?: string,
+) => {
   return useQuery({
-    queryKey: ["containers"],
-    queryFn: getAllContainers,
+    queryKey: ["containers", page, limit, search, status],
+    queryFn: () => getAllContainers(page, limit, search, status),
     staleTime: 60 * 1000,
     meta: {
       errorTitle: "Inventory Error",
@@ -37,6 +43,7 @@ export const useCreateContainer = () => {
       showSuccessNotification("Success", "New container deployed");
       queryClient.invalidateQueries({ queryKey: ["containers"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["availableContainers"] });
     },
   });
 };
@@ -53,7 +60,7 @@ export const useUpdateStatus = () => {
 
       queryClient.invalidateQueries({ queryKey: ["containers"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
-
+      queryClient.invalidateQueries({ queryKey: ["availableContainers"] });
       queryClient.invalidateQueries({
         queryKey: ["containerDetails", variables.id],
       });
@@ -93,13 +100,25 @@ export const useContainerDetails = (id: number) => {
   });
 };
 
-export const useContainerCountStats = () => {
+export const useGetContainerStats = () => {
   return useQuery<ContainerCountStats>({
     queryKey: ["containerCountStats"],
     queryFn: getContainerCountStats,
     meta: {
       errorTitle: "Fetching Failed",
       errorMessage: "Could not load container count stats",
+    },
+    staleTime: 1000 * 60, // refresh data every 1m
+  });
+};
+
+export const useGetAvailableContainers = () => {
+  return useQuery<Container[]>({
+    queryKey: ["availableContainers"],
+    queryFn: getAvailableContainers,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load available containers",
     },
     staleTime: 1000 * 60, // refresh data every 1m
   });

@@ -20,3 +20,8 @@ export interface PaginatedListingsResponse {
   limit: number;
   total_records: number;
 }
+
+export interface ListingDetails {
+  city: string;
+  postal_code: string;
+}
