@@ -445,7 +445,18 @@ export default function AdminListingDetails() {
                   href: PATHS.ADMIN.HISTORY.ALL + "/" + origin.id_history,
                 },
               ]
-            : [{ title: "Object Management", href: PATHS.ADMIN.LISTINGS }]),
+            : origin?.from === "postDetails"
+              ? [
+                  {
+                    title: "Post Management",
+                    href: PATHS.ADMIN.POSTS,
+                  },
+                  {
+                    title: "Post Details",
+                    href: PATHS.ADMIN.POSTS + "/" + origin.id_post,
+                  },
+                ]
+              : [{ title: "Object Management", href: PATHS.ADMIN.LISTINGS }]),
           {
             title: "Object's Details",
             href: PATHS.ADMIN.LISTINGS + "/" + id,

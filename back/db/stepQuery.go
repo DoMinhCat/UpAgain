@@ -31,11 +31,25 @@ func GetProjectStepsByPostId(id_post int) ([]models.ProjectStep, error) {
 		}
 		step.Photos = photos
 
+		step.Items = []models.StepItem{}
 		items, err := GetItemIdsByStepId(step.Id)
 		if err != nil {
 			return nil, err
 		}
-		step.ItemIds = items
+
+		for _, itemId := range items {
+			itemDetail, err := GetItemDetailsByItemId(itemId)
+			if err != nil {
+				return nil, err
+			}
+			
+			newItem := models.StepItem{
+				Id:    itemDetail.Id,
+				Title: itemDetail.Title,
+			}
+			
+			step.Items = append(step.Items, newItem)
+		}
 		steps = append(steps, step)
 	}
 
