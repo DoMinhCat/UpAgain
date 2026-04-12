@@ -10,12 +10,12 @@ is_deleted: boolean;
 }
 
 export const getAllContainers = async (): Promise<Container[]> => {
-  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS);
+  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.ALL);
   return response.data;
 };
 
 export const createContainer = async (container: Partial<Container>) => {
-  const response = await api.post(ENDPOINTS.ADMIN.CONTAINERS, container);
+  const response = await api.post(ENDPOINTS.ADMIN.CONTAINERS.ALL, container);
   return response.data;
 };
 
