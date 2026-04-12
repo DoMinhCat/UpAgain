@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getListingDetails, updateListing } from "../api/listingModule";
-import { showSuccessNotification } from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
 

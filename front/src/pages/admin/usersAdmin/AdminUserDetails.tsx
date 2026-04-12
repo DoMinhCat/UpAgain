@@ -36,12 +36,12 @@ import {
   useParams,
 } from "react-router-dom";
 
-import FullScreenLoader from "../../../components/FullScreenLoader";
-import InfoField from "../../../components/InfoField";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
 import PasswordStrengthInput, {
   requirements,
-} from "../../../components/PasswordStrengthInput";
+} from "../../../components/common/input/PasswordStrengthInput";
 import { IconLock, IconInfoCircleFilled } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuth } from "../../../context/AuthContext";

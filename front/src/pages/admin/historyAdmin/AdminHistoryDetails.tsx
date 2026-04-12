@@ -17,7 +17,7 @@ import {
 import { IconUser, IconBox, IconHash, IconClock } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetHistoryDetails } from "../../../hooks/historyHooks";
-import FullScreenLoader from "../../../components/FullScreenLoader";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import dayjs from "dayjs";
 
 export function AdminHistoryDetails() {

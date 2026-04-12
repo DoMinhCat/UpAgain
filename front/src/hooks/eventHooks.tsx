@@ -19,7 +19,7 @@ import {
   type UnassignEmployeePayload,
   type UpdateEventPayload,
 } from "../api/interfaces/event";
-import { showSuccessNotification } from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 
 export const useGetAllEvents = (
   page?: number,
