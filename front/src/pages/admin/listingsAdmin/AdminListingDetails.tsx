@@ -14,6 +14,9 @@ import {
   Divider,
   Modal,
   Image,
+  CopyButton,
+  Tooltip,
+  ActionIcon,
   Anchor,
   NumberInput,
   ThemeIcon,
@@ -29,6 +32,8 @@ import {
   IconPhoto,
   IconWood,
   IconWeight,
+  IconCheck,
+  IconCopy,
   IconCoinEuro,
   IconMagnet,
   IconSock,
@@ -566,10 +571,33 @@ export default function AdminListingDetails() {
                           <Title order={5} c="dimmed" ta="center">
                             6 DIGITS CODE
                           </Title>
-                          <Title order={3} ta="center" my="md">
-                            {userCode?.code.slice(0, 3)}{" "}
-                            {userCode?.code.slice(3)}
-                          </Title>
+                          <Group gap={"xs"} justify="center">
+                            <Title order={3} ta="center" my="md">
+                              {userCode?.code.slice(0, 3)}{" "}
+                              {userCode?.code.slice(3)}
+                            </Title>
+                            <CopyButton value={userCode?.code} timeout={3000}>
+                              {({ copied, copy }) => (
+                                <Tooltip
+                                  label={copied ? "Copied" : "Copy code"}
+                                  withArrow
+                                  position="right"
+                                >
+                                  <ActionIcon
+                                    color={copied ? "teal" : "gray"}
+                                    variant="subtle"
+                                    onClick={copy}
+                                  >
+                                    {copied ? (
+                                      <IconCheck size={16} />
+                                    ) : (
+                                      <IconCopy size={16} />
+                                    )}
+                                  </ActionIcon>
+                                </Tooltip>
+                              )}
+                            </CopyButton>
+                          </Group>
                           <Image
                             src={`${import.meta.env.VITE_API_BASE_URL}/${userCode?.path}`}
                             radius="md"
@@ -627,9 +655,33 @@ export default function AdminListingDetails() {
                           <Title order={5} c="dimmed" ta="center">
                             6 DIGITS CODE
                           </Title>
-                          <Title order={3} ta="center" my="md">
-                            {proCode?.code.slice(0, 3)} {proCode?.code.slice(3)}
-                          </Title>
+                          <Group gap={"xs"} justify="center">
+                            <Title order={3} ta="center" my="md">
+                              {proCode?.code.slice(0, 3)}{" "}
+                              {proCode?.code.slice(3)}
+                            </Title>
+                            <CopyButton value={proCode?.code} timeout={3000}>
+                              {({ copied, copy }) => (
+                                <Tooltip
+                                  label={copied ? "Copied" : "Copy code"}
+                                  withArrow
+                                  position="right"
+                                >
+                                  <ActionIcon
+                                    color={copied ? "teal" : "gray"}
+                                    variant="subtle"
+                                    onClick={copy}
+                                  >
+                                    {copied ? (
+                                      <IconCheck size={16} />
+                                    ) : (
+                                      <IconCopy size={16} />
+                                    )}
+                                  </ActionIcon>
+                                </Tooltip>
+                              )}
+                            </CopyButton>
+                          </Group>
                           <Image
                             src={`${import.meta.env.VITE_API_BASE_URL}/${proCode?.path}`}
                             radius="md"
