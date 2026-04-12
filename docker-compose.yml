@@ -1,0 +1,16 @@
+services:
+  back:
+    image: back:v1.0.0
+    container_name: upcycle-back
+    restart: always
+    volumes:
+      - ./back/.env:/root/.env
+
+  front:
+    image: front:v1.0.0
+    container_name: upcycle-front
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - back
