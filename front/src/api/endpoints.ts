@@ -19,6 +19,12 @@ export const ENDPOINTS = {
       AVAILABLE: "/containers/available/",
     },
 
+    FINANCE: {
+      REVENUE: "/admin/finance/revenue/",
+      INVOICES: "/admin/finance/invoices/",
+      USER_INVOICES: (userId: number) => `/admin/finance/invoices/${userId}/`,
+    },
+
     VALIDATIONS: {
       DEPOSITS: "/admin/validations/deposits",
       LISTINGS: "/admin/validations/listings",
