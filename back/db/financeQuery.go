@@ -38,7 +38,7 @@ func GetRevenueByYear(year int) ([]models.RevenueMonthData, error) {
 		FROM transactions t
 		JOIN items i ON t.id_item = i.id
 		WHERE t.action = 'purchased'
-		  AND EXTRACT(YEAR FROM t.created_at) = $1
+		  AND EXTRACT(YEAR FROM t.created_at) = $1	
 		GROUP BY DATE_TRUNC('month', t.created_at)
 	`
 	if err := fillRevenue(commQuery, year, months, func(row *models.RevenueMonthData, v float64) {
