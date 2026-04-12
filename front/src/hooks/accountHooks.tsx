@@ -20,7 +20,7 @@ import {
   type AccountsListPagination,
   type AccountCountStats,
 } from "../api/interfaces/account";
-import { showSuccessNotification } from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 
 export const useRecoverAccount = () => {
   const queryClient = useQueryClient();

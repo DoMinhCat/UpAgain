@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { jwtDecode } from "jwt-decode";
-import { showInfoNotification } from "../components/NotificationToast";
+import { showInfoNotification } from "../components/common/NotificationToast";
 
 interface User {
   token: string;

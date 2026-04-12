@@ -41,7 +41,7 @@ import {
 import AdminCardNav from "../../components/admin/AdminCardNav";
 import AdminTable from "../../components/admin/AdminTable";
 import classes from "../../styles/Admin.module.css";
-import PaginationFooter from "../../components/PaginationFooter";
+import PaginationFooter from "../../components/common/PaginationFooter";
 import { PATHS } from "../../../src/routes/paths";
 import { useAccountCountStats } from "../../hooks/accountHooks";
 import { useGetContainerStats } from "../../hooks/containerHooks";

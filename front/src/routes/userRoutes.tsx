@@ -2,7 +2,7 @@ import { type RouteObject, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "./paths";
 import { useEffect } from "react";
-import FullScreenLoader from "../components/FullScreenLoader";
+import FullScreenLoader from "../components/common/FullScreenLoader";
 
 const UserGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, isInitializing } = useAuth();
