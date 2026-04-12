@@ -52,7 +52,7 @@ export const adminRoutes: RouteObject = {
   children: [
     {
       index: true,
-      element: <AdminHome />, // home page user hub
+      element: <AdminHome />,
     },
     {
       path: "users",

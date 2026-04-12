@@ -2,20 +2,20 @@
 // import AdminHome from "./admin/AdminHome";
 // import ProHome from "./ProHome";
 // import UserHome from "./UserHome";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
-import { PATHS } from "../routes/paths";
+import { PATHS } from "../../routes/paths";
+import GuestHome from "../guest/GuestHome";
 
 const Home = () => {
   const { user } = useAuth();
 
   // Redirect unauthenticated users
   if (!user) {
-    // TODO: home page for guest
-    // return <GuestHome />;
+    return <GuestHome />;
 
     // temporary
-    return <Navigate to={PATHS.GUEST.LOGIN} />;
+    // return <Navigate to={PATHS.GUEST.LOGIN} />;
   } else {
     // Render component based on role
     switch (user.role) {
