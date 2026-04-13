@@ -45,6 +45,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if existing.IsBanned {
+		response.RespondWithError(w, http.StatusUnauthorized, "Your account has been banned, contact an admin to unban your account.")
+		return
+	}
 
 	if creds.Email != existing.Email || !utils.IsPasswordCorrect(existing.Password, creds.Password) {
 		response.RespondWithError(w, http.StatusUnauthorized, "Oops, incorrect email or password.")
