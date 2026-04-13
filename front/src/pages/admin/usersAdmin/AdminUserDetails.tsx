@@ -9,9 +9,11 @@ import {
   Group,
   Text,
   Title,
+  Center,
   Button,
   Tooltip,
   Modal,
+  Indicator,
   Loader,
   TextInput,
 } from "@mantine/core";
@@ -320,7 +322,7 @@ export default function AdminUserDetails() {
   }
 
   return (
-    <Container px="md" size="xl">
+    <Container px="md" size="xl" pb="xl">
       <Title order={2} mt="xs" mb="sm">
         User's Details
       </Title>
@@ -991,39 +993,52 @@ export default function AdminUserDetails() {
 
       {/* // calendar modal */}
       <Modal
-        title={`${accountDetails?.username}'s work schedule`}
+        size="lg"
+        title={
+          <Text fw={700}>{`${accountDetails?.username}'s work schedule`}</Text>
+        }
         opened={openedCalendar}
         onClose={closeCalendar}
         centered
+        styles={{ body: { paddingBottom: "var(--mantine-spacing-xl)" } }}
       >
-        <Stack>
+        <Center>
           <Calendar
-            // value={selectedDate}
-            // onChange={handleDateChange}
-            minDate={new Date()}
-            maxDate={
-              new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-            }
-            // excludeDate={(date) => {
-            //   const day = date.getDay();
-            //   return day === 0 || day === 6;
-            // }}
-          />
-        </Stack>
-        <Group mt="lg" justify="center">
-          <Button onClick={closeCalendar} variant="grey">
-            Cancel
-          </Button>
-          <Button
-            onClick={(e) => {
-              handleEditAccount(e);
+            styles={{
+              levelsGroup: { width: "100%" },
+              month: { width: "100%" },
+              weekday: { textAlign: "center" },
+              day: { width: "100%" },
+              calendarHeader: {
+                maxWidth: "100%",
+                display: "flex",
+                justifyContent: "space-between", // Pushes arrows to edges, title to center
+                alignItems: "center",
+                marginBottom: "var(--mantine-spacing-md)",
+              },
             }}
-            variant="primary"
-            loading={editMutation.isPending}
-          >
-            Confirm
-          </Button>
-        </Group>
+            static
+            size="lg"
+            renderDay={(date) => {
+              const day = dayjs(date).date();
+              const isTargetDay = day === 16;
+
+              return (
+                <Indicator
+                  size={8}
+                  color="red"
+                  offset={2}
+                  disabled={!isTargetDay}
+                  processing={isTargetDay}
+                >
+                  <Center>
+                    <Text size="sm">{day}</Text>
+                  </Center>
+                </Indicator>
+              );
+            }}
+          />
+        </Center>
       </Modal>
     </Container>
   );
