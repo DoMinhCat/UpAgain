@@ -13,9 +13,6 @@ const Home = () => {
   // Redirect unauthenticated users
   if (!user) {
     return <GuestHome />;
-
-    // temporary
-    // return <Navigate to={PATHS.GUEST.LOGIN} />;
   } else {
     // Render component based on role
     switch (user.role) {
@@ -30,7 +27,7 @@ const Home = () => {
         // return <GuestHome />;
 
         // temporary
-        return <Navigate to={PATHS.GUEST.LOGIN} />;
+        return <GuestHome />;
     }
   }
 };
