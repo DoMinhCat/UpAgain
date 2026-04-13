@@ -19,7 +19,7 @@ import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { ScoreRing } from "../../../components/user/ScoreRing";
 import { useEffect, useState } from "react";
-
+import { Calendar } from "@mantine/dates";
 import {
   useAccountDetails,
   useDeleteAccount,
@@ -308,6 +308,10 @@ export default function AdminUserDetails() {
     }
   };
 
+  // CALENDAR MODAL
+  const [openedCalendar, { open: openCalendar, close: closeCalendar }] =
+    useDisclosure(false);
+
   if (isAccountDetailsLoading) {
     return <FullScreenLoader />;
   }
@@ -574,6 +578,18 @@ export default function AdminUserDetails() {
                           : "Failed to get account's stats"}
                       </Text>
                     )}
+                  </InfoField>
+                  <InfoField label="Current tasks">
+                    {/* TODO: Open modal showing calendar with filled occupied dates and
+                      link to the event's details */}
+                    <Button
+                      mt="xs"
+                      variant="primary"
+                      size="sm"
+                      onClick={openCalendar}
+                    >
+                      Show current tasks
+                    </Button>
                   </InfoField>
                 </>
               )}
@@ -959,6 +975,43 @@ export default function AdminUserDetails() {
         </Stack>
         <Group mt="lg" justify="center">
           <Button onClick={closeEdit} variant="grey">
+            Cancel
+          </Button>
+          <Button
+            onClick={(e) => {
+              handleEditAccount(e);
+            }}
+            variant="primary"
+            loading={editMutation.isPending}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
+
+      {/* // calendar modal */}
+      <Modal
+        title={`${accountDetails?.username}'s work schedule`}
+        opened={openedCalendar}
+        onClose={closeCalendar}
+        centered
+      >
+        <Stack>
+          <Calendar
+            // value={selectedDate}
+            // onChange={handleDateChange}
+            minDate={new Date()}
+            maxDate={
+              new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+            }
+            // excludeDate={(date) => {
+            //   const day = date.getDay();
+            //   return day === 0 || day === 6;
+            // }}
+          />
+        </Stack>
+        <Group mt="lg" justify="center">
+          <Button onClick={closeCalendar} variant="grey">
             Cancel
           </Button>
           <Button
