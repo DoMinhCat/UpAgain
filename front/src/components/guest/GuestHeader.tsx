@@ -124,22 +124,17 @@ export function GuestHeader() {
             <Menu.Label>Languages</Menu.Label>
             <Menu.Item
               leftSection={
-                <Image src="/united-kingdom.png" w="20px" fit="contain" />
+                <Image src="/flags/united-kingdom.png" w="20px" fit="contain" />
               }
             >
               English
             </Menu.Item>
             <Menu.Item
-              leftSection={<Image src="/france.png" w="20px" fit="contain" />}
-            >
-              Française
-            </Menu.Item>
-            <Menu.Item
               leftSection={
-                <IconPhoto style={{ width: rem(14), height: rem(14) }} />
+                <Image src="/flags/france.png" w="20px" fit="contain" />
               }
             >
-              Another language
+              Française
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
