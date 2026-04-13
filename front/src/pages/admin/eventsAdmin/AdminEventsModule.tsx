@@ -34,11 +34,11 @@ import { DateTimePicker } from "@mantine/dates";
 import { useGetAllEvents, useGetEventStats } from "../../../hooks/eventHooks";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
-import { TextEditor } from "../../../components/TextEditor";
-import ImageDropzone from "../../../components/ImageDropzone";
+import { TextEditor } from "../../../components/common/input/TextEditor";
+import ImageDropzone from "../../../components/common/input/ImageDropzone";
 import dayjs from "dayjs";
 import { useCreateEvent } from "../../../hooks/eventHooks";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 
 export default function AdminEventsModule() {
   const navigate = useNavigate();

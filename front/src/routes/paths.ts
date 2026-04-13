@@ -45,4 +45,8 @@ export const PATHS = {
     CONTACT: "/contact",
     FORGOT: "/forgot",
   },
+  ERROR: {
+    NOT_FOUND: "/404",
+    UNAUTHORIZED: "/403",
+  },
 } as const;

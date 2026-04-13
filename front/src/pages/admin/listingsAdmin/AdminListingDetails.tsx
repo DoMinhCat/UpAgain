@@ -14,6 +14,9 @@ import {
   Divider,
   Modal,
   Image,
+  CopyButton,
+  Tooltip,
+  ActionIcon,
   Anchor,
   NumberInput,
   ThemeIcon,
@@ -29,6 +32,8 @@ import {
   IconPhoto,
   IconWood,
   IconWeight,
+  IconCheck,
+  IconCopy,
   IconCoinEuro,
   IconMagnet,
   IconSock,
@@ -52,10 +57,10 @@ import {
   useUpdateItemStatus,
 } from "../../../hooks/itemHooks";
 import dayjs from "dayjs";
-import { PhotosCarousel } from "../../../components/PhotosCarousel";
+import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 import { useState } from "react";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
-import { showSuccessNotification } from "../../../components/NotificationToast";
+import { showSuccessNotification } from "../../../components/common/NotificationToast";
 import {
   useGetListingDetails,
   useUpdateListing,
@@ -66,13 +71,13 @@ import {
   useTransferDepositContainer,
   useUpdateDeposit,
 } from "../../../hooks/depositHooks";
-import ImageDropzone from "../../../components/ImageDropzone";
-import { TextEditor } from "../../../components/TextEditor";
-import FullScreenLoader from "../../../components/FullScreenLoader";
-import PaginationFooter from "../../../components/PaginationFooter";
+import ImageDropzone from "../../../components/common/input/ImageDropzone";
+import { TextEditor } from "../../../components/common/input/TextEditor";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 import type { Transaction } from "../../../api/interfaces/transaction";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
-import PhotoModal from "../../../components/PhotoModal";
+import PhotoModal from "../../../components/common/photo/PhotoModal";
 import { useGetAvailableContainers } from "../../../hooks/containerHooks";
 
 export default function AdminListingDetails() {
@@ -566,10 +571,33 @@ export default function AdminListingDetails() {
                           <Title order={5} c="dimmed" ta="center">
                             6 DIGITS CODE
                           </Title>
-                          <Title order={3} ta="center" my="md">
-                            {userCode?.code.slice(0, 3)}{" "}
-                            {userCode?.code.slice(3)}
-                          </Title>
+                          <Group gap={"xs"} justify="center">
+                            <Title order={3} ta="center" my="md">
+                              {userCode?.code.slice(0, 3)}{" "}
+                              {userCode?.code.slice(3)}
+                            </Title>
+                            <CopyButton value={userCode?.code} timeout={3000}>
+                              {({ copied, copy }) => (
+                                <Tooltip
+                                  label={copied ? "Copied" : "Copy code"}
+                                  withArrow
+                                  position="right"
+                                >
+                                  <ActionIcon
+                                    color={copied ? "teal" : "gray"}
+                                    variant="subtle"
+                                    onClick={copy}
+                                  >
+                                    {copied ? (
+                                      <IconCheck size={16} />
+                                    ) : (
+                                      <IconCopy size={16} />
+                                    )}
+                                  </ActionIcon>
+                                </Tooltip>
+                              )}
+                            </CopyButton>
+                          </Group>
                           <Image
                             src={`${import.meta.env.VITE_API_BASE_URL}/${userCode?.path}`}
                             radius="md"
@@ -627,9 +655,33 @@ export default function AdminListingDetails() {
                           <Title order={5} c="dimmed" ta="center">
                             6 DIGITS CODE
                           </Title>
-                          <Title order={3} ta="center" my="md">
-                            {proCode?.code.slice(0, 3)} {proCode?.code.slice(3)}
-                          </Title>
+                          <Group gap={"xs"} justify="center">
+                            <Title order={3} ta="center" my="md">
+                              {proCode?.code.slice(0, 3)}{" "}
+                              {proCode?.code.slice(3)}
+                            </Title>
+                            <CopyButton value={proCode?.code} timeout={3000}>
+                              {({ copied, copy }) => (
+                                <Tooltip
+                                  label={copied ? "Copied" : "Copy code"}
+                                  withArrow
+                                  position="right"
+                                >
+                                  <ActionIcon
+                                    color={copied ? "teal" : "gray"}
+                                    variant="subtle"
+                                    onClick={copy}
+                                  >
+                                    {copied ? (
+                                      <IconCheck size={16} />
+                                    ) : (
+                                      <IconCopy size={16} />
+                                    )}
+                                  </ActionIcon>
+                                </Tooltip>
+                              )}
+                            </CopyButton>
+                          </Group>
                           <Image
                             src={`${import.meta.env.VITE_API_BASE_URL}/${proCode?.path}`}
                             radius="md"
