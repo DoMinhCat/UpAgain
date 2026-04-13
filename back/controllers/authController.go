@@ -45,6 +45,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if existing.IsBanned {
+		response.RespondWithError(w, http.StatusUnauthorized, "Your account has been banned, contact an admin to unban your account.")
+		return
+	}
 
 	if creds.Email != existing.Email || !utils.IsPasswordCorrect(existing.Password, creds.Password) {
 		response.RespondWithError(w, http.StatusUnauthorized, "Oops, incorrect email or password.")
@@ -66,12 +70,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	token, err := utils.GenerateJWT(creds.Email, existing.Role, existing.Id)
+	token, err := utils.GenerateJWT(creds.Email, existing.Role, existing.Id, existing.Username)
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 		return
 	}
-	refreshToken, err := utils.GenerateRefreshToken(creds.Email, existing.Role, existing.Id)
+	refreshToken, err := utils.GenerateRefreshToken(creds.Email, existing.Role, existing.Id, existing.Username)
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 		return
@@ -114,7 +118,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Invalid refresh token", "controller", "RefreshToken", "error", err)
 		return
 	}
-	token, err := utils.GenerateJWT(claims.Email, claims.Role, claims.Id)
+	token, err := utils.GenerateJWT(claims.Email, claims.Role, claims.Id, claims.Username)
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 		slog.Error("GenerateJWT() failed", "controller", "RefreshToken", "error", err)

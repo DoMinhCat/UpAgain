@@ -14,7 +14,7 @@ import {
   Text,
 } from "@mantine/core";
 import { BarChart } from "@mantine/charts";
-import ImageDropzone from "../../../components/ImageDropzone";
+import ImageDropzone from "../../../components/common/input/ImageDropzone";
 import {
   IconCalendarEventFilled,
   IconArrowUp,
@@ -28,7 +28,7 @@ import {
 } from "../../../components/admin/AdminCardInfo";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { TextEditor } from "../../../components/TextEditor";
+import { TextEditor } from "../../../components/common/input/TextEditor";
 import {
   useCreatePost,
   useDeletePost,
@@ -36,9 +36,9 @@ import {
   useGetPostsStats,
 } from "../../../hooks/postHooks";
 import { useState, useMemo } from "react";
-import { showSuccessNotification } from "../../../components/NotificationToast";
+import { showSuccessNotification } from "../../../components/common/NotificationToast";
 import AdminTable from "../../../components/admin/AdminTable";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 import dayjs from "dayjs";
 import { PATHS } from "../../../routes/paths";
 import type { Post } from "../../../api/interfaces/post";

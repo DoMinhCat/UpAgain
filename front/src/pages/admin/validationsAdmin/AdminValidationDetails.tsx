@@ -32,7 +32,7 @@ import dayjs from "dayjs";
 
 import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
-import InfoField from "../../../components/InfoField";
+import InfoField from "../../../components/common/InfoField";
 import { useProcessValidation } from "../../../hooks/validationHooks";
 
 export default function AdminValidationDetails() {
