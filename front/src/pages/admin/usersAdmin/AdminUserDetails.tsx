@@ -1012,7 +1012,7 @@ export default function AdminUserDetails() {
               calendarHeader: {
                 maxWidth: "100%",
                 display: "flex",
-                justifyContent: "space-between", // Pushes arrows to edges, title to center
+                justifyContent: "space-between",
                 alignItems: "center",
                 marginBottom: "var(--mantine-spacing-md)",
               },
