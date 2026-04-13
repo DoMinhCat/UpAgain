@@ -63,7 +63,7 @@ export default function GuestHome() {
   return (
     <>
       {/* SECTION 1: MAIN HERO */}
-      <HeroBanner src={`/banners/guest-banner1-${scheme}.png`} height="85vh">
+      <HeroBanner src={`/banners/guest-banner1-${scheme}.png`} height="80vh">
         <Stack
           align="center"
           gap="xs"
@@ -100,7 +100,7 @@ export default function GuestHome() {
 
       {/* SECTION 2: PROBLEM AWARENESS */}
       <Reveal>
-        <HeroBanner src={`/banners/guest-banner2-${scheme}.png`} height="100vh">
+        <HeroBanner src={`/banners/guest-banner2-${scheme}.png`} height="90vh">
           <Stack align="center" gap="md">
             <Title ta="center" size={42} fw={800}>
               The sad reality: waste is{" "}
