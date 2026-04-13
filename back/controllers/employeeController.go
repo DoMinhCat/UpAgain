@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -56,4 +57,45 @@ func GetAvailableEmployees(w http.ResponseWriter, r *http.Request) {
 		employees.Employees = []models.AvailableEmployee{}
 	}
 	utils.RespondWithJSON(w, http.StatusOK, employees)
+}
+
+func GetEmployeeEvents(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" && role != "employee" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	id_employee, err := strconv.Atoi(r.PathValue("id_employee"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Employee ID.")
+		return
+	}
+
+	// if employee is not admin, can't see schedule of other employees
+	if role == "employee" && id_employee != idRequestor {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	isDel := false
+	empExist, err := db.CheckAccountExistsById(id_employee, &isDel)
+	if err != nil {
+		slog.Error("CheckAccountExistsById() failed", "controller", "employeeController", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching employee's schedule.")
+		return
+	}
+	if !empExist {
+		utils.RespondWithError(w, http.StatusNotFound, "Employee with ID "+strconv.Itoa(id_employee)+" not found.")
+		return
+	}
+
+	events, err := db.GetEmployeeEventsByEmployeeId(id_employee)
+	if err != nil {
+		slog.Error("GetEmployeeEventsByEmployeeId() failed", "controller", "employeeController", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching employee's schedule.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, events)
 }
