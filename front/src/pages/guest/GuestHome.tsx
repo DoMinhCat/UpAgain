@@ -33,9 +33,12 @@ import {
   IconBrandFacebook,
 } from "@tabler/icons-react";
 import HeroCard from "../../components/common/hero/HeroCard";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "../../routes/paths";
 
 export default function GuestHome() {
   const scheme = useComputedColorScheme("light");
+  const navigate = useNavigate();
 
   return (
     <>
@@ -49,6 +52,23 @@ export default function GuestHome() {
             One platform to share objects, create value, and reduce waste
             together.
           </Text>
+          <Group mt="xl">
+            <Button
+              size="lg"
+              variant="primary"
+              onClick={() => navigate(PATHS.GUEST.REGISTER)}
+            >
+              Join us today
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              // TODO: Add articles page
+              //   onClick={() => navigate(PATHS.GUEST.ARTICLES)}
+            >
+              See our articles
+            </Button>
+          </Group>
         </Stack>
       </HeroBanner>
 
@@ -227,8 +247,76 @@ export default function GuestHome() {
         </Stack>
       </Container>
 
-      <Container size="xl" py={100}>
-        <Stack gap={50} align="center">
+      <Container size="xl" py={50}>
+        <Paper
+          p={{ base: "xl", md: 60 }}
+          radius="32px"
+          bg={
+            scheme === "dark"
+              ? "var(--upagain-dark-green)"
+              : "var(--upagain-neutral-green)"
+          }
+          style={{
+            boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          <Stack align="center" gap="xl" pos="relative" style={{ zIndex: 2 }}>
+            <Stack gap={8} align="center">
+              <Title
+                order={2}
+                size={42}
+                c="white"
+                ta="center"
+                style={{ lineHeight: 1.2 }}
+              >
+                Are you hyped up to upcycle and save our planet?
+              </Title>
+              <Text c="green.1" size="xl" fw={500} ta="center" maw={600}>
+                Join a community of thousands making reuse the new standard.
+              </Text>
+            </Stack>
+
+            <Group w="100%" justify="center">
+              <Stack w={{ base: "100%", sm: 400 }} gap="xs">
+                <Button
+                  size="xl"
+                  radius="xl"
+                  color="var(--upagain-yellow)"
+                  c="dark.9"
+                  fullWidth
+                  style={{
+                    fontSize: "1.1rem",
+                    transition: "transform 0.2s ease",
+                  }}
+                  onClick={() => navigate(PATHS.GUEST.REGISTER)}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.transform = "scale(1.05)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.transform = "scale(1)")
+                  }
+                >
+                  Join us today
+                </Button>
+              </Stack>
+            </Group>
+          </Stack>
+          <Box
+            pos="absolute"
+            top={-50}
+            right={-50}
+            w={200}
+            h={200}
+            bg="white"
+            style={{ opacity: 0.1, borderRadius: "100%" }}
+          />{" "}
+        </Paper>
+      </Container>
+      <Container size="xl" py={50}>
+        {/* PROFESSIONAL SIGN UP */}
+        <Stack gap={50} align="center" mt="xl">
           {/* Section Heading */}
           <Stack gap="xs" align="center">
             <Title order={2} size={42} ta="center" style={{ maxWidth: 800 }}>
