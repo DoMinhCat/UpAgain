@@ -10,10 +10,10 @@ import (
 )
 
 func GetAccountCredsByEmail(email string) (*models.AccountCreds, error) {
-	var user models.AccountCreds
+		var user models.AccountCreds
 
-	row := utils.Conn.QueryRow("SELECT id, email, password, role FROM accounts WHERE email=$1", email)
-	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.Role)
+	row := utils.Conn.QueryRow("SELECT id, email, password, role, is_banned FROM accounts WHERE email=$1", email)
+	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.Role, &user.IsBanned)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Return nothing found without an error
