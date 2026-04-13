@@ -6,7 +6,6 @@ import {
   Tooltip,
   Menu,
   ActionIcon,
-  rem,
   Burger,
   Drawer,
   Stack,
@@ -16,7 +15,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
 import { PATHS } from "../../../src/routes/paths";
-import { IconWorld, IconPhoto, IconSun, IconMoon } from "@tabler/icons-react";
+import { IconWorld, IconSun, IconMoon } from "@tabler/icons-react";
 
 interface NavbarLinkProps {
   icon: typeof IconMoon;
