@@ -8,7 +8,7 @@ import {
   getItemTransactions,
   updateItemStatus,
 } from "../api/itemModule";
-import { showSuccessNotification } from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,

@@ -4,7 +4,7 @@ import AdminHome from "../pages/admin/AdminHome.tsx";
 import AdminUsersDeleted from "../pages/admin/usersAdmin/AdminUsersDeleted.tsx";
 import { PATHS } from "./paths.ts";
 import { useAuth } from "../context/AuthContext.tsx";
-import FullScreenLoader from "../components/FullScreenLoader.tsx";
+import FullScreenLoader from "../components/common/FullScreenLoader.tsx";
 import AdminUsersModule from "../pages/admin/usersAdmin/AdminUsersModule.tsx";
 import AdminUserDetails from "../pages/admin/usersAdmin/AdminUserDetails.tsx";
 import AdminValidationHub from "../pages/admin/validationsAdmin/AdminValidationHub.tsx";
@@ -30,7 +30,7 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (unauthorized) {
-      navigate(PATHS.GUEST.LOGIN, { replace: true, state: { from: location } });
+      navigate(PATHS.HOME, { replace: true, state: { from: location } });
     }
   }, [unauthorized]);
 
@@ -52,7 +52,7 @@ export const adminRoutes: RouteObject = {
   children: [
     {
       index: true,
-      element: <AdminHome />, // home page user hub
+      element: <AdminHome />,
     },
     {
       path: "users",

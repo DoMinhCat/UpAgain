@@ -28,7 +28,7 @@ import { BarChart } from "@mantine/charts";
 
 import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
 import AdminTable from "../../../components/admin/AdminTable";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 
 import {
   useGetAllContainers,

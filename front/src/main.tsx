@@ -15,7 +15,7 @@ import {
   QueryCache,
   MutationCache,
 } from "@tanstack/react-query";
-import { showErrorNotification } from "./components/NotificationToast.tsx";
+import { showErrorNotification } from "./components/common/NotificationToast.tsx";
 
 // global error handling
 const queryClient = new QueryClient({

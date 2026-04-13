@@ -5,7 +5,7 @@ import {
   transferDepositContainer,
   updateDeposit,
 } from "../api/depositModule";
-import { showSuccessNotification } from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
 
