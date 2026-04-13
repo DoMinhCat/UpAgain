@@ -60,6 +60,7 @@ const UpAgainTheme = createTheme({
       defaultProps: {
         classNames: {
           root: classes.divider,
+          label: classes.dividerLabel,
         },
       },
     }),
