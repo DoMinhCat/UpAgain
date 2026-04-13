@@ -12,7 +12,7 @@ const UserGuard = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (unauthorized) {
-      navigate(PATHS.GUEST.LOGIN, { replace: true, state: { from: location } });
+      navigate(PATHS.HOME, { replace: true, state: { from: location } });
     }
   }, [unauthorized]);
 
