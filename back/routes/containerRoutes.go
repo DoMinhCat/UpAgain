@@ -15,5 +15,6 @@ func GetContainerRoutes(mux *http.ServeMux) {
 
 	mux.Handle("POST /containers/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CreateContainerHandler))))
 	mux.Handle("PUT /containers/{id}/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateContainerStatus))))
+	mux.Handle("PUT /containers/{id}/location/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateContainerLocation))))
 	mux.Handle("DELETE /containers/{id}/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.DeleteContainer))))
 }
