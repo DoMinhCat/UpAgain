@@ -255,6 +255,10 @@
   border-color: var(--border-color);
 }
 
+.dividerLabel {
+  color: var(--mantine-color-text);
+}
+
 .timelineItem {
   &::before {
     border-left-color: #45a575;

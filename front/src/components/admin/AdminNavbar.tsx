@@ -124,7 +124,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
   return (
     <nav className={classes.navbar}>
       <Center>
-        <Image src="/logo.png" />
+        <Image src="/common/logo.png" />
       </Center>
 
       <div className={classes.navbarMain}>

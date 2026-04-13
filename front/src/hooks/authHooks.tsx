@@ -5,7 +5,7 @@ import { type RegisterPayload } from "../api/interfaces/account";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "../routes/paths";
-import { showSuccessNotification } from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 
 export const useLogin = () => {
   const navigate = useNavigate();
