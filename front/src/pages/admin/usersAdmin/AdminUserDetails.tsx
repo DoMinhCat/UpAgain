@@ -17,6 +17,7 @@ import {
   Loader,
   TextInput,
   HoverCard,
+  UnstyledButton,
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -1031,7 +1032,10 @@ export default function AdminUserDetails() {
               const tasksOnDate =
                 employeeSchedule?.filter((event) => {
                   const start = dayjs(event.start_at).startOf("day").valueOf();
-                  const end = dayjs(event.end_at).endOf("day").valueOf();
+                  const end = dayjs(event.end_at)
+                    .subtract(1, "ms")
+                    .endOf("day")
+                    .valueOf();
                   const current = dayjs(date).valueOf();
                   return current >= start && current <= end;
                 }) || [];
@@ -1039,49 +1043,96 @@ export default function AdminUserDetails() {
               const hasTasks = tasksOnDate.length > 0;
 
               return (
-                <HoverCard shadow="md" disabled={!hasTasks}>
+                <HoverCard
+                  shadow="xl"
+                  disabled={!hasTasks}
+                  withinPortal
+                  withArrow
+                  openDelay={100}
+                  closeDelay={200}
+                >
                   <HoverCard.Target>
                     <Indicator
-                      size={hasTasks && tasksOnDate.length > 1 ? 16 : 8}
+                      processing
+                      size={hasTasks && tasksOnDate.length > 1 ? 18 : 10}
                       color="red"
-                      offset={tasksOnDate.length > 1 ? 7 : 2}
+                      offset={tasksOnDate.length > 1 ? 4 : 0}
                       disabled={!hasTasks}
-                      processing={false}
                       label={
                         tasksOnDate.length > 1
                           ? `+${tasksOnDate.length}`
                           : undefined
                       }
+                      styles={{
+                        indicator: {
+                          fontSize: "10px",
+                          fontWeight: 700,
+                        },
+                      }}
                       style={{ width: "100%", height: "100%" }}
                     >
                       <Center w="100%" h="100%">
-                        <Text size="sm">{day}</Text>
+                        <Text size="sm" fw={hasTasks ? 700 : 400}>
+                          {day}
+                        </Text>
                       </Center>
                     </Indicator>
                   </HoverCard.Target>
-                  <HoverCard.Dropdown>
-                    <Text size="sm" fw={700} mb="xs">
-                      {dayjs(date).format("DD MMM YYYY")}
-                    </Text>
+
+                  <HoverCard.Dropdown p="sm">
                     <Stack gap="xs">
-                      {tasksOnDate.map((task) => (
-                        <Text
-                          key={task.id}
-                          size="sm"
-                          c="blue"
-                          style={{
-                            cursor: "pointer",
-                            textDecoration: "underline",
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            closeCalendar();
-                            navigate(`${PATHS.ADMIN.EVENTS.ALL}/${task.id}`);
-                          }}
-                        >
-                          • {task.title}
+                      {/* Header: Date with a subtle divider */}
+                      <Box
+                        style={{
+                          borderBottom: "1px solid var(--border-color)",
+                          paddingBottom: "4px",
+                        }}
+                      >
+                        <Text size="xs" c="dimmed" tt="uppercase">
+                          {dayjs(date).format("dddd")}
                         </Text>
-                      ))}
+                        <Text size="sm">
+                          {dayjs(date).format("DD MMM YYYY")}
+                        </Text>
+                      </Box>
+
+                      <Stack gap={4}>
+                        {tasksOnDate.map((task) => (
+                          <UnstyledButton
+                            key={task.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              closeCalendar();
+                              navigate(`${PATHS.ADMIN.EVENTS.ALL}/${task.id}`, {
+                                state: {
+                                  from: "userDetails",
+                                  id_user: accountDetails?.id,
+                                },
+                              });
+                            }}
+                            style={{
+                              padding: "6px 8px",
+                              borderRadius: "4px",
+                              transition: "background 0.2s ease",
+                            }}
+                            // Hover effect
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "var(--upagain-neutral-green)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                          >
+                            <Group gap="xs" wrap="nowrap">
+                              <Text size="sm" truncate>
+                                {task.title}
+                              </Text>
+                            </Group>
+                          </UnstyledButton>
+                        ))}
+                      </Stack>
                     </Stack>
                   </HoverCard.Dropdown>
                 </HoverCard>
