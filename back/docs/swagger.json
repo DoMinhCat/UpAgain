@@ -1570,6 +1570,55 @@
                 }
             }
         },
+        "/employees/{id_employee}/schedule/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns the list of events assigned to a specific employee. Admins can view any employee's schedule; employees can only view their own.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "Get employee schedule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee account ID",
+                        "name": "id_employee",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of assigned events",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Event"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid employee ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Employee not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/events/": {
             "get": {
                 "description": "Get list of all events with pagination, search, status and sort filters.",
@@ -2108,6 +2157,148 @@
                     },
                     "404": {
                         "description": "Event not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/finance/invoices/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns a paginated list of accounts with their total transaction count and total amount spent. Supports search by username or email.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Get invoice users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 10, max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by username or email",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.InvoicesListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid page or limit parameter"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/finance/invoices/{userId}/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns all invoices (transactions and subscriptions) for a specific account. Admins can access any user's invoices; non-admin users can only access their own.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Get user invoices",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserInvoicesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized or forbidden"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/finance/revenue/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns monthly revenue data grouped by category (subscriptions, commissions, ads, events) for a given year, along with a yearly summary.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Get monthly revenue",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Year (defaults to current year, must be between 2000 and 2100)",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.RevenueResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid year parameter"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -3053,6 +3244,111 @@
                 }
             }
         },
+        "/posts/{id_post}/steps": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns all project steps associated with a specific post.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get project steps",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ProjectStep"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing post ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/steps/{step_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes a specific project step by its ID. Admin only.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Delete a project step",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted successfully"
+                    },
+                    "400": {
+                        "description": "Invalid ID or step not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/refresh/": {
             "post": {
                 "description": "Refresh the JWT token using the refresh token cookie",
@@ -3572,6 +3868,52 @@
                 }
             }
         },
+        "models.InvoiceUser": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id_account": {
+                    "type": "integer"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "total_spent": {
+                    "type": "number"
+                },
+                "transaction_count": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.InvoicesListResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.InvoiceUser"
+                    }
+                }
+            }
+        },
         "models.Item": {
             "type": "object",
             "properties": {
@@ -3860,6 +4202,107 @@
                 }
             }
         },
+        "models.ProjectStep": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "id_post": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.StepItem"
+                    }
+                },
+                "photos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RevenueMonthData": {
+            "type": "object",
+            "properties": {
+                "ads": {
+                    "type": "number"
+                },
+                "commissions": {
+                    "type": "number"
+                },
+                "events": {
+                    "type": "number"
+                },
+                "month": {
+                    "description": "format \"YYYY-MM\"",
+                    "type": "string"
+                },
+                "subscriptions": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.RevenueResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RevenueMonthData"
+                    }
+                },
+                "summary": {
+                    "$ref": "#/definitions/models.RevenueSummary"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.RevenueSummary": {
+            "type": "object",
+            "properties": {
+                "grand_total": {
+                    "type": "number"
+                },
+                "total_ads": {
+                    "type": "number"
+                },
+                "total_commissions": {
+                    "type": "number"
+                },
+                "total_events": {
+                    "type": "number"
+                },
+                "total_subscriptions": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.StepItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ToggleBanRequest": {
             "type": "object",
             "properties": {
@@ -3975,6 +4418,56 @@
                 "status": {
                     "type": "string",
                     "example": "running"
+                }
+            }
+        },
+        "models.UserInvoice": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "amount": {
+                    "description": "after commission or full price",
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "id_transaction": {
+                    "type": "string"
+                },
+                "item_price": {
+                    "type": "number"
+                },
+                "item_title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserInvoicesResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id_account": {
+                    "type": "integer"
+                },
+                "invoices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserInvoice"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

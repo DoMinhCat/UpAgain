@@ -8,11 +8,11 @@ type StepItem struct {
 }
 
 type ProjectStep struct {
-	Id          int       `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	IdPost      int       `json:"id_post"`
+	Id          int        `json:"id"`
+	CreatedAt   time.Time  `json:"created_at"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	IdPost      int        `json:"id_post"`
 	Items       []StepItem `json:"items"`
-	Photos      []string  `json:"photos"`
+	Photos      []string   `json:"photos"`
 }
