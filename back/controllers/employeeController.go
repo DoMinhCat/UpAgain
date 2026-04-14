@@ -59,6 +59,19 @@ func GetAvailableEmployees(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, employees)
 }
 
+// GetEmployeeSchedule godoc
+// @Summary      Get employee schedule
+// @Description  Returns the list of events assigned to a specific employee. Admins can view any employee's schedule; employees can only view their own.
+// @Tags         employee
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_employee  path      int  true  "Employee account ID"
+// @Success      200          {object}  []models.Event  "List of assigned events"
+// @Failure      400          {object}  nil  "Invalid employee ID"
+// @Failure      401          {object}  nil  "Unauthorized"
+// @Failure      404          {object}  nil  "Employee not found"
+// @Failure      500          {object}  nil  "Internal server error"
+// @Router       /employees/{id_employee}/schedule/ [get]
 func GetEmployeeSchedule(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "employee" {
