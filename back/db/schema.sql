@@ -82,8 +82,8 @@ create table events
     created_at   timestamptz    not null default now(),
     title        varchar(255)   not null,
     description  text,
-    start_at     timestamptz    ,
-    start_at     timestamptz    ,
+    start_at     timestamptz    not null,
+    end_at       timestamptz    not null,
     price        numeric(2),                            -- leave null if event is free
     category     event_category not null default 'other',
     capacity     integer,
