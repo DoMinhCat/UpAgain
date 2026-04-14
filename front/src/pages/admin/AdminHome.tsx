@@ -315,7 +315,6 @@ export default function AdminHome() {
         <Grid.Col span={{ base: 12, md: 3 }}>
           <TextInput
             label="Search"
-            variant="filled"
             placeholder="Search by admin's name or item's ID..."
             disabled={isLoadingHistory}
             rightSection={<IconSearch size={14} />}
