@@ -30,10 +30,10 @@ func GetDbDriver() string {
 	return driver
 }
 
-func GetPort() string {
-	port := os.Getenv("PORT")
+func GetPort(env string) string {
+	port := os.Getenv("PORT_" + env)
 	if port == "" {
-		port = "8080"
+		log.Panic("PORT_" + env + " not find in .env")
 	}
 	return port
 }
@@ -60,4 +60,12 @@ func GetFrontOriginProd() string {
 		log.Panic("FRONTEND_ORIGIN_PROD not find in .env")
 	}
 	return frontOrigin
+}
+
+func GetEnv() string {
+	env := os.Getenv("ENV")
+	if env == "" {
+		log.Panic("ENV not find in .env")
+	}
+	return env
 }
