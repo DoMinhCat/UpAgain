@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"math"
 )
 
 func GetAllSubscriptionsHandler(w http.ResponseWriter, r *http.Request) {

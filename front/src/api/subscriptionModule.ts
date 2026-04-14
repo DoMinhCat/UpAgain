@@ -1,0 +1,26 @@
+import { api } from "./axios";
+import { ENDPOINTS } from "./endpoints";
+import type { Subscription, SubscriptionListPagination } from "./interfaces/subscription";
+
+export const getAllSubscriptions = async (
+  page: number = -1,
+  limit: number = -1,
+  active?: boolean,
+): Promise<SubscriptionListPagination> => {
+  const params: Record<string, string | number | boolean> = {};
+  if (page !== -1) params.page = page;
+  if (limit !== -1) params.limit = limit;
+  if (active !== undefined) params.active = active;
+
+  const response = await api.get(ENDPOINTS.ADMIN.SUBSCRIPTIONS.ALL, { params });
+  return response.data;
+};
+
+export const getSubscriptionByID = async (id: number): Promise<Subscription> => {
+  const response = await api.get(`${ENDPOINTS.ADMIN.SUBSCRIPTIONS.ALL}${id}/`);
+  return response.data;
+};
+
+export const revokeSubscription = async (id: number, cancel_reason: string): Promise<void> => {
+  await api.put(`${ENDPOINTS.ADMIN.SUBSCRIPTIONS.ALL}${id}/revoke/`, { cancel_reason });
+};

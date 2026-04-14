@@ -283,7 +283,7 @@ export default function AdminHome() {
           title="Subscription"
           description="Manage subscription price & premium accounts"
           icon={IconDiamond}
-          path={PATHS.ADMIN.SUBSCRIPTIONS}
+          path={PATHS.ADMIN.SUBSCRIPTIONS.ALL}
         />
         <AdminCardNav
           title="Posts"
