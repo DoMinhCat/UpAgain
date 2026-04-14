@@ -21,7 +21,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import {
-  IconArrowUp,
+  IconArrowUpRight,
   IconPigMoney,
   IconAlertTriangle,
   IconUsers,
@@ -146,7 +146,12 @@ export default function AdminHome() {
             ) : (
               <StatsCardDesc
                 stats={accountCountStats?.increase ?? 0}
-                icon={IconArrowUp}
+                icon={
+                  <IconArrowUpRight
+                    size={24}
+                    color="var(--upagain-neutral-green)"
+                  />
+                }
                 description=" users since last month"
               />
             )
@@ -177,7 +182,9 @@ export default function AdminHome() {
                     (validationStats?.pending_listings || 0) +
                     (validationStats?.pending_events || 0)
                 }
-                icon={IconAlertTriangle}
+                icon={
+                  <IconAlertTriangle size={24} color="var(--upagain-yellow)" />
+                }
                 description=" requests waiting for validation"
               />
             )
@@ -195,7 +202,9 @@ export default function AdminHome() {
             ) : (
               <StatsCardDesc
                 stats={totalScore?.co2 || 0}
-                icon={IconLeaf}
+                icon={
+                  <IconLeaf size={24} color="var(--upagain-neutral-green)" />
+                }
                 description={
                   totalScore?.co2 === 1
                     ? " kg of CO2 avoided by the community"

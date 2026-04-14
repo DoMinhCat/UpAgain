@@ -401,10 +401,22 @@ export default function AdminEventDetails() {
                   },
                   { title: "Event's Details", href: "#" },
                 ]
-              : [
-                  { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
-                  { title: "Event's Details", href: "#" },
-                ]),
+              : origin?.from === "userDetails"
+                ? [
+                    {
+                      title: "User Management",
+                      href: "/admin/users/",
+                    },
+                    {
+                      title: "User's Details",
+                      href: "/admin/users/" + origin.id_user,
+                    },
+                    { title: "Event's Details", href: "#" },
+                  ]
+                : [
+                    { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
+                    { title: "Event's Details", href: "#" },
+                  ]),
         ]}
       />
       <Container p="lg" size="xl">

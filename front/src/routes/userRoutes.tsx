@@ -11,10 +11,10 @@ const UserGuard = ({ children }: { children: React.ReactNode }) => {
   const unauthorized = !user || user.role !== "admin";
 
   useEffect(() => {
-    if (unauthorized) {
+    if (!isInitializing && unauthorized) {
       navigate(PATHS.HOME, { replace: true, state: { from: location } });
     }
-  }, [unauthorized]);
+  }, [unauthorized, isInitializing, navigate, location]);
 
   if (isInitializing) {
     return <FullScreenLoader />;
