@@ -32,10 +32,7 @@ func GetDbDriver() string {
 
 func GetPort(env string) string {
 	port := os.Getenv("PORT_" + env)
-func GetPort(env string) string {
-	port := os.Getenv("PORT_" + env)
 	if port == "" {
-		log.Panic("PORT_" + env + " not find in .env")
 		log.Panic("PORT_" + env + " not find in .env")
 	}
 	return port
