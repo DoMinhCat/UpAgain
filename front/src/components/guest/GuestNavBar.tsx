@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
 import { PATHS } from "../../routes/paths";
 import { IconWorld, IconSun, IconMoon } from "@tabler/icons-react";
@@ -70,12 +70,15 @@ function HeaderLink({
   onClick?: () => void;
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isActive = location.pathname.startsWith(path);
+  
   const handleClick = () => {
     if (onClick) onClick();
     navigate(path);
   };
   return (
-    <UnstyledButton className={`${classes.link}`} onClick={handleClick}>
+    <UnstyledButton className={`${classes.link} ${isActive ? classes.linkActive : ""}`} onClick={handleClick}>
       {label}
     </UnstyledButton>
   );
