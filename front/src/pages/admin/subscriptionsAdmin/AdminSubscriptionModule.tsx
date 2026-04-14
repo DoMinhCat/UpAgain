@@ -8,13 +8,25 @@ import {
   Badge,
   Tabs,
   Skeleton,
+  Paper,
+  Button,
+  Modal,
+  NumberInput,
 } from "@mantine/core";
-import { useGetAllSubscriptions } from "../../../hooks/subscriptionHooks";
+import { useGetAllSubscriptions, useGetSubscriptionPrice, useUpdateSubscriptionPrice } from "../../../hooks/subscriptionHooks";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
+import { useDisclosure } from "@mantine/hooks";
+import { useState } from "react";
 
 export default function AdminSubscriptions() {
+
+  const { data: price } = useGetSubscriptionPrice();
+  const priceMutation = useUpdateSubscriptionPrice();
+  const [openedPrice, { open: openPrice, close: closePrice }] = useDisclosure(false);
+  const [newPrice, setNewPrice] = useState<number>(0);
+
   const navigate = useNavigate();
 
   const { data: ongoing, isLoading: loadingOngoing } = useGetAllSubscriptions(-1, -1, true);
@@ -49,6 +61,17 @@ export default function AdminSubscriptions() {
       <Title order={2} mt="xs" mb="xl">
         Subscriptions Management
       </Title>
+          <Paper variant="primary" px="lg" py="md" mb="xl">
+        <Group justify="space-between">
+          <div>
+            <Text fw={700} size="lg">Premium subscription price</Text>
+            <Text fw={900} size="xl">{price}€</Text>
+          </div>
+          <Button variant="delete" onClick={() => { setNewPrice(price ?? 0); openPrice(); }}>
+            Modify
+          </Button>
+        </Group>
+      </Paper>
 
       <Tabs defaultValue="ongoing">
         <Tabs.List mb="md">
@@ -105,6 +128,28 @@ export default function AdminSubscriptions() {
           </Table>
         </Tabs.Panel>
       </Tabs>
+            <Modal opened={openedPrice} onClose={closePrice} title="Update Subscription Price" centered>
+    <NumberInput
+      label="New Price (€)"
+      min={15}
+      max={30}
+      step={0.5}
+      decimalScale={2}
+      value={newPrice}
+      onChange={(val) => setNewPrice(Number(val))}
+    />
+    <Group mt="xl" justify="flex-end">
+      <Button variant="grey" onClick={closePrice}>Cancel</Button>
+      <Button
+        variant="light"
+        loading={priceMutation.isPending}
+        disabled={!newPrice || newPrice <= 0}
+        onClick={() => priceMutation.mutate(newPrice, { onSuccess: () => closePrice() })}
+      >
+        Confirm
+      </Button>
+    </Group>
+  </Modal>
     </Container>
   );
 }

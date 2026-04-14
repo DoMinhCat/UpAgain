@@ -24,3 +24,12 @@ export const getSubscriptionByID = async (id: number): Promise<Subscription> => 
 export const revokeSubscription = async (id: number, cancel_reason: string): Promise<void> => {
   await api.put(`${ENDPOINTS.ADMIN.SUBSCRIPTIONS.ALL}${id}/revoke/`, { cancel_reason });
 };
+
+export const getSubscriptionPrice = async (): Promise<number> => {
+  const response = await api.get(ENDPOINTS.ADMIN.SUBSCRIPTIONS.PRICE);
+  return response.data.price;
+};
+
+export const updateSubscriptionPrice = async (price: number): Promise<void> => {
+  await api.put(ENDPOINTS.ADMIN.SUBSCRIPTIONS.PRICE, { price });
+};

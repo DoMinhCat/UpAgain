@@ -3,6 +3,8 @@ import {
   getAllSubscriptions,
   getSubscriptionByID,
   revokeSubscription,
+  updateSubscriptionPrice,
+  getSubscriptionPrice,
 } from "../api/subscriptionModule";
 import type { Subscription, SubscriptionListPagination } from "../api/interfaces/subscription";
 import { showSuccessNotification } from "../components/common/NotificationToast";
@@ -48,6 +50,33 @@ export const useRevokeSubscription = () => {
     meta: {
       errorTitle: "Revoke Failed",
       errorMessage: "Could not revoke the subscription.",
+    },
+  });
+};
+
+export const useGetSubscriptionPrice = () => {
+  return useQuery<number>({
+    queryKey: ["subscriptionPrice"],
+    queryFn: getSubscriptionPrice,
+    staleTime: 1000 * 60 * 5,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load subscription price.",
+    },
+  });
+};
+
+export const useUpdateSubscriptionPrice = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (price: number) => updateSubscriptionPrice(price),
+    onSuccess: () => {
+      showSuccessNotification("Updated", "Subscription price updated");
+      queryClient.invalidateQueries({ queryKey: ["subscriptionPrice"] });
+    },
+    meta: {
+      errorTitle: "Update Failed",
+      errorMessage: "Could not update subscription price.",
     },
   });
 };

@@ -33,7 +33,7 @@ func GetTotalSubscriptionSpendingsById(id_account int) (int, error) {
 			return 0, fmt.Errorf("GetTotalSubscriptionSpendingsById() failed: %v", err.Error())
 		}
 		// price is monthly, so we divide by 30 to get price of 1 day
-		total += (subscription_price / 30) * int(sub_to.Sub(sub_from).Hours()/24)
+		total += int(subscription_price / 30) * int(sub_to.Sub(sub_from).Hours()/24)
 	}
 	return total, nil
 }

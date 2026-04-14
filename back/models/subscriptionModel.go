@@ -3,19 +3,19 @@ package models
 import "time"
 
 type Subscription struct {
-	ID           int        `json:"id"`
-	IsTrial      bool       `json:"is_trial"`
-	IsActive     bool       `json:"is_active"`
-	SubFrom      time.Time  `json:"sub_from"`
-	SubTo        time.Time  `json:"sub_to"`
-	IdPro        int        `json:"id_pro"`
-	CancelReason *string    `json:"cancel_reason,omitempty"`
+	ID           int       `json:"id"`
+	IsTrial      bool      `json:"is_trial"`
+	IsActive     bool      `json:"is_active"`
+	SubFrom      time.Time `json:"sub_from"`
+	SubTo        time.Time `json:"sub_to"`
+	IdPro        int       `json:"id_pro"`
+	CancelReason *string   `json:"cancel_reason,omitempty"`
 }
 
 type SubscriptionWithUser struct {
-    Subscription
-    Username string `json:"username"`
-    Avatar   *string `json:"avatar"`
+	Subscription
+	Username string  `json:"username"`
+	Avatar   *string `json:"avatar"`
 }
 type SubscriptionListPagination struct {
 	Subscriptions []SubscriptionWithUser `json:"subscriptions"`
@@ -27,4 +27,8 @@ type SubscriptionListPagination struct {
 
 type RevokeSubscriptionRequest struct {
 	CancelReason string `json:"cancel_reason"`
+}
+
+type UpdateSubscriptionPriceRequest struct {
+	Price float64 `json:"price"`
 }
