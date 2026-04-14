@@ -117,29 +117,29 @@ func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int,
 
 	query := `
 		SELECT
-			a.id,
-			a.username,
-			a.email,
-			a.role,
-			a.created_at,
-			COUNT(DISTINCT t.id) + COUNT(DISTINCT s.id) AS transaction_count,
-			COALESCE(SUM(DISTINCT i.price), 0) +
-			COALESCE((
-				SELECT SUM(fs.value)
-				FROM subscriptions s2
-				JOIN finance_settings fs ON fs.key = 'subscription_price'
-				WHERE s2.id_pro = a.id
-			), 0) AS total_spent
+		a.id,
+		a.username,
+		a.email,
+		a.role,
+		a.created_at,
+		COUNT(DISTINCT t.id) FILTER (WHERE t.action = 'purchased') + COUNT(DISTINCT s.id) AS transaction_count,
+		COALESCE(SUM(DISTINCT i.price), 0) +
+		COALESCE((
+			SELECT SUM(fs.value)
+			FROM subscriptions s2
+			JOIN finance_settings fs ON fs.key = 'subscription_price'
+			WHERE s2.id_pro = a.id
+		), 0) AS total_spent
 		FROM accounts a
 		LEFT JOIN pros p ON p.id_account = a.id
 		LEFT JOIN transactions t ON t.id_pro = p.id_account
 		LEFT JOIN items i ON i.id = t.id_item AND t.action = 'purchased'
 		LEFT JOIN subscriptions s ON s.id_pro = p.id_account
 		WHERE a.deleted_at IS NULL
-		  AND ($3 = '' OR a.username ILIKE $3 OR a.email ILIKE $3)
+		AND ($3 = '' OR a.username ILIKE $3 OR a.email ILIKE $3)
 		GROUP BY a.id, a.username, a.email, a.role, a.created_at
 		ORDER BY transaction_count DESC
-		LIMIT $1 OFFSET $2
+		LIMIT $1 OFFSET $2;
 	`
 	rows, err := utils.Conn.Query(query, limit, offset, searchLike)
 	if err != nil {
