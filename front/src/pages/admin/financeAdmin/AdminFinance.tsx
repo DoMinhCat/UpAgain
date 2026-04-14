@@ -53,10 +53,11 @@ const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => String(CURRENT_YEAR - i
 // --- Helpers ---
 
 function formatEuros(amount: number): string {
-  return new Intl.NumberFormat("fr-FR", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "EUR",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 
@@ -65,8 +66,9 @@ function formatDate(dateStr: string): string {
 }
 
 function generateInvoicePDF(invoice: UserInvoice, username: string): void {
+  const isSubscription = invoice.action === "subscription";
   const html = `
-    <!DOCTYPE html><html lang="fr"><head>
+    <!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
     <title>Invoice ${invoice.id_transaction}</title>
     <style>
@@ -82,13 +84,17 @@ function generateInvoicePDF(invoice: UserInvoice, username: string): void {
     <h1>UpcycleConnect</h1>
     <p class="meta">Invoice N° ${invoice.id_transaction}<br>Date: ${formatDate(invoice.created_at)}<br>Customer: ${username}</p>
     <table>
-      <tr><th>Item</th><th>Price</th><th>Commission</th><th>Total</th></tr>
-      <tr>
-        <td>${invoice.item_title}</td>
-        <td>${formatEuros(invoice.item_price)}</td>
-        <td>${formatEuros(invoice.amount)}</td>
-        <td>${formatEuros(invoice.item_price)}</td>
-      </tr>
+      ${isSubscription
+        ? `<tr><th>Item</th><th>Price</th></tr>
+           <tr><td>${invoice.item_title}</td><td>${formatEuros(invoice.item_price)}</td></tr>`
+        : `<tr><th>Item</th><th>Price</th><th>Commission</th><th>Total</th></tr>
+           <tr>
+             <td>${invoice.item_title}</td>
+             <td>${formatEuros(invoice.item_price)}</td>
+             <td>${formatEuros(invoice.amount)}</td>
+             <td>${formatEuros(invoice.item_price)}</td>
+           </tr>`
+      }
     </table>
     <p class="total">Total: ${formatEuros(invoice.item_price)}</p>
     <p class="footer">UpcycleConnect — 174 rue La Fayette, 75010 Paris — contact@upcycleconnect.fr</p>
@@ -258,7 +264,7 @@ export default function AdminFinance() {
       >
         {isLoadingInvoices ? (
           <Center h={200}><Loader /></Center>
-        ) : invoicesData && invoicesData.invoices?.length === 0 ? (
+        ) : invoicesData && !invoicesData.invoices?.length ? (
           <Center py="xl">
             <Stack align="center" gap="xs">
               <IconFileInvoice size={40} color="gray" />
@@ -279,7 +285,7 @@ export default function AdminFinance() {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {invoicesData?.invoices.map((inv) => (
+                {invoicesData?.invoices?.map((inv) => (
                   <Table.Tr key={inv.id}>
                     <Table.Td>{formatDate(inv.created_at)}</Table.Td>
                     <Table.Td>{inv.item_title}</Table.Td>
@@ -289,7 +295,9 @@ export default function AdminFinance() {
                       </Badge>
                     </Table.Td>
                     <Table.Td>{formatEuros(inv.item_price)}</Table.Td>
-                    <Table.Td c="dimmed">{formatEuros(inv.amount)}</Table.Td>
+                    <Table.Td c="dimmed">
+                      {inv.action === "subscription" ? "—" : formatEuros(inv.amount)}
+                    </Table.Td>
                     <Table.Td>
                       <ActionIcon
                         variant="subtle"
@@ -324,10 +332,11 @@ function SummaryCard({ label, value, color }: SummaryCardProps) {
     <Card withBorder radius="md" p="md">
       <Text size="sm" c="dimmed" mb={4}>{label}</Text>
       <Text fw={700} size="xl" c={color}>
-        {new Intl.NumberFormat("fr-FR", {
+        {new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "EUR",
-          maximumFractionDigits: 0,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }).format(value)}
       </Text>
     </Card>
