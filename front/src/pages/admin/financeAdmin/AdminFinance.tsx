@@ -11,13 +11,17 @@ import {
   Loader,
   Center,
   Badge,
-  Pagination,
+  Pill,
   ActionIcon,
   Modal,
   ScrollArea,
   SimpleGrid,
   Card,
 } from "@mantine/core";
+import AdminTable from "../../../components/admin/AdminTable";
+import PaginationFooter from "../../../components/common/PaginationFooter";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "../../../routes/paths";
 import {
   IconSearch,
   IconEye,
@@ -125,6 +129,7 @@ function generateInvoicePDF(invoice: UserInvoice, username: string): void {
 // --- Page ---
 
 export default function AdminFinance() {
+  const navigate = useNavigate();
   const [year, setYear] = useState<string>(String(CURRENT_YEAR));
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 400);
@@ -158,8 +163,6 @@ export default function AdminFinance() {
       Ads: d.ads,
       Events: d.events,
     })) ?? [];
-
-  const totalPages = usersData ? Math.ceil(usersData.total / 20) : 1;
 
   return (
     <Stack gap="xl" p="md">
@@ -263,71 +266,76 @@ export default function AdminFinance() {
           />
         </Group>
 
-        {isLoadingUsers ? (
-          <Center h={200}>
-            <Loader />
-          </Center>
-        ) : (
-          <>
-            <Table highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>User</Table.Th>
-                  <Table.Th>Email</Table.Th>
-                  <Table.Th>Role</Table.Th>
-                  <Table.Th>Transactions</Table.Th>
-                  <Table.Th>Total Spent</Table.Th>
-                  <Table.Th />
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {(usersData?.users ?? []).length === 0 && (
-                  <Table.Tr>
-                    <Table.Td colSpan={6}>
-                      <Center py="lg">
-                        <Text c="dimmed">No users found.</Text>
-                      </Center>
-                    </Table.Td>
-                  </Table.Tr>
-                )}
-                {usersData?.users &&
-                  usersData?.users.map((u) => (
-                    <Table.Tr key={u.id_account}>
-                      <Table.Td fw={500}>{u.username}</Table.Td>
-                      <Table.Td c="dimmed">{u.email}</Table.Td>
-                      <Table.Td>
-                        <RoleBadge role={u.role} />
-                      </Table.Td>
-                      <Table.Td>{u.transaction_count}</Table.Td>
-                      <Table.Td>{formatEuros(u.total_spent)}</Table.Td>
-                      <Table.Td>
-                        <ActionIcon
-                          variant="subtle"
-                          onClick={() => handleOpenUserInvoices(u.id_account)}
-                          title="View invoices"
-                        >
-                          <IconEye
-                            color="var(--upagain-neutral-green)"
-                            size={16}
-                          />
-                        </ActionIcon>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-              </Table.Tbody>
-            </Table>
-
-            {totalPages > 1 && (
-              <Group justify="center" mt="md">
-                <Pagination
-                  total={totalPages}
-                  value={page}
-                  onChange={setPage}
-                />
-              </Group>
-            )}
-          </>
-        )}
+        <AdminTable
+          loading={isLoadingUsers}
+          header={["User", "Email", "Role", "Transactions", "Total Spent", ""]}
+          footer={
+            <PaginationFooter
+              activePage={page}
+              setPage={setPage}
+              total_records={usersData?.total || 0}
+              last_page={Math.ceil((usersData?.total || 0) / 10) || 1}
+              limit={10}
+              loading={isLoadingUsers}
+              hidden={Boolean(debouncedSearch)}
+            />
+          }
+        >
+          {(!usersData?.users || usersData.users.length === 0) &&
+          !isLoadingUsers ? (
+            <Table.Tr>
+              <Table.Td colSpan={6}>
+                <Center py="lg">
+                  <Text c="dimmed">No users found.</Text>
+                </Center>
+              </Table.Td>
+            </Table.Tr>
+          ) : (
+            usersData?.users?.map((u) => (
+              <Table.Tr
+                key={u.id_account}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  navigate(PATHS.ADMIN.USERS.ALL + "/" + u.id_account, {
+                    state: "allUsers",
+                  });
+                }}
+              >
+                <Table.Td ta="center" fw={500}>
+                  {u.username}
+                </Table.Td>
+                <Table.Td ta="center" c="dimmed">
+                  {u.email}
+                </Table.Td>
+                <Table.Td ta="center">
+                  {u.role === "user" ? (
+                    <Pill variant="blue">User</Pill>
+                  ) : u.role === "pro" ? (
+                    <Pill variant="yellow">Pro</Pill>
+                  ) : u.role === "employee" ? (
+                    <Pill variant="green">Employee</Pill>
+                  ) : (
+                    <Pill variant="red">Admin</Pill>
+                  )}
+                </Table.Td>
+                <Table.Td ta="center">{u.transaction_count}</Table.Td>
+                <Table.Td ta="center">{formatEuros(u.total_spent)}</Table.Td>
+                <Table.Td ta="center">
+                  <ActionIcon
+                    variant="subtle"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenUserInvoices(u.id_account);
+                    }}
+                    title="View invoices"
+                  >
+                    <IconEye color="var(--upagain-neutral-green)" size={16} />
+                  </ActionIcon>
+                </Table.Td>
+              </Table.Tr>
+            ))
+          )}
+        </AdminTable>
       </Paper>
 
       {/* User invoices modal */}
@@ -347,7 +355,7 @@ export default function AdminFinance() {
           <Center py="xl">
             <Stack align="center" gap="xs">
               <IconFileInvoice size={40} color="gray" />
-              <Text c="dimmed">No invoices for this user.</Text>
+              <Text c="dimmed">No invoices for this user</Text>
             </Stack>
           </Center>
         ) : (
@@ -428,23 +436,5 @@ function SummaryCard({ label, value, color }: SummaryCardProps) {
         }).format(value)}
       </Text>
     </Card>
-  );
-}
-
-interface RoleBadgeProps {
-  role: string;
-}
-
-function RoleBadge({ role }: RoleBadgeProps) {
-  const colorMap: Record<string, string> = {
-    admin: "red",
-    employee: "blue",
-    pro: "teal",
-    user: "gray",
-  };
-  return (
-    <Badge color={colorMap[role] ?? "gray"} variant="light">
-      {role}
-    </Badge>
   );
 }
