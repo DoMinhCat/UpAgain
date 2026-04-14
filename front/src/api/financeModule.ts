@@ -6,7 +6,9 @@ import type {
   UserInvoicesResponse,
 } from "./interfaces/finance";
 
-export const getFinanceRevenue = async (year?: number): Promise<RevenueResponse> => {
+export const getFinanceRevenue = async (
+  year?: number,
+): Promise<RevenueResponse> => {
   const response = await api.get(ENDPOINTS.ADMIN.FINANCE.REVENUE, {
     params: year ? { year } : {},
   });
@@ -24,7 +26,9 @@ export const getInvoiceUsers = async (
   return response.data;
 };
 
-export const getUserInvoices = async (userId: number): Promise<UserInvoicesResponse> => {
+export const getUserInvoices = async (
+  userId: number,
+): Promise<UserInvoicesResponse> => {
   const response = await api.get(ENDPOINTS.ADMIN.FINANCE.USER_INVOICES(userId));
   return response.data;
 };
