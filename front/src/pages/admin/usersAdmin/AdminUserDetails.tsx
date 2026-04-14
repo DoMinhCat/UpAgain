@@ -16,12 +16,14 @@ import {
   Indicator,
   Loader,
   TextInput,
+  HoverCard,
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { ScoreRing } from "../../../components/user/ScoreRing";
 import { useEffect, useState } from "react";
 import { Calendar } from "@mantine/dates";
+import { useGetEmployeeSchedule } from "../../../hooks/employeeHooks";
 import {
   useAccountDetails,
   useDeleteAccount,
@@ -205,6 +207,12 @@ export default function AdminUserDetails() {
     useAccountStats(
       accountId,
       isValidId && role != "admin" && !isAccountDetailsLoading,
+    );
+
+  const { data: employeeSchedule, isLoading: isEmployeeScheduleLoading } =
+    useGetEmployeeSchedule(
+      accountId,
+      isValidId && role === "employee" && !isAccountDetailsLoading,
     );
 
   // delete hook
@@ -778,7 +786,6 @@ export default function AdminUserDetails() {
                     >
                       Change password
                     </Button>
-                    {/* // modal change pass */}
                     <Modal
                       opened={openedChangePassword}
                       onClose={closeChangePassword}
@@ -1021,20 +1028,63 @@ export default function AdminUserDetails() {
             size="lg"
             renderDay={(date) => {
               const day = dayjs(date).date();
-              const isTargetDay = day === 16;
+              const tasksOnDate =
+                employeeSchedule?.filter((event) => {
+                  const start = dayjs(event.start_at).startOf("day").valueOf();
+                  const end = dayjs(event.end_at).endOf("day").valueOf();
+                  const current = dayjs(date).valueOf();
+                  return current >= start && current <= end;
+                }) || [];
+
+              const hasTasks = tasksOnDate.length > 0;
 
               return (
-                <Indicator
-                  size={8}
-                  color="red"
-                  offset={2}
-                  disabled={!isTargetDay}
-                  processing={isTargetDay}
-                >
-                  <Center>
-                    <Text size="sm">{day}</Text>
-                  </Center>
-                </Indicator>
+                <HoverCard shadow="md" disabled={!hasTasks}>
+                  <HoverCard.Target>
+                    <Indicator
+                      size={hasTasks && tasksOnDate.length > 1 ? 16 : 8}
+                      color="red"
+                      offset={tasksOnDate.length > 1 ? 7 : 2}
+                      disabled={!hasTasks}
+                      processing={false}
+                      label={
+                        tasksOnDate.length > 1
+                          ? `+${tasksOnDate.length}`
+                          : undefined
+                      }
+                      style={{ width: "100%", height: "100%" }}
+                    >
+                      <Center w="100%" h="100%">
+                        <Text size="sm">{day}</Text>
+                      </Center>
+                    </Indicator>
+                  </HoverCard.Target>
+                  <HoverCard.Dropdown>
+                    <Text size="sm" fw={700} mb="xs">
+                      {dayjs(date).format("DD MMM YYYY")}
+                    </Text>
+                    <Stack gap="xs">
+                      {tasksOnDate.map((task) => (
+                        <Text
+                          key={task.id}
+                          size="sm"
+                          c="blue"
+                          style={{
+                            cursor: "pointer",
+                            textDecoration: "underline",
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            closeCalendar();
+                            navigate(`${PATHS.ADMIN.EVENTS.ALL}/${task.id}`);
+                          }}
+                        >
+                          • {task.title}
+                        </Text>
+                      ))}
+                    </Stack>
+                  </HoverCard.Dropdown>
+                </HoverCard>
               );
             }}
           />
