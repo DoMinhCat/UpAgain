@@ -71,6 +71,9 @@ export const ENDPOINTS = {
       CANCEL_TRANSACTION: (id_item: number, transactionUuid: string) =>
         `/items/${id_item}/transactions/${transactionUuid}/cancel/`,
     },
+    SUBSCRIPTIONS: {
+      ALL: "/subscriptions/",
+    },
   },
 
   AUTH: {

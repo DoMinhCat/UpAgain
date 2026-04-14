@@ -13,12 +13,10 @@ type Subscription struct {
 }
 
 type SubscriptionWithUser struct {
-	Subscription
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Avatar    string `json:"avatar"`
+    Subscription
+    Username string `json:"username"`
+    Avatar   *string `json:"avatar"`
 }
-
 type SubscriptionListPagination struct {
 	Subscriptions []SubscriptionWithUser `json:"subscriptions"`
 	CurrentPage   int                    `json:"current_page"`

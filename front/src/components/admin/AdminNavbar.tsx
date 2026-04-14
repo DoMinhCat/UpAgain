@@ -91,7 +91,7 @@ const navButtonData = [
   {
     icon: IconDiamond,
     label: "Subscriptions",
-    path: PATHS.ADMIN.SUBSCRIPTIONS,
+    path: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
   },
   { icon: IconPigMoney, label: "Finance", path: PATHS.ADMIN.FINANCE.ALL },
 ];
