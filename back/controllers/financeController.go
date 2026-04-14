@@ -91,10 +91,23 @@ func GetInvoiceUsers(w http.ResponseWriter, r *http.Request) {
 // GetUserInvoices returns all transactions/invoices for a specific account.
 // URL param: userId
 func GetUserInvoices(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" && role != "pro" && role != "user" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
+		return
+	}
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
 	userIDStr := r.PathValue("userId")
 	userID, err := strconv.Atoi(userIDStr)
 	if err != nil || userID < 1 {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid user ID.")
+		return
+	}
+
+	// if not admin then can only get own invoice
+	if role != "admin" && userID != idRequestor {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
 		return
 	}
 

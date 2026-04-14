@@ -7,7 +7,7 @@ import (
 )
 
 func GetFinanceRoutes(mux *http.ServeMux) {
-	mux.Handle("GET /admin/finance/revenue/", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetFinanceRevenue))))
-	mux.Handle("GET /admin/finance/invoices/", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetInvoiceUsers))))
-	mux.Handle("GET /admin/finance/invoices/{userId}/", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetUserInvoices))))
+	mux.Handle("GET /finance/revenue/", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetFinanceRevenue))))
+	mux.Handle("GET /finance/invoices/", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetInvoiceUsers))))
+	mux.Handle("GET /finance/invoices/{userId}/", middleware.AuthMiddleware([]string{"admin", "pro", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetUserInvoices))))
 }
