@@ -91,6 +91,7 @@ export const useAssignEmployeeToEvent = () => {
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["employeeSchedule"] });
     },
     meta: {
       errorTitle: "Employee assignation failed",
@@ -137,6 +138,7 @@ export const useUnAssignEmployee = (id_event: number) => {
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["employeeSchedule"] });
     },
     meta: {
       errorTitle: "Employee unassignation failed",

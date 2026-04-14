@@ -59,7 +59,7 @@ func GetAvailableEmployees(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, employees)
 }
 
-func GetEmployeeEvents(w http.ResponseWriter, r *http.Request) {
+func GetEmployeeSchedule(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "employee" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
@@ -82,7 +82,7 @@ func GetEmployeeEvents(w http.ResponseWriter, r *http.Request) {
 	isDel := false
 	empExist, err := db.CheckAccountExistsById(id_employee, &isDel)
 	if err != nil {
-		slog.Error("CheckAccountExistsById() failed", "controller", "employeeController", "error", err)
+		slog.Error("CheckAccountExistsById() failed", "controller", "GetEmployeeSchedule", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching employee's schedule.")
 		return
 	}
@@ -93,7 +93,7 @@ func GetEmployeeEvents(w http.ResponseWriter, r *http.Request) {
 
 	events, err := db.GetEmployeeEventsByEmployeeId(id_employee)
 	if err != nil {
-		slog.Error("GetEmployeeEventsByEmployeeId() failed", "controller", "employeeController", "error", err)
+		slog.Error("GetEmployeeEventsByEmployeeId() failed", "controller", "GetEmployeeSchedule", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching employee's schedule.")
 		return
 	}

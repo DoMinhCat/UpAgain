@@ -791,10 +791,10 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		payload.Price.SetValid(price)
 	}
 	if startAt, err := time.Parse(time.RFC3339, r.FormValue("start_at")); err == nil {
-		payload.StartAt = startAt
+		payload.StartAt.SetValid(startAt)
 	}
 	if endAt, err := time.Parse(time.RFC3339, r.FormValue("end_at")); err == nil {
-		payload.EndAt = endAt
+		payload.EndAt.SetValid(endAt)
 	}
 	payload.LocationDetail.SetValid(r.FormValue("location_detail"))
 
@@ -806,7 +806,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if hasParticipant {
-		if payload.StartAt != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
+		if payload.StartAt.Time != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
 			utils.RespondWithError(w, http.StatusConflict, "Event's critical fields cannot be updated because it has participants registered.")
 			return
 		}
