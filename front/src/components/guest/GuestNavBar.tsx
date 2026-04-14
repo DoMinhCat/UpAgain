@@ -14,7 +14,7 @@ import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
-import { PATHS } from "../../../src/routes/paths";
+import { PATHS } from "../../routes/paths";
 import { IconWorld, IconSun, IconMoon } from "@tabler/icons-react";
 
 interface NavbarLinkProps {
@@ -81,7 +81,7 @@ function HeaderLink({
   );
 }
 
-export function GuestHeader() {
+export function GuestNavBar() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
   const navigate = useNavigate();
@@ -112,6 +112,8 @@ export function GuestHeader() {
           width={200}
           position="bottom-end"
           transitionProps={{ transition: "pop" }}
+          radius="lg"
+          offset={15}
         >
           <Menu.Target>
             <ActionIcon variant="primary" color="grey" size="lg" radius="md">

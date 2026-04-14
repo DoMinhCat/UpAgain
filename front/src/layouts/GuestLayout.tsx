@@ -1,6 +1,6 @@
 import { Box } from "@mantine/core";
 import { Outlet } from "react-router-dom";
-import { GuestHeader } from "../components/guest/GuestHeader";
+import { GuestNavBar } from "../components/guest/GuestNavBar";
 
 export default function GuestLayout() {
   // Define your header height here so it's consistent
@@ -22,7 +22,7 @@ export default function GuestLayout() {
           borderBottom: "1px solid var(--mantine-color-gray-3)",
         }}
       >
-        <GuestHeader />
+        <GuestNavBar />
       </Box>
 
       {/* 2. The Main Content Area */}

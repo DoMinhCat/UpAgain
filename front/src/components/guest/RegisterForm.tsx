@@ -14,13 +14,14 @@ import {
 import { IconLock } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import PasswordStrengthInput, {
   requirements,
 } from "../common/input/PasswordStrengthInput";
 import { useRegister } from "../../hooks/authHooks";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
   // password
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -273,7 +274,9 @@ export default function RegisterForm() {
         </form>
         <Text c="dimmed" size="sm" ta="center" mt="md">
           Are you a professional?{" "}
-          <Link to={PATHS.GUEST.REGISTER_PRO}>Register here</Link>
+          <Anchor onClick={() => navigate(PATHS.GUEST.REGISTER_PRO)}>
+            Register here
+          </Anchor>
         </Text>
       </Paper>
     </Container>
