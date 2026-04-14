@@ -20,9 +20,9 @@ export const ENDPOINTS = {
     },
 
     FINANCE: {
-      REVENUE: "/admin/finance/revenue/",
-      INVOICES: "/admin/finance/invoices/",
-      USER_INVOICES: (userId: number) => `/admin/finance/invoices/${userId}/`,
+      REVENUE: "/finance/revenue/",
+      INVOICES: "/finance/invoices/",
+      USER_INVOICES: (userId: number) => `/finance/invoices/${userId}/`,
     },
 
     VALIDATIONS: {
