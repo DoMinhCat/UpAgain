@@ -48,10 +48,10 @@ func GetFinanceRevenue(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetInvoiceUsers returns a paginated list of accounts with their transaction counts.
-// Query params: page (default 1), limit (default 20), search (optional)
+// Query params: page (default 1), limit (default 10), search (optional)
 func GetInvoiceUsers(w http.ResponseWriter, r *http.Request) {
 	page := 1
-	limit := 20
+	limit := 10
 
 	if p := r.URL.Query().Get("page"); p != "" {
 		parsed, err := strconv.Atoi(p)
@@ -98,13 +98,26 @@ func GetUserInvoices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	deleted := false
+	exist, err := db.CheckAccountExistsById(userID, &deleted)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching user's invoices.")
+		slog.Error("CheckAccountExistsById() failed", "controller", "GetUserInvoices", "error", err)
+		return
+	}
+
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "User with ID " + userIDStr + " not found.")
+		return
+	}
+
 	resp, err := db.GetUserInvoices(userID)
 	if err != nil {
 		if err.Error() == "account not found" {
-			utils.RespondWithError(w, http.StatusNotFound, "User not found.")
+			utils.RespondWithError(w, http.StatusNotFound, "User with ID " + userIDStr + " not found.")
 			return
 		}
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching invoices.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching user's invoices.")
 		slog.Error("GetUserInvoices() failed", "controller", "GetUserInvoices", "error", err)
 		return
 	}
