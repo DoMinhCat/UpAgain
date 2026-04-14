@@ -1011,134 +1011,149 @@ export default function AdminUserDetails() {
         styles={{ body: { paddingBottom: "var(--mantine-spacing-xl)" } }}
       >
         <Center>
-          <Calendar
-            styles={{
-              levelsGroup: { width: "100%" },
-              month: { width: "100%" },
-              weekday: { textAlign: "center" },
-              day: { width: "100%" },
-              calendarHeader: {
-                maxWidth: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "var(--mantine-spacing-md)",
-              },
-            }}
-            static
-            size="lg"
-            renderDay={(date) => {
-              const day = dayjs(date).date();
-              const tasksOnDate =
-                employeeSchedule?.filter((event) => {
-                  const start = dayjs(event.start_at).startOf("day").valueOf();
-                  const end = dayjs(event.end_at)
-                    .subtract(1, "ms")
-                    .endOf("day")
-                    .valueOf();
-                  const current = dayjs(date).valueOf();
-                  return current >= start && current <= end;
-                }) || [];
+          {isEmployeeScheduleLoading ? (
+            <Loader />
+          ) : (
+            <Calendar
+              styles={{
+                levelsGroup: { width: "100%" },
+                month: { width: "100%" },
+                weekday: { textAlign: "center" },
+                day: { width: "100%" },
+                calendarHeader: {
+                  maxWidth: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "var(--mantine-spacing-md)",
+                },
+              }}
+              static
+              size="lg"
+              renderDay={(date) => {
+                const day = dayjs(date).date();
+                const tasksOnDate =
+                  employeeSchedule?.filter((event) => {
+                    const eventStartVal = dayjs(event.start_at).valueOf();
+                    const eventEndVal = dayjs(event.end_at).valueOf();
+                    const dayStartVal = dayjs(date).valueOf();
+                    const dayEndVal = dayjs(date).endOf("day").valueOf();
 
-              const hasTasks = tasksOnDate.length > 0;
+                    if (eventStartVal === eventEndVal) {
+                      return eventStartVal >= dayStartVal && eventStartVal <= dayEndVal;
+                    }
+                    return eventStartVal <= dayEndVal && eventEndVal > dayStartVal;
+                  }) || [];
 
-              return (
-                <HoverCard
-                  shadow="xl"
-                  disabled={!hasTasks}
-                  withinPortal
-                  withArrow
-                  openDelay={100}
-                  closeDelay={200}
-                >
-                  <HoverCard.Target>
-                    <Indicator
-                      processing
-                      size={hasTasks && tasksOnDate.length > 1 ? 18 : 10}
-                      color="red"
-                      offset={tasksOnDate.length > 1 ? 4 : 0}
-                      disabled={!hasTasks}
-                      label={
-                        tasksOnDate.length > 1
-                          ? `+${tasksOnDate.length}`
-                          : undefined
-                      }
-                      styles={{
-                        indicator: {
-                          fontSize: "10px",
-                          fontWeight: 700,
-                        },
-                      }}
-                      style={{ width: "100%", height: "100%" }}
-                    >
-                      <Center w="100%" h="100%">
-                        <Text size="sm" fw={hasTasks ? 700 : 400}>
-                          {day}
-                        </Text>
-                      </Center>
-                    </Indicator>
-                  </HoverCard.Target>
+                const hasTasks = tasksOnDate.length > 0;
+                // Determine if all tasks on this date are completely in the past
+                const allTasksInPast = tasksOnDate.every((event) => {
+                  return dayjs().valueOf() > dayjs(event.end_at).valueOf();
+                });
 
-                  <HoverCard.Dropdown p="sm">
-                    <Stack gap="xs">
-                      {/* Header: Date with a subtle divider */}
-                      <Box
-                        style={{
-                          borderBottom: "1px solid var(--border-color)",
-                          paddingBottom: "4px",
+                return (
+                  <HoverCard
+                    shadow="xl"
+                    disabled={!hasTasks}
+                    withinPortal
+                    withArrow
+                    openDelay={100}
+                    closeDelay={200}
+                  >
+                    <HoverCard.Target>
+                      <Indicator
+                        processing={hasTasks && !allTasksInPast}
+                        size={hasTasks && tasksOnDate.length > 1 ? 18 : 10}
+                        color={
+                          allTasksInPast ? "red" : "var(--upagain-neutral-green)"
+                        }
+                        offset={tasksOnDate.length > 1 ? 4 : 0}
+                        disabled={!hasTasks}
+                        label={
+                          tasksOnDate.length > 1
+                            ? `+${tasksOnDate.length}`
+                            : undefined
+                        }
+                        styles={{
+                          indicator: {
+                            fontSize: "10px",
+                            fontWeight: 700,
+                          },
                         }}
+                        style={{ width: "100%", height: "100%" }}
                       >
-                        <Text size="xs" c="dimmed" tt="uppercase">
-                          {dayjs(date).format("dddd")}
-                        </Text>
-                        <Text size="sm">
-                          {dayjs(date).format("DD MMM YYYY")}
-                        </Text>
-                      </Box>
+                        <Center w="100%" h="100%">
+                          <Text size="sm" fw={hasTasks ? 700 : 400}>
+                            {day}
+                          </Text>
+                        </Center>
+                      </Indicator>
+                    </HoverCard.Target>
 
-                      <Stack gap={4}>
-                        {tasksOnDate.map((task) => (
-                          <UnstyledButton
-                            key={task.id}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              closeCalendar();
-                              navigate(`${PATHS.ADMIN.EVENTS.ALL}/${task.id}`, {
-                                state: {
-                                  from: "userDetails",
-                                  id_user: accountDetails?.id,
-                                },
-                              });
-                            }}
-                            style={{
-                              padding: "6px 8px",
-                              borderRadius: "4px",
-                              transition: "background 0.2s ease",
-                            }}
-                            // Hover effect
-                            onMouseEnter={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                "var(--upagain-neutral-green)")
-                            }
-                            onMouseLeave={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                "transparent")
-                            }
-                          >
-                            <Group gap="xs" wrap="nowrap">
-                              <Text size="sm" truncate>
-                                {task.title}
-                              </Text>
-                            </Group>
-                          </UnstyledButton>
-                        ))}
+                    <HoverCard.Dropdown p="sm">
+                      <Stack gap="xs">
+                        {/* Header: Date with a subtle divider */}
+                        <Box
+                          style={{
+                            borderBottom: "1px solid var(--border-color)",
+                            paddingBottom: "4px",
+                          }}
+                        >
+                          <Text size="xs" c="dimmed" tt="uppercase">
+                            {dayjs(date).format("dddd")}
+                          </Text>
+                          <Text size="sm">
+                            {dayjs(date).format("DD MMM YYYY")}
+                          </Text>
+                        </Box>
+
+                        <Stack gap={4}>
+                          {tasksOnDate.map((task) => (
+                            <UnstyledButton
+                              key={task.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                closeCalendar();
+                                navigate(
+                                  `${PATHS.ADMIN.EVENTS.ALL}/${task.id}`,
+                                  {
+                                    state: {
+                                      from: "userDetails",
+                                      id_user: accountDetails?.id,
+                                    },
+                                  },
+                                );
+                              }}
+                              style={{
+                                padding: "6px 8px",
+                                borderRadius: "4px",
+                                transition: "background 0.2s ease",
+                              }}
+                              // Hover effect
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "var(--upagain-neutral-green)")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "transparent")
+                              }
+                            >
+                              <Group gap="xs" wrap="nowrap">
+                                <Text size="sm" truncate>
+                                  {task.title}
+                                </Text>
+                              </Group>
+                            </UnstyledButton>
+                          ))}
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  </HoverCard.Dropdown>
-                </HoverCard>
-              );
-            }}
-          />
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                );
+              }}
+            />
+          )}
         </Center>
       </Modal>
     </Container>
