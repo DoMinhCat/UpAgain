@@ -48,7 +48,7 @@ export const useGetUserInvoices = (userId: number, enabled: boolean) => {
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Error",
-      errorMessage: "Failed to fetch invoices.",
+      errorMessage: "Failed to fetch user's invoices.",
     },
   });
 };
