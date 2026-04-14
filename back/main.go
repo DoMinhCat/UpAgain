@@ -39,9 +39,10 @@ func main() {
 
 	handler := corsHandler.Handler(mux)
 
-	port := utils.GetPort()
+	env := utils.GetEnv()
+	port := utils.GetPort(env)
 	slog.Info("backend started", "port", port)
-	slog.Info("swagger docs at http://localhost:8080/swagger/")
+	slog.Info("swagger docs at http://localhost:" + port + "/swagger/")
 	err := http.ListenAndServe(":"+port, handler)
 	if err != nil {
 		slog.Error("server failed to start", "error", err)
