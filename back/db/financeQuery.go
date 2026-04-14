@@ -199,7 +199,7 @@ func GetUserInvoices(accountID int) (models.UserInvoicesResponse, error) {
 			t.id_transaction::text
 		FROM transactions t
 		JOIN items i ON i.id = t.id_item
-		WHERE t.id_pro = $1
+		WHERE t.id_pro = $1 AND t.action = 'purchased'
 
 		UNION ALL
 
