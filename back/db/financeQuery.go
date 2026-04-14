@@ -38,7 +38,7 @@ func GetRevenueByYear(year int) ([]models.RevenueMonthData, error) {
 		FROM transactions t
 		JOIN items i ON t.id_item = i.id
 		WHERE t.action = 'purchased'
-		  AND EXTRACT(YEAR FROM t.created_at) = $1	
+		  AND EXTRACT(YEAR FROM t.created_at) = $1
 		GROUP BY DATE_TRUNC('month', t.created_at)
 	`
 	if err := fillRevenue(commQuery, year, months, func(row *models.RevenueMonthData, v float64) {
@@ -122,12 +122,19 @@ func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int,
 			a.email,
 			a.role,
 			a.created_at,
-			COUNT(t.id) AS transaction_count,
-			COALESCE(SUM(i.price), 0) AS total_spent
+			COUNT(DISTINCT t.id) + COUNT(DISTINCT s.id) AS transaction_count,
+			COALESCE(SUM(DISTINCT i.price), 0) +
+			COALESCE((
+				SELECT SUM(fs.value)
+				FROM subscriptions s2
+				JOIN finance_settings fs ON fs.key = 'subscription_price'
+				WHERE s2.id_pro = a.id
+			), 0) AS total_spent
 		FROM accounts a
 		LEFT JOIN pros p ON p.id_account = a.id
 		LEFT JOIN transactions t ON t.id_pro = p.id_account
 		LEFT JOIN items i ON i.id = t.id_item AND t.action = 'purchased'
+		LEFT JOIN subscriptions s ON s.id_pro = p.id_account
 		WHERE a.deleted_at IS NULL
 		  AND ($3 = '' OR a.username ILIKE $3 OR a.email ILIKE $3)
 		GROUP BY a.id, a.username, a.email, a.role, a.created_at
@@ -185,15 +192,29 @@ func GetUserInvoices(accountID int) (models.UserInvoicesResponse, error) {
 		SELECT
 			t.id,
 			t.created_at,
-			t.action,
+			t.action::text,
 			i.title,
 			i.price,
-			i.price * COALESCE((SELECT value FROM finance_settings WHERE key = 'commission_rate' LIMIT 1), 0) / 100 AS commission,
+			i.price * COALESCE((SELECT value FROM finance_settings WHERE key = 'commission_rate' LIMIT 1), 0) / 100 AS amount,
 			t.id_transaction::text
 		FROM transactions t
 		JOIN items i ON i.id = t.id_item
 		WHERE t.id_pro = $1
-		ORDER BY t.created_at DESC
+
+		UNION ALL
+
+		SELECT
+			s.id,
+			s.sub_from,
+			'subscription',
+			'Premium Subscription',
+			COALESCE((SELECT value FROM finance_settings WHERE key = 'subscription_price' LIMIT 1), 0),
+			COALESCE((SELECT value FROM finance_settings WHERE key = 'subscription_price' LIMIT 1), 0),
+			s.id::text
+		FROM subscriptions s
+		WHERE s.id_pro = $1
+
+		ORDER BY created_at DESC
 	`
 	rows, err := utils.Conn.Query(query, accountID)
 	if err != nil {
