@@ -5,18 +5,18 @@ import classes from "../../styles/Admin.module.css";
 
 interface StatsCardDescProps {
   description: string;
-  icon?: Icon;
+  icon?: React.ReactNode;
   stats: number;
 }
 export function StatsCardDesc({
   description,
-  icon: Icon,
+  icon,
   stats,
 }: StatsCardDescProps) {
   return (
     <Box>
       <Group gap="xs" mt="sm" align="flex-start" wrap="nowrap">
-        <Text c="dimmed">{Icon && <Icon size={24} />}</Text>
+        <Text c="dimmed">{icon && icon}</Text>
 
         <Text c="dimmed" style={{ flex: 1 }}>
           + {stats}

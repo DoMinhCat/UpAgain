@@ -6,7 +6,10 @@ import {
   type ReactNode,
 } from "react";
 import { jwtDecode } from "jwt-decode";
-import { showInfoNotification } from "../components/NotificationToast";
+import {
+  showInfoNotification,
+  showSuccessNotification,
+} from "../components/common/NotificationToast";
 
 interface User {
   token: string;
@@ -65,9 +68,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       id: decoded.id_account,
       role: decoded.role,
       email: decoded.email,
+      username: decoded.username,
     };
 
     setUser(userData);
+    showSuccessNotification(
+      "Logged In Successfully",
+      `Welcome back, ${userData.username}.`,
+    );
     return userData;
   };
 

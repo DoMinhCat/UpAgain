@@ -22,11 +22,12 @@ import {
   IconChecklist,
   IconArrowUpRight,
   IconSearch,
+  IconAlertTriangle,
 } from "@tabler/icons-react";
 import { PieChart } from "@mantine/charts";
 import { Paper, Text } from "@mantine/core";
 import AdminTable from "../../../components/admin/AdminTable";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 import {
   useDeleteItem,
   useGetAllItems,
@@ -38,7 +39,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import type { Item } from "../../../api/interfaces/item";
 import { useDisclosure } from "@mantine/hooks";
-import { ChartLegend } from "../../../components/ChartLegend";
+import { ChartLegend } from "../../../components/common/chart/ChartLegend";
 
 export function AdminListingModule() {
   const navigate = useNavigate();
@@ -165,7 +166,12 @@ export function AdminListingModule() {
           description={
             <StatsCardDesc
               stats={itemStats?.new_since || 0}
-              icon={IconArrowUpRight}
+              icon={
+                <IconArrowUpRight
+                  size={24}
+                  color="var(--upagain-neutral-green)"
+                />
+              }
               description={
                 itemStats?.new_since != 1
                   ? " new objects posted since last month"
@@ -182,6 +188,9 @@ export function AdminListingModule() {
           description={
             <StatsCardDesc
               stats={itemStats?.pending || 0}
+              icon={
+                <IconAlertTriangle size={24} color="var(--upagain-yellow)" />
+              }
               description={
                 itemStats?.pending != 1
                   ? " objects require validation"
@@ -198,7 +207,12 @@ export function AdminListingModule() {
           description={
             <StatsCardDesc
               stats={itemStats?.new_transactions_since || 0}
-              icon={IconArrowUpRight}
+              icon={
+                <IconArrowUpRight
+                  size={24}
+                  color="var(--upagain-neutral-green)"
+                />
+              }
               description={
                 itemStats?.new_transactions_since != 1
                   ? " new transactions since last month"

@@ -3,8 +3,15 @@ import { getNewAccessToken } from "./auth";
 import { ENDPOINTS } from "./endpoints";
 import { router } from "../routes/routes";
 
+let baseURL;
+if (import.meta.env.VITE_ENV === "DEV") {
+  baseURL = import.meta.env.VITE_API_BASE_URL_DEV;
+} else {
+  baseURL = import.meta.env.VITE_API_BASE_URL_PROD;
+}
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: baseURL,
   withCredentials: true,
 });
 

@@ -21,7 +21,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import {
-  IconArrowUp,
+  IconArrowUpRight,
   IconPigMoney,
   IconAlertTriangle,
   IconUsers,
@@ -41,7 +41,7 @@ import {
 import AdminCardNav from "../../components/admin/AdminCardNav";
 import AdminTable from "../../components/admin/AdminTable";
 import classes from "../../styles/Admin.module.css";
-import PaginationFooter from "../../components/PaginationFooter";
+import PaginationFooter from "../../components/common/PaginationFooter";
 import { PATHS } from "../../../src/routes/paths";
 import { useAccountCountStats } from "../../hooks/accountHooks";
 import { useGetContainerStats } from "../../hooks/containerHooks";
@@ -146,7 +146,12 @@ export default function AdminHome() {
             ) : (
               <StatsCardDesc
                 stats={accountCountStats?.increase ?? 0}
-                icon={IconArrowUp}
+                icon={
+                  <IconArrowUpRight
+                    size={24}
+                    color="var(--upagain-neutral-green)"
+                  />
+                }
                 description=" users since last month"
               />
             )
@@ -177,7 +182,9 @@ export default function AdminHome() {
                     (validationStats?.pending_listings || 0) +
                     (validationStats?.pending_events || 0)
                 }
-                icon={IconAlertTriangle}
+                icon={
+                  <IconAlertTriangle size={24} color="var(--upagain-yellow)" />
+                }
                 description=" requests waiting for validation"
               />
             )
@@ -195,7 +202,9 @@ export default function AdminHome() {
             ) : (
               <StatsCardDesc
                 stats={totalScore?.co2 || 0}
-                icon={IconLeaf}
+                icon={
+                  <IconLeaf size={24} color="var(--upagain-neutral-green)" />
+                }
                 description={
                   totalScore?.co2 === 1
                     ? " kg of CO2 avoided by the community"

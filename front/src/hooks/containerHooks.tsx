@@ -12,7 +12,7 @@ import {
   type ContainerCountStats,
   type Container,
 } from "../api/interfaces/container";
-import { showSuccessNotification } from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 
 export const useGetAllContainers = (
   page: number = -1,
