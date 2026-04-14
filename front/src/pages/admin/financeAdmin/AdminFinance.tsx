@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import {
   IconSearch,
-  IconChevronRight,
+  IconEye,
   IconFileInvoice,
   IconDownload,
 } from "@tabler/icons-react";
@@ -43,12 +43,24 @@ import {
 import type { UserInvoice } from "../../../api/interfaces/finance";
 
 const MONTH_LABELS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => String(CURRENT_YEAR - i));
+const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) =>
+  String(CURRENT_YEAR - i),
+);
 
 // --- Helpers ---
 
@@ -84,10 +96,11 @@ function generateInvoicePDF(invoice: UserInvoice, username: string): void {
     <h1>UpcycleConnect</h1>
     <p class="meta">Invoice N° ${invoice.id_transaction}<br>Date: ${formatDate(invoice.created_at)}<br>Customer: ${username}</p>
     <table>
-      ${isSubscription
-        ? `<tr><th>Item</th><th>Price</th></tr>
+      ${
+        isSubscription
+          ? `<tr><th>Item</th><th>Price</th></tr>
            <tr><td>${invoice.item_title}</td><td>${formatEuros(invoice.item_price)}</td></tr>`
-        : `<tr><th>Item</th><th>Price</th><th>Commission</th><th>Total</th></tr>
+          : `<tr><th>Item</th><th>Price</th><th>Commission</th><th>Total</th></tr>
            <tr>
              <td>${invoice.item_title}</td>
              <td>${formatEuros(invoice.item_price)}</td>
@@ -97,7 +110,7 @@ function generateInvoicePDF(invoice: UserInvoice, username: string): void {
       }
     </table>
     <p class="total">Total: ${formatEuros(invoice.item_price)}</p>
-    <p class="footer">UpcycleConnect — 174 rue La Fayette, 75010 Paris — contact@upcycleconnect.fr</p>
+    <p class="footer">UpcycleConnect — 21 rue Erard, 75012 Paris — support@upagain.com</p>
     </body></html>
   `;
   const blob = new Blob([html], { type: "text/html" });
@@ -119,25 +132,32 @@ export default function AdminFinance() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { data: revenueData, isLoading: isLoadingRevenue } = useGetFinanceRevenue(Number(year));
-  const { data: usersData, isLoading: isLoadingUsers } = useGetInvoiceUsers(page, 20, debouncedSearch);
-  const { data: invoicesData, isLoading: isLoadingInvoices } = useGetUserInvoices(
-    selectedUserId ?? 0,
-    modalOpen && selectedUserId !== null,
+  const { data: revenueData, isLoading: isLoadingRevenue } =
+    useGetFinanceRevenue(Number(year));
+  const { data: usersData, isLoading: isLoadingUsers } = useGetInvoiceUsers(
+    page,
+    10,
+    debouncedSearch,
   );
+  const { data: invoicesData, isLoading: isLoadingInvoices } =
+    useGetUserInvoices(
+      selectedUserId ?? 0,
+      modalOpen && selectedUserId !== null,
+    );
 
   const handleOpenUserInvoices = (userId: number) => {
     setSelectedUserId(userId);
     setModalOpen(true);
   };
 
-  const chartData = revenueData?.data.map((d, i) => ({
-    month: MONTH_LABELS[i],
-    Subscriptions: d.subscriptions,
-    Commissions: d.commissions,
-    Ads: d.ads,
-    Events: d.events,
-  })) ?? [];
+  const chartData =
+    revenueData?.data.map((d, i) => ({
+      month: MONTH_LABELS[i],
+      Subscriptions: d.subscriptions,
+      Commissions: d.commissions,
+      Ads: d.ads,
+      Events: d.events,
+    })) ?? [];
 
   const totalPages = usersData ? Math.ceil(usersData.total / 20) : 1;
 
@@ -148,17 +168,35 @@ export default function AdminFinance() {
       {/* Summary cards */}
       {revenueData && (
         <SimpleGrid cols={{ base: 2, md: 4 }}>
-          <SummaryCard label="Subscriptions" value={revenueData.summary.total_subscriptions} color="blue" />
-          <SummaryCard label="Commissions" value={revenueData.summary.total_commissions} color="teal" />
-          <SummaryCard label="Ads" value={revenueData.summary.total_ads} color="violet" />
-          <SummaryCard label="Events" value={revenueData.summary.total_events} color="orange" />
+          <SummaryCard
+            label="Ads"
+            value={revenueData.summary.total_ads}
+            color="red"
+          />
+          <SummaryCard
+            label="Commissions"
+            value={revenueData.summary.total_commissions}
+            color="var(--upagain-neutral-green)"
+          />
+          <SummaryCard
+            label="Events"
+            value={revenueData.summary.total_events}
+            color="var(--upagain-yellow)"
+          />
+          <SummaryCard
+            label="Subscriptions"
+            value={revenueData.summary.total_subscriptions}
+            color="blue"
+          />
         </SimpleGrid>
       )}
 
       {/* Revenue bar chart */}
-      <Paper withBorder p="md" radius="md">
+      <Paper withBorder p="md" radius="md" variant="primary">
         <Group justify="space-between" mb="md">
-          <Text fw={600} size="lg">Monthly Revenue</Text>
+          <Text fw={600} size="lg">
+            Monthly Revenue
+          </Text>
           <Select
             data={YEAR_OPTIONS}
             value={year}
@@ -168,19 +206,40 @@ export default function AdminFinance() {
         </Group>
 
         {isLoadingRevenue ? (
-          <Center h={300}><Loader /></Center>
+          <Center h={300}>
+            <Loader />
+          </Center>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis tickFormatter={(v) => `${v}€`} />
-              <Tooltip formatter={(value) => typeof value === "number" ? formatEuros(value) : value} />
+              <Tooltip
+                formatter={(value) =>
+                  typeof value === "number" ? formatEuros(value) : value
+                }
+              />
               <Legend />
-              <Bar dataKey="Subscriptions" fill="#228be6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Commissions" fill="#12b886" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Ads" fill="#7950f2" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Events" fill="#fd7e14" radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey="Subscriptions"
+                fill="#228be6"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                dataKey="Commissions"
+                fill="var(--upagain-neutral-green)"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar dataKey="Ads" fill="#eb4034" radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey="Events"
+                fill="var(--upagain-yellow)"
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -189,10 +248,12 @@ export default function AdminFinance() {
       {/* Invoices table */}
       <Paper withBorder p="md" radius="md">
         <Group justify="space-between" mb="md">
-          <Text fw={600} size="lg">Invoices by User</Text>
+          <Text fw={600} size="lg">
+            Invoices by User
+          </Text>
           <TextInput
-            placeholder="Search a user..."
-            leftSection={<IconSearch size={16} />}
+            placeholder="Search by username..."
+            rightSection={<IconSearch size={14} />}
             value={search}
             onChange={(e) => {
               setSearch(e.currentTarget.value);
@@ -203,7 +264,9 @@ export default function AdminFinance() {
         </Group>
 
         {isLoadingUsers ? (
-          <Center h={200}><Loader /></Center>
+          <Center h={200}>
+            <Loader />
+          </Center>
         ) : (
           <>
             <Table highlightOnHover>
@@ -218,37 +281,49 @@ export default function AdminFinance() {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {usersData?.users.length === 0 && (
+                {(usersData?.users ?? []).length === 0 && (
                   <Table.Tr>
                     <Table.Td colSpan={6}>
-                      <Center py="lg"><Text c="dimmed">No users found.</Text></Center>
+                      <Center py="lg">
+                        <Text c="dimmed">No users found.</Text>
+                      </Center>
                     </Table.Td>
                   </Table.Tr>
                 )}
-                {usersData?.users.map((u) => (
-                  <Table.Tr key={u.id_account}>
-                    <Table.Td fw={500}>{u.username}</Table.Td>
-                    <Table.Td c="dimmed">{u.email}</Table.Td>
-                    <Table.Td><RoleBadge role={u.role} /></Table.Td>
-                    <Table.Td>{u.transaction_count}</Table.Td>
-                    <Table.Td>{formatEuros(u.total_spent)}</Table.Td>
-                    <Table.Td>
-                      <ActionIcon
-                        variant="subtle"
-                        onClick={() => handleOpenUserInvoices(u.id_account)}
-                        title="View invoices"
-                      >
-                        <IconChevronRight size={16} />
-                      </ActionIcon>
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
+                {usersData?.users &&
+                  usersData?.users.map((u) => (
+                    <Table.Tr key={u.id_account}>
+                      <Table.Td fw={500}>{u.username}</Table.Td>
+                      <Table.Td c="dimmed">{u.email}</Table.Td>
+                      <Table.Td>
+                        <RoleBadge role={u.role} />
+                      </Table.Td>
+                      <Table.Td>{u.transaction_count}</Table.Td>
+                      <Table.Td>{formatEuros(u.total_spent)}</Table.Td>
+                      <Table.Td>
+                        <ActionIcon
+                          variant="subtle"
+                          onClick={() => handleOpenUserInvoices(u.id_account)}
+                          title="View invoices"
+                        >
+                          <IconEye
+                            color="var(--upagain-neutral-green)"
+                            size={16}
+                          />
+                        </ActionIcon>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
               </Table.Tbody>
             </Table>
 
             {totalPages > 1 && (
               <Group justify="center" mt="md">
-                <Pagination total={totalPages} value={page} onChange={setPage} />
+                <Pagination
+                  total={totalPages}
+                  value={page}
+                  onChange={setPage}
+                />
               </Group>
             )}
           </>
@@ -259,11 +334,15 @@ export default function AdminFinance() {
       <Modal
         opened={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={invoicesData ? `Invoices — ${invoicesData.username}` : "Loading..."}
+        title={
+          invoicesData ? `Invoices - ${invoicesData.username}` : "Loading..."
+        }
         size="xl"
       >
         {isLoadingInvoices ? (
-          <Center h={200}><Loader /></Center>
+          <Center h={200}>
+            <Loader />
+          </Center>
         ) : invoicesData && !invoicesData.invoices?.length ? (
           <Center py="xl">
             <Stack align="center" gap="xs">
@@ -290,20 +369,27 @@ export default function AdminFinance() {
                     <Table.Td>{formatDate(inv.created_at)}</Table.Td>
                     <Table.Td>{inv.item_title}</Table.Td>
                     <Table.Td>
-                      <Badge variant="light" color={inv.action === "purchased" ? "teal" : "blue"}>
+                      <Badge
+                        variant="light"
+                        color={inv.action === "purchased" ? "teal" : "blue"}
+                      >
                         {inv.action}
                       </Badge>
                     </Table.Td>
                     <Table.Td>{formatEuros(inv.item_price)}</Table.Td>
                     <Table.Td c="dimmed">
-                      {inv.action === "subscription" ? "—" : formatEuros(inv.amount)}
+                      {inv.action === "subscription"
+                        ? "—"
+                        : formatEuros(inv.amount)}
                     </Table.Td>
                     <Table.Td>
                       <ActionIcon
                         variant="subtle"
                         color="gray"
                         title="Download invoice"
-                        onClick={() => generateInvoicePDF(inv, invoicesData.username)}
+                        onClick={() =>
+                          generateInvoicePDF(inv, invoicesData.username)
+                        }
                       >
                         <IconDownload size={16} />
                       </ActionIcon>
@@ -329,8 +415,10 @@ interface SummaryCardProps {
 
 function SummaryCard({ label, value, color }: SummaryCardProps) {
   return (
-    <Card withBorder radius="md" p="md">
-      <Text size="sm" c="dimmed" mb={4}>{label}</Text>
+    <Card withBorder radius="md" p="md" shadow="sm">
+      <Text size="sm" c="dimmed" mb={4}>
+        {label}
+      </Text>
       <Text fw={700} size="xl" c={color}>
         {new Intl.NumberFormat("en-US", {
           style: "currency",

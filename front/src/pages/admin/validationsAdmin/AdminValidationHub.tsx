@@ -294,7 +294,6 @@ function FilterBar({
       <Grid.Col span={{ base: 12, md: searchSpan }}>
         <TextInput
           label="Search"
-          variant="filled"
           placeholder="Search items by title, username or ID..."
           rightSection={<IconSearch size={14} />}
           value={filters.searchValue}

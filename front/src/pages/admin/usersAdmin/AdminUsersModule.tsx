@@ -509,7 +509,6 @@ export default function AdminUsersModule() {
           <Grid.Col span={{ base: 12, md: 3 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by username, email or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}

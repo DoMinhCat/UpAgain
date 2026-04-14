@@ -437,7 +437,6 @@ export const AdminPostsModule = () => {
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
               rightSection={<IconSearch size={14} />}
               disabled={isAllPostsLoading}

@@ -666,7 +666,6 @@ export default function AdminEventsModule() {
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
               disabled={isLoadingEvents}
               rightSection={<IconSearch size={14} />}
