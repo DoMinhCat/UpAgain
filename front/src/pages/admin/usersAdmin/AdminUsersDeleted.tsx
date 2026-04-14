@@ -23,7 +23,7 @@ import {
   useRecoverAccount,
   useGetAllAccounts,
 } from "../../../hooks/accountHooks";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 
 export default function AdminUsersDeleted() {
   // hooks

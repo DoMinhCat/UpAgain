@@ -40,7 +40,7 @@ import dayjs from "dayjs";
 
 import AdminTable from "../../../components/admin/AdminTable";
 import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 import { PATHS } from "../../../routes/paths";
 import {
   usePendingDeposits,
@@ -53,7 +53,7 @@ import {
   useGetAllEvents,
   useApproveRefuseEvent,
 } from "../../../hooks/eventHooks";
-import { ChartLegend } from "../../../components/ChartLegend";
+import { ChartLegend } from "../../../components/common/chart/ChartLegend";
 
 const LIMIT = 10;
 

@@ -39,8 +39,8 @@ import {
   IconRouteSquare,
   IconLink,
 } from "@tabler/icons-react";
-import { TextEditor } from "../../../components/TextEditor";
-import ImageDropzone from "../../../components/ImageDropzone";
+import { TextEditor } from "../../../components/common/input/TextEditor";
+import ImageDropzone from "../../../components/common/input/ImageDropzone";
 import {
   useDeleteComment,
   useDeletePost,
@@ -52,10 +52,10 @@ import {
 } from "../../../hooks/postHooks";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
-import FullScreenLoader from "../../../components/FullScreenLoader";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
-import { PhotosCarousel } from "../../../components/PhotosCarousel";
-import PaginationFooter from "../../../components/PaginationFooter";
+import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 
 export const AdminPostDetails = () => {
   const navigate = useNavigate();

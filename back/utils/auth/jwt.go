@@ -10,10 +10,11 @@ import (
 )
 
 // short lived access token (1 hour)
-func GenerateJWT(email string, role string, id int) (string, error) {
+func GenerateJWT(email string, role string, id int, username string) (string, error) {
 	claims := jwt.MapClaims{
 		"id_account": id,
 		"email":      email,
+		"username":   username,
 		"role":       role,
 		"exp":        time.Now().Add(time.Minute * 15).Unix(),
 		"iat":        time.Now().Unix(),
@@ -23,10 +24,11 @@ func GenerateJWT(email string, role string, id int) (string, error) {
 }
 
 // long lived refresh token (1 week) to create new access token
-func GenerateRefreshToken(email string, role string, id int) (string, error) {
+func GenerateRefreshToken(email string, role string, id int, username string) (string, error) {
 	claims := jwt.MapClaims{
 		"id_account": id,
 		"email":      email,
+		"username":   username,
 		"role":       role,
 		"exp":        time.Now().Add(time.Hour * 24 * 7).Unix(),
 		"iat":        time.Now().Unix(),
@@ -53,11 +55,13 @@ func ParseJWT(tokenString string) (models.AuthClaims, error) {
 		idAccount := int(idFloat)
 		email, _ := claims["email"].(string)
 		role, _ := claims["role"].(string)
+		username, _ := claims["username"].(string)
 
 		return models.AuthClaims{
-			Id:    idAccount,
-			Email: email,
-			Role:  role,
+			Id:       idAccount,
+			Email:    email,
+			Role:     role,
+			Username: username,
 		}, nil
 	}
 	return models.AuthClaims{}, fmt.Errorf("invalid token")

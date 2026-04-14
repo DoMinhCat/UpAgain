@@ -86,13 +86,13 @@ const navButtonData = [
     label: "Events",
     path: PATHS.ADMIN.EVENTS.ALL,
   },
+  { icon: IconArticle, label: "Posts", path: PATHS.ADMIN.POSTS },
+  { icon: IconBuildingStore, label: "Listings", path: PATHS.ADMIN.LISTINGS },
   {
     icon: IconDiamond,
     label: "Subscriptions",
     path: PATHS.ADMIN.SUBSCRIPTIONS,
   },
-  { icon: IconArticle, label: "Posts", path: PATHS.ADMIN.POSTS },
-  { icon: IconBuildingStore, label: "Listings", path: PATHS.ADMIN.LISTINGS },
   { icon: IconPigMoney, label: "Finance", path: PATHS.ADMIN.FINANCE.ALL },
 ];
 
@@ -124,7 +124,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
   return (
     <nav className={classes.navbar}>
       <Center>
-        <Image src="/logo.png" />
+        <Image src="/common/logo.png" />
       </Center>
 
       <div className={classes.navbarMain}>
