@@ -3,6 +3,7 @@ import GuestLayout from "../layouts/GuestLayout.tsx";
 import Login from "../pages/guest/LoginPage.tsx";
 import Register from "../pages/guest/RegisterPage.tsx";
 import AboutPage from "../pages/guest/AboutPage.tsx";
+import ContactPage from "../pages/guest/ContactPage.tsx";
 import { PATHS } from "./paths.ts";
 import Home from "../pages/common/Home.tsx";
 
@@ -20,6 +21,10 @@ export const guestRoutes: RouteObject = {
     {
       path: PATHS.GUEST.ABOUT,
       element: <AboutPage />, // page
+    },
+    {
+      path: PATHS.GUEST.CONTACT,
+      element: <ContactPage />, // page
     },
     {
       path: PATHS.HOME,
