@@ -42,6 +42,7 @@ export const ENDPOINTS = {
 
     EMPLOYEES: {
       AVAILABLE: "/employees/available/",
+      SCHEDULE: (id_employee: number) => `/employees/${id_employee}/schedule/`,
     },
 
     POSTS: {

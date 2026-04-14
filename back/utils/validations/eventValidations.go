@@ -47,6 +47,15 @@ func ValidateEventCreation(newEvent models.CreateEventRequest) models.Validation
 		return response
 	}
 
+	if newEvent.StartAt.Time.Before(time.Now()) {
+		response = models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("Start date cannot be in the past."),
+			Error:   http.StatusBadRequest,
+		}
+		return response
+	}
+
 	if newEvent.EndAt.Time.Before(newEvent.StartAt.Time) {
 		response = models.ValidationResponse{
 			Success: false,
@@ -137,8 +146,25 @@ func ValidateEventUpdate(updateEvent models.UpdateEventRequest) models.Validatio
 		}
 		return response
 	}
+	if !updateEvent.StartAt.Valid || updateEvent.StartAt.Time.IsZero() {
+		response = models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("Start date is required."),
+			Error:   http.StatusBadRequest,
+		}
+		return response
+	}
 
-	if updateEvent.EndAt.Before(updateEvent.StartAt) {
+	if !updateEvent.EndAt.Valid || updateEvent.EndAt.Time.IsZero() {
+		response = models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("End date is required."),
+			Error:   http.StatusBadRequest,
+		}
+		return response
+	}
+
+	if updateEvent.EndAt.Time.Before(updateEvent.StartAt.Time) {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("End date must be after start date."),
@@ -148,7 +174,7 @@ func ValidateEventUpdate(updateEvent models.UpdateEventRequest) models.Validatio
 	}
 
 	// if event hasn't ended yet, start date can't be in the past
-	if updateEvent.StartAt.Before(time.Now()) && updateEvent.EndAt.After(time.Now()) {
+	if updateEvent.StartAt.Time.Before(time.Now()) && updateEvent.EndAt.Time.After(time.Now()) {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("Start date must be in the future."),

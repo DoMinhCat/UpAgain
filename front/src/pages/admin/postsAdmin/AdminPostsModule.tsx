@@ -17,10 +17,10 @@ import { BarChart } from "@mantine/charts";
 import ImageDropzone from "../../../components/common/input/ImageDropzone";
 import {
   IconCalendarEventFilled,
-  IconArrowUp,
   IconCalendarTime,
   IconPlus,
   IconSearch,
+  IconArrowUpRight,
 } from "@tabler/icons-react";
 import {
   AdminCardInfo,
@@ -263,7 +263,12 @@ export const AdminPostsModule = () => {
               description={
                 <StatsCardDesc
                   stats={postStats?.total_new_posts_since ?? 0}
-                  icon={IconArrowUp}
+                  icon={
+                    <IconArrowUpRight
+                      size={24}
+                      color="var(--upagain-neutral-green)"
+                    />
+                  }
                   description={" posts since last month"}
                 />
               }
@@ -277,7 +282,12 @@ export const AdminPostsModule = () => {
               description={
                 <StatsCardDesc
                   stats={postStats?.interaction_per_post ?? 0}
-                  icon={IconArrowUp}
+                  icon={
+                    <IconArrowUpRight
+                      size={24}
+                      color="var(--upagain-neutral-green)"
+                    />
+                  }
                   description={" interactions per post"}
                 />
               }

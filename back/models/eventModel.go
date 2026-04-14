@@ -78,8 +78,8 @@ type UpdateEventStatusRequest struct {
 type UpdateEventRequest struct {
 	Title          string      `json:"title"`
 	Description    string      `json:"description"`
-	StartAt        time.Time   `json:"start_at"`
-	EndAt          time.Time   `json:"end_at"`
+	StartAt        null.Time   `json:"start_at"`
+	EndAt          null.Time   `json:"end_at"`
 	Price          null.Float  `json:"price" swaggertype:"number"`
 	Category       string      `json:"category"`
 	Capacity       null.Int    `json:"capacity" swaggertype:"integer"`
