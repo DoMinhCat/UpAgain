@@ -54,10 +54,11 @@ export const useGetInvoiceUsers = (
   page: number,
   limit: number,
   search: string,
+  sort?: string,
 ) => {
   return useQuery<InvoicesListResponse>({
-    queryKey: ["invoiceUsers", page, limit, search],
-    queryFn: () => getInvoiceUsers(page, limit, search),
+    queryKey: ["invoiceUsers", page, limit, search, sort],
+    queryFn: () => getInvoiceUsers(page, limit, search, sort),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Error",

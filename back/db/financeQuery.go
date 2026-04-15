@@ -175,145 +175,62 @@ func fillRevenue(query string, year int, months map[string]*models.RevenueMonthD
 	return rows.Err()
 }
 
-// invoiceStats holds raw aggregated counts and totals per account.
-// All monetary totals use snapshot prices stored at transaction time.
-type invoiceStats struct {
-	txCount    int
-	txTotal    float64 // sum of total_price (item price + commission, from snapshot)
-	subCount   int
-	subTotal   float64 // sum of subscription price (from snapshot)
-	adsCount   int
-	adsTotal   float64 // sum of ads total_price (from snapshot)
-	evtCount   int
-	evtTotal   float64 // sum of event paid_price (from snapshot)
-}
+// getInvoiceStatsPerAccount was removed because stats aggregation is now done natively in SQL via CTE inside GetInvoiceUsers.
 
-// getInvoiceStatsPerAccount runs 4 simple queries (one per invoice type) and
-// returns a map of account_id → invoiceStats.
-func getInvoiceStatsPerAccount() (map[int]*invoiceStats, error) {
-	result := map[int]*invoiceStats{}
-
-	ensure := func(id int) *invoiceStats {
-		if result[id] == nil {
-			result[id] = &invoiceStats{}
-		}
-		return result[id]
-	}
-
-	// 1. Transactions — uses snapshot total_price (item_price + commission)
-	rows, err := utils.Conn.Query(`
-		SELECT t.id_pro, COUNT(*), COALESCE(SUM(t.total_price), 0)
-		FROM transactions t
-		WHERE t.action = 'purchased' AND t.total_price IS NOT NULL
-		GROUP BY t.id_pro
-	`)
-	if err != nil {
-		return nil, fmt.Errorf("error getting transaction stats from DB: %v", err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var id int
-		var cnt int
-		var total float64
-		if err := rows.Scan(&id, &cnt, &total); err != nil {
-			return nil, fmt.Errorf("error scanning transaction stats from DB: %v", err)
-		}
-		s := ensure(id)
-		s.txCount = cnt
-		s.txTotal = total
-	}
-
-	// 2. Subscriptions — uses snapshot price
-	rows2, err := utils.Conn.Query(`
-		SELECT id_pro, COUNT(*), COALESCE(SUM(price), 0)
-		FROM subscriptions
-		GROUP BY id_pro
-	`)
-	if err != nil {
-		return nil, fmt.Errorf("error getting subscription stats from DB: %v", err)
-	}
-	defer rows2.Close()
-	for rows2.Next() {
-		var id, cnt int
-		var total float64
-		if err := rows2.Scan(&id, &cnt, &total); err != nil {
-			return nil, fmt.Errorf("error scanning subscription stats from DB: %v", err)
-		}
-		s := ensure(id)
-		s.subCount = cnt
-		s.subTotal = total
-	}
-
-	// 3. Ads — uses snapshot total_price
-	rows3, err := utils.Conn.Query(`
-		SELECT po.id_account, COUNT(*), COALESCE(SUM(a.total_price), 0)
-		FROM ads a
-		JOIN posts po ON po.id = a.id_post
-		GROUP BY po.id_account;
-	`)
-	if err != nil {
-		return nil, fmt.Errorf("error getting ads stats from DB: %v", err)
-	}
-	defer rows3.Close()
-	for rows3.Next() {
-		var id, cnt int
-		var total float64
-		if err := rows3.Scan(&id, &cnt, &total); err != nil {
-			return nil, fmt.Errorf("error scanning ads stats from DB: %v", err)
-		}
-		s := ensure(id)
-		s.adsCount = cnt
-		s.adsTotal = total
-	}
-
-	// 4. Events
-	rows4, err := utils.Conn.Query(`
-		SELECT er.id_account, COUNT(*), COALESCE(SUM(er.paid_price), 0)
-		FROM event_registrations er
-		WHERE er.paid_price IS NOT NULL
-		  AND er.paid_price > 0
-		GROUP BY er.id_account;
-	`)
-	if err != nil {
-		return nil, fmt.Errorf("error getting event stats from DB: %v", err)
-	}
-	defer rows4.Close()
-	for rows4.Next() {
-		var id int
-		var cnt int
-		var total float64
-		if err := rows4.Scan(&id, &cnt, &total); err != nil {
-			return nil, fmt.Errorf("error scanning event stats from DB: %v", err)
-		}
-		s := ensure(id)
-		s.evtCount = cnt
-		s.evtTotal = total
-	}
-
-	return result, nil
-}
-
-// GetInvoiceUsers returns a paginated list of accounts ordered by invoice count,
+// GetInvoiceUsers returns a paginated list of accounts ordered by sort criteria,
 // with total spending computed across all invoice types.
-func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int, error) {
+func GetInvoiceUsers(page, limit int, search, sortType string) ([]models.InvoiceUser, int, error) {
 	offset := (page - 1) * limit
 	searchLike := "%" + search + "%"
 
-	// Fetch per-account stats (all monetary totals use snapshot prices).
-	stats, err := getInvoiceStatsPerAccount()
-	if err != nil {
-		return nil, 0, err
+	orderClause := "ORDER BY a.created_at DESC"
+	if sortType == "most_spending" {
+		orderClause = "ORDER BY total_spent DESC NULLS LAST"
+	} else if sortType == "least_spending" {
+		orderClause = "ORDER BY total_spent ASC NULLS FIRST"
+	} else if sortType == "most_invoices" {
+		orderClause = "ORDER BY transaction_count DESC NULLS LAST"
+	} else if sortType == "least_invoices" {
+		orderClause = "ORDER BY transaction_count ASC NULLS FIRST"
 	}
 
 	// Paginated accounts query.
-	accountQuery := `
-		SELECT a.id, a.username, a.email, a.role, a.created_at
+	accountQuery := fmt.Sprintf(`
+		WITH stats AS (
+			SELECT id_pro AS account_id, COUNT(*) as cnt, COALESCE(SUM(total_price), 0) as amt
+			FROM transactions
+			WHERE action = 'purchased' AND total_price IS NOT NULL
+			GROUP BY id_pro
+			UNION ALL
+			SELECT id_pro, COUNT(*), COALESCE(SUM(price), 0)
+			FROM subscriptions
+			GROUP BY id_pro
+			UNION ALL
+			SELECT po.id_account, COUNT(*), COALESCE(SUM(a.total_price), 0)
+			FROM ads a
+			JOIN posts po ON po.id = a.id_post
+			GROUP BY po.id_account
+			UNION ALL
+			SELECT er.id_account, COUNT(*), COALESCE(SUM(er.paid_price), 0)
+			FROM event_registrations er
+			WHERE er.paid_price > 0
+			GROUP BY er.id_account
+		),
+		account_stats AS (
+			SELECT account_id, SUM(cnt) as total_invoices, SUM(amt) as total_spent
+			FROM stats
+			GROUP BY account_id
+		)
+		SELECT a.id, a.username, a.email, a.role, a.created_at,
+		       COALESCE(s.total_invoices, 0) as transaction_count,
+		       COALESCE(s.total_spent, 0) as total_spent
 		FROM accounts a
+		LEFT JOIN account_stats s ON s.account_id = a.id
 		WHERE a.deleted_at IS NULL AND a.role != 'employee'
 		  AND ($3 = '' OR a.username ILIKE $3 OR a.email ILIKE $3)
-		ORDER BY a.created_at DESC
+		%s
 		LIMIT $1 OFFSET $2
-	`
+	`, orderClause)
 	rows, err := utils.Conn.Query(accountQuery, limit, offset, searchLike)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error getting invoice users from DB: %v", err)
@@ -323,13 +240,8 @@ func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int,
 	var users []models.InvoiceUser
 	for rows.Next() {
 		var u models.InvoiceUser
-		if err := rows.Scan(&u.IDAccount, &u.Username, &u.Email, &u.Role, &u.CreatedAt); err != nil {
+		if err := rows.Scan(&u.IDAccount, &u.Username, &u.Email, &u.Role, &u.CreatedAt, &u.TransactionCount, &u.TotalSpent); err != nil {
 			return nil, 0, fmt.Errorf("error scanning invoice user row from DB: %v", err)
-		}
-		if s, ok := stats[u.IDAccount]; ok {
-			u.TransactionCount = s.txCount + s.subCount + s.adsCount + s.evtCount
-			// All totals are already computed from snapshot prices at purchase time
-			u.TotalSpent = s.txTotal + s.subTotal + s.adsTotal + s.evtTotal
 		}
 		users = append(users, u)
 	}

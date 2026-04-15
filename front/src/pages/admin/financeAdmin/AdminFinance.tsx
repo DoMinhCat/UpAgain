@@ -187,6 +187,7 @@ export default function AdminFinance() {
   const [year, setYear] = useState<string>(String(CURRENT_YEAR));
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 400);
+  const [sort, setSort] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
@@ -200,6 +201,7 @@ export default function AdminFinance() {
     page,
     10,
     debouncedSearch,
+    sort || undefined,
   );
   const { data: invoicesData, isLoading: isLoadingInvoices } =
     useGetUserInvoices(
@@ -335,16 +337,34 @@ export default function AdminFinance() {
           <Text fw={600} size="lg">
             Invoices by User
           </Text>
-          <TextInput
-            placeholder="Search by username..."
-            rightSection={<IconSearch size={14} />}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.currentTarget.value);
-              setPage(1);
-            }}
-            w={280}
-          />
+          <Group>
+            <Select
+              placeholder="Sort by"
+              data={[
+                { value: "most_spending", label: "Most spending" },
+                { value: "least_spending", label: "Least spending" },
+                { value: "most_invoices", label: "Most invoices" },
+                { value: "least_invoices", label: "Least invoices" },
+              ]}
+              value={sort}
+              onChange={(val) => {
+                setSort(val);
+                setPage(1);
+              }}
+              clearable
+              w={180}
+            />
+            <TextInput
+              placeholder="Search by username or email..."
+              rightSection={<IconSearch size={14} />}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.currentTarget.value);
+                setPage(1);
+              }}
+              w={240}
+            />
+          </Group>
         </Group>
 
         <AdminTable

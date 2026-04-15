@@ -29,9 +29,10 @@ export const getInvoiceUsers = async (
   page: number,
   limit: number,
   search: string,
+  sort?: string,
 ): Promise<InvoicesListResponse> => {
   const response = await api.get(ENDPOINTS.ADMIN.FINANCE.INVOICES, {
-    params: { page, limit, search },
+    params: { page, limit, search, ...(sort && { sort }) },
   });
   return response.data;
 };
