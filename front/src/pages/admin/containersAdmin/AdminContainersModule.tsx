@@ -1,5 +1,4 @@
 import {
-  Container as MantineContainer,
   Paper,
   Grid,
   Title,
@@ -13,6 +12,7 @@ import {
   Select,
   Pill,
   Modal,
+  Container,
 } from "@mantine/core";
 import {
   IconBox,
@@ -166,8 +166,10 @@ export default function AdminContainersModule() {
   };
 
   return (
-    <MantineContainer px="md" size="xl">
-      <Title order={2}>Container Management</Title>
+    <Container px="md" size="xl">
+      <Title order={2} mt="lg" mb="xl">
+        Container Management
+      </Title>
 
       <Grid mb="xl" align="stretch">
         <Grid.Col span={{ base: 12, md: 4 }}>
@@ -426,6 +428,6 @@ export default function AdminContainersModule() {
           </Button>
         </Group>
       </Modal>
-    </MantineContainer>
+    </Container>
   );
 }
