@@ -61,6 +61,7 @@ import {
   showSuccessNotification,
 } from "../../../components/common/NotificationToast";
 import GlobalStyles from "../../../styles/GlobalStyles.module.css";
+import html2pdf from "html2pdf.js";
 
 const MONTH_LABELS = [
   "Jan",
@@ -142,42 +143,67 @@ function getInvoiceDetails(inv: UserInvoice): string {
 
 function generateInvoicePDF(invoice: UserInvoice, username: string): void {
   if (invoice.type !== "transaction" || !invoice.id_transaction) return;
-  const html = `
-    <!DOCTYPE html><html lang="en"><head>
-    <meta charset="UTF-8">
-    <title>Invoice ${invoice.id_transaction}</title>
-    <style>
-      body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-      h1 { color: #c0392b; }
-      .meta { color: #888; font-size: 13px; margin-bottom: 24px; }
-      table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-      th { background: #f5f5f5; padding: 10px; text-align: left; border-bottom: 2px solid #ddd; }
-      td { padding: 10px; border-bottom: 1px solid #eee; }
-      .total { font-weight: bold; font-size: 16px; margin-top: 24px; text-align: right; }
-      .footer { margin-top: 48px; font-size: 12px; color: #aaa; }
-    </style></head><body>
-    <h1>UpcycleConnect</h1>
-    <p class="meta">Invoice N° ${invoice.id_transaction}<br>Date: ${formatDate(invoice.created_at)}<br>Customer: ${username}</p>
-    <table>
-      <tr><th>Item</th><th>Price</th><th>Commission</th><th>Total</th></tr>
-      <tr>
-        <td>${invoice.item_title ?? "—"}</td>
-        <td>${formatEuros(invoice.item_price ?? 0)}</td>
-        <td>${formatEuros(invoice.commission ?? 0)}</td>
-        <td>${formatEuros(invoice.amount)}</td>
-      </tr>
-    </table>
-    <p class="total">Total: ${formatEuros(invoice.amount)}</p>
-    <p class="footer">UpcycleConnect — 21 rue Erard, 75012 Paris — support@upagain.com</p>
-    </body></html>
+
+  // 1. Create a temporary container for the PDF content
+  const element = document.createElement("div");
+
+  element.innerHTML = `
+    <div style="font-family: 'Helvetica', 'Arial', sans-serif; padding: 40px; color: #333; background: white;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 20px;">
+        <h1 style="color: #2d6e4d; margin: 0;">UpcycleConnect</h1>
+        <div style="text-align: right; color: #888; font-size: 13px;">
+          <strong>Invoice N°:</strong> ${invoice.id_transaction}<br>
+          <strong>Date:</strong> ${formatDate(invoice.created_at)}
+        </div>
+      </div>
+
+      <div style="margin: 30px 0;">
+        <p style="font-size: 14px; margin: 0;"><strong>Customer:</strong> ${username}</p>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 24px;">
+        <thead>
+          <tr style="background: #f9f9f9;">
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #2d6e4d; font-size: 14px;">Item</th>
+            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #2d6e4d; font-size: 14px;">Price</th>
+            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #2d6e4d; font-size: 14px;">Commission</th>
+            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #2d6e4d; font-size: 14px;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding: 12px; border-bottom: 1px solid #eee; font-size: 14px;">${invoice.item_title ?? "—"}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-size: 14px;">${formatEuros(invoice.item_price ?? 0)}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-size: 14px;">${formatEuros(invoice.commission ?? 0)}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-size: 14px; font-weight: bold;">${formatEuros(invoice.amount)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top: 40px; text-align: right;">
+        <p style="font-size: 18px; font-weight: bold; color: #2d6e4d;">
+          Amount Paid: ${formatEuros(invoice.amount)}
+        </p>
+      </div>
+
+      <div style="margin-top: 80px; padding-top: 20px; border-top: 1px solid #eee; font-size: 11px; color: #aaa; text-align: center;">
+        UpcycleConnect — 21 rue Erard, 75012 Paris — support@upagain.com<br>
+        <em>Thank you for helping save the planet through upcycling!</em>
+      </div>
+    </div>
   `;
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `invoice_${invoice.id_transaction}.html`;
-  a.click();
-  URL.revokeObjectURL(url);
+
+  // 2. Configure the PDF options
+  const opt = {
+    margin: 10,
+    filename: `invoice_${invoice.id_transaction}.pdf`,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+  } as const;
+
+  // 3. Generate and Download
+  html2pdf().from(element).set(opt).save();
 }
 
 // --- Page ---
