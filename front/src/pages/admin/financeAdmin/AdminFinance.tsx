@@ -17,6 +17,7 @@ import {
   ScrollArea,
   SimpleGrid,
   Card,
+  Tooltip as MantineTooltip,
 } from "@mantine/core";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
@@ -166,7 +167,7 @@ export default function AdminFinance() {
 
   return (
     <Stack gap="xl" p="md">
-      <Title order={2}>Financial Management</Title>
+      <Title order={2}>Finance Management</Title>
 
       {/* Summary cards */}
       {revenueData && (
@@ -268,7 +269,14 @@ export default function AdminFinance() {
 
         <AdminTable
           loading={isLoadingUsers}
-          header={["User", "Email", "Role", "Transactions", "Total Spent", ""]}
+          header={[
+            "User",
+            "Email",
+            "Role",
+            "Total Transactions",
+            "Total Spending",
+            "",
+          ]}
           footer={
             <PaginationFooter
               activePage={page}
@@ -297,7 +305,7 @@ export default function AdminFinance() {
                 style={{ cursor: "pointer" }}
                 onClick={() => {
                   navigate(PATHS.ADMIN.USERS.ALL + "/" + u.id_account, {
-                    state: "allUsers",
+                    state: { from: "finance" },
                   });
                 }}
               >
@@ -321,16 +329,21 @@ export default function AdminFinance() {
                 <Table.Td ta="center">{u.transaction_count}</Table.Td>
                 <Table.Td ta="center">{formatEuros(u.total_spent)}</Table.Td>
                 <Table.Td ta="center">
-                  <ActionIcon
-                    variant="subtle"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenUserInvoices(u.id_account);
-                    }}
-                    title="View invoices"
+                  <MantineTooltip
+                    label="View invoices"
+                    withArrow
+                    position="top"
                   >
-                    <IconEye color="var(--upagain-neutral-green)" size={16} />
-                  </ActionIcon>
+                    <ActionIcon
+                      variant="subtle"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenUserInvoices(u.id_account);
+                      }}
+                    >
+                      <IconEye color="var(--upagain-neutral-green)" size={16} />
+                    </ActionIcon>
+                  </MantineTooltip>
                 </Table.Td>
               </Table.Tr>
             ))
@@ -391,16 +404,21 @@ export default function AdminFinance() {
                         : formatEuros(inv.amount)}
                     </Table.Td>
                     <Table.Td>
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        title="Download invoice"
-                        onClick={() =>
-                          generateInvoicePDF(inv, invoicesData.username)
-                        }
+                      <MantineTooltip
+                        label="Download invoice"
+                        withArrow
+                        position="top"
                       >
-                        <IconDownload size={16} />
-                      </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          onClick={() =>
+                            generateInvoicePDF(inv, invoicesData.username)
+                          }
+                        >
+                          <IconDownload size={16} />
+                        </ActionIcon>
+                      </MantineTooltip>
                     </Table.Td>
                   </Table.Tr>
                 ))}
