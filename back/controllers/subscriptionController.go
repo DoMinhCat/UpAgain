@@ -19,7 +19,7 @@ func GetAllSubscriptionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := r.URL.Query()
-	page, limit := -1, -1
+	page, limit := 1, 10 // default value
 
 	if p := query.Get("page"); p != "" {
 		page, _ = strconv.Atoi(p)
