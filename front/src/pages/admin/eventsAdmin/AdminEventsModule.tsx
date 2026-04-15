@@ -730,7 +730,7 @@ export default function AdminEventsModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col span={{ base: 12, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
               <Button onClick={handleSearchClick} variant="primary">
                 Apply filters
