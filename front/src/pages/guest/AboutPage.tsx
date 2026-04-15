@@ -152,7 +152,7 @@ export default function AboutPage() {
                 >
                   <IconRecycle size={24} color="var(--upagain-dark-green)" />
                 </ThemeIcon>
-                <Text fw={600} style={{ color: "var(--component-color-bg)" }}>
+                <Text fw={600} style={{ color: "#f9f7f2" }}>
                   Make sustainability an easy, everyday choice.
                 </Text>
               </Group>
