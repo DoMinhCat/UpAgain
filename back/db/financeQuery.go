@@ -85,7 +85,7 @@ func GetRevenueByYear(year int) ([]models.RevenueMonthData, error) {
 	subQuery := `
 		SELECT
 			TO_CHAR(DATE_TRUNC('month', s.sub_from), 'YYYY-MM') AS month,
-			COUNT(*) * COALESCE((SELECT value FROM finance_settings WHERE key = 'subscription_price' LIMIT 1), 0) AS revenue
+			COALESCE(SUM(s.price), 0) AS revenue
 		FROM subscriptions s
 		WHERE EXTRACT(YEAR FROM s.sub_from) = $1
 		GROUP BY DATE_TRUNC('month', s.sub_from)
@@ -96,14 +96,14 @@ func GetRevenueByYear(year int) ([]models.RevenueMonthData, error) {
 		return nil, fmt.Errorf("error getting subscriptions revenue from DB: %v", err)
 	}
 
-	// --- Commissions ---
+	// --- Commissions (uses snapshot prices stored in transactions) ---
 	commQuery := `
 		SELECT
 			TO_CHAR(DATE_TRUNC('month', t.created_at), 'YYYY-MM') AS month,
-			COALESCE(SUM(i.price * (SELECT value FROM finance_settings WHERE key = 'commission_rate' LIMIT 1) / 100), 0) AS revenue
+			COALESCE(SUM(t.total_price - t.item_price), 0) AS revenue
 		FROM transactions t
-		JOIN items i ON t.id_item = i.id
 		WHERE t.action = 'purchased'
+		  AND t.total_price IS NOT NULL AND t.item_price IS NOT NULL
 		  AND EXTRACT(YEAR FROM t.created_at) = $1
 		GROUP BY DATE_TRUNC('month', t.created_at)
 	`
@@ -117,7 +117,7 @@ func GetRevenueByYear(year int) ([]models.RevenueMonthData, error) {
 	adsQuery := `
 		SELECT
 			TO_CHAR(DATE_TRUNC('month', a.start_date), 'YYYY-MM') AS month,
-			COUNT(*) * COALESCE((SELECT value FROM finance_settings WHERE key = 'ads_price_per_month' LIMIT 1), 0) AS revenue
+			COALESCE(SUM(a.total_price), 0) AS revenue
 		FROM ads a
 		WHERE a.status = 'active'
 		  AND EXTRACT(YEAR FROM a.start_date) = $1
@@ -132,14 +132,13 @@ func GetRevenueByYear(year int) ([]models.RevenueMonthData, error) {
 	// --- Events ---
 	eventsQuery := `
 		SELECT
-			TO_CHAR(DATE_TRUNC('month', e.start_at), 'YYYY-MM') AS month,
-			COALESCE(SUM(e.price), 0) AS revenue
+			TO_CHAR(DATE_TRUNC('month', er.created_at), 'YYYY-MM') AS month,
+			COALESCE(SUM(er.paid_price), 0) AS revenue
 		FROM event_registrations er
-		JOIN events e ON er.id_event = e.id
-		WHERE e.price IS NOT NULL
-		  AND e.price > 0
-		  AND EXTRACT(YEAR FROM e.start_at) = $1
-		GROUP BY DATE_TRUNC('month', e.start_at)
+		WHERE er.paid_price IS NOT NULL
+		  AND er.paid_price > 0
+		  AND EXTRACT(YEAR FROM er.created_at) = $1
+		GROUP BY DATE_TRUNC('month', er.created_at)
 	`
 	if err := fillRevenue(eventsQuery, year, months, func(row *models.RevenueMonthData, v float64) {
 		row.Events = v
@@ -176,14 +175,17 @@ func fillRevenue(query string, year int, months map[string]*models.RevenueMonthD
 	return rows.Err()
 }
 
-// invoiceStats holds raw aggregated counts and item totals per account.
+// invoiceStats holds raw aggregated counts and totals per account.
+// All monetary totals use snapshot prices stored at transaction time.
 type invoiceStats struct {
 	txCount    int
-	txTotal    float64 // sum of item prices (before commission)
+	txTotal    float64 // sum of total_price (item price + commission, from snapshot)
 	subCount   int
+	subTotal   float64 // sum of subscription price (from snapshot)
 	adsCount   int
+	adsTotal   float64 // sum of ads total_price (from snapshot)
 	evtCount   int
-	evtTotal   float64 // sum of event prices
+	evtTotal   float64 // sum of event paid_price (from snapshot)
 }
 
 // getInvoiceStatsPerAccount runs 4 simple queries (one per invoice type) and
@@ -198,12 +200,11 @@ func getInvoiceStatsPerAccount() (map[int]*invoiceStats, error) {
 		return result[id]
 	}
 
-	// 1. Transactions
+	// 1. Transactions — uses snapshot total_price (item_price + commission)
 	rows, err := utils.Conn.Query(`
-		SELECT t.id_pro, COUNT(*), COALESCE(SUM(i.price), 0)
+		SELECT t.id_pro, COUNT(*), COALESCE(SUM(t.total_price), 0)
 		FROM transactions t
-		JOIN items i ON i.id = t.id_item
-		WHERE t.action = 'purchased'
+		WHERE t.action = 'purchased' AND t.total_price IS NOT NULL
 		GROUP BY t.id_pro
 	`)
 	if err != nil {
@@ -222,9 +223,9 @@ func getInvoiceStatsPerAccount() (map[int]*invoiceStats, error) {
 		s.txTotal = total
 	}
 
-	// 2. Subscriptions
+	// 2. Subscriptions — uses snapshot price
 	rows2, err := utils.Conn.Query(`
-		SELECT id_pro, COUNT(*)
+		SELECT id_pro, COUNT(*), COALESCE(SUM(price), 0)
 		FROM subscriptions
 		GROUP BY id_pro
 	`)
@@ -234,18 +235,21 @@ func getInvoiceStatsPerAccount() (map[int]*invoiceStats, error) {
 	defer rows2.Close()
 	for rows2.Next() {
 		var id, cnt int
-		if err := rows2.Scan(&id, &cnt); err != nil {
+		var total float64
+		if err := rows2.Scan(&id, &cnt, &total); err != nil {
 			return nil, fmt.Errorf("error scanning subscription stats from DB: %v", err)
 		}
-		ensure(id).subCount = cnt
+		s := ensure(id)
+		s.subCount = cnt
+		s.subTotal = total
 	}
 
-	// 3. Ads
+	// 3. Ads — uses snapshot total_price
 	rows3, err := utils.Conn.Query(`
-		SELECT po.id_account, COUNT(*)
+		SELECT po.id_account, COUNT(*), COALESCE(SUM(a.total_price), 0)
 		FROM ads a
 		JOIN posts po ON po.id = a.id_post
-		GROUP BY po.id_account
+		GROUP BY po.id_account;
 	`)
 	if err != nil {
 		return nil, fmt.Errorf("error getting ads stats from DB: %v", err)
@@ -253,19 +257,22 @@ func getInvoiceStatsPerAccount() (map[int]*invoiceStats, error) {
 	defer rows3.Close()
 	for rows3.Next() {
 		var id, cnt int
-		if err := rows3.Scan(&id, &cnt); err != nil {
+		var total float64
+		if err := rows3.Scan(&id, &cnt, &total); err != nil {
 			return nil, fmt.Errorf("error scanning ads stats from DB: %v", err)
 		}
-		ensure(id).adsCount = cnt
+		s := ensure(id)
+		s.adsCount = cnt
+		s.adsTotal = total
 	}
 
 	// 4. Events
 	rows4, err := utils.Conn.Query(`
-		SELECT er.id_account, COUNT(*), COALESCE(SUM(ev.price), 0)
+		SELECT er.id_account, COUNT(*), COALESCE(SUM(er.paid_price), 0)
 		FROM event_registrations er
-		JOIN events ev ON ev.id = er.id_event
-		WHERE ev.price IS NOT NULL AND ev.price > 0
-		GROUP BY er.id_account
+		WHERE er.paid_price IS NOT NULL
+		  AND er.paid_price > 0
+		GROUP BY er.id_account;
 	`)
 	if err != nil {
 		return nil, fmt.Errorf("error getting event stats from DB: %v", err)
@@ -292,16 +299,7 @@ func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int,
 	offset := (page - 1) * limit
 	searchLike := "%" + search + "%"
 
-	// Fetch rates and per-account stats upfront.
-	settings, err := GetAllFinanceSettings()
-	if err != nil {
-		return nil, 0, fmt.Errorf("error fetching finance settings: %v", err)
-	}
-	rates := map[string]float64{}
-	for _, s := range settings {
-		rates[s.Key] = s.Value
-	}
-
+	// Fetch per-account stats (all monetary totals use snapshot prices).
 	stats, err := getInvoiceStatsPerAccount()
 	if err != nil {
 		return nil, 0, err
@@ -330,10 +328,8 @@ func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int,
 		}
 		if s, ok := stats[u.IDAccount]; ok {
 			u.TransactionCount = s.txCount + s.subCount + s.adsCount + s.evtCount
-			u.TotalSpent = s.txTotal*(1+rates["commission_rate"]/100) +
-				float64(s.subCount)*rates["subscription_price"] +
-				float64(s.adsCount)*rates["ads_price_per_month"] +
-				s.evtTotal
+			// All totals are already computed from snapshot prices at purchase time
+			u.TotalSpent = s.txTotal + s.subTotal + s.adsTotal + s.evtTotal
 		}
 		users = append(users, u)
 	}
@@ -406,6 +402,7 @@ func GetUserInvoices(accountID int) (models.UserInvoicesResponse, error) {
 }
 
 // getTransactionInvoices returns purchased item invoices for a pro account.
+// Uses snapshot prices (item_price, commission_rate, total_price) stored in the transactions table.
 func getTransactionInvoices(accountID int) ([]models.UserInvoice, error) {
 	query := `
 		SELECT
@@ -413,9 +410,9 @@ func getTransactionInvoices(accountID int) ([]models.UserInvoice, error) {
 			t.created_at,
 			t.id_transaction::text,
 			i.title,
-			i.price,
-			ROUND(i.price * COALESCE((SELECT value FROM finance_settings WHERE key = 'commission_rate' LIMIT 1), 0) / 100, 2) AS commission,
-			ROUND(i.price * (1 + COALESCE((SELECT value FROM finance_settings WHERE key = 'commission_rate' LIMIT 1), 0) / 100), 2) AS total
+			COALESCE(t.item_price, 0),
+			COALESCE(ROUND(t.item_price * t.commission_rate / 100, 2), 0),
+			COALESCE(t.total_price, 0)
 		FROM transactions t
 		JOIN items i ON i.id = t.id_item
 		WHERE t.id_pro = $1 AND t.action = 'purchased';
@@ -447,13 +444,14 @@ func getTransactionInvoices(accountID int) ([]models.UserInvoice, error) {
 }
 
 // getSubscriptionInvoices returns subscription invoices for a pro account.
+// Uses the snapshot price stored in the subscriptions table.
 func getSubscriptionInvoices(accountID int) ([]models.UserInvoice, error) {
 	query := `
 		SELECT
 			s.id,
 			s.sub_from,
 			s.sub_to,
-			COALESCE((SELECT value FROM finance_settings WHERE key = 'subscription_price' LIMIT 1), 0) AS amount
+			s.price
 		FROM subscriptions s
 		WHERE s.id_pro = $1;
 	`
@@ -485,6 +483,7 @@ func getSubscriptionInvoices(accountID int) ([]models.UserInvoice, error) {
 }
 
 // getAdInvoices returns ad invoices for an account (non-cancelled ads on their posts).
+// Uses the snapshot total_price stored in the ads table.
 func getAdInvoices(accountID int) ([]models.UserInvoice, error) {
 	query := `
 		SELECT
@@ -493,7 +492,7 @@ func getAdInvoices(accountID int) ([]models.UserInvoice, error) {
 			a.end_date::timestamptz,
 			p.id,
 			p.title,
-			COALESCE((SELECT value FROM finance_settings WHERE key = 'ads_price_per_month' LIMIT 1), 0) AS amount
+			a.total_price
 		FROM ads a
 		JOIN posts p ON p.id = a.id_post
 		WHERE p.id_account = $1;
@@ -530,18 +529,18 @@ func getAdInvoices(accountID int) ([]models.UserInvoice, error) {
 }
 
 // getEventInvoices returns paid event registration invoices for an account.
+// Uses the snapshot paid_price stored in the event_registrations table.
 func getEventInvoices(accountID int) ([]models.UserInvoice, error) {
 	query := `
 		SELECT
 			e.id,
 			er.created_at,
-			e.price,
+			er.paid_price,
 			e.title
 		FROM event_registrations er
 		JOIN events e ON e.id = er.id_event
 		WHERE er.id_account = $1
-		  AND e.price IS NOT NULL
-		  AND e.price > 0;
+		  AND er.paid_price > 0;
 	`
 	rows, err := utils.Conn.Query(query, accountID)
 	if err != nil {
