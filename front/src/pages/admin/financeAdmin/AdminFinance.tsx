@@ -17,12 +17,16 @@ import {
   ScrollArea,
   SimpleGrid,
   Card,
+  NumberInput,
+  Button,
+  Divider,
 } from "@mantine/core";
 import {
   IconSearch,
   IconChevronRight,
   IconFileInvoice,
-  IconDownload,
+  IconEdit,
+  IconCheck,
 } from "@tabler/icons-react";
 import {
   BarChart,
@@ -37,10 +41,14 @@ import {
 import { useDebouncedValue } from "@mantine/hooks";
 import {
   useGetFinanceRevenue,
+  useGetFinanceSettings,
+  useUpdateFinanceSetting,
   useGetInvoiceUsers,
   useGetUserInvoices,
 } from "../../../hooks/financeHooks";
-import type { UserInvoice } from "../../../api/interfaces/finance";
+import type { FinanceSetting, UserInvoice } from "../../../api/interfaces/finance";
+import { showErrorNotification, showSuccessNotification } from "../../../components/NotificationToast";
+import GlobalStyles from "../../../styles/GlobalStyles.module.css";
 
 const MONTH_LABELS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -50,58 +58,60 @@ const MONTH_LABELS = [
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => String(CURRENT_YEAR - i));
 
+const SETTING_LABELS: Record<string, string> = {
+  trial_days: "Trial Days",
+  commission_rate: "Commission Rate (%)",
+  subscription_price: "Subscription Price (€)",
+  ads_price_per_month: "Ads Price / Month (€)",
+};
+
 // --- Helpers ---
 
 function formatEuros(amount: number): string {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "EUR",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-function generateInvoicePDF(invoice: UserInvoice, username: string): void {
-  const html = `
-    <!DOCTYPE html><html lang="fr"><head>
-    <meta charset="UTF-8">
-    <title>Invoice ${invoice.id_transaction}</title>
-    <style>
-      body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-      h1 { color: #c0392b; }
-      .meta { color: #888; font-size: 13px; margin-bottom: 24px; }
-      table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-      th { background: #f5f5f5; padding: 10px; text-align: left; border-bottom: 2px solid #ddd; }
-      td { padding: 10px; border-bottom: 1px solid #eee; }
-      .total { font-weight: bold; font-size: 16px; margin-top: 24px; text-align: right; }
-      .footer { margin-top: 48px; font-size: 12px; color: #aaa; }
-    </style></head><body>
-    <h1>UpcycleConnect</h1>
-    <p class="meta">Invoice N° ${invoice.id_transaction}<br>Date: ${formatDate(invoice.created_at)}<br>Customer: ${username}</p>
-    <table>
-      <tr><th>Item</th><th>Price</th><th>Commission</th><th>Total</th></tr>
-      <tr>
-        <td>${invoice.item_title}</td>
-        <td>${formatEuros(invoice.item_price)}</td>
-        <td>${formatEuros(invoice.amount)}</td>
-        <td>${formatEuros(invoice.item_price)}</td>
-      </tr>
-    </table>
-    <p class="total">Total: ${formatEuros(invoice.item_price)}</p>
-    <p class="footer">UpcycleConnect — 174 rue La Fayette, 75010 Paris — contact@upcycleconnect.fr</p>
-    </body></html>
-  `;
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `invoice_${invoice.id_transaction}.html`;
-  a.click();
-  URL.revokeObjectURL(url);
+function getInvoiceDescription(inv: UserInvoice): string {
+  switch (inv.type) {
+    case "transaction":
+      return inv.item_title ?? "—";
+    case "subscription":
+      return `${formatDate(inv.sub_from)} → ${formatDate(inv.sub_to)}`;
+    case "ad":
+      return inv.post_title ? `Post #${inv.post_id} — ${inv.post_title}` : "—";
+    case "event":
+      return inv.event_title ? `Event #${inv.event_id} — ${inv.event_title}` : "—";
+    default:
+      return "—";
+  }
 }
+
+function getInvoiceDetails(inv: UserInvoice): string {
+  switch (inv.type) {
+    case "transaction":
+      return `Price: ${formatEuros(inv.item_price ?? 0)} · Commission: ${formatEuros(inv.commission ?? 0)}`;
+    case "ad":
+      return `${formatDate(inv.ad_start_date)} → ${formatDate(inv.ad_end_date)}`;
+    default:
+      return "";
+  }
+}
+
+const TYPE_COLORS: Record<string, string> = {
+  transaction: "teal",
+  subscription: "blue",
+  ad: "violet",
+  event: "orange",
+};
 
 // --- Page ---
 
@@ -111,18 +121,20 @@ export default function AdminFinance() {
   const [debouncedSearch] = useDebouncedValue(search, 400);
   const [page, setPage] = useState(1);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const { data: revenueData, isLoading: isLoadingRevenue } = useGetFinanceRevenue(Number(year));
+  const { data: settingsData, isLoading: isLoadingSettings } = useGetFinanceSettings();
   const { data: usersData, isLoading: isLoadingUsers } = useGetInvoiceUsers(page, 20, debouncedSearch);
   const { data: invoicesData, isLoading: isLoadingInvoices } = useGetUserInvoices(
     selectedUserId ?? 0,
-    modalOpen && selectedUserId !== null,
+    invoiceModalOpen && selectedUserId !== null,
   );
 
   const handleOpenUserInvoices = (userId: number) => {
     setSelectedUserId(userId);
-    setModalOpen(true);
+    setInvoiceModalOpen(true);
   };
 
   const chartData = revenueData?.data.map((d, i) => ({
@@ -137,7 +149,17 @@ export default function AdminFinance() {
 
   return (
     <Stack gap="xl" p="md">
-      <Title order={2}>Financial Management</Title>
+      <Group justify="space-between">
+        <Title order={2}>Financial Management</Title>
+        <Button
+          classNames={{ root: GlobalStyles.button }}
+          variant="secondary"
+          leftSection={<IconEdit size={16} />}
+          onClick={() => setSettingsModalOpen(true)}
+        >
+          Edit Settings
+        </Button>
+      </Group>
 
       {/* Summary cards */}
       {revenueData && (
@@ -206,7 +228,7 @@ export default function AdminFinance() {
                   <Table.Th>User</Table.Th>
                   <Table.Th>Email</Table.Th>
                   <Table.Th>Role</Table.Th>
-                  <Table.Th>Transactions</Table.Th>
+                  <Table.Th>Invoices</Table.Th>
                   <Table.Th>Total Spent</Table.Th>
                   <Table.Th />
                 </Table.Tr>
@@ -251,14 +273,14 @@ export default function AdminFinance() {
 
       {/* User invoices modal */}
       <Modal
-        opened={modalOpen}
-        onClose={() => setModalOpen(false)}
+        opened={invoiceModalOpen}
+        onClose={() => setInvoiceModalOpen(false)}
         title={invoicesData ? `Invoices — ${invoicesData.username}` : "Loading..."}
         size="xl"
       >
         {isLoadingInvoices ? (
           <Center h={200}><Loader /></Center>
-        ) : invoicesData && invoicesData.invoices?.length === 0 ? (
+        ) : invoicesData && (invoicesData.invoices?.length ?? 0) === 0 ? (
           <Center py="xl">
             <Stack align="center" gap="xs">
               <IconFileInvoice size={40} color="gray" />
@@ -271,35 +293,24 @@ export default function AdminFinance() {
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Date</Table.Th>
-                  <Table.Th>Item</Table.Th>
-                  <Table.Th>Action</Table.Th>
-                  <Table.Th>Price</Table.Th>
-                  <Table.Th>Commission</Table.Th>
-                  <Table.Th />
+                  <Table.Th>Type</Table.Th>
+                  <Table.Th>Description</Table.Th>
+                  <Table.Th>Details</Table.Th>
+                  <Table.Th>Total Paid</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {invoicesData?.invoices.map((inv) => (
-                  <Table.Tr key={inv.id}>
+                {invoicesData?.invoices.map((inv, idx) => (
+                  <Table.Tr key={`${inv.type}-${inv.id}-${idx}`}>
                     <Table.Td>{formatDate(inv.created_at)}</Table.Td>
-                    <Table.Td>{inv.item_title}</Table.Td>
                     <Table.Td>
-                      <Badge variant="light" color={inv.action === "purchased" ? "teal" : "blue"}>
-                        {inv.action}
+                      <Badge variant="light" color={TYPE_COLORS[inv.type] ?? "gray"}>
+                        {inv.type}
                       </Badge>
                     </Table.Td>
-                    <Table.Td>{formatEuros(inv.item_price)}</Table.Td>
-                    <Table.Td c="dimmed">{formatEuros(inv.amount)}</Table.Td>
-                    <Table.Td>
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        title="Download invoice"
-                        onClick={() => generateInvoicePDF(inv, invoicesData.username)}
-                      >
-                        <IconDownload size={16} />
-                      </ActionIcon>
-                    </Table.Td>
+                    <Table.Td>{getInvoiceDescription(inv)}</Table.Td>
+                    <Table.Td c="dimmed" size="sm">{getInvoiceDetails(inv)}</Table.Td>
+                    <Table.Td fw={500}>{formatEuros(inv.amount)}</Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>
@@ -307,7 +318,103 @@ export default function AdminFinance() {
           </ScrollArea>
         )}
       </Modal>
+
+      {/* Finance settings modal */}
+      <FinanceSettingsModal
+        opened={settingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
+        settings={settingsData ?? []}
+        isLoading={isLoadingSettings}
+      />
     </Stack>
+  );
+}
+
+// --- Finance Settings Modal ---
+
+interface FinanceSettingsModalProps {
+  opened: boolean;
+  onClose: () => void;
+  settings: FinanceSetting[];
+  isLoading: boolean;
+}
+
+function FinanceSettingsModal({ opened, onClose, settings, isLoading }: FinanceSettingsModalProps) {
+  const [values, setValues] = useState<Record<string, number>>({});
+  const { mutateAsync: updateSetting, isPending } = useUpdateFinanceSetting();
+
+  // Initialise local values from fetched settings when modal opens
+  const initialValues = settings.reduce<Record<string, number>>((acc, s) => {
+    acc[s.key] = s.value;
+    return acc;
+  }, {});
+
+  const getValue = (key: string) =>
+    key in values ? values[key] : (initialValues[key] ?? 0);
+
+  const handleSave = async (key: string) => {
+    const newValue = getValue(key);
+    try {
+      await updateSetting({ key, value: newValue });
+      showSuccessNotification("Settings updated", `${SETTING_LABELS[key] ?? key} updated successfully.`);
+    } catch (error: any) {
+      showErrorNotification("Update failed", undefined, error);
+    }
+  };
+
+  const getConstraints = (key: string) => {
+    switch (key) {
+      case "trial_days":
+        return { min: 1, step: 1, decimalScale: 0 };
+      case "commission_rate":
+        return { min: 0, max: 100, step: 0.1, decimalScale: 2 };
+      default:
+        return { min: 0, step: 0.01, decimalScale: 2 };
+    }
+  };
+
+  return (
+    <Modal opened={opened} onClose={onClose} title="Finance Settings" size="md">
+      {isLoading ? (
+        <Center h={200}><Loader /></Center>
+      ) : (
+        <Stack gap="md">
+          <Text c="dimmed" size="sm">
+            Changes take effect immediately. All amounts in euros (€).
+          </Text>
+          <Divider />
+          {settings.map((setting) => {
+            const constraints = getConstraints(setting.key);
+            return (
+              <Group key={setting.key} justify="space-between" align="flex-end">
+                <Stack gap={2} style={{ flex: 1 }}>
+                  <Text size="sm" fw={600}>{SETTING_LABELS[setting.key] ?? setting.key}</Text>
+                  <Text size="xs" c="dimmed">Last updated: {formatDate(setting.updated_at)}</Text>
+                </Stack>
+                <Group gap="xs" align="flex-end">
+                  <NumberInput
+                    value={getValue(setting.key)}
+                    onChange={(v) => setValues((prev) => ({ ...prev, [setting.key]: Number(v) }))}
+                    w={130}
+                    {...constraints}
+                  />
+                  <ActionIcon
+                    classNames={{ root: GlobalStyles.actionIcon }}
+                    variant="primary"
+                    size="lg"
+                    title="Save"
+                    loading={isPending}
+                    onClick={() => handleSave(setting.key)}
+                  >
+                    <IconCheck size={16} />
+                  </ActionIcon>
+                </Group>
+              </Group>
+            );
+          })}
+        </Stack>
+      )}
+    </Modal>
   );
 }
 

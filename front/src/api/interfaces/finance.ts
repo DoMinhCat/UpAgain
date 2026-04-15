@@ -20,6 +20,12 @@ export interface RevenueResponse {
   summary: RevenueSummary;
 }
 
+export interface FinanceSetting {
+  key: string;
+  value: number;
+  updated_at: string;
+}
+
 export interface InvoiceUser {
   id_account: number;
   username: string;
@@ -40,11 +46,28 @@ export interface InvoicesListResponse {
 export interface UserInvoice {
   id: number;
   created_at: string;
-  action: string;
-  item_title: string;
-  item_price: number;
-  amount: number;
-  id_transaction: string;
+  type: "transaction" | "subscription" | "ad" | "event";
+  amount: number; // total paid
+
+  // Transaction-specific
+  id_transaction?: string;
+  item_title?: string;
+  item_price?: number;
+  commission?: number;
+
+  // Subscription-specific
+  sub_from?: string;
+  sub_to?: string;
+
+  // Ad-specific
+  ad_start_date?: string;
+  ad_end_date?: string;
+  post_id?: number;
+  post_title?: string;
+
+  // Event-specific
+  event_id?: number;
+  event_title?: string;
 }
 
 export interface UserInvoicesResponse {

@@ -21,6 +21,8 @@ export const ENDPOINTS = {
 
     FINANCE: {
       REVENUE: "/admin/finance/revenue/",
+      SETTINGS: "/admin/finance/settings/",
+      UPDATE_SETTING: (key: string) => `/admin/finance/settings/${key}/`,
       INVOICES: "/admin/finance/invoices/",
       USER_INVOICES: (userId: number) => `/admin/finance/invoices/${userId}/`,
     },
