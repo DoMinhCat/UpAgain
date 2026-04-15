@@ -123,8 +123,20 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
 
   return (
     <nav className={classes.navbar}>
-      <Center>
-        <Image src="/common/logo.png" />
+      <Center
+        style={{ cursor: "pointer" }}
+        onClick={() => {
+          navigate(PATHS.HOME);
+          if (onLinkClick) onLinkClick();
+        }}
+      >
+        <Tooltip
+          label="Go to front office"
+          position="right"
+          transitionProps={{ duration: 0 }}
+        >
+          <Image src="/common/logo.png" />
+        </Tooltip>
       </Center>
 
       <div className={classes.navbarMain}>
@@ -175,7 +187,6 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
               </Menu.Item>
 
               <Menu.Divider />
-
               <Menu.Item
                 leftSection={<IconLogout size={14} />}
                 onClick={() => {

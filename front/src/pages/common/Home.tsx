@@ -16,8 +16,7 @@ const Home = () => {
   } else {
     // Render component based on role
     switch (user.role) {
-      case "admin":
-        return <Navigate to={PATHS.ADMIN.HOME} />;
+      // admin can move freely between admin space and user space
       // TODO: add other home page for each role
       // case "pro":
       //   return <ProHome />;
