@@ -93,20 +93,33 @@ export default function AdminSubscriptionDetails() {
 
       <Container px="md" size="sm" mt="xl">
         <Stack justify="center" align="center" mb="xl">
-          <ThemeIcon
-            size={80}
-            radius="xl"
-            color={sub?.is_active ? "var(--upagain-yellow)" : "gray"}
-          >
-            <IconCrown size={45} />
-          </ThemeIcon>
-          <Avatar
-            src={sub?.avatar}
-            size="xl"
-            radius="xl"
-            name={sub?.username}
-            color="initials"
-          />
+          <div style={{ position: "relative", width: "fit-content" }}>
+            {/* The Crown Container */}
+            <ThemeIcon
+              size={40}
+              radius="xl"
+              color={sub?.is_active ? "var(--upagain-yellow)" : "gray"}
+              style={{
+                position: "absolute",
+                top: -15,
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: 2,
+                border: "2px solid white",
+              }}
+            >
+              <IconCrown size={24} />
+            </ThemeIcon>
+
+            {/* The Avatar */}
+            <Avatar
+              src={sub?.avatar}
+              size="xl"
+              radius="xl"
+              name={sub?.username}
+              color="initials"
+            />
+          </div>
           <Anchor
             onClick={() =>
               navigate(PATHS.ADMIN.USERS.ALL + "/" + sub?.id_pro, {
