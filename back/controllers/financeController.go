@@ -166,8 +166,9 @@ func GetInvoiceUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	search := r.URL.Query().Get("search")
+	sortQuery := r.URL.Query().Get("sort")
 
-	users, total, err := db.GetInvoiceUsers(page, limit, search)
+	users, total, err := db.GetInvoiceUsers(page, limit, search, sortQuery)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching users.")
 		slog.Error("GetInvoiceUsers() failed", "controller", "GetInvoiceUsers", "error", err)
