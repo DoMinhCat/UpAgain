@@ -117,7 +117,12 @@ export function AdminHistoryDetails() {
                     <Anchor
                       size="sm"
                       fw={600}
-                      style={{ cursor: "pointer" }}
+                      style={{
+                        cursor:
+                          historyData?.action !== "delete"
+                            ? "pointer"
+                            : "default",
+                      }}
                       c="var(--component-color-primary)"
                       onClick={() => {
                         if (historyData?.action !== "delete") {
@@ -156,6 +161,15 @@ export function AdminHistoryDetails() {
                                 },
                               },
                             );
+                          } else if (
+                            historyData?.module === "finance_setting"
+                          ) {
+                            navigate(`/admin/finance`, {
+                              state: {
+                                from: "historyDetails",
+                                id_history: historyData?.id,
+                              },
+                            });
                           } else if (
                             historyData?.module === "listing" ||
                             historyData?.module === "deposit"
