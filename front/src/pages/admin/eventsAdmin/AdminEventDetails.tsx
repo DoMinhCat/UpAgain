@@ -34,10 +34,10 @@ import {
   IconPhoto,
 } from "@tabler/icons-react";
 import AdminTable from "../../../components/admin/AdminTable";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import { TextEditor } from "../../../components/TextEditor";
+import { TextEditor } from "../../../components/common/input/TextEditor";
 import {
   useAssignEmployeeToEvent,
   useUpdateEventStatus,
@@ -48,13 +48,13 @@ import {
 } from "../../../hooks/eventHooks";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import FullScreenLoader from "../../../components/FullScreenLoader";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
-import ImageDropzone from "../../../components/ImageDropzone";
+import ImageDropzone from "../../../components/common/input/ImageDropzone";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
-import { PhotosCarousel } from "../../../components/PhotosCarousel";
+import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 export default function AdminEventDetails() {
   const location = useLocation();
   const origin = location.state;
@@ -401,10 +401,22 @@ export default function AdminEventDetails() {
                   },
                   { title: "Event's Details", href: "#" },
                 ]
-              : [
-                  { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
-                  { title: "Event's Details", href: "#" },
-                ]),
+              : origin?.from === "userDetails"
+                ? [
+                    {
+                      title: "User Management",
+                      href: "/admin/users/",
+                    },
+                    {
+                      title: "User's Details",
+                      href: "/admin/users/" + origin.id_user,
+                    },
+                    { title: "Event's Details", href: "#" },
+                  ]
+                : [
+                    { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
+                    { title: "Event's Details", href: "#" },
+                  ]),
         ]}
       />
       <Container p="lg" size="xl">

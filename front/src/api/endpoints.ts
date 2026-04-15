@@ -20,11 +20,11 @@ export const ENDPOINTS = {
     },
 
     FINANCE: {
-      REVENUE: "/admin/finance/revenue/",
+      REVENUE: "/finance/revenue/",
       SETTINGS: "/admin/finance/settings/",
       UPDATE_SETTING: (key: string) => `/admin/finance/settings/${key}/`,
-      INVOICES: "/admin/finance/invoices/",
-      USER_INVOICES: (userId: number) => `/admin/finance/invoices/${userId}/`,
+      INVOICES: "/finance/invoices/",
+      USER_INVOICES: (userId: number) => `/finance/invoices/${userId}/`,
     },
 
     VALIDATIONS: {
@@ -50,6 +50,7 @@ export const ENDPOINTS = {
 
     EMPLOYEES: {
       AVAILABLE: "/employees/available/",
+      SCHEDULE: (id_employee: number) => `/employees/${id_employee}/schedule/`,
     },
 
     POSTS: {

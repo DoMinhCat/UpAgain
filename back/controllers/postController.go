@@ -642,6 +642,17 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
+// GetProjectStepsByPostId godoc
+// @Summary      Get project steps
+// @Description  Returns all project steps associated with a specific post.
+// @Tags         Posts
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_post  path      int  true  "Post ID"
+// @Success      200      {object}  []models.ProjectStep
+// @Failure      400      {string}  string  "Invalid or missing post ID"
+// @Failure      500      {string}  string  "Internal Server Error"
+// @Router       /posts/{id_post}/steps [get]
 func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 	idPost, err := strconv.Atoi(r.PathValue("id_post"))
 	if err != nil {
@@ -670,6 +681,19 @@ func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, steps)
 }
 
+// DeleteProjectStepByPostId godoc
+// @Summary      Delete a project step
+// @Description  Deletes a specific project step by its ID. Admin only.
+// @Tags         Posts
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_post   path      int  true  "Post ID"
+// @Param        step_id   path      int  true  "Step ID"
+// @Success      200       {object}  nil     "Deleted successfully"
+// @Failure      400       {string}  string  "Invalid ID or step not found"
+// @Failure      401       {string}  string  "Unauthorized"
+// @Failure      500       {string}  string  "Internal Server Error"
+// @Router       /posts/{id_post}/steps/{step_id} [delete]
 func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -693,7 +717,7 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Step ID "+strconv.Itoa(idStep)+" not found")
 		return
 	}
-	
+
 	err = db.DeleteProjectStepByPostId(idStep)
 	if err != nil {
 		slog.Error("db.DeleteProjectStepByPostId() failed", "controller", "DeleteProjectStepByPostId", "error", err)

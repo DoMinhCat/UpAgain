@@ -15,7 +15,9 @@ import { IconLock } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import PasswordStrengthInput, { requirements } from "../PasswordStrengthInput";
+import PasswordStrengthInput, {
+  requirements,
+} from "../common/input/PasswordStrengthInput";
 import { useRegister } from "../../hooks/authHooks";
 
 export default function RegisterForm() {
