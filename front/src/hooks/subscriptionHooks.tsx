@@ -6,7 +6,10 @@ import {
   updateSubscriptionPrice,
   getSubscriptionPrice,
 } from "../api/subscriptionModule";
-import type { Subscription, SubscriptionListPagination } from "../api/interfaces/subscription";
+import type {
+  Subscription,
+  SubscriptionListPagination,
+} from "../api/interfaces/subscription";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
 export const useGetAllSubscriptions = (
@@ -19,7 +22,7 @@ export const useGetAllSubscriptions = (
     queryFn: () => getAllSubscriptions(page, limit, active),
     staleTime: 1000 * 60,
     meta: {
-      errorTitle: "Subscriptions Error",
+      errorTitle: "Subscriptions error",
       errorMessage: "Unable to load subscriptions.",
     },
   });
@@ -32,7 +35,7 @@ export const useGetSubscriptionByID = (id: number) => {
     enabled: !!id,
     staleTime: 1000 * 60 * 2,
     meta: {
-      errorTitle: "Subscription Error",
+      errorTitle: "Subscription error",
       errorMessage: `Could not load subscription #${id}`,
     },
   });
@@ -41,15 +44,21 @@ export const useGetSubscriptionByID = (id: number) => {
 export const useRevokeSubscription = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, cancel_reason }: { id: number; cancel_reason: string }) =>
-      revokeSubscription(id, cancel_reason),
-    onSuccess: () => {
+    mutationFn: ({
+      id,
+      cancel_reason,
+    }: {
+      id: number;
+      cancel_reason: string;
+    }) => revokeSubscription(id, cancel_reason),
+    onSuccess: (_, { id }) => {
       showSuccessNotification("Revoked", "Subscription has been revoked");
       queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["subscriptionDetails", id] });
     },
     meta: {
-      errorTitle: "Revoke Failed",
-      errorMessage: "Could not revoke the subscription.",
+      errorTitle: "Subscription cancelation failed",
+      errorMessage: "Could not cancel the subscription.",
     },
   });
 };
@@ -60,7 +69,7 @@ export const useGetSubscriptionPrice = () => {
     queryFn: getSubscriptionPrice,
     staleTime: 1000 * 60 * 5,
     meta: {
-      errorTitle: "Fetching Failed",
+      errorTitle: "Error",
       errorMessage: "Could not load subscription price.",
     },
   });
