@@ -2,7 +2,7 @@ import { type RouteObject, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "./paths";
 import { useEffect } from "react";
-import FullScreenLoader from "../components/FullScreenLoader";
+import FullScreenLoader from "../components/common/FullScreenLoader";
 
 const UserGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -11,10 +11,10 @@ const UserGuard = ({ children }: { children: React.ReactNode }) => {
   const unauthorized = !user || user.role !== "admin";
 
   useEffect(() => {
-    if (unauthorized) {
-      navigate(PATHS.GUEST.LOGIN, { replace: true, state: { from: location } });
+    if (!isInitializing && unauthorized) {
+      navigate(PATHS.HOME, { replace: true, state: { from: location } });
     }
-  }, [unauthorized]);
+  }, [unauthorized, isInitializing, navigate, location]);
 
   if (isInitializing) {
     return <FullScreenLoader />;

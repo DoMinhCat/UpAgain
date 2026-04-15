@@ -243,7 +243,7 @@ func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int,
 		return nil, 0, err
 	}
 
-	// Paginated accounts query — ordering by total invoice count.
+	// Paginated accounts query.
 	accountQuery := `
 		SELECT a.id, a.username, a.email, a.role, a.created_at
 		FROM accounts a

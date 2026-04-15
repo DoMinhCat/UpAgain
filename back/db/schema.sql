@@ -82,8 +82,8 @@ create table events
     created_at   timestamptz    not null default now(),
     title        varchar(255)   not null,
     description  text,
-    start_at     timestamptz    ,
-    start_at     timestamptz    ,
+    start_at     timestamptz    not null,
+    end_at       timestamptz    not null,
     price        numeric(2),                            -- leave null if event is free
     category     event_category not null default 'other',
     capacity     integer,
@@ -282,7 +282,8 @@ create table subscriptions
     sub_from  timestamptz not null default now(),
     sub_to    timestamptz not null,
     CHECK ( sub_to>sub_from ),
-    id_pro    integer     not null references pros (id_account) on delete restrict
+    id_pro    integer     not null references pros (id_account) on delete restrict,
+	cancel_reason  text   
 );
 
 create type transaction_action as enum('cancelled', 'purchased', 'expired', 'reserved');

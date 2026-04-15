@@ -19,7 +19,7 @@ import {
   type UnassignEmployeePayload,
   type UpdateEventPayload,
 } from "../api/interfaces/event";
-import { showSuccessNotification } from "../components/NotificationToast";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 
 export const useGetAllEvents = (
   page?: number,
@@ -91,6 +91,7 @@ export const useAssignEmployeeToEvent = () => {
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["employeeSchedule"] });
     },
     meta: {
       errorTitle: "Employee assignation failed",
@@ -137,6 +138,7 @@ export const useUnAssignEmployee = (id_event: number) => {
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["employeeSchedule"] });
     },
     meta: {
       errorTitle: "Employee unassignation failed",

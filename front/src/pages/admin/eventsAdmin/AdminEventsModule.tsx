@@ -16,12 +16,13 @@ import {
 } from "@mantine/core";
 import {
   IconCalendarEventFilled,
-  IconArrowUp,
+  IconArrowUpRight,
   IconSearch,
   IconPlus,
   IconCalendarTime,
   IconCalendarCheck,
   IconClockPause,
+  IconAlertTriangle,
 } from "@tabler/icons-react";
 import {
   AdminCardInfo,
@@ -34,11 +35,11 @@ import { DateTimePicker } from "@mantine/dates";
 import { useGetAllEvents, useGetEventStats } from "../../../hooks/eventHooks";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
-import { TextEditor } from "../../../components/TextEditor";
-import ImageDropzone from "../../../components/ImageDropzone";
+import { TextEditor } from "../../../components/common/input/TextEditor";
+import ImageDropzone from "../../../components/common/input/ImageDropzone";
 import dayjs from "dayjs";
 import { useCreateEvent } from "../../../hooks/eventHooks";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 
 export default function AdminEventsModule() {
   const navigate = useNavigate();
@@ -380,7 +381,12 @@ export default function AdminEventsModule() {
           description={
             <StatsCardDesc
               stats={eventStats?.increase ?? 0}
-              icon={IconArrowUp}
+              icon={
+                <IconArrowUpRight
+                  size={24}
+                  color="var(--upagain-neutral-green)"
+                />
+              }
               description={
                 eventStats?.increase === 1
                   ? ` new event in ${timeLabel}`
@@ -398,7 +404,12 @@ export default function AdminEventsModule() {
           description={
             <StatsCardDesc
               stats={eventStats?.upcoming ?? 0}
-              icon={IconArrowUp}
+              icon={
+                <IconArrowUpRight
+                  size={24}
+                  color="var(--upagain-neutral-green)"
+                />
+              }
               description={
                 eventStats?.upcoming === 1
                   ? " upcoming event in the next 30 days"
@@ -416,7 +427,12 @@ export default function AdminEventsModule() {
           description={
             <StatsCardDesc
               stats={eventStats?.registrations ?? 0}
-              icon={IconArrowUp}
+              icon={
+                <IconArrowUpRight
+                  size={24}
+                  color="var(--upagain-neutral-green)"
+                />
+              }
               description={
                 eventStats?.registrations === 1
                   ? ` registration in ${timeLabel}`
@@ -434,6 +450,9 @@ export default function AdminEventsModule() {
           description={
             <StatsCardDesc
               stats={eventStats?.pending ?? 0}
+              icon={
+                <IconAlertTriangle size={24} color="var(--upagain-yellow)" />
+              }
               description={
                 eventStats?.pending === 1
                   ? " event requires validation"
@@ -647,7 +666,6 @@ export default function AdminEventsModule() {
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
               disabled={isLoadingEvents}
               rightSection={<IconSearch size={14} />}

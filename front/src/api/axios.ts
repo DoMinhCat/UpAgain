@@ -11,7 +11,7 @@ if (import.meta.env.VITE_ENV === "DEV") {
 }
 
 export const api = axios.create({
-   baseURL: baseURL,
+  baseURL: baseURL,
   withCredentials: true,
 });
 

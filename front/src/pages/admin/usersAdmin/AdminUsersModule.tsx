@@ -34,7 +34,7 @@ import { useDisclosure } from "@mantine/hooks";
 
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 
 const requirements = [
   { re: /[0-9]/, label: "Includes number" },
@@ -509,7 +509,6 @@ export default function AdminUsersModule() {
           <Grid.Col span={{ base: 12, md: 3 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by username, email or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}

@@ -39,10 +39,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		slog.Error("GetAccountCredsByEmail() failed", "controller", "Login", "error", err)
 		return
 	}
+	if existing == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "Oops, incorrect email or password.")
+		slog.Error("No account found", "controller", "Login", "email", creds.Email)
+		return
+	}
 
-	slog.Info("Login Attempt", "input_email", creds.Email, "db_email", existing.Email)
+	if existing.IsBanned {
+		response.RespondWithError(w, http.StatusUnauthorized, "Your account has been banned, contact an admin to unban your account.")
+		return
+	}
 
-	if existing == nil || creds.Email != existing.Email || !utils.IsPasswordCorrect(existing.Password, creds.Password) {
+	if creds.Email != existing.Email || !utils.IsPasswordCorrect(existing.Password, creds.Password) {
 		response.RespondWithError(w, http.StatusUnauthorized, "Oops, incorrect email or password.")
 		return
 	}
@@ -62,12 +70,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	token, err := utils.GenerateJWT(creds.Email, existing.Role, existing.Id)
+	token, err := utils.GenerateJWT(creds.Email, existing.Role, existing.Id, existing.Username)
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 		return
 	}
-	refreshToken, err := utils.GenerateRefreshToken(creds.Email, existing.Role, existing.Id)
+	refreshToken, err := utils.GenerateRefreshToken(creds.Email, existing.Role, existing.Id, existing.Username)
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 		return
@@ -110,7 +118,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Invalid refresh token", "controller", "RefreshToken", "error", err)
 		return
 	}
-	token, err := utils.GenerateJWT(claims.Email, claims.Role, claims.Id)
+	token, err := utils.GenerateJWT(claims.Email, claims.Role, claims.Id, claims.Username)
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
 		slog.Error("GenerateJWT() failed", "controller", "RefreshToken", "error", err)

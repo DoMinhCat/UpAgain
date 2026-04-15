@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-// ALL QUERIES TO TABLE 'employees'
-
 func GetEmployeeRoleById(id int) (bool, error) {
 	var isAdmin bool
 	row := utils.Conn.QueryRow("SELECT is_admin FROM employees WHERE id_account=$1", id)
@@ -97,4 +95,27 @@ func CheckEmployeeExists(id int) (bool, error) {
 		return false, fmt.Errorf("CheckEmployeeExists() failed: %v", err.Error())
 	}
 	return exists, nil
+}
+
+func GetEmployeeEventsByEmployeeId(id_employee int) ([]models.Event, error) {
+	var events []models.Event
+	query := `
+		SELECT e.id, e.title, e.start_at, e.end_at, e.status FROM events e
+		JOIN event_employee ee ON e.id = ee.id_event
+		WHERE ee.id_employee = $1 AND e.status != 'cancelled' AND e.status != 'refused';
+	`
+	rows, err := utils.Conn.Query(query, id_employee)
+	if err != nil {
+		return nil, fmt.Errorf("GetEmployeeEventsByEmployeeId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var event models.Event
+		err := rows.Scan(&event.Id, &event.Title, &event.StartAt, &event.EndAt, &event.Status)
+		if err != nil {
+			return nil, fmt.Errorf("GetEmployeeEventsByEmployeeId() scan failed: %v", err.Error())
+		}
+		events = append(events, event)
+	}
+	return events, nil
 }

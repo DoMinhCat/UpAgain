@@ -23,7 +23,7 @@ import {
   useRecoverAccount,
   useGetAllAccounts,
 } from "../../../hooks/accountHooks";
-import PaginationFooter from "../../../components/PaginationFooter";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 
 export default function AdminUsersDeleted() {
   // hooks
@@ -181,7 +181,6 @@ export default function AdminUsersDeleted() {
           <Grid.Col span={{ base: 12, md: 5 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by username, email or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}

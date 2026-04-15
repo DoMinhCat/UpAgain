@@ -9,17 +9,22 @@ import {
   Group,
   Text,
   Title,
+  Center,
   Button,
   Tooltip,
   Modal,
+  Indicator,
   Loader,
   TextInput,
+  HoverCard,
+  UnstyledButton,
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { ScoreRing } from "../../../components/user/ScoreRing";
 import { useEffect, useState } from "react";
-
+import { Calendar } from "@mantine/dates";
+import { useGetEmployeeSchedule } from "../../../hooks/employeeHooks";
 import {
   useAccountDetails,
   useDeleteAccount,
@@ -36,12 +41,12 @@ import {
   useParams,
 } from "react-router-dom";
 
-import FullScreenLoader from "../../../components/FullScreenLoader";
-import InfoField from "../../../components/InfoField";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
 import PasswordStrengthInput, {
   requirements,
-} from "../../../components/PasswordStrengthInput";
+} from "../../../components/common/input/PasswordStrengthInput";
 import { IconLock, IconInfoCircleFilled } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuth } from "../../../context/AuthContext";
@@ -205,6 +210,12 @@ export default function AdminUserDetails() {
       isValidId && role != "admin" && !isAccountDetailsLoading,
     );
 
+  const { data: employeeSchedule, isLoading: isEmployeeScheduleLoading } =
+    useGetEmployeeSchedule(
+      accountId,
+      isValidId && role === "employee" && !isAccountDetailsLoading,
+    );
+
   // delete hook
   const deletionMutation = useDeleteAccount();
   const handleDeleteAccount = async () => {
@@ -308,6 +319,10 @@ export default function AdminUserDetails() {
     }
   };
 
+  // CALENDAR MODAL
+  const [openedCalendar, { open: openCalendar, close: closeCalendar }] =
+    useDisclosure(false);
+
   if (isAccountDetailsLoading) {
     return <FullScreenLoader />;
   }
@@ -316,7 +331,7 @@ export default function AdminUserDetails() {
   }
 
   return (
-    <Container px="md" size="xl">
+    <Container px="md" size="xl" pb="xl">
       <Title order={2} mt="xs" mb="sm">
         User's Details
       </Title>
@@ -371,7 +386,19 @@ export default function AdminUserDetails() {
                               PATHS.ADMIN.LISTINGS + "/" + origin?.listingId,
                           },
                         ]
-                      : []),
+                      : origin?.from === "finance"
+                        ? [
+                            {
+                              title: "Finance Management",
+                              href: PATHS.ADMIN.FINANCE.ALL,
+                            },
+                          ]
+                        : [
+                            {
+                              title: "User Management",
+                              href: PATHS.ADMIN.USERS.ALL,
+                            },
+                          ]),
           { title: "User's Details", href: "#" },
         ]}
       />
@@ -575,6 +602,18 @@ export default function AdminUserDetails() {
                       </Text>
                     )}
                   </InfoField>
+                  <InfoField label="Current tasks">
+                    {/* TODO: Open modal showing calendar with filled occupied dates and
+                      link to the event's details */}
+                    <Button
+                      mt="xs"
+                      variant="primary"
+                      size="sm"
+                      onClick={openCalendar}
+                    >
+                      Show current tasks
+                    </Button>
+                  </InfoField>
                 </>
               )}
               {role == "pro" && (
@@ -760,7 +799,6 @@ export default function AdminUserDetails() {
                     >
                       Change password
                     </Button>
-                    {/* // modal change pass */}
                     <Modal
                       opened={openedChangePassword}
                       onClose={closeChangePassword}
@@ -971,6 +1009,171 @@ export default function AdminUserDetails() {
             Confirm
           </Button>
         </Group>
+      </Modal>
+
+      {/* // calendar modal */}
+      <Modal
+        size="lg"
+        title={
+          <Text fw={700}>{`${accountDetails?.username}'s work schedule`}</Text>
+        }
+        opened={openedCalendar}
+        onClose={closeCalendar}
+        centered
+        styles={{ body: { paddingBottom: "var(--mantine-spacing-xl)" } }}
+      >
+        <Center>
+          {isEmployeeScheduleLoading ? (
+            <Loader />
+          ) : (
+            <Calendar
+              styles={{
+                levelsGroup: { width: "100%" },
+                month: { width: "100%" },
+                weekday: { textAlign: "center" },
+                day: { width: "100%" },
+                calendarHeader: {
+                  maxWidth: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "var(--mantine-spacing-md)",
+                },
+              }}
+              static
+              size="lg"
+              renderDay={(date) => {
+                const day = dayjs(date).date();
+                const tasksOnDate =
+                  employeeSchedule?.filter((event) => {
+                    const eventStartVal = dayjs(event.start_at).valueOf();
+                    const eventEndVal = dayjs(event.end_at).valueOf();
+                    const dayStartVal = dayjs(date).valueOf();
+                    const dayEndVal = dayjs(date).endOf("day").valueOf();
+
+                    if (eventStartVal === eventEndVal) {
+                      return (
+                        eventStartVal >= dayStartVal &&
+                        eventStartVal <= dayEndVal
+                      );
+                    }
+                    return (
+                      eventStartVal <= dayEndVal && eventEndVal > dayStartVal
+                    );
+                  }) || [];
+
+                const hasTasks = tasksOnDate.length > 0;
+                // Determine if all tasks on this date are completely in the past
+                const allTasksInPast = tasksOnDate.every((event) => {
+                  return dayjs().valueOf() > dayjs(event.end_at).valueOf();
+                });
+
+                return (
+                  <HoverCard
+                    shadow="xl"
+                    disabled={!hasTasks}
+                    withinPortal
+                    withArrow
+                    openDelay={100}
+                    closeDelay={200}
+                  >
+                    <HoverCard.Target>
+                      <Indicator
+                        processing={hasTasks && !allTasksInPast}
+                        size={hasTasks && tasksOnDate.length > 1 ? 18 : 10}
+                        color={
+                          allTasksInPast
+                            ? "red"
+                            : "var(--upagain-neutral-green)"
+                        }
+                        offset={tasksOnDate.length > 1 ? 4 : 0}
+                        disabled={!hasTasks}
+                        label={
+                          tasksOnDate.length > 1
+                            ? `+${tasksOnDate.length}`
+                            : undefined
+                        }
+                        styles={{
+                          indicator: {
+                            fontSize: "10px",
+                            fontWeight: 700,
+                          },
+                        }}
+                        style={{ width: "100%", height: "100%" }}
+                      >
+                        <Center w="100%" h="100%">
+                          <Text size="sm" fw={hasTasks ? 700 : 400}>
+                            {day}
+                          </Text>
+                        </Center>
+                      </Indicator>
+                    </HoverCard.Target>
+
+                    <HoverCard.Dropdown p="sm">
+                      <Stack gap="xs">
+                        {/* Header: Date with a subtle divider */}
+                        <Box
+                          style={{
+                            borderBottom: "1px solid var(--border-color)",
+                            paddingBottom: "4px",
+                          }}
+                        >
+                          <Text size="xs" c="dimmed" tt="uppercase">
+                            {dayjs(date).format("dddd")}
+                          </Text>
+                          <Text size="sm">
+                            {dayjs(date).format("DD MMM YYYY")}
+                          </Text>
+                        </Box>
+
+                        <Stack gap={4}>
+                          {tasksOnDate.map((task) => (
+                            <UnstyledButton
+                              key={task.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                closeCalendar();
+                                navigate(
+                                  `${PATHS.ADMIN.EVENTS.ALL}/${task.id}`,
+                                  {
+                                    state: {
+                                      from: "userDetails",
+                                      id_user: accountDetails?.id,
+                                    },
+                                  },
+                                );
+                              }}
+                              style={{
+                                padding: "6px 8px",
+                                borderRadius: "4px",
+                                transition: "background 0.2s ease",
+                              }}
+                              // Hover effect
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "var(--upagain-neutral-green)")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "transparent")
+                              }
+                            >
+                              <Group gap="xs" wrap="nowrap">
+                                <Text size="sm" truncate>
+                                  {task.title}
+                                </Text>
+                              </Group>
+                            </UnstyledButton>
+                          ))}
+                        </Stack>
+                      </Stack>
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                );
+              }}
+            />
+          )}
+        </Center>
       </Modal>
     </Container>
   );

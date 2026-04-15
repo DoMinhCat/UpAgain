@@ -1,9 +1,10 @@
 package models
 
 type AuthClaims struct {
-	Id    int    `json:"id"`
-	Email string `json:"email"`
-	Role  string `json:"role"`
+	Id       int    `json:"id"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
+	Username string `json:"username"`
 }
 
 type LoginRequest struct {
@@ -16,4 +17,6 @@ type AccountCreds struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Role     string `json:"role"`
+	IsBanned bool   `json:"is_banned"`
+	Username string `json:"username"`
 }

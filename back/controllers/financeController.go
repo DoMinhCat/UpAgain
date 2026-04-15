@@ -12,8 +12,18 @@ import (
 	"time"
 )
 
-// GetFinanceRevenue returns monthly revenue grouped by category for a given year.
-// Query params: year (optional, defaults to current year)
+// GetFinanceRevenue godoc
+// @Summary      Get monthly revenue
+// @Description  Returns monthly revenue data grouped by category (subscriptions, commissions, ads, events) for a given year, along with a yearly summary.
+// @Tags         finance
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        year  query     int  false  "Year (defaults to current year, must be between 2000 and 2100)"
+// @Success      200   {object}  models.RevenueResponse
+// @Failure      400   {object}  nil  "Invalid year parameter"
+// @Failure      401   {object}  nil  "Unauthorized"
+// @Failure      500   {object}  nil  "Internal server error"
+// @Router       /finance/revenue/ [get]
 func GetFinanceRevenue(w http.ResponseWriter, r *http.Request) {
 	yearStr := r.URL.Query().Get("year")
 	year := time.Now().Year()
@@ -124,11 +134,23 @@ func validateFinanceSetting(key string, value float64) error {
 	return nil
 }
 
-// GetInvoiceUsers returns a paginated list of accounts with their transaction counts.
-// Query params: page (default 1), limit (default 20), search (optional)
+// GetInvoiceUsers godoc
+// @Summary      Get invoice users
+// @Description  Returns a paginated list of accounts with their total transaction count and total amount spent. Supports search by username or email.
+// @Tags         finance
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        page    query     int     false  "Page number (default 1)"
+// @Param        limit   query     int     false  "Items per page (default 10, max 100)"
+// @Param        search  query     string  false  "Search by username or email"
+// @Success      200     {object}  models.InvoicesListResponse
+// @Failure      400     {object}  nil  "Invalid page or limit parameter"
+// @Failure      401     {object}  nil  "Unauthorized"
+// @Failure      500     {object}  nil  "Internal server error"
+// @Router       /finance/invoices/ [get]
 func GetInvoiceUsers(w http.ResponseWriter, r *http.Request) {
 	page := 1
-	limit := 20
+	limit := 10
 
 	if p := r.URL.Query().Get("page"); p != "" {
 		parsed, err := strconv.Atoi(p)
@@ -165,9 +187,27 @@ func GetInvoiceUsers(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetUserInvoices returns all transactions/invoices for a specific account.
-// URL param: userId
+// GetUserInvoices godoc
+// @Summary      Get user invoices
+// @Description  Returns all invoices (transactions, subscriptions, ads, events) for a specific account. Admins can access any user's invoices; non-admin users can only access their own.
+// @Tags         finance
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        userId  path      int  true  "Account ID"
+// @Success      200     {object}  models.UserInvoicesResponse
+// @Failure      400     {object}  nil  "Invalid user ID"
+// @Failure      401     {object}  nil  "Unauthorized or forbidden"
+// @Failure      404     {object}  nil  "User not found"
+// @Failure      500     {object}  nil  "Internal server error"
+// @Router       /finance/invoices/{userId}/ [get]
 func GetUserInvoices(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" && role != "pro" && role != "user" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
+		return
+	}
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
 	userIDStr := r.PathValue("userId")
 	userID, err := strconv.Atoi(userIDStr)
 	if err != nil || userID < 1 {
@@ -175,13 +215,31 @@ func GetUserInvoices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Non-admin users can only access their own invoices.
+	if role != "admin" && userID != idRequestor {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
+		return
+	}
+
+	deleted := false
+	exist, err := db.CheckAccountExistsById(userID, &deleted)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching user's invoices.")
+		slog.Error("CheckAccountExistsById() failed", "controller", "GetUserInvoices", "error", err)
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "User with ID "+userIDStr+" not found.")
+		return
+	}
+
 	resp, err := db.GetUserInvoices(userID)
 	if err != nil {
 		if err.Error() == "account not found" {
-			utils.RespondWithError(w, http.StatusNotFound, "User not found.")
+			utils.RespondWithError(w, http.StatusNotFound, "User with ID "+userIDStr+" not found.")
 			return
 		}
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching invoices.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching user's invoices.")
 		slog.Error("GetUserInvoices() failed", "controller", "GetUserInvoices", "error", err)
 		return
 	}
