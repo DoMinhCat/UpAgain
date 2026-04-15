@@ -4,6 +4,8 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -45,6 +47,81 @@ func GetFinanceRevenue(w http.ResponseWriter, r *http.Request) {
 		Data:    data,
 		Summary: summary,
 	})
+}
+
+// GetFinanceSettings returns all finance settings.
+func GetFinanceSettings(w http.ResponseWriter, r *http.Request) {
+	settings, err := db.GetAllFinanceSettings()
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching finance settings.")
+		slog.Error("GetAllFinanceSettings() failed", "controller", "GetFinanceSettings", "error", err)
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, settings)
+}
+
+// UpdateFinanceSetting updates one finance setting by key.
+// URL param: key (one of: trial_days, commission_rate, ads_price_per_month, subscription_price)
+func UpdateFinanceSetting(w http.ResponseWriter, r *http.Request) {
+	key := r.PathValue("key")
+
+	var payload models.UpdateFinanceSettingRequest
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+		return
+	}
+
+	if err := validateFinanceSetting(key, payload.Value); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	oldValue, err := db.UpdateFinanceSetting(key, payload.Value)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the setting.")
+		slog.Error("UpdateFinanceSetting() failed", "controller", "UpdateFinanceSetting", "error", err)
+		return
+	}
+
+	adminID := r.Context().Value("user").(models.AuthClaims).Id
+	histErr := db.InsertHistory(
+		"finance_setting", key, "update", adminID,
+		map[string]interface{}{"key": key, "value": oldValue},
+		map[string]interface{}{"key": key, "value": payload.Value},
+	)
+	if histErr != nil {
+		slog.Error("InsertHistory() failed", "controller", "UpdateFinanceSetting", "error", histErr)
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]interface{}{
+		"key":   key,
+		"value": payload.Value,
+	})
+}
+
+// validateFinanceSetting enforces business rules for each setting key.
+func validateFinanceSetting(key string, value float64) error {
+	switch key {
+	case "trial_days":
+		if value < 1 || value != float64(int(value)) {
+			return fmt.Errorf("trial_days must be a whole number greater than or equal to 1")
+		}
+	case "commission_rate":
+		if value < 0 || value > 100 {
+			return fmt.Errorf("commission_rate must be between 0 and 100")
+		}
+	case "subscription_price":
+		if value < 0 {
+			return fmt.Errorf("subscription_price must be 0 or greater")
+		}
+	case "ads_price_per_month":
+		if value < 0 {
+			return fmt.Errorf("ads_price_per_month must be 0 or greater")
+		}
+	default:
+		return fmt.Errorf("unknown setting key: %s", key)
+	}
+	return nil
 }
 
 // GetInvoiceUsers returns a paginated list of accounts with their transaction counts.
