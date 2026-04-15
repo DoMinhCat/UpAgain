@@ -693,7 +693,7 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Step ID "+strconv.Itoa(idStep)+" not found")
 		return
 	}
-	
+
 	err = db.DeleteProjectStepByPostId(idStep)
 	if err != nil {
 		slog.Error("db.DeleteProjectStepByPostId() failed", "controller", "DeleteProjectStepByPostId", "error", err)

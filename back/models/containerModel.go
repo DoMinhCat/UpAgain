@@ -21,7 +21,7 @@ type UpdateStatusRequest struct {
 }
 
 type UpdateLocationRequest struct {
-    CityName string `json:"city_name"`
+	CityName string `json:"city_name"`
 	// TODO: allow edit street
 	Street string `json:"street"`
 }

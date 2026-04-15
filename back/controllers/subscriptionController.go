@@ -11,6 +11,18 @@ import (
 	"strconv"
 )
 
+// GetAllSubscriptionsHandler godoc
+// @Summary      Get all subscriptions
+// @Description  Get a paginated list of all subscriptions with filtering by active status
+// @Tags         subscription
+// @Produce      json
+// @Param        page    query     int     false  "Page number"
+// @Param        limit   query     int     false  "Limit"
+// @Param        active  query     bool    false  "Filter by active status"
+// @Success      200     {object}  models.SubscriptionListPagination
+// @Failure      401     {object}  nil  "Unauthorized"
+// @Failure      500     {object}  nil  "Internal server error"
+// @Router       /subscriptions/ [get]
 func GetAllSubscriptionsHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -57,6 +69,18 @@ func GetAllSubscriptionsHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
+// GetSubscriptionByIDHandler godoc
+// @Summary      Get subscription by ID
+// @Description  Get details of a specific subscription including user information
+// @Tags         subscription
+// @Produce      json
+// @Param        id   path      int  true  "Subscription ID"
+// @Success      200  {object}  models.SubscriptionWithUser
+// @Failure      400  {object}  nil  "Invalid subscription ID"
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      404  {object}  nil  "Subscription not found"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /subscriptions/{id}/ [get]
 func GetSubscriptionByIDHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -77,7 +101,7 @@ func GetSubscriptionByIDHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Subscription with ID " + strconv.Itoa(id) + " not found.")
+		utils.RespondWithError(w, http.StatusNotFound, "Subscription with ID "+strconv.Itoa(id)+" not found.")
 		return
 	}
 
@@ -91,6 +115,20 @@ func GetSubscriptionByIDHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, sub)
 }
 
+// CancelSubscriptionHandler godoc
+// @Summary      Cancel subscription
+// @Description  Cancel an active subscription. Admin can cancel any, users can cancel their own.
+// @Tags         subscription
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int     true  "Subscription ID"
+// @Param        body  body      models.RevokeSubscriptionRequest  true  "Cancel reason payload"
+// @Success      204   {object}  nil     "No Content"
+// @Failure      400   {object}  nil     "Invalid request or missing cancel reason"
+// @Failure      401   {object}  nil     "Unauthorized or forbidden"
+// @Failure      404   {object}  nil     "Subscription not found"
+// @Failure      500   {object}  nil     "Internal server error"
+// @Router       /subscriptions/{id}/revoke/ [put]
 func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
@@ -112,7 +150,7 @@ func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Subscription with ID " + strconv.Itoa(id) + " not found.")
+		utils.RespondWithError(w, http.StatusNotFound, "Subscription with ID "+strconv.Itoa(id)+" not found.")
 		return
 	}
 
@@ -144,6 +182,18 @@ func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// UpdateSubscriptionPriceHandler godoc
+// @Summary      Update subscription price
+// @Description  Update the price of the premium subscription. Admin only.
+// @Tags         subscription
+// @Accept       json
+// @Produce      json
+// @Param        body  body      models.UpdateSubscriptionPriceRequest  true  "New price payload"
+// @Success      204   {object}  nil     "No Content"
+// @Failure      400   {object}  nil     "Invalid price"
+// @Failure      401   {object}  nil     "Unauthorized"
+// @Failure      500   {object}  nil     "Internal server error"
+// @Router       /subscriptions/price/ [put]
 func UpdateSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -173,6 +223,15 @@ func UpdateSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO: refactor this to finance route that get all finance settings based on query param ?key=key1/2/3/...
+// GetSubscriptionPriceHandler godoc
+// @Summary      Get subscription price
+// @Description  Get the current price of the premium subscription
+// @Tags         subscription
+// @Produce      json
+// @Success      200  {object}  map[string]float64  "Current price"
+// @Failure      401  {object}  nil                 "Unauthorized"
+// @Failure      500  {object}  nil                 "Internal server error"
+// @Router       /subscriptions/price/ [get]
 func GetSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
