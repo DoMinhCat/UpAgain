@@ -4,8 +4,8 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	validations "backend/utils/validations"
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -61,6 +61,12 @@ func GetFinanceRevenue(w http.ResponseWriter, r *http.Request) {
 
 // GetFinanceSettings returns all finance settings.
 func GetFinanceSettings(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
+		return
+	}
+
 	settings, err := db.GetAllFinanceSettings()
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching finance settings.")
@@ -73,7 +79,21 @@ func GetFinanceSettings(w http.ResponseWriter, r *http.Request) {
 // UpdateFinanceSetting updates one finance setting by key.
 // URL param: key (one of: trial_days, commission_rate, ads_price_per_month, subscription_price)
 func UpdateFinanceSetting(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
+		return
+	}
+
 	key := r.PathValue("key")
+	if key == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing key parameter.")
+		return
+	}
+	if key != "trial_days" && key != "commission_rate" && key != "ads_price_per_month" && key != "subscription_price" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid key.")
+		return
+	}
 
 	var payload models.UpdateFinanceSettingRequest
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -81,7 +101,7 @@ func UpdateFinanceSetting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validateFinanceSetting(key, payload.Value); err != nil {
+	if err := validations.ValidateFinanceSetting(key, payload.Value); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -107,31 +127,6 @@ func UpdateFinanceSetting(w http.ResponseWriter, r *http.Request) {
 		"key":   key,
 		"value": payload.Value,
 	})
-}
-
-// validateFinanceSetting enforces business rules for each setting key.
-func validateFinanceSetting(key string, value float64) error {
-	switch key {
-	case "trial_days":
-		if value < 1 || value != float64(int(value)) {
-			return fmt.Errorf("trial_days must be a whole number greater than or equal to 1")
-		}
-	case "commission_rate":
-		if value < 0 || value > 100 {
-			return fmt.Errorf("commission_rate must be between 0 and 100")
-		}
-	case "subscription_price":
-		if value < 0 {
-			return fmt.Errorf("subscription_price must be 0 or greater")
-		}
-	case "ads_price_per_month":
-		if value < 0 {
-			return fmt.Errorf("ads_price_per_month must be 0 or greater")
-		}
-	default:
-		return fmt.Errorf("unknown setting key: %s", key)
-	}
-	return nil
 }
 
 // GetInvoiceUsers godoc
