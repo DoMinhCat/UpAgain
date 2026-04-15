@@ -5,8 +5,73 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"slices"
 	"sort"
 )
+
+var allowedFinanceKeys = []string{"ads_price_per_month", "subscription_price", "trial_days", "commission_rate"}
+
+func GetFinanceSettingByKey(key string) (int, error) {
+	var price int
+
+	if !slices.Contains(allowedFinanceKeys, key) {
+		return 0, fmt.Errorf("GetFinanceSettingByKey() failed: invalid key '%v'", key)
+	}
+
+	row := utils.Conn.QueryRow("SELECT value FROM finance_settings WHERE key=$1", key)
+	if err := row.Scan(&price); err != nil {
+		return 0, fmt.Errorf("GetFinanceSettingByKey() failed: %v", err.Error())
+	}
+	return price, nil
+}
+
+// GetAllFinanceSettings returns all finance settings.
+func GetAllFinanceSettings() ([]models.FinanceSetting, error) {
+	rows, err := utils.Conn.Query("SELECT key::text, value, updated_at FROM finance_settings ORDER BY key")
+	if err != nil {
+		return nil, fmt.Errorf("error getting finance settings from DB: %v", err)
+	}
+	defer rows.Close()
+
+	var settings []models.FinanceSetting
+	for rows.Next() {
+		var s models.FinanceSetting
+		if err := rows.Scan(&s.Key, &s.Value, &s.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("error scanning finance setting row from DB: %v", err)
+		}
+		settings = append(settings, s)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating finance settings rows from DB: %v", err)
+	}
+	return settings, nil
+}
+
+// UpdateFinanceSetting updates the value of a finance setting and returns the old value.
+func UpdateFinanceSetting(key string, value float64) (float64, error) {
+	if !slices.Contains(allowedFinanceKeys, key) {
+		return 0, fmt.Errorf("invalid key '%v'", key)
+	}
+
+	var oldValue float64
+	err := utils.Conn.QueryRow("SELECT value FROM finance_settings WHERE key = $1", key).Scan(&oldValue)
+	if err == sql.ErrNoRows {
+		return 0, fmt.Errorf("setting not found")
+	}
+	if err != nil {
+		return 0, fmt.Errorf("error getting old finance setting from DB: %v", err)
+	}
+
+	_, err = utils.Conn.Exec(
+		"UPDATE finance_settings SET value = $1, updated_at = now() WHERE key = $2",
+		value, key,
+	)
+	if err != nil {
+		return 0, fmt.Errorf("error updating finance setting in DB: %v", err)
+	}
+
+	return oldValue, nil
+}
 
 // GetRevenueByYear returns monthly revenue breakdown for a given year.
 func GetRevenueByYear(year int) ([]models.RevenueMonthData, error) {
@@ -180,7 +245,6 @@ func getInvoiceStatsPerAccount() (map[int]*invoiceStats, error) {
 		SELECT po.id_account, COUNT(*)
 		FROM ads a
 		JOIN posts po ON po.id = a.id_post
-		WHERE a.status != 'cancelled'
 		GROUP BY po.id_account
 	`)
 	if err != nil {
@@ -200,7 +264,7 @@ func getInvoiceStatsPerAccount() (map[int]*invoiceStats, error) {
 		SELECT er.id_account, COUNT(*), COALESCE(SUM(ev.price), 0)
 		FROM event_registrations er
 		JOIN events ev ON ev.id = er.id_event
-		WHERE ev.price IS NOT NULL AND ev.price > 0 AND er.status != 'cancelled'
+		WHERE ev.price IS NOT NULL AND ev.price > 0
 		GROUP BY er.id_account
 	`)
 	if err != nil {
@@ -247,7 +311,7 @@ func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int,
 	accountQuery := `
 		SELECT a.id, a.username, a.email, a.role, a.created_at
 		FROM accounts a
-		WHERE a.deleted_at IS NULL
+		WHERE a.deleted_at IS NULL AND a.role != 'employee'
 		  AND ($3 = '' OR a.username ILIKE $3 OR a.email ILIKE $3)
 		ORDER BY a.created_at DESC
 		LIMIT $1 OFFSET $2
@@ -281,7 +345,7 @@ func GetInvoiceUsers(page, limit int, search string) ([]models.InvoiceUser, int,
 	if err := utils.Conn.QueryRow(`
 		SELECT COUNT(DISTINCT a.id)
 		FROM accounts a
-		WHERE a.deleted_at IS NULL
+		WHERE a.deleted_at IS NULL AND a.role != 'employee'
 		  AND ($1 = '' OR a.username ILIKE $1 OR a.email ILIKE $1)
 	`, searchLike).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("error counting invoice users from DB: %v", err)
@@ -296,7 +360,7 @@ func GetUserInvoices(accountID int) (models.UserInvoicesResponse, error) {
 	var resp models.UserInvoicesResponse
 
 	err := utils.Conn.QueryRow(
-		`SELECT id, username, email FROM accounts WHERE id = $1 AND deleted_at IS NULL`,
+		`SELECT id, username, email FROM accounts WHERE id = $1 AND deleted_at IS NULL AND role != 'employee';`,
 		accountID,
 	).Scan(&resp.IDAccount, &resp.Username, &resp.Email)
 	if err == sql.ErrNoRows {
@@ -354,7 +418,7 @@ func getTransactionInvoices(accountID int) ([]models.UserInvoice, error) {
 			ROUND(i.price * (1 + COALESCE((SELECT value FROM finance_settings WHERE key = 'commission_rate' LIMIT 1), 0) / 100), 2) AS total
 		FROM transactions t
 		JOIN items i ON i.id = t.id_item
-		WHERE t.id_pro = $1 AND t.action = 'purchased'
+		WHERE t.id_pro = $1 AND t.action = 'purchased';
 	`
 	rows, err := utils.Conn.Query(query, accountID)
 	if err != nil {
@@ -391,7 +455,7 @@ func getSubscriptionInvoices(accountID int) ([]models.UserInvoice, error) {
 			s.sub_to,
 			COALESCE((SELECT value FROM finance_settings WHERE key = 'subscription_price' LIMIT 1), 0) AS amount
 		FROM subscriptions s
-		WHERE s.id_pro = $1
+		WHERE s.id_pro = $1;
 	`
 	rows, err := utils.Conn.Query(query, accountID)
 	if err != nil {
@@ -424,7 +488,7 @@ func getSubscriptionInvoices(accountID int) ([]models.UserInvoice, error) {
 func getAdInvoices(accountID int) ([]models.UserInvoice, error) {
 	query := `
 		SELECT
-			a.id_ads,
+			a.id,
 			a.start_date::timestamptz,
 			a.end_date::timestamptz,
 			p.id,
@@ -432,7 +496,7 @@ func getAdInvoices(accountID int) ([]models.UserInvoice, error) {
 			COALESCE((SELECT value FROM finance_settings WHERE key = 'ads_price_per_month' LIMIT 1), 0) AS amount
 		FROM ads a
 		JOIN posts p ON p.id = a.id_post
-		WHERE p.id_account = $1 AND a.status != 'cancelled'
+		WHERE p.id_account = $1;
 	`
 	rows, err := utils.Conn.Query(query, accountID)
 	if err != nil {
@@ -477,8 +541,7 @@ func getEventInvoices(accountID int) ([]models.UserInvoice, error) {
 		JOIN events e ON e.id = er.id_event
 		WHERE er.id_account = $1
 		  AND e.price IS NOT NULL
-		  AND e.price > 0
-		  AND er.status != 'cancelled'
+		  AND e.price > 0;
 	`
 	rows, err := utils.Conn.Query(query, accountID)
 	if err != nil {

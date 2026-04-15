@@ -171,14 +171,14 @@ create table saved_posts
     saved_at   timestamptz not null default now(),
     PRIMARY KEY (id_account, id_post)
 );
-CREATE TYPE ads_status AS ENUM ('pending', 'active', 'expired', 'cancelled');
+CREATE TYPE ads_status AS ENUM ('active', 'expired', 'cancelled');
 create table ads
 (
-    id_ads     serial primary key,
+    id     serial primary key,
     updated_at timestamptz not null default now(),
     start_date date        not null default now(),
     end_date   date        not null,
-    status     ads_status  not null default 'pending',
+    status     ads_status  not null default 'active',
     id_post    integer     not null references posts (id) on delete restrict
 );
 CREATE INDEX idx_ads_status ON ads (status);
