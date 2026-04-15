@@ -56,7 +56,7 @@ import type { FinanceSetting, UserInvoice } from "../../../api/interfaces/financ
 import {
   showErrorNotification,
   showSuccessNotification,
-} from "../../../components/NotificationToast";
+} from "../../../components/common/NotificationToast";
 import GlobalStyles from "../../../styles/GlobalStyles.module.css";
 
 const MONTH_LABELS = [
@@ -368,7 +368,7 @@ export default function AdminFinance() {
                       </Badge>
                     </Table.Td>
                     <Table.Td>{getInvoiceDescription(inv)}</Table.Td>
-                    <Table.Td c="dimmed" size="sm">{getInvoiceDetails(inv)}</Table.Td>
+                    <Table.Td c="dimmed" fz="sm">{getInvoiceDetails(inv)}</Table.Td>
                     <Table.Td fw={500}>{formatEuros(inv.amount)}</Table.Td>
                     <Table.Td>
                       {inv.type === "transaction" && (
