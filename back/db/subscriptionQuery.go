@@ -33,7 +33,7 @@ func GetTotalSubscriptionSpendingsById(id_account int) (int, error) {
 			return 0, fmt.Errorf("GetTotalSubscriptionSpendingsById() failed: %v", err.Error())
 		}
 		// price is monthly, so we divide by 30 to get price of 1 day
-		total += int(subscription_price / 30) * int(sub_to.Sub(sub_from).Hours()/24)
+		total += int(subscription_price/30) * int(sub_to.Sub(sub_from).Hours()/24)
 	}
 	return total, nil
 }
@@ -95,20 +95,20 @@ func GetAllSubscriptions(page, limit int, onlyActive bool) ([]models.Subscriptio
 }
 
 func scanSubscriptions(rows *sql.Rows, total int) ([]models.SubscriptionWithUser, int, error) {
-    subs := []models.SubscriptionWithUser{} 
-    
-    for rows.Next() {
-        var s models.SubscriptionWithUser
-        if err := rows.Scan(
-            &s.ID, &s.IsTrial, &s.IsActive, &s.SubFrom, &s.SubTo, &s.IdPro, &s.CancelReason,
-            &s.Username,
-            &s.Avatar,
-        ); err != nil {
-            return nil, 0, err
-        }
-        subs = append(subs, s)
-    }
-    return subs, total, nil
+	subs := []models.SubscriptionWithUser{}
+
+	for rows.Next() {
+		var s models.SubscriptionWithUser
+		if err := rows.Scan(
+			&s.ID, &s.IsTrial, &s.IsActive, &s.SubFrom, &s.SubTo, &s.IdPro, &s.CancelReason,
+			&s.Username,
+			&s.Avatar,
+		); err != nil {
+			return nil, 0, err
+		}
+		subs = append(subs, s)
+	}
+	return subs, total, nil
 }
 
 func CheckSubscriptionExistById(id int) (bool, error) {

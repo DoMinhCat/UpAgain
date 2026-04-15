@@ -313,16 +313,16 @@ func GetAvailableContainers(w http.ResponseWriter, r *http.Request) {
 // @Failure      500   {string}  string  "Internal error"
 // @Router       /containers/{id}/location/ [put]
 func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
-    role := r.Context().Value("user").(models.AuthClaims).Role
-    if role != "admin" {
-        utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
-        return
-    }
-    id, err := strconv.Atoi(r.PathValue("id"))
-    if err != nil {
-        utils.RespondWithError(w, http.StatusBadRequest, "Invalid container ID.")
-        return
-    }
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid container ID.")
+		return
+	}
 
 	exist, err := db.CheckContainerExistById(id)
 	if err != nil {
@@ -331,30 +331,30 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, "Container with ID " + strconv.Itoa(id) + " not found.")
+		utils.RespondWithError(w, http.StatusNotFound, "Container with ID "+strconv.Itoa(id)+" not found.")
 		return
 	}
 
-    var payload models.UpdateLocationRequest
-    json.NewDecoder(r.Body).Decode(&payload)
+	var payload models.UpdateLocationRequest
+	json.NewDecoder(r.Body).Decode(&payload)
 
-    if payload.CityName == "" {
-        utils.RespondWithError(w, http.StatusBadRequest, "Invalid city name.")
-        return
-    }
+	if payload.CityName == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid city name.")
+		return
+	}
 
-    oldContainer, _ := db.FindContainerByID(id)
+	oldContainer, _ := db.FindContainerByID(id)
 
-    if err := db.UpdateLocationContainer(id, payload.CityName); err != nil {
-        slog.Error("UpdateLocationContainer() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
-        http.Error(w, "Internal error", http.StatusInternalServerError)
-        return
-    }
+	if err := db.UpdateLocationContainer(id, payload.CityName); err != nil {
+		slog.Error("UpdateLocationContainer() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
 
-    err = db.InsertHistory("container", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldContainer, payload)
-    if err != nil {
-        slog.Error("InsertHistory() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
-    }
+	err = db.InsertHistory("container", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldContainer, payload)
+	if err != nil {
+		slog.Error("InsertHistory() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
+	}
 
-    utils.RespondWithJSON(w, http.StatusNoContent, nil)
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }

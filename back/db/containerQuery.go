@@ -169,7 +169,7 @@ func CheckContainerExistById(id int) (bool, error) {
 }
 
 func UpdateLocationContainer(id int, cityName string) error {
-    query := `UPDATE containers SET city_name = $1 WHERE id = $2`
-    _, err := utils.Conn.Exec(query, cityName, id)
-    return err
+	query := `UPDATE containers SET city_name = $1 WHERE id = $2`
+	_, err := utils.Conn.Exec(query, cityName, id)
+	return err
 }
