@@ -1,8 +1,8 @@
 package db
 
 import (
-	"backend/utils"
 	"backend/models"
+	"backend/utils"
 	"database/sql"
 	"fmt"
 	"time"
@@ -109,6 +109,13 @@ func scanSubscriptions(rows *sql.Rows, total int) ([]models.SubscriptionWithUser
         subs = append(subs, s)
     }
     return subs, total, nil
+}
+
+func CheckSubscriptionExistById(id int) (bool, error) {
+	var exist bool
+	query := `SELECT EXISTS(SELECT 1 FROM subscriptions WHERE id = $1)`
+	err := utils.Conn.QueryRow(query, id).Scan(&exist)
+	return exist, err
 }
 
 func GetSubscriptionByID(id int) (models.SubscriptionWithUser, error) {
