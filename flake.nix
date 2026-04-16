@@ -14,7 +14,6 @@
           go
           air
           nodejs_20
-          nodePackages.npm
         ];
       };
     };
