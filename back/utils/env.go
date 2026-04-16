@@ -11,7 +11,13 @@ func LoadEnv(env string) {
 	if env != "dev" && env != "prod" {
 		log.Panicf("Invalid env: %s. Must be 'dev' or 'prod'", env)
 	}
-	err := godotenv.Load(".env_" + env)
+	var envFile string
+	if env == "dev" {
+		envFile = ".env.development"
+	} else {
+		envFile = ".env.production"
+	}
+	err := godotenv.Load(envFile)
 	if err != nil {
 		log.Panicf("Error getting env: %v", err)
 	}
