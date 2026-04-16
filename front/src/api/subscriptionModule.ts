@@ -43,3 +43,12 @@ export const getSubscriptionPrice = async (): Promise<number> => {
 export const updateSubscriptionPrice = async (price: number): Promise<void> => {
   await api.put(ENDPOINTS.ADMIN.SUBSCRIPTIONS.PRICE, { price });
 };
+
+export const getTrialDays = async (): Promise<number> => {
+  const response = await api.get(ENDPOINTS.ADMIN.SUBSCRIPTIONS.TRIAL);
+  return response.data.trial_days;
+};
+
+export const updateTrialDays = async (trial_days: number): Promise<void> => {
+  await api.put(ENDPOINTS.ADMIN.SUBSCRIPTIONS.TRIAL, { trial_days });
+};

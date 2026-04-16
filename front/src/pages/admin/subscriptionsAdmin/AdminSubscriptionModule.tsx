@@ -14,12 +14,15 @@ import {
   Stack,
   ThemeIcon,
   Tooltip,
+  Divider,
 } from "@mantine/core";
 import { IconCurrencyEuro, IconPencil } from "@tabler/icons-react";
 import {
   useGetAllSubscriptions,
   useGetSubscriptionPrice,
   useUpdateSubscriptionPrice,
+  useGetTrialDays,
+  useUpdateTrialDays,
 } from "../../../hooks/subscriptionHooks";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -40,6 +43,11 @@ export default function AdminSubscriptions() {
 
   const navigate = useNavigate();
 
+  const { data: trialDays } = useGetTrialDays();
+  const trialMutation = useUpdateTrialDays();
+  const [openedTrial, { open: openTrial, close: closeTrial }] = useDisclosure(false);
+  const [newTrialDays, setNewTrialDays] = useState<number>(0);
+  
   // separate pagination state per tab
   const [ongoingPage, setOngoingPage] = useState(1);
   const [canceledPage, setCanceledPage] = useState(1);
@@ -155,8 +163,38 @@ export default function AdminSubscriptions() {
             Modify
           </Button>
         </Group>
+          <Divider my="sm" />
+            <Group justify="space-between">
+              <div>
+                <Text fw={700} size="lg">Trial period</Text>
+                <Text fw={900} size="xl">{trialDays} days</Text>
+              </div>
+              <Button variant="light" onClick={() => { setNewTrialDays(trialDays ?? 0); openTrial(); }}>
+                Modify
+              </Button>
+            </Group>
       </Paper>
-
+          
+      <Modal opened={openedTrial} onClose={closeTrial} title="Update Trial Period" centered>
+        <NumberInput
+          label="Trial Days"
+          min={1}
+          max={90}
+          value={newTrialDays}
+          onChange={(val) => setNewTrialDays(Number(val))}
+        />
+        <Group mt="xl" justify="flex-end">
+          <Button variant="grey" onClick={closeTrial}>Cancel</Button>
+          <Button
+            variant="light"
+            loading={trialMutation.isPending}
+            disabled={!newTrialDays || newTrialDays <= 0}
+            onClick={() => trialMutation.mutate(newTrialDays, { onSuccess: () => closeTrial() })}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
       {/* Tabs */}
       <Tabs defaultValue="ongoing">
         <Tabs.List mb="md">

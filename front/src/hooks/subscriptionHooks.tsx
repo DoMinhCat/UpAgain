@@ -5,6 +5,8 @@ import {
   revokeSubscription,
   updateSubscriptionPrice,
   getSubscriptionPrice,
+  getTrialDays,
+  updateTrialDays,
 } from "../api/subscriptionModule";
 import type {
   Subscription,
@@ -86,6 +88,33 @@ export const useUpdateSubscriptionPrice = () => {
     meta: {
       errorTitle: "Update Failed",
       errorMessage: "Could not update subscription price.",
+    },
+  });
+};
+
+export const useGetTrialDays = () => {
+  return useQuery<number>({
+    queryKey: ["trialDays"],
+    queryFn: getTrialDays,
+    staleTime: 1000 * 60 * 5,
+    meta: {
+      errorTitle: "Fetching Failed",
+      errorMessage: "Could not load trial days.",
+    },
+  });
+};
+
+export const useUpdateTrialDays = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (trial_days: number) => updateTrialDays(trial_days),
+    onSuccess: () => {
+      showSuccessNotification("Updated", "Trial days updated");
+      queryClient.invalidateQueries({ queryKey: ["trialDays"] });
+    },
+    meta: {
+      errorTitle: "Update Failed",
+      errorMessage: "Could not update trial days.",
     },
   });
 };
