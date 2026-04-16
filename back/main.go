@@ -15,9 +15,10 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
-	utils.InitLogger()
+	const ENV = "dev"
 
-	utils.LoadEnv()
+	utils.InitLogger()
+	utils.LoadEnv(ENV)
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)
@@ -28,7 +29,7 @@ func main() {
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration
-	allowedOrigins := []string{utils.GetFrontOriginDev(), utils.GetFrontOriginProd(), "http://localhost:5174"}
+	allowedOrigins := []string{utils.GetFrontOrigin(), "http://localhost:5174"}
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
@@ -39,8 +40,7 @@ func main() {
 
 	handler := corsHandler.Handler(mux)
 
-	env := utils.GetEnv()
-	port := utils.GetPort(env)
+	port := utils.GetPort()
 	slog.Info("backend started", "port", port)
 	slog.Info("swagger docs at /swagger/")
 	err := http.ListenAndServe(":"+port, handler)
