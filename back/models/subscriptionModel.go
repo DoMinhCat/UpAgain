@@ -32,3 +32,7 @@ type RevokeSubscriptionRequest struct {
 type UpdateSubscriptionPriceRequest struct {
 	Price float64 `json:"price"`
 }
+
+type UpdateTrialDaysRequest struct {
+	TrialDays int `json:"trial_days"`
+}

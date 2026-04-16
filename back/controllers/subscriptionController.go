@@ -178,6 +178,11 @@ func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to cancel subscription.")
 		return
 	}
+	db.InsertHistory(
+		"subscription", id, "update", r.Context().Value("user").(models.AuthClaims).Id,
+		map[string]interface{}{"is_active": true, "cancel_reason": nil},
+		map[string]interface{}{"is_active": false, "cancel_reason": payload.CancelReason},
+	)
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -196,6 +201,8 @@ func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 // @Router       /subscriptions/price/ [put]
 func UpdateSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
+	oldPrice, _ := db.GetFinanceSettingByKey("subscription_price")
+
 	if role != "admin" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
@@ -218,6 +225,12 @@ func UpdateSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update subscription price.")
 		return
 	}
+
+	db.InsertHistory(
+		"finance_setting", "subscription_price", "update", r.Context().Value("user").(models.AuthClaims).Id,
+		map[string]float64{"subscription_price": oldPrice},
+		map[string]float64{"subscription_price": payload.Price},
+	)
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -247,4 +260,58 @@ func GetSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]float64{"price": price})
+}
+
+func GetTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+
+	days, err := db.GetFinanceSettingByKey("trial_days")
+	if err != nil {
+		slog.Error("GetFinanceSettingByKey() failed", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Could not fetch trial days.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]float64{"trial_days": days})
+}
+
+func UpdateTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+
+	var payload models.UpdateTrialDaysRequest
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil || payload.TrialDays <= 0 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid trial_days value.")
+		return
+	}
+
+	oldDays, err := db.GetFinanceSettingByKey("trial_days")
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Could not fetch current trial days.")
+		return
+	}
+
+	if err := db.UpdateFinanceSettingByKey("trial_days", float64(payload.TrialDays)); err != nil {
+		slog.Error("UpdateFinanceSettingByKey() failed", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Could not update trial days.")
+		return
+	}
+
+	err = db.InsertHistory(
+		"finance_setting", "trial_days", "update", r.Context().Value("user").(models.AuthClaims).Id,
+		map[string]float64{"trial_days": oldDays},
+		map[string]float64{"trial_days": float64(payload.TrialDays)},
+	)
+	if err != nil {
+		slog.Error("InsertHistory() failed", "controller", "UpdateTrialDaysHandler", "error", err)
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
