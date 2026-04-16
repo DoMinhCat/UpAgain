@@ -22,13 +22,12 @@ import PasswordStrengthInput, {
 import { useRegister } from "../../hooks/authHooks";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
+import { PremiumPricingCard } from "./PremiumPricingCard";
 
 export default function RegisterFormPro() {
   const navigate = useNavigate();
 
-  // SUB MODALS
-  const [openedFreemium, { open: openFreemium, close: closeFreemium }] =
-    useDisclosure(false);
+  // SUB MODAL
   const [openedPremium, { open: openPremium, close: closePremium }] =
     useDisclosure(false);
 
@@ -270,7 +269,7 @@ export default function RegisterFormPro() {
               <Button
                 variant="secondary"
                 ta="center"
-                onClick={openFreemium}
+                onClick={openPremium}
                 disabled={registerMutation.isPending}
               >
                 Freemium
@@ -311,23 +310,19 @@ export default function RegisterFormPro() {
       </Paper>
 
       <Modal
-        opened={openedFreemium}
-        onClose={closeFreemium}
-        title="Create container"
-        size="lg"
-        centered
-      >
-        <div>Hi</div>
-      </Modal>
-
-      <Modal
         opened={openedPremium}
         onClose={closePremium}
-        title="Create container"
-        size="lg"
+        size="xl"
+        fullScreen
         centered
       >
-        <div>Hi</div>
+        <Title ta="center" mb="xl">
+          Choose your plan
+        </Title>
+        <Group justify="center" mt="md">
+          <PremiumPricingCard />
+          <PremiumPricingCard />
+        </Group>
       </Modal>
     </Container>
   );
