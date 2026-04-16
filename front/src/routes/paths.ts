@@ -38,7 +38,6 @@ export const PATHS = {
   GUEST: {
     LOGIN: "/login",
     REGISTER: "/register",
-    REGISTER_PRO: "/register/pro",
     ABOUT: "/about",
     PRICING: "/pricing",
     POSTS: "/posts",
