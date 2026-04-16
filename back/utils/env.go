@@ -7,10 +7,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func LoadEnv() {
-	err := godotenv.Load()
+func LoadEnv(env string) {
+	if env != "dev" && env != "prod" {
+		log.Panicf("Invalid env: %s. Must be 'dev' or 'prod'", env)
+	}
+	var envFile string
+	if env == "dev" {
+		envFile = ".env.development"
+	} else {
+		envFile = ".env.production"
+	}
+	err := godotenv.Load(envFile)
 	if err != nil {
-		log.Panic("Error getting env: ", err)
+		log.Panicf("Error getting env: %v", err)
 	}
 }
 
@@ -30,10 +39,10 @@ func GetDbDriver() string {
 	return driver
 }
 
-func GetPort(env string) string {
-	port := os.Getenv("PORT_" + env)
+func GetPort() string {
+	port := os.Getenv("PORT")
 	if port == "" {
-		log.Panic("PORT_" + env + " not find in .env")
+		log.Panic("PORT not find in .env")
 	}
 	return port
 }
@@ -46,26 +55,10 @@ func GetJWTSecret() []byte {
 	return []byte(secret)
 }
 
-func GetFrontOriginDev() string {
-	frontOrigin := os.Getenv("FRONTEND_ORIGIN_DEV")
+func GetFrontOrigin() string {
+	frontOrigin := os.Getenv("FRONTEND_ORIGIN")
 	if frontOrigin == "" {
-		log.Panic("FRONTEND_ORIGIN_DEV not find in .env")
+		log.Panic("FRONTEND_ORIGIN not find in .env")
 	}
 	return frontOrigin
-}
-
-func GetFrontOriginProd() string {
-	frontOrigin := os.Getenv("FRONTEND_ORIGIN_PROD")
-	if frontOrigin == "" {
-		log.Panic("FRONTEND_ORIGIN_PROD not find in .env")
-	}
-	return frontOrigin
-}
-
-func GetEnv() string {
-	env := os.Getenv("ENV")
-	if env == "" {
-		log.Panic("ENV not find in .env")
-	}
-	return env
 }
