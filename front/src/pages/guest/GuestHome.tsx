@@ -495,7 +495,15 @@ export default function GuestHome() {
               </Grid.Col>
             </Grid>
             <Center mt="xl">
-              <Button size="xl" radius="xl" variant="primary" px={50}>
+              <Button
+                size="xl"
+                radius="xl"
+                variant="primary"
+                px={50}
+                onClick={() =>
+                  navigate(PATHS.GUEST.REGISTER, { state: { role: "pro" } })
+                }
+              >
                 Sign up as a Professional
               </Button>
             </Center>

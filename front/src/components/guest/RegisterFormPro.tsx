@@ -10,6 +10,8 @@ import {
   Fieldset,
   Button,
   Divider,
+  Group,
+  Modal,
 } from "@mantine/core";
 import { IconLock } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
@@ -19,9 +21,17 @@ import PasswordStrengthInput, {
 } from "../common/input/PasswordStrengthInput";
 import { useRegister } from "../../hooks/authHooks";
 import { useNavigate } from "react-router-dom";
+import { useDisclosure } from "@mantine/hooks";
 
-export default function RegisterForm() {
+export default function RegisterFormPro() {
   const navigate = useNavigate();
+
+  // SUB MODALS
+  const [openedFreemium, { open: openFreemium, close: closeFreemium }] =
+    useDisclosure(false);
+  const [openedPremium, { open: openPremium, close: closePremium }] =
+    useDisclosure(false);
+
   // password
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -151,7 +161,7 @@ export default function RegisterForm() {
 
   return (
     <Container size={520} my={40}>
-      <Title ta="center">Join us today!</Title>
+      <Title ta="center">Let's grow your impact!</Title>
 
       <Text mt="sm" ta={"center"}>
         Already have an account?{" "}
@@ -219,7 +229,7 @@ export default function RegisterForm() {
               required
             />
           </Fieldset>
-          <Divider my="md" color="gray.5" />
+          <Divider my="xl" color="var(--border-color)" />
 
           <Fieldset legend="Personal information" variant="unstyled">
             <TextInput
@@ -243,7 +253,6 @@ export default function RegisterForm() {
               variant="body-color"
               placeholder="06 12 34 56 78"
               radius="md"
-              mb="md"
               error={phoneError}
               value={phone}
               onChange={(event) => {
@@ -254,8 +263,30 @@ export default function RegisterForm() {
               disabled={registerMutation.isPending}
             />
           </Fieldset>
+          <Divider my="xl" color="var(--border-color)" />
+
+          <Fieldset legend="Subscription" variant="unstyled">
+            <Group justify="center">
+              <Button
+                variant="secondary"
+                ta="center"
+                onClick={openFreemium}
+                disabled={registerMutation.isPending}
+              >
+                Freemium
+              </Button>
+              <Button
+                variant="cta"
+                ta="center"
+                onClick={openPremium}
+                disabled={registerMutation.isPending}
+              >
+                Premium
+              </Button>
+            </Group>
+          </Fieldset>
           <Checkbox
-            mt="md"
+            mt="lg"
             defaultChecked
             label="I agree to sell my privacy to UpAgain"
             color="teal"
@@ -266,23 +297,38 @@ export default function RegisterForm() {
             mt="xl"
             variant="primary"
             type="submit"
-            disabled={registerMutation.isPending}
             loading={registerMutation.isPending}
           >
             Register
           </Button>
         </form>
         <Text c="dimmed" size="sm" ta="center" mt="md">
-          Are you a professional?{" "}
-          <Anchor
-            onClick={() =>
-              navigate(PATHS.GUEST.REGISTER, { state: { role: "pro" } })
-            }
-          >
+          Not a professional?{" "}
+          <Anchor onClick={() => navigate(PATHS.GUEST.REGISTER)}>
             Register here
           </Anchor>
         </Text>
       </Paper>
+
+      <Modal
+        opened={openedFreemium}
+        onClose={closeFreemium}
+        title="Create container"
+        size="lg"
+        centered
+      >
+        <div>Hi</div>
+      </Modal>
+
+      <Modal
+        opened={openedPremium}
+        onClose={closePremium}
+        title="Create container"
+        size="lg"
+        centered
+      >
+        <div>Hi</div>
+      </Modal>
     </Container>
   );
 }
