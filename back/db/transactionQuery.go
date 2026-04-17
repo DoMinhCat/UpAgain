@@ -82,11 +82,10 @@ func GetProTotalDepositsByIdByAction(id int, action_type *string) (int, error) {
 
 func GetProTotalItemsSpendingsById(id int) (int, error) {
 	var total int
+	// Uses snapshot total_price (item_price + commission) stored in transactions
 	query := `
-		select COALESCE(sum(i.price), 0) from transactions t
-		join pros p on p.id_account = t.id_pro
-		join items i on i.id = t.id_item
-		where p.id_account = $1 and i.price is not null and t.action = 'purchased';
+		select COALESCE(sum(t.total_price), 0) from transactions t
+		where t.id_pro = $1 and t.action = 'purchased' and t.total_price is not null;
 	`
 	row := utils.Conn.QueryRow(query, id)
 	err := row.Scan(&total)
@@ -145,7 +144,9 @@ func GetTotalTransactionsSince(since time.Time) (int, error) {
 func GetTransactionsByItemId(itemId int, page int, limit int) ([]models.Transaction, error) {
 	var transactions []models.Transaction
 	query := `
-		select t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username from transactions t
+		select t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username,
+		       t.reservation_expiry, t.item_price, t.commission_rate, t.total_price
+		from transactions t
 		join accounts a on a.id = t.id_pro
 		where t.id_item = $1
 		order by t.created_at desc
@@ -165,7 +166,8 @@ func GetTransactionsByItemId(itemId int, page int, limit int) ([]models.Transact
 	defer rows.Close()
 	for rows.Next() {
 		var t models.Transaction
-		if err := rows.Scan(&t.Id, &t.IdTransaction, &t.CreatedAt, &t.Action, &t.IdItem, &t.IdPro, &t.UsernamePro); err != nil {
+		if err := rows.Scan(&t.Id, &t.IdTransaction, &t.CreatedAt, &t.Action, &t.IdItem, &t.IdPro, &t.UsernamePro,
+			&t.ReservationExpiry, &t.ItemPrice, &t.CommissionRate, &t.TotalPrice); err != nil {
 			return nil, fmt.Errorf("GetTransactionsByItemId() failed: %v", err.Error())
 		}
 		transactions = append(transactions, t)

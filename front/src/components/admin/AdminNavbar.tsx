@@ -139,7 +139,6 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
             <Menu.Target>
               {accountDetails?.avatar ? (
                 <Avatar
-                  // avatar must be in /src/assets/avatars
                   src={accountDetails?.avatar}
                   name={accountDetails?.username}
                   color="initials"
