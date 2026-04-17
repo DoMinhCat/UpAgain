@@ -29,6 +29,7 @@ import {
   IconX,
   IconChartBar,
   IconSearch,
+  IconCancel,
   IconClock,
 } from "@tabler/icons-react";
 import {
@@ -296,7 +297,7 @@ export default function AdminSubscriptions() {
           }
         />
         <AdminCardInfo
-          icon={IconX}
+          icon={IconCancel}
           title="Cancellations *"
           value={subStats?.cancelled ?? 0}
           error={errorStats}

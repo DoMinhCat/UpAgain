@@ -26,7 +26,8 @@ export const useGetAllSubscriptions = (
 ) => {
   return useQuery<SubscriptionListPagination>({
     queryKey: ["subscriptions", page, limit, active, search, sort, isTrial],
-    queryFn: () => getAllSubscriptions(page, limit, active, search, sort, isTrial),
+    queryFn: () =>
+      getAllSubscriptions(page, limit, active, search, sort, isTrial),
     staleTime: 1000 * 60,
     meta: {
       errorTitle: "Subscriptions Error",
@@ -64,7 +65,7 @@ export const useRevokeSubscription = () => {
       queryClient.invalidateQueries({ queryKey: ["subscriptionDetails", id] });
     },
     meta: {
-      errorTitle: "Subscription cancelation failed",
+      errorTitle: "Subscription cancellation failed",
       errorMessage: "Could not cancel the subscription.",
     },
   });
