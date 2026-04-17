@@ -20,7 +20,16 @@ import {
   Grid,
   TextInput,
 } from "@mantine/core";
-import { IconCurrencyEuro, IconPencil, IconCrown, IconArrowUpRight, IconUserCheck, IconX, IconChartBar, IconSearch,} from "@tabler/icons-react";
+import {
+  IconCurrencyEuro,
+  IconPencil,
+  IconCrown,
+  IconArrowUpRight,
+  IconUserCheck,
+  IconX,
+  IconChartBar,
+  IconSearch,
+} from "@tabler/icons-react";
 import {
   useGetAllSubscriptions,
   useGetSubscriptionPrice,
@@ -35,11 +44,13 @@ import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
-import { AdminCardInfo, StatsCardDesc } from "../../../components/admin/AdminCardInfo";
+import {
+  AdminCardInfo,
+  StatsCardDesc,
+} from "../../../components/admin/AdminCardInfo";
 import { useGetSubscriptionStats } from "../../../hooks/subscriptionHooks";
 
 const LIMIT = 10;
-
 
 const timeframeLabel: Record<string, string> = {
   all: "all time",
@@ -74,26 +85,33 @@ export default function AdminSubscriptions() {
   );
   //time
   const [chartTime, setChartTime] = useState<string | null>("all");
-  const { data: subStats, isLoading: isLoadingStats, isError: errorStats } = useGetSubscriptionStats(chartTime || undefined);
+  const {
+    data: subStats,
+    isLoading: isLoadingStats,
+    isError: errorStats,
+  } = useGetSubscriptionStats(chartTime || undefined);
   const timeLabel = timeframeLabel[chartTime ?? "all"] ?? "all time";
   const { data: trialDays } = useGetTrialDays();
-  
+
   //trial
   const trialMutation = useUpdateTrialDays();
-  const [openedTrial, { open: openTrial, close: closeTrial }] = useDisclosure(false);
+  const [openedTrial, { open: openTrial, close: closeTrial }] =
+    useDisclosure(false);
   const [newTrialDays, setNewTrialDays] = useState<number>(0);
-  
+
   // separate pagination state per tab
   const [ongoingPage, setOngoingPage] = useState(1);
   const [canceledPage, setCanceledPage] = useState(1);
 
- const { data: ongoing, isLoading: loadingOngoing } = useGetAllSubscriptions(
+  const { data: ongoing, isLoading: loadingOngoing } = useGetAllSubscriptions(
     hasFilters ? -1 : activePage,
     hasFilters ? -1 : LIMIT,
     true,
     appliedFilters.searchValue || undefined,
     appliedFilters.sortValue || undefined,
-    appliedFilters.isTrialValue !== null ? appliedFilters.isTrialValue === "true" : undefined,
+    appliedFilters.isTrialValue !== null
+      ? appliedFilters.isTrialValue === "true"
+      : undefined,
   );
   const { data: canceled, isLoading: loadingCanceled } = useGetAllSubscriptions(
     hasFilters ? -1 : activePage,
@@ -101,7 +119,9 @@ export default function AdminSubscriptions() {
     false,
     appliedFilters.searchValue || undefined,
     appliedFilters.sortValue || undefined,
-    appliedFilters.isTrialValue !== null ? appliedFilters.isTrialValue === "true" : undefined,
+    appliedFilters.isTrialValue !== null
+      ? appliedFilters.isTrialValue === "true"
+      : undefined,
   );
 
   const handleFilterChange = (key: string, value: string | null) => {
@@ -114,7 +134,11 @@ export default function AdminSubscriptions() {
   };
 
   const handleResetFilters = () => {
-    const defaultFilters = { searchValue: "", sortValue: null, isTrialValue: null };
+    const defaultFilters = {
+      searchValue: "",
+      sortValue: null,
+      isTrialValue: null,
+    };
     setFilters(defaultFilters);
     setAppliedFilters(defaultFilters);
     setPage(1);
@@ -185,7 +209,9 @@ export default function AdminSubscriptions() {
   return (
     <Container px="md" size="xl">
       <Group justify="space-between" mb="xl">
-        <Title order={2} mt="lg">Subscriptions Management</Title>
+        <Title order={2} mt="lg">
+          Subscriptions Management
+        </Title>
         <Select
           label="Timeframe"
           placeholder="All time"
@@ -202,7 +228,7 @@ export default function AdminSubscriptions() {
           ]}
         />
       </Group>
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg" mb="xl">
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg" mb="sm">
         <AdminCardInfo
           icon={IconCrown}
           title="Total subscriptions *"
@@ -212,7 +238,12 @@ export default function AdminSubscriptions() {
           description={
             <StatsCardDesc
               stats={subStats?.active ?? 0}
-              icon={<IconArrowUpRight size={24} color="var(--upagain-neutral-green)" />}
+              icon={
+                <IconArrowUpRight
+                  size={24}
+                  color="var(--upagain-neutral-green)"
+                />
+              }
               description=" currently active"
             />
           }
@@ -226,8 +257,17 @@ export default function AdminSubscriptions() {
           description={
             <StatsCardDesc
               stats={subStats?.new_subscriptions ?? 0}
-              icon={<IconArrowUpRight size={24} color="var(--upagain-neutral-green)" />}
-              description={` new subscriptions in ${timeLabel}`}
+              icon={
+                <IconArrowUpRight
+                  size={24}
+                  color="var(--upagain-neutral-green)"
+                />
+              }
+              description={
+                subStats?.new_subscriptions === 1
+                  ? " new subscription in ${timeLabel}"
+                  : ` new subscriptions in ${timeLabel}`
+              }
             />
           }
         />
@@ -240,8 +280,17 @@ export default function AdminSubscriptions() {
           description={
             <StatsCardDesc
               stats={subStats?.active_trials ?? 0}
-              icon={<IconArrowUpRight size={24} color="var(--upagain-neutral-green)" />}
-              description=" trials currently running"
+              icon={
+                <IconArrowUpRight
+                  size={24}
+                  color="var(--upagain-neutral-green)"
+                />
+              }
+              description={
+                subStats?.active_trials === 1
+                  ? " trial currently in use"
+                  : " trials currently in use"
+              }
             />
           }
         />
@@ -254,12 +303,15 @@ export default function AdminSubscriptions() {
           description={
             <StatsCardDesc
               stats={subStats?.cancelled ?? 0}
-              icon={<IconX size={24} color="var(--upagain-red)" />}
+              icon={<IconX size={24} color="red" />}
               description=" total cancellations"
             />
           }
         />
       </SimpleGrid>
+      <Text size="sm" c="dimmed" mb="xl">
+        * Timeframe not applicable for these metrics
+      </Text>
 
       {/* Price card */}
       <Paper withBorder variant="primary" radius="md" p="lg" mb="xl">
@@ -293,19 +345,34 @@ export default function AdminSubscriptions() {
             Modify
           </Button>
         </Group>
-          <Divider my="sm" />
-            <Group justify="space-between">
-              <div>
-                <Text fw={700} size="lg">Trial period</Text>
-                <Text fw={900} size="xl">{trialDays} days</Text>
-              </div>
-              <Button variant="light" onClick={() => { setNewTrialDays(trialDays ?? 0); openTrial(); }}>
-                Modify
-              </Button>
-            </Group>
+        <Divider my="sm" />
+        <Group justify="space-between">
+          <div>
+            <Text fw={700} size="lg">
+              Trial period
+            </Text>
+            <Text fw={900} size="xl">
+              {trialDays} days
+            </Text>
+          </div>
+          <Button
+            variant="light"
+            onClick={() => {
+              setNewTrialDays(trialDays ?? 0);
+              openTrial();
+            }}
+          >
+            Modify
+          </Button>
+        </Group>
       </Paper>
-          
-      <Modal opened={openedTrial} onClose={closeTrial} title="Update Trial Period" centered>
+
+      <Modal
+        opened={openedTrial}
+        onClose={closeTrial}
+        title="Update Trial Period"
+        centered
+      >
         <NumberInput
           label="Trial Days"
           min={1}
@@ -314,12 +381,18 @@ export default function AdminSubscriptions() {
           onChange={(val) => setNewTrialDays(Number(val))}
         />
         <Group mt="xl" justify="flex-end">
-          <Button variant="grey" onClick={closeTrial}>Cancel</Button>
+          <Button variant="grey" onClick={closeTrial}>
+            Cancel
+          </Button>
           <Button
             variant="light"
             loading={trialMutation.isPending}
             disabled={!newTrialDays || newTrialDays <= 0}
-            onClick={() => trialMutation.mutate(newTrialDays, { onSuccess: () => closeTrial() })}
+            onClick={() =>
+              trialMutation.mutate(newTrialDays, {
+                onSuccess: () => closeTrial(),
+              })
+            }
           >
             Confirm
           </Button>
@@ -334,8 +407,12 @@ export default function AdminSubscriptions() {
               placeholder="Search by username or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
-              onChange={(e) => handleFilterChange("searchValue", e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleSearchClick(); }}
+              onChange={(e) =>
+                handleFilterChange("searchValue", e.target.value)
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearchClick();
+              }}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
@@ -345,7 +422,7 @@ export default function AdminSubscriptions() {
               clearable
               data={[
                 { value: "sub_from_asc", label: "Oldest first" },
-                { value: "sub_to_asc", label: "Ends soonest" },
+                { value: "sub_to_asc", label: "Ends earliest" },
                 { value: "sub_to_desc", label: "Ends latest" },
               ]}
               value={filters.sortValue}
@@ -367,8 +444,12 @@ export default function AdminSubscriptions() {
           </Grid.Col>
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
-              <Button onClick={handleSearchClick} variant="primary">Apply filters</Button>
-              <Button onClick={handleResetFilters} variant="secondary">Reset</Button>
+              <Button onClick={handleSearchClick} variant="primary">
+                Apply filters
+              </Button>
+              <Button onClick={handleResetFilters} variant="secondary">
+                Reset
+              </Button>
             </Group>
           </Grid.Col>
         </Grid>
