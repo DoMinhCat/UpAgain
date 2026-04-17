@@ -7,10 +7,12 @@ import {
   getSubscriptionPrice,
   getTrialDays,
   updateTrialDays,
+  getSubscriptionStats,
 } from "../api/subscriptionModule";
 import type {
   Subscription,
   SubscriptionListPagination,
+  SubscriptionStats,
 } from "../api/interfaces/subscription";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
@@ -115,6 +117,18 @@ export const useUpdateTrialDays = () => {
     meta: {
       errorTitle: "Update Failed",
       errorMessage: "Could not update trial days.",
+    },
+  });
+};
+
+export const useGetSubscriptionStats = (timeframe?: string) => {
+  return useQuery<SubscriptionStats>({
+    queryKey: ["subscriptionStats", timeframe],
+    queryFn: () => getSubscriptionStats(timeframe),
+    staleTime: 1000 * 60,
+    meta: {
+      errorTitle: "Stats Error",
+      errorMessage: "Could not load subscription stats.",
     },
   });
 };

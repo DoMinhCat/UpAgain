@@ -315,3 +315,26 @@ func UpdateTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+func GetSubscriptionStatsHandler(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized.")
+		return
+	}
+
+	timeframe := r.URL.Query().Get("timeframe")
+	var tf *string
+	if timeframe != "" {
+		tf = &timeframe
+	}
+
+	stats, err := db.GetSubscriptionStats(tf)
+	if err != nil {
+		slog.Error("GetSubscriptionStats() failed", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Could not fetch subscription stats.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, stats)
+}

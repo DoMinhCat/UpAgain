@@ -15,8 +15,10 @@ import {
   ThemeIcon,
   Tooltip,
   Divider,
+  Select,
+  SimpleGrid,
 } from "@mantine/core";
-import { IconCurrencyEuro, IconPencil } from "@tabler/icons-react";
+import { IconCurrencyEuro, IconPencil, IconCrown, IconArrowUpRight, IconUserCheck, IconX, IconChartBar,} from "@tabler/icons-react";
 import {
   useGetAllSubscriptions,
   useGetSubscriptionPrice,
@@ -31,8 +33,20 @@ import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
+import { AdminCardInfo, StatsCardDesc } from "../../../components/admin/AdminCardInfo";
+import { useGetSubscriptionStats } from "../../../hooks/subscriptionHooks";
 
 const LIMIT = 10;
+
+
+const timeframeLabel: Record<string, string> = {
+  all: "all time",
+  today: "today",
+  last_3_days: "the last 3 days",
+  last_week: "the last 7 days",
+  last_month: "the last 30 days",
+  last_year: "the last 365 days",
+};
 
 export default function AdminSubscriptions() {
   const { data: price } = useGetSubscriptionPrice();
@@ -43,7 +57,13 @@ export default function AdminSubscriptions() {
 
   const navigate = useNavigate();
 
+  //time
+  const [chartTime, setChartTime] = useState<string | null>("all");
+  const { data: subStats, isLoading: isLoadingStats, isError: errorStats } = useGetSubscriptionStats(chartTime || undefined);
+  const timeLabel = timeframeLabel[chartTime ?? "all"] ?? "all time";
   const { data: trialDays } = useGetTrialDays();
+  
+  //trial
   const trialMutation = useUpdateTrialDays();
   const [openedTrial, { open: openTrial, close: closeTrial }] = useDisclosure(false);
   const [newTrialDays, setNewTrialDays] = useState<number>(0);
@@ -127,9 +147,83 @@ export default function AdminSubscriptions() {
 
   return (
     <Container px="md" size="xl">
-      <Title order={2} mt="lg" mb="xl">
-        Subscriptions Management
-      </Title>
+      <Group justify="space-between" mb="xl">
+        <Title order={2} mt="lg">Subscriptions Management</Title>
+        <Select
+          label="Timeframe"
+          placeholder="All time"
+          value={chartTime}
+          disabled={isLoadingStats}
+          onChange={(value) => setChartTime(value)}
+          data={[
+            { value: "all", label: "All Time" },
+            { value: "today", label: "Today" },
+            { value: "last_3_days", label: "Last 3 days" },
+            { value: "last_week", label: "Last 7 days" },
+            { value: "last_month", label: "Last 30 days" },
+            { value: "last_year", label: "Last 365 days" },
+          ]}
+        />
+      </Group>
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg" mb="xl">
+        <AdminCardInfo
+          icon={IconCrown}
+          title="Total subscriptions *"
+          value={subStats?.total ?? 0}
+          error={errorStats}
+          loading={isLoadingStats}
+          description={
+            <StatsCardDesc
+              stats={subStats?.active ?? 0}
+              icon={<IconArrowUpRight size={24} color="var(--upagain-neutral-green)" />}
+              description=" currently active"
+            />
+          }
+        />
+        <AdminCardInfo
+          icon={IconChartBar}
+          title="New subscriptions"
+          value={subStats?.new_subscriptions ?? 0}
+          error={errorStats}
+          loading={isLoadingStats}
+          description={
+            <StatsCardDesc
+              stats={subStats?.new_subscriptions ?? 0}
+              icon={<IconArrowUpRight size={24} color="var(--upagain-neutral-green)" />}
+              description={` new subscriptions in ${timeLabel}`}
+            />
+          }
+        />
+        <AdminCardInfo
+          icon={IconUserCheck}
+          title="Active trials *"
+          value={subStats?.active_trials ?? 0}
+          error={errorStats}
+          loading={isLoadingStats}
+          description={
+            <StatsCardDesc
+              stats={subStats?.active_trials ?? 0}
+              icon={<IconArrowUpRight size={24} color="var(--upagain-neutral-green)" />}
+              description=" trials currently running"
+            />
+          }
+        />
+        <AdminCardInfo
+          icon={IconX}
+          title="Cancellations *"
+          value={subStats?.cancelled ?? 0}
+          error={errorStats}
+          loading={isLoadingStats}
+          description={
+            <StatsCardDesc
+              stats={subStats?.cancelled ?? 0}
+              icon={<IconX size={24} color="var(--upagain-red)" />}
+              description=" total cancellations"
+            />
+          }
+        />
+      </SimpleGrid>
+      <Text size="sm" c="dimmed" mb="xl">* Timeframe not applicable for these metrics</Text>
 
       {/* Price card */}
       <Paper withBorder variant="primary" radius="md" p="lg" mb="xl">
