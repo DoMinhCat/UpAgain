@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // GetValidationStats godoc
@@ -194,11 +195,24 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	exist, err := db.CheckEventExistsById(eventID)
 	if err != nil {
 		slog.Error("CheckEventExistsById() failed", "controller", "ProcessEventValidation", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
 	if !exist {
-		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		utils.RespondWithError(w, http.StatusBadRequest, "Event with ID "+idStr+" not found.")
+		return
+	}
+
+	event, err := db.GetEventDetailsById(eventID)
+	if err != nil {
+		slog.Error("GetEventDetailsById() failed", "controller", "ProcessEventValidation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
+		return
+	}
+
+	// can't validate if event is in the past
+	if event.EndAt.Time.Before(time.Now()) {
+		utils.RespondWithError(w, http.StatusConflict, "This event has already ended.")
 		return
 	}
 
