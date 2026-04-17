@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	validations "backend/utils/validations"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -788,4 +789,67 @@ func GetAccountCount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, stats)
+}
+
+
+func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
+	accounts, _, err := db.GetAllAccounts(false, -1, -1, models.AccountFilters{})
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while exporting accounts.")
+		slog.Error("GetAllAccounts() failed", "controller", "ExportAccountsCsv", "error", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/csv")
+    w.Header().Set("Content-Disposition", "attachment; filename=UpAgain_accounts.csv")
+
+	writer := csv.NewWriter(w)
+	defer writer.Flush()
+
+	writer.Write([]string{"Registered on", "ID", "Username", "Role", "Status", "Email", "Phone"})
+
+	for _, a := range accounts {
+		status := "active"
+		if a.IsBanned {
+			status = "banned"
+		}
+
+		// get Phone
+		phone := "N/A"
+		if a.Role == "user"{
+			user, err := db.GetUserDetailsById(a.Id)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while exporting accounts.")
+				slog.Error("GetUserDetailsById() failed", "controller", "ExportAccountsCsv", "error", err)
+				return
+			}
+			if user.Phone.Valid{
+				phone = user.Phone.String
+			}
+		}
+		if a.Role == "pro"{
+			pro, err := db.GetProDetailsById(a.Id)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while exporting accounts.")
+				slog.Error("GetProDetailsById() failed", "controller", "ExportAccountsCsv", "error", err)
+				return
+			}
+			if pro.Phone.Valid{
+				phone = pro.Phone.String
+			}
+		}
+		err :=writer.Write([]string{
+			a.CreatedAt.Format("2006-01-02 15:04:05"),
+			strconv.Itoa(a.Id),
+			a.Username,
+			a.Role,
+			status,
+			a.Email,
+			phone,
+		})
+		if err != nil {
+            slog.Error("Write() failed", "controller", "ExportAccountsCsv", "error", err)
+            return
+        }
+	}
 }

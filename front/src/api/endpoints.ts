@@ -11,6 +11,7 @@ export const ENDPOINTS = {
       STATS: (id_account: number) => `/accounts/${id_account}/stats/`,
       UPDATE: (id_account: number) => `/accounts/${id_account}/`,
       SCORE_STATS: "/users/score/",
+      EXPORT_CSV: "/accounts/export/",
     },
 
     CONTAINERS: {
