@@ -11,8 +11,8 @@ import (
 
 var allowedFinanceKeys = []string{"ads_price_per_month", "subscription_price", "trial_days", "commission_rate"}
 
-func GetFinanceSettingByKey(key string) (int, error) {
-	var price int
+func GetFinanceSettingByKey(key string) (float64, error) {
+	var price float64
 
 	if !slices.Contains(allowedFinanceKeys, key) {
 		return 0, fmt.Errorf("GetFinanceSettingByKey() failed: invalid key '%v'", key)
