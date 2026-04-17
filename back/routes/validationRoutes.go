@@ -10,7 +10,7 @@ func GetValidationRoutes(mux *http.ServeMux) {
 	// --- Stats overview ---
 	mux.Handle("GET /admin/validations/stats", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetValidationStats))))
 
-	// --- Paginated pending lists (new endpoints with search/sort/pagination) ---
+	// --- Paginated pending lists ---
 	mux.Handle("GET /admin/validations/deposits", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetPendingDepositsAdmin))))
 	mux.Handle("GET /admin/validations/listings", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetPendingListingsAdmin))))
 
