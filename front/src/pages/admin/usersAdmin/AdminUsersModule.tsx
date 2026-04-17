@@ -509,7 +509,6 @@ export default function AdminUsersModule() {
           <Grid.Col span={{ base: 12, md: 3 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by username, email or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
@@ -565,7 +564,7 @@ export default function AdminUsersModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+          <Grid.Col span={{ base: 12, sm: 4, md: 2 }}>
             <Select
               label="Status"
               placeholder="All status"
@@ -579,7 +578,7 @@ export default function AdminUsersModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col span={{ base: 12, sm: 12, md: 3 }}>
             <Group gap="xs" grow>
               <Button onClick={handleSearchClick} variant="primary">
                 Apply filters

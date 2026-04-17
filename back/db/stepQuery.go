@@ -42,12 +42,12 @@ func GetProjectStepsByPostId(id_post int) ([]models.ProjectStep, error) {
 			if err != nil {
 				return nil, err
 			}
-			
+
 			newItem := models.StepItem{
 				Id:    itemDetail.Id,
 				Title: itemDetail.Title,
 			}
-			
+
 			step.Items = append(step.Items, newItem)
 		}
 		steps = append(steps, step)
