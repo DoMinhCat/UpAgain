@@ -163,8 +163,12 @@ func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 
 	sub, err := db.GetSubscriptionByID(id)
 	if err != nil {
-		slog.Error("GetSubscriptionByID() failed", "controller", "GetSubscriptionByIDHandler", "id", id, "error", err)
-		utils.RespondWithError(w, http.StatusNotFound, "Failed to fetch subscription.")
+		slog.Error("GetSubscriptionByID() failed", "controller", "CancelSubscriptionHandler", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusNotFound, "Failed to cancel subscription.")
+		return
+	}
+	if !sub.IsTrial {
+		utils.RespondWithError(w, http.StatusBadRequest, "Show some mercy, this subscription is on trial period.")
 		return
 	}
 
