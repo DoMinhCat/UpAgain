@@ -56,7 +56,7 @@ func GetAllSubscriptions(page, limit int, onlyActive bool, filters models.Subscr
 	if onlyActive {
 		activeFilter = "AND s.is_active = true"
 	} else {
-		activeFilter = "AND s.is_active = false"
+		activeFilter = "AND s.is_active = false AND s.is_trial = false"
 	}
 
 	args := []interface{}{}
