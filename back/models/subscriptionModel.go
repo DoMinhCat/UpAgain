@@ -45,3 +45,9 @@ type SubscriptionStats struct {
 	CancellationRate float64 `json:"cancellation_rate"`
 	NewSubscriptions int     `json:"new_subscriptions"`
 }
+
+type SubscriptionFilters struct {
+	Search  string
+	IsTrial *bool
+	SortBy  string
+}

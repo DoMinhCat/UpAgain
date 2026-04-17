@@ -20,13 +20,16 @@ export const useGetAllSubscriptions = (
   page: number = -1,
   limit: number = -1,
   active?: boolean,
+  search?: string,
+  sort?: string,
+  isTrial?: boolean,
 ) => {
   return useQuery<SubscriptionListPagination>({
-    queryKey: ["subscriptions", page, limit, active],
-    queryFn: () => getAllSubscriptions(page, limit, active),
+    queryKey: ["subscriptions", page, limit, active, search, sort, isTrial],
+    queryFn: () => getAllSubscriptions(page, limit, active, search, sort, isTrial),
     staleTime: 1000 * 60,
     meta: {
-      errorTitle: "Subscriptions error",
+      errorTitle: "Subscriptions Error",
       errorMessage: "Unable to load subscriptions.",
     },
   });

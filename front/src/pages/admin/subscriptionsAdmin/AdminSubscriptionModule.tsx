@@ -17,8 +17,10 @@ import {
   Divider,
   Select,
   SimpleGrid,
+  Grid,
+  TextInput,
 } from "@mantine/core";
-import { IconCurrencyEuro, IconPencil, IconCrown, IconArrowUpRight, IconUserCheck, IconX, IconChartBar,} from "@tabler/icons-react";
+import { IconCurrencyEuro, IconPencil, IconCrown, IconArrowUpRight, IconUserCheck, IconX, IconChartBar, IconSearch,} from "@tabler/icons-react";
 import {
   useGetAllSubscriptions,
   useGetSubscriptionPrice,
@@ -57,6 +59,19 @@ export default function AdminSubscriptions() {
 
   const navigate = useNavigate();
 
+  //filters
+  const [activePage, setPage] = useState(1);
+  const [filters, setFilters] = useState({
+    searchValue: "",
+    sortValue: null as string | null,
+    isTrialValue: null as string | null,
+  });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const hasFilters = Boolean(
+    appliedFilters.searchValue ||
+    appliedFilters.sortValue ||
+    appliedFilters.isTrialValue,
+  );
   //time
   const [chartTime, setChartTime] = useState<string | null>("all");
   const { data: subStats, isLoading: isLoadingStats, isError: errorStats } = useGetSubscriptionStats(chartTime || undefined);
@@ -72,16 +87,38 @@ export default function AdminSubscriptions() {
   const [ongoingPage, setOngoingPage] = useState(1);
   const [canceledPage, setCanceledPage] = useState(1);
 
-  const { data: ongoing, isLoading: loadingOngoing } = useGetAllSubscriptions(
-    ongoingPage,
-    LIMIT,
+ const { data: ongoing, isLoading: loadingOngoing } = useGetAllSubscriptions(
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
     true,
+    appliedFilters.searchValue || undefined,
+    appliedFilters.sortValue || undefined,
+    appliedFilters.isTrialValue !== null ? appliedFilters.isTrialValue === "true" : undefined,
   );
   const { data: canceled, isLoading: loadingCanceled } = useGetAllSubscriptions(
-    canceledPage,
-    LIMIT,
+    hasFilters ? -1 : activePage,
+    hasFilters ? -1 : LIMIT,
     false,
+    appliedFilters.searchValue || undefined,
+    appliedFilters.sortValue || undefined,
+    appliedFilters.isTrialValue !== null ? appliedFilters.isTrialValue === "true" : undefined,
   );
+
+  const handleFilterChange = (key: string, value: string | null) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = { searchValue: "", sortValue: null, isTrialValue: null };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
+    setPage(1);
+  };
 
   const renderRows = (data: typeof ongoing, showReason = false) =>
     (data?.subscriptions ?? []).length === 0 ? (
@@ -288,6 +325,54 @@ export default function AdminSubscriptions() {
           </Button>
         </Group>
       </Modal>
+      <Stack gap="md" my="xl">
+        <Grid align="flex-end">
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <TextInput
+              label="Search"
+              variant="filled"
+              placeholder="Search by username or ID..."
+              rightSection={<IconSearch size={14} />}
+              value={filters.searchValue}
+              onChange={(e) => handleFilterChange("searchValue", e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSearchClick(); }}
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+            <Select
+              label="Sort by"
+              placeholder="Most recent"
+              clearable
+              data={[
+                { value: "sub_from_asc", label: "Oldest first" },
+                { value: "sub_to_asc", label: "Ends soonest" },
+                { value: "sub_to_desc", label: "Ends latest" },
+              ]}
+              value={filters.sortValue}
+              onChange={(val) => handleFilterChange("sortValue", val)}
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+            <Select
+              label="Type"
+              placeholder="All types"
+              clearable
+              data={[
+                { value: "true", label: "Trial" },
+                { value: "false", label: "Premium" },
+              ]}
+              value={filters.isTrialValue}
+              onChange={(val) => handleFilterChange("isTrialValue", val)}
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+            <Group gap="xs" grow>
+              <Button onClick={handleSearchClick} variant="primary">Apply filters</Button>
+              <Button onClick={handleResetFilters} variant="secondary">Reset</Button>
+            </Group>
+          </Grid.Col>
+        </Grid>
+      </Stack>
       {/* Tabs */}
       <Tabs defaultValue="ongoing">
         <Tabs.List mb="md">
