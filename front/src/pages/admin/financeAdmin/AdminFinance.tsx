@@ -343,6 +343,20 @@ export default function AdminFinance() {
                 formatter={(value) =>
                   typeof value === "number" ? formatEuros(value) : value
                 }
+                contentStyle={{
+                  backgroundColor: "var(--mantine-color-body)",
+                  borderRadius: "12px",
+                  border: "none",
+                  boxShadow: "var(--mantine-shadow-md)",
+                  color: "var(--mantine-color-text)",
+                }}
+                itemStyle={{ color: "var(--mantine-color-text)" }} // Color for the list items
+                labelStyle={{
+                  fontWeight: 700,
+                  marginBottom: "4px",
+                  color: "var(--mantine-color-text)",
+                }}
+                cursor={{ fill: "rgba(255, 255, 255, 0.1)" }} // Changes the highlight color when hovering over a bar
               />
               <Legend />
               <Bar
