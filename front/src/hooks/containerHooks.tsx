@@ -3,6 +3,7 @@ import {
   getAllContainers,
   createContainer,
   updateContainerStatus,
+  updateContainerLocation,
   deleteContainer,
   getContainerDetails,
   getContainerCountStats,
@@ -121,5 +122,24 @@ export const useGetAvailableContainers = () => {
       errorMessage: "Could not load available containers",
     },
     staleTime: 1000 * 60, // refresh data every 1m
+  });
+};
+
+export const useUpdateLocation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, city_name }: { id: number; city_name: string }) =>
+      updateContainerLocation(id, city_name),
+    onSuccess: (_data, variables) => {
+      showSuccessNotification("Updated", "Container location modified");
+      queryClient.invalidateQueries({ queryKey: ["containers"] });
+      queryClient.invalidateQueries({
+        queryKey: ["containerDetails", variables.id],
+      });
+    },
+    meta: {
+      errorTitle: "Location Update Failed",
+      errorMessage: "Failed to update container location.",
+    },
   });
 };

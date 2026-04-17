@@ -31,7 +31,7 @@ func GetTotalAdsSpendingsById(id int) (int, error) {
 			return 0, fmt.Errorf("GetTotalAdsSpendingsById() failed: %v", err.Error())
 		}
 		// price is monthly, so we divide by 30 to get price of 1 day
-		total += (ads_price / 30) * int(end_date.Sub(start_date).Hours()/24)
+		total += int(ads_price/30) * int(end_date.Sub(start_date).Hours()/24)
 	}
 	return total, nil
 }

@@ -1,0 +1,18 @@
+services:
+  back:
+    image: back:v1.0.0
+    container_name: upcycle-back
+    restart: always
+    volumes:
+      - /mnt/truenas-web/back/.env:/root/.env
+
+  front:
+    image: front:v1.0.0
+    container_name: upcycle-front
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - /mnt/truenas-web/front:/usr/share/nginx/html
+    depends_on:
+      - back

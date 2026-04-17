@@ -29,6 +29,8 @@ import {
   useContainerDetails,
   useUpdateStatus,
   useDeleteContainer,
+  useGetAllContainers,
+  useUpdateLocation,
 } from "../../../hooks/containerHooks";
 
 // TODO: add street field to table containers
@@ -41,6 +43,8 @@ export default function AdminContainersDetails() {
     useDisclosure(false);
   const [openedStatus, { open: openStatus, close: closeStatus }] =
     useDisclosure(false);
+  const [openedLocation, { open: openLocation, close: closeLocation}] =
+    useDisclosure(false);
 
   const containerId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(containerId) && containerId > 0;
@@ -51,8 +55,22 @@ export default function AdminContainersDetails() {
     isError,
   } = useContainerDetails(containerId);
 
-  const statusMutation = useUpdateStatus();
+  //location
+  const { data: containersData } = useGetAllContainers();
+  const locationMutation = useUpdateLocation();
 
+  const cityOptions = [
+  ...new Set(containersData?.containers?.map((c) => c.city_name) ?? []),
+].map((city) => ({ value: city, label: city }));
+
+  const handleLocationChange = (city_name: string) => {
+  locationMutation.mutate(
+    { id: containerId, city_name },
+    { onSuccess: () => closeLocation() },
+  );
+};
+  //status
+  const statusMutation = useUpdateStatus();
   const deleteMutation = useDeleteContainer();
 
   const handleStatusChange = (newStatus: string) => {
@@ -146,9 +164,19 @@ export default function AdminContainersDetails() {
           </InfoField>
 
           <InfoField label="Location">
-            <Text ps="sm" mt="xs" mb="xl">
-              {container?.city_name} ({container?.postal_code})
-            </Text>
+            <Group mt="xs" mb="xl">
+              <Text fw={500}>
+                {container?.city_name} ({container?.postal_code})
+              </Text>
+              <Button
+                size="compact-xs"
+                variant="light"
+                onClick={openLocation}
+                leftSection={<IconEdit size={14} />}
+              >
+                Change Location
+              </Button>
+            </Group>
           </InfoField>
 
           <InfoField label="Created On">
@@ -202,6 +230,21 @@ export default function AdminContainersDetails() {
           ]}
           defaultValue={container?.status}
           onChange={(val) => val && handleStatusChange(val)}
+        />
+      </Modal>
+
+      <Modal
+        opened={openedLocation}
+        onClose={closeLocation}
+        title="Update Container Location"
+        centered
+      >
+        <Select
+          label="New Location"
+          placeholder="Pick a city"
+          data={cityOptions}
+          defaultValue={container?.city_name}
+          onChange={(val) => val && handleLocationChange(val)}
         />
       </Modal>
 

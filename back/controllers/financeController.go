@@ -59,7 +59,16 @@ func GetFinanceRevenue(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetFinanceSettings returns all finance settings.
+// GetFinanceSettings godoc
+// @Summary      Get finance settings
+// @Description  Returns all finance settings. Admin only.
+// @Tags         finance
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Success      200  {array}   models.FinanceSetting
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /finance/settings/ [get]
 func GetFinanceSettings(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -76,8 +85,20 @@ func GetFinanceSettings(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, settings)
 }
 
-// UpdateFinanceSetting updates one finance setting by key.
-// URL param: key (one of: trial_days, commission_rate, ads_price_per_month, subscription_price)
+// UpdateFinanceSetting godoc
+// @Summary      Update finance setting
+// @Description  Updates one finance setting by key. Keys: trial_days, commission_rate, ads_price_per_month, subscription_price. Admin only.
+// @Tags         finance
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        key   path      string                              true  "Setting key"
+// @Param        body  body      models.UpdateFinanceSettingRequest  true  "Setting value payload"
+// @Success      200   {object}  map[string]interface{}
+// @Failure      400   {object}  nil  "Invalid request or missing key"
+// @Failure      401   {object}  nil  "Unauthorized"
+// @Failure      500   {object}  nil  "Internal server error"
+// @Router       /finance/settings/{key}/ [put]
 func UpdateFinanceSetting(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {

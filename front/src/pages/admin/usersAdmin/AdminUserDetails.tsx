@@ -331,8 +331,8 @@ export default function AdminUserDetails() {
   }
 
   return (
-    <Container px="md" size="xl" pb="xl">
-      <Title order={2} mt="xs" mb="sm">
+    <Container px="md" size="xl">
+      <Title order={2} mt="lg">
         User's Details
       </Title>
       <AdminBreadcrumbs
@@ -386,19 +386,33 @@ export default function AdminUserDetails() {
                               PATHS.ADMIN.LISTINGS + "/" + origin?.listingId,
                           },
                         ]
-                      : origin?.from === "finance"
+                      : origin?.from === "SubscriptionDetails"
                         ? [
                             {
-                              title: "Finance Management",
-                              href: PATHS.ADMIN.FINANCE.ALL,
+                              title: "Subscription Management",
+                              href: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
+                            },
+                            {
+                              title: "Subscription's Details",
+                              href:
+                                PATHS.ADMIN.SUBSCRIPTIONS.ALL +
+                                "/" +
+                                origin?.id_sub,
                             },
                           ]
-                        : [
-                            {
-                              title: "User Management",
-                              href: PATHS.ADMIN.USERS.ALL,
-                            },
-                          ]),
+                        : origin?.from === "finance"
+                          ? [
+                              {
+                                title: "Finance Management",
+                                href: PATHS.ADMIN.FINANCE.ALL,
+                              },
+                            ]
+                          : [
+                              {
+                                title: "User Management",
+                                href: PATHS.ADMIN.USERS.ALL,
+                              },
+                            ]),
           { title: "User's Details", href: "#" },
         ]}
       />

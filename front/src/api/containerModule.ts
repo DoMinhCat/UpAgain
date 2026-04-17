@@ -54,3 +54,10 @@ export const getAvailableContainers = async (): Promise<Container[]> => {
   const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.AVAILABLE);
   return response.data;
 };
+
+export const updateContainerLocation = async (id: number, city_name: string) => {
+  const response = await api.put(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}${id}/location/`, {
+    city_name,
+  });
+  return response.data;
+};

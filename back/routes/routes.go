@@ -24,6 +24,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetItemRoutes(mux)
 	GetListingRoutes(mux)
 	GetDepositRoutes(mux)
+	GetSubscriptionRoutes(mux)
 	GetFinanceRoutes(mux)
 
 	// swagger API documentation

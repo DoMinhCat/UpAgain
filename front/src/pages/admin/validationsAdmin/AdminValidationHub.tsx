@@ -1059,11 +1059,9 @@ export default function AdminValidationHub() {
 
   return (
     <Container px="md" size="xl">
-      <Title order={2} mt="xs" mb="sm">
+      <Title order={2} mt="lg" mb="xl">
         Validation Hub
       </Title>
-
-      <Divider mb="md" />
 
       <Tabs defaultValue="overview" keepMounted={false}>
         <Tabs.List>

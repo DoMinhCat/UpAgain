@@ -27,7 +27,10 @@ export const PATHS = {
       DETAILS: "/admin/history/:id",
     },
     LISTINGS: "/admin/listings",
-    SUBSCRIPTIONS: "/admin/subscriptions",
+    SUBSCRIPTIONS: {
+      ALL: "/admin/subscriptions",
+      DETAILS: "/admin/subscriptions/:id",
+    },
   },
   USER: {
     // paths for user espace here
