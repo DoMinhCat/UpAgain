@@ -234,8 +234,9 @@ func UpdateSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.UpdateFinanceSettingByKey("subscription_price", payload.Price); err != nil {
-		slog.Error("UpdateFinanceSettingByKey() failed", "controller", "UpdateSubscriptionPriceHandler", "error", err)
+	oldPrice, err := db.UpdateFinanceSetting("subscription_price", payload.Price)
+	if err != nil {
+		slog.Error("UpdateFinanceSetting() failed", "controller", "UpdateSubscriptionPriceHandler", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update subscription price.")
 		return
 	}
@@ -332,21 +333,16 @@ func UpdateTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oldDays, err := db.GetFinanceSettingByKey("trial_days")
+	old_day, err := db.UpdateFinanceSetting("trial_days", float64(payload.TrialDays))
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Could not fetch current trial days.")
-		return
-	}
-
-	if err := db.UpdateFinanceSettingByKey("trial_days", float64(payload.TrialDays)); err != nil {
-		slog.Error("UpdateFinanceSettingByKey() failed", "error", err)
+		slog.Error("UpdateFinanceSetting() failed", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update trial days.")
 		return
 	}
 
 	err = db.InsertHistory(
 		"finance_setting", "trial_days", "update", r.Context().Value("user").(models.AuthClaims).Id,
-		map[string]float64{"trial_days": oldDays},
+		map[string]float64{"trial_days": old_day},
 		map[string]float64{"trial_days": float64(payload.TrialDays)},
 	)
 	if err != nil {
