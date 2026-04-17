@@ -24,6 +24,9 @@ import {
   useGetSubscriptionByID,
   useRevokeSubscription,
 } from "../../../hooks/subscriptionHooks";
+import { useGetUserInvoices } from "../../../hooks/financeHooks";
+import { generateInvoicePDF } from "../../../utils/invoiceUtils";
+import { showErrorNotification } from "../../../components/common/NotificationToast";
 import { useState } from "react";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { useLocation } from "react-router-dom";
@@ -47,6 +50,27 @@ export default function AdminSubscriptionDetails() {
     isError,
   } = useGetSubscriptionByID(subscriptionId);
   const revokeMutation = useRevokeSubscription();
+
+  const { data: invoicesData, isLoading: isLoadingInvoices } =
+    useGetUserInvoices(sub?.id_pro ?? 0, !!sub?.id_pro);
+
+  const handleDownloadInvoice = () => {
+    if (!invoicesData || !invoicesData.invoices) {
+      showErrorNotification(
+        "Loading",
+        "Invoices data is not yet available, please try again."
+      );
+      return;
+    }
+    const invoice = invoicesData.invoices.find(
+      (i) => i.type === "subscription" && i.id === subscriptionId
+    );
+    if (invoice) {
+      generateInvoicePDF(invoice, invoicesData.username);
+    } else {
+      showErrorNotification("Not Found", "No invoice found for this subscription.");
+    }
+  };
 
   const handleRevoke = () => {
     revokeMutation.mutate(
@@ -170,6 +194,24 @@ export default function AdminSubscriptionDetails() {
               </Text>
             </InfoField>
           )}
+        </Paper>
+
+        <Title order={3} ta="left" mt="xl">
+          Invoice
+        </Title>
+        <Paper variant="primary" px="lg" py="md" mt="sm">
+          <InfoField label="Invoice">
+            <Button 
+              variant="primary" 
+              ps="sm" 
+              mt="xs" 
+              mb="xl" 
+              onClick={handleDownloadInvoice}
+              loading={isLoadingInvoices}
+            >
+              Download invoice
+            </Button>
+          </InfoField>
         </Paper>
 
         {sub?.is_active && (
