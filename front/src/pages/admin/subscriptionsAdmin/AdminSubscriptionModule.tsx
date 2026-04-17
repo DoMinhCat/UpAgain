@@ -29,6 +29,7 @@ import {
   IconX,
   IconChartBar,
   IconSearch,
+  IconClock,
 } from "@tabler/icons-react";
 import {
   useGetAllSubscriptions,
@@ -347,16 +348,29 @@ export default function AdminSubscriptions() {
         </Group>
         <Divider my="sm" />
         <Group justify="space-between">
-          <div>
-            <Text fw={700} size="lg">
-              Trial period
-            </Text>
-            <Text fw={900} size="xl">
-              {trialDays} days
-            </Text>
-          </div>
+          <Group gap="md" align="center">
+            <ThemeIcon
+              size={48}
+              radius="md"
+              variant="light"
+              color="var(--upagain-neutral-green)"
+            >
+              <IconClock size={26} />
+            </ThemeIcon>
+            <Stack gap={2}>
+              <Text size="sm" c="dimmed" fw={500}>
+                Trial period
+              </Text>
+              <Text fw={900} size="xl">
+                {trialDays != null
+                  ? `${trialDays} ` + (trialDays > 1 ? "days" : "day")
+                  : "—"}
+              </Text>
+            </Stack>
+          </Group>
           <Button
-            variant="light"
+            variant="edit"
+            leftSection={<IconPencil size={15} />}
             onClick={() => {
               setNewTrialDays(trialDays ?? 0);
               openTrial();
@@ -385,7 +399,7 @@ export default function AdminSubscriptions() {
             Cancel
           </Button>
           <Button
-            variant="light"
+            variant="primary"
             loading={trialMutation.isPending}
             disabled={!newTrialDays || newTrialDays <= 0}
             onClick={() =>
@@ -522,14 +536,11 @@ export default function AdminSubscriptions() {
         <Stack gap="md">
           <NumberInput
             label="New Price (€)"
-            description="Allowed range: 15 € – 30 €"
-            min={15}
-            max={30}
+            min={1}
             step={0.5}
             decimalScale={2}
             value={newPrice}
             onChange={(val) => setNewPrice(Number(val))}
-            leftSection={<IconCurrencyEuro size={16} />}
           />
           <Group mt="sm" justify="flex-end">
             <Button variant="grey" onClick={closePrice}>
