@@ -663,6 +663,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
     appliedFilters.searchValue || undefined,
     "pending",
     appliedFilters.sortValue || undefined,
+    true,
   );
 
   const events = data?.events ?? [];
