@@ -311,7 +311,7 @@ func UpdateTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := db.UpdateFinanceSettingByKey("trial_days", float64(payload.TrialDays)); err != nil {
 		slog.Error("UpdateFinanceSettingByKey() failed", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "Could not update trial days.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update trial days.")
 		return
 	}
 
