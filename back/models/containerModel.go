@@ -20,6 +20,12 @@ type UpdateStatusRequest struct {
 	Status string `json:"status" example:"running"`
 }
 
+type UpdateLocationRequest struct {
+	CityName string `json:"city_name"`
+	// TODO: allow edit street
+	Street string `json:"street"`
+}
+
 type ContainerFilters struct {
 	Search string `json:"search"`
 	Status string `json:"status"`

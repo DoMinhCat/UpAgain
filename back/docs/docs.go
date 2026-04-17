@@ -1309,6 +1309,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/containers/{id}/location/": {
+            "put": {
+                "description": "Update the location of a container.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "container"
+                ],
+                "summary": "Update container location",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Container ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New location payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateLocationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/deposits/{deposit_id}/": {
             "get": {
                 "description": "Get details of a specific deposit",
@@ -2231,7 +2278,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Returns all invoices (transactions and subscriptions) for a specific account. Admins can access any user's invoices; non-admin users can only access their own.",
+                "description": "Returns all invoices (transactions, subscriptions, ads, events) for a specific account. Admins can access any user's invoices; non-admin users can only access their own.",
                 "produces": [
                     "application/json"
                 ],
@@ -3424,6 +3471,165 @@ const docTemplate = `{
                 }
             }
         },
+        "/subscriptions/price/": {
+            "get": {
+                "description": "Get the current price of the premium subscription",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Get subscription price",
+                "responses": {
+                    "200": {
+                        "description": "Current price",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "number",
+                                "format": "float64"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the price of the premium subscription. Admin only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Update subscription price",
+                "parameters": [
+                    {
+                        "description": "New price payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateSubscriptionPriceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid price"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{id}/": {
+            "get": {
+                "description": "Get details of a specific subscription including user information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Get subscription by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SubscriptionWithUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid subscription ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Subscription not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{id}/revoke/": {
+            "put": {
+                "description": "Cancel an active subscription. Admin can cancel any, users can cancel their own.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Cancel subscription",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Cancel reason payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RevokeSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid request or missing cancel reason"
+                    },
+                    "401": {
+                        "description": "Unauthorized or forbidden"
+                    },
+                    "404": {
+                        "description": "Subscription not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/users/score/": {
             "get": {
                 "description": "Get the total CO2 saved and total UpScore",
@@ -4298,6 +4504,14 @@ const docTemplate = `{
                 }
             }
         },
+        "models.RevokeSubscriptionRequest": {
+            "type": "object",
+            "properties": {
+                "cancel_reason": {
+                    "type": "string"
+                }
+            }
+        },
         "models.StepItem": {
             "type": "object",
             "properties": {
@@ -4305,6 +4519,38 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SubscriptionWithUser": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "cancel_reason": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "id_pro": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_trial": {
+                    "type": "boolean"
+                },
+                "sub_from": {
+                    "type": "string"
+                },
+                "sub_to": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -4323,6 +4569,9 @@ const docTemplate = `{
                 "action": {
                     "type": "string"
                 },
+                "commission_rate": {
+                    "type": "number"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -4337,6 +4586,15 @@ const docTemplate = `{
                 },
                 "id_transaction": {
                     "type": "string"
+                },
+                "item_price": {
+                    "type": "number"
+                },
+                "reservation_expiry": {
+                    "type": "string"
+                },
+                "total_price": {
+                    "type": "number"
                 },
                 "username_pro": {
                     "type": "string"
@@ -4410,6 +4668,18 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateLocationRequest": {
+            "type": "object",
+            "properties": {
+                "city_name": {
+                    "type": "string"
+                },
+                "street": {
+                    "description": "TODO: allow edit street",
+                    "type": "string"
+                }
+            }
+        },
         "models.UpdatePasswordRequest": {
             "type": "object",
             "properties": {
@@ -4427,29 +4697,69 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateSubscriptionPriceRequest": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
         "models.UserInvoice": {
             "type": "object",
             "properties": {
-                "action": {
+                "ad_end_date": {
+                    "type": "string"
+                },
+                "ad_start_date": {
+                    "description": "Ad-specific",
                     "type": "string"
                 },
                 "amount": {
-                    "description": "after commission or full price",
+                    "description": "total paid",
+                    "type": "number"
+                },
+                "commission": {
                     "type": "number"
                 },
                 "created_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "description": "Event-specific",
+                    "type": "integer"
+                },
+                "event_title": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "id_transaction": {
+                    "description": "Transaction-specific",
                     "type": "string"
                 },
                 "item_price": {
                     "type": "number"
                 },
                 "item_title": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "post_title": {
+                    "type": "string"
+                },
+                "sub_from": {
+                    "description": "Subscription-specific",
+                    "type": "string"
+                },
+                "sub_to": {
+                    "type": "string"
+                },
+                "type": {
+                    "description": "\"transaction\", \"subscription\", \"ad\", \"event\"",
                     "type": "string"
                 }
             }
