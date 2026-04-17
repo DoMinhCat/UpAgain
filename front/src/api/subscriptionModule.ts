@@ -7,14 +7,20 @@ import type {
 } from "./interfaces/subscription";
 
 export const getAllSubscriptions = async (
-  page: number = 1,
-  limit: number = 10,
+  page: number = -1,
+  limit: number = -1,
   active?: boolean,
+  search?: string,
+  sort?: string,
+  isTrial?: boolean,
 ): Promise<SubscriptionListPagination> => {
   const params: Record<string, string | number | boolean> = {};
-  if (page !== 1) params.page = page;
-  if (limit !== 10) params.limit = limit;
+  if (page !== -1) params.page = page;
+  if (limit !== -1) params.limit = limit;
   if (active !== undefined) params.active = active;
+  if (search) params.search = search;
+  if (sort) params.sort = sort;
+  if (isTrial !== undefined) params.is_trial = isTrial;
 
   const response = await api.get(ENDPOINTS.ADMIN.SUBSCRIPTIONS.ALL, { params });
   return response.data;

@@ -51,7 +51,7 @@ func GetTotalActiveSubscriptionById(id_account int) (int, error) {
 	return total, nil
 }
 
-func GetAllSubscriptions(page, limit int, onlyActive bool) ([]models.SubscriptionWithUser, int, error) {
+func GetAllSubscriptions(page, limit int, onlyActive bool, filters models.SubscriptionFilters) ([]models.SubscriptionWithUser, int, error) {
 	activeFilter := ""
 	if onlyActive {
 		activeFilter = "AND s.is_active = true"
@@ -59,26 +59,56 @@ func GetAllSubscriptions(page, limit int, onlyActive bool) ([]models.Subscriptio
 		activeFilter = "AND s.is_active = false"
 	}
 
-	countQuery := `SELECT COUNT(*) FROM subscriptions s WHERE true ` + activeFilter
+	args := []interface{}{}
+	argIdx := 1
+	searchFilter := ""
+	trialFilter := ""
+
+	if filters.Search != "" {
+		searchFilter = fmt.Sprintf(" AND (a.username ILIKE $%d OR CAST(s.id AS TEXT) = $%d)", argIdx, argIdx+1)
+		args = append(args, "%"+filters.Search+"%", filters.Search)
+		argIdx += 2
+	}
+
+	if filters.IsTrial != nil {
+		trialFilter = fmt.Sprintf(" AND s.is_trial = $%d", argIdx)
+		args = append(args, *filters.IsTrial)
+		argIdx++
+	}
+
+	sortClause := "ORDER BY s.sub_from DESC"
+	switch filters.SortBy {
+	case "sub_from_asc":
+		sortClause = "ORDER BY s.sub_from ASC"
+	case "sub_to_asc":
+		sortClause = "ORDER BY s.sub_to ASC"
+	case "sub_to_desc":
+		sortClause = "ORDER BY s.sub_to DESC"
+	}
+
+	whereClause := "WHERE true " + activeFilter + searchFilter + trialFilter
+
+	countQuery := `SELECT COUNT(*) FROM subscriptions s
+        JOIN pros p ON s.id_pro = p.id_account
+        JOIN accounts a ON p.id_account = a.id ` + whereClause
 
 	var total int
-	if err := utils.Conn.QueryRow(countQuery).Scan(&total); err != nil {
+	if err := utils.Conn.QueryRow(countQuery, args...).Scan(&total); err != nil {
 		return nil, 0, err
 	}
 
 	query := `
-		SELECT s.id, s.is_trial, s.is_active, s.sub_from, s.sub_to, s.id_pro, s.cancel_reason,
-			a.username, a.avatar
-		FROM subscriptions s
-		JOIN pros p ON s.id_pro = p.id_account
-		JOIN accounts a ON p.id_account = a.id
-		WHERE true ` + activeFilter + `
-		ORDER BY s.sub_from DESC`
+        SELECT s.id, s.is_trial, s.is_active, s.sub_from, s.sub_to, s.id_pro, s.cancel_reason,
+               a.username, a.avatar
+        FROM subscriptions s
+        JOIN pros p ON s.id_pro = p.id_account
+        JOIN accounts a ON p.id_account = a.id ` + whereClause + ` ` + sortClause
 
-	if limit > 0 {
+	if limit > 0 && filters.Search == "" {
 		offset := (page - 1) * limit
-		query += ` LIMIT $1 OFFSET $2`
-		rows, err := utils.Conn.Query(query, limit, offset)
+		paginatedArgs := append(args, limit, offset)
+		query += fmt.Sprintf(` LIMIT $%d OFFSET $%d`, argIdx, argIdx+1)
+		rows, err := utils.Conn.Query(query, paginatedArgs...)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -86,7 +116,7 @@ func GetAllSubscriptions(page, limit int, onlyActive bool) ([]models.Subscriptio
 		return scanSubscriptions(rows, total)
 	}
 
-	rows, err := utils.Conn.Query(query)
+	rows, err := utils.Conn.Query(query, args...)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -23,15 +23,16 @@ import (
 // @Failure      401     {object}  nil  "Unauthorized"
 // @Failure      500     {object}  nil  "Internal server error"
 // @Router       /subscriptions/ [get]
+
 func GetAllSubscriptionsHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
-		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized.")
 		return
 	}
 
 	query := r.URL.Query()
-	page, limit := 1, 10 // default value
+	page, limit := -1, -1
 
 	if p := query.Get("page"); p != "" {
 		page, _ = strconv.Atoi(p)
@@ -41,17 +42,23 @@ func GetAllSubscriptionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	onlyActive := query.Get("active") == "true"
+	filters := models.SubscriptionFilters{
+		Search: query.Get("search"),
+	}
 
-	subs, total, err := db.GetAllSubscriptions(page, limit, onlyActive)
+	subs, total, err := db.GetAllSubscriptions(page, limit, onlyActive, filters)
 	if err != nil {
 		slog.Error("GetAllSubscriptions() failed", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to fetch subscriptions.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "Could not fetch subscriptions.")
 		return
 	}
 
 	lastPage := 1
-	if limit > 0 {
+	if limit > 0 && filters.Search == "" {
 		lastPage = int(math.Ceil(float64(total) / float64(limit)))
+		if lastPage == 0 {
+			lastPage = 1
+		}
 	}
 
 	result := models.SubscriptionListPagination{
