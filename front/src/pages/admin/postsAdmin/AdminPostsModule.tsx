@@ -343,7 +343,7 @@ export const AdminPostsModule = () => {
       <Stack gap="md" my="xl">
         <Group justify="space-between" align="flex-end">
           <Title c="dimmed" order={3}>
-            Manage events and assign employees
+            Manage posts and projects
           </Title>
 
           <Group gap="xs" align="flex-end">
@@ -437,7 +437,6 @@ export const AdminPostsModule = () => {
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
               rightSection={<IconSearch size={14} />}
               disabled={isAllPostsLoading}
@@ -506,7 +505,7 @@ export const AdminPostsModule = () => {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col span={{ base: 12, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
               <Button variant="primary" onClick={handleSearchClick}>
                 Apply filters
