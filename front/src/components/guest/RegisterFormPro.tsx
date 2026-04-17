@@ -22,7 +22,7 @@ import PasswordStrengthInput, {
 import { useRegister } from "../../hooks/authHooks";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { PremiumPricingCard } from "./PremiumPricingCard";
+import { PricingCard } from "./PricingCard";
 
 export default function RegisterFormPro() {
   const navigate = useNavigate();
@@ -319,9 +319,29 @@ export default function RegisterFormPro() {
         <Title ta="center" mb="xl">
           Choose your plan
         </Title>
-        <Group justify="center" mt="md">
-          <PremiumPricingCard />
-          <PremiumPricingCard />
+        <Group justify="center" mt="md" gap="xl">
+          <PricingCard />
+          <PricingCard />
+        </Group>
+        <Group justify="center" mt="xl">
+          <Button
+            size="lg"
+            variant="grey"
+            ta="center"
+            onClick={closePremium}
+            disabled={registerMutation.isPending}
+          >
+            Close
+          </Button>
+          <Button
+            size="lg"
+            variant="primary"
+            ta="center"
+            // onClick={closePremium}
+            // disabled={registerMutation.isPending}
+          >
+            Confirm
+          </Button>
         </Group>
       </Modal>
     </Container>

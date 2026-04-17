@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { IconCheck, IconStar } from "@tabler/icons-react";
 
-export function PremiumPricingCard() {
+export function PricingCard() {
   return (
     <Paper
       withBorder
@@ -107,7 +107,7 @@ export function PremiumPricingCard() {
         </List>
 
         {/* Bottom Price Section */}
-        <Stack gap="xs" mt="md">
+        <Stack gap="xs" mt="xs">
           <Group align="flex-end" justify="center" gap={4}>
             <Text
               size="xl"
