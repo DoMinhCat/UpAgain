@@ -15,9 +15,10 @@ type EventStats struct {
 }
 
 type EventFilters struct {
-	Search string
-	Sort   string
-	Status string
+	Search     string
+	Sort       string
+	Status     string
+	Validation bool
 }
 
 type Event struct {

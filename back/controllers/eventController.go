@@ -148,10 +148,22 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var isValidation bool
+	isValidationStr := query.Get("validation")
+	if isValidationStr != "" {
+		isValidation, err = strconv.ParseBool(isValidationStr)
+		if err != nil {
+			slog.Error("strconv.ParseBool() failed", "controller", "GetAllEvents", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching events.")
+			return
+		}
+	}
+
 	filters := models.EventFilters{
-		Search: query.Get("search"),
-		Sort:   query.Get("sort"),
-		Status: query.Get("status"),
+		Search:     query.Get("search"),
+		Sort:       query.Get("sort"),
+		Status:     query.Get("status"),
+		Validation: isValidation,
 	}
 
 	events, total, err := db.GetAllEvents(page, limit, filters)
