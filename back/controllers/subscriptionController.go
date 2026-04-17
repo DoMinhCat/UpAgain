@@ -189,11 +189,14 @@ func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to cancel subscription.")
 		return
 	}
-	db.InsertHistory(
+	histErr := db.InsertHistory(
 		"subscription", id, "update", r.Context().Value("user").(models.AuthClaims).Id,
 		map[string]interface{}{"is_active": true, "cancel_reason": nil},
 		map[string]interface{}{"is_active": false, "cancel_reason": payload.CancelReason},
 	)
+	if histErr != nil {
+		slog.Error("InsertHistory() failed", "controller", "CancelSubscriptionHandler", "error", histErr)
+	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -237,11 +240,14 @@ func UpdateSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.InsertHistory(
+	histErr := db.InsertHistory(
 		"finance_setting", "subscription_price", "update", r.Context().Value("user").(models.AuthClaims).Id,
 		map[string]float64{"subscription_price": oldPrice},
 		map[string]float64{"subscription_price": payload.Price},
 	)
+	if histErr != nil {
+		slog.Error("InsertHistory() failed", "controller", "UpdateSubscriptionPriceHandler", "error", histErr)
+	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -273,6 +279,16 @@ func GetSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]float64{"price": price})
 }
 
+// GetTrialDaysHandler godoc
+// @Summary      Get trial days
+// @Description  Get the current number of trial days for subscriptions. Admin only.
+// @Tags         subscription
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Success      200  {object}  map[string]float64  "Trial days"
+// @Failure      401  {object}  nil                 "Unauthorized"
+// @Failure      500  {object}  nil                 "Internal server error"
+// @Router       /subscriptions/trial/ [get]
 func GetTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -290,6 +306,19 @@ func GetTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]float64{"trial_days": days})
 }
 
+// UpdateTrialDaysHandler godoc
+// @Summary      Update trial days
+// @Description  Update the number of trial days for subscriptions. Admin only.
+// @Tags         subscription
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      models.UpdateTrialDaysRequest  true  "New trial days payload"
+// @Success      204   {object}  nil  "No Content"
+// @Failure      400   {object}  nil  "Invalid trial_days value"
+// @Failure      401   {object}  nil  "Unauthorized"
+// @Failure      500   {object}  nil  "Internal server error"
+// @Router       /subscriptions/trial/ [put]
 func UpdateTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -327,6 +356,17 @@ func UpdateTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
+// GetSubscriptionStatsHandler godoc
+// @Summary      Get subscription stats
+// @Description  Get statistics about subscriptions such as active count, trial count, cancellations, etc.
+// @Tags         subscription
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        timeframe  query     string  false  "Timeframe filter (e.g. today, last_week, all)"
+// @Success      200        {object}  models.SubscriptionStats
+// @Failure      401        {object}  nil  "Unauthorized"
+// @Failure      500        {object}  nil  "Internal server error"
+// @Router       /subscriptions/stats [get]
 func GetSubscriptionStatsHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {

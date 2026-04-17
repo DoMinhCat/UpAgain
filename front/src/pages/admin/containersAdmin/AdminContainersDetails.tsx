@@ -108,7 +108,7 @@ export default function AdminContainersDetails() {
             ? [
                 {
                   title: "History Details",
-                  href: PATHS.ADMIN.HISTORY + "/" + origin.id_history,
+                  href: PATHS.ADMIN.HISTORY.ALL + "/" + origin.id_history,
                 },
               ]
             : origin?.from === "listingDetails"

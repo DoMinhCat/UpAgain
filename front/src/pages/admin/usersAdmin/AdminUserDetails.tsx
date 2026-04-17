@@ -400,12 +400,19 @@ export default function AdminUserDetails() {
                                 origin?.id_sub,
                             },
                           ]
-                        : [
-                            {
-                              title: "User Management",
-                              href: PATHS.ADMIN.USERS.ALL,
-                            },
-                          ]),
+                        : origin?.from === "finance"
+                          ? [
+                              {
+                                title: "Finance Management",
+                                href: PATHS.ADMIN.FINANCE.ALL,
+                              },
+                            ]
+                          : [
+                              {
+                                title: "User Management",
+                                href: PATHS.ADMIN.USERS.ALL,
+                              },
+                            ]),
           { title: "User's Details", href: "#" },
         ]}
       />

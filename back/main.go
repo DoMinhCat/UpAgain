@@ -42,7 +42,7 @@ func main() {
 
 	port := utils.GetPort()
 	slog.Info("backend started", "port", port)
-	slog.Info("swagger docs at /swagger/")
+	slog.Info("swagger docs available at /swagger/")
 	err := http.ListenAndServe(":"+port, handler)
 	if err != nil {
 		slog.Error("server failed to start", "error", err)

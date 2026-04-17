@@ -380,7 +380,6 @@ export function AdminListingModule() {
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by owner's name, item's ID or title..."
               rightSection={<IconSearch size={14} />}
               disabled={isItemsLoading}
