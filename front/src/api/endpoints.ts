@@ -74,7 +74,8 @@ export const ENDPOINTS = {
     SUBSCRIPTIONS: {
       ALL: "/subscriptions/",
       PRICE: "/subscriptions/price/",
-      TRIAL: "/subscriptions/trial/"
+      TRIAL: "/subscriptions/trial/",
+      STATS: "/subscriptions/stats",
     },
   },
 

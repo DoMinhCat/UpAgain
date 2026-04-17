@@ -3,6 +3,7 @@ import { ENDPOINTS } from "./endpoints";
 import type {
   Subscription,
   SubscriptionListPagination,
+  SubscriptionStats
 } from "./interfaces/subscription";
 
 export const getAllSubscriptions = async (
@@ -51,4 +52,11 @@ export const getTrialDays = async (): Promise<number> => {
 
 export const updateTrialDays = async (trial_days: number): Promise<void> => {
   await api.put(ENDPOINTS.ADMIN.SUBSCRIPTIONS.TRIAL, { trial_days });
+};
+
+export const getSubscriptionStats = async (timeframe?: string): Promise<SubscriptionStats> => {
+  const params: Record<string, string> = {};
+  if (timeframe) params.timeframe = timeframe;
+  const response = await api.get(ENDPOINTS.ADMIN.SUBSCRIPTIONS.STATS, { params });
+  return response.data;
 };

@@ -17,3 +17,12 @@ export interface SubscriptionListPagination {
   limit: number;
   total_records: number;
 }
+
+export interface SubscriptionStats {
+  total: number;
+  active: number;
+  active_trials: number;
+  cancelled: number;
+  cancellation_rate: number;
+  new_subscriptions: number;
+}

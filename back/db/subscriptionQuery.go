@@ -140,3 +140,50 @@ func RevokeSubscription(id int, reason string) error {
 	_, err := utils.Conn.Exec(query, reason, id)
 	return err
 }
+
+func GetSubscriptionStats(timeframe *string) (models.SubscriptionStats, error) {
+	var stats models.SubscriptionStats
+
+	timeFilter := ""
+	if timeframe != nil && *timeframe != "all" {
+		switch *timeframe {
+		case "today":
+			timeFilter = "AND sub_from >= NOW() - INTERVAL '1 day'"
+		case "last_3_days":
+			timeFilter = "AND sub_from >= NOW() - INTERVAL '3 days'"
+		case "last_week":
+			timeFilter = "AND sub_from >= NOW() - INTERVAL '7 days'"
+		case "last_month":
+			timeFilter = "AND sub_from >= NOW() - INTERVAL '30 days'"
+		case "last_year":
+			timeFilter = "AND sub_from >= NOW() - INTERVAL '365 days'"
+		}
+	}
+
+	// total all time
+	if err := utils.Conn.QueryRow(`SELECT COUNT(*) FROM subscriptions WHERE is_trial = false`).Scan(&stats.Total); err != nil {
+		return stats, err
+	}
+	// active
+	if err := utils.Conn.QueryRow(`SELECT COUNT(*) FROM subscriptions WHERE is_active = true AND is_trial = false`).Scan(&stats.Active); err != nil {
+		return stats, err
+	}
+	// active trials
+	if err := utils.Conn.QueryRow(`SELECT COUNT(*) FROM subscriptions WHERE is_active = true AND is_trial = true`).Scan(&stats.ActiveTrials); err != nil {
+		return stats, err
+	}
+	// cancelled all time
+	if err := utils.Conn.QueryRow(`SELECT COUNT(*) FROM subscriptions WHERE is_active = false AND is_trial = false`).Scan(&stats.Cancelled); err != nil {
+		return stats, err
+	}
+	// new subscriptions (timeframe)
+	if err := utils.Conn.QueryRow(`SELECT COUNT(*) FROM subscriptions WHERE is_trial = false ` + timeFilter).Scan(&stats.NewSubscriptions); err != nil {
+		return stats, err
+	}
+	// cancellation rate
+	if stats.Total > 0 {
+		stats.CancellationRate = float64(stats.Cancelled) / float64(stats.Total) * 100
+	}
+
+	return stats, nil
+}

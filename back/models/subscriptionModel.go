@@ -36,3 +36,12 @@ type UpdateSubscriptionPriceRequest struct {
 type UpdateTrialDaysRequest struct {
 	TrialDays int `json:"trial_days"`
 }
+
+type SubscriptionStats struct {
+	Total            int     `json:"total"`
+	Active           int     `json:"active"`
+	ActiveTrials     int     `json:"active_trials"`
+	Cancelled        int     `json:"cancelled"`
+	CancellationRate float64 `json:"cancellation_rate"`
+	NewSubscriptions int     `json:"new_subscriptions"`
+}
