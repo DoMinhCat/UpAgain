@@ -223,7 +223,6 @@ export default function AdminSubscriptions() {
           }
         />
       </SimpleGrid>
-      <Text size="sm" c="dimmed" mb="xl">* Timeframe not applicable for these metrics</Text>
 
       {/* Price card */}
       <Paper withBorder variant="primary" radius="md" p="lg" mb="xl">
