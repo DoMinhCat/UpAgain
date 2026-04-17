@@ -77,3 +77,10 @@ export const getAccountCountStats = async (): Promise<AccountCountStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.USERS.COUNT);
   return response.data;
 };
+
+export const getExportAccountsCsv = async () => {
+  const response = await api.get(ENDPOINTS.ADMIN.USERS.EXPORT_CSV, {
+    responseType: "blob",
+  });
+  return response.data;
+};
