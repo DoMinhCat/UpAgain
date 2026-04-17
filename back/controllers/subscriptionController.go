@@ -167,7 +167,7 @@ func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusNotFound, "Failed to cancel subscription.")
 		return
 	}
-	if !sub.IsTrial {
+	if sub.IsTrial {
 		utils.RespondWithError(w, http.StatusBadRequest, "Show some mercy, this subscription is on trial period.")
 		return
 	}
