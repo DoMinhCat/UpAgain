@@ -876,6 +876,13 @@ export default function AdminListingDetails() {
                             : "delete"
                         }
                         onClick={openUpdateStatusModal}
+                        disabled={
+                          itemDetails?.status !== "refused" &&
+                          itemDetails?.status !== "pending" &&
+                          transactions?.length > 0 &&
+                          (transactions[0].action === "reserved" ||
+                            transactions[0].action === "purchased")
+                        }
                       >
                         {itemDetails?.status === "refused"
                           ? "Reopen item"
