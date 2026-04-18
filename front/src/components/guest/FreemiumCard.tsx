@@ -9,6 +9,7 @@ import {
   Button,
 } from "@mantine/core";
 import { IconCheck, IconStar } from "@tabler/icons-react";
+import { useState } from "react";
 
 interface FreemiumCardProps {
   selected?: boolean;
@@ -125,14 +126,13 @@ export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
           </Group>
 
           <Button
-            variant="secondary"
-            color="var(--upagain-primary)"
+            variant={selected ? "primary" : "secondary"}
             size="md"
             fullWidth
             radius="xl"
             mt="sm"
           >
-            Select Freemium
+            {selected ? "Freemium Selected" : "Select Freemium"}
           </Button>
 
           <Text size="xs" c="var(--mantine-color-dimmed)" ta="center">

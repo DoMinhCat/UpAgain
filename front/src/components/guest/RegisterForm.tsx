@@ -242,6 +242,7 @@ export default function RegisterForm() {
               label="Phone number"
               variant="body-color"
               placeholder="06 12 34 56 78"
+              withAsterisk
               radius="md"
               mb="md"
               error={phoneError}

@@ -6,6 +6,7 @@ import { PATHS } from "../../routes/paths";
 
 export default function PricingPage() {
   const navigate = useNavigate();
+
   return (
     <Container size="xl" py={80}>
       <Stack align="center" gap="xl" mb={50}>

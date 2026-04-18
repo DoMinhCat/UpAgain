@@ -8,15 +8,32 @@ import {
   ThemeIcon,
   Button,
   Badge,
+  Loader,
 } from "@mantine/core";
 import { IconCheck, IconStar } from "@tabler/icons-react";
+import { useGetFinanceSettingByKey } from "../../hooks/financeHooks";
 
 interface PremiumCardProps {
   selected?: boolean;
   onClick?: () => void;
+  selectedTrial?: boolean;
+  onTrialClick?: () => void;
 }
 
-export function PremiumCard({ selected, onClick }: PremiumCardProps) {
+export function PremiumCard({
+  selected,
+  onClick,
+  selectedTrial,
+  onTrialClick,
+}: PremiumCardProps) {
+  const { data: trialDays, isLoading: isTrialDaysLoading } =
+    useGetFinanceSettingByKey("trial_days");
+  const { data: subscriptionPrice, isLoading: isSubscriptionPriceLoading } =
+    useGetFinanceSettingByKey("subscription_price");
+
+  if (isTrialDaysLoading || isSubscriptionPriceLoading) {
+    return <Loader />;
+  }
   return (
     <Paper
       withBorder
@@ -148,16 +165,44 @@ export function PremiumCard({ selected, onClick }: PremiumCardProps) {
                 color: "var(--mantine-color-text)",
               }}
             >
-              29€
+              {subscriptionPrice}€
             </Text>
             <Text c="var(--mantine-color-dimmed)" fw={600} pb={8}>
               / month
             </Text>
           </Group>
 
-          <Button data-variant="cta" size="md" fullWidth radius="xl" mt="sm">
-            Go Premium
+          <Button
+            data-variant="cta"
+            size="md"
+            fullWidth
+            radius="xl"
+            mt="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onClick) onClick();
+            }}
+          >
+            {selected && !selectedTrial ? "Premium Selected" : "Go Premium"}
           </Button>
+
+          {trialDays && trialDays > 0 && (
+            <Button
+              variant={selectedTrial ? "primary" : "secondary"}
+              size="md"
+              fullWidth
+              radius="xl"
+              mt="xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onTrialClick) onTrialClick();
+              }}
+            >
+              {selectedTrial
+                ? `Trial Selected`
+                : `Start ${trialDays}-day free trial`}
+            </Button>
+          )}
 
           <Text size="xs" c="var(--mantine-color-dimmed)" ta="center">
             Secured by UpAgain • Cancel anytime

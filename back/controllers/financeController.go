@@ -85,6 +85,27 @@ func GetFinanceSettings(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, settings)
 }
 
+func GetFinanceSettingsByKey(w http.ResponseWriter, r *http.Request) {
+	// This route should be accessible for all (example: guest take price/trial days)
+	key := r.PathValue("key")
+	if key == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing key parameter.")
+		return
+	}
+	if key != "trial_days" && key != "commission_rate" && key != "ads_price_per_month" && key != "subscription_price" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid key.")
+		return
+	}
+
+	setting, err := db.GetFinanceSettingByKey(key)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching finance settings.")
+		slog.Error("GetFinanceSettingByKey() failed", "controller", "GetFinanceSettingsByKey", "error", err)
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, setting)
+}
+
 // UpdateFinanceSetting godoc
 // @Summary      Update finance setting
 // @Description  Updates one finance setting by key. Keys: trial_days, commission_rate, ads_price_per_month, subscription_price. Admin only.
