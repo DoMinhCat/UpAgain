@@ -18,6 +18,8 @@ export const ENDPOINTS = {
       ALL: "/containers/",
       COUNT: "/containers/count/",
       AVAILABLE: "/containers/available/",
+      SCHEDULE: (id_container: number) =>
+        `/containers/${id_container}/schedule/`,
     },
 
     FINANCE: {

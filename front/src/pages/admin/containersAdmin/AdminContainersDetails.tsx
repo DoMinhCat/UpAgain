@@ -11,7 +11,13 @@ import {
   ThemeIcon,
   Select,
   Anchor,
+  Center,
+  Loader,
+  HoverCard,
+  Indicator,
+  UnstyledButton,
 } from "@mantine/core";
+import { Calendar } from "@mantine/dates";
 import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import {
@@ -32,6 +38,7 @@ import {
   useDeleteContainer,
   useGetAllContainers,
   useUpdateLocation,
+  useGetContainerSchedule,
 } from "../../../hooks/containerHooks";
 
 // TODO: add street field to table containers
@@ -46,6 +53,8 @@ export default function AdminContainersDetails() {
     useDisclosure(false);
   const [openedLocation, { open: openLocation, close: closeLocation }] =
     useDisclosure(false);
+  const [openedCalendar, { open: openCalendar, close: closeCalendar }] =
+    useDisclosure(false);
 
   const containerId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(containerId) && containerId > 0;
@@ -59,6 +68,9 @@ export default function AdminContainersDetails() {
     isLoading,
     isError,
   } = useContainerDetails(containerId);
+
+  const { data: scheduleData, isLoading: isScheduleLoading } =
+    useGetContainerSchedule(containerId);
 
   //location
   const { data: containersData } = useGetAllContainers();
@@ -195,7 +207,11 @@ export default function AdminContainersDetails() {
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm">
           <InfoField label="Current Object">
-            {container?.current_deposit_id === 0 ? (
+            {container?.status === "maintenance" ? (
+              <Text ps="sm" mt="xs" mb="lg">
+                This container is currently under maintenance.
+              </Text>
+            ) : container?.current_deposit_id === 0 ? (
               <Text ps="sm" mt="xs" mb="lg">
                 There is no object ready for pickup or drop-off for this
                 container.
@@ -226,12 +242,7 @@ export default function AdminContainersDetails() {
           </InfoField>
 
           <InfoField label="Planning">
-            <Button
-              mt="xs"
-              variant="primary"
-              size="sm"
-              // onClick={}
-            >
+            <Button mt="xs" variant="primary" size="sm" onClick={openCalendar}>
               View container's planning
             </Button>
           </InfoField>
@@ -321,6 +332,178 @@ export default function AdminContainersDetails() {
             Confirm Delete
           </Button>
         </Group>
+      </Modal>
+
+      <Modal
+        size="lg"
+        title={<Text fw={700}>Container #{container?.id} schedule</Text>}
+        opened={openedCalendar}
+        onClose={closeCalendar}
+        centered
+        styles={{ body: { paddingBottom: "var(--mantine-spacing-xl)", overflowX: "hidden" } }}
+      >
+        <Center>
+          {isScheduleLoading ? (
+            <Loader />
+          ) : (
+            <Box px="sm" w="100%">
+              <Calendar
+              styles={{
+                levelsGroup: { width: "100%" },
+                month: { width: "100%" },
+                weekday: { textAlign: "center" },
+                day: { width: "100%" },
+                calendarHeader: {
+                  maxWidth: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "var(--mantine-spacing-md)",
+                },
+              }}
+              static
+              size="lg"
+              renderDay={(date) => {
+                const day = dayjs(date).date();
+                const userTasksOnDate =
+                  scheduleData?.user_range?.filter((event) => {
+                    const eventStartVal = dayjs(event.valid_from).valueOf();
+                    const eventEndVal = dayjs(event.valid_to).valueOf();
+                    const dayStartVal = dayjs(date).valueOf();
+                    const dayEndVal = dayjs(date).endOf("day").valueOf();
+
+                    return (
+                      eventStartVal <= dayEndVal && eventEndVal >= dayStartVal
+                    );
+                  }) || [];
+                const proTasksOnDate =
+                  scheduleData?.pro_range?.filter((event) => {
+                    const eventStartVal = dayjs(event.valid_from).valueOf();
+                    const eventEndVal = dayjs(event.valid_to).valueOf();
+                    const dayStartVal = dayjs(date).valueOf();
+                    const dayEndVal = dayjs(date).endOf("day").valueOf();
+
+                    return (
+                      eventStartVal <= dayEndVal && eventEndVal >= dayStartVal
+                    );
+                  }) || [];
+
+                const tasksOnDate = [
+                  ...userTasksOnDate.map((t) => ({ ...t, type: "user" })),
+                  ...proTasksOnDate.map((t) => ({ ...t, type: "pro" })),
+                ];
+                const hasTasks = tasksOnDate.length > 0;
+
+                let indicatorColor = "var(--mantine-color-blue-6)";
+                if (proTasksOnDate.length > 0)
+                  indicatorColor = "var(--mantine-color-yellow-6)";
+
+                return (
+                  <HoverCard
+                    shadow="xl"
+                    disabled={!hasTasks}
+                    withinPortal
+                    withArrow
+                    openDelay={100}
+                    closeDelay={200}
+                  >
+                    <HoverCard.Target>
+                      <Indicator
+                        processing={hasTasks && dayjs(date).endOf("day").isAfter(dayjs())}
+                        size={hasTasks && tasksOnDate.length > 1 ? 18 : 10}
+                        color={indicatorColor}
+                        offset={tasksOnDate.length > 1 ? 4 : 0}
+                        disabled={!hasTasks}
+                        label={
+                          tasksOnDate.length > 1
+                            ? `+${tasksOnDate.length}`
+                            : undefined
+                        }
+                        styles={{
+                          indicator: {
+                            fontSize: "10px",
+                            fontWeight: 700,
+                          },
+                        }}
+                        style={{ width: "100%", height: "100%" }}
+                      >
+                        <Center w="100%" h="100%">
+                          <Text size="sm" fw={hasTasks ? 700 : 400}>
+                            {day}
+                          </Text>
+                        </Center>
+                      </Indicator>
+                    </HoverCard.Target>
+
+                    <HoverCard.Dropdown p="sm">
+                      <Stack gap="xs">
+                        <Box
+                          style={{
+                            borderBottom: "1px solid var(--border-color)",
+                            paddingBottom: "4px",
+                          }}
+                        >
+                          <Text size="xs" c="dimmed" tt="uppercase">
+                            {dayjs(date).format("dddd")}
+                          </Text>
+                          <Text size="sm">
+                            {dayjs(date).format("DD MMM YYYY")}
+                          </Text>
+                        </Box>
+
+                        <Stack gap={4}>
+                          {tasksOnDate.map((task, i) => (
+                            <UnstyledButton
+                              key={`${task.type}-${task.deposit_id}-${i}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                closeCalendar();
+                                navigate(
+                                  `${PATHS.ADMIN.LISTINGS}/${task.deposit_id}`,
+                                  {
+                                    state: {
+                                      from: "containerDetails",
+                                      idContainer: containerId,
+                                    },
+                                  },
+                                );
+                              }}
+                              style={{
+                                padding: "6px 8px",
+                                borderRadius: "4px",
+                                transition: "background 0.2s ease",
+                              }}
+                              onMouseEnter={(e) => (
+                                (e.currentTarget.style.backgroundColor =
+                                  "var(--upagain-neutral-green)"),
+                                (e.currentTarget.style.color =
+                                  "var(--text-color)")
+                              )}
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "transparent")
+                              }
+                            >
+                              <Group gap="xs" wrap="nowrap">
+                                <Text size="sm" truncate>
+                                  {task.type === "user"
+                                    ? "[Drop-off] "
+                                    : "[Pick-up] "}
+                                  {task.deposit_title}
+                                </Text>
+                              </Group>
+                            </UnstyledButton>
+                          ))}
+                        </Stack>
+                      </Stack>
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                );
+              }}
+              />
+            </Box>
+          )}
+        </Center>
       </Modal>
     </Container>
   );

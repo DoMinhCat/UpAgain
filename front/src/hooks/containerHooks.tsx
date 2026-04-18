@@ -8,10 +8,12 @@ import {
   getContainerDetails,
   getContainerCountStats,
   getAvailableContainers,
+  getContainerSchedule,
 } from "../api/containerModule";
 import {
   type ContainerCountStats,
   type Container,
+  type ContainerSchedule,
 } from "../api/interfaces/container";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
@@ -141,5 +143,18 @@ export const useUpdateLocation = () => {
       errorTitle: "Location Update Failed",
       errorMessage: "Failed to update container location.",
     },
+  });
+};
+
+export const useGetContainerSchedule = (id: number) => {
+  return useQuery<ContainerSchedule>({
+    queryKey: ["containerSchedule", id],
+    queryFn: () => getContainerSchedule(id),
+    enabled: !!id,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: `Failed to load schedule for container #${id}`,
+    },
+    staleTime: 1000 * 60 * 2, // refresh data every 2m
   });
 };
