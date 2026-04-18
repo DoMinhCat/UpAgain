@@ -271,10 +271,25 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
 		return
 	}
-
-	if status == "completed" || status == "reserved" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
+	if status == "completed" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" has already been purchased.")
 		return
+	}
+	transaction, err := db.GetTransactionsByItemId(id_item, -1, -1)
+	if err != nil {
+		slog.Error("GetTransactionsByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+
+	if len(transaction) != 0 {
+		latestTransaction := transaction[0]
+		slog.Debug("latestTransaction", "controller", "DeleteItemById", "latestTransaction", latestTransaction)
+
+		if status == "completed" || latestTransaction.Action == "reserved" || latestTransaction.Action == "purchased" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
+			return
+		}
 	}
 
 	if !exist {
@@ -282,32 +297,32 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.DeleteItemById(id_item)
-	if err != nil {
-		slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-		return
-	}
+	// err = db.DeleteItemById(id_item)
+	// if err != nil {
+	// 	slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
+	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+	// 	return
+	// }
 
-	var entityType string
-	isListing, err := db.CheckListingOrDepositByItemId(id_item)
-	if err != nil {
-		slog.Error("CheckListingOrDepositByItemId() failed", "controller", "DeleteItemById", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-		return
-	}
-	if isListing {
-		entityType = "listing"
-	} else {
-		entityType = "deposit"
-	}
+	// var entityType string
+	// isListing, err := db.CheckListingOrDepositByItemId(id_item)
+	// if err != nil {
+	// 	slog.Error("CheckListingOrDepositByItemId() failed", "controller", "DeleteItemById", "error", err)
+	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+	// 	return
+	// }
+	// if isListing {
+	// 	entityType = "listing"
+	// } else {
+	// 	entityType = "deposit"
+	// }
 
-	err = db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
-	if err != nil {
-		slog.Error("InsertHistory() failed", "controller", "DeleteItemById", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-		return
-	}
+	// err = db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+	// if err != nil {
+	// 	slog.Error("InsertHistory() failed", "controller", "DeleteItemById", "error", err)
+	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+	// 	return
+	// }
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -437,6 +452,35 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 	if payload.Status != "pending" && payload.Status != "approved" && payload.Status != "refused" && payload.Status != "deleted" && payload.Status != "completed" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid status.")
 		return
+	}
+
+	// validate if request delete
+	if payload.Status == "deleted" {
+		// check status
+		status, err := db.GetItemStatusByItemId(id_item)
+		if err != nil {
+			slog.Error("GetItemStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+			return
+		}
+		if status == "completed" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" has already been purchased.")
+			return
+		}
+		transaction, err := db.GetTransactionsByItemId(id_item, -1, -1)
+		if err != nil {
+			slog.Error("GetTransactionsByItemId() failed", "controller", "DeleteItemById", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+			return
+		}
+
+		if len(transaction) != 0 {
+			latestTransaction := transaction[0]
+			if latestTransaction.Action == "reserved" || latestTransaction.Action == "purchased" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
+				return
+			}
+		}		
 	}
 
 	oldStatus, _ := db.GetItemStatusByItemId(id_item)
