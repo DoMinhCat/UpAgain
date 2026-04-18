@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 func GetTotalSubscriptionSpendingsById(id_account int) (int, error) {
@@ -200,4 +201,17 @@ func GetSubscriptionStats(timeframe *string) (models.SubscriptionStats, error) {
 	}
 
 	return stats, nil
+}
+
+func CreateSubscription(id_pro int, is_trial_bool, is_premium_bool bool) (error) {
+	sub_to := time.Now().AddDate(0, 1, 0)
+	current_price, err := GetFinanceSettingByKey("subscription_price")
+	if err != nil {
+		return err
+	}
+	query := `
+	INSERT INTO subscriptions (is_trial, sub_to, id_pro, price) 
+	VALUES ($1, $2, $3, $4);`
+	_, err = utils.Conn.Exec(query, is_trial_bool, sub_to, id_pro, current_price)
+	return err
 }
