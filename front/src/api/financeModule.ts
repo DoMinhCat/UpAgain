@@ -21,7 +21,10 @@ export const getFinanceSettings = async (): Promise<FinanceSetting[]> => {
   return response.data;
 };
 
-export const updateFinanceSetting = async (key: string, value: number): Promise<void> => {
+export const updateFinanceSetting = async (
+  key: string,
+  value: number,
+): Promise<void> => {
   await api.put(ENDPOINTS.ADMIN.FINANCE.UPDATE_SETTING(key), { value });
 };
 
@@ -41,5 +44,10 @@ export const getUserInvoices = async (
   userId: number,
 ): Promise<UserInvoicesResponse> => {
   const response = await api.get(ENDPOINTS.ADMIN.FINANCE.USER_INVOICES(userId));
+  return response.data;
+};
+
+export const getFinanceSettingByKey = async (key: string): Promise<number> => {
+  const response = await api.get(ENDPOINTS.ADMIN.FINANCE.UPDATE_SETTING(key));
   return response.data;
 };
