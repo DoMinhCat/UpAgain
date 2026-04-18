@@ -1309,6 +1309,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/containers/{id}/location/": {
+            "put": {
+                "description": "Update the location of a container.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "container"
+                ],
+                "summary": "Update container location",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Container ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New location payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateLocationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/deposits/{deposit_id}/": {
             "get": {
                 "description": "Get details of a specific deposit",
@@ -1569,6 +1616,55 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/employees/{id_employee}/schedule/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns the list of events assigned to a specific employee. Admins can view any employee's schedule; employees can only view their own.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "Get employee schedule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee account ID",
+                        "name": "id_employee",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of assigned events",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Event"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid employee ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Employee not found"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -2114,6 +2210,148 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Event not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/finance/invoices/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns a paginated list of accounts with their total transaction count and total amount spent. Supports search by username or email.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Get invoice users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 10, max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by username or email",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.InvoicesListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid page or limit parameter"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/finance/invoices/{userId}/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns all invoices (transactions, subscriptions, ads, events) for a specific account. Admins can access any user's invoices; non-admin users can only access their own.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Get user invoices",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserInvoicesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized or forbidden"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/finance/revenue/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns monthly revenue data grouped by category (subscriptions, commissions, ads, events) for a given year, along with a yearly summary.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Get monthly revenue",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Year (defaults to current year, must be between 2000 and 2100)",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.RevenueResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid year parameter"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -3059,6 +3297,111 @@ const docTemplate = `{
                 }
             }
         },
+        "/posts/{id_post}/steps": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns all project steps associated with a specific post.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get project steps",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ProjectStep"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing post ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/steps/{step_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes a specific project step by its ID. Admin only.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Delete a project step",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted successfully"
+                    },
+                    "400": {
+                        "description": "Invalid ID or step not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/refresh/": {
             "post": {
                 "description": "Refresh the JWT token using the refresh token cookie",
@@ -3121,6 +3464,165 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized to create admin/employee account"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/subscriptions/price/": {
+            "get": {
+                "description": "Get the current price of the premium subscription",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Get subscription price",
+                "responses": {
+                    "200": {
+                        "description": "Current price",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "number",
+                                "format": "float64"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the price of the premium subscription. Admin only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Update subscription price",
+                "parameters": [
+                    {
+                        "description": "New price payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateSubscriptionPriceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid price"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{id}/": {
+            "get": {
+                "description": "Get details of a specific subscription including user information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Get subscription by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SubscriptionWithUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid subscription ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Subscription not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{id}/revoke/": {
+            "put": {
+                "description": "Cancel an active subscription. Admin can cancel any, users can cancel their own.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Cancel subscription",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Cancel reason payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RevokeSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid request or missing cancel reason"
+                    },
+                    "401": {
+                        "description": "Unauthorized or forbidden"
+                    },
+                    "404": {
+                        "description": "Subscription not found"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -3578,6 +4080,52 @@ const docTemplate = `{
                 }
             }
         },
+        "models.InvoiceUser": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id_account": {
+                    "type": "integer"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "total_spent": {
+                    "type": "number"
+                },
+                "transaction_count": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.InvoicesListResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.InvoiceUser"
+                    }
+                }
+            }
+        },
         "models.Item": {
             "type": "object",
             "properties": {
@@ -3866,6 +4414,147 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ProjectStep": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "id_post": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.StepItem"
+                    }
+                },
+                "photos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RevenueMonthData": {
+            "type": "object",
+            "properties": {
+                "ads": {
+                    "type": "number"
+                },
+                "commissions": {
+                    "type": "number"
+                },
+                "events": {
+                    "type": "number"
+                },
+                "month": {
+                    "description": "format \"YYYY-MM\"",
+                    "type": "string"
+                },
+                "subscriptions": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.RevenueResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RevenueMonthData"
+                    }
+                },
+                "summary": {
+                    "$ref": "#/definitions/models.RevenueSummary"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.RevenueSummary": {
+            "type": "object",
+            "properties": {
+                "grand_total": {
+                    "type": "number"
+                },
+                "total_ads": {
+                    "type": "number"
+                },
+                "total_commissions": {
+                    "type": "number"
+                },
+                "total_events": {
+                    "type": "number"
+                },
+                "total_subscriptions": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.RevokeSubscriptionRequest": {
+            "type": "object",
+            "properties": {
+                "cancel_reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.StepItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SubscriptionWithUser": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "cancel_reason": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "id_pro": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_trial": {
+                    "type": "boolean"
+                },
+                "sub_from": {
+                    "type": "string"
+                },
+                "sub_to": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ToggleBanRequest": {
             "type": "object",
             "properties": {
@@ -3879,6 +4568,9 @@ const docTemplate = `{
             "properties": {
                 "action": {
                     "type": "string"
+                },
+                "commission_rate": {
+                    "type": "number"
                 },
                 "created_at": {
                     "type": "string"
@@ -3894,6 +4586,15 @@ const docTemplate = `{
                 },
                 "id_transaction": {
                     "type": "string"
+                },
+                "item_price": {
+                    "type": "number"
+                },
+                "reservation_expiry": {
+                    "type": "string"
+                },
+                "total_price": {
+                    "type": "number"
                 },
                 "username_pro": {
                     "type": "string"
@@ -3967,6 +4668,18 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateLocationRequest": {
+            "type": "object",
+            "properties": {
+                "city_name": {
+                    "type": "string"
+                },
+                "street": {
+                    "description": "TODO: allow edit street",
+                    "type": "string"
+                }
+            }
+        },
         "models.UpdatePasswordRequest": {
             "type": "object",
             "properties": {
@@ -3981,6 +4694,96 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "running"
+                }
+            }
+        },
+        "models.UpdateSubscriptionPriceRequest": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.UserInvoice": {
+            "type": "object",
+            "properties": {
+                "ad_end_date": {
+                    "type": "string"
+                },
+                "ad_start_date": {
+                    "description": "Ad-specific",
+                    "type": "string"
+                },
+                "amount": {
+                    "description": "total paid",
+                    "type": "number"
+                },
+                "commission": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "description": "Event-specific",
+                    "type": "integer"
+                },
+                "event_title": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "id_transaction": {
+                    "description": "Transaction-specific",
+                    "type": "string"
+                },
+                "item_price": {
+                    "type": "number"
+                },
+                "item_title": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "post_title": {
+                    "type": "string"
+                },
+                "sub_from": {
+                    "description": "Subscription-specific",
+                    "type": "string"
+                },
+                "sub_to": {
+                    "type": "string"
+                },
+                "type": {
+                    "description": "\"transaction\", \"subscription\", \"ad\", \"event\"",
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserInvoicesResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id_account": {
+                    "type": "integer"
+                },
+                "invoices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserInvoice"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

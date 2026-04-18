@@ -11,12 +11,23 @@ export const ENDPOINTS = {
       STATS: (id_account: number) => `/accounts/${id_account}/stats/`,
       UPDATE: (id_account: number) => `/accounts/${id_account}/`,
       SCORE_STATS: "/users/score/",
+      EXPORT_CSV: "/accounts/export/",
     },
 
     CONTAINERS: {
       ALL: "/containers/",
       COUNT: "/containers/count/",
       AVAILABLE: "/containers/available/",
+      SCHEDULE: (id_container: number) =>
+        `/containers/${id_container}/schedule/`,
+    },
+
+    FINANCE: {
+      REVENUE: "/finance/revenue/",
+      SETTINGS: "/finance/settings/",
+      UPDATE_SETTING: (key: string) => `/finance/settings/${key}/`,
+      INVOICES: "/finance/invoices/",
+      USER_INVOICES: (userId: number) => `/finance/invoices/${userId}/`,
     },
 
     VALIDATIONS: {
@@ -70,6 +81,12 @@ export const ENDPOINTS = {
       TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions/`,
       CANCEL_TRANSACTION: (id_item: number, transactionUuid: string) =>
         `/items/${id_item}/transactions/${transactionUuid}/cancel/`,
+    },
+    SUBSCRIPTIONS: {
+      ALL: "/subscriptions/",
+      PRICE: "/subscriptions/price/",
+      TRIAL: "/subscriptions/trial/",
+      STATS: "/subscriptions/stats",
     },
   },
 

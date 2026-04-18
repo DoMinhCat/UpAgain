@@ -8,3 +8,4 @@ back/bin/
 *.txt
 *.exe
 back/images/
+.direnv/

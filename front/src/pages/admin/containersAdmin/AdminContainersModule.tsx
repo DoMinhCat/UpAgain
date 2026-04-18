@@ -1,5 +1,4 @@
 import {
-  Container as MantineContainer,
   Paper,
   Grid,
   Title,
@@ -13,6 +12,7 @@ import {
   Select,
   Pill,
   Modal,
+  Container,
 } from "@mantine/core";
 import {
   IconBox,
@@ -36,14 +36,7 @@ import {
   useDeleteContainer,
 } from "../../../hooks/containerHooks";
 import { PATHS } from "../../../routes/paths";
-export interface Container {
-  id: number;
-  created_at: string;
-  city_name: string;
-  postal_code: string;
-  status: "ready" | "occupied" | "maintenance";
-  is_deleted: boolean;
-}
+import type { Container as ContainerInterface } from "../../../api/interfaces/container";
 
 export default function AdminContainersModule() {
   const navigate = useNavigate();
@@ -52,9 +45,8 @@ export default function AdminContainersModule() {
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure(false);
 
-  const [selectedContainer, setSelectedContainer] = useState<Container | null>(
-    null,
-  );
+  const [selectedContainer, setSelectedContainer] =
+    useState<ContainerInterface | null>(null);
   const [filters, setFilters] = useState<{
     searchValue: string;
     statusValue: string | null;
@@ -114,12 +106,17 @@ export default function AdminContainersModule() {
   const stats = useMemo(
     () => ({
       total: allContainers.length,
-      ready: allContainers.filter((c: Container) => c.status === "ready")
-        .length,
-      occupied: allContainers.filter((c: Container) => c.status === "occupied")
-        .length,
+      ready: allContainers.filter(
+        (c: ContainerInterface) => c.status === "ready",
+      ).length,
+      occupied: allContainers.filter(
+        (c: ContainerInterface) => c.status === "occupied",
+      ).length,
       maintenance: allContainers.filter(
-        (c: Container) => c.status === "maintenance",
+        (c: ContainerInterface) => c.status === "maintenance",
+      ).length,
+      waiting: allContainers.filter(
+        (c: ContainerInterface) => c.status === "waiting",
       ).length,
     }),
     [allContainers],
@@ -156,7 +153,7 @@ export default function AdminContainersModule() {
     );
   };
 
-  const handleOpenDelete = (c: Container) => {
+  const handleOpenDelete = (c: ContainerInterface) => {
     setSelectedContainer(c);
     openDelete();
   };
@@ -166,8 +163,10 @@ export default function AdminContainersModule() {
   };
 
   return (
-    <MantineContainer px="md" size="xl">
-      <Title order={2}>Container Management</Title>
+    <Container px="md" size="xl">
+      <Title order={2} mt="lg" mb="xl">
+        Container Management
+      </Title>
 
       <Grid mb="xl" align="stretch">
         <Grid.Col span={{ base: 12, md: 4 }}>
@@ -322,7 +321,7 @@ export default function AdminContainersModule() {
                     backgroundColor:
                       c.status === "ready"
                         ? "#45a575"
-                        : c.status === "occupied"
+                        : c.status === "occupied" || c.status === "waiting"
                           ? "var(--mantine-color-yellow-6)"
                           : "var(--mantine-color-red-6)",
                   }}
@@ -426,6 +425,6 @@ export default function AdminContainersModule() {
           </Button>
         </Group>
       </Modal>
-    </MantineContainer>
+    </Container>
   );
 }

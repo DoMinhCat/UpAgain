@@ -104,7 +104,8 @@ create table event_registrations
     id_event   integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_account),
     created_at timestamptz not null       default now(),
-    status     event_registrations_status default 'registered'
+    status     event_registrations_status default 'registered',
+    paid_price numeric(10,2) not null -- set at registration, prevent price change after registered
 );
 
 create table event_employee
@@ -172,15 +173,17 @@ create table saved_posts
     saved_at   timestamptz not null default now(),
     PRIMARY KEY (id_account, id_post)
 );
-CREATE TYPE ads_status AS ENUM ('pending', 'active', 'expired', 'cancelled');
+CREATE TYPE ads_status AS ENUM ('active', 'expired', 'cancelled');
 create table ads
 (
-    id_ads     serial primary key,
+    id     serial primary key,
     updated_at timestamptz not null default now(),
     start_date date        not null default now(),
     end_date   date        not null,
-    status     ads_status  not null default 'pending',
-    id_post    integer     not null references posts (id) on delete restrict
+    status     ads_status  not null default 'active',
+    id_post    integer     not null references posts (id) on delete restrict,
+    price_per_month numeric(10,2) not null, -- set at purchased to save price at the moment (avoid change in the price afterwards)
+    total_price numeric(10,2) not null -- set at purchased to save price at the moment (avoid change in the price afterwards)
 );
 CREATE INDEX idx_ads_status ON ads (status);
 
@@ -284,7 +287,8 @@ create table subscriptions
     sub_to    timestamptz not null,
     CHECK ( sub_to>sub_from ),
     id_pro    integer     not null references pros (id_account) on delete restrict,
-	cancel_reason  text   
+	cancel_reason  text,
+    price numeric(10,2) not null -- set at purchased to save price at the moment (avoid change in the price afterwards)
 );
 
 create type transaction_action as enum('cancelled', 'purchased', 'expired', 'reserved');
@@ -296,7 +300,10 @@ create table transactions(
     id_item int not null references items(id) on delete cascade ,
     id_pro int not null references pros(id_account) on delete cascade
     -- expiry time if not paid after reserved
-    reservation_expiry       timestamptz -- set +2 days when reserved    
+    reservation_expiry       timestamptz, -- set +2 days when reserved   
+    item_price  numeric(10,2), -- set at purchased to save item price at the moment (avoid change in the price afterwards)
+    commission_rate numeric(5,2), -- set at purchased to save commission rate at the moment (avoid change in the rate afterwards)
+    total_price numeric(10,2) -- set at purchased to save total price (item's price + commission) at the moment (avoid change in the rate afterwards)
 );
 CREATE INDEX idx_transactions_uuid ON transactions(id_transaction);
 

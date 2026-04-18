@@ -133,9 +133,24 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the deposit.")
 		return
 	}
-	if status == "completed" || status == "reserved" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Listing is completed or reserved and cannot be updated.")
+	if status == "completed" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Listing is completed and cannot be updated.")
 		return
+	}
+
+	// if in an active transaction can't update
+	transaction, err := db.GetTransactionsByItemId(id, -1, -1)
+	if err != nil {
+		slog.Error("GetTransactionsByItemId() failed", "controller", "UpdateListing", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the listing.")
+		return
+	}
+	if len(transaction) != 0 {
+		latestTransaction := transaction[0]
+		if latestTransaction.Action == "reserved" || latestTransaction.Action == "purchased" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Listing is in an active transaction and cannot be updated.")
+			return
+		}
 	}
 
 	// get old version
