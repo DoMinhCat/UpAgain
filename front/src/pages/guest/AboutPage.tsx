@@ -78,7 +78,7 @@ export default function AboutPage() {
             </Text>
             <Group mt="md">
               <Button
-                variant="primary"
+                variant="cta"
                 size="lg"
                 onClick={() => navigate(PATHS.GUEST.REGISTER)}
               >
