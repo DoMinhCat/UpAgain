@@ -11,12 +11,12 @@ import {
 } from "@mantine/core";
 import { IconCheck, IconStar } from "@tabler/icons-react";
 
-interface PricingCardProps {
+interface PremiumCardProps {
   selected?: boolean;
   onClick?: () => void;
 }
 
-export function PricingCard({ selected, onClick }: PricingCardProps) {
+export function PremiumCard({ selected, onClick }: PremiumCardProps) {
   return (
     <Paper
       withBorder
@@ -26,7 +26,9 @@ export function PricingCard({ selected, onClick }: PricingCardProps) {
       style={{
         width: 360,
         backgroundColor: "var(--mantine-color-body)",
-        borderColor: selected ? "var(--upagain-primary)" : "var(--upagain-neutral-green)",
+        borderColor: selected
+          ? "var(--upagain-primary)"
+          : "var(--upagain-neutral-green)",
         borderWidth: selected ? 3 : 2,
         position: "relative",
         cursor: "pointer",

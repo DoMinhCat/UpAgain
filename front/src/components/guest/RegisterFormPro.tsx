@@ -22,7 +22,7 @@ import PasswordStrengthInput, {
 import { useRegister } from "../../hooks/authHooks";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { PricingCard } from "./PricingCard";
+import { PremiumCard } from "./PremiumCard";
 import { FreemiumCard } from "./FreemiumCard";
 
 export default function RegisterFormPro() {
@@ -328,7 +328,7 @@ export default function RegisterFormPro() {
             selected={selectedPlan === "freemium"}
             onClick={() => setSelectedPlan("freemium")}
           />
-          <PricingCard
+          <PremiumCard
             selected={selectedPlan === "premium"}
             onClick={() => setSelectedPlan("premium")}
           />
