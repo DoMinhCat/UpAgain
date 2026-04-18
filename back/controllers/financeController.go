@@ -85,6 +85,16 @@ func GetFinanceSettings(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, settings)
 }
 
+// GetFinanceSettingsByKey godoc
+// @Summary      Get finance setting by key
+// @Description  Returns a specific finance setting by its key. Accessible to all users.
+// @Tags         finance
+// @Produce      json
+// @Param        key  path      string  true  "Setting key (e.g., trial_days, commission_rate, ads_price_per_month, subscription_price)"
+// @Success      200  {number}  float64
+// @Failure      400  {object}  nil  "Missing or invalid key parameter"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /finance/settings/{key}/ [get]
 func GetFinanceSettingsByKey(w http.ResponseWriter, r *http.Request) {
 	// This route should be accessible for all (example: guest take price/trial days)
 	key := r.PathValue("key")

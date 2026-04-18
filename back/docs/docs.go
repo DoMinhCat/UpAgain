@@ -116,6 +116,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/accounts/export/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Exports a list of all accounts into a CSV file downloaded by the client. Admin only.",
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Export accounts to CSV",
+                "responses": {
+                    "200": {
+                        "description": "CSV file containing accounts",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/accounts/{id_account}/": {
             "get": {
                 "description": "Get details of a specific account",
@@ -2394,6 +2422,39 @@ const docTemplate = `{
             }
         },
         "/finance/settings/{key}/": {
+            "get": {
+                "description": "Returns a specific finance setting by its key. Accessible to all users.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Get finance setting by key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Setting key (e.g., trial_days, commission_rate, ads_price_per_month, subscription_price)",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid key parameter"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -4121,6 +4182,12 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "is_premium": {
+                    "type": "boolean"
+                },
+                "is_trial": {
+                    "type": "boolean"
                 },
                 "password": {
                     "type": "string"
