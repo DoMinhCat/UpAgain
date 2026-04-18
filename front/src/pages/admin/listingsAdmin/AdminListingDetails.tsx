@@ -88,6 +88,9 @@ export default function AdminListingDetails() {
   const id = params.id;
   const id_item = Number(id);
   const isValidId = !isNaN(id_item) && id_item > 0;
+  if (!isValidId) {
+    navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
+  }
 
   // DETAILS
 
