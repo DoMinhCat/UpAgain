@@ -40,3 +40,15 @@ type ContainerListPagination struct {
 	Limit        int         `json:"limit"`
 	TotalRecords int         `json:"total_records"`
 }
+
+type ContainerScheduleItem struct {
+	DepositId         int       `json:"deposit_id"`
+	DepositTitle      string    `json:"deposit_title"`
+	ValidFrom  time.Time `json:"valid_from"`
+	ValidTo    time.Time `json:"valid_to"`
+}
+
+type ContainerSchedule struct {
+	UserRange []ContainerScheduleItem `json:"user_range"`
+	ProRange []ContainerScheduleItem `json:"pro_range"`
+}

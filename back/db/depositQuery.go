@@ -199,6 +199,8 @@ func GetCurrentDepositByContainerId(id int) (int, string, error) {
 		WHERE d.id_container = $1
 		AND i.status = 'approved'
 		AND b.status = 'active'
+		AND b.valid_from <= NOW()
+		AND b.valid_to >= NOW()
 		LIMIT 1;
 	`
 	err := utils.Conn.QueryRow(query, id).Scan(&depositID, &title)
