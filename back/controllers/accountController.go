@@ -41,16 +41,19 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		role = claims.Role
 	}
 
-	if newAccount.Role == "admin" || newAccount.Role == "employee" {
-		if role != "admin" {
-			utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to create an admin or employee account.")
-			return
-		}
+	if role == "employee" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to create an account.")
+		return
 	}
 
 	validationResponse := validations.ValidateAccountCreation(newAccount)
 	if !validationResponse.Success {
 		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message.Error())
+		return
+	}
+
+	if newAccount.Role == "pro" && (newAccount.IsPremium == nil || newAccount.IsTrial == nil) {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing premium and/or trial status.")
 		return
 	}
 

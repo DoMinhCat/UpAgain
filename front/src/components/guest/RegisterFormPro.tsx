@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { PremiumCard } from "./PremiumCard";
 import { FreemiumCard } from "./FreemiumCard";
+import { useGetFinanceSettingByKey } from "../../hooks/financeHooks";
 
 export default function RegisterFormPro() {
   const navigate = useNavigate();
@@ -32,8 +33,10 @@ export default function RegisterFormPro() {
   const [openedPremium, { open: openPremium, close: closePremium }] =
     useDisclosure(false);
   const [selectedPlan, setSelectedPlan] = useState<
-    "freemium" | "premium" | null
+    "freemium" | "premium" | "trial" | null
   >(null);
+
+  const { data: trialDays } = useGetFinanceSettingByKey("trial_days");
 
   // password
   const [password, setPassword] = useState("");
@@ -158,7 +161,9 @@ export default function RegisterFormPro() {
       password,
       username: Username,
       phone,
-      role: "user",
+      role: "pro",
+      is_trial: selectedPlan === "trial",
+      is_premium: selectedPlan === "premium",
     });
   };
 
@@ -255,6 +260,7 @@ export default function RegisterFormPro() {
               label="Phone number"
               variant="body-color"
               placeholder="06 12 34 56 78"
+              withAsterisk
               radius="md"
               error={phoneError}
               value={phone}
@@ -272,7 +278,9 @@ export default function RegisterFormPro() {
             <Group justify="center">
               <Button
                 variant={
-                  !selectedPlan || selectedPlan === "premium"
+                  !selectedPlan ||
+                  selectedPlan === "premium" ||
+                  selectedPlan === "trial"
                     ? "cta"
                     : "secondary"
                 }
@@ -284,7 +292,9 @@ export default function RegisterFormPro() {
                   ? "Freemium plan chosen"
                   : selectedPlan === "premium"
                     ? "Premium plan chosen"
-                    : "See our subscriptions"}
+                    : selectedPlan === "trial"
+                      ? `${trialDays}-day trial plan chosen`
+                      : "See our subscriptions"}
               </Button>
             </Group>
           </Fieldset>
@@ -329,8 +339,10 @@ export default function RegisterFormPro() {
             onClick={() => setSelectedPlan("freemium")}
           />
           <PremiumCard
-            selected={selectedPlan === "premium"}
+            selected={selectedPlan === "premium" || selectedPlan === "trial"}
             onClick={() => setSelectedPlan("premium")}
+            onTrialClick={() => setSelectedPlan("trial")}
+            selectedTrial={selectedPlan === "trial"}
           />
         </Group>
         <Group justify="center" mt="xl">

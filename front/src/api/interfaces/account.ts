@@ -35,6 +35,8 @@ export interface RegisterPayload {
   username: string;
   phone?: string;
   role: string;
+  is_trial?: boolean;
+  is_premium?: boolean;
 }
 
 export interface Account {

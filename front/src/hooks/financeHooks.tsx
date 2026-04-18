@@ -5,6 +5,7 @@ import {
   updateFinanceSetting,
   getInvoiceUsers,
   getUserInvoices,
+  getFinanceSettingByKey,
 } from "../api/financeModule";
 import type {
   RevenueResponse,
@@ -76,6 +77,18 @@ export const useGetUserInvoices = (userId: number, enabled: boolean) => {
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to fetch user's invoices.",
+    },
+  });
+};
+
+export const useGetFinanceSettingByKey = (key: string) => {
+  return useQuery<number>({
+    queryKey: ["financeSetting", key],
+    queryFn: () => getFinanceSettingByKey(key),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch finance setting.",
     },
   });
 };
