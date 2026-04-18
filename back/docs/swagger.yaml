@@ -176,6 +176,10 @@ definitions:
     properties:
       email:
         type: string
+      is_premium:
+        type: boolean
+      is_trial:
+        type: boolean
       password:
         type: string
       phone:
@@ -1093,6 +1097,24 @@ paths:
         "500":
           description: Internal server error
       summary: Get account count stats
+      tags:
+      - account
+  /accounts/export/:
+    get:
+      description: Exports a list of all accounts into a CSV file downloaded by the
+        client. Admin only.
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV file containing accounts
+          schema:
+            type: file
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Export accounts to CSV
       tags:
       - account
   /admin/items/:
@@ -2410,6 +2432,30 @@ paths:
       tags:
       - finance
   /finance/settings/{key}/:
+    get:
+      description: Returns a specific finance setting by its key. Accessible to all
+        users.
+      parameters:
+      - description: Setting key (e.g., trial_days, commission_rate, ads_price_per_month,
+          subscription_price)
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: number
+        "400":
+          description: Missing or invalid key parameter
+        "500":
+          description: Internal server error
+      summary: Get finance setting by key
+      tags:
+      - finance
     put:
       consumes:
       - application/json
