@@ -461,7 +461,18 @@ export default function AdminListingDetails() {
                     href: PATHS.ADMIN.POSTS + "/" + origin.id_post,
                   },
                 ]
-              : [{ title: "Object Management", href: PATHS.ADMIN.LISTINGS }]),
+              : origin?.from === "containerDetails"
+                ? [
+                    {
+                      title: "Container Management",
+                      href: PATHS.ADMIN.CONTAINERS,
+                    },
+                    {
+                      title: "Container Details",
+                      href: PATHS.ADMIN.CONTAINERS + "/" + origin.idContainer,
+                    },
+                  ]
+                : [{ title: "Object Management", href: PATHS.ADMIN.LISTINGS }]),
           {
             title: "Object's Details",
             href: PATHS.ADMIN.LISTINGS + "/" + id,
@@ -860,7 +871,18 @@ export default function AdminListingDetails() {
                       <Button
                         variant="edit"
                         onClick={handleOpenEdit}
-                        disabled={isItemDetailsLoading}
+                        loading={
+                          isItemDetailsLoading ||
+                          updateItemStatus.isPending ||
+                          updateDepositMutation.isPending ||
+                          updateListingMutation.isPending
+                        }
+                        disabled={
+                          itemDetails?.status == "completed" ||
+                          (transactions?.length > 0 &&
+                            (transactions[0].action === "reserved" ||
+                              transactions[0].action === "purchased"))
+                        }
                         fullWidth
                       >
                         Edit item
@@ -876,6 +898,14 @@ export default function AdminListingDetails() {
                             : "delete"
                         }
                         onClick={openUpdateStatusModal}
+                        disabled={
+                          itemDetails?.status !== "refused" &&
+                          itemDetails?.status !== "pending" &&
+                          transactions?.length > 0 &&
+                          (transactions[0].action === "reserved" ||
+                            transactions[0].action === "purchased")
+                        }
+                        loading={updateItemStatus.isPending}
                       >
                         {itemDetails?.status === "refused"
                           ? "Reopen item"

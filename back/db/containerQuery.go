@@ -173,3 +173,69 @@ func UpdateLocationContainer(id int, cityName string) error {
 	_, err := utils.Conn.Exec(query, cityName, id)
 	return err
 }
+
+// GetContainerScheduleById returns list of: deposit id, deposit title, date range of barcodes for that deposit (user code and pro code)
+func GetContainerScheduleByContainerId(id int) (models.ContainerSchedule, error) {
+	var result models.ContainerSchedule
+	var userRange []models.ContainerScheduleItem
+	var proRange []models.ContainerScheduleItem
+	// get 2 schedules : 1 for user codes, 1 for pro codes
+
+	// user codes
+	query := `
+	SELECT 
+		d.id_item AS deposit_id, i.title AS deposit_title,
+		b.valid_from,
+		b.valid_to
+	FROM deposits d
+	JOIN barcodes b ON d.id_item = b.id_deposit
+	JOIN items i ON d.id_item = i.id
+	WHERE d.id_container = $1 
+		AND i.is_deleted = false
+		AND b.user_type = 'user'
+	ORDER BY b.valid_from ASC;
+	`
+	rows, err := utils.Conn.Query(query, id)
+	if err != nil {
+		return result, fmt.Errorf("GetContainerScheduleByContainerId() query user code failed: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var c models.ContainerScheduleItem
+		if err := rows.Scan(&c.DepositId, &c.DepositTitle, &c.ValidFrom, &c.ValidTo); err != nil {
+			return result, fmt.Errorf("GetContainerScheduleByContainerId() scan user code failed: %v", err)
+		}
+		userRange = append(userRange, c)
+	}
+
+	// pro codes
+	query = `
+	SELECT 
+		d.id_item AS deposit_id, i.title AS deposit_title,
+		b.valid_from,
+		b.valid_to
+	FROM deposits d
+	JOIN barcodes b ON d.id_item = b.id_deposit
+	JOIN items i ON d.id_item = i.id
+	WHERE d.id_container = $1 
+		AND i.is_deleted = false
+		AND b.user_type = 'pro'
+	ORDER BY b.valid_from ASC;
+	`
+	rows, err = utils.Conn.Query(query, id)
+	if err != nil {
+		return result, fmt.Errorf("GetContainerScheduleByContainerId() query pro code failed: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var c models.ContainerScheduleItem
+		if err := rows.Scan(&c.DepositId, &c.DepositTitle, &c.ValidFrom, &c.ValidTo); err != nil {
+			return result, fmt.Errorf("GetContainerScheduleByContainerId() scan pro code failed: %v", err)
+		}
+		proRange = append(proRange, c)
+	}
+
+	result.UserRange = userRange
+	result.ProRange = proRange
+	return result, nil
+}

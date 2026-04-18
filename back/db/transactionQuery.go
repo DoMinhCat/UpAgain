@@ -141,6 +141,9 @@ func GetTotalTransactionsSince(since time.Time) (int, error) {
 	return total, nil
 }
 
+// get all transactions for an item with pagination
+//
+// set page and limit to -1 to get all without pagination
 func GetTransactionsByItemId(itemId int, page int, limit int) ([]models.Transaction, error) {
 	var transactions []models.Transaction
 	query := `
