@@ -100,11 +100,36 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exist, err := db.CheckContainerExistById(id)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "GetContainerByID", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container not found")
+		return
+	}
+
 	container, err := db.FindContainerByID(id)
 	if err != nil {
 		slog.Error("FindContainerByID() failed", "controller", "GetContainerByID", "id", id, "error", err)
-		http.Error(w, "Container not found", http.StatusNotFound)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
 		return
+	}
+
+	// get current deposit
+	if container.Status == "occupied" || container.Status == "waiting" {
+		depoId, depoTitle, err := db.GetCurrentDepositByContainerId(id)
+		if err != nil {
+			slog.Error("GetCurrentDepositByContainerId() failed", "controller", "GetContainerByID", "id", id, "error", err)
+			http.Error(w, "Container not found", http.StatusNotFound)
+			return
+		}
+		if depoId != 0 {
+			container.CurrentDepositId = depoId
+			container.CurrentDepositTitle = depoTitle
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, container)

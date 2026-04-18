@@ -464,7 +464,18 @@ export default function AdminListingDetails() {
                     href: PATHS.ADMIN.POSTS + "/" + origin.id_post,
                   },
                 ]
-              : [{ title: "Object Management", href: PATHS.ADMIN.LISTINGS }]),
+              : origin?.from === "containerDetails"
+                ? [
+                    {
+                      title: "Container Management",
+                      href: PATHS.ADMIN.CONTAINERS,
+                    },
+                    {
+                      title: "Container Details",
+                      href: PATHS.ADMIN.CONTAINERS + "/" + origin.idContainer,
+                    },
+                  ]
+                : [{ title: "Object Management", href: PATHS.ADMIN.LISTINGS }]),
           {
             title: "Object's Details",
             href: PATHS.ADMIN.LISTINGS + "/" + id,

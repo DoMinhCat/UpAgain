@@ -10,6 +10,7 @@ import {
   Modal,
   ThemeIcon,
   Select,
+  Anchor,
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -43,11 +44,15 @@ export default function AdminContainersDetails() {
     useDisclosure(false);
   const [openedStatus, { open: openStatus, close: closeStatus }] =
     useDisclosure(false);
-  const [openedLocation, { open: openLocation, close: closeLocation}] =
+  const [openedLocation, { open: openLocation, close: closeLocation }] =
     useDisclosure(false);
 
   const containerId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(containerId) && containerId > 0;
+  if (!isValidId) {
+    console.log("Invalid container ID", containerId);
+    navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
+  }
 
   const {
     data: container,
@@ -60,15 +65,15 @@ export default function AdminContainersDetails() {
   const locationMutation = useUpdateLocation();
 
   const cityOptions = [
-  ...new Set(containersData?.containers?.map((c) => c.city_name) ?? []),
-].map((city) => ({ value: city, label: city }));
+    ...new Set(containersData?.containers?.map((c) => c.city_name) ?? []),
+  ].map((city) => ({ value: city, label: city }));
 
   const handleLocationChange = (city_name: string) => {
-  locationMutation.mutate(
-    { id: containerId, city_name },
-    { onSuccess: () => closeLocation() },
-  );
-};
+    locationMutation.mutate(
+      { id: containerId, city_name },
+      { onSuccess: () => closeLocation() },
+    );
+  };
   //status
   const statusMutation = useUpdateStatus();
   const deleteMutation = useDeleteContainer();
@@ -87,8 +92,7 @@ export default function AdminContainersDetails() {
   };
 
   if (isLoading) return <FullScreenLoader />;
-  if (!isValidId || isError)
-    return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
+  if (isError) return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
 
   const statusColor =
     container?.status === "ready"
@@ -144,7 +148,7 @@ export default function AdminContainersDetails() {
         </Stack>
 
         <Title order={3} ta="left" mt="xl">
-          Operational Information
+          General Information
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm">
           <InfoField label="Current Status">
@@ -183,6 +187,53 @@ export default function AdminContainersDetails() {
             <Text ps="sm" mt="xs">
               {dayjs(container?.created_at).format("DD/MM/YYYY - HH:mm")}
             </Text>
+          </InfoField>
+        </Paper>
+
+        <Title order={3} ta="left" mt="xl">
+          Activities
+        </Title>
+        <Paper variant="primary" px="lg" py="md" mt="sm">
+          <InfoField label="Current Object">
+            {container?.current_deposit_id === 0 ? (
+              <Text ps="sm" mt="xs" mb="lg">
+                There is no object ready for pickup or drop-off for this
+                container.
+              </Text>
+            ) : (
+              <Anchor
+                onClick={() =>
+                  navigate(
+                    PATHS.ADMIN.LISTINGS + "/" + container?.current_deposit_id,
+                    {
+                      state: {
+                        from: "containerDetails",
+                        idContainer: containerId,
+                      },
+                    },
+                  )
+                }
+                ps="sm"
+                mt="xs"
+                mb="lg"
+                c="var(--component-color-primary)"
+                display="block"
+                style={{ cursor: "pointer" }}
+              >
+                {container?.current_deposit_title}
+              </Anchor>
+            )}
+          </InfoField>
+
+          <InfoField label="Planning">
+            <Button
+              mt="xs"
+              variant="primary"
+              size="sm"
+              // onClick={}
+            >
+              View container's planning
+            </Button>
           </InfoField>
         </Paper>
 
