@@ -55,7 +55,14 @@ export default function GuestHome() {
   return (
     <>
       {/* SECTION 1: MAIN HERO */}
-      <HeroBanner src={`/banners/guest-banner1-${scheme}.png`} height="80vh">
+      <HeroBanner 
+        src={`/banners/guest-banner1-${scheme}.png`} 
+        height="80vh"
+        style={{
+          maskImage: "linear-gradient(to bottom, black 0%, black 80%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 80%, transparent 100%)"
+        }}
+      >
         <Stack
           align="center"
           gap="xs"
@@ -92,7 +99,14 @@ export default function GuestHome() {
 
       {/* SECTION 2: PROBLEM AWARENESS */}
       <Reveal>
-        <HeroBanner src={`/banners/guest-banner2-${scheme}.png`} height="90vh">
+        <HeroBanner 
+          src={`/banners/guest-banner2-${scheme}.png`} 
+          height="90vh"
+          style={{
+            maskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)"
+          }}
+        >
           <Stack align="center" gap="md">
             <Title ta="center" size={42} fw={800}>
               The sad reality: waste is{" "}
@@ -120,7 +134,14 @@ export default function GuestHome() {
 
       {/* SECTION 3: THE MISSION */}
       <Reveal>
-        <HeroBanner src={`/banners/guest-banner3-${scheme}.png`} height="100vh">
+        <HeroBanner 
+          src={`/banners/guest-banner3-${scheme}.png`} 
+          height="100vh"
+          style={{
+            maskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)"
+          }}
+        >
           {/* Decorative Background Glow */}
           <Box
             pos="absolute"
