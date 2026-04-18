@@ -28,6 +28,7 @@ import {
 import HeroCard from "../../components/common/hero/HeroCard";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
+import classes from "../../styles/GlobalStyles.module.css";
 
 export default function GuestHome() {
   const navigate = useNavigate();
@@ -55,12 +56,14 @@ export default function GuestHome() {
   return (
     <>
       {/* SECTION 1: MAIN HERO */}
-      <HeroBanner 
-        src={`/banners/guest-banner1-${scheme}.png`} 
+      <HeroBanner
+        src={`/banners/guest-banner1-${scheme}.png`}
         height="80vh"
         style={{
-          maskImage: "linear-gradient(to bottom, black 0%, black 80%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 80%, transparent 100%)"
+          maskImage:
+            "linear-gradient(to bottom, black 0%, black 80%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, black 0%, black 80%, transparent 100%)",
         }}
       >
         <Stack
@@ -99,12 +102,14 @@ export default function GuestHome() {
 
       {/* SECTION 2: PROBLEM AWARENESS */}
       <Reveal>
-        <HeroBanner 
-          src={`/banners/guest-banner2-${scheme}.png`} 
+        <HeroBanner
+          src={`/banners/guest-banner2-${scheme}.png`}
           height="90vh"
           style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)"
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
           }}
         >
           <Stack align="center" gap="md">
@@ -134,12 +139,14 @@ export default function GuestHome() {
 
       {/* SECTION 3: THE MISSION */}
       <Reveal>
-        <HeroBanner 
-          src={`/banners/guest-banner3-${scheme}.png`} 
+        <HeroBanner
+          src={`/banners/guest-banner3-${scheme}.png`}
           height="100vh"
           style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)"
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
           }}
         >
           {/* Decorative Background Glow */}
@@ -189,9 +196,32 @@ export default function GuestHome() {
                     ? "var(--upagain-dark-green)"
                     : "var(--upagain-light-green)",
                 border: `1px solid ${scheme === "dark" ? "transparent" : "var(--upagain-neutral-green)"}`,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Stack align="center" gap="xl">
+              <Box
+                pos="absolute"
+                top={-80}
+                left={-80}
+                w={300}
+                h={300}
+                bg={
+                  scheme === "dark" ? "white" : "var(--upagain-neutral-green)"
+                }
+                style={{
+                  borderRadius: "100%",
+                  opacity: scheme === "dark" ? 0.03 : 0.15,
+                  animation: `${classes.pulse} 6s infinite ease-in-out`,
+                  animationDelay: "0.2s",
+                }}
+              />
+              <Stack
+                align="center"
+                gap="xl"
+                pos="relative"
+                style={{ zIndex: 2 }}
+              >
                 <HeroBadge text="1" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
@@ -242,9 +272,32 @@ export default function GuestHome() {
                     ? "var(--upagain-dark-green)"
                     : "var(--upagain-light-green)",
                 border: `1px solid ${scheme === "dark" ? "transparent" : "var(--upagain-neutral-green)"}`,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Stack align="center" gap="xl">
+              <Box
+                pos="absolute"
+                top={-60}
+                right={-60}
+                w={300}
+                h={300}
+                bg={
+                  scheme === "dark" ? "white" : "var(--upagain-neutral-green)"
+                }
+                style={{
+                  opacity: scheme === "dark" ? 0.03 : 0.15,
+                  borderRadius: "100%",
+                  animationDelay: "0.1s",
+                  animation: `${classes.pulse} 5s infinite reverse`,
+                }}
+              />
+              <Stack
+                align="center"
+                gap="xl"
+                pos="relative"
+                style={{ zIndex: 2 }}
+              >
                 <HeroBadge text="2" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
@@ -296,9 +349,32 @@ export default function GuestHome() {
                     ? "var(--upagain-dark-green)"
                     : "var(--upagain-light-green)",
                 border: `1px solid ${scheme === "dark" ? "transparent" : "var(--upagain-neutral-green)"}`,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Stack align="center" gap="xl">
+              <Box
+                pos="absolute"
+                bottom={-90}
+                right={-10}
+                w={300}
+                h={300}
+                bg={
+                  scheme === "dark" ? "white" : "var(--upagain-neutral-green)"
+                }
+                style={{
+                  opacity: scheme === "dark" ? 0.03 : 0.15,
+                  animationDelay: "0.8s",
+                  borderRadius: "100%",
+                  animation: `${classes.pulse} 4s infinite`,
+                }}
+              />
+              <Stack
+                align="center"
+                gap="xl"
+                pos="relative"
+                style={{ zIndex: 2 }}
+              >
                 <HeroBadge text="3" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
@@ -351,7 +427,8 @@ export default function GuestHome() {
               style={{
                 opacity: 0.1,
                 borderRadius: "100%",
-                animation: "pulse 4s infinite",
+                animationDelay: "0.01s",
+                animation: `${classes.pulse} 4s infinite`,
               }}
             />
 

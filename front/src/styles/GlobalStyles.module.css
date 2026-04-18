@@ -329,3 +329,18 @@
   color: var(--mantine-color-text);
   font-weight: 700;
 }
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: var(--pulse-opacity-start, 0.1);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: var(--pulse-opacity-mid, 0.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: var(--pulse-opacity-start, 0.1);
+  }
+}
