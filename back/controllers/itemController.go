@@ -271,8 +271,15 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
 		return
 	}
+	transaction, err := db.GetTransactionsByItemId(id_item, -1, -1)
+	if err != nil {
+		slog.Error("GetTransactionsByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+	latestTransaction := transaction[0]
 
-	if status == "completed" || status == "reserved" {
+	if status == "completed" || latestTransaction.Action == "reserve" || latestTransaction.Action == "purchase" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
 		return
 	}
