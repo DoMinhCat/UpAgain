@@ -202,6 +202,31 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 	}
 	id, _ := strconv.Atoi(r.PathValue("id"))
 
+	exist, err := db.CheckContainerExistById(id)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "DeleteContainer", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container not found")
+		return
+	}
+
+	// can't delete if currently have active code
+	codes, err := db.GetAllCodesByContainerId(id)
+	if err != nil {
+		slog.Error("GetAllCodesByContainerId() failed", "controller", "DeleteContainer", "id", id, "error", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+	for _, code := range codes {
+		if code.Status == "active" {
+			utils.RespondWithError(w, http.StatusConflict, "Container is currently being used.")
+			return
+		}
+	}
+
 	if err := db.SoftDeleteContainer(id); err != nil {
 		slog.Error("SoftDeleteContainer() failed", "controller", "DeleteContainer", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
