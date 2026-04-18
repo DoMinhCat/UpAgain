@@ -12,10 +12,7 @@ import {
   Image,
   Paper,
   ThemeIcon,
-  Anchor,
   Button,
-  ActionIcon,
-  Divider,
 } from "@mantine/core";
 import { HeroBanner } from "../../components/common/hero/HeroBanner";
 import { useComputedColorScheme } from "@mantine/core";
@@ -27,15 +24,11 @@ import {
   IconUpload,
   IconTruck,
   IconCircleCheck,
-  IconMail,
-  IconMapPin,
-  IconBrandInstagram,
-  IconBrandLinkedin,
-  IconBrandFacebook,
 } from "@tabler/icons-react";
 import HeroCard from "../../components/common/hero/HeroCard";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
+import classes from "../../styles/GlobalStyles.module.css";
 
 export default function GuestHome() {
   const navigate = useNavigate();
@@ -63,7 +56,16 @@ export default function GuestHome() {
   return (
     <>
       {/* SECTION 1: MAIN HERO */}
-      <HeroBanner src={`/banners/guest-banner1-${scheme}.png`} height="80vh">
+      <HeroBanner
+        src={`/banners/guest-banner1-${scheme}.png`}
+        height="80vh"
+        style={{
+          maskImage:
+            "linear-gradient(to bottom, black 0%, black 80%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, black 0%, black 80%, transparent 100%)",
+        }}
+      >
         <Stack
           align="center"
           gap="xs"
@@ -100,7 +102,16 @@ export default function GuestHome() {
 
       {/* SECTION 2: PROBLEM AWARENESS */}
       <Reveal>
-        <HeroBanner src={`/banners/guest-banner2-${scheme}.png`} height="90vh">
+        <HeroBanner
+          src={`/banners/guest-banner2-${scheme}.png`}
+          height="90vh"
+          style={{
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+          }}
+        >
           <Stack align="center" gap="md">
             <Title ta="center" size={42} fw={800}>
               The sad reality: waste is{" "}
@@ -128,7 +139,16 @@ export default function GuestHome() {
 
       {/* SECTION 3: THE MISSION */}
       <Reveal>
-        <HeroBanner src={`/banners/guest-banner3-${scheme}.png`} height="100vh">
+        <HeroBanner
+          src={`/banners/guest-banner3-${scheme}.png`}
+          height="100vh"
+          style={{
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+          }}
+        >
           {/* Decorative Background Glow */}
           <Box
             pos="absolute"
@@ -176,9 +196,32 @@ export default function GuestHome() {
                     ? "var(--upagain-dark-green)"
                     : "var(--upagain-light-green)",
                 border: `1px solid ${scheme === "dark" ? "transparent" : "var(--upagain-neutral-green)"}`,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Stack align="center" gap="xl">
+              <Box
+                pos="absolute"
+                top={-80}
+                left={-80}
+                w={300}
+                h={300}
+                bg={
+                  scheme === "dark" ? "white" : "var(--upagain-neutral-green)"
+                }
+                style={{
+                  borderRadius: "100%",
+                  opacity: scheme === "dark" ? 0.03 : 0.15,
+                  animation: `${classes.pulse} 6s infinite ease-in-out`,
+                  animationDelay: "0.2s",
+                }}
+              />
+              <Stack
+                align="center"
+                gap="xl"
+                pos="relative"
+                style={{ zIndex: 2 }}
+              >
                 <HeroBadge text="1" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
@@ -229,9 +272,32 @@ export default function GuestHome() {
                     ? "var(--upagain-dark-green)"
                     : "var(--upagain-light-green)",
                 border: `1px solid ${scheme === "dark" ? "transparent" : "var(--upagain-neutral-green)"}`,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Stack align="center" gap="xl">
+              <Box
+                pos="absolute"
+                top={-60}
+                right={-60}
+                w={300}
+                h={300}
+                bg={
+                  scheme === "dark" ? "white" : "var(--upagain-neutral-green)"
+                }
+                style={{
+                  opacity: scheme === "dark" ? 0.03 : 0.15,
+                  borderRadius: "100%",
+                  animationDelay: "0.1s",
+                  animation: `${classes.pulse} 5s infinite reverse`,
+                }}
+              />
+              <Stack
+                align="center"
+                gap="xl"
+                pos="relative"
+                style={{ zIndex: 2 }}
+              >
                 <HeroBadge text="2" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
@@ -283,9 +349,32 @@ export default function GuestHome() {
                     ? "var(--upagain-dark-green)"
                     : "var(--upagain-light-green)",
                 border: `1px solid ${scheme === "dark" ? "transparent" : "var(--upagain-neutral-green)"}`,
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <Stack align="center" gap="xl">
+              <Box
+                pos="absolute"
+                bottom={-90}
+                right={-10}
+                w={300}
+                h={300}
+                bg={
+                  scheme === "dark" ? "white" : "var(--upagain-neutral-green)"
+                }
+                style={{
+                  opacity: scheme === "dark" ? 0.03 : 0.15,
+                  animationDelay: "0.8s",
+                  borderRadius: "100%",
+                  animation: `${classes.pulse} 4s infinite`,
+                }}
+              />
+              <Stack
+                align="center"
+                gap="xl"
+                pos="relative"
+                style={{ zIndex: 2 }}
+              >
                 <HeroBadge text="3" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
@@ -338,7 +427,8 @@ export default function GuestHome() {
               style={{
                 opacity: 0.1,
                 borderRadius: "100%",
-                animation: "pulse 4s infinite",
+                animationDelay: "0.01s",
+                animation: `${classes.pulse} 4s infinite`,
               }}
             />
 
@@ -503,188 +593,21 @@ export default function GuestHome() {
               </Grid.Col>
             </Grid>
             <Center mt="xl">
-              <Button size="xl" radius="xl" variant="primary" px={50}>
+              <Button
+                size="xl"
+                radius="xl"
+                variant="primary"
+                px={50}
+                onClick={() =>
+                  navigate(PATHS.GUEST.REGISTER, { state: { role: "pro" } })
+                }
+              >
                 Sign up as a Professional
               </Button>
             </Center>
           </Stack>
         </Container>
       </Reveal>
-
-      {/* FOOTER */}
-      <Box
-        component="footer"
-        pt={80}
-        pb={40}
-        bg={
-          scheme === "dark"
-            ? "var(--upagain-dark-green)"
-            : "var(--upagain-neutral-green)"
-        }
-        style={{
-          borderTop: `1px solid ${scheme === "dark" ? "var(--mantine-color-dark-7)" : "var(--mantine-color-gray-2)"}`,
-        }}
-      >
-        <Container size="xl">
-          <Grid gutter={50}>
-            <Grid.Col span={{ base: 12, md: 4 }}>
-              <Stack gap="md">
-                <Title order={3} size="h3" fw={900}>
-                  UpAgain
-                </Title>
-                <Text
-                  size="sm"
-                  lh={1.6}
-                  c={
-                    scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"
-                  }
-                >
-                  Giving materials a second life through community-driven reuse
-                  and smart logistics.
-                </Text>
-                <Group gap="xs">
-                  <ActionIcon
-                    size="lg"
-                    radius="xl"
-                    color={
-                      scheme === "dark"
-                        ? "var(--upagain-neutral-green)"
-                        : "var(--upagain-dark-green)"
-                    }
-                  >
-                    <IconBrandInstagram size={18} />
-                  </ActionIcon>
-                  <ActionIcon
-                    size="lg"
-                    radius="xl"
-                    color={
-                      scheme === "dark"
-                        ? "var(--upagain-neutral-green)"
-                        : "var(--upagain-dark-green)"
-                    }
-                  >
-                    <IconBrandLinkedin size={18} />
-                  </ActionIcon>
-                  <ActionIcon
-                    size="lg"
-                    radius="xl"
-                    color={
-                      scheme === "dark"
-                        ? "var(--upagain-neutral-green)"
-                        : "var(--upagain-dark-green)"
-                    }
-                  >
-                    <IconBrandFacebook size={18} />
-                  </ActionIcon>
-                </Group>
-              </Stack>
-            </Grid.Col>
-            <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
-              <Text fw={700} mb="lg" size="sm" tt="uppercase">
-                Explore
-              </Text>
-              <Stack gap="xs">
-                <Anchor
-                  href="#"
-                  size="sm"
-                  c={
-                    scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"
-                  }
-                  underline="hover"
-                >
-                  Browse Objects
-                </Anchor>
-                <Anchor
-                  href="#"
-                  size="sm"
-                  c={
-                    scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"
-                  }
-                  underline="hover"
-                >
-                  Smart Deposits
-                </Anchor>
-                <Anchor
-                  href="#"
-                  size="sm"
-                  c={
-                    scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"
-                  }
-                  underline="hover"
-                >
-                  Community Articles
-                </Anchor>
-              </Stack>
-            </Grid.Col>
-            <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
-              <Text fw={700} mb="lg" size="sm" tt="uppercase">
-                Contact
-              </Text>
-              <Stack gap="sm">
-                <Group gap="xs" wrap="nowrap">
-                  <IconMail size={16} />
-                  <Anchor
-                    href="mailto:support@upagain.com"
-                    size="sm"
-                    c={
-                      scheme === "dark"
-                        ? "#c7c7c7"
-                        : "var(--mantine-color-text)"
-                    }
-                  >
-                    support@upagain.com
-                  </Anchor>
-                </Group>
-                <Group gap="xs" wrap="nowrap">
-                  <IconMapPin size={16} />
-                  <Text
-                    size="sm"
-                    c={
-                      scheme === "dark"
-                        ? "#c7c7c7"
-                        : "var(--mantine-color-text)"
-                    }
-                  >
-                    21 Erard street, 75012 Paris
-                  </Text>
-                </Group>
-              </Stack>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 4, md: 3 }}>
-              <Text fw={700} mb="lg" size="sm" tt="uppercase">
-                Legal
-              </Text>
-              <Stack gap="xs">
-                <Anchor
-                  href="#"
-                  size="sm"
-                  c={
-                    scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"
-                  }
-                  underline="hover"
-                >
-                  Terms & Conditions
-                </Anchor>
-                <Anchor
-                  href="#"
-                  size="sm"
-                  c={
-                    scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"
-                  }
-                  underline="hover"
-                >
-                  Privacy Policy
-                </Anchor>
-              </Stack>
-            </Grid.Col>
-          </Grid>
-          <Divider
-            my="xl"
-            label={`© ${new Date().getFullYear()} UpAgain. All rights reserved.`}
-            labelPosition="center"
-          />
-        </Container>
-      </Box>
     </>
   );
 }

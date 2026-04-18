@@ -11,6 +11,7 @@ interface HeroBannerProps {
   src: string;
   height?: number | string;
   overlayOpacity?: number;
+  style?: React.CSSProperties;
   children: ReactNode;
 }
 
@@ -18,6 +19,7 @@ export function HeroBanner({
   src,
   height = 400,
   overlayOpacity = 0,
+  style,
   children,
 }: HeroBannerProps) {
   return (
@@ -26,7 +28,7 @@ export function HeroBanner({
         src={src}
         h={height}
         pos="relative"
-        style={{ display: "flex", flexDirection: "column" }}
+        style={{ display: "flex", flexDirection: "column", ...style }}
       >
         <Overlay color="#000" backgroundOpacity={overlayOpacity} zIndex={1} />
 

@@ -71,6 +71,7 @@ create table employees
 create table pros
 (
     id_account integer primary key references account (id) on delete restrict,
+    phone             varchar(20),
     is_premium boolean not null default false
 );
 
