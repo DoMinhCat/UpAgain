@@ -179,9 +179,6 @@ export default function AdminUserDetails() {
   const params = useParams();
   const accountId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(accountId) && accountId > 0;
-  if (!isValidId) {
-    navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
-  }
   const {
     data: accountDetails,
     isLoading: isAccountDetailsLoading,
@@ -620,6 +617,8 @@ export default function AdminUserDetails() {
                     )}
                   </InfoField>
                   <InfoField label="Current tasks">
+                    {/* TODO: Open modal showing calendar with filled occupied dates and
+                      link to the event's details */}
                     <Button
                       mt="xs"
                       variant="primary"

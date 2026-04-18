@@ -56,7 +56,6 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 import PaginationFooter from "../../../components/common/PaginationFooter";
-import { PATHS } from "../../../routes/paths";
 
 export const AdminPostDetails = () => {
   const navigate = useNavigate();
@@ -67,9 +66,6 @@ export const AdminPostDetails = () => {
   const params = useParams();
   const postId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(postId) && postId > 0;
-  if (!isValidId) {
-    navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
-  }
 
   const { data: postDetails, isLoading: isLoadingPostDetails } =
     useGetPostDetails(postId, isValidId);

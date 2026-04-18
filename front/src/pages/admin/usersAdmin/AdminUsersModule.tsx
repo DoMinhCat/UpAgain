@@ -46,7 +46,6 @@ const requirements = [
 ];
 
 export default function AdminUsersModule() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
@@ -327,9 +326,6 @@ export default function AdminUsersModule() {
   // info for edit account in form triggered at each modal opening
   let selectedEditId = selectedEditAcc?.id ? selectedEditAcc.id : 0;
   const isValidId = !isNaN(selectedEditId) && selectedEditId > 0;
-  if (!isValidId) {
-    navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
-  }
   const { data: accountDetails, isLoading: isAccountDetailsLoading } =
     useAccountDetails(selectedEditId, isValidId);
 
@@ -348,6 +344,7 @@ export default function AdminUsersModule() {
     }
   }, [accountDetails, openedEdit]);
   // filters
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<{
     searchValue: string | undefined;
     sortValue: string | null;
