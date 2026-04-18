@@ -294,7 +294,6 @@ function FilterBar({
       <Grid.Col span={{ base: 12, md: searchSpan }}>
         <TextInput
           label="Search"
-          variant="filled"
           placeholder="Search items by title, username or ID..."
           rightSection={<IconSearch size={14} />}
           value={filters.searchValue}
@@ -337,7 +336,7 @@ function FilterBar({
         </Grid.Col>
       )}
 
-      <Grid.Col span={{ base: 6, md: 2 }}>
+      <Grid.Col span={{ base: 12, md: 2 }}>
         <Select
           label="Sort by"
           placeholder="Default"
@@ -354,7 +353,7 @@ function FilterBar({
       <Grid.Col span={{ base: 12, md: 3 }}>
         <Group gap="xs" grow>
           <Button variant="primary" onClick={onApply}>
-            Search
+            Apply filters
           </Button>
           <Button variant="secondary" onClick={onReset}>
             Reset
@@ -663,6 +662,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
     appliedFilters.searchValue || undefined,
     "pending",
     appliedFilters.sortValue || undefined,
+    true,
   );
 
   const events = data?.events ?? [];
@@ -1059,11 +1059,9 @@ export default function AdminValidationHub() {
 
   return (
     <Container px="md" size="xl">
-      <Title order={2} mt="xs" mb="sm">
+      <Title order={2} mt="lg" mb="xl">
         Validation Hub
       </Title>
-
-      <Divider mb="md" />
 
       <Tabs defaultValue="overview" keepMounted={false}>
         <Tabs.List>

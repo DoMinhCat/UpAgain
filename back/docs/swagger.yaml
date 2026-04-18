@@ -284,6 +284,36 @@ definitions:
       total_records:
         type: integer
     type: object
+  models.InvoiceUser:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id_account:
+        type: integer
+      role:
+        type: string
+      total_spent:
+        type: number
+      transaction_count:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.InvoicesListResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.InvoiceUser'
+        type: array
+    type: object
   models.Item:
     properties:
       category:
@@ -473,6 +503,98 @@ definitions:
       total_records:
         type: integer
     type: object
+  models.ProjectStep:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      id_post:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/models.StepItem'
+        type: array
+      photos:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+    type: object
+  models.RevenueMonthData:
+    properties:
+      ads:
+        type: number
+      commissions:
+        type: number
+      events:
+        type: number
+      month:
+        description: format "YYYY-MM"
+        type: string
+      subscriptions:
+        type: number
+    type: object
+  models.RevenueResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.RevenueMonthData'
+        type: array
+      summary:
+        $ref: '#/definitions/models.RevenueSummary'
+      year:
+        type: integer
+    type: object
+  models.RevenueSummary:
+    properties:
+      grand_total:
+        type: number
+      total_ads:
+        type: number
+      total_commissions:
+        type: number
+      total_events:
+        type: number
+      total_subscriptions:
+        type: number
+    type: object
+  models.RevokeSubscriptionRequest:
+    properties:
+      cancel_reason:
+        type: string
+    type: object
+  models.StepItem:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.SubscriptionWithUser:
+    properties:
+      avatar:
+        type: string
+      cancel_reason:
+        type: string
+      id:
+        type: integer
+      id_pro:
+        type: integer
+      is_active:
+        type: boolean
+      is_trial:
+        type: boolean
+      sub_from:
+        type: string
+      sub_to:
+        type: string
+      username:
+        type: string
+    type: object
   models.ToggleBanRequest:
     properties:
       is_banned:
@@ -482,6 +604,8 @@ definitions:
     properties:
       action:
         type: string
+      commission_rate:
+        type: number
       created_at:
         type: string
       id:
@@ -492,6 +616,12 @@ definitions:
         type: integer
       id_transaction:
         type: string
+      item_price:
+        type: number
+      reservation_expiry:
+        type: string
+      total_price:
+        type: number
       username_pro:
         type: string
     type: object
@@ -538,6 +668,14 @@ definitions:
       status:
         type: string
     type: object
+  models.UpdateLocationRequest:
+    properties:
+      city_name:
+        type: string
+      street:
+        description: 'TODO: allow edit street'
+        type: string
+    type: object
   models.UpdatePasswordRequest:
     properties:
       password:
@@ -547,6 +685,67 @@ definitions:
     properties:
       status:
         example: running
+        type: string
+    type: object
+  models.UpdateSubscriptionPriceRequest:
+    properties:
+      price:
+        type: number
+    type: object
+  models.UserInvoice:
+    properties:
+      ad_end_date:
+        type: string
+      ad_start_date:
+        description: Ad-specific
+        type: string
+      amount:
+        description: total paid
+        type: number
+      commission:
+        type: number
+      created_at:
+        type: string
+      event_id:
+        description: Event-specific
+        type: integer
+      event_title:
+        type: string
+      id:
+        type: integer
+      id_transaction:
+        description: Transaction-specific
+        type: string
+      item_price:
+        type: number
+      item_title:
+        type: string
+      post_id:
+        type: integer
+      post_title:
+        type: string
+      sub_from:
+        description: Subscription-specific
+        type: string
+      sub_to:
+        type: string
+      type:
+        description: '"transaction", "subscription", "ad", "event"'
+        type: string
+    type: object
+  models.UserInvoicesResponse:
+    properties:
+      email:
+        type: string
+      id_account:
+        type: integer
+      invoices:
+        items:
+          $ref: '#/definitions/models.UserInvoice'
+        type: array
+      total:
+        type: integer
+      username:
         type: string
     type: object
   models.ValidationActionRequest:
@@ -1401,6 +1600,37 @@ paths:
       summary: Update container status
       tags:
       - container
+  /containers/{id}/location/:
+    put:
+      consumes:
+      - application/json
+      description: Update the location of a container.
+      parameters:
+      - description: Container ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New location payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Update container location
+      tags:
+      - container
   /containers/available/:
     get:
       description: Get a list of available containers
@@ -1591,6 +1821,38 @@ paths:
       summary: Transfer container by deposit ID
       tags:
       - deposit
+  /employees/{id_employee}/schedule/:
+    get:
+      description: Returns the list of events assigned to a specific employee. Admins
+        can view any employee's schedule; employees can only view their own.
+      parameters:
+      - description: Employee account ID
+        in: path
+        name: id_employee
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of assigned events
+          schema:
+            items:
+              $ref: '#/definitions/models.Event'
+            type: array
+        "400":
+          description: Invalid employee ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Employee not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get employee schedule
+      tags:
+      - employee
   /employees/available/:
     get:
       description: Get a list of employees not occupied during a specific time range.
@@ -1995,6 +2257,99 @@ paths:
       summary: Get assigned employees
       tags:
       - event
+  /finance/invoices/:
+    get:
+      description: Returns a paginated list of accounts with their total transaction
+        count and total amount spent. Supports search by username or email.
+      parameters:
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 10, max 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Search by username or email
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.InvoicesListResponse'
+        "400":
+          description: Invalid page or limit parameter
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get invoice users
+      tags:
+      - finance
+  /finance/invoices/{userId}/:
+    get:
+      description: Returns all invoices (transactions, subscriptions, ads, events)
+        for a specific account. Admins can access any user's invoices; non-admin users
+        can only access their own.
+      parameters:
+      - description: Account ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserInvoicesResponse'
+        "400":
+          description: Invalid user ID
+        "401":
+          description: Unauthorized or forbidden
+        "404":
+          description: User not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get user invoices
+      tags:
+      - finance
+  /finance/revenue/:
+    get:
+      description: Returns monthly revenue data grouped by category (subscriptions,
+        commissions, ads, events) for a given year, along with a yearly summary.
+      parameters:
+      - description: Year (defaults to current year, must be between 2000 and 2100)
+        in: query
+        name: year
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RevenueResponse'
+        "400":
+          description: Invalid year parameter
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get monthly revenue
+      tags:
+      - finance
   /healthcheck/:
     get:
       description: Check the database connection status
@@ -2563,6 +2918,73 @@ paths:
       summary: Delete a post
       tags:
       - Posts
+  /posts/{id_post}/steps:
+    get:
+      description: Returns all project steps associated with a specific post.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ProjectStep'
+            type: array
+        "400":
+          description: Invalid or missing post ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get project steps
+      tags:
+      - Posts
+  /posts/{id_post}/steps/{step_id}:
+    delete:
+      description: Deletes a specific project step by its ID. Admin only.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      - description: Step ID
+        in: path
+        name: step_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deleted successfully
+        "400":
+          description: Invalid ID or step not found
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a project step
+      tags:
+      - Posts
   /posts/comments/{id_comment}/:
     delete:
       description: Delete a comment by ID. Admins and employees can delete any comment;
@@ -2660,6 +3082,112 @@ paths:
       summary: Create an account
       tags:
       - account
+  /subscriptions/{id}/:
+    get:
+      description: Get details of a specific subscription including user information
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SubscriptionWithUser'
+        "400":
+          description: Invalid subscription ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Subscription not found
+        "500":
+          description: Internal server error
+      summary: Get subscription by ID
+      tags:
+      - subscription
+  /subscriptions/{id}/revoke/:
+    put:
+      consumes:
+      - application/json
+      description: Cancel an active subscription. Admin can cancel any, users can
+        cancel their own.
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Cancel reason payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.RevokeSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid request or missing cancel reason
+        "401":
+          description: Unauthorized or forbidden
+        "404":
+          description: Subscription not found
+        "500":
+          description: Internal server error
+      summary: Cancel subscription
+      tags:
+      - subscription
+  /subscriptions/price/:
+    get:
+      description: Get the current price of the premium subscription
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Current price
+          schema:
+            additionalProperties:
+              format: float64
+              type: number
+            type: object
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get subscription price
+      tags:
+      - subscription
+    put:
+      consumes:
+      - application/json
+      description: Update the price of the premium subscription. Admin only.
+      parameters:
+      - description: New price payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateSubscriptionPriceRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid price
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Update subscription price
+      tags:
+      - subscription
   /users/score/:
     get:
       description: Get the total CO2 saved and total UpScore

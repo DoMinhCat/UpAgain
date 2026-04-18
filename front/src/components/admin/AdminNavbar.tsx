@@ -91,7 +91,7 @@ const navButtonData = [
   {
     icon: IconDiamond,
     label: "Subscriptions",
-    path: PATHS.ADMIN.SUBSCRIPTIONS,
+    path: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
   },
   { icon: IconPigMoney, label: "Finance", path: PATHS.ADMIN.FINANCE.ALL },
 ];
@@ -151,7 +151,6 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
             <Menu.Target>
               {accountDetails?.avatar ? (
                 <Avatar
-                  // avatar must be in /src/assets/avatars
                   src={accountDetails?.avatar}
                   name={accountDetails?.username}
                   color="initials"

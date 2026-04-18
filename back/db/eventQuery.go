@@ -121,6 +121,11 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	whereClause := "WHERE e.created_at IS NOT NULL"
 	paramIndex := 1
 
+	// for validation hub request show only events in the future
+	if filters.Validation {
+		whereClause += " AND e.start_at > now()"
+	}
+
 	if filters.Search != "" {
 		searchParam := "%" + filters.Search + "%"
 		whereClause += fmt.Sprintf(" AND (e.title ILIKE $%d OR a.username ILIKE $%d OR CAST(e.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)

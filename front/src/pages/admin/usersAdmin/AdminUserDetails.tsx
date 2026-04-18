@@ -331,8 +331,8 @@ export default function AdminUserDetails() {
   }
 
   return (
-    <Container px="md" size="xl" pb="xl">
-      <Title order={2} mt="xs" mb="sm">
+    <Container px="md" size="xl">
+      <Title order={2} mt="lg">
         User's Details
       </Title>
       <AdminBreadcrumbs
@@ -386,7 +386,33 @@ export default function AdminUserDetails() {
                               PATHS.ADMIN.LISTINGS + "/" + origin?.listingId,
                           },
                         ]
-                      : []),
+                      : origin?.from === "SubscriptionDetails"
+                        ? [
+                            {
+                              title: "Subscription Management",
+                              href: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
+                            },
+                            {
+                              title: "Subscription's Details",
+                              href:
+                                PATHS.ADMIN.SUBSCRIPTIONS.ALL +
+                                "/" +
+                                origin?.id_sub,
+                            },
+                          ]
+                        : origin?.from === "finance"
+                          ? [
+                              {
+                                title: "Finance Management",
+                                href: PATHS.ADMIN.FINANCE.ALL,
+                              },
+                            ]
+                          : [
+                              {
+                                title: "User Management",
+                                href: PATHS.ADMIN.USERS.ALL,
+                              },
+                            ]),
           { title: "User's Details", href: "#" },
         ]}
       />
@@ -1040,9 +1066,14 @@ export default function AdminUserDetails() {
                     const dayEndVal = dayjs(date).endOf("day").valueOf();
 
                     if (eventStartVal === eventEndVal) {
-                      return eventStartVal >= dayStartVal && eventStartVal <= dayEndVal;
+                      return (
+                        eventStartVal >= dayStartVal &&
+                        eventStartVal <= dayEndVal
+                      );
                     }
-                    return eventStartVal <= dayEndVal && eventEndVal > dayStartVal;
+                    return (
+                      eventStartVal <= dayEndVal && eventEndVal > dayStartVal
+                    );
                   }) || [];
 
                 const hasTasks = tasksOnDate.length > 0;
@@ -1065,7 +1096,9 @@ export default function AdminUserDetails() {
                         processing={hasTasks && !allTasksInPast}
                         size={hasTasks && tasksOnDate.length > 1 ? 18 : 10}
                         color={
-                          allTasksInPast ? "red" : "var(--upagain-neutral-green)"
+                          allTasksInPast
+                            ? "red"
+                            : "var(--upagain-neutral-green)"
                         }
                         offset={tasksOnDate.length > 1 ? 4 : 0}
                         disabled={!hasTasks}

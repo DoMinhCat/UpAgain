@@ -100,11 +100,36 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exist, err := db.CheckContainerExistById(id)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "GetContainerByID", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container not found")
+		return
+	}
+
 	container, err := db.FindContainerByID(id)
 	if err != nil {
 		slog.Error("FindContainerByID() failed", "controller", "GetContainerByID", "id", id, "error", err)
-		http.Error(w, "Container not found", http.StatusNotFound)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
 		return
+	}
+
+	// get current deposit
+	if container.Status == "occupied" || container.Status == "waiting" {
+		depoId, depoTitle, err := db.GetCurrentDepositByContainerId(id)
+		if err != nil {
+			slog.Error("GetCurrentDepositByContainerId() failed", "controller", "GetContainerByID", "id", id, "error", err)
+			http.Error(w, "Container not found", http.StatusNotFound)
+			return
+		}
+		if depoId != 0 {
+			container.CurrentDepositId = depoId
+			container.CurrentDepositTitle = depoTitle
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, container)
@@ -176,6 +201,31 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id, _ := strconv.Atoi(r.PathValue("id"))
+
+	exist, err := db.CheckContainerExistById(id)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "DeleteContainer", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container not found")
+		return
+	}
+
+	// can't delete if currently have active code
+	codes, err := db.GetAllCodesByContainerId(id)
+	if err != nil {
+		slog.Error("GetAllCodesByContainerId() failed", "controller", "DeleteContainer", "id", id, "error", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+	for _, code := range codes {
+		if code.Status == "active" {
+			utils.RespondWithError(w, http.StatusConflict, "Container is currently being used.")
+			return
+		}
+	}
 
 	if err := db.SoftDeleteContainer(id); err != nil {
 		slog.Error("SoftDeleteContainer() failed", "controller", "DeleteContainer", "id", id, "error", err)
@@ -298,4 +348,93 @@ func GetAvailableContainers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.RespondWithJSON(w, http.StatusOK, containers)
+}
+
+// UpdateContainerLocation godoc
+// @Summary      Update container location
+// @Description  Update the location of a container.
+// @Tags         container
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int     true  "Container ID"
+// @Param        body  body      models.UpdateLocationRequest  true  "New location payload"
+// @Success      204   {object}  nil     "No Content"
+// @Failure      401   {object}  nil     "Unauthorized"
+// @Failure      500   {string}  string  "Internal error"
+// @Router       /containers/{id}/location/ [put]
+func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid container ID.")
+		return
+	}
+
+	exist, err := db.CheckContainerExistById(id)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while checking container existence.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container with ID "+strconv.Itoa(id)+" not found.")
+		return
+	}
+
+	var payload models.UpdateLocationRequest
+	json.NewDecoder(r.Body).Decode(&payload)
+
+	if payload.CityName == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid city name.")
+		return
+	}
+
+	oldContainer, _ := db.FindContainerByID(id)
+
+	if err := db.UpdateLocationContainer(id, payload.CityName); err != nil {
+		slog.Error("UpdateLocationContainer() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
+		return
+	}
+
+	err = db.InsertHistory("container", id, "update", r.Context().Value("user").(models.AuthClaims).Id, oldContainer, payload)
+	if err != nil {
+		slog.Error("InsertHistory() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+// Get the item their dates planned for a container
+func GetContainerSchedule(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	exist, err := db.CheckContainerExistById(id)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "GetContainerSchedule", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container not found")
+		return
+	}
+
+	// get list of items and their dates planned for a container (bar code valid date range)
+	deposits, err := db.GetContainerScheduleByContainerId(id)
+	if err != nil {
+		slog.Error("GetContainerScheduleByContainerId() failed", "controller", "GetContainerSchedule", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container schedule.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, deposits)
 }

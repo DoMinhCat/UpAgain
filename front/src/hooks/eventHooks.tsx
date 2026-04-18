@@ -27,10 +27,11 @@ export const useGetAllEvents = (
   search?: string,
   status?: string,
   sort?: string,
+  validation?: boolean,
 ) => {
   return useQuery<EventsListPagination>({
-    queryKey: ["events", page, limit, search, status, sort],
-    queryFn: () => getAllEvents(page, limit, search, status, sort),
+    queryKey: ["events", page, limit, search, status, sort, validation],
+    queryFn: () => getAllEvents(page, limit, search, status, sort, validation),
     staleTime: 60 * 1000,
     meta: {
       errorTitle: "Error",

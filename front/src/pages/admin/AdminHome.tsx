@@ -283,7 +283,7 @@ export default function AdminHome() {
           title="Subscription"
           description="Manage subscription price & premium accounts"
           icon={IconDiamond}
-          path={PATHS.ADMIN.SUBSCRIPTIONS}
+          path={PATHS.ADMIN.SUBSCRIPTIONS.ALL}
         />
         <AdminCardNav
           title="Posts"
@@ -315,7 +315,6 @@ export default function AdminHome() {
         <Grid.Col span={{ base: 12, md: 3 }}>
           <TextInput
             label="Search"
-            variant="filled"
             placeholder="Search by admin's name or item's ID..."
             disabled={isLoadingHistory}
             rightSection={<IconSearch size={14} />}
@@ -455,9 +454,16 @@ export default function AdminHome() {
                 </Table.Td>
                 <Table.Td ta="center">{row.admin_name}</Table.Td>
                 <Table.Td ta="center">
-                  {row.module.charAt(0).toUpperCase() + row.module.slice(1)}
+                  {(
+                    row.module.charAt(0).toUpperCase() + row.module.slice(1)
+                  ).replace("_", " ")}
                 </Table.Td>
-                <Table.Td ta="center">{row.item_id}</Table.Td>
+                <Table.Td ta="center">
+                  {typeof row.item_id === "string"
+                    ? row.item_id.replace(/_/g, " ").charAt(0).toUpperCase() +
+                      row.item_id.slice(1).replace(/_/g, " ")
+                    : (row.item_id ?? "—")}
+                </Table.Td>
                 <Table.Td ta="center">
                   <Badge
                     variant={

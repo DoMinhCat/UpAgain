@@ -666,7 +666,6 @@ export default function AdminEventsModule() {
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by employee's name, event's ID or title..."
               disabled={isLoadingEvents}
               rightSection={<IconSearch size={14} />}
@@ -731,7 +730,7 @@ export default function AdminEventsModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col span={{ base: 12, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
               <Button onClick={handleSearchClick} variant="primary">
                 Apply filters

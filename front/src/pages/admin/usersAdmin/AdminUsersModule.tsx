@@ -18,6 +18,7 @@ import {
   IconPlus,
   IconLock,
   IconRestore,
+  IconDownload,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { type Account } from "../../../api/interfaces/account";
@@ -35,6 +36,8 @@ import { useDisclosure } from "@mantine/hooks";
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
 import PaginationFooter from "../../../components/common/PaginationFooter";
+import { getExportAccountsCsv } from "../../../api/accountModule";
+import { showErrorNotification } from "../../../components/common/NotificationToast";
 
 const requirements = [
   { re: /[0-9]/, label: "Includes number" },
@@ -473,6 +476,32 @@ export default function AdminUsersModule() {
       </Table.Tr>
     );
 
+  // EXPORT CSV
+  const [isExporting, setIsExporting] = useState(false);
+  const exportAccounts = async () => {
+    try {
+      setIsExporting(true);
+      const blob = await getExportAccountsCsv();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "UpAgain_accounts.csv";
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.log(error);
+      showErrorNotification(
+        "Export failed",
+        "An error occured while exporting accounts.",
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -486,6 +515,14 @@ export default function AdminUsersModule() {
           </Title>
 
           <Group gap="xs" align="flex-end">
+            <Button
+              variant="secondary"
+              leftSection={<IconDownload size={16} />}
+              onClick={exportAccounts}
+              loading={isExporting}
+            >
+              Export CSV
+            </Button>
             <Button
               variant="edit"
               leftSection={<IconRestore size={16} />}
@@ -509,7 +546,6 @@ export default function AdminUsersModule() {
           <Grid.Col span={{ base: 12, md: 3 }}>
             <TextInput
               label="Search"
-              variant="filled"
               placeholder="Search by username, email or ID..."
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
@@ -565,7 +601,7 @@ export default function AdminUsersModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+          <Grid.Col span={{ base: 12, sm: 4, md: 2 }}>
             <Select
               label="Status"
               placeholder="All status"
@@ -579,7 +615,7 @@ export default function AdminUsersModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col span={{ base: 12, sm: 12, md: 3 }}>
             <Group gap="xs" grow>
               <Button onClick={handleSearchClick} variant="primary">
                 Apply filters
