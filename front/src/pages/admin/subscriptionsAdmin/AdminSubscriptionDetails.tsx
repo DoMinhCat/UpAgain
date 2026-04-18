@@ -39,6 +39,9 @@ export default function AdminSubscriptionDetails() {
   const navigate = useNavigate();
   const subscriptionId = id ? parseInt(id) : 0;
   const isValidId = !isNaN(subscriptionId) && subscriptionId > 0;
+  if (!isValidId) {
+    navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
+  }
 
   const [openedRevoke, { open: openRevoke, close: closeRevoke }] =
     useDisclosure(false);
@@ -58,17 +61,20 @@ export default function AdminSubscriptionDetails() {
     if (!invoicesData || !invoicesData.invoices) {
       showErrorNotification(
         "Loading",
-        "Invoices data is not yet available, please try again."
+        "Invoices data is not yet available, please try again.",
       );
       return;
     }
     const invoice = invoicesData.invoices.find(
-      (i) => i.type === "subscription" && i.id === subscriptionId
+      (i) => i.type === "subscription" && i.id === subscriptionId,
     );
     if (invoice) {
       generateInvoicePDF(invoice, invoicesData.username);
     } else {
-      showErrorNotification("Not Found", "No invoice found for this subscription.");
+      showErrorNotification(
+        "Not Found",
+        "No invoice found for this subscription.",
+      );
     }
   };
 
@@ -85,8 +91,7 @@ export default function AdminSubscriptionDetails() {
   };
 
   if (isLoading) return <FullScreenLoader />;
-  if (!isValidId || isError)
-    return <Navigate to={PATHS.ADMIN.SUBSCRIPTIONS.ALL} replace />;
+  if (isError) return <Navigate to={PATHS.ADMIN.SUBSCRIPTIONS.ALL} replace />;
 
   return (
     <Container px="md" size="xl">
@@ -201,11 +206,11 @@ export default function AdminSubscriptionDetails() {
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm">
           <InfoField label="Invoice">
-            <Button 
-              variant="primary" 
-              ps="sm" 
-              mt="xs" 
-              mb="xl" 
+            <Button
+              variant="primary"
+              ps="sm"
+              mt="xs"
+              mb="xl"
               onClick={handleDownloadInvoice}
               loading={isLoadingInvoices}
             >
