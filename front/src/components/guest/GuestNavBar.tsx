@@ -16,6 +16,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
 import { PATHS } from "../../routes/paths";
 import { IconWorld, IconSun, IconMoon } from "@tabler/icons-react";
+import { useState } from "react";
 
 interface NavbarLinkProps {
   icon: typeof IconMoon;
@@ -72,13 +73,16 @@ function HeaderLink({
   const navigate = useNavigate();
   const location = useLocation();
   const isActive = location.pathname.startsWith(path);
-  
+
   const handleClick = () => {
     if (onClick) onClick();
     navigate(path);
   };
   return (
-    <UnstyledButton className={`${classes.link} ${isActive ? classes.linkActive : ""}`} onClick={handleClick}>
+    <UnstyledButton
+      className={`${classes.link} ${isActive ? classes.linkActive : ""}`}
+      onClick={handleClick}
+    >
       {label}
     </UnstyledButton>
   );
@@ -88,6 +92,22 @@ export function GuestNavBar() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
   const navigate = useNavigate();
+
+  const [currentLanguage, setCurrentLanguage] = useState("united-kingdom");
+  const languages = [
+    {
+      label: "English",
+      path: "united-kingdom",
+    },
+    {
+      label: "Français",
+      path: "france",
+    },
+    {
+      label: "Vienamese",
+      path: "vietnam",
+    },
+  ];
 
   return (
     <Group justify="space-between" h="100%" px="xl" className={classes.header}>
@@ -120,26 +140,31 @@ export function GuestNavBar() {
         >
           <Menu.Target>
             <ActionIcon variant="primary" color="grey" size="lg" radius="md">
-              <IconWorld size={20} stroke={1.5} />
+              <Image
+                src={`/flags/${currentLanguage}.png`}
+                w="20px"
+                fit="contain"
+              />
             </ActionIcon>
           </Menu.Target>
 
           <Menu.Dropdown>
             <Menu.Label>Languages</Menu.Label>
-            <Menu.Item
-              leftSection={
-                <Image src="/flags/united-kingdom.png" w="20px" fit="contain" />
-              }
-            >
-              English
-            </Menu.Item>
-            <Menu.Item
-              leftSection={
-                <Image src="/flags/france.png" w="20px" fit="contain" />
-              }
-            >
-              Française
-            </Menu.Item>
+            {languages.map((language) => (
+              <Menu.Item
+                key={language.path}
+                onClick={() => setCurrentLanguage(language.path)}
+                leftSection={
+                  <Image
+                    src={`/flags/${language.path}.png`}
+                    w="20px"
+                    fit="contain"
+                  />
+                }
+              >
+                {language.label}
+              </Menu.Item>
+            ))}
           </Menu.Dropdown>
         </Menu>
 
