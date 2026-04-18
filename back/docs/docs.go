@@ -2359,6 +2359,96 @@ const docTemplate = `{
                 }
             }
         },
+        "/finance/settings/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns all finance settings. Admin only.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Get finance settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FinanceSetting"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/finance/settings/{key}/": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Updates one finance setting by key. Keys: trial_days, commission_rate, ads_price_per_month, subscription_price. Admin only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "finance"
+                ],
+                "summary": "Update finance setting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Setting key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Setting value payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateFinanceSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or missing key"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/healthcheck/": {
             "get": {
                 "description": "Check the database connection status",
@@ -3539,6 +3629,123 @@ const docTemplate = `{
                 }
             }
         },
+        "/subscriptions/stats": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get statistics about subscriptions such as active count, trial count, cancellations, etc.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Get subscription stats",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Timeframe filter (e.g. today, last_week, all)",
+                        "name": "timeframe",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SubscriptionStats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/subscriptions/trial/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get the current number of trial days for subscriptions. Admin only.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Get trial days",
+                "responses": {
+                    "200": {
+                        "description": "Trial days",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "number",
+                                "format": "float64"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update the number of trial days for subscriptions. Admin only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Update trial days",
+                "parameters": [
+                    {
+                        "description": "New trial days payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateTrialDaysRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid trial_days value"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/subscriptions/{id}/": {
             "get": {
                 "description": "Get details of a specific subscription including user information",
@@ -3855,6 +4062,12 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "current_deposit_id": {
+                    "type": "integer"
+                },
+                "current_deposit_title": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -4024,6 +4237,20 @@ const docTemplate = `{
                 },
                 "total_records": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.FinanceSetting": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
                 }
             }
         },
@@ -4523,6 +4750,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.SubscriptionStats": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "integer"
+                },
+                "active_trials": {
+                    "type": "integer"
+                },
+                "cancellation_rate": {
+                    "type": "number"
+                },
+                "cancelled": {
+                    "type": "integer"
+                },
+                "new_subscriptions": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.SubscriptionWithUser": {
             "type": "object",
             "properties": {
@@ -4668,6 +4918,14 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateFinanceSettingRequest": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
         "models.UpdateLocationRequest": {
             "type": "object",
             "properties": {
@@ -4702,6 +4960,14 @@ const docTemplate = `{
             "properties": {
                 "price": {
                     "type": "number"
+                }
+            }
+        },
+        "models.UpdateTrialDaysRequest": {
+            "type": "object",
+            "properties": {
+                "trial_days": {
+                    "type": "integer"
                 }
             }
         },
