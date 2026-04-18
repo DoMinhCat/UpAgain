@@ -15,6 +15,7 @@ import {
 import { IconMail, IconPhone, IconMapPin, IconSend } from "@tabler/icons-react";
 import { useComputedColorScheme } from "@mantine/core";
 import { useState } from "react";
+import { showSuccessNotification } from "../../components/common/NotificationToast";
 
 export default function ContactPage() {
   const scheme = useComputedColorScheme("light");
@@ -81,7 +82,15 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm(e)) {
-      console.log("Form submitted");
+      showSuccessNotification(
+        "Message sent",
+        "Thank you for your message. We will get back to you as soon as possible.",
+      );
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
     }
   };
   return (
@@ -269,6 +278,7 @@ export default function ContactPage() {
                 </Grid.Col>
                 <Grid.Col span={12}>
                   <TextInput
+                    type="email"
                     label="Email"
                     placeholder="johndoe@example.com"
                     error={errorEmail}
