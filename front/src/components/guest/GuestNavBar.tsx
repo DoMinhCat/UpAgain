@@ -34,7 +34,7 @@ function NavbarLink({ icon: Icon, label, onClick }: NavbarLinkProps) {
   };
 
   return (
-    <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
+    <Tooltip label={label} position="bottom" transitionProps={{ duration: 0 }}>
       <UnstyledButton
         onClick={handleClick}
         className={classes.toggleButton}
@@ -139,13 +139,19 @@ export function GuestNavBar() {
           offset={15}
         >
           <Menu.Target>
-            <ActionIcon variant="primary" color="grey" size="lg" radius="md">
-              <Image
-                src={`/flags/${currentLanguage}.png`}
-                w="20px"
-                fit="contain"
-              />
-            </ActionIcon>
+            <Tooltip
+              label="Change language"
+              position="bottom"
+              transitionProps={{ duration: 0 }}
+            >
+              <ActionIcon variant="primary" color="grey" size="lg" radius="md">
+                <Image
+                  src={`/flags/${currentLanguage}.png`}
+                  w="20px"
+                  fit="contain"
+                />
+              </ActionIcon>
+            </Tooltip>
           </Menu.Target>
 
           <Menu.Dropdown>

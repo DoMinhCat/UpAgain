@@ -23,6 +23,7 @@ import { useRegister } from "../../hooks/authHooks";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { PricingCard } from "./PricingCard";
+import { FreemiumCard } from "./FreemiumCard";
 
 export default function RegisterFormPro() {
   const navigate = useNavigate();
@@ -30,6 +31,9 @@ export default function RegisterFormPro() {
   // SUB MODAL
   const [openedPremium, { open: openPremium, close: closePremium }] =
     useDisclosure(false);
+  const [selectedPlan, setSelectedPlan] = useState<
+    "freemium" | "premium" | null
+  >(null);
 
   // password
   const [password, setPassword] = useState("");
@@ -267,20 +271,20 @@ export default function RegisterFormPro() {
           <Fieldset legend="Subscription" variant="unstyled">
             <Group justify="center">
               <Button
-                variant="secondary"
+                variant={
+                  !selectedPlan || selectedPlan === "premium"
+                    ? "cta"
+                    : "secondary"
+                }
                 ta="center"
                 onClick={openPremium}
                 disabled={registerMutation.isPending}
               >
-                Freemium
-              </Button>
-              <Button
-                variant="cta"
-                ta="center"
-                onClick={openPremium}
-                disabled={registerMutation.isPending}
-              >
-                Premium
+                {selectedPlan === "freemium"
+                  ? "Freemium plan chosen"
+                  : selectedPlan === "premium"
+                    ? "Premium plan chosen"
+                    : "See our subscriptions"}
               </Button>
             </Group>
           </Fieldset>
@@ -320,8 +324,14 @@ export default function RegisterFormPro() {
           Choose your plan
         </Title>
         <Group justify="center" mt="md" gap="xl">
-          <PricingCard />
-          <PricingCard />
+          <FreemiumCard
+            selected={selectedPlan === "freemium"}
+            onClick={() => setSelectedPlan("freemium")}
+          />
+          <PricingCard
+            selected={selectedPlan === "premium"}
+            onClick={() => setSelectedPlan("premium")}
+          />
         </Group>
         <Group justify="center" mt="xl">
           <Button
@@ -337,8 +347,8 @@ export default function RegisterFormPro() {
             size="lg"
             variant="primary"
             ta="center"
-            // onClick={closePremium}
-            // disabled={registerMutation.isPending}
+            onClick={closePremium}
+            disabled={!selectedPlan || registerMutation.isPending}
           >
             Confirm
           </Button>

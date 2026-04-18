@@ -7,16 +7,15 @@ import {
   List,
   ThemeIcon,
   Button,
-  Badge,
 } from "@mantine/core";
 import { IconCheck, IconStar } from "@tabler/icons-react";
 
-interface PricingCardProps {
+interface FreemiumCardProps {
   selected?: boolean;
   onClick?: () => void;
 }
 
-export function PricingCard({ selected, onClick }: PricingCardProps) {
+export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
   return (
     <Paper
       withBorder
@@ -26,8 +25,10 @@ export function PricingCard({ selected, onClick }: PricingCardProps) {
       style={{
         width: 360,
         backgroundColor: "var(--mantine-color-body)",
-        borderColor: selected ? "var(--upagain-primary)" : "var(--upagain-neutral-green)",
-        borderWidth: selected ? 3 : 2,
+        borderColor: selected
+          ? "var(--upagain-primary)"
+          : "var(--upagain-neutral-green)",
+        borderWidth: selected ? 3 : 1,
         position: "relative",
         cursor: "pointer",
         transition: "all 0.3s ease",
@@ -47,52 +48,33 @@ export function PricingCard({ selected, onClick }: PricingCardProps) {
             position: "absolute",
             top: 20,
             right: 20,
-            zIndex: 10,
             backgroundColor: "var(--upagain-primary)",
           }}
         >
           <IconCheck stroke={3} />
         </ThemeIcon>
       )}
-      <Badge
-        variant="filled"
-        size="lg"
-        radius="sm"
-        style={{
-          backgroundColor: "var(--upagain-yellow)",
-          color: "#2a2a28", // Dark text for contrast on yellow
-          position: "absolute",
-          top: -14,
-          left: "50%",
-          transform: "translateX(-50%)",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        }}
-      >
-        Best Value
-      </Badge>
 
       <Stack gap="xl">
-        {/* Header Section */}
         <Stack gap={0} align="center">
           <ThemeIcon
             size={52}
             radius="xl"
             style={{
-              backgroundColor: "var(--upagain-light-green)",
-              color: "var(--upagain-dark-green)",
+              backgroundColor: "var(--mantine-color-gray-1)",
+              color: "var(--mantine-color-gray-7)",
             }}
           >
             <IconStar size={32} fill="currentColor" />
           </ThemeIcon>
           <Title order={4} size={32} mt="md" c="var(--mantine-color-text)">
-            Premium
+            Freemium
           </Title>
           <Text c="var(--mantine-color-dimmed)" size="sm" ta="center" px="md">
-            The professional choice for serious upcyclers.
+            Get started with essential features.
           </Text>
         </Stack>
 
-        {/* Feature List */}
         <List
           spacing="sm"
           size="md"
@@ -109,32 +91,21 @@ export function PricingCard({ selected, onClick }: PricingCardProps) {
         >
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              <b>All Freemium features</b> plus...
+              Up to <b>10</b> material deposits / month
             </Text>
           </List.Item>
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              <b>Unlimited</b> material deposits
+              Basic Dashboard
             </Text>
           </List.Item>
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              Verified <b>Artisan</b> Badge
-            </Text>
-          </List.Item>
-          <List.Item>
-            <Text size="sm" c="var(--mantine-color-text)">
-              Smart alerts for rare finds
-            </Text>
-          </List.Item>
-          <List.Item>
-            <Text size="sm" c="var(--mantine-color-text)">
-              Advanced Impact Dashboard
+              Community access
             </Text>
           </List.Item>
         </List>
 
-        {/* Bottom Price Section */}
         <Stack gap="xs" mt="xs">
           <Group align="flex-end" justify="center" gap={4}>
             <Text
@@ -146,19 +117,26 @@ export function PricingCard({ selected, onClick }: PricingCardProps) {
                 color: "var(--mantine-color-text)",
               }}
             >
-              29€
+              0€
             </Text>
             <Text c="var(--mantine-color-dimmed)" fw={600} pb={8}>
               / month
             </Text>
           </Group>
 
-          <Button data-variant="cta" size="md" fullWidth radius="xl" mt="sm">
-            Go Premium
+          <Button
+            variant="secondary"
+            color="var(--upagain-primary)"
+            size="md"
+            fullWidth
+            radius="xl"
+            mt="sm"
+          >
+            Select Freemium
           </Button>
 
           <Text size="xs" c="var(--mantine-color-dimmed)" ta="center">
-            Secured by UpAgain • Cancel anytime
+            Free forever
           </Text>
         </Stack>
       </Stack>
