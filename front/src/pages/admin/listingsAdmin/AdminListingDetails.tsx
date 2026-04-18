@@ -860,7 +860,18 @@ export default function AdminListingDetails() {
                       <Button
                         variant="edit"
                         onClick={handleOpenEdit}
-                        disabled={isItemDetailsLoading}
+                        loading={
+                          isItemDetailsLoading ||
+                          updateItemStatus.isPending ||
+                          updateDepositMutation.isPending ||
+                          updateListingMutation.isPending
+                        }
+                        disabled={
+                          itemDetails?.status == "completed" ||
+                          (transactions?.length > 0 &&
+                            (transactions[0].action === "reserved" ||
+                              transactions[0].action === "purchased"))
+                        }
                         fullWidth
                       >
                         Edit item
@@ -883,6 +894,7 @@ export default function AdminListingDetails() {
                           (transactions[0].action === "reserved" ||
                             transactions[0].action === "purchased")
                         }
+                        loading={updateItemStatus.isPending}
                       >
                         {itemDetails?.status === "refused"
                           ? "Reopen item"
