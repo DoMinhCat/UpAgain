@@ -9,6 +9,8 @@ type Container struct {
 	PostalCode string    `json:"postal_code"`
 	Status     string    `json:"status"`
 	IsDeleted  bool      `json:"is_deleted"`
+	CurrentDepositId int `json:"current_deposit_id"`
+	CurrentDepositTitle string `json:"current_deposit_title"`
 }
 
 type ContainerCountStats struct {

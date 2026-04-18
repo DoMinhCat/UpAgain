@@ -182,3 +182,28 @@ func UpdateContainerByDepositId(depositID int, idContainer int) error {
 	}
 	return nil
 }
+
+// GetCurrentDepositByContainerId returns id and title of the deposit item currently booked for this container
+func GetCurrentDepositByContainerId(id int) (int, string, error) {
+	var depositID int
+	var title string
+
+	// currently booked => must have an active code for this deposit item
+	// only 1 active code at a time for a container is guaranteed by flow of deposit
+	// LIMIT act as safety net
+	query := `
+		SELECT d.id_item, i.title
+		FROM deposits d
+		JOIN items i ON d.id_item = i.id
+		JOIN barcodes b ON d.id_item = b.id_deposit
+		WHERE d.id_container = $1
+		AND i.status = 'approved'
+		AND b.status = 'active'
+		LIMIT 1;
+	`
+	err := utils.Conn.QueryRow(query, id).Scan(&depositID, &title)
+	if err == sql.ErrNoRows {
+		return 0, "", nil
+	}
+	return depositID, title, err
+}

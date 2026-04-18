@@ -5,6 +5,8 @@ export interface Container {
   postal_code: string;
   status: "ready" | "occupied" | "maintenance";
   is_deleted: boolean;
+  current_deposit_id: number | null;
+  current_deposit_title: string | null;
 }
 
 export interface ContainerCountStats {
