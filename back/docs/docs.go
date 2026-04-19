@@ -1064,6 +1064,135 @@ const docTemplate = `{
                 }
             }
         },
+        "/ads/": {
+            "post": {
+                "description": "Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay (TODO).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ads"
+                ],
+                "summary": "Create an ad for a project",
+                "parameters": [
+                    {
+                        "description": "Create Ad payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAdsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ad created successfully.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or project does not exist"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "409": {
+                        "description": "Project already has an active ad"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/ads/{ad_id}/": {
+            "delete": {
+                "description": "Soft-delete (cancel) an existing advertisement by its ID. Admin can delete any ad, Pro users can only delete their own.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ads"
+                ],
+                "summary": "Delete an ad",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ad ID",
+                        "name": "ad_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid Ad ID or ad does not exist"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update the start and end dates of an existing advertisement. Admin only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ads"
+                ],
+                "summary": "Update an ad",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ad ID",
+                        "name": "ad_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Ad payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateAdsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ad updated successfully.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Ad ID or request body"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/containers/": {
             "get": {
                 "description": "Get a list of all containers",
@@ -1380,6 +1509,47 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    }
+                }
+            }
+        },
+        "/containers/{id}/schedule/": {
+            "get": {
+                "description": "Returns the list of deposits and their planned dates (barcode valid date range) for a specific container.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "container"
+                ],
+                "summary": "Get container schedule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Container ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ContainerSchedule"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "404": {
+                        "description": "Container not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }
@@ -3900,15 +4070,28 @@ const docTemplate = `{
         },
         "/users/score/": {
             "get": {
-                "description": "Get the total CO2 saved and total UpScore",
+                "description": "Get the total CO2 saved and total UpScore from all approved items in the system.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "user"
                 ],
-                "summary": "Get total CO2 of completed items (bought) and total UpScore",
-                "responses": {}
+                "summary": "Get total CO2 and UpScore",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved total score stats",
+                        "schema": {
+                            "$ref": "#/definitions/models.TotalScoreStats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
             }
         }
     },
@@ -4177,6 +4360,40 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ContainerSchedule": {
+            "type": "object",
+            "properties": {
+                "pro_range": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ContainerScheduleItem"
+                    }
+                },
+                "user_range": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ContainerScheduleItem"
+                    }
+                }
+            }
+        },
+        "models.ContainerScheduleItem": {
+            "type": "object",
+            "properties": {
+                "deposit_id": {
+                    "type": "integer"
+                },
+                "deposit_title": {
+                    "type": "string"
+                },
+                "valid_from": {
+                    "type": "string"
+                },
+                "valid_to": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CreateAccountRequest": {
             "type": "object",
             "properties": {
@@ -4200,6 +4417,20 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "models.CreateAdsRequest": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "integer"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "id_post": {
+                    "type": "integer"
                 }
             }
         },
@@ -4595,6 +4826,15 @@ const docTemplate = `{
         "models.Post": {
             "type": "object",
             "properties": {
+                "ads_from": {
+                    "type": "string"
+                },
+                "ads_id": {
+                    "type": "string"
+                },
+                "ads_to": {
+                    "type": "string"
+                },
                 "category": {
                     "type": "string"
                 },
@@ -4880,6 +5120,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.TotalScoreStats": {
+            "type": "object",
+            "properties": {
+                "co2": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Transaction": {
             "type": "object",
             "properties": {
@@ -4973,6 +5224,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateAdsRequest": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "id_ads": {
+                    "type": "integer"
+                },
+                "to": {
                     "type": "string"
                 }
             }

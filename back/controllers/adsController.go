@@ -11,6 +11,19 @@ import (
 	"strconv"
 )
 
+// CreateAdsForProject godoc
+// @Summary      Create an ad for a project
+// @Description  Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay (TODO).
+// @Tags         ads
+// @Accept       json
+// @Produce      json
+// @Param        body  body      models.CreateAdsRequest  true  "Create Ad payload"
+// @Success      200   {string}  string  "Ad created successfully."
+// @Failure      400   {object}  nil     "Invalid request body or project does not exist"
+// @Failure      401   {object}  nil     "Unauthorized"
+// @Failure      409   {object}  nil     "Project already has an active ad"
+// @Failure      500   {object}  nil     "Internal server error"
+// @Router       /ads/ [post]
 func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "pro" {
@@ -93,6 +106,19 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdateAds godoc
+// @Summary      Update an ad
+// @Description  Update the start and end dates of an existing advertisement. Admin only.
+// @Tags         ads
+// @Accept       json
+// @Produce      json
+// @Param        ad_id  path      int                      true  "Ad ID"
+// @Param        body   body      models.UpdateAdsRequest  true  "Update Ad payload"
+// @Success      200    {string}  string                   "Ad updated successfully."
+// @Failure      400    {object}  nil                      "Invalid Ad ID or request body"
+// @Failure      401    {object}  nil                      "Unauthorized"
+// @Failure      500    {object}  nil                      "Internal server error"
+// @Router       /ads/{ad_id}/ [patch]
 func UpdateAds(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -160,6 +186,17 @@ func UpdateAds(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, "Ad updated successfully.")
 }
 
+// DeleteAds godoc
+// @Summary      Delete an ad
+// @Description  Soft-delete (cancel) an existing advertisement by its ID. Admin can delete any ad, Pro users can only delete their own.
+// @Tags         ads
+// @Produce      json
+// @Param        ad_id  path      int  true  "Ad ID"
+// @Success      204    {object}  nil  "No Content"
+// @Failure      400    {object}  nil  "Invalid Ad ID or ad does not exist"
+// @Failure      401    {object}  nil  "Unauthorized"
+// @Failure      500    {object}  nil  "Internal server error"
+// @Router       /ads/{ad_id}/ [delete]
 func DeleteAds(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "pro" {

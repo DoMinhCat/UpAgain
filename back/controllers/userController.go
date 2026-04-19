@@ -10,10 +10,13 @@ import (
 )
 
 // GetTotalScore godoc
-// @Summary      Get total CO2 of completed items (bought) and total UpScore
-// @Description  Get the total CO2 saved and total UpScore
+// @Summary      Get total CO2 and UpScore
+// @Description  Get the total CO2 saved and total UpScore from all approved items in the system.
 // @Tags         user
 // @Produce      json
+// @Success      200      {object}  models.TotalScoreStats  "Successfully retrieved total score stats"
+// @Failure      401      {object}  nil                     "Unauthorized"
+// @Failure      500      {object}  nil                     "Internal server error"
 // @Router       /users/score/ [get]
 func GetTotalScore(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role

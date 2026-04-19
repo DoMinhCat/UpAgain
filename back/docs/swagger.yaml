@@ -172,6 +172,28 @@ definitions:
       total_records:
         type: integer
     type: object
+  models.ContainerSchedule:
+    properties:
+      pro_range:
+        items:
+          $ref: '#/definitions/models.ContainerScheduleItem'
+        type: array
+      user_range:
+        items:
+          $ref: '#/definitions/models.ContainerScheduleItem'
+        type: array
+    type: object
+  models.ContainerScheduleItem:
+    properties:
+      deposit_id:
+        type: integer
+      deposit_title:
+        type: string
+      valid_from:
+        type: string
+      valid_to:
+        type: string
+    type: object
   models.CreateAccountRequest:
     properties:
       email:
@@ -188,6 +210,15 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  models.CreateAdsRequest:
+    properties:
+      duration:
+        type: integer
+      from:
+        type: string
+      id_post:
+        type: integer
     type: object
   models.DepositDetails:
     properties:
@@ -446,6 +477,12 @@ definitions:
     type: object
   models.Post:
     properties:
+      ads_from:
+        type: string
+      ads_id:
+        type: string
+      ads_to:
+        type: string
       category:
         type: string
       comment_count:
@@ -632,6 +669,13 @@ definitions:
       is_banned:
         type: boolean
     type: object
+  models.TotalScoreStats:
+    properties:
+      co2:
+        type: number
+      total:
+        type: integer
+    type: object
   models.Transaction:
     properties:
       action:
@@ -693,6 +737,15 @@ definitions:
       phone:
         type: string
       username:
+        type: string
+    type: object
+  models.UpdateAdsRequest:
+    properties:
+      from:
+        type: string
+      id_ads:
+        type: integer
+      to:
         type: string
     type: object
   models.UpdateEventStatusRequest:
@@ -1519,6 +1572,94 @@ paths:
       summary: Get validation stats
       tags:
       - validation
+  /ads/:
+    post:
+      consumes:
+      - application/json
+      description: Create a new advertisement for a specific project. Admin creates
+        it for free, Pro users will need to pay (TODO).
+      parameters:
+      - description: Create Ad payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAdsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ad created successfully.
+          schema:
+            type: string
+        "400":
+          description: Invalid request body or project does not exist
+        "401":
+          description: Unauthorized
+        "409":
+          description: Project already has an active ad
+        "500":
+          description: Internal server error
+      summary: Create an ad for a project
+      tags:
+      - ads
+  /ads/{ad_id}/:
+    delete:
+      description: Soft-delete (cancel) an existing advertisement by its ID. Admin
+        can delete any ad, Pro users can only delete their own.
+      parameters:
+      - description: Ad ID
+        in: path
+        name: ad_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid Ad ID or ad does not exist
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Delete an ad
+      tags:
+      - ads
+    patch:
+      consumes:
+      - application/json
+      description: Update the start and end dates of an existing advertisement. Admin
+        only.
+      parameters:
+      - description: Ad ID
+        in: path
+        name: ad_id
+        required: true
+        type: integer
+      - description: Update Ad payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAdsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ad updated successfully.
+          schema:
+            type: string
+        "400":
+          description: Invalid Ad ID or request body
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Update an ad
+      tags:
+      - ads
   /containers/:
     get:
       description: Get a list of all containers
@@ -1689,6 +1830,34 @@ paths:
           schema:
             type: string
       summary: Update container location
+      tags:
+      - container
+  /containers/{id}/schedule/:
+    get:
+      description: Returns the list of deposits and their planned dates (barcode valid
+        date range) for a specific container.
+      parameters:
+      - description: Container ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ContainerSchedule'
+            type: array
+        "400":
+          description: Invalid ID
+        "404":
+          description: Container not found
+        "500":
+          description: Internal server error
+      summary: Get container schedule
       tags:
       - container
   /containers/available/:
@@ -3406,11 +3575,20 @@ paths:
       - subscription
   /users/score/:
     get:
-      description: Get the total CO2 saved and total UpScore
+      description: Get the total CO2 saved and total UpScore from all approved items
+        in the system.
       produces:
       - application/json
-      responses: {}
-      summary: Get total CO2 of completed items (bought) and total UpScore
+      responses:
+        "200":
+          description: Successfully retrieved total score stats
+          schema:
+            $ref: '#/definitions/models.TotalScoreStats'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get total CO2 and UpScore
       tags:
       - user
 swagger: "2.0"
