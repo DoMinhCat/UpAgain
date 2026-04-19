@@ -50,5 +50,6 @@ export const PATHS = {
   ERROR: {
     NOT_FOUND: "/404",
     UNAUTHORIZED: "/403",
+    INTERNAL_SERVER_ERROR: "/500",
   },
 } as const;

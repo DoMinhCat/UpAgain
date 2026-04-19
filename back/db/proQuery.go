@@ -24,7 +24,7 @@ func CreatePro(newAccount models.CreateAccountRequest, insertedId int) error {
 
 	//if premium, create a subscription
 	if *newAccount.IsPremium {
-		err = CreateSubscription(insertedId, false, true)
+		err = CreateSubscription(insertedId, *newAccount.IsTrial)
 		if err != nil {
 			err = DeleteAccount(insertedId)
 			if err != nil {

@@ -137,7 +137,10 @@ export function AdminHistoryDetails() {
                                 id_history: historyData?.id,
                               },
                             });
-                          } else if (historyData?.module === "post") {
+                          } else if (
+                            historyData?.module === "post" ||
+                            historyData?.module === "ads"
+                          ) {
                             navigate(`/admin/posts/${historyData?.item_id}`, {
                               state: {
                                 from: "historyDetails",
@@ -193,7 +196,8 @@ export function AdminHistoryDetails() {
                         ? "Account #"
                         : historyData?.module === "container"
                           ? "Container #"
-                          : historyData?.module === "post"
+                          : historyData?.module === "post" ||
+                              historyData?.module === "ads"
                             ? "Post #"
                             : historyData?.module === "event"
                               ? "Event #"

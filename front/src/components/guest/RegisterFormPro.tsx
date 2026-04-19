@@ -25,6 +25,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { PremiumCard } from "./PremiumCard";
 import { FreemiumCard } from "./FreemiumCard";
 import { useGetFinanceSettingByKey } from "../../hooks/financeHooks";
+import { showErrorNotification } from "../common/NotificationToast";
 
 export default function RegisterFormPro() {
   const navigate = useNavigate();
@@ -155,6 +156,10 @@ export default function RegisterFormPro() {
       !validatePhone(phone)
     )
       return;
+    if (selectedPlan == null) {
+      showErrorNotification("Register failed", "Please select a plan");
+      return;
+    }
 
     registerMutation.mutate({
       email,
@@ -163,7 +168,7 @@ export default function RegisterFormPro() {
       phone,
       role: "pro",
       is_trial: selectedPlan === "trial",
-      is_premium: selectedPlan === "premium",
+      is_premium: selectedPlan === "premium" || selectedPlan === "trial",
     });
   };
 

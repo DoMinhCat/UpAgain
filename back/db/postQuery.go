@@ -213,15 +213,21 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 		paramIndex++
 	}
 
+	fromJoinClause := " FROM posts p JOIN accounts a ON p.id_account=a.id LEFT JOIN ads ad ON p.id=ad.id_post AND ad.status = 'active'"
+
 	if filters.Category != "" {
-		whereClause += fmt.Sprintf(" AND p.category = $%d", paramIndex)
-		params = append(params, filters.Category)
-		countParams = append(countParams, filters.Category)
-		paramIndex++
+		if filters.Category == "sponsored" {
+			whereClause += " AND ad.id IS NOT NULL"
+		} else {
+			whereClause += fmt.Sprintf(" AND p.category = $%d", paramIndex)
+			params = append(params, filters.Category)
+			countParams = append(countParams, filters.Category)
+			paramIndex++
+		}
 	}
 
 	var totalRecords int
-	countQuery := "SELECT COUNT(*) FROM posts p JOIN accounts a ON p.id_account=a.id " + whereClause
+	countQuery := "SELECT COUNT(*) " + fromJoinClause + " " + whereClause
 	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
 	if err != nil {
 		return nil, 0, fmt.Errorf("GetAllPosts() count failed: %v", err)
@@ -248,10 +254,9 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 	}
 
 	query := `
-		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username 
-		FROM posts p 
-		JOIN accounts a ON p.id_account=a.id 
-		` + whereClause + " " + orderBy
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
+		` + fromJoinClause + `
+		 ` + whereClause + " " + orderBy
 
 	// pagination
 	if limit != -1 && page != -1 {
@@ -269,7 +274,7 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 
 	for rows.Next() {
 		var event models.Post
-		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Content, &event.Category, &event.ViewCount, &event.LikeCount, &event.IdAccount, &event.Creator)
+		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Content, &event.Category, &event.ViewCount, &event.LikeCount, &event.IdAccount, &event.Creator, &event.AdsId)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllPosts() scan failed: %v", err.Error())
 		}
@@ -320,8 +325,14 @@ func GetTotalSavesByPostId(id int) (int, error) {
 
 func GetPostDetailsById(id int) (models.Post, error) {
 	var post models.Post
-	query := `select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id from posts p join accounts a on p.id_account=a.id where p.id = $1 and p.is_deleted = false;`
-	err := utils.Conn.QueryRow(query, id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId)
+	query := `
+	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id, ad.start_date, ad.end_date
+	from posts p 
+	join accounts a on p.id_account=a.id 
+	left join ads ad on p.id=ad.id_post and ad.status = 'active'
+	where p.id = $1 and p.is_deleted = false;
+	`
+	err := utils.Conn.QueryRow(query, id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId, &post.AdsId, &post.AdsFrom, &post.AdsTo)
 	if err != nil {
 		return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
 	}

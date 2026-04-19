@@ -105,4 +105,10 @@ export const ENDPOINTS = {
     CODES: (id_deposit: number) => `/deposits/${id_deposit}/codes/`,
     TRANSFER: (id_deposit: number) => `/deposits/${id_deposit}/transfer/`,
   },
+
+  ADS: {
+    CREATE: "/ads/",
+    DELETE: (id_ads: number) => `/ads/${id_ads}/`,
+    UPDATE: (id_ads: number) => `/ads/${id_ads}/`,
+  },
 } as const;

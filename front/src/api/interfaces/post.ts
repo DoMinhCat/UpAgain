@@ -20,6 +20,9 @@ export interface Post {
   creator: string;
   creator_id: number;
   photos?: string[];
+  ads_id: number | null;
+  ads_from: string | null;
+  ads_to: string | null;
 }
 
 export interface PostsListPagination {
