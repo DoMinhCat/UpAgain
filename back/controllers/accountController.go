@@ -795,6 +795,15 @@ func GetAccountCount(w http.ResponseWriter, r *http.Request) {
 }
 
 
+// ExportAccountsCsv godoc
+// @Summary      Export accounts to CSV
+// @Description  Exports a list of all accounts into a CSV file downloaded by the client. Admin only.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Produce      text/csv
+// @Success      200  {file}    file  "CSV file containing accounts"
+// @Failure      500  {object}  nil   "Internal server error"
+// @Router       /accounts/export/ [get]
 func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
 	accounts, _, err := db.GetAllAccounts(false, -1, -1, models.AccountFilters{})
 	if err != nil {
