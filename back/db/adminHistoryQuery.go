@@ -7,7 +7,7 @@ import (
 
 // InsertHistory insert a new history record in admin_history table
 //
-// entityType: 'employee', 'user', 'pro', 'event', 'container', 'post', 'comment', 'listing', 'deposit', 'transaction', 'subscription', 'finance_setting'
+// entityType: 'employee', 'user', 'pro', 'event', 'container', 'post', 'comment', 'listing', 'deposit', 'transaction', 'subscription', 'finance_setting', 'ads'
 //
 // entityId: id of the entity
 //

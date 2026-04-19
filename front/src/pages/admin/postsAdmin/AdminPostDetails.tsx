@@ -22,6 +22,7 @@ import {
   Timeline,
   Loader,
   Center,
+  NumberInput,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
@@ -245,11 +246,11 @@ export const AdminPostDetails = () => {
   const [openedAddSponsor, { open: openAddSponsor, close: closeAddSponsor }] =
     useDisclosure(false);
   const [startDateNewAds, setStartDateNewAds] = useState<string | null>(null);
-  const [endDateNewAds, setEndDateNewAds] = useState<string | null>(null);
+  const [durationNewAds, setDurationNewAds] = useState<number | string>(1);
   const [errorStartDateNewAds, setErrorStartDateNewAds] = useState<
     string | null
   >(null);
-  const [errorEndDateNewAds, setErrorEndDateNewAds] = useState<string | null>(
+  const [errordurationNewAds, setErrordurationNewAds] = useState<string | null>(
     null,
   );
 
@@ -265,26 +266,27 @@ export const AdminPostDetails = () => {
     setErrorStartDateNewAds(null);
     return true;
   };
-  const validateEndDateNewAds = () => {
-    if (!endDateNewAds) {
-      setErrorEndDateNewAds("End date is required");
+  const validatedurationNewAds = () => {
+    if (!durationNewAds) {
+      setErrordurationNewAds("Duration is required");
       return false;
     }
-    if (startDateNewAds && endDateNewAds <= startDateNewAds) {
-      setErrorEndDateNewAds("End date must be after start date");
+    if (typeof durationNewAds === "number" && durationNewAds <= 0) {
+      setErrordurationNewAds("Duration must be at least 1 month");
       return false;
     }
-    setErrorEndDateNewAds(null);
+    setErrordurationNewAds(null);
     return true;
   };
 
   const handleAddSponsor = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateStartDateNewAds() || !validateEndDateNewAds()) {
+    if (!validateStartDateNewAds() || !validatedurationNewAds()) {
       return;
     }
+    // TODO: call mutate hook
     setStartDateNewAds(null);
-    setEndDateNewAds(null);
+    setDurationNewAds(1);
     closeAddSponsor();
   };
 
@@ -844,14 +846,14 @@ export const AdminPostDetails = () => {
                     onBlur={() => validateStartDateNewAds()}
                     error={errorStartDateNewAds}
                   />
-                  <DatePickerInput
-                    label="End date"
-                    placeholder="Pick date and time"
+                  <NumberInput
+                    label="Duration (months)"
+                    min={1}
                     withAsterisk
-                    value={endDateNewAds}
-                    onChange={setEndDateNewAds}
-                    onBlur={() => validateEndDateNewAds()}
-                    error={errorEndDateNewAds}
+                    value={durationNewAds}
+                    onChange={setDurationNewAds}
+                    onBlur={() => validatedurationNewAds()}
+                    error={errordurationNewAds}
                   />
                 </Group>
                 <Group mt="lg" justify="center">

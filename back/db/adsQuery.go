@@ -1,6 +1,7 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
 	"fmt"
 	"time"
@@ -52,4 +53,30 @@ func GetTotalActiveAdsById(id_account int) (int, error) {
 	}
 
 	return total, nil
+}
+
+func CreateAds(payload models.CreateAdsRequest, role string) (int, error) {
+	if role != "admin" && role != "pro" {
+		return 0, fmt.Errorf("CreateAds() failed: role must be 'pro' or 'admin'")
+	}
+
+	endDate := payload.From.AddDate(0, payload.Duration, 0)
+	idAds := 0
+
+	if role == "admin" {
+		// insert without price
+		query := `
+			insert into ads (id_post, start_date, end_date, price_per_month, total_price)
+			values ($1, $2, $3, 0, 0)
+			returning id
+		`
+		err := utils.Conn.QueryRow(query, payload.IdPost, payload.From, endDate).Scan(&idAds)
+		if err != nil {
+			return 0, fmt.Errorf("CreateAds() failed: %v", err.Error())
+		}
+	} else {
+		// TODO: get current price of ads, calculate total price and insert into db
+	}
+
+	return idAds, nil
 }
