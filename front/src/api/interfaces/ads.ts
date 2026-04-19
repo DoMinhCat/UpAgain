@@ -3,3 +3,8 @@ export interface CreateAdsRequest {
   from: Date;
   duration: number;
 }
+
+export interface UpdateAdsRequest {
+  from: Date;
+  to: Date;
+}

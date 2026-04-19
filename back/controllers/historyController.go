@@ -130,6 +130,17 @@ func GetHistoryDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exist, err := db.CheckHistoryExistsById(historyID)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")
+		slog.Error("CheckHistoryExistsById() failed", "controller", "GetHistoryDetails", "error", err)
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "History entry not found.")
+		return
+	}
+
 	history, err := db.GetHistoryDetailsById(historyID)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")

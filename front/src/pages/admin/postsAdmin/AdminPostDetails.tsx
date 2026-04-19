@@ -27,7 +27,7 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
 import { useDisclosure } from "@mantine/hooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   IconPhoto,
   IconEye,
@@ -59,7 +59,11 @@ import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
-import { useCreateAds } from "../../../hooks/adsHooks";
+import {
+  useCreateAds,
+  useDeleteAds,
+  useUpdateAds,
+} from "../../../hooks/adsHooks";
 
 export const AdminPostDetails = () => {
   const navigate = useNavigate();
@@ -243,7 +247,7 @@ export const AdminPostDetails = () => {
     }
   };
 
-  // ADD SPONSOR STATUS
+  // CREATE ADS MODAL
   const [openedAddSponsor, { open: openAddSponsor, close: closeAddSponsor }] =
     useDisclosure(false);
   const [startDateNewAds, setStartDateNewAds] = useState<string | null>(null);
@@ -302,6 +306,101 @@ export const AdminPostDetails = () => {
     );
   };
 
+  // EDIT ADS MODAL
+  const [
+    openedEditSponsor,
+    { open: openEditSponsor, close: closeEditSponsor },
+  ] = useDisclosure(false);
+  const [startDateEditAds, setStartDateEditAds] = useState<Date | null>(null);
+  const [endDateEditAds, setEndDateEditAds] = useState<Date | null>(null);
+  const [errorStartDateEditAds, setErrorStartDateEditAds] = useState<
+    string | null
+  >(null);
+  const [errorEndDateEditAds, setErrorEndDateEditAds] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (postDetails?.ads_from) {
+      setStartDateEditAds(new Date(postDetails.ads_from));
+    }
+  }, [postDetails?.ads_from]);
+
+  useEffect(() => {
+    if (postDetails?.ads_to) {
+      setEndDateEditAds(new Date(postDetails.ads_to));
+    }
+  }, [postDetails?.ads_to]);
+
+  const handleStartDateEditAdsChange = (val: string | null) => {
+    setStartDateEditAds(val ? new Date(val) : null);
+  };
+  const handleEndDateEditAdsChange = (val: string | null) => {
+    setEndDateEditAds(val ? new Date(val) : null);
+  };
+
+  const validateStartDateEditAds = () => {
+    if (!startDateEditAds) {
+      setErrorStartDateEditAds("Start date is required");
+      return false;
+    }
+    if (startDateEditAds < new Date()) {
+      setErrorStartDateEditAds("Start date must be in the future");
+      return false;
+    }
+    setErrorStartDateEditAds(null);
+    return true;
+  };
+  const validateEndDateEditAds = () => {
+    if (!endDateEditAds) {
+      setErrorEndDateEditAds("End date is required");
+      return false;
+    }
+    if (startDateEditAds && endDateEditAds < startDateEditAds) {
+      setErrorEndDateEditAds("End date must be after start date");
+      return false;
+    }
+    setErrorEndDateEditAds(null);
+    return true;
+  };
+
+  const editAdsMutate = useUpdateAds();
+  const handleEditSponsor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateStartDateEditAds() || !validateEndDateEditAds()) {
+      return;
+    }
+    editAdsMutate.mutate(
+      {
+        id_ads: postDetails?.ads_id ?? 0,
+        payload: {
+          from: startDateEditAds ?? new Date(),
+          to: endDateEditAds ?? new Date(),
+        },
+      },
+      {
+        onSuccess: () => {
+          setStartDateNewAds(null);
+          setDurationNewAds(1);
+          closeEditSponsor();
+        },
+      },
+    );
+  };
+
+  // REMOVE ADS MODAL
+  const [openedRemoveAds, { open: openRemoveAds, close: closeRemoveAds }] =
+    useDisclosure(false);
+  const deleteAdsMutate = useDeleteAds();
+  const handleRemoveAds = (e: React.FormEvent) => {
+    e.preventDefault();
+    deleteAdsMutate.mutate(postDetails?.ads_id ?? 0, {
+      onSuccess: () => {
+        closeRemoveAds();
+      },
+    });
+  };
+
   if (isLoadingPostDetails || isLoadingComments) {
     return <FullScreenLoader />;
   }
@@ -314,19 +413,16 @@ export const AdminPostDetails = () => {
       <AdminBreadcrumbs
         breadcrumbs={[
           ...(origin.from === "allPosts"
-            ? [
-                { title: "Post Management", href: "/admin/posts" },
-                { title: "Post's Details", href: "/admin/posts/:id" },
-              ]
+            ? [{ title: "Post Management", href: "/admin/posts" }]
             : origin.from === "historyDetails"
               ? [
-                  { title: "History Details", href: "/admin/history/:id" },
-                  { title: "Post's Details", href: "/admin/posts/:id" },
+                  {
+                    title: "History Details",
+                    href: `/admin/history/${origin.id_history}`,
+                  },
                 ]
-              : [
-                  { title: "Post Management", href: "/admin/posts" },
-                  { title: "Post's Details", href: "/admin/posts/:id" },
-                ]),
+              : [{ title: "Post Management", href: "/admin/posts" }]),
+          { title: "Post's Details", href: "#" },
         ]}
       />
 
@@ -487,6 +583,7 @@ export const AdminPostDetails = () => {
                               />
                               {step.items.map((item) => (
                                 <Anchor
+                                  key={item.id}
                                   size="sm"
                                   fw={500}
                                   style={{
@@ -545,7 +642,7 @@ export const AdminPostDetails = () => {
                 <Text>No comments yet</Text>
               ) : (
                 comments?.comments.map((comment) => (
-                  <Stack gap="sm">
+                  <Stack gap="sm" key={comment.id}>
                     <Paper
                       withBorder
                       p="md"
@@ -705,19 +802,27 @@ export const AdminPostDetails = () => {
                   Edit post
                 </Button>
                 <Button variant="delete" onClick={openDelete}>
-                  Delete
+                  Delete post
                 </Button>
               </Group>
-              {postDetails?.ads_id ? (
-                <Button variant="edit" mt="md">
-                  Edit sponsored status
-                </Button>
-              ) : postDetails?.category === "project" &&
-                !postDetails?.ads_id ? (
-                <Button variant="primary" mt="md" onClick={openAddSponsor}>
-                  Add sponsored status
-                </Button>
-              ) : null}
+
+              <Group grow>
+                {postDetails?.ads_id ? (
+                  <Button variant="edit" mt="md" onClick={openEditSponsor}>
+                    Edit ads
+                  </Button>
+                ) : postDetails?.category === "project" &&
+                  !postDetails?.ads_id ? (
+                  <Button variant="primary" mt="md" onClick={openAddSponsor}>
+                    Create ads
+                  </Button>
+                ) : null}
+                {postDetails?.ads_id ? (
+                  <Button variant="delete" mt="md" onClick={openRemoveAds}>
+                    Remove ads
+                  </Button>
+                ) : null}
+              </Group>
 
               <Modal
                 title="Edit event"
@@ -877,8 +982,80 @@ export const AdminPostDetails = () => {
                     onClick={(e: React.FormEvent) => {
                       handleAddSponsor(e);
                     }}
-                    // loading={addSponsor.isPending}
+                    loading={createAdsMutate.isPending}
                     variant="primary"
+                  >
+                    Confirm
+                  </Button>
+                </Group>
+              </Modal>
+
+              {/* Edit sponsor status modal */}
+              <Modal
+                title="Edit sponsor status"
+                opened={openedEditSponsor}
+                onClose={closeEditSponsor}
+                centered
+                size="lg"
+              >
+                <Group justify="space-between" gap="md" grow>
+                  <DatePickerInput
+                    label="Start date"
+                    withAsterisk
+                    placeholder="Pick date and time"
+                    value={startDateEditAds}
+                    onChange={handleStartDateEditAdsChange}
+                    onBlur={() => validateStartDateEditAds()}
+                    error={errorStartDateEditAds}
+                  />
+                  <DatePickerInput
+                    label="End date"
+                    withAsterisk
+                    value={endDateEditAds}
+                    onChange={handleEndDateEditAdsChange}
+                    onBlur={() => validateEndDateEditAds()}
+                    error={errorEndDateEditAds}
+                  />
+                </Group>
+                <Group mt="lg" justify="center">
+                  <Button onClick={closeEditSponsor} variant="grey">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={(e: React.FormEvent) => {
+                      handleEditSponsor(e);
+                    }}
+                    loading={editAdsMutate.isPending}
+                    variant="primary"
+                  >
+                    Confirm
+                  </Button>
+                </Group>
+              </Modal>
+              {/* Confirm remove ads modal */}
+              <Modal
+                title="Remove sponsored status"
+                opened={openedRemoveAds}
+                onClose={closeRemoveAds}
+                centered
+                size="md"
+              >
+                <Stack>
+                  <Text>
+                    Are you sure you want to remove sponsored status from this
+                    post?
+                  </Text>
+                </Stack>
+                <Group mt="lg" justify="center">
+                  <Button onClick={closeRemoveAds} variant="grey">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={(e: React.FormEvent) => {
+                      handleRemoveAds(e);
+                    }}
+                    loading={deleteAdsMutate.isPending}
+                    variant="delete"
                   >
                     Confirm
                   </Button>

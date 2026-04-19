@@ -7,6 +7,18 @@ import (
 	"time"
 )
 
+func CheckAdsExistsById(id int) (bool, error) {
+	var exists bool
+	query := `
+		select exists(select 1 from ads where id=$1)
+	`
+	err := utils.Conn.QueryRow(query, id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckAdsExistsById() failed: %v", err.Error())
+	}
+	return exists, nil
+}
+
 func GetTotalAdsSpendingsById(id int) (int, error) {
 	total := 0
 	var start_date time.Time
@@ -79,4 +91,38 @@ func CreateAds(payload models.CreateAdsRequest, role string) (int, error) {
 	}
 
 	return idAds, nil
+}
+
+func UpdateAdsByAdsId(payload models.UpdateAdsRequest) (error) {
+	query := `
+		UPDATE ads SET start_date=$1, end_date=$2 WHERE id=$3
+	`
+	_, err := utils.Conn.Exec(query, payload.From, payload.To, payload.IdAds)
+	if err != nil {
+		return fmt.Errorf("UpdateAdsByAdsId() failed: %v", err.Error())
+	}
+	return nil
+}
+
+func DeleteAdsByAdsId(id_ads int) (error) {
+	query := `
+		UPDATE ads SET status='cancelled' WHERE id=$1;
+	`
+	_, err := utils.Conn.Exec(query, id_ads)
+	if err != nil {
+		return fmt.Errorf("DeleteAdsByAdsId() failed: %v", err.Error())
+	}
+	return nil
+}
+
+func GetAdsById(id_ads int) (models.Ads, error) {
+	var ads models.Ads
+	query := `
+		SELECT id, id_post, start_date, end_date, price_per_month, total_price, status FROM ads WHERE id=$1
+	`
+	err := utils.Conn.QueryRow(query, id_ads).Scan(&ads.IdAds, &ads.IdPost, &ads.StartDate, &ads.EndDate, &ads.PricePerMonth, &ads.TotalPrice, &ads.Status)
+	if err != nil {
+		return models.Ads{}, fmt.Errorf("GetAdsById() failed: %v", err.Error())
+	}
+	return ads, nil
 }
