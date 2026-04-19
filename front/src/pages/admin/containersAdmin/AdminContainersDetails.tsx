@@ -16,6 +16,7 @@ import {
   HoverCard,
   Indicator,
   UnstyledButton,
+  TextInput,
 } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
 import { PATHS } from "../../../routes/paths";
@@ -41,8 +42,8 @@ import {
   useGetContainerSchedule,
 } from "../../../hooks/containerHooks";
 
-// TODO: add street field to table containers
-// TODO: link to listing/deposit object if its currently occupied
+import { useState } from "react";
+
 export default function AdminContainersDetails() {
   const origin = useLocation().state;
   const navigate = useNavigate();
@@ -73,6 +74,8 @@ export default function AdminContainersDetails() {
     useGetContainerSchedule(containerId);
 
   //location
+  const [locationCity, setLocationCity] = useState(container?.city_name || "");
+  const [locationStreet, setLocationStreet] = useState(container?.street || "");
   const { data: containersData } = useGetAllContainers();
   const locationMutation = useUpdateLocation();
 
@@ -80,11 +83,21 @@ export default function AdminContainersDetails() {
     ...new Set(containersData?.containers?.map((c) => c.city_name) ?? []),
   ].map((city) => ({ value: city, label: city }));
 
-  const handleLocationChange = (city_name: string) => {
+  const handleLocationChange = (city_name: string, street: string) => {
     locationMutation.mutate(
-      { id: containerId, city_name },
-      { onSuccess: () => closeLocation() },
+      { id: containerId, city_name, street },
+      {
+        onSuccess: () => {
+          closeLocation();
+        },
+      },
     );
+  };
+
+  const handleOpenLocation = () => {
+    setLocationCity(container?.city_name || "");
+    setLocationStreet(container?.street || "");
+    openLocation();
   };
   //status
   const statusMutation = useUpdateStatus();
@@ -155,7 +168,8 @@ export default function AdminContainersDetails() {
           </ThemeIcon>
           <Title order={2}>Container #{container?.id}</Title>
           <Text c="dimmed">
-            {container?.city_name} - {container?.postal_code}
+            {container?.street}, {container?.city_name} -{" "}
+            {container?.postal_code}
           </Text>
         </Stack>
 
@@ -182,7 +196,8 @@ export default function AdminContainersDetails() {
           <InfoField label="Location">
             <Group mt="xs" mb="xl">
               <Text fw={500}>
-                {container?.city_name} ({container?.postal_code})
+                {container?.street}, {container?.city_name} (
+                {container?.postal_code})
               </Text>
               <Button
                 size="compact-xs"
@@ -286,6 +301,7 @@ export default function AdminContainersDetails() {
         <Select
           label="New Status"
           placeholder="Pick one"
+          withAsterisk
           data={[
             { value: "ready", label: "Ready" },
             { value: "maintenance", label: "Maintenance" },
@@ -298,16 +314,39 @@ export default function AdminContainersDetails() {
       <Modal
         opened={openedLocation}
         onClose={closeLocation}
-        title="Update Container Location"
+        title="Update container's location"
         centered
       >
-        <Select
-          label="New Location"
-          placeholder="Pick a city"
-          data={cityOptions}
-          defaultValue={container?.city_name}
-          onChange={(val) => val && handleLocationChange(val)}
-        />
+        <Stack>
+          <Select
+            withAsterisk
+            label="City"
+            required
+            data={cityOptions}
+            value={locationCity}
+            onChange={(val) => val && setLocationCity(val)}
+          />
+          <TextInput
+            label="Street"
+            withAsterisk
+            value={locationStreet}
+            onChange={(e) => setLocationStreet(e.target.value)}
+            required
+          />
+          <Group justify="flex-end" mt="md">
+            <Button variant="grey" onClick={closeLocation}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              loading={locationMutation.isPending}
+              disabled={!locationCity || !locationStreet}
+              onClick={() => handleLocationChange(locationCity, locationStreet)}
+            >
+              Confirm
+            </Button>
+          </Group>
+        </Stack>
       </Modal>
 
       <Modal

@@ -36,7 +36,7 @@ func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]m
 		return nil, 0, fmt.Errorf("GetAllContainers() count failed: %v", err)
 	}
 
-	query := "SELECT id, created_at, city_name, postal_code, status, is_deleted FROM containers " + whereClause + " ORDER BY id ASC"
+	query := "SELECT id, created_at, city_name, postal_code, street, status, is_deleted FROM containers " + whereClause + " ORDER BY id ASC"
 
 	if limit != -1 && page != -1 {
 		offset := (page - 1) * limit
@@ -53,7 +53,7 @@ func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]m
 	var containers []models.Container
 	for rows.Next() {
 		var c models.Container
-		if err := rows.Scan(&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Status, &c.IsDeleted); err != nil {
+		if err := rows.Scan(&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Street, &c.Status, &c.IsDeleted); err != nil {
 			return nil, 0, err
 		}
 		containers = append(containers, c)
@@ -68,11 +68,11 @@ func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]m
 
 func FindContainerByID(id int) (models.Container, error) {
 	var c models.Container
-	query := `SELECT id, created_at, city_name, postal_code, status, is_deleted
+	query := `SELECT id, created_at, city_name, postal_code, street, status, is_deleted
 			  FROM containers WHERE id = $1 AND is_deleted = false`
 
 	err := utils.Conn.QueryRow(query, id).Scan(
-		&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Status, &c.IsDeleted,
+		&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Street, &c.Status, &c.IsDeleted,
 	)
 	return c, err
 }
@@ -124,10 +124,10 @@ func GetContainerCountByStatus(status *string) (int, error) {
 
 func InsertContainer(c models.Container) (int, error) {
 	var newId int
-	query := `INSERT INTO containers (city_name, postal_code, status, is_deleted, created_at)
-              VALUES ($1, $2, $3, false, NOW()) RETURNING id`
+	query := `INSERT INTO containers (city_name, postal_code, street, status, is_deleted, created_at)
+              VALUES ($1, $2, $3, $4, false, NOW()) RETURNING id`
 
-	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, "ready").Scan(&newId)
+	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, c.Street, "ready").Scan(&newId)
 
 	if err != nil {
 		slog.Error("CRITICAL SQL ERROR", "msg", err.Error())
@@ -168,9 +168,9 @@ func CheckContainerExistById(id int) (bool, error) {
 	return exist, err
 }
 
-func UpdateLocationContainer(id int, cityName string) error {
-	query := `UPDATE containers SET city_name = $1 WHERE id = $2`
-	_, err := utils.Conn.Exec(query, cityName, id)
+func UpdateLocationContainer(id int, cityName string, street string) error {
+	query := `UPDATE containers SET city_name = $1, street = $2 WHERE id = $3`
+	_, err := utils.Conn.Exec(query, cityName, street, id)
 	return err
 }
 
