@@ -19,7 +19,7 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
 import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
-import { DateTimePicker } from "@mantine/dates";
+import { DateTimePicker, DatePickerInput } from "@mantine/dates";
 
 const UpAgainTheme = createTheme({
   focusRing: "never",
@@ -110,6 +110,14 @@ const UpAgainTheme = createTheme({
       },
     }),
     DateTimePicker: DateTimePicker.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.input,
+          label: classes.label,
+        },
+      },
+    }),
+    DatePickerInput: DatePickerInput.extend({
       defaultProps: {
         classNames: {
           input: classes.input,

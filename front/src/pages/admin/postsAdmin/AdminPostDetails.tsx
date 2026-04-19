@@ -38,6 +38,7 @@ import {
   IconHeartFilled,
   IconRouteSquare,
   IconLink,
+  IconCrownFilled,
 } from "@tabler/icons-react";
 import { TextEditor } from "../../../components/common/input/TextEditor";
 import ImageDropzone from "../../../components/common/input/ImageDropzone";
@@ -56,6 +57,7 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 import PaginationFooter from "../../../components/common/PaginationFooter";
+import { DatePickerInput } from "@mantine/dates";
 
 export const AdminPostDetails = () => {
   const navigate = useNavigate();
@@ -239,6 +241,53 @@ export const AdminPostDetails = () => {
     }
   };
 
+  // ADD SPONSOR STATUS
+  const [openedAddSponsor, { open: openAddSponsor, close: closeAddSponsor }] =
+    useDisclosure(false);
+  const [startDateNewAds, setStartDateNewAds] = useState<string | null>(null);
+  const [endDateNewAds, setEndDateNewAds] = useState<string | null>(null);
+  const [errorStartDateNewAds, setErrorStartDateNewAds] = useState<
+    string | null
+  >(null);
+  const [errorEndDateNewAds, setErrorEndDateNewAds] = useState<string | null>(
+    null,
+  );
+
+  const validateStartDateNewAds = () => {
+    if (!startDateNewAds) {
+      setErrorStartDateNewAds("Start date is required");
+      return false;
+    }
+    if (startDateNewAds < new Date().toISOString()) {
+      setErrorStartDateNewAds("Start date must be in the future");
+      return false;
+    }
+    setErrorStartDateNewAds(null);
+    return true;
+  };
+  const validateEndDateNewAds = () => {
+    if (!endDateNewAds) {
+      setErrorEndDateNewAds("End date is required");
+      return false;
+    }
+    if (startDateNewAds && endDateNewAds <= startDateNewAds) {
+      setErrorEndDateNewAds("End date must be after start date");
+      return false;
+    }
+    setErrorEndDateNewAds(null);
+    return true;
+  };
+
+  const handleAddSponsor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateStartDateNewAds() || !validateEndDateNewAds()) {
+      return;
+    }
+    setStartDateNewAds(null);
+    setEndDateNewAds(null);
+    closeAddSponsor();
+  };
+
   if (isLoadingPostDetails || isLoadingComments) {
     return <FullScreenLoader />;
   }
@@ -291,6 +340,23 @@ export const AdminPostDetails = () => {
                 >
                   {postDetails?.category}
                 </Badge>
+                {postDetails?.ads_id && (
+                  <Badge
+                    size="md"
+                    variant="gradient"
+                    rightSection={
+                      <IconCrownFilled
+                        size={14}
+                        style={{
+                          display: "block",
+                          filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))",
+                        }}
+                      />
+                    }
+                  >
+                    Sponsored
+                  </Badge>
+                )}
               </Group>
 
               <Title order={2} mt="lg" mb="xs">
@@ -628,6 +694,16 @@ export const AdminPostDetails = () => {
                   Delete
                 </Button>
               </Group>
+              {postDetails?.ads_id ? (
+                <Button variant="edit" mt="md">
+                  Edit sponsored status
+                </Button>
+              ) : postDetails?.category === "project" &&
+                !postDetails?.ads_id ? (
+                <Button variant="primary" mt="md" onClick={openAddSponsor}>
+                  Add sponsored status
+                </Button>
+              ) : null}
               <Modal
                 title="Edit event"
                 opened={openedEdit}
@@ -744,6 +820,50 @@ export const AdminPostDetails = () => {
                     }}
                     variant="delete"
                     loading={deleteComment.isPending}
+                  >
+                    Confirm
+                  </Button>
+                </Group>
+              </Modal>
+
+              {/* Add sponsor status modal */}
+              <Modal
+                title="Add sponsor status"
+                opened={openedAddSponsor}
+                onClose={closeAddSponsor}
+                centered
+                size="lg"
+              >
+                <Group justify="space-between" gap="md" grow>
+                  <DatePickerInput
+                    label="Start date"
+                    withAsterisk
+                    placeholder="Pick date and time"
+                    value={startDateNewAds}
+                    onChange={setStartDateNewAds}
+                    onBlur={() => validateStartDateNewAds()}
+                    error={errorStartDateNewAds}
+                  />
+                  <DatePickerInput
+                    label="End date"
+                    placeholder="Pick date and time"
+                    withAsterisk
+                    value={endDateNewAds}
+                    onChange={setEndDateNewAds}
+                    onBlur={() => validateEndDateNewAds()}
+                    error={errorEndDateNewAds}
+                  />
+                </Group>
+                <Group mt="lg" justify="center">
+                  <Button onClick={closeAddSponsor} variant="grey">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={(e: React.FormEvent) => {
+                      handleAddSponsor(e);
+                    }}
+                    // loading={addSponsor.isPending}
+                    variant="primary"
                   >
                     Confirm
                   </Button>
