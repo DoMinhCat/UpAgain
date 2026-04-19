@@ -246,7 +246,7 @@ create table containers
     created_at  timestamptz      not null default now(),
     city_name   varchar(255)     not null,
     postal_code varchar(10)      not null,
-    -- TODO: add street field
+    street      text             not null,
     status      container_status not null default 'ready',
     is_deleted  boolean          not null default false
 );

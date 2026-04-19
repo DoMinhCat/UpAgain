@@ -130,8 +130,15 @@ export const useGetAvailableContainers = () => {
 export const useUpdateLocation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, city_name }: { id: number; city_name: string }) =>
-      updateContainerLocation(id, city_name),
+    mutationFn: ({
+      id,
+      city_name,
+      street,
+    }: {
+      id: number;
+      city_name: string;
+      street: string;
+    }) => updateContainerLocation(id, city_name, street),
     onSuccess: (_data, variables) => {
       showSuccessNotification("Updated", "Container location modified");
       queryClient.invalidateQueries({ queryKey: ["containers"] });
