@@ -248,9 +248,10 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 	}
 
 	query := `
-		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username 
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
 		FROM posts p 
-		JOIN accounts a ON p.id_account=a.id 
+		JOIN accounts a ON p.id_account=a.id
+		LEFT JOIN ads ad ON p.id=ad.id_post
 		` + whereClause + " " + orderBy
 
 	// pagination
@@ -269,7 +270,7 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 
 	for rows.Next() {
 		var event models.Post
-		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Content, &event.Category, &event.ViewCount, &event.LikeCount, &event.IdAccount, &event.Creator)
+		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Content, &event.Category, &event.ViewCount, &event.LikeCount, &event.IdAccount, &event.Creator, &event.AdsId)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllPosts() scan failed: %v", err.Error())
 		}

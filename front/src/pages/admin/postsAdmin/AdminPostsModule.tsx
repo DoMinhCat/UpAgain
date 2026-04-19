@@ -12,6 +12,8 @@ import {
   Select,
   Paper,
   Text,
+  Badge,
+  Tooltip,
 } from "@mantine/core";
 import { BarChart } from "@mantine/charts";
 import ImageDropzone from "../../../components/common/input/ImageDropzone";
@@ -21,6 +23,7 @@ import {
   IconPlus,
   IconSearch,
   IconArrowUpRight,
+  IconCrownFilled,
 } from "@tabler/icons-react";
 import {
   AdminCardInfo,
@@ -544,7 +547,6 @@ export const AdminPostsModule = () => {
           />
         }
       >
-        {/* mapping here */}
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
             <Table.Tr
@@ -560,7 +562,19 @@ export const AdminPostsModule = () => {
                 {dayjs(post.created_at).format("DD/MM/YYYY")}
               </Table.Td>
               <Table.Td ta="center">{post.id}</Table.Td>
-              <Table.Td ta="center">{post.title}</Table.Td>
+              <Table.Td ta="center">
+                <Group>
+                  <Text>{post.title}</Text>
+                  {post.ads_id && (
+                    <Tooltip label="This post is sponsored" position="top">
+                      <IconCrownFilled
+                        size={16}
+                        color="var(--upagain-yellow)"
+                      />
+                    </Tooltip>
+                  )}
+                </Group>
+              </Table.Td>
               <Table.Td ta="center">{post.creator}</Table.Td>
               <Table.Td ta="center">
                 <Pill
