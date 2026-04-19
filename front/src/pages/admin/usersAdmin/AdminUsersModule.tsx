@@ -11,6 +11,7 @@ import {
   Group,
   Modal,
   PasswordInput,
+  Checkbox,
 } from "@mantine/core";
 import AdminTable from "../../../components/admin/AdminTable";
 import {
@@ -60,6 +61,8 @@ export default function AdminUsersModule() {
   const [confirmPasswordNew, setConfirmPasswordNew] = useState<string>("");
   const [roleNew, setRoleNew] = useState<string>("");
   const [phoneNew, setPhoneNew] = useState<string>("");
+  const [isPremiumNew, setIsPremiumNew] = useState<boolean>(false);
+  const [isTrialNew, setIsTrialNew] = useState<boolean>(false);
   // error states
   const [usernameNewError, setUsernameNewError] = useState<string | null>(null);
   const [emailNewError, setEmailNewError] = useState<string | null>(null);
@@ -220,9 +223,27 @@ export default function AdminUsersModule() {
   };
 
   // create hook
+  const handleCloseCreate = () => {
+    closeCreate();
+    setUsernameNew("");
+    setEmailNew("");
+    setPasswordNew("");
+    setConfirmPasswordNew("");
+    setRoleNew("");
+    setPhoneNew("");
+    setIsPremiumNew(false);
+    setIsTrialNew(false);
+    setUsernameNewError(null);
+    setEmailNewError(null);
+    setPasswordNewError(null);
+    setConfirmPasswordNewError(null);
+    setRoleNewError(null);
+    setPhoneNewError(null);
+  };
   const createMutation = useCreateAccount();
 
   const handleCreateAccount = async (e: React.FormEvent) => {
+    console.log(isPremiumNew, isTrialNew);
     e.preventDefault();
     if (
       !validateUsernameNew(usernameNew) ||
@@ -238,6 +259,11 @@ export default function AdminUsersModule() {
         email: emailNew,
         password: passwordNew,
         role: roleNew,
+        phone: phoneNew !== "" ? phoneNew : undefined,
+        ...(roleNew === "pro" && {
+          is_premium: isPremiumNew,
+          is_trial: isTrialNew,
+        }),
       },
       {
         onSuccess: (response: any) => {
@@ -676,7 +702,11 @@ export default function AdminUsersModule() {
           </Button>
         </Group>
       </Modal>
-      <Modal opened={openedCreate} onClose={closeCreate} title="Create account">
+      <Modal
+        opened={openedCreate}
+        onClose={handleCloseCreate}
+        title="Create account"
+      >
         <Stack>
           <TextInput
             data-autofocus
@@ -764,6 +794,33 @@ export default function AdminUsersModule() {
               }
             }}
           />
+          {roleNew === "pro" && (
+            <Group>
+              <Checkbox
+                color="var(--upagain-neutral-green)"
+                label="Premium"
+                checked={isPremiumNew}
+                onChange={(event) => {
+                  const isChecked = event.currentTarget.checked;
+
+                  // Always update the premium status
+                  setIsPremiumNew(isChecked);
+
+                  // If it was just unchecked, turn off the trial as well
+                  if (!isChecked) {
+                    setIsTrialNew(false);
+                  }
+                }}
+              />
+              <Checkbox
+                color="var(--upagain-neutral-green)"
+                label="Trial"
+                checked={isTrialNew}
+                disabled={!isPremiumNew}
+                onChange={(event) => setIsTrialNew(event.currentTarget.checked)}
+              />
+            </Group>
+          )}
           <Button
             variant="primary"
             onClick={handleCreateAccount}
