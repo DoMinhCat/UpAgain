@@ -305,6 +305,11 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if c.Street == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Street is required")
+		return
+	}
+
 	id, err := db.InsertContainer(c)
 	if err != nil {
 		slog.Error("Failed to create container", "error", err)
@@ -393,9 +398,14 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if payload.Street == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Street is required.")
+		return
+	}
+
 	oldContainer, _ := db.FindContainerByID(id)
 
-	if err := db.UpdateLocationContainer(id, payload.CityName); err != nil {
+	if err := db.UpdateLocationContainer(id, payload.CityName, payload.Street); err != nil {
 		slog.Error("UpdateLocationContainer() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
