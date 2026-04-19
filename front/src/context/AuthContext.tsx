@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setUser(userData);
     showSuccessNotification(
-      "Logged In Successfully",
+      "Logged In successfully",
       `Welcome back, ${userData.username}.`,
     );
     return userData;

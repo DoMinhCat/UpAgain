@@ -27,7 +27,7 @@ export function StatsCardDesc({
   );
 }
 
-interface AdminCardInfoProps {
+interface AdminCardInfoProps extends Omit<import("@mantine/core").CardProps, "title" | "value"> {
   title: string;
   icon: Icon;
   value: string | number;
@@ -45,6 +45,8 @@ export function AdminCardInfo({
   path,
   error,
   loading,
+  className,
+  ...others
 }: AdminCardInfoProps) {
   const navigate = useNavigate();
   const handleClick = () => {
@@ -62,8 +64,9 @@ export function AdminCardInfo({
       radius="md"
       withBorder
       onClick={handleClick}
-      className={classes.card}
+      className={`${classes.card} ${className || ""}`}
       data-clickable={path ? true : undefined}
+      {...others}
     >
       <Flex
         gap="xl"
