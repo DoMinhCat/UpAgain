@@ -25,6 +25,10 @@ api.interceptors.response.use(
       router.navigate("/404", { replace: true });
       return new Promise(() => {});
     }
+    if (error.response?.status === 500) {
+      router.navigate("/500", { replace: true });
+      return new Promise(() => {});
+    }
     const originalRequest = error.config;
     if (
       error.response?.status === 401 &&

@@ -17,8 +17,8 @@ export function UnauthorizedPage() {
         <div className={classes.label}>403</div>
         <Title className={classes.title}>You have found a vault!</Title>
         <Text c="dimmed" size="lg" ta="center" className={classes.description}>
-          Unfortunately, this is only a 403 page. You don't have the right key
-          to access the vault you just found.
+          Unfortunately, this is only a 403 error page. You don't have the right
+          key to access the vault you just found.
         </Text>
         <Group justify="center">
           <Button variant="primary" onClick={() => navigate(PATHS.HOME)}>
