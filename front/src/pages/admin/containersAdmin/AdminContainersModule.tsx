@@ -13,6 +13,7 @@ import {
   Pill,
   Modal,
   Container,
+  SimpleGrid,
 } from "@mantine/core";
 import {
   IconBox,
@@ -146,6 +147,7 @@ export default function AdminContainersModule() {
       {
         city_name: formData.get("city") as string,
         postal_code: formData.get("zip") as string,
+        street: formData.get("street") as string,
       },
       {
         onSuccess: () => closeCreate(),
@@ -371,17 +373,25 @@ export default function AdminContainersModule() {
         <form onSubmit={handleCreateSubmit}>
           <Stack>
             <TextInput
-              label="City Name"
-              name="city"
+              label="Street"
+              name="street"
               required
-              placeholder="e.g. Lyon"
+              placeholder="e.g. 21 Erard street"
             />
-            <TextInput
-              label="Postal Code"
-              name="zip"
-              required
-              placeholder="e.g. 69000"
-            />
+            <SimpleGrid cols={2}>
+              <TextInput
+                label="City Name"
+                name="city"
+                required
+                placeholder="e.g. Lyon"
+              />
+              <TextInput
+                label="Postal Code"
+                name="zip"
+                required
+                placeholder="e.g. 69000"
+              />
+            </SimpleGrid>
             <Group justify="flex-end" mt="md">
               <Button variant="grey" onClick={closeCreate}>
                 Cancel

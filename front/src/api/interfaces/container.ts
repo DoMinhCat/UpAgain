@@ -3,6 +3,7 @@ export interface Container {
   created_at: string;
   city_name: string;
   postal_code: string;
+  street: string;
   status: "ready" | "occupied" | "maintenance" | "waiting";
   is_deleted: boolean;
   current_deposit_id: number | null;
