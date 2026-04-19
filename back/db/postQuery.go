@@ -213,15 +213,21 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 		paramIndex++
 	}
 
+	fromJoinClause := " FROM posts p JOIN accounts a ON p.id_account=a.id LEFT JOIN ads ad ON p.id=ad.id_post AND ad.status = 'active'"
+
 	if filters.Category != "" {
-		whereClause += fmt.Sprintf(" AND p.category = $%d", paramIndex)
-		params = append(params, filters.Category)
-		countParams = append(countParams, filters.Category)
-		paramIndex++
+		if filters.Category == "sponsored" {
+			whereClause += " AND ad.id IS NOT NULL"
+		} else {
+			whereClause += fmt.Sprintf(" AND p.category = $%d", paramIndex)
+			params = append(params, filters.Category)
+			countParams = append(countParams, filters.Category)
+			paramIndex++
+		}
 	}
 
 	var totalRecords int
-	countQuery := "SELECT COUNT(*) FROM posts p JOIN accounts a ON p.id_account=a.id " + whereClause
+	countQuery := "SELECT COUNT(*) " + fromJoinClause + " " + whereClause
 	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
 	if err != nil {
 		return nil, 0, fmt.Errorf("GetAllPosts() count failed: %v", err)
@@ -249,10 +255,8 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 
 	query := `
 		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
-		FROM posts p 
-		JOIN accounts a ON p.id_account=a.id
-		LEFT JOIN ads ad ON p.id=ad.id_post
-		` + whereClause + " " + orderBy
+		` + fromJoinClause + `
+		 ` + whereClause + " " + orderBy
 
 	// pagination
 	if limit != -1 && page != -1 {
