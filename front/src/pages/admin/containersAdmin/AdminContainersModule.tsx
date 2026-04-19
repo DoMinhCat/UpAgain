@@ -175,13 +175,33 @@ export default function AdminContainersModule() {
               icon={IconBox}
               title="Total Inventory"
               value={stats.total}
-              description="Units across all active regions"
+              description={
+                stats.total !== 1
+                  ? "containers across all regions"
+                  : "container across all regions"
+              }
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
             />
             <AdminCardInfo
               icon={IconPackage}
               title="Operational Rate"
               value={`${stats.ready + stats.occupied} / ${stats.total}`}
-              description="Containers available for collection"
+              description={
+                stats.ready + stats.occupied !== 1
+                  ? "containers available for collection"
+                  : "container available for collection"
+              }
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
             />
           </Stack>
         </Grid.Col>
@@ -230,8 +250,6 @@ export default function AdminContainersModule() {
           </Paper>
         </Grid.Col>
       </Grid>
-
-      <Divider my="xl" label="Detailed Records" labelPosition="center" />
 
       <Stack gap="md">
         <Group justify="flex-end">
