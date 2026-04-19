@@ -409,7 +409,17 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-// Get the item their dates planned for a container
+// GetContainerSchedule godoc
+// @Summary      Get container schedule
+// @Description  Returns the list of deposits and their planned dates (barcode valid date range) for a specific container.
+// @Tags         container
+// @Produce      json
+// @Param        id   path      int  true  "Container ID"
+// @Success      200  {array}   models.ContainerSchedule
+// @Failure      400  {object}  nil  "Invalid ID"
+// @Failure      404  {object}  nil  "Container not found"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /containers/{id}/schedule/ [get]
 func GetContainerSchedule(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
