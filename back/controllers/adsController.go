@@ -40,21 +40,24 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	projectDetails, err := db.GetPostDetailsById(project_id)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an ad for this project.")
+		slog.Error("GetPostDetailsById() failed", "controller", "CreateAdsForProject", "error", err)
+		return
+	}
 	// if not admin then can only create ads for himself
-	if role != "admin" {
-		projectDetails, err := db.GetPostDetailsById(project_id)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an ad for this project.")
-			slog.Error("GetPostDetailsById() failed", "controller", "CreateAdsForProject", "error", err)
-			return
-		}
-		if projectDetails.CreatorId != idRequestor {
-			utils.RespondWithError(w, http.StatusUnauthorized, "You are not allowed to perform this action.")
-			return
-		}
+	if role != "admin" && projectDetails.CreatorId != idRequestor {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not allowed to perform this action.")
+		return
+	}
+	// can't create if already have active ad
+	if projectDetails.AdsId.Valid {
+		utils.RespondWithError(w, http.StatusConflict, "Project already has an active ad.")
+		return
 	}
 
-	// validate start and end date
+	// validate spayload
 	validationResponse := validation.ValidateCreateAdsRequest(payload)
 	if !validationResponse.Success {
 		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message.Error())
@@ -86,6 +89,6 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithJSON(w, http.StatusOK, "Ad created successfully.")
 		return
 	} else{
-		// TODO: payment first then insert into db
+		// TODO: for pro need to do payment first then insert into db
 	}
 }

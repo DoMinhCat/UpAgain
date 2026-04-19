@@ -59,6 +59,7 @@ import { CardStatsItem } from "../../../components/admin/CardStatsItem";
 import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
+import { useCreateAds } from "../../../hooks/adsHooks";
 
 export const AdminPostDetails = () => {
   const navigate = useNavigate();
@@ -279,15 +280,26 @@ export const AdminPostDetails = () => {
     return true;
   };
 
+  const createAdsMutate = useCreateAds();
   const handleAddSponsor = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStartDateNewAds() || !validatedurationNewAds()) {
       return;
     }
-    // TODO: call mutate hook
-    setStartDateNewAds(null);
-    setDurationNewAds(1);
-    closeAddSponsor();
+    createAdsMutate.mutate(
+      {
+        id_post: postId,
+        from: new Date(startDateNewAds || ""),
+        duration: Number(durationNewAds),
+      },
+      {
+        onSuccess: () => {
+          setStartDateNewAds(null);
+          setDurationNewAds(1);
+          closeAddSponsor();
+        },
+      },
+    );
   };
 
   if (isLoadingPostDetails || isLoadingComments) {
@@ -706,6 +718,7 @@ export const AdminPostDetails = () => {
                   Add sponsored status
                 </Button>
               ) : null}
+
               <Modal
                 title="Edit event"
                 opened={openedEdit}
