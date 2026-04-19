@@ -108,5 +108,7 @@ export const ENDPOINTS = {
 
   ADS: {
     CREATE: "/ads/",
+    DELETE: (id_ads: number) => `/ads/${id_ads}/`,
+    UPDATE: (id_ads: number) => `/ads/${id_ads}/`,
   },
 } as const;

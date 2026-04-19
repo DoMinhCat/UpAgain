@@ -37,6 +37,8 @@ type Post struct {
 	CreatorId    int       `json:"creator_id"`
 	Photos       []string  `json:"photos"`
 	AdsId        null.Int  `json:"ads_id"`
+	AdsFrom      null.Time `json:"ads_from"`
+	AdsTo        null.Time `json:"ads_to"`
 }
 
 type PostListPagination struct {
