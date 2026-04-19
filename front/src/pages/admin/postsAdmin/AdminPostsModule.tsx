@@ -500,6 +500,7 @@ export const AdminPostsModule = () => {
                 { value: "news", label: "News" },
                 { value: "case_study", label: "Case study" },
                 { value: "other", label: "Other" },
+                { value: "sponsored", label: "Sponsored" },
               ]}
               value={filters.categoryValue}
               disabled={isAllPostsLoading}
