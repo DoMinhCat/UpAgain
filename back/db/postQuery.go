@@ -321,8 +321,14 @@ func GetTotalSavesByPostId(id int) (int, error) {
 
 func GetPostDetailsById(id int) (models.Post, error) {
 	var post models.Post
-	query := `select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id from posts p join accounts a on p.id_account=a.id where p.id = $1 and p.is_deleted = false;`
-	err := utils.Conn.QueryRow(query, id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId)
+	query := `
+	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id 
+	from posts p 
+	join accounts a on p.id_account=a.id 
+	left join ads ad on p.id=ad.id_post 
+	where p.id = $1 and p.is_deleted = false;
+	`
+	err := utils.Conn.QueryRow(query, id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId, &post.AdsId)
 	if err != nil {
 		return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
 	}
