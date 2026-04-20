@@ -1,5 +1,4 @@
 import {
-  Paper,
   Stack,
   Text,
   Title,

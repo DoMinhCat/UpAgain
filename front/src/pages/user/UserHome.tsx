@@ -36,25 +36,25 @@ export default function UserHome() {
   // GET ACCOUNT INFO
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);
-  const magicNumberWater = 4500;
-  const magicNumberElectricity = 820;
+  // const magicNumberWater = 4500;
+  // const magicNumberElectricity = 820;
   // const calculatedWater = ((accountDetails?.totalWaterSaved || 0) / (accountDetails?.totalWaterSaved ?? 1 + magicNumberWater)) * 100;
   // const calculatedElectricity = ((accountDetails?.totalElectricitySaved || 0) / (accountDetails?.totalElectricitySaved ?? 1 + magicNumberElectricity)) * 100;
 
   // SAMPLES
-  const SAMPLE_POSTS = {
-    title: "How to upcycle old wooden pallets into a vertical garden",
-    description:
-      "In this guide, we explore the step-by-step process of transforming industrial waste into a beautiful, functional green wall for your balcony.",
-    image: "/banners/user-banner1-light.png",
-    category: "Workshop",
-    authorName: "Arnaud Petit",
-    authorAvatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
-    postedTime: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 minutes ago
-    views: 1240,
-    likes: 85,
-  };
+  // const SAMPLE_POSTS = {
+  //   title: "How to upcycle old wooden pallets into a vertical garden",
+  //   description:
+  //     "In this guide, we explore the step-by-step process of transforming industrial waste into a beautiful, functional green wall for your balcony.",
+  //   image: "/banners/user-banner1-light.png",
+  //   category: "Workshop",
+  //   authorName: "Arnaud Petit",
+  //   authorAvatar:
+  //     "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
+  //   postedTime: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 minutes ago
+  //   views: 1240,
+  //   likes: 85,
+  // };
   const POST_MOCK = [
     {
       id: "evt-1",

@@ -9,7 +9,6 @@ import {
   Button,
 } from "@mantine/core";
 import { IconCheck, IconStar } from "@tabler/icons-react";
-import { useState } from "react";
 
 interface FreemiumCardProps {
   selected?: boolean;

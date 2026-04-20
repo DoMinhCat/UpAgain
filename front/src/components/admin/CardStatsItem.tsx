@@ -1,6 +1,18 @@
 import { Group, Text, ThemeIcon } from "@mantine/core";
 
-export function CardStatsItem({ icon, label, value, color }: any) {
+interface CardStatsItemProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number | JSX.Element;
+  color: string;
+}
+
+export function CardStatsItem({
+  icon,
+  label,
+  value,
+  color,
+}: CardStatsItemProps) {
   return (
     <Group gap="sm" wrap="nowrap">
       <ThemeIcon variant="light" color={color} size="md" radius="md">

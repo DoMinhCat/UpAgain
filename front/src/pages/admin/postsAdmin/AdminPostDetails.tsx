@@ -772,25 +772,25 @@ export const AdminPostDetails = () => {
                   <CardStatsItem
                     icon={<IconEye size={20} />}
                     label="Views"
-                    value={postDetails?.view_count}
+                    value={postDetails?.view_count ?? 0}
                     color="blue"
                   />
                   <CardStatsItem
                     icon={<IconHeart size={20} />}
                     label="Likes"
-                    value={postDetails?.like_count}
+                    value={postDetails?.like_count ?? 0}
                     color="red"
                   />
                   <CardStatsItem
                     icon={<IconBookmark size={20} />}
                     label="Saves"
-                    value={postDetails?.save_count}
+                    value={postDetails?.save_count ?? 0}
                     color="yellow"
                   />
                   <CardStatsItem
                     icon={<IconMessageCircle size={20} />}
                     label="Comments"
-                    value={postDetails?.comment_count}
+                    value={postDetails?.comment_count ?? 0}
                     color="teal"
                   />
                 </SimpleGrid>

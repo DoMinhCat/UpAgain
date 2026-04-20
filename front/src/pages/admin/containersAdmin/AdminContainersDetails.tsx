@@ -202,7 +202,7 @@ export default function AdminContainersDetails() {
               <Button
                 size="compact-xs"
                 variant="light"
-                onClick={openLocation}
+                onClick={handleOpenLocation}
                 leftSection={<IconEdit size={14} />}
               >
                 Change Location
