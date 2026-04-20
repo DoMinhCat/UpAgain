@@ -16,23 +16,7 @@ import {
   IconBookmarkFilled,
   IconEye,
 } from "@tabler/icons-react";
-
-// 1. Time computation helper
-function getTimeAgo(dateString: string) {
-  const now = new Date();
-  const past = new Date(dateString);
-  const diffInMs = now.getTime() - past.getTime();
-
-  const diffInMins = Math.floor(diffInMs / (1000 * 60));
-  const diffInHours = Math.floor(diffInMins / 60);
-  const diffInDays = Math.floor(diffInHours / 24);
-
-  if (diffInMins < 1) return "Just now";
-  if (diffInMins < 60) return `${diffInMins} minutes ago`;
-  if (diffInHours < 24) return `${diffInHours} hours ago`;
-  if (diffInDays === 1) return "Yesterday";
-  return `${diffInDays} days ago`;
-}
+import { getTimeAgo } from "../../../utils/timeUtils";
 
 interface PostCardProps {
   title: string;
@@ -46,6 +30,7 @@ interface PostCardProps {
   likes: number;
 }
 
+// TODO: Add crown if sponsored on the top left
 export default function PostCard({
   title,
   description,

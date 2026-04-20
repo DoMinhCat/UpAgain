@@ -13,6 +13,7 @@ import {
   NumberInput,
   Pill,
   Text,
+  Badge,
 } from "@mantine/core";
 import {
   IconCalendarEventFilled,
@@ -112,7 +113,7 @@ export default function AdminEventsModule() {
             {event.employee_name ?? "Not assigned"}
           </Table.Td>
           <Table.Td ta="center">
-            <Pill
+            <Badge
               variant={
                 event.category === "other"
                   ? "gray"
@@ -126,7 +127,7 @@ export default function AdminEventsModule() {
               }
             >
               {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
-            </Pill>
+            </Badge>
           </Table.Td>
           <Table.Td ta="center">
             {event.start_at
