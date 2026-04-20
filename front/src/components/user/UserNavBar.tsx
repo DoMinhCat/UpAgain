@@ -22,6 +22,7 @@ import {
   IconBellFilled,
   IconChevronRight,
   IconLeaf,
+  IconDeviceDesktopCode,
 } from "@tabler/icons-react";
 import { useAuth } from "../../context/AuthContext";
 import { HeaderLink } from "../common/NavBarComponents";
@@ -97,6 +98,7 @@ export function UserNavBar() {
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Label>Notifications</Menu.Label>
+            {/* TODO: map notifications */}
             <Menu.Item>No new notifications</Menu.Item>
           </Menu.Dropdown>
         </Menu>
@@ -134,6 +136,14 @@ export function UserNavBar() {
               <Menu.Item leftSection={<IconUser size={14} />}>
                 My Profile
               </Menu.Item>
+              {accountDetails?.role === "admin" && (
+                <Menu.Item
+                  leftSection={<IconDeviceDesktopCode size={14} />}
+                  onClick={() => navigate(PATHS.ADMIN.HOME)}
+                >
+                  Back office
+                </Menu.Item>
+              )}
 
               <Menu.Divider />
 
