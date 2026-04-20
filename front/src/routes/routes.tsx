@@ -6,6 +6,7 @@ import { UnauthorizedPage } from "../pages/error/403.tsx";
 import { PATHS } from "./paths.ts";
 import GlobalErrorHandler from "../pages/error/GlobalErrorHandler.tsx";
 import { InternalServerErrorPage } from "../pages/error/500.tsx";
+import { userRoutes } from "./userRoutes.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
     children: [
       adminRoutes,
       guestRoutes,
+      userRoutes,
       {
         path: PATHS.ERROR.NOT_FOUND,
         element: <NotFoundPage />,

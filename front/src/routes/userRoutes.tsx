@@ -1,42 +1,50 @@
-import { type RouteObject, useLocation, useNavigate } from "react-router-dom";
+import { type RouteObject, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "./paths";
-import { useEffect } from "react";
 import FullScreenLoader from "../components/common/FullScreenLoader";
+import UserLayout from "../layouts/UserLayout";
+import UserHome from "../pages/user/UserHome";
+import GuestLayout from "../layouts/GuestLayout";
+import GuestHome from "../pages/guest/GuestHome";
+import { Navigate } from "react-router-dom";
 
 const UserGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, isInitializing } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
-  const unauthorized = !user || user.role !== "admin";
-
-  useEffect(() => {
-    if (!isInitializing && unauthorized) {
-      navigate(PATHS.HOME, { replace: true, state: { from: location } });
-    }
-  }, [unauthorized, isInitializing, navigate, location]);
 
   if (isInitializing) {
     return <FullScreenLoader />;
   }
-  if (unauthorized) return null;
+
+  if (!user) {
+    // If guest is on the home page, show the guest home view with GuestLayout
+    if (location.pathname === PATHS.HOME) {
+      return (
+        <GuestLayout>
+          <GuestHome />
+        </GuestLayout>
+      );
+    }
+    // Oherwise if guest go to user routes, redirect to login
+    return (
+      <Navigate to={PATHS.GUEST.LOGIN} replace state={{ from: location }} />
+    );
+  }
 
   return <>{children}</>;
 };
 
 export const userRoutes: RouteObject = {
-  path: PATHS.ADMIN.HOME,
+  path: PATHS.HOME,
   element: (
     <UserGuard>
-      {/* <UserLayout /> */}
-      <div>User layout</div>
+      <UserLayout />
     </UserGuard>
   ),
   children: [
     {
       index: true,
-      // element: <UserHome />, // page
-      element: <div>User home</div>,
+      element: <UserHome />,
     },
     // Future admin routes go here
     // { path: "settings", element: <AdminSettings /> }
