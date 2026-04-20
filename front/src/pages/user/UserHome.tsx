@@ -13,7 +13,6 @@ import {
   Text,
   SimpleGrid,
   Paper,
-  ThemeIcon,
   Box,
   Progress,
   Center,
@@ -27,6 +26,7 @@ import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
 import PostCard from "../../components/common/post/PostCard";
 import { EventCard } from "../../components/common/event/EventCard";
+import { DashboardCard } from "../../components/common/DashboardCard";
 
 export default function UserHome() {
   const navigate = useNavigate();
@@ -150,172 +150,99 @@ export default function UserHome() {
 
           <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
             {/* CARD 1: CO2 IMPACT */}
-            <Paper
-              variant="primary"
-              p="xl"
-              radius="lg"
-              style={{
-                transition: "transform 0.2s ease",
-                borderLeft: "4px solid var(--upagain-neutral-green)",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "translateY(-4px)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "translateY(0)")
-              }
+            <DashboardCard
+              title="Total CO² saved"
+              icon={<IconLeaf size={18} />}
+              color="var(--upagain-neutral-green)"
+              align="center"
             >
-              <Stack gap="md" align="center">
-                <Group justify="space-between" w="100%">
-                  <Text size="xs" fw={700} tt="uppercase">
-                    Total CO² saved
+              <Stack gap={0} align="center">
+                <Text size="32px" fw={900} style={{ lineHeight: 1 }}>
+                  1,240{" "}
+                  <Text span size="xl" fw={500}>
+                    kg
                   </Text>
-                  <ThemeIcon
-                    variant="light"
-                    color="var(--upagain-neutral-green)"
-                    radius="md"
-                  >
-                    <IconLeaf size={18} />
-                  </ThemeIcon>
-                </Group>
-
-                <Stack gap={0} align="center">
-                  <Text size="32px" fw={900} style={{ lineHeight: 1 }}>
-                    1,240{" "}
-                    <Text span size="xl" fw={500}>
-                      kg
-                    </Text>
-                  </Text>
-                </Stack>
-
-                <Box pos="relative" py="sm">
-                  <Image
-                    src="/banners/user-banner1-light.png"
-                    height={80}
-                    width={80}
-                    style={{ filter: "grayscale(1) opacity(0.3)" }}
-                  />
-                  {/* Catchy Overlay Text */}
-                  <Text
-                    size="xs"
-                    ta="center"
-                    mt="xs"
-                    c="var(--upagain-dark-green)"
-                    fw={600}
-                    style={{
-                      backgroundColor: "var(--upagain-light-green)",
-                      borderRadius: "4px",
-                      padding: "2px 8px",
-                    }}
-                  >
-                    That is about 1 Elephant!
-                  </Text>
-                </Box>
-              </Stack>
-            </Paper>
-
-            {/* CARD 2: RESOURCES */}
-            <Paper
-              variant="primary"
-              p="xl"
-              radius="lg"
-              style={{
-                transition: "transform 0.2s ease",
-                borderLeft: "4px solid var(--upagain-yellow)",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "translateY(-4px)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "translateY(0)")
-              }
-            >
-              <Stack gap="md">
-                <Group justify="space-between">
-                  <Text size="xs" fw={700} tt="uppercase">
-                    Resources saved
-                  </Text>
-                  <ThemeIcon
-                    variant="light"
-                    color="var(--upagain-yellow)"
-                    radius="md"
-                  >
-                    <IconDroplet size={18} />
-                  </ThemeIcon>
-                </Group>
-
-                <Stack gap="xs" mt="sm">
-                  <Group justify="space-between">
-                    <Text size="sm" fw={500}>
-                      Water
-                    </Text>
-                    <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
-                      4,500 L
-                    </Text>
-                  </Group>
-                  <Progress
-                    value={75}
-                    color="var(--upagain-neutral-green)"
-                    size="sm"
-                    radius="xl"
-                  />
-
-                  <Group justify="space-between" mt="xs">
-                    <Text size="sm" fw={500}>
-                      Electricity
-                    </Text>
-                    <Text size="sm" fw={700} c="var(--upagain-yellow)">
-                      820 kWh
-                    </Text>
-                  </Group>
-                  <Progress
-                    value={40}
-                    color="var(--upagain-yellow)"
-                    size="sm"
-                    radius="xl"
-                  />
-                </Stack>
-              </Stack>
-            </Paper>
-
-            {/* CARD 3: SCORE */}
-            <Paper
-              variant="primary"
-              p="xl"
-              radius="lg"
-              style={{
-                transition: "transform 0.2s ease",
-                borderLeft: "4px solid var(--upagain-light-green)",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "translateY(-4px)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "translateY(0)")
-              }
-            >
-              <Stack gap="md" align="center">
-                <Group justify="space-between" w="100%">
-                  <Text size="xs" fw={700} tt="uppercase">
-                    Upcycling Score
-                  </Text>
-                  <ThemeIcon
-                    variant="light"
-                    color="var(--upagain-neutral-green)"
-                    radius="md"
-                  >
-                    <IconTrophy size={18} />
-                  </ThemeIcon>
-                </Group>
-
-                <Box pos="relative" my="sm">
-                  <ScoreRing score={99} size={140} />
-                </Box>
-                <Text size="xs" c="dimmed" ta="center">
-                  Top 99999% of Upcyclers this month!
                 </Text>
               </Stack>
-            </Paper>
+
+              <Box pos="relative" py="sm">
+                <Image
+                  src="/banners/user-banner1-light.png"
+                  height={80}
+                  width={80}
+                  style={{ filter: "grayscale(1) opacity(0.3)" }}
+                />
+                {/* Catchy Overlay Text */}
+                <Text
+                  size="xs"
+                  ta="center"
+                  mt="xs"
+                  c="var(--upagain-dark-green)"
+                  fw={600}
+                  style={{
+                    backgroundColor: "var(--upagain-light-green)",
+                    borderRadius: "4px",
+                    padding: "2px 8px",
+                  }}
+                >
+                  That is about 1 Elephant!
+                </Text>
+              </Box>
+            </DashboardCard>
+
+            {/* CARD 2: RESOURCES */}
+            <DashboardCard
+              title="Resources saved"
+              icon={<IconDroplet size={18} />}
+              color="var(--upagain-yellow)"
+            >
+              <Stack gap="xs" mt="sm">
+                <Group justify="space-between">
+                  <Text size="sm" fw={500}>
+                    Water
+                  </Text>
+                  <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
+                    4,500 L
+                  </Text>
+                </Group>
+                <Progress
+                  value={75}
+                  color="var(--upagain-neutral-green)"
+                  size="sm"
+                  radius="xl"
+                />
+
+                <Group justify="space-between" mt="xs">
+                  <Text size="sm" fw={500}>
+                    Electricity
+                  </Text>
+                  <Text size="sm" fw={700} c="var(--upagain-yellow)">
+                    820 kWh
+                  </Text>
+                </Group>
+                <Progress
+                  value={40}
+                  color="var(--upagain-yellow)"
+                  size="sm"
+                  radius="xl"
+                />
+              </Stack>
+            </DashboardCard>
+
+            {/* CARD 3: SCORE */}
+            <DashboardCard
+              title="Upcycling Score"
+              icon={<IconTrophy size={18} />}
+              color="var(--upagain-light-green)"
+              align="center"
+            >
+              <Box pos="relative" my="sm">
+                <ScoreRing score={99} size={140} />
+              </Box>
+              <Text size="xs" c="dimmed" ta="center">
+                Top 99999% of Upcyclers this month!
+              </Text>
+            </DashboardCard>
           </SimpleGrid>
         </Stack>
       </Container>
@@ -480,7 +407,7 @@ export default function UserHome() {
       </Container>
 
       {/* SECTION 4: COMMUNITY & AGENDA */}
-      <Container px="md" py={50} size="xl">
+      <Container px="md" py={50} size="xl" mb="xl">
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
           {/* 4.1 COMMUNITY INSIGHTS */}
           <Paper
