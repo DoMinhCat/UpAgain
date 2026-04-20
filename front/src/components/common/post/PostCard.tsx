@@ -89,7 +89,13 @@ export default function PostCard({
 
       {/* Author & Time */}
       <Group mt="lg" gap="sm">
-        <Avatar src={authorAvatar} radius="xl" alt={authorName} />
+        <Avatar
+          src={authorAvatar}
+          radius="xl"
+          alt={authorName}
+          name={authorName}
+          color="initials"
+        />
         <div style={{ flex: 1 }}>
           <Text fw={600} size="sm" c="var(--mantine-color-text)">
             {authorName}
