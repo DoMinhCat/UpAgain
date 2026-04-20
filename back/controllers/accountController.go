@@ -64,13 +64,13 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	roleToInsert := newAccount.Role
 	if role == "admin" {
-		err = db.InsertHistory(newAccount.Role, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
-			slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
-			return
-		}
+		roleToInsert = "employee"
+	}
+	err = db.InsertHistory(roleToInsert, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
+	if err != nil {
+		slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
