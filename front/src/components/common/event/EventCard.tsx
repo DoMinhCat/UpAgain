@@ -149,7 +149,13 @@ export function EventCard({
           {/* Footer: Creator info */}
           <Group justify="space-between">
             <Group gap={8}>
-              <Avatar size="sm" src={authorAvatar} radius="xl" />
+              <Avatar
+                size="sm"
+                src={authorAvatar}
+                radius="xl"
+                name={authorName}
+                color="initials"
+              />
               <Text size="xs" fw={700} c="var(--mantine-color-text)">
                 {authorName}
               </Text>

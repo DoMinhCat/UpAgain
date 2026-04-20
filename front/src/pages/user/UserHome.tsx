@@ -3,7 +3,6 @@ import {
   Anchor,
   Button,
   Container,
-  Divider,
   Group,
   Image,
   useComputedColorScheme,
@@ -14,10 +13,10 @@ import {
   Text,
   SimpleGrid,
   Paper,
-  Badge,
   ThemeIcon,
   Box,
   Progress,
+  Center,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useAccountDetails } from "../../hooks/accountHooks";
@@ -480,116 +479,186 @@ export default function UserHome() {
         </Paper>
       </Container>
 
-      {/* SECTION 4: COMMUNITY */}
+      {/* SECTION 4: COMMUNITY & AGENDA */}
       <Container px="md" py={50} size="xl">
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-          <Stack gap="xl">
-            <Title order={2} size={32}>
-              From the community
-            </Title>
-
-            {POST_MOCK.length > 0 ? (
-              <>
-                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                  {/* 2 CARDS MAX */}
-                  {POST_MOCK.slice(0, 2).map((event) => (
-                    <PostCard
-                      key={event.id}
-                      title={event.title}
-                      description={event.description}
-                      image={event.image}
-                      category={event.category}
-                      authorName={event.authorName}
-                      authorAvatar={event.authorAvatar}
-                      postedTime={event.postedTime}
-                      views={event.views}
-                      likes={event.likes}
-                    />
-                  ))}
-                </SimpleGrid>
-                {POST_MOCK.length > 0 && (
-                  <Text
-                    className="text"
-                    data-variant="primary"
-                    size="sm"
-                    fw={700}
-                    mt={0}
-                    onClick={() => navigate("#")}
-                  >
-                    Discover exciting topics →
-                  </Text>
-                )}
-              </>
-            ) : (
-              /* EMPTY STATE IF NO POSTS */
-              <Paper
-                className="paper"
-                data-variant="primary"
-                p="xl"
-                radius="lg"
-                style={{ borderStyle: "dashed", textAlign: "center" }}
-              >
-                <Text c="dimmed" fw={500}>
-                  Stay tune. We will publish some good posts and inspiring
-                  projects
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+          {/* 4.1 COMMUNITY INSIGHTS */}
+          <Paper
+            variant="primary"
+            p={30}
+            radius="lg"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              transition: "transform 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "translateY(-4px)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "translateY(0)")
+            }
+          >
+            <Stack gap="xl" style={{ flex: 1 }}>
+              <Stack gap={5}>
+                <Title order={2} size={28}>
+                  Community Highlights
+                </Title>
+                <Text c="dimmed" size="sm">
+                  Inspiring projects and top guides from our global members.
                 </Text>
-                {/* TODO: Integrate fetch for suggested local events here if count == 0 */}
-              </Paper>
-            )}
-          </Stack>
-          <Stack>
-            <Title order={2} size={32}>
-              Upcoming Events (5)
-            </Title>
-            {/* Cards of my upcmoing events otherwise */}
-            <EventCard
-              orientation="horizontal"
-              category="Workshop"
-              title="Restoring Mid-Century Furniture"
-              description="Bring your old wooden pieces and learn sanding, staining, and finishing techniques from local experts."
-              image="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
-              authorName="Thomas L."
-              authorAvatar="..."
-              createdAt={new Date().toISOString()}
-              eventDate="2026-05-12T10:00:00Z"
-              price={15}
-              city="Paris"
-              postalCode="75012"
-            />
-            <EventCard
-              orientation="horizontal"
-              category="Workshop"
-              title="Restoring Mid-Century Furniture"
-              description="Bring your old wooden pieces and learn sanding, staining, and finishing techniques from local experts."
-              image="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
-              authorName="Thomas L."
-              authorAvatar="..."
-              createdAt={new Date().toISOString()}
-              eventDate="2026-05-12T10:00:00Z"
-              price={15}
-              city="Paris"
-              postalCode="75012"
-            />
-            <Text
-              className="text"
-              data-variant="primary"
-              size="sm"
-              fw={700}
-              mt={0}
-              onClick={() => navigate("#")}
-            >
-              See all of my events →
-            </Text>
-            {/* Otherwise show cta button */}
-            <Button
-              className="button"
-              data-variant="cta" // Catchy yellow shine to encourage engagement
-              size="md"
-              onClick={() => navigate("#")}
-            >
-              Discover our "green" events
-            </Button>
-          </Stack>
+              </Stack>
+
+              <Box style={{ flex: 1 }}>
+                {/* 
+                  BACKEND LOGIC:
+                  The backend should ideally provide a 'featured' or 'community_selection' list.
+                  If the user has specific interests, this could be filtered by tags.
+                */}
+                {POST_MOCK && POST_MOCK.length > 0 ? (
+                  <Stack gap="md">
+                    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                      {/* We display max 2 posts to keep the layout clean */}
+                      {POST_MOCK.slice(0, 2).map((post) => (
+                        <PostCard
+                          key={post.id}
+                          title={post.title}
+                          description={post.description}
+                          image={post.image}
+                          category={post.category}
+                          authorName={post.authorName}
+                          authorAvatar={post.authorAvatar}
+                          postedTime={post.postedTime}
+                          views={post.views}
+                          likes={post.likes}
+                        />
+                      ))}
+                    </SimpleGrid>
+                  </Stack>
+                ) : (
+                  <Center h="100%" style={{ minHeight: 200 }}>
+                    <Stack align="center" gap="xs">
+                      <IconLeaf
+                        size={40}
+                        color="var(--upagain-neutral-green)"
+                        stroke={1.5}
+                      />
+                      <Text c="dimmed" ta="center" maw={300}>
+                        The community is quiet... for now. Stay tuned for
+                        inspiring new projects!
+                      </Text>
+                    </Stack>
+                  </Center>
+                )}
+              </Box>
+
+              <Button
+                variant="secondary"
+                className="button"
+                data-variant="secondary"
+                onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+                fullWidth
+              >
+                Discover all topics →
+              </Button>
+            </Stack>
+          </Paper>
+
+          {/* 4.2 USER AGENDA */}
+          <Paper
+            variant="primary"
+            p={30}
+            radius="lg"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              transition: "transform 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "translateY(-4px)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "translateY(0)")
+            }
+          >
+            <Stack gap="xl" style={{ flex: 1 }}>
+              <Stack gap={5}>
+                <Title order={2} size={28}>
+                  Your Agenda
+                </Title>
+                <Text c="dimmed" size="sm">
+                  Track your upcoming workshops and events.
+                </Text>
+              </Stack>
+
+              <Box style={{ flex: 1 }}>
+                {/* 
+                  BACKEND LOGIC:
+                  Render event cards if 'accountDetails.registeredEvents' (or similar) is not empty.
+                  Else, render the CTA below to encourage participation.
+                */}
+                {/* PLACEHOLDER: Assuming accountDetails has an 'events' array in the future */}
+                {accountDetails?.id && false ? ( // Replace 'false' with 'accountDetails.events.length > 0'
+                  <Stack gap="md">
+                    <EventCard
+                      orientation="horizontal"
+                      category="Workshop"
+                      title="Restoring Mid-Century Furniture"
+                      description="Learn sanding, staining, and finishing techniques."
+                      image="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
+                      authorName="Thomas L."
+                      authorAvatar="..."
+                      createdAt={new Date().toISOString()}
+                      eventDate="2026-05-12T10:00:00Z"
+                      price={15}
+                      city="Paris"
+                      postalCode="75012"
+                    />
+                    {/* Add more cards selectively if returned by backend */}
+                    <Text
+                      className="text"
+                      data-variant="primary"
+                      size="sm"
+                      fw={700}
+                      onClick={() => navigate("#")}
+                    >
+                      View all my events →
+                    </Text>
+                  </Stack>
+                ) : (
+                  <Center h="100%" style={{ minHeight: 200 }}>
+                    <Stack align="center" gap="lg" w="100%">
+                      <Stack align="center" gap={0}>
+                        <IconTrophy
+                          size={48}
+                          color="var(--upagain-yellow)"
+                          stroke={1.5}
+                        />
+                        <Text fw={600} size="lg" mt="md">
+                          No upcoming events
+                        </Text>
+                        <Text c="dimmed" ta="center" size="sm" maw={280}>
+                          Ready to learn a new upcycling skill? Join a workshop
+                          today.
+                        </Text>
+                      </Stack>
+                      <Button
+                        className="button"
+                        data-variant="cta"
+                        size="md"
+                        fullWidth
+                        onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)} // Assuming event exploration is there
+                      >
+                        Explore our workshops and events
+                      </Button>
+                    </Stack>
+                  </Center>
+                )}
+              </Box>
+            </Stack>
+          </Paper>
         </SimpleGrid>
       </Container>
     </>
