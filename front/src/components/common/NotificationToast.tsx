@@ -1,18 +1,16 @@
 import { notifications } from "@mantine/notifications";
 import type { AxiosError } from "axios";
+import type { ApiErrorData } from "../../api/axios";
 
 const autoCloseDuration = 5000;
-type ApiErrorData = {
-  message?: string;
-  error?: string;
-};
 
 export const showErrorNotification = (
   title: string = "Error",
   errorMessage?: string,
   error?: string | AxiosError<ApiErrorData>,
 ) => {
-  let message = "An unexpected error occurred.";
+  let message: string | Error;
+  message = "An unexpected error occurred.";
 
   if (error) {
     if (typeof error === "string") {
@@ -36,7 +34,7 @@ export const showErrorNotification = (
 
   notifications.show({
     title,
-    message,
+    message: message.toString(),
     color: "red",
     autoClose: autoCloseDuration,
   });
