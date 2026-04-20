@@ -578,7 +578,7 @@ export const AdminPostsModule = () => {
               </Table.Td>
               <Table.Td ta="center">{post.creator}</Table.Td>
               <Table.Td ta="center">
-                <Pill
+                <Badge
                   variant={
                     post.category === "other"
                       ? "gray"
@@ -595,7 +595,7 @@ export const AdminPostsModule = () => {
                 >
                   {post.category.charAt(0).toUpperCase() +
                     post.category.slice(1)}
-                </Pill>
+                </Badge>
               </Table.Td>
               <Table.Td ta="center">{post.view_count}</Table.Td>
               <Table.Td ta="center">{post.like_count}</Table.Td>

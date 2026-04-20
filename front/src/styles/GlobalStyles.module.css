@@ -287,11 +287,15 @@
 
   &[data-variant="yellow"] {
     color: var(--mantine-color-yellow-1);
-    background-color: var(--mantine-color-yellow-6);
+    background-color: var(--upagain-yellow);
   }
   &[data-variant="green"] {
     color: var(--mantine-color-green-1);
-    background-color: var(--mantine-color-green-6);
+    background-color: var(--upagain-neutral-green);
+  }
+  &[data-variant="violet"] {
+    color: var(--mantine-color-violet-1);
+    background-color: var(--mantine-color-violet-6);
   }
   &[data-variant="gradient"] {
     background: linear-gradient(45deg, #45a575, #e3b23c);

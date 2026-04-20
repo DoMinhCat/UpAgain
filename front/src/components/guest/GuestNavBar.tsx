@@ -10,83 +10,13 @@ import {
   Drawer,
   Stack,
 } from "@mantine/core";
-import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
 import { PATHS } from "../../routes/paths";
-import { IconWorld, IconSun, IconMoon } from "@tabler/icons-react";
+import { ThemeToggleButton, HeaderLink } from "../common/NavBarComponents";
+import { LANGUAGES } from "../../i18n/languages";
 import { useState } from "react";
-
-interface NavbarLinkProps {
-  icon: typeof IconMoon;
-  label: string;
-  active?: boolean;
-  path?: string;
-  onClick?: () => void;
-}
-
-function NavbarLink({ icon: Icon, label, onClick }: NavbarLinkProps) {
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    }
-  };
-
-  return (
-    <Tooltip label={label} position="bottom" transitionProps={{ duration: 0 }}>
-      <UnstyledButton
-        onClick={handleClick}
-        className={classes.toggleButton}
-        aria-label={label}
-      >
-        <Icon size={20} stroke={1.5} />
-      </UnstyledButton>
-    </Tooltip>
-  );
-}
-
-function ThemeToggleButton() {
-  const { setColorScheme } = useMantineColorScheme();
-  const scheme = useComputedColorScheme("light");
-
-  const toggle = () => setColorScheme(scheme === "dark" ? "light" : "dark");
-
-  return (
-    <NavbarLink
-      icon={scheme === "dark" ? IconSun : IconMoon}
-      label="Toggle theme"
-      onClick={toggle}
-    />
-  );
-}
-
-function HeaderLink({
-  label,
-  path,
-  onClick,
-}: {
-  label: string;
-  path: string;
-  onClick?: () => void;
-}) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isActive = location.pathname.startsWith(path);
-
-  const handleClick = () => {
-    if (onClick) onClick();
-    navigate(path);
-  };
-  return (
-    <UnstyledButton
-      className={`${classes.link} ${isActive ? classes.linkActive : ""}`}
-      onClick={handleClick}
-    >
-      {label}
-    </UnstyledButton>
-  );
-}
 
 export function GuestNavBar() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
@@ -94,20 +24,6 @@ export function GuestNavBar() {
   const navigate = useNavigate();
 
   const [currentLanguage, setCurrentLanguage] = useState("united-kingdom");
-  const languages = [
-    {
-      label: "English",
-      path: "united-kingdom",
-    },
-    {
-      label: "Français",
-      path: "france",
-    },
-    {
-      label: "Vienamese",
-      path: "vietnam",
-    },
-  ];
 
   return (
     <Group justify="space-between" h="100%" px="xl" className={classes.header}>
@@ -156,7 +72,7 @@ export function GuestNavBar() {
 
           <Menu.Dropdown>
             <Menu.Label>Languages</Menu.Label>
-            {languages.map((language) => (
+            {LANGUAGES.map((language) => (
               <Menu.Item
                 key={language.path}
                 onClick={() => setCurrentLanguage(language.path)}

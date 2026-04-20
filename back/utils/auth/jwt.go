@@ -9,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// short lived access token (1 hour)
+// short lived access token (15 minutes)
 func GenerateJWT(email string, role string, id int, username string) (string, error) {
 	claims := jwt.MapClaims{
 		"id_account": id,

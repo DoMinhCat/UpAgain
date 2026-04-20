@@ -52,4 +52,9 @@ export const PATHS = {
     UNAUTHORIZED: "/403",
     INTERNAL_SERVER_ERROR: "/500",
   },
+  MARKETPLACE: {
+    HOME: "/marketplace",
+    LISTINGS: "/marketplace/listings",
+    DEPOSITS: "/marketplace/deposits",
+  },
 } as const;
