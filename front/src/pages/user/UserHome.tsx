@@ -26,7 +26,8 @@ import { useAuth } from "../../context/AuthContext";
 import { ScoreRing } from "../../components/user/ScoreRing";
 import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
-import PostCard from "../../components/common/event/PostCard";
+import PostCard from "../../components/common/post/PostCard";
+import { EventCard } from "../../components/common/event/EventCard";
 
 export default function UserHome() {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ export default function UserHome() {
     views: 1240,
     likes: 85,
   };
-  const UPCOMING_EVENTS_MOCK = [
+  const POST_MOCK = [
     {
       id: "evt-1",
       title: "Community Woodworking Workshop",
@@ -482,22 +483,16 @@ export default function UserHome() {
       {/* SECTION 4: COMMUNITY */}
       <Container px="md" py={50} size="xl">
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-          <Stack>
-            <Title order={2} size={32}>
-              From the Community
-            </Title>
-            {/* Cards of sponsored or latest posts */}
-          </Stack>
           <Stack gap="xl">
             <Title order={2} size={32}>
-              Your upcoming events ({UPCOMING_EVENTS_MOCK.length})
+              From the community
             </Title>
 
-            {UPCOMING_EVENTS_MOCK.length > 0 ? (
+            {POST_MOCK.length > 0 ? (
               <>
                 <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                  {/* 2 CARDS MAX RULE */}
-                  {UPCOMING_EVENTS_MOCK.slice(0, 2).map((event) => (
+                  {/* 2 CARDS MAX */}
+                  {POST_MOCK.slice(0, 2).map((event) => (
                     <PostCard
                       key={event.id}
                       title={event.title}
@@ -512,7 +507,7 @@ export default function UserHome() {
                     />
                   ))}
                 </SimpleGrid>
-                {UPCOMING_EVENTS_MOCK.length > 0 && (
+                {POST_MOCK.length > 0 && (
                   <Text
                     className="text"
                     data-variant="primary"
@@ -521,12 +516,12 @@ export default function UserHome() {
                     mt={0}
                     onClick={() => navigate("#")}
                   >
-                    See all of my events →
+                    Discover exciting topics →
                   </Text>
                 )}
               </>
             ) : (
-              /* EMPTY STATE - Placeholder */
+              /* EMPTY STATE IF NO POSTS */
               <Paper
                 className="paper"
                 data-variant="primary"
@@ -534,22 +529,66 @@ export default function UserHome() {
                 radius="lg"
                 style={{ borderStyle: "dashed", textAlign: "center" }}
               >
-                <Stack align="center" gap="md">
-                  <Text c="dimmed" fw={500}>
-                    You have no upcoming events planned yet.
-                  </Text>
-                  <Button
-                    className="button"
-                    data-variant="cta" // Catchy yellow shine to encourage engagement
-                    size="md"
-                    onClick={() => navigate("#")}
-                  >
-                    Discover exciting events
-                  </Button>
-                </Stack>
+                <Text c="dimmed" fw={500}>
+                  Stay tune. We will publish some good posts and inspiring
+                  projects
+                </Text>
                 {/* TODO: Integrate fetch for suggested local events here if count == 0 */}
               </Paper>
             )}
+          </Stack>
+          <Stack>
+            <Title order={2} size={32}>
+              Upcoming Events (5)
+            </Title>
+            {/* Cards of my upcmoing events otherwise */}
+            <EventCard
+              orientation="horizontal"
+              category="Workshop"
+              title="Restoring Mid-Century Furniture"
+              description="Bring your old wooden pieces and learn sanding, staining, and finishing techniques from local experts."
+              image="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
+              authorName="Thomas L."
+              authorAvatar="..."
+              createdAt={new Date().toISOString()}
+              eventDate="2026-05-12T10:00:00Z"
+              price={15}
+              city="Paris"
+              postalCode="75012"
+            />
+            <EventCard
+              orientation="horizontal"
+              category="Workshop"
+              title="Restoring Mid-Century Furniture"
+              description="Bring your old wooden pieces and learn sanding, staining, and finishing techniques from local experts."
+              image="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
+              authorName="Thomas L."
+              authorAvatar="..."
+              createdAt={new Date().toISOString()}
+              eventDate="2026-05-12T10:00:00Z"
+              price={15}
+              city="Paris"
+              postalCode="75012"
+            />
+            <Text
+              className="text"
+              data-variant="primary"
+              size="sm"
+              fw={700}
+              mt={0}
+              onClick={() => navigate("#")}
+            >
+              See all of my events →
+            </Text>
+            {/* Otherwise show cta button */}
+            <Button
+              className="button"
+              data-variant="cta" // Catchy yellow shine to encourage engagement
+              size="md"
+              onClick={() => navigate("#")}
+            >
+              Discover our "green" events
+            </Button>
           </Stack>
         </SimpleGrid>
       </Container>
