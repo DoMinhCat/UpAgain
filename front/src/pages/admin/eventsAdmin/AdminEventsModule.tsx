@@ -28,7 +28,7 @@ import {
 import {
   AdminCardInfo,
   StatsCardDesc,
-} from "../../../components/admin/AdminCardInfo";
+} from "../../../components/common/dashboard/AdminCardInfo";
 import { useState } from "react";
 import AdminTable from "../../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";

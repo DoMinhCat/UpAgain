@@ -28,7 +28,7 @@ import { useGetUserInvoices } from "../../../hooks/financeHooks";
 import { generateInvoicePDF } from "../../../utils/invoiceUtils";
 import { showErrorNotification } from "../../../components/common/NotificationToast";
 import { useState } from "react";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import { useLocation } from "react-router-dom";
 
 export default function AdminSubscriptionDetails() {
@@ -58,17 +58,20 @@ export default function AdminSubscriptionDetails() {
     if (!invoicesData || !invoicesData.invoices) {
       showErrorNotification(
         "Loading",
-        "Invoices data is not yet available, please try again."
+        "Invoices data is not yet available, please try again.",
       );
       return;
     }
     const invoice = invoicesData.invoices.find(
-      (i) => i.type === "subscription" && i.id === subscriptionId
+      (i) => i.type === "subscription" && i.id === subscriptionId,
     );
     if (invoice) {
       generateInvoicePDF(invoice, invoicesData.username);
     } else {
-      showErrorNotification("Not Found", "No invoice found for this subscription.");
+      showErrorNotification(
+        "Not Found",
+        "No invoice found for this subscription.",
+      );
     }
   };
 
@@ -201,11 +204,11 @@ export default function AdminSubscriptionDetails() {
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm">
           <InfoField label="Invoice">
-            <Button 
-              variant="primary" 
-              ps="sm" 
-              mt="xs" 
-              mb="xl" 
+            <Button
+              variant="primary"
+              ps="sm"
+              mt="xs"
+              mb="xl"
               onClick={handleDownloadInvoice}
               loading={isLoadingInvoices}
             >

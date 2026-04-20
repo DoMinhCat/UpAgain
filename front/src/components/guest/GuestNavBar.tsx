@@ -14,7 +14,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
 import { PATHS } from "../../routes/paths";
-import { ThemeToggleButton, HeaderLink } from "../common/NavBarComponents";
+import { ThemeToggleButton, HeaderLink } from "../nav/NavBarComponents";
 import { LANGUAGES } from "../../i18n/languages";
 import { useState } from "react";
 

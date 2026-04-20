@@ -14,8 +14,8 @@ import {
   Loader,
   Modal,
 } from "@mantine/core";
-import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
-import { StatsCardDesc } from "../../../components/admin/AdminCardInfo";
+import { AdminCardInfo } from "../../../components/common/dashboard/AdminCardInfo";
+import { StatsCardDesc } from "../../../components/common/dashboard/AdminCardInfo";
 import {
   IconCalendarEvent,
   IconClockPause,

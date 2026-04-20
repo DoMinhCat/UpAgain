@@ -25,7 +25,7 @@ import {
   NumberInput,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import {
@@ -55,7 +55,7 @@ import {
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
-import { CardStatsItem } from "../../../components/admin/CardStatsItem";
+import { CardStatsItem } from "../../../components/common/dashboard/CardStatsItem";
 import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
