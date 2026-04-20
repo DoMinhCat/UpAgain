@@ -362,7 +362,7 @@ export default function UserHome() {
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                 <Button
                   className="button"
-                  data-variant="primary"
+                  data-variant="cta-reverse"
                   size="lg"
                   onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
                 >
