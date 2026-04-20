@@ -27,7 +27,7 @@ import {
 import {
   AdminCardInfo,
   StatsCardDesc,
-} from "../../../components/admin/AdminCardInfo";
+} from "../../../components/common/dashboard/AdminCardInfo";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { TextEditor } from "../../../components/common/input/TextEditor";

@@ -26,7 +26,7 @@ import {
   Center,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import {
   IconPhoto,
@@ -59,7 +59,7 @@ import {
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 import { useState } from "react";
-import { CardStatsItem } from "../../../components/admin/CardStatsItem";
+import { CardStatsItem } from "../../../components/common/dashboard/CardStatsItem";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
 import {
   useGetListingDetails,

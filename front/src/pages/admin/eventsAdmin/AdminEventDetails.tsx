@@ -22,7 +22,7 @@ import {
   SimpleGrid,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import "@mantine/carousel/styles.css";
 import { PATHS } from "../../../routes/paths";
 import {
@@ -53,7 +53,7 @@ import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
 import ImageDropzone from "../../../components/common/input/ImageDropzone";
-import { CardStatsItem } from "../../../components/admin/CardStatsItem";
+import { CardStatsItem } from "../../../components/common/dashboard/CardStatsItem";
 import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
 export default function AdminEventDetails() {
   const location = useLocation();

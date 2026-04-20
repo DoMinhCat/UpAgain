@@ -26,7 +26,7 @@ import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
 import PostCard from "../../components/common/post/PostCard";
 import { EventCard } from "../../components/common/event/EventCard";
-import { DashboardCard } from "../../components/common/DashboardCard";
+import { DashboardCard } from "../../components/common/dashboard/DashboardCard";
 
 export default function UserHome() {
   const navigate = useNavigate();
