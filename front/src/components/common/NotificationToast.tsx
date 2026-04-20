@@ -1,29 +1,31 @@
 import { notifications } from "@mantine/notifications";
+import type { AxiosError } from "axios";
 
 const autoCloseDuration = 5000;
+type ApiErrorData = {
+  message?: string;
+  error?: string;
+};
+
 export const showErrorNotification = (
-  title = "Error",
+  title: string = "Error",
   errorMessage?: string,
-  error?: any,
+  error?: string | AxiosError<ApiErrorData>,
 ) => {
-  // default message is "An unexpected error occurred."
   let message = "An unexpected error occurred.";
 
   if (error) {
     if (typeof error === "string") {
       message = error;
-    } else if (error?.response?.data) {
+    } else if (error.response?.data) {
       const data = error.response.data;
+
       if (typeof data === "string") {
         message = data;
-      } else if (typeof data === "object" && data.message) {
-        message = data.message;
-      } else if (typeof data === "object" && data.error) {
-        message = data.error;
       } else {
-        message = errorMessage || message;
+        message = data.message || data.error || errorMessage || message;
       }
-    } else if (error?.message) {
+    } else if (error.message) {
       message = error.message;
     } else {
       message = errorMessage || message;
@@ -33,22 +35,10 @@ export const showErrorNotification = (
   }
 
   notifications.show({
-    title: title,
-    message: message,
+    title,
+    message,
     color: "red",
     autoClose: autoCloseDuration,
-    styles: {
-      root: {
-        border: "1px solid var(--border-color)",
-        borderRadius: "var(--mantine-radius-md)",
-        padding: "var(--mantine-spacing-lg)",
-        boxShadow: "var(--mantine-shadow-lg)",
-
-        "&::before": {
-          backgroundColor: "var(--mantine-color-red-6)",
-        },
-      },
-    },
   });
 };
 

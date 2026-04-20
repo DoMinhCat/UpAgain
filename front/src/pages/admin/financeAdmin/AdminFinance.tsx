@@ -52,10 +52,7 @@ import {
   useGetInvoiceUsers,
   useGetUserInvoices,
 } from "../../../hooks/financeHooks";
-import type {
-  FinanceSetting,
-  UserInvoice,
-} from "../../../api/interfaces/finance";
+import type { FinanceSetting } from "../../../api/interfaces/finance";
 import {
   showErrorNotification,
   showSuccessNotification,

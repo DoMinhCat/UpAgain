@@ -350,7 +350,7 @@ export default function AdminUsersModule() {
   };
 
   // info for edit account in form triggered at each modal opening
-  let selectedEditId = selectedEditAcc?.id ? selectedEditAcc.id : 0;
+  const selectedEditId = selectedEditAcc?.id ? selectedEditAcc.id : 0;
   const isValidId = !isNaN(selectedEditId) && selectedEditId > 0;
   const { data: accountDetails, isLoading: isAccountDetailsLoading } =
     useAccountDetails(selectedEditId, isValidId);
