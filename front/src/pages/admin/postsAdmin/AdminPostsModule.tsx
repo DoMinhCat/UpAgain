@@ -5,7 +5,6 @@ import {
   Modal,
   Group,
   Stack,
-  Pill,
   TextInput,
   Table,
   Grid,
