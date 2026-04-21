@@ -3,12 +3,12 @@ import { useAuth } from "../context/AuthContext";
 import { PATHS } from "./paths";
 import FullScreenLoader from "../components/common/FullScreenLoader";
 import UserLayout from "../layouts/UserLayout";
-import UserHome from "../pages/user/UserHome";
 import GuestLayout from "../layouts/GuestLayout";
 import GuestHome from "../pages/guest/GuestHome";
 import { Navigate } from "react-router-dom";
 import UserScorePage from "../pages/user/UserScorePage";
-import UserProfilePage from "../pages/user/UserProfilePage";
+import Profile from "../pages/common/Profile";
+import Home from "../pages/common/Home";
 
 const UserGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -46,10 +46,10 @@ export const userRoutes: RouteObject = {
   children: [
     {
       index: true,
-      element: <UserHome />,
+      element: <Home />,
     },
     // Future admin routes go here
     { path: "score", element: <UserScorePage /> },
-    { path: "profile", element: <UserProfilePage /> },
+    { path: "profile", element: <Profile /> },
   ],
 };
