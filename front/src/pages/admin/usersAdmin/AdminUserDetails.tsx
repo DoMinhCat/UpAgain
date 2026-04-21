@@ -425,7 +425,6 @@ export default function AdminUserDetails() {
 
         <Stack justify="center" align="center">
           <Avatar
-            // avatar must be in /src/assets/avatars
             src={accountDetails?.avatar}
             name="User's name"
             color="initials"
