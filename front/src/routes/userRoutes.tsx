@@ -8,6 +8,8 @@ import GuestLayout from "../layouts/GuestLayout";
 import GuestHome from "../pages/guest/GuestHome";
 import { Navigate } from "react-router-dom";
 import UserScorePage from "../pages/user/UserScorePage";
+import UserPostsPage from "../pages/user/posts/UserPostsPage";
+import UserPostDetailPage from "../pages/user/posts/UserPostDetailPage";
 
 const UserGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -47,7 +49,8 @@ export const userRoutes: RouteObject = {
       index: true,
       element: <UserHome />,
     },
-    // Future admin routes go here
     { path: "score", element: <UserScorePage /> },
+    { path: "community", element: <UserPostsPage /> },
+    { path: "community/:id", element: <UserPostDetailPage /> },
   ],
 };

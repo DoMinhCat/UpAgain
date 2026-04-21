@@ -23,6 +23,20 @@ export interface Post {
   ads_id: number | null;
   ads_from: string | null;
   ads_to: string | null;
+  is_liked?: boolean;
+  is_saved?: boolean;
+}
+
+export interface AddCommentPayload {
+  content: string;
+}
+
+export interface AddCommentResponse {
+  id: number;
+  content: string;
+  created_at: string;
+  id_post: number;
+  id_account: number;
 }
 
 export interface PostsListPagination {

@@ -33,8 +33,12 @@ export const PATHS = {
     },
   },
   USER: {
-    // paths for user espace here
     SCORE: "/score",
+    POSTS: {
+      ALL: "/community",
+      DETAILS: "/community/:id",
+      DETAILS_FN: (id: number) => `/community/${id}`,
+    },
   },
   PRO: {
     // paths for pro/artisans espace here
