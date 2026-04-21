@@ -722,12 +722,13 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get old state for history before update
-	oldAccount, err := db.GetAccountDetailsById(id_account)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountDetailsById() failed", "controller", "UpdateAccount", "error", err)
-		return
+	getOldAccountOk := true
+	if claims.Role == "admin" {
+		oldAccount, err := db.GetAccountDetailsById(id_account)
+		if err != nil {
+			getOldAccountOk = false
+			slog.Error("GetAccountDetailsById() failed to get old account state", "controller", "UpdateAccount", "error", err)
+		}
 	}
 
 	payload.Id = id_account
@@ -738,7 +739,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if claims.Role == "admin" {
+	if claims.Role == "admin" && getOldAccountOk {
 		err = db.InsertHistory(role, id_account, "update", claims.Id, oldAccount, payload)
 		if err != nil {
 			slog.Error("InsertHistory() failed", "controller", "UpdateAccount", "error", err)
