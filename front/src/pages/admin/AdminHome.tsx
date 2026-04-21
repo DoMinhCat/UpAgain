@@ -37,8 +37,8 @@ import {
 import {
   AdminCardInfo,
   StatsCardDesc,
-} from "../../components/admin/AdminCardInfo";
-import AdminCardNav from "../../components/admin/AdminCardNav";
+} from "../../components/dashboard/AdminCardInfo";
+import AdminCardNav from "../../components/nav/AdminCardNav";
 import AdminTable from "../../components/admin/AdminTable";
 import classes from "../../styles/Admin.module.css";
 import PaginationFooter from "../../components/common/PaginationFooter";

@@ -34,6 +34,7 @@ export const PATHS = {
   },
   USER: {
     // paths for user espace here
+    SCORE: "/score",
   },
   PRO: {
     // paths for pro/artisans espace here

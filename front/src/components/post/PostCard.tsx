@@ -15,7 +15,7 @@ import {
   IconBookmarkFilled,
   IconEye,
 } from "@tabler/icons-react";
-import { getTimeAgo } from "../../../utils/timeUtils";
+import { getTimeAgo } from "../../utils/timeUtils";
 
 interface PostCardProps {
   title: string;

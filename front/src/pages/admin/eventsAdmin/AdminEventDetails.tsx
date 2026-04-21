@@ -22,7 +22,7 @@ import {
   SimpleGrid,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import "@mantine/carousel/styles.css";
 import { PATHS } from "../../../routes/paths";
 import {
@@ -37,7 +37,7 @@ import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import { TextEditor } from "../../../components/common/input/TextEditor";
+import { TextEditor } from "../../../components/input/TextEditor";
 import {
   useAssignEmployeeToEvent,
   useUpdateEventStatus,
@@ -52,9 +52,9 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
-import ImageDropzone from "../../../components/common/input/ImageDropzone";
-import { CardStatsItem } from "../../../components/admin/CardStatsItem";
-import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
+import ImageDropzone from "../../../components/input/ImageDropzone";
+import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
+import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 export default function AdminEventDetails() {
   const location = useLocation();
   const origin = location.state;

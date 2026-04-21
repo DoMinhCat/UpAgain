@@ -15,7 +15,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { BarChart } from "@mantine/charts";
-import ImageDropzone from "../../../components/common/input/ImageDropzone";
+import ImageDropzone from "../../../components/input/ImageDropzone";
 import {
   IconCalendarEventFilled,
   IconCalendarTime,
@@ -27,10 +27,10 @@ import {
 import {
   AdminCardInfo,
   StatsCardDesc,
-} from "../../../components/admin/AdminCardInfo";
+} from "../../../components/dashboard/AdminCardInfo";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { TextEditor } from "../../../components/common/input/TextEditor";
+import { TextEditor } from "../../../components/input/TextEditor";
 import {
   useCreatePost,
   useDeletePost,

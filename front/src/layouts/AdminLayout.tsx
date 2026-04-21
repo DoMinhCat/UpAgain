@@ -1,7 +1,7 @@
 import { AppShell, Burger, Group, Image } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Outlet } from "react-router-dom";
-import { AdminNavbar } from "../components/admin/AdminNavbar";
+import { AdminNavbar } from "../components/nav/AdminNavbar";
 
 export default function AdminLayout() {
   const [opened, { toggle }] = useDisclosure();
@@ -24,9 +24,11 @@ export default function AdminLayout() {
       </AppShell.Header>
 
       <AppShell.Navbar>
-        <AdminNavbar onLinkClick={() => {
-          if (opened) toggle();
-        }} />
+        <AdminNavbar
+          onLinkClick={() => {
+            if (opened) toggle();
+          }}
+        />
       </AppShell.Navbar>
 
       <AppShell.Main>

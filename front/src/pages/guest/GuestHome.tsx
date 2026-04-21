@@ -14,9 +14,9 @@ import {
   ThemeIcon,
   Button,
 } from "@mantine/core";
-import { HeroBanner } from "../../components/common/hero/HeroBanner";
+import { HeroBanner } from "../../components/hero/HeroBanner";
 import { useComputedColorScheme } from "@mantine/core";
-import HeroBadge from "../../components/common/hero/HeroBadge";
+import HeroBadge from "../../components/hero/HeroBadge";
 import { useInViewport } from "@mantine/hooks";
 import {
   IconArchive,
@@ -25,7 +25,7 @@ import {
   IconTruck,
   IconCircleCheck,
 } from "@tabler/icons-react";
-import HeroCard from "../../components/common/hero/HeroCard";
+import HeroCard from "../../components/hero/HeroCard";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import classes from "../../styles/GlobalStyles.module.css";

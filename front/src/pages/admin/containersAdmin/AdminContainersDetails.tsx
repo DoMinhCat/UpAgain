@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import {
   Navigate,
   useLocation,

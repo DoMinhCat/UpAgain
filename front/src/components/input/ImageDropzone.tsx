@@ -5,7 +5,7 @@ import {
 } from "@mantine/dropzone";
 import { Group, Text, Image, SimpleGrid } from "@mantine/core";
 import { IconUpload, IconX, IconPhoto } from "@tabler/icons-react";
-import { showErrorNotification } from "../NotificationToast";
+import { showErrorNotification } from "../common/NotificationToast";
 
 interface ImageDropzoneProps {
   loading?: boolean;
