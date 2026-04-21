@@ -53,12 +53,18 @@ export function UserImpactObjectCard({
       }}
     >
       {/* 1. IMAGE SECTION (LEFT) */}
-      <Box style={{ width: "25%", minWidth: 140, position: "relative" }}>
+      <Box style={{ width: "25%", minWidth: 140, position: "relative", overflow: "hidden" }}>
         <Image
           src={image}
           alt={title}
-          height="100%"
-          style={{ objectFit: "cover" }}
+          style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: "cover" 
+          }}
         />
         <Badge
           className="badge"
