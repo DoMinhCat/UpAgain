@@ -1,6 +1,6 @@
 import { useAuth } from "../../context/AuthContext";
 import GuestHome from "../guest/GuestHome";
-import UserProfilePage from "../user/UserProfilePage";
+import UserProfilePage from "../user/profile/UserProfilePage";
 
 const Profile = () => {
   const { user } = useAuth();
