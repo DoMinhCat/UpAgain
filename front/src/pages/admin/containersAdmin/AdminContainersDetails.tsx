@@ -176,7 +176,7 @@ export default function AdminContainersDetails() {
         <Title order={3} ta="left" mt="xl">
           General Information
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
           <InfoField label="Current Status">
             <Group mt="xs" mb="xl">
               <Text fw={700} c={statusColor}>
@@ -220,7 +220,7 @@ export default function AdminContainersDetails() {
         <Title order={3} ta="left" mt="xl">
           Activities
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
           <InfoField label="Current Object">
             {container?.status === "maintenance" ? (
               <Text ps="sm" mt="xs" mb="lg">
@@ -271,6 +271,7 @@ export default function AdminContainersDetails() {
           px="lg"
           py="md"
           mt="sm"
+          radius="lg"
           style={{ border: "1px solid #ff000033" }}
         >
           <InfoField label="Permanently Remove">
