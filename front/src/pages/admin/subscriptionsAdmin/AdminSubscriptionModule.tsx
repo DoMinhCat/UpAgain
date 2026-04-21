@@ -49,7 +49,7 @@ import PaginationFooter from "../../../components/common/PaginationFooter";
 import {
   AdminCardInfo,
   StatsCardDesc,
-} from "../../../components/common/dashboard/AdminCardInfo";
+} from "../../../components/dashboard/AdminCardInfo";
 import { useGetSubscriptionStats } from "../../../hooks/subscriptionHooks";
 
 const LIMIT = 10;

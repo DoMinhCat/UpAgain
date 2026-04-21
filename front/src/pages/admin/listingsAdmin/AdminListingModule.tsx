@@ -14,8 +14,8 @@ import {
   Loader,
   Modal,
 } from "@mantine/core";
-import { AdminCardInfo } from "../../../components/common/dashboard/AdminCardInfo";
-import { StatsCardDesc } from "../../../components/common/dashboard/AdminCardInfo";
+import { AdminCardInfo } from "../../../components/dashboard/AdminCardInfo";
+import { StatsCardDesc } from "../../../components/dashboard/AdminCardInfo";
 import {
   IconCalendarEvent,
   IconClockPause,
@@ -39,7 +39,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import type { Item } from "../../../api/interfaces/item";
 import { useDisclosure } from "@mantine/hooks";
-import { ChartLegend } from "../../../components/common/chart/ChartLegend";
+import { ChartLegend } from "../../../components/chart/ChartLegend";
 
 export function AdminListingModule() {
   const navigate = useNavigate();

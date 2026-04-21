@@ -1,4 +1,4 @@
-import { HeroBanner } from "../../components/common/hero/HeroBanner";
+import { HeroBanner } from "../../components/hero/HeroBanner";
 import {
   Anchor,
   Button,
@@ -21,12 +21,12 @@ import { useNavigate } from "react-router-dom";
 import { useAccountDetails } from "../../hooks/accountHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { useAuth } from "../../context/AuthContext";
-import { ScoreRing } from "../../components/user/ScoreRing";
+import { ScoreRing } from "../../components/score/ScoreRing";
 import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
-import PostCard from "../../components/common/post/PostCard";
-import { EventCard } from "../../components/common/event/EventCard";
-import { DashboardCard } from "../../components/common/dashboard/DashboardCard";
+import PostCard from "../../components/post/PostCard";
+import { EventCard } from "../../components/event/EventCard";
+import { DashboardCard } from "../../components/dashboard/DashboardCard";
 
 export default function UserHome() {
   const navigate = useNavigate();

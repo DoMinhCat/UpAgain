@@ -21,7 +21,7 @@ import {
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
 import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
-import { ScoreRing } from "../../../components/user/ScoreRing";
+import { ScoreRing } from "../../../components/score/ScoreRing";
 import { useEffect, useState } from "react";
 import { Calendar } from "@mantine/dates";
 import { useGetEmployeeSchedule } from "../../../hooks/employeeHooks";
@@ -46,7 +46,7 @@ import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
 import PasswordStrengthInput, {
   requirements,
-} from "../../../components/common/input/PasswordStrengthInput";
+} from "../../../components/input/PasswordStrengthInput";
 import { IconLock, IconInfoCircleFilled } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuth } from "../../../context/AuthContext";
