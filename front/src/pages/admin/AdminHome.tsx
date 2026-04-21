@@ -37,7 +37,7 @@ import {
 import {
   AdminCardInfo,
   StatsCardDesc,
-} from "../../components/common/dashboard/AdminCardInfo";
+} from "../../components/dashboard/AdminCardInfo";
 import AdminCardNav from "../../components/nav/AdminCardNav";
 import AdminTable from "../../components/admin/AdminTable";
 import classes from "../../styles/Admin.module.css";

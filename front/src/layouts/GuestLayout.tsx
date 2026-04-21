@@ -1,9 +1,13 @@
 import { Box } from "@mantine/core";
 import { Outlet } from "react-router-dom";
 import { GuestNavBar } from "../components/guest/GuestNavBar";
-import PageFooter from "../components/common/chart/PageFooter";
+import PageFooter from "../components/chart/PageFooter";
 
-export default function GuestLayout({ children }: { children?: React.ReactNode }) {
+export default function GuestLayout({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   // Define your header height here so it's consistent
   const HEADER_HEIGHT = 60;
 

@@ -26,7 +26,7 @@ import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
 import { BarChart } from "@mantine/charts";
 
-import { AdminCardInfo } from "../../../components/common/dashboard/AdminCardInfo";
+import { AdminCardInfo } from "../../../components/dashboard/AdminCardInfo";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 

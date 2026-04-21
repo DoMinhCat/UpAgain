@@ -18,7 +18,7 @@ import { PATHS } from "../../routes/paths";
 import { useState } from "react";
 import PasswordStrengthInput, {
   requirements,
-} from "../common/input/PasswordStrengthInput";
+} from "../input/PasswordStrengthInput";
 import { useRegister } from "../../hooks/authHooks";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";

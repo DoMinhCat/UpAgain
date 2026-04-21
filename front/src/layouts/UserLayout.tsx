@@ -1,6 +1,6 @@
 import { Box } from "@mantine/core";
 import { Outlet } from "react-router-dom";
-import PageFooter from "../components/common/chart/PageFooter";
+import PageFooter from "../components/chart/PageFooter";
 import { UserNavBar } from "../components/nav/UserNavBar";
 
 export default function UserLayout({

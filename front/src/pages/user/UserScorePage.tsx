@@ -15,9 +15,11 @@ import {
 } from "@mantine/core";
 import { useAccountDetails } from "../../hooks/accountHooks.tsx";
 import FullScreenLoader from "../../components/common/FullScreenLoader.tsx";
-import { DashboardCard } from "../../components/common/dashboard/DashboardCard.tsx";
+import { DashboardCard } from "../../components/dashboard/DashboardCard.tsx";
 import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
-import { ScoreRing } from "../../components/user/ScoreRing";
+import { ScoreRing } from "../../components/score/ScoreRing.tsx";
+import PaginationFooter from "../../components/common/PaginationFooter.tsx";
+import { UserImpactObjectCard } from "../../components/object/UserImpactObjectCard.tsx";
 
 export default function UserScorePage() {
   const { user } = useAuth();
@@ -167,6 +169,46 @@ export default function UserScorePage() {
       <Title ta="center" my={50}>
         Objects you gaved a second life
       </Title>
+      {/* TODO: pagination result of my completed objects (5 per page), if no object, display a cta button */}
+      <UserImpactObjectCard
+        title="Vintage Oak Coffee Table"
+        image="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
+        price={85}
+        material="Solid Wood"
+        buyerName="Julian R."
+        soldDate="2026-04-18"
+        impact={{
+          co2: 12.5,
+          water: 450,
+          electricity: 18,
+        }}
+      />
+      <Text ta="center">
+        You haven't sold any object yet, let's change that.
+      </Text>
+      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+        <Button
+          className="button"
+          data-variant="primary"
+          size="lg"
+          onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+        >
+          Create a listing
+        </Button>
+        <Button
+          className="button"
+          data-variant="primary" // Golden shine for creating deposits
+          size="lg"
+          onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+        >
+          Create a deposit
+        </Button>
+      </SimpleGrid>
+      {/* <PaginationFooter
+        currentPage={1}
+        totalPages={10}
+        onPageChange={(page) => console.log(page)}
+      /> */}
     </Container>
   );
 }
