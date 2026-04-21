@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "../../context/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths.ts";
@@ -20,7 +21,6 @@ import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
 import { ScoreRing } from "../../components/score/ScoreRing.tsx";
 import PaginationFooter from "../../components/common/PaginationFooter.tsx";
 import { UserImpactObjectCard } from "../../components/object/UserImpactObjectCard.tsx";
-
 export default function UserScorePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +30,41 @@ export default function UserScorePage() {
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);
 
+  const [activePage, setActivePage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  // BACKEND INTEGRATION:
+  // In a real scenario, you would fetch these from an API like:
+  // const { data: myObjects, isLoading } = useGetMyImpactObjects({ page: activePage, limit: ITEMS_PER_PAGE });
+  // For now, we use mock data to demonstrate the layout.
+
+  const MOCK_OBJECTS = [
+    {
+      id: 1,
+      title: "Vintage Oak Coffee Table",
+      image: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88",
+      price: 85,
+      material: "Solid Wood",
+      buyerName: "Julian R.",
+      soldDate: "2026-04-18",
+      impact: { co2: 12.5, water: 450, electricity: 18 },
+    },
+    {
+      id: 2,
+      title: "Retro Velvet Armchair",
+      image: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c",
+      price: 120,
+      material: "Velvet & Metal",
+      buyerName: "Sarah M.",
+      soldDate: "2026-04-15",
+      impact: { co2: 8.2, water: 120, electricity: 5 },
+    },
+    // Add more mock items as needed
+  ];
+
+  const hasObjects = MOCK_OBJECTS.length > 0;
+  const totalPages = 100;
+
   if (role !== "user") {
     navigate(PATHS.HOME);
   }
@@ -37,19 +72,21 @@ export default function UserScorePage() {
   if (isLoadingAccountDetails) {
     return <FullScreenLoader />;
   }
+
   return (
     <Container px="md" py={50} size="xl">
       <Title ta="center" mb="xl">
-        Thank you for your effort, {accountDetails?.username}!
+        Thank you for your effort, {accountDetails?.username || "Eco-warrior"}!
       </Title>
+
       <Stack gap="xl">
         {/* Section Header */}
         <Stack gap={0}>
           <Title order={2} size={32} c="var(--mantine-color-text)">
-            Your impact so far
+            Your environmental contribution
           </Title>
           <Text c="dimmed" size="sm">
-            Real-time tracking of your environmental contribution
+            Real-time tracking of the resources you've helped preserve.
           </Text>
         </Stack>
 
@@ -63,9 +100,9 @@ export default function UserScorePage() {
           >
             <Stack gap={0} align="center">
               <Text size="32px" fw={900} style={{ lineHeight: 1 }}>
-                1,240{" "}
+                {/* {accountDetails?.totalCo2Saved ?? "1,240"} */}{" "}
                 <Text span size="xl" fw={500}>
-                  kg
+                  1240 kg
                 </Text>
               </Text>
             </Stack>
@@ -77,7 +114,6 @@ export default function UserScorePage() {
                 width={80}
                 style={{ filter: "grayscale(1) opacity(0.3)" }}
               />
-              {/* Catchy Overlay Text */}
               <Text
                 size="xs"
                 ta="center"
@@ -107,7 +143,8 @@ export default function UserScorePage() {
                   Water
                 </Text>
                 <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
-                  4,500 L
+                  {/* {accountDetails?.totalWaterSaved ??  */}
+                  4,500 Liters
                 </Text>
               </Group>
               <Progress
@@ -122,6 +159,7 @@ export default function UserScorePage() {
                   Electricity
                 </Text>
                 <Text size="sm" fw={700} c="var(--upagain-yellow)">
+                  {/* {accountDetails?.totalElectricitySaved ??  */}
                   820 kWh
                 </Text>
               </Group>
@@ -142,73 +180,114 @@ export default function UserScorePage() {
             align="center"
           >
             <Box pos="relative" my="sm">
-              <ScoreRing score={99} size={140} />
+              <ScoreRing score={accountDetails?.score ?? 0} size={140} />
             </Box>
             <Text size="xs" c="dimmed" ta="center">
-              Top 99999% of Upcyclers this month!
+              Top 1% of Upcyclers this month!
             </Text>
           </DashboardCard>
         </SimpleGrid>
       </Stack>
 
-      <Title ta="center" my={50}>
-        Let's gain some more points!
-      </Title>
-      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-        <Button variant="cta-reverse" size="lg" radius="xl">
-          Post a new item
-        </Button>
-        <Button variant="cta" size="lg" radius="xl">
-          Check out our guides and projects
-        </Button>
-        <Button variant="cta-reverse" size="lg" radius="xl">
-          Join an event
-        </Button>
-      </SimpleGrid>
+      <Stack my={80} align="center" gap="xl">
+        <Title order={2} ta="center">
+          Let's boost your impact!
+        </Title>
+        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg" w="100%">
+          <Button
+            variant="cta-reverse"
+            size="lg"
+            radius="xl"
+            onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+          >
+            Post a new item
+          </Button>
+          <Button
+            variant="cta"
+            size="lg"
+            radius="xl"
+            onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+          >
+            Explore workshops
+          </Button>
+          <Button
+            variant="cta-reverse"
+            size="lg"
+            radius="xl"
+            onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+          >
+            Join a cleanup
+          </Button>
+        </SimpleGrid>
+      </Stack>
 
-      <Title ta="center" my={50}>
-        Objects you gaved a second life
-      </Title>
-      {/* TODO: pagination result of my completed objects (5 per page), if no object, display a cta button */}
-      <UserImpactObjectCard
-        title="Vintage Oak Coffee Table"
-        image="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
-        price={85}
-        material="Solid Wood"
-        buyerName="Julian R."
-        soldDate="2026-04-18"
-        impact={{
-          co2: 12.5,
-          water: 450,
-          electricity: 18,
-        }}
-      />
-      <Text ta="center">
-        You haven't sold any object yet, let's change that.
-      </Text>
-      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-        <Button
-          className="button"
-          data-variant="primary"
-          size="lg"
-          onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
-        >
-          Create a listing
-        </Button>
-        <Button
-          className="button"
-          data-variant="primary" // Golden shine for creating deposits
-          size="lg"
-          onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
-        >
-          Create a deposit
-        </Button>
-      </SimpleGrid>
-      {/* <PaginationFooter
-        currentPage={1}
-        totalPages={10}
-        onPageChange={(page) => console.log(page)}
-      /> */}
+      <Stack gap="xl">
+        <Title ta="center" mb="lg">
+          Objects you gave a second life
+        </Title>
+
+        {hasObjects ? (
+          <Stack gap="md">
+            {MOCK_OBJECTS.map((obj) => (
+              <UserImpactObjectCard
+                key={obj.id}
+                title={obj.title}
+                image={obj.image}
+                price={obj.price}
+                material={obj.material}
+                buyerName={obj.buyerName}
+                soldDate={obj.soldDate}
+                impact={obj.impact}
+              />
+            ))}
+
+            {totalPages > 1 && (
+              <PaginationFooter
+                activePage={activePage}
+                setPage={setActivePage}
+                total_records={MOCK_OBJECTS.length}
+                last_page={totalPages}
+                limit={ITEMS_PER_PAGE}
+                unit="objects"
+                loading={false}
+                hidden={false}
+              />
+            )}
+          </Stack>
+        ) : (
+          <Stack align="center" py={40} gap="xl">
+            <Text c="dimmed" ta="center">
+              You haven't redirected any objects yet. Every recycled item
+              counts!
+            </Text>
+            <SimpleGrid
+              cols={{ base: 1, sm: 2 }}
+              spacing="md"
+              w="100%"
+              maw={600}
+            >
+              <Button
+                variant="primary"
+                className="button"
+                data-variant="primary"
+                size="lg"
+                onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+              >
+                Create a listing
+              </Button>
+              <Button
+                variant="primary"
+                className="button"
+                data-variant="primary"
+                size="lg"
+                onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+              >
+                Make a deposit
+              </Button>
+            </SimpleGrid>
+          </Stack>
+        )}
+      </Stack>
     </Container>
   );
 }
