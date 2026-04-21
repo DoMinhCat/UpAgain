@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  AddComment,
   CreatePost,
   DeleteComment,
   DeletePost,
@@ -9,9 +10,19 @@ import {
   GetPostDetails,
   GetPostsStats,
   GetProjectStepsByPostId,
+  GetUserPostComments,
+  GetUserPostDetails,
+  GetUserPosts,
+  IncrementPostView,
+  LikeComment,
+  LikePost,
+  SavePost,
   UpdatePost,
 } from "../api/postModule";
-import type { PostsListPagination } from "../api/interfaces/post";
+import type {
+  AddCommentPayload,
+  PostsListPagination,
+} from "../api/interfaces/post";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
@@ -186,6 +197,127 @@ export const useDeleteProjectStep = () => {
         "Project step deleted",
         "The project step has been deleted successfully.",
       );
+    },
+  });
+};
+
+// --- User-facing hooks ---
+
+export const useGetUserPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+  sort?: string,
+) => {
+  return useQuery<PostsListPagination>({
+    queryKey: ["userPosts", page, limit, category, sort],
+    queryFn: () => GetUserPosts(page, limit, category, sort),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch posts.",
+    },
+  });
+};
+
+export const useGetUserPostDetails = (id_post: number, enabled: boolean) => {
+  return useQuery({
+    queryKey: ["userPostDetails", id_post],
+    queryFn: () => GetUserPostDetails(id_post),
+    staleTime: STALE_TIME,
+    enabled,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch post.",
+    },
+  });
+};
+
+export const useGetUserPostComments = (
+  id_post: number,
+  enabled: boolean,
+  page?: number,
+  limit?: number,
+) => {
+  return useQuery({
+    queryKey: ["userPostComments", id_post, page, limit],
+    queryFn: () => GetUserPostComments(id_post, page, limit),
+    staleTime: STALE_TIME,
+    enabled,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch comments.",
+    },
+  });
+};
+
+export const useLikePost = (id_post: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => LikePost(id_post),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to like post.",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+    },
+  });
+};
+
+export const useSavePost = (id_post: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => SavePost(id_post),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to save post.",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+    },
+  });
+};
+
+export const useIncrementPostView = () => {
+  return useMutation({
+    mutationFn: (id_post: number) => IncrementPostView(id_post),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to track view.",
+    },
+  });
+};
+
+export const useAddComment = (id_post: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: AddCommentPayload) => AddComment(id_post, payload),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to post comment.",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["userPostComments", id_post],
+      });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+    },
+  });
+};
+
+export const useLikeComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_comment: number) => LikeComment(id_comment),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to like comment.",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userPostComments"] });
     },
   });
 };

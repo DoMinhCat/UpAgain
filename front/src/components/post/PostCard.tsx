@@ -14,6 +14,8 @@ import {
   IconHeartFilled,
   IconBookmarkFilled,
   IconEye,
+  IconHeart,
+  IconBookmark,
 } from "@tabler/icons-react";
 import { getTimeAgo } from "../../utils/timeUtils";
 
@@ -24,10 +26,24 @@ interface PostCardProps {
   category: string;
   authorName: string;
   authorAvatar: string;
-  postedTime: string; // Should be an ISO string, e.g., "2026-04-19T14:30:00Z"
+  postedTime: string;
   views: number;
   likes: number;
+  isLiked?: boolean;
+  isSaved?: boolean;
+  onClick?: () => void;
+  onLike?: (e: React.MouseEvent) => void;
+  onSave?: (e: React.MouseEvent) => void;
 }
+
+const CATEGORY_COLOR: Record<string, string> = {
+  tutorial: "blue",
+  project: "green",
+  tips: "yellow",
+  case_study: "violet",
+  news: "red",
+  other: "gray",
+};
 
 // TODO: Add crown if sponsored on the top left
 export default function PostCard({
@@ -40,33 +56,37 @@ export default function PostCard({
   postedTime,
   views,
   likes,
+  isLiked,
+  isSaved,
+  onClick,
+  onLike,
+  onSave,
 }: PostCardProps) {
   return (
     <Card
       className="paper"
       data-variant="primary"
       padding="lg"
-      radius="lg" // UpAgain prefers rounder borders
-      style={{ overflow: "hidden" }}
+      radius="lg"
+      style={{
+        overflow: "hidden",
+        cursor: onClick ? "pointer" : "default",
+        transition: "transform 0.15s ease",
+      }}
+      onClick={onClick}
+      onMouseEnter={(e) => {
+        if (onClick) e.currentTarget.style.transform = "translateY(-3px)";
+      }}
+      onMouseLeave={(e) => {
+        if (onClick) e.currentTarget.style.transform = "translateY(0)";
+      }}
     >
       {/* Image with Overlay Badge */}
       <Card.Section pos="relative">
         <Image src={image} alt={title} height={200} fit="cover" />
         <Badge
           className="badge"
-          variant={
-            category === "other"
-              ? "gray"
-              : category === "tutorial"
-                ? "blue"
-                : category === "project"
-                  ? "green"
-                  : category === "tips"
-                    ? "yellow"
-                    : category === "case_study"
-                      ? "violet"
-                      : "red"
-          }
+          variant={CATEGORY_COLOR[category] ?? "gray"}
           pos="absolute"
           top={12}
           right={12}
@@ -108,7 +128,6 @@ export default function PostCard({
       {/* Footer with Actions */}
       <Card.Section inheritPadding py="sm" mt="md" withBorder>
         <Group justify="space-between">
-          {/* Left side: Views */}
           <Group gap={6} c="dimmed">
             <IconEye size={18} stroke={1.5} />
             <Text size="xs" fw={500}>
@@ -116,9 +135,7 @@ export default function PostCard({
             </Text>
           </Group>
 
-          {/* Right side: Immediate Actions */}
           <Group gap="sm">
-            {/* Action 1: Like (Proper Grouping) */}
             <Group gap={4}>
               <ActionIcon
                 className="actionIcon"
@@ -126,24 +143,45 @@ export default function PostCard({
                 variant="subtle"
                 radius="xl"
                 aria-label="Like post"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLike?.(e);
+                }}
               >
-                <IconHeartFilled size={18} color="var(--mantine-color-red-6)" />
+                {isLiked ? (
+                  <IconHeartFilled
+                    size={18}
+                    color="var(--mantine-color-red-6)"
+                  />
+                ) : (
+                  <IconHeart size={18} color="var(--mantine-color-red-6)" />
+                )}
               </ActionIcon>
               <Text size="xs" fw={600} c="var(--mantine-color-text)">
                 {likes}
               </Text>
             </Group>
 
-            {/* Action 2: Save */}
-            <Tooltip label="Save post" position="top" withArrow>
+            <Tooltip label={isSaved ? "Unsave post" : "Save post"} position="top" withArrow>
               <ActionIcon
                 className="actionIcon"
                 data-variant="primary"
                 variant="subtle"
                 radius="xl"
                 aria-label="Save post"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSave?.(e);
+                }}
               >
-                <IconBookmarkFilled size={18} color="var(--upagain-yellow)" />
+                {isSaved ? (
+                  <IconBookmarkFilled
+                    size={18}
+                    color="var(--upagain-yellow)"
+                  />
+                ) : (
+                  <IconBookmark size={18} color="var(--upagain-yellow)" />
+                )}
               </ActionIcon>
             </Tooltip>
           </Group>

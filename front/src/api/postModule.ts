@@ -1,6 +1,8 @@
 import { api } from "./axios";
 import { ENDPOINTS } from "./endpoints";
 import type {
+  AddCommentPayload,
+  AddCommentResponse,
   Post,
   PostCommentsResponse,
   PostsListPagination,
@@ -76,5 +78,68 @@ export const GetProjectStepsByPostId = async (
 
 export const DeleteProjectStep = async (id_step: number) => {
   const response = await api.delete(ENDPOINTS.ADMIN.POSTS.DELETE_STEP(id_step));
+  return response.data;
+};
+
+// --- User-facing post actions ---
+
+export const GetUserPosts = async (
+  page?: number,
+  limit?: number,
+  category?: string,
+  sort?: string,
+): Promise<PostsListPagination> => {
+  const response = await api.get(ENDPOINTS.USER.POSTS.ALL, {
+    params: { page, limit, category, sort },
+  });
+  return response.data;
+};
+
+export const GetUserPostDetails = async (id_post: number): Promise<Post> => {
+  const response = await api.get(ENDPOINTS.USER.POSTS.DETAILS(id_post));
+  return response.data;
+};
+
+export const GetUserPostComments = async (
+  id_post: number,
+  page?: number,
+  limit?: number,
+): Promise<PostCommentsResponse> => {
+  const response = await api.get(ENDPOINTS.USER.POSTS.COMMENTS(id_post), {
+    params: { page, limit },
+  });
+  return response.data;
+};
+
+export const LikePost = async (id_post: number) => {
+  const response = await api.post(ENDPOINTS.USER.POSTS.LIKE(id_post));
+  return response.data;
+};
+
+export const SavePost = async (id_post: number) => {
+  const response = await api.post(ENDPOINTS.USER.POSTS.SAVE(id_post));
+  return response.data;
+};
+
+export const IncrementPostView = async (id_post: number) => {
+  const response = await api.post(ENDPOINTS.USER.POSTS.VIEW(id_post));
+  return response.data;
+};
+
+export const AddComment = async (
+  id_post: number,
+  payload: AddCommentPayload,
+): Promise<AddCommentResponse> => {
+  const response = await api.post(
+    ENDPOINTS.USER.POSTS.ADD_COMMENT(id_post),
+    payload,
+  );
+  return response.data;
+};
+
+export const LikeComment = async (id_comment: number) => {
+  const response = await api.post(
+    ENDPOINTS.USER.POSTS.LIKE_COMMENT(id_comment),
+  );
   return response.data;
 };
