@@ -7,7 +7,7 @@ export default function SecurityTab() {
         Security Settings
       </Title>
       <Text c="dimmed" size="lg">
-        Manage your password, two-factor authentication, and active sessions.
+        Manage your email and password
       </Text>
     </Stack>
   );

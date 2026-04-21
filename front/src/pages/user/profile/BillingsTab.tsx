@@ -7,7 +7,7 @@ export default function BillingsTab() {
         Billing & Subscriptions
       </Title>
       <Text c="dimmed" size="lg">
-        Manage your payment methods, billing address, and subscription plans.
+        Manage your payment methods and invoices
       </Text>
     </Stack>
   );

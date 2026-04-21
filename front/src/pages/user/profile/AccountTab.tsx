@@ -9,14 +9,24 @@ import {
   Modal,
   Title,
   Text,
+  Badge,
 } from "@mantine/core";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
-import { useAccountDetails } from "../../../hooks/accountHooks";
+import {
+  useAccountDetails,
+  useAccountStats,
+} from "../../../hooks/accountHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { useState, useEffect } from "react";
-import { IconLeaf, IconUser, IconTrophy } from "@tabler/icons-react";
+import {
+  IconLeaf,
+  IconUser,
+  IconTrophy,
+  IconPackage,
+  IconClipboardList,
+} from "@tabler/icons-react";
 import ImageDropzone from "../../../components/input/ImageDropzone";
 import { useDisclosure } from "@mantine/hooks";
 
@@ -27,8 +37,12 @@ export default function AccountTab() {
   const [openedAvatar, { open: openAvatar, close: closeAvatar }] =
     useDisclosure(false);
 
+  // GET ACCOUNT DATA
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);
+  const { data: stats, isLoading: isLoadingStats } = useAccountStats(
+    user?.id || 0,
+  );
 
   // Form State
   const [formData, setFormData] = useState({
@@ -72,7 +86,7 @@ export default function AccountTab() {
           Account Settings
         </Title>
         <Text c="dimmed" size="lg">
-          Manage your account, preferences, and billing information.
+          Manage your profile information
         </Text>
       </Stack>
 
@@ -97,67 +111,31 @@ export default function AccountTab() {
       {/* PERSONAL DETAILS SECTION */}
       <Paper variant="primary" p={30} radius="lg">
         <Stack gap="xl">
-          <Group gap="sm">
-            <IconUser size={20} color="var(--upagain-neutral-green)" />
-            <Title order={3} size={22}>
-              Personal Details
-            </Title>
-          </Group>
-
-          <TextInput
-            label="USERNAME"
-            placeholder="@jthorne"
-            value={formData.username}
-            onChange={(e) =>
-              setFormData({ ...formData, username: e.target.value })
-            }
-            variant="filled"
-            size="md"
-          />
-
-          <TextInput
-            label="PHONE NUMBER"
-            placeholder="+33 X XX XX XX XX"
-            value={formData.phone || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            variant="filled"
-            size="md"
-            description={!formData.phone ? "N/A" : null}
-          />
-
-          <Stack gap={5}>
-            <TextInput
-              label="EMAIL ADDRESS"
-              placeholder="[EMAIL_ADDRESS]"
-              value={accountDetails?.email}
-              variant="filled"
-              disabled
-              size="md"
-            />
-          </Stack>
-
-          <Group justify="space-between" mt="md">
-            <Stack gap={5}>
-              <Text fw={700} size="sm">
-                ROLE
-              </Text>
-              <Text
-                size="sm"
-                fw={800}
-                tt="uppercase"
-                c="var(--upagain-neutral-green)"
+          <Group justify="space-between">
+            <Group gap="sm">
+              <IconUser size={20} color="var(--upagain-neutral-green)" />
+              <Title order={3} size={22}>
+                Personal Details
+              </Title>
+              <Badge
+                color={
+                  accountDetails?.role == "admin"
+                    ? "red"
+                    : accountDetails?.role == "user"
+                      ? "var(--upagain-neutral-green)"
+                      : accountDetails?.role == "pro"
+                        ? "var(--upagain-yellow)"
+                        : "var(--upagain-light-green)"
+                }
               >
-                {accountDetails?.role}
-              </Text>
-            </Stack>
-
+                {accountDetails?.role.toUpperCase()}
+              </Badge>
+            </Group>
             <Stack gap={5} align="flex-end">
               <Text fw={700} size="sm">
-                MEMBER SINCE
+                Joined on
               </Text>
-              <Text size="sm" fw={600}>
+              <Text size="sm" fw={600} c="dimmed">
                 {new Date(
                   accountDetails?.created_at || Date.now(),
                 ).toLocaleDateString("en-US", {
@@ -168,19 +146,46 @@ export default function AccountTab() {
               </Text>
             </Stack>
           </Group>
+
+          <TextInput
+            label="Username"
+            value={formData.username}
+            onChange={(e) =>
+              setFormData({ ...formData, username: e.target.value })
+            }
+            size="md"
+          />
+
+          <TextInput
+            label="Phone"
+            value={formData.phone || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+            size="md"
+            description={!formData.phone ? "N/A" : null}
+          />
+
+          <Stack gap={5}>
+            <TextInput
+              label="Email"
+              value={accountDetails?.email}
+              disabled
+              size="md"
+            />
+          </Stack>
         </Stack>
       </Paper>
 
-      {/* IMPACT STATISTICS */}
+      {/* STATISTICS */}
       <Paper variant="primary" p={30} radius="lg">
-        <Group justify="space-between" align="center">
+        <Stack gap="xl">
           <Group gap="sm">
             <IconTrophy size={20} color="var(--upagain-yellow)" />
             <Title order={3} size={22}>
-              Environmental Impact
+              Statistics
             </Title>
           </Group>
-
           <Anchor
             onClick={() => navigate(PATHS.USER.SCORE)}
             underline="hover"
@@ -190,10 +195,34 @@ export default function AccountTab() {
           >
             <Group gap={6}>
               <IconLeaf size={24} />
-              {accountDetails?.score || 0} Upcycling Points
+              <Text>{accountDetails?.score} Upcycling points</Text>
             </Group>
           </Anchor>
-        </Group>
+
+          <Stack gap="md">
+            <Group gap={6}>
+              <IconPackage size={24} />
+              <Title order={4}>Container deposits posted</Title>
+            </Group>
+            <Text>
+              {" "}
+              {stats?.total_deposits} container{" "}
+              {stats?.total_deposits === 1 ? "deposit" : "deposits"} posted
+            </Text>
+          </Stack>
+          <Stack gap="md">
+            <Group gap={6}>
+              <IconClipboardList size={24} />
+              <Title order={4}>Listings posted</Title>
+            </Group>
+            <Text>
+              {" "}
+              {stats?.total_listings}{" "}
+              {stats?.total_listings === 1 ? "listing" : "listings"} posted
+            </Text>
+          </Stack>
+          {/* Total spendings are shown in billings tab */}
+        </Stack>
       </Paper>
 
       {/* ACTION BUTTONS */}
@@ -232,7 +261,7 @@ export default function AccountTab() {
           setFiles={setFiles}
           props={{ maxFiles: 1, onDrop: (files) => setFiles(files) }}
         />
-        <Group justify="center">
+        <Group mt="md" justify="center">
           <Button variant="secondary" onClick={() => closeAvatar()}>
             Cancel
           </Button>
