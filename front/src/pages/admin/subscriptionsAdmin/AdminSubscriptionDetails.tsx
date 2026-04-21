@@ -168,7 +168,7 @@ export default function AdminSubscriptionDetails() {
         <Title order={3} ta="left" mt="xl">
           Subscription Information
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
           <InfoField label="Type">
             <Text
               ps="sm"
@@ -202,7 +202,7 @@ export default function AdminSubscriptionDetails() {
         <Title order={3} ta="left" mt="xl">
           Invoice
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
           <InfoField label="Invoice">
             <Button
               variant="primary"
@@ -227,6 +227,7 @@ export default function AdminSubscriptionDetails() {
               px="lg"
               py="md"
               mt="sm"
+              radius="lg"
               style={{ border: "1px solid #ff000033" }}
             >
               <InfoField label="Revoke Subscription">
