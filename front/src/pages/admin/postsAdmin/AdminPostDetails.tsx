@@ -25,7 +25,7 @@ import {
   NumberInput,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import {
@@ -41,8 +41,8 @@ import {
   IconLink,
   IconCrownFilled,
 } from "@tabler/icons-react";
-import { TextEditor } from "../../../components/common/input/TextEditor";
-import ImageDropzone from "../../../components/common/input/ImageDropzone";
+import { TextEditor } from "../../../components/input/TextEditor";
+import ImageDropzone from "../../../components/input/ImageDropzone";
 import {
   useDeleteComment,
   useDeletePost,
@@ -55,8 +55,8 @@ import {
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
-import { CardStatsItem } from "../../../components/admin/CardStatsItem";
-import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
+import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
+import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
 import {

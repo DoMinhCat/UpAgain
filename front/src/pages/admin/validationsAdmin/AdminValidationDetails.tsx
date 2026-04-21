@@ -31,7 +31,7 @@ import {
 import dayjs from "dayjs";
 
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import InfoField from "../../../components/common/InfoField";
 import { useProcessValidation } from "../../../hooks/validationHooks";
 

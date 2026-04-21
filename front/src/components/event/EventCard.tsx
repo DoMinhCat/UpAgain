@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { IconMapPin, IconCalendarEvent, IconClock } from "@tabler/icons-react";
-import { getTimeAgo } from "../../../utils/timeUtils";
+import { getTimeAgo } from "../../utils/timeUtils";
 
 interface EventCardProps {
   orientation?: "vertical" | "horizontal";

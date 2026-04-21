@@ -38,7 +38,7 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 
 import AdminTable from "../../../components/admin/AdminTable";
-import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
+import { AdminCardInfo } from "../../../components/dashboard/AdminCardInfo";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { PATHS } from "../../../routes/paths";
 import {
@@ -52,7 +52,7 @@ import {
   useGetAllEvents,
   useApproveRefuseEvent,
 } from "../../../hooks/eventHooks";
-import { ChartLegend } from "../../../components/common/chart/ChartLegend";
+import { ChartLegend } from "../../../components/chart/ChartLegend";
 
 const LIMIT = 10;
 

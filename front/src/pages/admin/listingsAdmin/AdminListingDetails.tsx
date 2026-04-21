@@ -26,7 +26,7 @@ import {
   Center,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import {
   IconPhoto,
@@ -57,9 +57,9 @@ import {
   useUpdateItemStatus,
 } from "../../../hooks/itemHooks";
 import dayjs from "dayjs";
-import { PhotosCarousel } from "../../../components/common/photo/PhotosCarousel";
+import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
-import { CardStatsItem } from "../../../components/admin/CardStatsItem";
+import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
 import {
   useGetListingDetails,
@@ -71,13 +71,13 @@ import {
   useTransferDepositContainer,
   useUpdateDeposit,
 } from "../../../hooks/depositHooks";
-import ImageDropzone from "../../../components/common/input/ImageDropzone";
-import { TextEditor } from "../../../components/common/input/TextEditor";
+import ImageDropzone from "../../../components/input/ImageDropzone";
+import { TextEditor } from "../../../components/input/TextEditor";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import type { Transaction } from "../../../api/interfaces/transaction";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
-import PhotoModal from "../../../components/common/photo/PhotoModal";
+import PhotoModal from "../../../components/photo/PhotoModal";
 import { useGetAvailableContainers } from "../../../hooks/containerHooks";
 
 export default function AdminListingDetails() {

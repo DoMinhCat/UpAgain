@@ -27,7 +27,10 @@ export function StatsCardDesc({
   );
 }
 
-interface AdminCardInfoProps extends Omit<import("@mantine/core").CardProps, "title" | "value"> {
+interface AdminCardInfoProps extends Omit<
+  import("@mantine/core").CardProps,
+  "title" | "value"
+> {
   title: string;
   icon: Icon;
   value: string | number;

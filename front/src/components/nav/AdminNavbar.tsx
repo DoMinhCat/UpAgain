@@ -24,7 +24,7 @@ import classes from "../../styles/Admin.module.css";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { IconSun, IconMoon } from "@tabler/icons-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { PATHS } from "../../../src/routes/paths";
+import { PATHS } from "../../routes/paths";
 import { useAuth } from "../../context/AuthContext";
 import { useAccountDetails } from "../../hooks/accountHooks";
 

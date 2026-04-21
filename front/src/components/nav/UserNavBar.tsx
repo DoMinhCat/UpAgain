@@ -22,9 +22,10 @@ import {
   IconBellFilled,
   IconChevronRight,
   IconLeaf,
+  IconDeviceDesktopCode,
 } from "@tabler/icons-react";
 import { useAuth } from "../../context/AuthContext";
-import { HeaderLink } from "../common/NavBarComponents";
+import { HeaderLink } from "./NavBarComponents";
 import { LANGUAGES } from "../../i18n/languages";
 import { Indicator } from "@mantine/core";
 import { useState } from "react";
@@ -71,35 +72,55 @@ export function UserNavBar() {
 
       {/* 3. Actions Section */}
       <Group gap="md">
-        <Tooltip label="Upcycling Score">
-          <Badge
-            size="lg"
-            radius="xl"
-            color="var(--upagain-neutral-green)"
-            leftSection={<IconLeaf size={16} />}
-            style={{ padding: "0 10px" }}
-          >
-            {accountDetails?.score ?? 0} pts
-          </Badge>
-        </Tooltip>
+        {user?.role === "user" && (
+          <>
+            {" "}
+            <Tooltip label="Upcycling Score">
+              <Badge
+                onClick={() => navigate(PATHS.USER.SCORE)}
+                size="lg"
+                radius="xl"
+                color="var(--upagain-neutral-green)"
+                leftSection={<IconLeaf size={16} />}
+                style={{ padding: "0 10px", cursor: "pointer" }}
+              >
+                {accountDetails?.score ?? 0} pts
+              </Badge>
+            </Tooltip>
+            <Menu shadow="md" width={300} position="bottom-end">
+              <Menu.Target>
+                <ActionIcon variant="subtle" color="gray" size="lg" radius="md">
+                  <Indicator color="red" size={8} offset={2} processing>
+                    <IconBellFilled
+                      size={24}
+                      stroke={1.5}
+                      color="var(--upagain-yellow)"
+                    />
+                  </Indicator>
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Label>Notifications</Menu.Label>
+                {/* TODO: map notifications */}
+                <Menu.Item>No new notifications</Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </>
+        )}
 
-        <Menu shadow="md" width={300} position="bottom-end">
-          <Menu.Target>
-            <ActionIcon variant="subtle" color="gray" size="lg" radius="md">
-              <Indicator color="red" size={8} offset={2} processing>
-                <IconBellFilled
-                  size={24}
-                  stroke={1.5}
-                  color="var(--upagain-yellow)"
-                />
-              </Indicator>
+        {accountDetails?.role === "admin" && (
+          <Tooltip label="Back office">
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="lg"
+              radius="md"
+              onClick={() => navigate(PATHS.ADMIN.HOME)}
+            >
+              <IconDeviceDesktopCode size={24} stroke={1.5} />
             </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Label>Notifications</Menu.Label>
-            <Menu.Item>No new notifications</Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+          </Tooltip>
+        )}
 
         {!errorAccountDetails && (
           <Menu shadow="md" width={220} position="bottom-end" trigger="click">
