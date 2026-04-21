@@ -22,6 +22,10 @@ func InsertHistory(entityType string, entityId interface{}, action string, admin
 	oldJSON, _ := json.Marshal(oldState)
 	newJSON, _ := json.Marshal(newState)
 
+	if entityType == "admin"{
+		entityType = "employee"
+	}
+
 	query := `INSERT INTO admin_history (entity_type, entity_id, action, id_employee, old_state, new_state) VALUES ($1, $2, $3, $4, $5, $6)`
 
 	_, err := utils.Conn.Exec(query, entityType, entityId, action, adminId, oldJSON, newJSON)
