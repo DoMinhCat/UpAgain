@@ -7,7 +7,7 @@ export default function PreferencesTab() {
         Preferences
       </Title>
       <Text c="dimmed" size="lg">
-        Manage your notification settings and display preferences.
+        Manage your notification settings and display preferences
       </Text>
     </Stack>
   );
