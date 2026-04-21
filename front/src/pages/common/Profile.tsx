@@ -1,8 +1,8 @@
 import { useAuth } from "../../context/AuthContext";
 import GuestHome from "../guest/GuestHome";
-import UserHome from "../user/UserHome";
+import UserProfilePage from "../user/profile/UserProfilePage";
 
-const Home = () => {
+const Profile = () => {
   const { user } = useAuth();
 
   // Redirect unauthenticated users
@@ -11,17 +11,17 @@ const Home = () => {
   } else {
     // Render component based on role
     switch (user.role) {
-      // admin can move freely between admin space and user space
-
       // TODO:
       // case "pro":
-      //   return <ProHome />;
+      //   return <ProProfilePage />;
+      // case "admin":
+      //   return <AdminProfilePage />;
       case "user":
-        return <UserHome />;
+        return <UserProfilePage />;
       default:
         return <GuestHome />;
     }
   }
 };
 
-export default Home;
+export default Profile;

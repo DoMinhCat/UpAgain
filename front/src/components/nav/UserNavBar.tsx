@@ -152,7 +152,10 @@ export function UserNavBar() {
 
             <Menu.Dropdown>
               <Menu.Label>{accountDetails?.username}</Menu.Label>
-              <Menu.Item leftSection={<IconUser size={14} />}>
+              <Menu.Item
+                leftSection={<IconUser size={14} />}
+                onClick={() => navigate(PATHS.USER.PROFILE)}
+              >
                 My Profile
               </Menu.Item>
 

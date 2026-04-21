@@ -425,7 +425,6 @@ export default function AdminUserDetails() {
 
         <Stack justify="center" align="center">
           <Avatar
-            // avatar must be in /src/assets/avatars
             src={accountDetails?.avatar}
             name="User's name"
             color="initials"
@@ -437,7 +436,7 @@ export default function AdminUserDetails() {
           General Information
         </Title>
 
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
           <InfoField label="Username">
             <Text ps="sm" mt="xs" mb="xl">
               {accountDetails?.username}
@@ -510,7 +509,7 @@ export default function AdminUserDetails() {
         <Title order={3} ta="left" mt="xl">
           Contact
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
           <InfoField label="Email">
             <Text ps="sm" mt="xs" mb="xl">
               {accountDetails?.email}
@@ -528,7 +527,7 @@ export default function AdminUserDetails() {
             <Title order={3} ta="left" mt="xl">
               Activities
             </Title>
-            <Paper variant="primary" px="lg" py="md" mt="sm">
+            <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
               <InfoField label="Last active on">
                 <Text ps="sm" mt="xs">
                   {accountDetails?.last_active
@@ -696,7 +695,14 @@ export default function AdminUserDetails() {
         <Title order={3} ta="left" mt="xl" c="red">
           Danger zone
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper
+          variant="primary"
+          px="lg"
+          py="md"
+          mt="sm"
+          radius="lg"
+          style={{ border: "1px solid #ff000033" }}
+        >
           {accountDetails?.deleted_at ? (
             <InfoField label="Recover account">
               <Box ps="sm" mb="xl">

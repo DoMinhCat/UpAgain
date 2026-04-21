@@ -35,6 +35,7 @@ export const PATHS = {
   USER: {
     // paths for user espace here
     SCORE: "/score",
+    PROFILE: "/profile",
   },
   PRO: {
     // paths for pro/artisans espace here
@@ -57,5 +58,11 @@ export const PATHS = {
     HOME: "/marketplace",
     LISTINGS: "/marketplace/listings",
     DEPOSITS: "/marketplace/deposits",
+  },
+  EVENTS: {
+    HOME: "/events",
+  },
+  POSTS: {
+    HOME: "/posts",
   },
 } as const;
