@@ -2,15 +2,15 @@ import { Breadcrumbs, Text } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { IconChevronRight } from "@tabler/icons-react";
 
-interface AdminBreadcrumbsProps {
+interface MyBreadcrumbsProps {
   title: string;
   href: string;
 }
 
-export default function AdminBreadcrumbs({
+export default function MyBreadcrumbs({
   breadcrumbs,
 }: {
-  breadcrumbs: AdminBreadcrumbsProps[];
+  breadcrumbs: MyBreadcrumbsProps[];
 }) {
   const navigate = useNavigate();
 

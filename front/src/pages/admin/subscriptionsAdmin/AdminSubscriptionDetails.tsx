@@ -28,7 +28,7 @@ import { useGetUserInvoices } from "../../../hooks/financeHooks";
 import { generateInvoicePDF } from "../../../utils/invoiceUtils";
 import { showErrorNotification } from "../../../components/common/NotificationToast";
 import { useState } from "react";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useLocation } from "react-router-dom";
 
 export default function AdminSubscriptionDetails() {
@@ -96,7 +96,7 @@ export default function AdminSubscriptionDetails() {
       <Title order={2} mt="lg">
         Subscription Details
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin?.from === "ANYTHING YOU WANT TO REDIRECT FROM"
             ? [
