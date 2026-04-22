@@ -1,6 +1,5 @@
-import { Breadcrumbs, Title } from "@mantine/core";
+import { Breadcrumbs, Text } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import classes from "../../styles/AdminBreadcrumbs.module.css";
 import { IconChevronRight } from "@tabler/icons-react";
 
 interface AdminBreadcrumbsProps {
@@ -14,29 +13,53 @@ export default function AdminBreadcrumbs({
   breadcrumbs: AdminBreadcrumbsProps[];
 }) {
   const navigate = useNavigate();
-  const breadcrumbsItems = breadcrumbs.map((breadcrumb) => {
+
+  const breadcrumbsItems = breadcrumbs.map((breadcrumb, index) => {
+    const isLast = index === breadcrumbs.length - 1;
+
     return (
-      <Title
+      <Text
         key={breadcrumb.href}
-        order={4}
-        onClick={() => {
-          navigate(breadcrumb.href);
+        // 1. Only apply the class and variant to non-last items
+        className={!isLast ? "text" : undefined}
+        data-variant={!isLast ? "primary" : undefined}
+        size="sm"
+        fw={isLast ? 800 : 600}
+        onClick={!isLast ? () => navigate(breadcrumb.href) : undefined}
+        style={{
+          // 2. Explicitly override the color for the links (previous items)
+          color: isLast
+            ? "var(--mantine-color-text)"
+            : "var(--upagain-neutral-green)",
+
+          // 3. Pointer for links, default for current page
+          cursor: isLast ? "default" : "pointer",
+          lineHeight: 1,
         }}
-        className={classes.breadcrumbTitle}
       >
         {breadcrumb.title}
-      </Title>
+      </Text>
     );
   });
+
   return (
     <Breadcrumbs
       mt="lg"
       mb="xl"
-      separator={<IconChevronRight size={16} />}
+      separator={
+        <IconChevronRight
+          size={14}
+          stroke={3}
+          style={{ color: "var(--mantine-color-text)", opacity: 0.4 }}
+        />
+      }
       styles={{
+        root: {
+          flexWrap: "wrap",
+        },
         separator: {
-          color: "var(--mantine-color-text)", // Change color
-          fontWeight: 700, // Make it bold
+          marginLeft: 8,
+          marginRight: 8,
         },
       }}
     >
