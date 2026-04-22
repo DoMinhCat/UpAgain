@@ -387,7 +387,7 @@ export default function UserHome() {
                     className="button"
                     data-variant="secondary"
                     size="sm"
-                    onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+                    onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                   >
                     Guides & Projects
                   </Button>
@@ -395,7 +395,7 @@ export default function UserHome() {
                     className="button"
                     data-variant="secondary"
                     size="sm"
-                    onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+                    onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                   >
                     Workshops & Events
                   </Button>
@@ -484,7 +484,7 @@ export default function UserHome() {
                 variant="secondary"
                 className="button"
                 data-variant="secondary"
-                onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+                onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                 fullWidth
               >
                 Discover all topics →

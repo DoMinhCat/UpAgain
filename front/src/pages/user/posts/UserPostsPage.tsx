@@ -159,9 +159,9 @@ const CATEGORIES = [
 ];
 
 const SORT_OPTIONS = [
-  { value: "recent", label: "Most recent" },
-  { value: "popular", label: "Most popular" },
-  { value: "viewed", label: "Most viewed" },
+  { value: "most_recent_creation", label: "Most recent" },
+  { value: "highest_like", label: "Most popular" },
+  { value: "highest_view", label: "Most viewed" },
 ];
 
 const USE_FAKE_DATA = true;
@@ -170,7 +170,7 @@ export default function UserPostsPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState("");
-  const [sort, setSort] = useState("recent");
+  const [sort, setSort] = useState("most_recent_creation");
   const [search, setSearch] = useState("");
 
   const { data, isLoading } = useGetUserPosts(
