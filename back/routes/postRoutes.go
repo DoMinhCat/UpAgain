@@ -14,6 +14,9 @@ func GetPostRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /posts/{id_post}/steps/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetProjectStepsByPostId))))
 
 	mux.Handle("POST /posts/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CreatePost))))
+	mux.Handle("POST /posts/{id_post}/view/{$}", middleware.AuthMiddleware([]string{"admin", "user", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ViewPost))))
+	mux.Handle("POST /posts/{id_post}/like/{$}", middleware.AuthMiddleware([]string{"admin", "user", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.LikePost))))
+	mux.Handle("POST /posts/{id_post}/save/{$}", middleware.AuthMiddleware([]string{"admin", "user", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.SavePost))))
 	mux.Handle("PATCH /posts/{id_post}/delete/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.DeletePost))))
 	mux.Handle("PUT /posts/{id_post}/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdatePostById))))
 	mux.Handle("DELETE /posts/steps/{step_id}/{$}", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.DeleteProjectStepByPostId))))
