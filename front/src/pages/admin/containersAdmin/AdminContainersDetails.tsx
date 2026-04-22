@@ -60,7 +60,6 @@ export default function AdminContainersDetails() {
   const containerId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(containerId) && containerId > 0;
   if (!isValidId) {
-    console.log("Invalid container ID", containerId);
     navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
   }
 

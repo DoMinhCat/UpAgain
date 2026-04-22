@@ -81,10 +81,26 @@ export default function EventCategoryPage() {
                 placeholder="Sort by"
                 leftSection={<IconSortDescending size={18} />}
                 data={[
-                  "Date: Soonest",
-                  "Date: Latest",
-                  "Price: Low to High",
-                  "Price: High to Low",
+                  {
+                    value: "soonest_date",
+                    label: "Soonest Date",
+                  },
+                  {
+                    value: "latest_date",
+                    label: "Latest Date",
+                  },
+                  {
+                    value: "lowest_price",
+                    label: "Lowest Price",
+                  },
+                  {
+                    value: "highest_price",
+                    label: "Highest Price",
+                  },
+                  {
+                    value: "most_popular",
+                    label: "Most Popular",
+                  },
                 ]}
                 size="sm"
                 radius="xl"
