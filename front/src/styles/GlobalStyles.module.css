@@ -223,7 +223,6 @@
 /* this is for custom mantine input */
 .input {
   border-radius: 100px;
-  padding-left: 20px;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -235,7 +234,6 @@
 
   &:hover {
     border-color: #45a575;
-    /* Your brand green */
   }
 
   &:focus {

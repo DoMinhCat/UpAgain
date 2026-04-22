@@ -75,7 +75,7 @@ create table pros
     is_premium boolean not null default false
 );
 
-CREATE TYPE event_category AS ENUM ('workshop', 'conference', 'conference', 'exposition', 'other');
+CREATE TYPE event_category AS ENUM ('workshop', 'conference', 'meetups', 'exposition', 'other');
 CREATE TYPE event_status AS ENUM ('pending', 'approved', 'refused', 'cancelled');
 create table events
 (
