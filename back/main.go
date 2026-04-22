@@ -15,7 +15,7 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
-	const ENV = "dev"
+	const ENV = "prod"
 
 	utils.InitLogger()
 	utils.LoadEnv(ENV)
@@ -29,7 +29,7 @@ func main() {
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration
-	allowedOrigins := []string{utils.GetFrontOrigin(), "http://localhost:5174"}
+	allowedOrigins := []string{"https://upcycleconnect.org", "https://www.upcycleconnect.org"}
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},

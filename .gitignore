@@ -9,3 +9,5 @@ back/bin/
 *.exe
 back/images/
 .direnv/
+back/api-upagain
+cloudflared.deb

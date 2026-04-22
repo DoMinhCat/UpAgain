@@ -1,18 +1,27 @@
 services:
-  back:
-    image: back:v1.0.0
+  upcycle-back:
+    image: ubuntu:24.04
     container_name: upcycle-back
+    working_dir: /app
     restart: always
     volumes:
-      - /mnt/truenas-web/back/.env:/root/.env
-
-  front:
-    image: front:v1.0.0
+      - /mnt/truenas-web/back:/app
+    command: ./api-upagain
+  upcycle-front:
+    image: nginx:alpine
     container_name: upcycle-front
     restart: always
     ports:
       - "80:80"
     volumes:
       - /mnt/truenas-web/front:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: always
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiOTcwM2VlODAwOGRhYmViNmY1YmU5OTg3ZmVhYzgxOGMiLCJ0IjoiMDkyZGNmMGEtNGVmYS00Zjg0LWJhZGYtZmUzNTI5ODhhY2I4IiwicyI6Ill6SmhNemhrT0RndFpHRmtOeTAwT0dWbUxUaGhaVFV0TVRVMk1EVmtZalV4WW1JMiJ9
+    command: tunnel run
     depends_on:
-      - back
+      - upcycle-front

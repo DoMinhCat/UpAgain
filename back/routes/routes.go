@@ -8,29 +8,31 @@ import (
 )
 
 func GetAllRoutes() *http.ServeMux {
-	mux := http.NewServeMux()
+	// 1. On crée un mux interne pour toutes tes routes actuelles
+	apiMux := http.NewServeMux()
 
-	GetHealthCheckRoutes(mux)
-	GetAuthRoutes(mux)
-	GetAccountRoutes(mux)
-	GetValidationRoutes(mux)
-	GetContainerRoutes(mux)
-	GetEventRoutes(mux)
-	GetEmployeeRoutes(mux)
-	GetUserRoutes(mux)
-	GetPostRoutes(mux)
-	GetCommentRoutes(mux)
-	GetAdminHistoryRoutes(mux)
-	GetItemRoutes(mux)
-	GetListingRoutes(mux)
-	GetDepositRoutes(mux)
-	GetSubscriptionRoutes(mux)
+	GetHealthCheckRoutes(apiMux)
+	GetAuthRoutes(apiMux)
+	GetAccountRoutes(apiMux)
+	GetValidationRoutes(apiMux)
+	GetContainerRoutes(apiMux)
+	GetEventRoutes(apiMux)
+	GetEmployeeRoutes(apiMux)
+	GetUserRoutes(apiMux)
+	GetPostRoutes(apiMux)
+	GetCommentRoutes(apiMux)
+	GetAdminHistoryRoutes(apiMux)
+	GetItemRoutes(apiMux)
+	GetListingRoutes(apiMux)
+	GetDepositRoutes(apiMux)
+	GetSubscriptionRoutes(apiMux)
 
-	// swagger API documentation
-	mux.Handle("/swagger/", httpSwagger.WrapHandler)
+	apiMux.Handle("/swagger/", httpSwagger.WrapHandler)
+	apiMux.Handle("GET /images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
 
-	// serve uploaded files
-	mux.Handle("GET /images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
+	mainMux := http.NewServeMux()
 
-	return mux
+	mainMux.Handle("/api/", http.StripPrefix("/api", apiMux))
+
+	return mainMux
 }
