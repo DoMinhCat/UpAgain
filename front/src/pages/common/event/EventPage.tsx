@@ -14,6 +14,7 @@ import { IconChevronRight } from "@tabler/icons-react";
 import { EventCard } from "../../../components/event/EventCard";
 
 import { HeroBanner } from "../../../components/hero/HeroBanner";
+import { useNavigate } from "react-router-dom";
 
 const CATEGORIES = [
   "workshop",
@@ -25,6 +26,7 @@ const CATEGORIES = [
 
 export default function EventPage() {
   const theme = useComputedColorScheme("light");
+  const navigate = useNavigate();
 
   // Placeholder data for drafting layout
   const mockEvent = {
@@ -39,6 +41,7 @@ export default function EventPage() {
     price: 15,
     city: "Paris",
     postalCode: "75001",
+    registeredCount: 12,
   };
 
   return (
@@ -74,6 +77,7 @@ export default function EventPage() {
                   size="sm"
                   fw={700}
                   c="var(--upagain-neutral-green)"
+                  onClick={() => navigate(`/events/${cat}`)}
                 >
                   <Group gap={4}>
                     See all {cat}s
