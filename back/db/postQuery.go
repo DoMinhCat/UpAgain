@@ -323,7 +323,7 @@ func GetTotalSavesByPostId(id int) (int, error) {
 	return total, nil
 }
 
-func GetPostDetailsById(id int) (models.Post, error) {
+func GetPostDetailsById(id int, id_account ...int) (models.Post, error) {
 	var post models.Post
 	query := `
 	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id_ads, ad.start_date, ad.end_date
@@ -355,7 +355,105 @@ func GetPostDetailsById(id int) (models.Post, error) {
 	}
 	post.SaveCount = saves
 
+	if len(id_account) > 0 {
+		post.IsLiked, err = IsPostLikedByUser(id, id_account[0])
+		if err != nil {
+			return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
+		}
+		post.IsSaved, err = IsPostSavedByUser(id, id_account[0])
+		if err != nil {
+			return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
+		}
+	}
+
 	return post, nil
+}
+
+// returns true if view was counted, false if already viewed
+func IncrementPostView(id_post int, id_account int) (bool, error) {
+	var alreadyViewed bool
+	err := utils.Conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM viewed_posts WHERE id_post = $1 AND id_account = $2);`, id_post, id_account).Scan(&alreadyViewed)
+	if err != nil {
+		return false, fmt.Errorf("IncrementPostView() check failed: '%v'", err)
+	}
+	if alreadyViewed {
+		return false, nil
+	}
+	_, err = utils.Conn.Exec(`INSERT INTO viewed_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
+	if err != nil {
+		return false, fmt.Errorf("IncrementPostView() insert failed: '%v'", err)
+	}
+	_, err = utils.Conn.Exec(`UPDATE posts SET view_count = view_count + 1 WHERE id = $1 AND is_deleted = false;`, id_post)
+	if err != nil {
+		return false, fmt.Errorf("IncrementPostView() update failed: '%v'", err)
+	}
+	return true, nil
+}
+
+func IsPostLikedByUser(id_post int, id_account int) (bool, error) {
+	var exists bool
+	err := utils.Conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM liked_posts WHERE id_post = $1 AND id_account = $2);`, id_post, id_account).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("IsPostLikedByUser() failed: '%v'", err)
+	}
+	return exists, nil
+}
+
+// returns true if now liked, false if unliked
+func ToggleLikePost(id_post int, id_account int) (bool, error) {
+	liked, err := IsPostLikedByUser(id_post, id_account)
+	if err != nil {
+		return false, err
+	}
+	if liked {
+		_, err = utils.Conn.Exec(`DELETE FROM liked_posts WHERE id_post = $1 AND id_account = $2;`, id_post, id_account)
+		if err != nil {
+			return false, fmt.Errorf("ToggleLikePost() delete failed: '%v'", err)
+		}
+		_, err = utils.Conn.Exec(`UPDATE posts SET like_count = like_count - 1 WHERE id = $1;`, id_post)
+		if err != nil {
+			return false, fmt.Errorf("ToggleLikePost() decrement failed: '%v'", err)
+		}
+		return false, nil
+	}
+	_, err = utils.Conn.Exec(`INSERT INTO liked_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
+	if err != nil {
+		return false, fmt.Errorf("ToggleLikePost() insert failed: '%v'", err)
+	}
+	_, err = utils.Conn.Exec(`UPDATE posts SET like_count = like_count + 1 WHERE id = $1;`, id_post)
+	if err != nil {
+		return false, fmt.Errorf("ToggleLikePost() increment failed: '%v'", err)
+	}
+	return true, nil
+}
+
+func IsPostSavedByUser(id_post int, id_account int) (bool, error) {
+	var exists bool
+	err := utils.Conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM saved_posts WHERE id_post = $1 AND id_account = $2);`, id_post, id_account).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("IsPostSavedByUser() failed: '%v'", err)
+	}
+	return exists, nil
+}
+
+// returns true if now saved, false if unsaved
+func ToggleSavePost(id_post int, id_account int) (bool, error) {
+	saved, err := IsPostSavedByUser(id_post, id_account)
+	if err != nil {
+		return false, err
+	}
+	if saved {
+		_, err = utils.Conn.Exec(`DELETE FROM saved_posts WHERE id_post = $1 AND id_account = $2;`, id_post, id_account)
+		if err != nil {
+			return false, fmt.Errorf("ToggleSavePost() delete failed: '%v'", err)
+		}
+		return false, nil
+	}
+	_, err = utils.Conn.Exec(`INSERT INTO saved_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
+	if err != nil {
+		return false, fmt.Errorf("ToggleSavePost() insert failed: '%v'", err)
+	}
+	return true, nil
 }
 
 func UpdatePostById(id_post int, payload models.CreatePostRequest) error {

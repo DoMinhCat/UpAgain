@@ -173,6 +173,22 @@ create table saved_posts
     saved_at   timestamptz not null default now(),
     PRIMARY KEY (id_account, id_post)
 );
+create table viewed_posts
+(
+    id_account integer     not null references accounts (id) on delete restrict,
+    id_post    integer     not null references posts (id) on delete restrict,
+    viewed_at  timestamptz not null default now(),
+    PRIMARY KEY (id_account, id_post)
+);
+
+create table liked_posts
+(
+    id_account integer     not null references account (id) on delete restrict,
+    id_post    integer     not null references posts (id) on delete restrict,
+    liked_at   timestamptz not null default now(),
+    PRIMARY KEY (id_account, id_post)
+);
+
 CREATE TYPE ads_status AS ENUM ('active', 'expired', 'cancelled');
 create table ads
 (

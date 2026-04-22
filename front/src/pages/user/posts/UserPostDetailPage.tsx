@@ -48,7 +48,7 @@ import {
 import type { Post, PostComment } from "../../../api/interfaces/post";
 import { getTimeAgo } from "../../../utils/timeUtils";
 
-const USE_FAKE_DATA = true;
+const USE_FAKE_DATA = false;
 
 const FAKE_POST: Post = {
   id: 5,
