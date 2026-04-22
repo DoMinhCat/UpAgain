@@ -52,10 +52,22 @@ export function EventCard({
       data-variant="primary"
       radius="lg"
       p={0}
+      withBorder
+      shadow="md"
       style={{
         display: "flex",
         flexDirection: isHorizontal ? "row" : "column",
         overflow: "hidden",
+        cursor: "pointer",
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-5px)";
+        e.currentTarget.style.boxShadow = "var(--mantine-shadow-xl)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "var(--mantine-shadow-md)";
       }}
     >
       {/* 1. IMAGE SECTION */}
