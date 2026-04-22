@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import {
   Navigate,
   useLocation,
@@ -131,7 +131,7 @@ export default function AdminContainersDetails() {
       <Title order={2} mt="xs" mb="sm">
         Container's Details
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [

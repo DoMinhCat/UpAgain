@@ -20,7 +20,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { ScoreRing } from "../../../components/score/ScoreRing";
 import { useEffect, useState } from "react";
 import { Calendar } from "@mantine/dates";
@@ -335,7 +335,7 @@ export default function AdminUserDetails() {
       <Title order={2} mt="lg">
         User's Details
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin === "allUsers"
             ? [{ title: "User Management", href: PATHS.ADMIN.USERS.ALL }]

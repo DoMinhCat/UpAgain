@@ -22,7 +22,7 @@ import {
   SimpleGrid,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import "@mantine/carousel/styles.css";
 import { PATHS } from "../../../routes/paths";
 import {
@@ -386,7 +386,7 @@ export default function AdminEventDetails() {
       <Title order={2} mt="xs" mb="sm">
         Event's Details
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin === "validationHub"
             ? [

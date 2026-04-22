@@ -31,7 +31,7 @@ import {
 import dayjs from "dayjs";
 
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import InfoField from "../../../components/common/InfoField";
 import { useProcessValidation } from "../../../hooks/validationHooks";
 
@@ -100,7 +100,7 @@ export default function AdminValidationDetails() {
             : "Event"}
         's Details
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           { title: "Validations", href: PATHS.ADMIN.VALIDATIONS.ALL },
           { title: `Details #${id}`, href: "#" },

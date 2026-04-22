@@ -26,7 +26,7 @@ import {
   Center,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import {
   IconPhoto,
@@ -441,7 +441,7 @@ export default function AdminListingDetails() {
       <Title order={2} mt="lg">
         Object Details
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [
