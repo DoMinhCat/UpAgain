@@ -28,7 +28,7 @@ export default function EventCategoryPage() {
 
   // Mock data for drafting
   const categoryTitle = category
-    ? category.charAt(0).toUpperCase() + category.slice(1) + "s"
+    ? category.charAt(0).toUpperCase() + category.slice(1)
     : "Events";
   const categoryDescription = `Explore our collection of ${category || "upcoming"} events. Join workshops, conferences, and meetups to learn new skills and connect with the community.`;
 
