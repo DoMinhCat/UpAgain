@@ -159,7 +159,7 @@ function App() {
           "--component-color-bg": "#44444e",
           "--component-color-primary": "#45a575", // opposite
           "--border-color": "#c7c7c7",
-          "--paper-border-color": "#f6f4f4",
+          "--paper-border-color": "#d7d7d7ff",
           "--mantine-color-anchor": "#7a5c3e",
           "--mantine-primary-color-filled": "#45a575",
           "--upagain-yellow": "#e3b23c",

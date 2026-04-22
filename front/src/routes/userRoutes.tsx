@@ -12,6 +12,7 @@ import Home from "../pages/common/Home";
 import EventPage from "../pages/common/event/EventPage";
 import EventCategoryPage from "../pages/common/event/EventCategoryPage";
 import { showErrorNotification } from "../components/common/NotificationToast";
+import EventDetailPage from "../pages/common/event/EventDetailPage";
 
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -77,7 +78,13 @@ export const userRoutes: RouteObject = {
       path: "events",
       children: [
         { index: true, element: <EventPage /> },
-        { path: ":category", element: <EventCategoryPage /> },
+        {
+          path: ":category",
+          children: [
+            { index: true, element: <EventCategoryPage /> },
+            { path: ":id", element: <EventDetailPage /> },
+          ],
+        },
       ],
     },
   ],
