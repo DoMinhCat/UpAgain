@@ -7,6 +7,7 @@ import ContactPage from "../pages/guest/ContactPage.tsx";
 import { PATHS } from "./paths.ts";
 import Home from "../pages/common/Home.tsx";
 import PricingPage from "../pages/guest/PricingPage.tsx";
+import EventPage from "../pages/common/EventPage.tsx";
 
 export const guestRoutes: RouteObject = {
   element: <GuestLayout />,
@@ -34,6 +35,10 @@ export const guestRoutes: RouteObject = {
     {
       path: PATHS.GUEST.PRICING,
       element: <PricingPage />,
+    },
+    {
+      path: PATHS.EVENTS.HOME,
+      element: <EventPage />,
     },
   ],
 };

@@ -9,6 +9,8 @@ import { Navigate } from "react-router-dom";
 import UserScorePage from "../pages/user/UserScorePage";
 import Profile from "../pages/common/Profile";
 import Home from "../pages/common/Home";
+import EventPage from "../pages/common/event/EventPage";
+import EventCategoryPage from "../pages/common/event/EventCategoryPage";
 
 const UserGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -48,8 +50,14 @@ export const userRoutes: RouteObject = {
       index: true,
       element: <Home />,
     },
-    // Future admin routes go here
     { path: "score", element: <UserScorePage /> },
     { path: "profile", element: <Profile /> },
+    {
+      path: "events",
+      children: [
+        { index: true, element: <EventPage /> },
+        { path: ":category", element: <EventCategoryPage /> },
+      ],
+    },
   ],
 };
