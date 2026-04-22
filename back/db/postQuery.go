@@ -217,7 +217,7 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 
 	if filters.Category != "" {
 		if filters.Category == "sponsored" {
-			whereClause += " AND ad.id IS NOT NULL"
+			whereClause += " AND ad.id_ads IS NOT NULL"
 		} else {
 			whereClause += fmt.Sprintf(" AND p.category = $%d", paramIndex)
 			params = append(params, filters.Category)
@@ -237,9 +237,9 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 	if filters.Sort != "" {
 		switch filters.Sort {
 		case "highest_view":
-			orderBy = "ORDER BY p.view_count ASC"
-		case "lowest_view":
 			orderBy = "ORDER BY p.view_count DESC"
+		case "lowest_view":
+			orderBy = "ORDER BY p.view_count ASC"
 		case "most_recent_creation":
 			orderBy = "ORDER BY p.created_at DESC"
 		case "oldest_creation":
@@ -254,7 +254,7 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 	}
 
 	query := `
-		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id_ads
 		` + fromJoinClause + `
 		 ` + whereClause + " " + orderBy
 
@@ -326,7 +326,7 @@ func GetTotalSavesByPostId(id int) (int, error) {
 func GetPostDetailsById(id int) (models.Post, error) {
 	var post models.Post
 	query := `
-	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id, ad.start_date, ad.end_date
+	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id_ads, ad.start_date, ad.end_date
 	from posts p 
 	join accounts a on p.id_account=a.id 
 	left join ads ad on p.id=ad.id_post and ad.status = 'active'
