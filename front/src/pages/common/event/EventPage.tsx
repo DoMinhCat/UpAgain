@@ -65,8 +65,9 @@ export default function EventPage() {
         </Stack>
       </HeroBanner>
 
-      <Container size="xl" py={40} w="100%" mt="xl">
+      <Container size="xl" py={40} w="100%" mt="md">
         <MyBreadcrumbs
+          mb="lg"
           breadcrumbs={[
             { title: "Home", href: PATHS.HOME },
             { title: "Events", href: "#" },
