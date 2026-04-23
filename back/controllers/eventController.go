@@ -707,6 +707,18 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// can't cancel event that has registrations and is not free
+	hasParticipant, err := db.CheckEventHasParticipant(id_event)
+	if err != nil {
+		slog.Error("CheckEventHasParticipant() failed", "controller", "CancelEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling the event.")
+		return
+	}
+	if hasParticipant && event.Price.Valid && event.Price.Float64 > 0 {
+		utils.RespondWithError(w, http.StatusConflict, "Cannot cancel an event that has participants and is paid.")
+		return
+	}
+
 	var payload models.UpdateEventStatusRequest
 	oldStatus, _ := db.GetEventStatusById(id_event)
 	err = json.NewDecoder(r.Body).Decode(&payload)
