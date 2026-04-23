@@ -4,11 +4,18 @@
   flex-direction: column;
   background-color: var(--component-color-bg);
   height: 100%;
+  overflow-y: auto;
 }
 
 .navbarMain {
   flex: 1;
   margin-top: 50px;
+}
+
+@media (max-width: 768px) {
+  .navbarMain {
+    margin-top: 20px;
+  }
 }
 
 .link {
@@ -20,8 +27,11 @@
   justify-content: center;
   color: var(--mantine-color-body);
   border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+
   &:hover {
     background-color: #45a575;
+    color: white;
   }
 
   &[data-active] {
@@ -30,7 +40,42 @@
       box-shadow: var(--mantine-shadow-sm);
       background-color: var(--mantine-color-body);
       color: #45a575;
+      border-color: #45a575;
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .link {
+    width: 100%;
+    height: auto;
+    padding: 12px;
+    justify-content: flex-start;
+  }
+}
+
+/* Desktop: 40x40 centered to match nav link buttons */
+.userButton {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--mantine-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mantine-color-text);
+
+  &:hover {
+    background-color: var(--mantine-color-gray-0);
+  }
+}
+
+/* Mobile: expand to full width with avatar + username */
+@media (max-width: 768px) {
+  .userButton {
+    width: 100%;
+    height: auto;
+    padding: 12px;
+    justify-content: flex-start;
   }
 }
 

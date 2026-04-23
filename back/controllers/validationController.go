@@ -223,8 +223,6 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	employeeID := claims.Id
-
 	_, newStatus, err := helper.ParseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
 	if err != nil {
 		slog.Error("ParseValidationPayload failed", "controller", "ProcessEventValidation", "error", err)
@@ -233,7 +231,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldStatus, _ := db.GetEventStatusById(eventID)
-	err = db.UpdateEventStatusByEventId(eventID, newStatus, employeeID)
+	err = db.UpdateEventStatusByEventId(eventID, newStatus)
 	if err != nil {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")

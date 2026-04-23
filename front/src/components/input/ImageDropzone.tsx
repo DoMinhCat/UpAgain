@@ -13,6 +13,8 @@ interface ImageDropzoneProps {
   files: any[];
   setFiles: React.Dispatch<React.SetStateAction<any[]>>;
   props?: DropzoneProps;
+  maxSizeDescription?: string;
+  extraDescription?: string | null;
 }
 
 export default function ImageDropzone({
@@ -20,6 +22,8 @@ export default function ImageDropzone({
   disabled = false,
   files,
   setFiles,
+  maxSizeDescription = "Total upload size must not exceed 32MB (each image 5MB max)",
+  extraDescription = "The first image will be used as the primary image",
   props,
 }: ImageDropzoneProps) {
   const previews = files.map((file, index) => {
@@ -104,11 +108,13 @@ export default function ImageDropzone({
               Drag images here or click to select images
             </Text>
             <Text size="sm" c="dimmed" inline mt={7}>
-              Total upload size must not exceed 32MB (each image 5MB max)
+              {maxSizeDescription}
             </Text>
-            <Text size="sm" c="dimmed" inline mt={2}>
-              The first image will be used as the primary image
-            </Text>
+            {extraDescription && (
+              <Text size="sm" c="dimmed" inline mt={2}>
+                {extraDescription}
+              </Text>
+            )}
           </div>
         </Group>
       </Dropzone>

@@ -11,7 +11,12 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import { IconMapPin, IconCalendarEvent, IconClock } from "@tabler/icons-react";
+import {
+  IconMapPin,
+  IconCalendarEvent,
+  IconClock,
+  IconUsers,
+} from "@tabler/icons-react";
 import { getTimeAgo } from "../../utils/timeUtils";
 
 interface EventCardProps {
@@ -27,6 +32,7 @@ interface EventCardProps {
   price: number | string; // e.g., 0 or "Free"
   city: string;
   postalCode: string;
+  registeredCount: number;
 }
 
 export function EventCard({
@@ -42,6 +48,7 @@ export function EventCard({
   price,
   city,
   postalCode,
+  registeredCount,
 }: EventCardProps) {
   const isHorizontal = orientation === "horizontal";
   const displayPrice = price === 0 || price === "Free" ? "Free" : `${price}€`;
@@ -52,10 +59,22 @@ export function EventCard({
       data-variant="primary"
       radius="lg"
       p={0}
+      withBorder
+      shadow="md"
       style={{
         display: "flex",
         flexDirection: isHorizontal ? "row" : "column",
         overflow: "hidden",
+        cursor: "pointer",
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-5px)";
+        e.currentTarget.style.boxShadow = "var(--mantine-shadow-xl)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "var(--mantine-shadow-md)";
       }}
     >
       {/* 1. IMAGE SECTION */}
@@ -72,26 +91,39 @@ export function EventCard({
           height="100%"
           style={{ objectFit: "cover" }}
         />
-        <Badge
-          className="badge"
-          variant={
-            category === "other"
-              ? "gray"
-              : category === "workshop"
-                ? "blue"
-                : category === "conference"
-                  ? "green"
-                  : category === "meetups"
-                    ? "yellow"
-                    : "red"
-          }
-          pos="absolute"
-          top={12}
-          left={12}
-          size="sm"
-        >
-          {category}
-        </Badge>
+        <Stack pos="absolute" top={12} left={12} gap={6}>
+          <Badge
+            className="badge"
+            variant={
+              category === "other"
+                ? "gray"
+                : category === "workshop"
+                  ? "blue"
+                  : category === "conference"
+                    ? "green"
+                    : category === "meetups"
+                      ? "yellow"
+                      : "red"
+            }
+            size="sm"
+          >
+            {category}
+          </Badge>
+          <Badge
+            variant="default"
+            size="sm"
+            tt="lowercase"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              color: "#2a2a28",
+              border: "none",
+              backdropFilter: "blur(4px)",
+            }}
+            leftSection={<IconUsers size={12} />}
+          >
+            {registeredCount} registered
+          </Badge>
+        </Stack>
       </Box>
 
       {/* 2. CONTENT SECTION */}

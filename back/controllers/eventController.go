@@ -707,6 +707,18 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// can't cancel event that has registrations and is not free
+	hasParticipant, err := db.CheckEventHasParticipant(id_event)
+	if err != nil {
+		slog.Error("CheckEventHasParticipant() failed", "controller", "CancelEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling the event.")
+		return
+	}
+	if hasParticipant && event.Price.Valid && event.Price.Float64 > 0 {
+		utils.RespondWithError(w, http.StatusConflict, "Cannot cancel an event that has participants and is paid.")
+		return
+	}
+
 	var payload models.UpdateEventStatusRequest
 	oldStatus, _ := db.GetEventStatusById(id_event)
 	err = json.NewDecoder(r.Body).Decode(&payload)
@@ -721,7 +733,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.UpdateEventStatusByEventId(id_event, payload.Status, r.Context().Value("user").(models.AuthClaims).Id)
+	err = db.UpdateEventStatusByEventId(id_event, payload.Status)
 	if err != nil {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event status.")
@@ -735,7 +747,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: notify users participating in event
+	// TODO: notify users participating in event about the update
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -897,7 +909,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	// require validation again if employee
 	if role == "employee" {
-		err = db.UpdateEventStatusByEventId(id_event, "pending", r.Context().Value("user").(models.AuthClaims).Id)
+		err = db.UpdateEventStatusByEventId(id_event, "pending")
 		if err != nil {
 			slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")

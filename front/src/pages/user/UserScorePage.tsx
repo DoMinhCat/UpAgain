@@ -195,28 +195,28 @@ export default function UserScorePage() {
         </Title>
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg" w="100%">
           <Button
+            variant="cta"
+            size="lg"
+            radius="xl"
+            onClick={() => navigate(PATHS.EVENTS.HOME)}
+          >
+            Take part in our events
+          </Button>
+          <Button
             variant="cta-reverse"
             size="lg"
             radius="xl"
-            onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+            onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
           >
             Post a new item
           </Button>
           <Button
-            variant="cta"
-            size="lg"
-            radius="xl"
-            onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
-          >
-            Explore workshops
-          </Button>
-          <Button
             variant="cta-reverse"
             size="lg"
             radius="xl"
-            onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+            onClick={() => navigate(PATHS.POSTS.HOME)}
           >
-            Join a cleanup
+            Explore insightful posts
           </Button>
         </SimpleGrid>
       </Stack>
