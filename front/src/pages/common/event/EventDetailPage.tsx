@@ -237,7 +237,7 @@ export default function EventDetailPage() {
                     mockEvent.category.charAt(0).toUpperCase() +
                     mockEvent.category.slice(1) +
                     "s",
-                  href: `/events/${mockEvent.category}`,
+                  href: `/events/${mockEvent.category}s`,
                 },
                 { title: mockEvent.title, href: "#" },
               ]}
