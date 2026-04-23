@@ -11,10 +11,8 @@ import {
   Box,
   Button,
   Progress,
-  TypographyStylesProvider,
   Divider,
   SimpleGrid,
-  Anchor,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useState } from "react";
@@ -26,23 +24,49 @@ import {
   IconChevronRight,
   IconShieldCheck,
   IconClockCheck,
+  IconEdit,
+  IconCheck,
+  IconX,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import { useNavigate, useParams } from "react-router-dom";
 import { EventCard } from "../../../components/event/EventCard";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
+import { useAuth } from "../../../context/AuthContext";
+import { EditEventModal } from "../../../components/event/EditEventModal";
+import { EventAttendeesModal } from "../../../components/event/EventAttendeesModal";
+import { CancelEventModal } from "../../../components/event/CancelEventModal";
+import { useDisclosure } from "@mantine/hooks";
 
 export default function EventDetailPage() {
+  const { user } = useAuth();
+  const role = user?.role;
+  const isUser = role === "user";
+  const isPro = role === "pro";
+  const isEmployee = role === "employee";
+  const isAdmin = role === "admin";
   const { idEventStr } = useParams<{ idEventStr: string }>();
   const idEvent = parseInt(idEventStr || "0");
-  const isValidId = !isNaN(idEvent) && idEvent > 0;
+  // const isValidId = !isNaN(idEvent) && idEvent > 0;
 
   const navigate = useNavigate();
 
-  // Lightbox state for hero banner photos
+  // PHOTO CAROUSEL MODAL
   const [lightboxOpened, setLightboxOpened] = useState(false);
   const [lightboxSlide, setLightboxSlide] = useState(0);
+
+  // Edit EVENT MODAL
+  const [openedEdit, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
+
+  // EVENT ATTENDEES MODAL
+  const [openedAttendees, { open: openAttendees, close: closeAttendees }] =
+    useDisclosure(false);
+
+  // CANCEL EVENT MODAL
+  const [openedCancel, { open: openCancel, close: closeCancel }] =
+    useDisclosure(false);
 
   // Mock data for drafting
   const mockRelevantEvent = {
@@ -97,6 +121,29 @@ export default function EventDetailPage() {
     eventDate: new Date().toISOString(),
     startDate: new Date().toISOString(),
     endDate: new Date().toISOString(),
+    attendees: [
+      { id: 1, username: "Alice Johnson" },
+      {
+        id: 2,
+        username: "Bob Smith",
+        avatar:
+          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      { id: 3, username: "Charlie Davis" },
+      {
+        id: 4,
+        username: "Diana Prince",
+        avatar:
+          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      { id: 5, username: "Eve Martinez" },
+      {
+        id: 6,
+        username: "Frank Miller",
+        avatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+    ],
   };
 
   return (
@@ -489,23 +536,90 @@ export default function EventDetailPage() {
                       </Stack>
 
                       {/* CTA */}
-                      <Button
-                        size="lg"
-                        radius="md"
-                        variant="cta-reverse"
-                        fullWidth
-                        color="var(--upagain-neutral-green)"
-                        rightSection={<IconChevronRight size={18} />}
-                      >
-                        Register Now
-                      </Button>
+                      {(isUser || isPro) &&
+                        //  TODO: not registered to this event &&
+                        true && (
+                          <Button
+                            size="lg"
+                            radius="md"
+                            variant="cta-reverse"
+                            fullWidth
+                            color="var(--upagain-neutral-green)"
+                            rightSection={<IconChevronRight size={18} />}
+                          >
+                            Register Now
+                          </Button>
+                        )}
+                      {(isUser || isPro) &&
+                        //  TODO: already registered to this event &&
+                        false && (
+                          <Button
+                            size="lg"
+                            radius="md"
+                            variant="delete"
+                            fullWidth
+                            color="var(--upagain-neutral-green)"
+                            rightSection={<IconX size={18} />}
+                            // onClick={() => call cancel registration mutate}
+                          >
+                            Cancel Registration
+                          </Button>
+                        )}
+
+                      {(isEmployee || isAdmin) && (
+                        <Group gap="sm">
+                          <Button
+                            radius="md"
+                            variant="primary"
+                            fullWidth
+                            onClick={openAttendees}
+                            rightSection={<IconUsers size={18} />}
+                          >
+                            See Attendees
+                          </Button>
+                          <Button
+                            radius="md"
+                            variant="edit"
+                            fullWidth
+                            onClick={openEdit}
+                            rightSection={<IconEdit size={18} />}
+                          >
+                            Edit Event
+                          </Button>
+                          <Button
+                            radius="md"
+                            variant="delete"
+                            fullWidth
+                            onClick={openCancel}
+                            rightSection={<IconX size={18} />}
+                          >
+                            Cancel Event
+                          </Button>
+                        </Group>
+                      )}
 
                       {/* Footer */}
                       <Group justify="center" gap={4} c="dimmed">
-                        <IconShieldCheck size={14} />
-                        <Text size="xs" fw={500}>
-                          Secure payment & instant confirmation
-                        </Text>
+                        {(isUser || isPro) &&
+                          //  TODO: not registered to this event &&
+                          true && (
+                            <>
+                              <IconShieldCheck size={14} />
+                              <Text size="xs" fw={500}>
+                                Secure payment & instant confirmation
+                              </Text>
+                            </>
+                          )}
+                        {(isUser || isPro) &&
+                          //  TODO: already registered to this event &&
+                          false && (
+                            <>
+                              <IconCheck size={14} />
+                              <Text size="xs" fw={500}>
+                                You are already registered to this event
+                              </Text>
+                            </>
+                          )}
                       </Group>
                     </Stack>
                   </Paper>
@@ -515,6 +629,25 @@ export default function EventDetailPage() {
           </Stack>
         </Container>
       </Stack>
+      <EditEventModal
+        opened={openedEdit}
+        onClose={closeEdit}
+        id_event={idEvent}
+        eventDetails={mockEvent}
+      />
+      <EventAttendeesModal
+        opened={openedAttendees}
+        onClose={closeAttendees}
+        attendees={mockEvent.attendees}
+      />
+      <CancelEventModal
+        opened={openedCancel}
+        onClose={closeCancel}
+        onConfirm={() => {
+          console.log("Event cancelled");
+          closeCancel();
+        }}
+      />
 
       <PhotosCarousel
         photos={mockEvent.photos}
