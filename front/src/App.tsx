@@ -157,7 +157,7 @@ function App() {
           "--mantine-color-text": "#2a2a28",
           // these for custom components that need different color than background
           "--component-color-bg": "#44444e",
-          "--component-color-primary": "#45a575", // opposite
+          "--component-color-primary": "#45a575",
           "--border-color": "#c7c7c7",
           "--paper-color": "#fcfaf5",
           "--mantine-color-anchor": "#7a5c3e",
