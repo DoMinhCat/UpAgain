@@ -230,7 +230,7 @@ export function AdminHistoryDetails() {
 
         <Grid.Col span={{ base: 12, md: 8, lg: 9 }}>
           <Paper withBorder radius="md" p={0} style={{ overflow: "hidden" }}>
-            <Box p="md" bg="var(--paper-border-color)">
+            <Box p="md" bg="var(--paper-color)">
               <Text fw={700} size="sm">
                 Modification Comparison
               </Text>
@@ -245,12 +245,7 @@ export function AdminHistoryDetails() {
                   <Badge color="red" variant="dot" mb="sm">
                     Previous State
                   </Badge>
-                  <Paper
-                    withBorder
-                    p="sm"
-                    bg="var(--paper-border-color)"
-                    radius="sm"
-                  >
+                  <Paper withBorder p="sm" bg="var(--paper-color)" radius="sm">
                     <Code block style={{ background: "transparent" }}>
                       {formatState(historyData?.old_state)}
                     </Code>
@@ -264,12 +259,7 @@ export function AdminHistoryDetails() {
                   <Badge color="green" variant="dot" mb="sm">
                     Updated State
                   </Badge>
-                  <Paper
-                    withBorder
-                    p="sm"
-                    bg="var(--paper-border-color)"
-                    radius="sm"
-                  >
+                  <Paper withBorder p="sm" bg="var(--paper-color)" radius="sm">
                     <Code block style={{ background: "transparent" }}>
                       {formatState(historyData?.new_state)}
                     </Code>

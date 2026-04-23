@@ -21,10 +21,20 @@ import { EventCard } from "../../../components/event/EventCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
+import { NotFoundPage } from "../../error/404";
 
 export default function EventCategoryPage() {
   const { category } = useParams<{ category: string }>();
   const [page, setPage] = useState(1);
+  if (
+    category != "workshops" &&
+    category != "conferences" &&
+    category != "meetups" &&
+    category != "expositions" &&
+    category != "others"
+  ) {
+    return <NotFoundPage />;
+  }
 
   // Mock data for drafting
   const categoryTitle = category
