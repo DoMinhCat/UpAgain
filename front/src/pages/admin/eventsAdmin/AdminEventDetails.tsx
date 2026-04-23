@@ -51,6 +51,7 @@ import { useLocation } from "react-router-dom";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { EditEventModal } from "../../../components/event/EditEventModal";
+import { CancelEventModal } from "../../../components/event/CancelEventModal";
 export default function AdminEventDetails() {
   const location = useLocation();
   const origin = location.state;
@@ -83,11 +84,6 @@ export default function AdminEventDetails() {
   const id_event = Number(useParams().id);
   const { data: eventDetails, isLoading: isLoadingEventDetails } =
     useGetEventDetails(id_event);
-
-  const handleOpenEdit = () => {
-    openEdit();
-  };
-
 
   // GET ASSIGNED EMPLOYEES
   const {
@@ -364,7 +360,7 @@ export default function AdminEventDetails() {
               {/* Footer Actions */}
               <Stack mt="xl">
                 <Group grow>
-                  <Button variant="edit" onClick={handleOpenEdit} fullWidth>
+                  <Button variant="edit" onClick={openEdit} fullWidth>
                     Edit event
                   </Button>
                   <Button
@@ -585,9 +581,11 @@ export default function AdminEventDetails() {
           </Button>
         </Group>
       </Modal>
-      <Modal
+      <CancelEventModal
         opened={openedUpdateStatusModal}
         onClose={closeUpdateStatusModal}
+        onConfirm={handleUpdateEventStatus}
+        loading={cancelEvent.isPending}
         title={
           eventDetails?.status === "cancelled"
             ? "Reopen Event"
@@ -596,38 +594,23 @@ export default function AdminEventDetails() {
               ? "Approve Event"
               : "Cancel Event"
         }
-      >
-        <Text>
-          Are you sure you want to{" "}
-          {eventDetails?.status === "cancelled"
-            ? "reopen"
+        message={
+          eventDetails?.status === "cancelled"
+            ? "Are you sure you want to reopen this event? It will be visible to all users again."
             : eventDetails?.status === "pending" ||
                 eventDetails?.status === "refused"
-              ? "approve"
-              : "cancel"}{" "}
-          this event?
-        </Text>
-        <Group mt="lg" justify="end">
-          <Button onClick={closeUpdateStatusModal} variant="grey">
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              handleUpdateEventStatus();
-            }}
-            variant={
-              eventDetails?.status === "cancelled" ||
-              eventDetails?.status === "pending" ||
-              eventDetails?.status === "refused"
-                ? "primary"
-                : "delete"
-            }
-            loading={cancelEvent.isPending}
-          >
-            Confirm
-          </Button>
-        </Group>
-      </Modal>
+              ? "Are you sure you want to approve this event? It will be published and visible to all users."
+              : "Are you sure you want to cancel this event? This action will notify all registered participants."
+        }
+        confirmLabel={
+          eventDetails?.status === "cancelled"
+            ? "Confirm Reopen"
+            : eventDetails?.status === "pending" ||
+                eventDetails?.status === "refused"
+              ? "Confirm Approval"
+              : "Confirm Cancellation"
+        }
+      />
     </Container>
   );
 }
