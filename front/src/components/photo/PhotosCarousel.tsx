@@ -6,22 +6,46 @@ interface PhotosCarouselProps {
   photos: string[];
   initialSlide?: number;
   slidesToScroll?: number;
+  /** External control: when provided, only the lightbox modal is rendered (no preview carousel). */
+  opened?: boolean;
+  onClose?: () => void;
+  /** Which slide to open on when using external control. */
+  defaultActiveSlide?: number;
 }
 
 export function PhotosCarousel({
   photos,
   initialSlide = 0,
   slidesToScroll = 1,
+  opened: externalOpened,
+  onClose: externalOnClose,
+  defaultActiveSlide,
 }: PhotosCarouselProps) {
-  const [opened, setOpened] = useState(false);
+  const [internalOpened, setInternalOpened] = useState(false);
   const [activeSlide, setActiveSlide] = useState(initialSlide);
+
+  // Determine if we're externally controlled
+  const isControlled = externalOpened !== undefined;
+  const modalOpened = isControlled ? externalOpened : internalOpened;
+  const closeModal = isControlled
+    ? () => externalOnClose?.()
+    : () => setInternalOpened(false);
 
   const handleImageClick = (index: number) => {
     setActiveSlide(index);
-    setOpened(true);
+    setInternalOpened(true);
   };
 
+  // Sync defaultActiveSlide when externally opened
+  if (isControlled && externalOpened && defaultActiveSlide !== undefined) {
+    if (activeSlide !== defaultActiveSlide) {
+      setActiveSlide(defaultActiveSlide);
+    }
+  }
+
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const resolveUrl = (path: string) =>
+    path.startsWith("http") ? path : `${baseUrl}/${path}`;
 
   if (!photos || photos.length === 0) {
     return null;
@@ -29,52 +53,53 @@ export function PhotosCarousel({
 
   return (
     <>
-      {/* 1. Preview Carousel */}
-      <Carousel
-        initialSlide={initialSlide}
-        withIndicators={photos.length > 1}
-        withControls={photos.length > 1}
-        height={400}
-        slideSize="100%"
-        emblaOptions={{
-          align: "center",
-          slidesToScroll: slidesToScroll,
-          loop: photos.length > 1,
-        }}
-        // Style the progress indicators to be more prominent
-        styles={{
-          indicator: {
-            width: 8,
-            height: 8,
-            transition: "width 250ms ease",
-            "&[dataActive]": { width: 24 },
-          },
-        }}
-      >
-        {photos.map((path, index) => (
-          <Carousel.Slide key={index}>
-            <UnstyledButton
-              onClick={() => handleImageClick(index)}
-              style={{ width: "100%", cursor: "zoom-in" }}
-            >
-              <Image
-                src={`${baseUrl}/${path}`}
-                h={400}
-                fit="contain"
-                bg="var(--mantine-color-body)"
-                radius="md"
-                alt={`Preview photo ${index + 1}`}
-                fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-              />
-            </UnstyledButton>
-          </Carousel.Slide>
-        ))}
-      </Carousel>
+      {/* 1. Preview Carousel (only when not externally controlled) */}
+      {!isControlled && (
+        <Carousel
+          initialSlide={initialSlide}
+          withIndicators={photos.length > 1}
+          withControls={photos.length > 1}
+          height={400}
+          slideSize="100%"
+          emblaOptions={{
+            align: "center",
+            slidesToScroll: slidesToScroll,
+            loop: photos.length > 1,
+          }}
+          styles={{
+            indicator: {
+              width: 8,
+              height: 8,
+              transition: "width 250ms ease",
+              "&[dataActive]": { width: 24 },
+            },
+          }}
+        >
+          {photos.map((path, index) => (
+            <Carousel.Slide key={index}>
+              <UnstyledButton
+                onClick={() => handleImageClick(index)}
+                style={{ width: "100%", cursor: "zoom-in" }}
+              >
+                <Image
+                  src={resolveUrl(path)}
+                  h={400}
+                  fit="contain"
+                  bg="var(--mantine-color-body)"
+                  radius="md"
+                  alt={`Preview photo ${index + 1}`}
+                  fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
+                />
+              </UnstyledButton>
+            </Carousel.Slide>
+          ))}
+        </Carousel>
+      )}
 
-      {/* 2. Smaller Modal Carousel (similar to uploaded image) */}
+      {/* 2. Fullscreen Modal Carousel */}
       <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
+        opened={modalOpened}
+        onClose={closeModal}
         size="85vw"
         padding={0}
         centered
@@ -128,7 +153,7 @@ export function PhotosCarousel({
             <Carousel.Slide key={`full-${index}`}>
               <Center h="100%" w="100%">
                 <Image
-                  src={`${baseUrl}/${path}`}
+                  src={resolveUrl(path)}
                   // "Tight in middle" - limited by height to ensure it stays in view
                   mah="70vh"
                   maw="90%"
