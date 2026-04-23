@@ -13,6 +13,7 @@ import {
   Progress,
   TypographyStylesProvider,
   Divider,
+  SimpleGrid,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import {
@@ -22,15 +23,33 @@ import {
   IconUsers,
   IconChevronRight,
   IconShieldCheck,
+  IconClockCheck,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import { useParams } from "react-router-dom";
+import { EventCard } from "../../../components/event/EventCard";
 
 export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
 
   // Mock data for drafting
+  const mockRelevantEvent = {
+    title: "Eco-Design Workshop",
+    category: "workshop",
+    description: "Learn how to upcycle your old furniture into modern pieces.",
+    authorName: "Julian Thorne",
+    authorAvatar: "",
+    createdAt: new Date().toISOString(),
+    eventDate: new Date().toISOString(),
+    image:
+      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop",
+    price: 15,
+    city: "Paris",
+    postalCode: "75001",
+    registeredCount: 12,
+  };
+
   const mockEvent = {
     title: "Artisanal Woodworking Workshop",
     category: "workshop",
@@ -44,9 +63,6 @@ export default function EventDetailPage() {
       </ul>
       <p>No prior experience required. All materials and safety equipment will be provided.</p>
     `,
-    createdAt: new Date().toISOString(),
-    startDate: new Date(Date.now() + 86400000 * 7).toISOString(),
-    endDate: new Date(Date.now() + 86400000 * 7 + 14400000).toISOString(),
     price: 45,
     capacity: 20,
     registered: 12,
@@ -66,10 +82,14 @@ export default function EventDetailPage() {
       "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=2070&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1540575861501-7ad058ca3c98?q=80&w=2070&auto=format&fit=crop",
     ],
+    createdAt: new Date().toISOString(),
+    eventDate: new Date().toISOString(),
+    startDate: new Date().toISOString(),
+    endDate: new Date().toISOString(),
   };
 
   return (
-    <Stack gap={0}>
+    <Stack gap={0} mb={120}>
       {/* 1. HERO SECTION (Carousel Hybrid) */}
       <Box pos="relative">
         <Carousel
@@ -85,7 +105,7 @@ export default function EventDetailPage() {
               width: 12,
               height: 4,
               transition: "width 250ms ease",
-              "&[data-active]": { width: 40 },
+              "&[dataActive]": { width: 40 },
             },
           }}
         >
@@ -104,7 +124,7 @@ export default function EventDetailPage() {
                   inset={0}
                   style={{
                     background:
-                      "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)",
+                      "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%)",
                   }}
                 />
               </Box>
@@ -122,17 +142,6 @@ export default function EventDetailPage() {
           style={{ zIndex: 10, pointerEvents: "none" }}
         >
           <Stack gap="md" style={{ pointerEvents: "auto" }}>
-            <MyBreadcrumbs
-              breadcrumbs={[
-                { title: "Home", href: PATHS.HOME },
-                { title: "Events", href: "/events" },
-                {
-                  title: mockEvent.category,
-                  href: `/events/${mockEvent.category}`,
-                },
-                { title: mockEvent.title, href: "#" },
-              ]}
-            />
             <Group gap="xs">
               <Badge
                 size="lg"
@@ -150,222 +159,290 @@ export default function EventDetailPage() {
       </Box>
 
       {/* MAIN CONTENT AREA */}
-      <Container size="xl" py={40} w="100%">
-        <Grid gutter={40}>
-          {/* LEFT COLUMN: Main Info */}
-          <Grid.Col span={{ base: 12, md: 8 }}>
-            <Stack gap={40}>
-              {/* 2. METADATA SECTION */}
-              <Group justify="space-between" align="center">
-                <Stack gap={4}>
-                  <Text c="dimmed" size="xs" fw={700} tt="uppercase">
-                    Organized by
-                  </Text>
-                  <Group gap="sm">
-                    <Avatar.Group>
-                      {mockEvent.organizers.slice(0, 3).map((org, i) => (
-                        <Avatar
-                          key={i}
-                          src={org.avatar}
-                          name={org.name}
-                          radius="xl"
-                        />
-                      ))}
-                      {mockEvent.organizers.length > 3 && (
-                        <Avatar radius="xl">
-                          +{mockEvent.organizers.length - 3}
-                        </Avatar>
-                      )}
-                    </Avatar.Group>
-                    <Text size="sm" fw={600}>
-                      {mockEvent.organizers.map((o) => o.name).join(", ")}
-                    </Text>
-                  </Group>
-                </Stack>
-                <Stack gap={4} align="flex-end">
-                  <Text c="dimmed" size="xs" fw={700} tt="uppercase">
-                    Published on
-                  </Text>
-                  <Group gap={6}>
-                    <IconClock size={16} color="dimmed" />
-                    <Text size="sm" fw={600}>
-                      {new Date(mockEvent.createdAt).toLocaleDateString()}
-                    </Text>
-                  </Group>
-                </Stack>
-              </Group>
-
-              <Divider />
-
-              {/* 3. CONTENT SECTION (HTML Rendering) */}
-              <Stack gap="md">
-                <Title order={3}>About this event</Title>
-                <TypographyStylesProvider p={0}>
-                  <div
-                    dangerouslySetInnerHTML={{ __html: mockEvent.description }}
-                  />
-                </TypographyStylesProvider>
-              </Stack>
-
-              <Divider />
-
-              {/* 4. LOCATION SECTION */}
-              <Stack gap="xl">
-                <Stack gap="xs">
-                  <Title order={3}>Location</Title>
-                  <Group gap={8}>
-                    <IconMapPin size={20} c="var(--upagain-neutral-green)" />
-                    <Text size="lg" fw={500}>
-                      {mockEvent.location.street}, {mockEvent.location.city}{" "}
-                      {mockEvent.location.zip}
-                    </Text>
-                  </Group>
-                </Stack>
-
-                {/* Google Maps Placeholder */}
-                <Box
-                  h={300}
-                  bg="var(--mantine-color-gray-1)"
-                  style={{
-                    borderRadius: "var(--mantine-radius-lg)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "2px dashed var(--mantine-color-gray-3)",
-                  }}
-                >
-                  <IconMapPin size={48} c="var(--mantine-color-gray-4)" />
-                  <Text c="dimmed" fw={600} mt="sm">
-                    Interactive Map Placeholder
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    Google Maps API will be integrated here
-                  </Text>
-                  {/*
-                    Implementation logic for Google Maps JS API:
-                    1. Install @googlemaps/js-api-loader
-                    2. Use the loader to load 'maps' and 'marker' libraries
-                    3. Initialize map on a div ref: const map = new google.maps.Map(mapRef, { center, zoom })
-                    4. Add marker: new google.maps.Marker({ position, map, title })
-                  */}
-                </Box>
-              </Stack>
-            </Stack>
-          </Grid.Col>
-
-          {/* 5. FLOATING DETAILS CARD (Right Side) */}
-          <Grid.Col span={{ base: 12, md: 4 }}>
-            <Box style={{ position: "sticky", top: 100 }}>
-              <Paper
-                variant="primary"
-                shadow="xl"
-                p="xl"
-                radius="lg"
-                withBorder
-              >
-                <Stack gap="xl">
-                  {/* Price */}
-                  <Stack gap={0}>
-                    <Text size="xs" fw={700} tt="uppercase" c="dimmed">
-                      Price per person
-                    </Text>
-                    <Title order={2} c="var(--upagain-neutral-green)">
-                      {mockEvent.price > 0
-                        ? `${mockEvent.price}€`
-                        : "Free Entry"}
-                    </Title>
-                  </Stack>
-
-                  <Divider />
-
-                  {/* Dates */}
-                  <Stack gap="md">
-                    <Group gap="md" wrap="nowrap">
-                      <IconCalendar
-                        size={24}
-                        color="var(--upagain-neutral-green)"
-                      />
-                      <Stack gap={0}>
-                        <Text size="sm" fw={700}>
-                          {new Date(mockEvent.startDate).toLocaleDateString(
-                            "en-US",
-                            {
-                              weekday: "long",
-                              month: "long",
-                              day: "numeric",
-                            },
+      <Container size="xl" pb={40} pt={24} w="100%">
+        <Stack gap="lg">
+          <MyBreadcrumbs
+            mb="xl"
+            mt="md"
+            breadcrumbs={[
+              { title: "Home", href: PATHS.HOME },
+              { title: "Events", href: "/events" },
+              {
+                title:
+                  mockEvent.category.charAt(0).toUpperCase() +
+                  mockEvent.category.slice(1) +
+                  "s",
+                href: `/events/${mockEvent.category}`,
+              },
+              { title: mockEvent.title, href: "#" },
+            ]}
+          />
+          <Grid gutter={40}>
+            {/* LEFT COLUMN: Main Info */}
+            <Grid.Col span={{ base: 12, md: 8 }}>
+              <Stack gap={40}>
+                {/* 2. METADATA SECTION (Organizer in Paper) */}
+                <Paper variant="primary" p="lg" radius="xl" withBorder>
+                  <Group justify="space-between" align="center">
+                    <Stack gap={4}>
+                      <Text c="dimmed" size="xs" fw={700} tt="uppercase">
+                        Organized by
+                      </Text>
+                      <Group gap="sm">
+                        <Avatar.Group>
+                          {mockEvent.organizers.slice(0, 3).map((org, i) => (
+                            <Avatar
+                              key={i}
+                              src={org.avatar}
+                              name={org.name}
+                              color="initials"
+                              radius="xl"
+                            />
+                          ))}
+                          {mockEvent.organizers.length > 3 && (
+                            <Avatar radius="xl">
+                              +{mockEvent.organizers.length - 3}
+                            </Avatar>
                           )}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {new Date(mockEvent.startDate).toLocaleTimeString(
-                            [],
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}{" "}
-                          -{" "}
-                          {new Date(mockEvent.endDate).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </Text>
-                      </Stack>
-                    </Group>
-                  </Stack>
-
-                  <Divider />
-
-                  {/* Capacity */}
-                  <Stack gap="xs">
-                    <Group justify="space-between">
-                      <Group gap={6}>
-                        <IconUsers size={18} color="dimmed" />
-                        <Text size="sm" fw={600}>
-                          Capacity
+                        </Avatar.Group>
+                        <Text size="sm" fw={700}>
+                          {mockEvent.organizers.map((o) => o.name).join(", ")}
                         </Text>
                       </Group>
-                      <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
-                        {mockEvent.capacity - mockEvent.registered} spots left
+                    </Stack>
+                    <Stack gap={4} align="flex-end">
+                      <Text c="dimmed" size="xs" fw={700} tt="uppercase">
+                        Published on
+                      </Text>
+                      <Group gap={6}>
+                        <IconClock size={16} color="dimmed" />
+                        <Text size="sm" fw={600}>
+                          {new Date(mockEvent.createdAt).toLocaleDateString()}
+                        </Text>
+                      </Group>
+                    </Stack>
+                  </Group>
+                </Paper>
+
+                {/* 3. CONTENT SECTION (HTML Rendering) */}
+                <Stack gap="md">
+                  <Title order={3}>About this event</Title>
+                  <div
+                    style={{ lineHeight: 1.6, fontSize: "1.05rem" }}
+                    dangerouslySetInnerHTML={{ __html: mockEvent.description }}
+                  />
+                </Stack>
+
+                <Divider />
+
+                {/* 4. LOCATION SECTION */}
+                <Stack gap="xl">
+                  <Stack gap="xs">
+                    <Title order={3}>Location</Title>
+                    <Group gap={8}>
+                      <IconMapPin
+                        size={20}
+                        color="var(--upagain-neutral-green)"
+                      />
+                      <Text size="lg" fw={500}>
+                        {mockEvent.location.street}, {mockEvent.location.city}{" "}
+                        {mockEvent.location.zip}
                       </Text>
                     </Group>
-                    <Progress
-                      value={(mockEvent.registered / mockEvent.capacity) * 100}
-                      color="var(--upagain-neutral-green)"
-                      size="sm"
-                      radius="xl"
-                    />
-                    <Text size="xs" c="dimmed" ta="center">
-                      {mockEvent.registered} people registered out of{" "}
-                      {mockEvent.capacity}
-                    </Text>
                   </Stack>
 
-                  {/* CTA */}
-                  <Button
-                    size="lg"
-                    radius="md"
-                    fullWidth
-                    color="var(--upagain-neutral-green)"
-                    rightSection={<IconChevronRight size={18} />}
-                    style={{ height: 54 }}
+                  {/* Google Maps Placeholder */}
+                  <Box
+                    h={300}
+                    bg="var(--mantine-color-gray-1)"
+                    style={{
+                      borderRadius: "var(--mantine-radius-lg)",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "2px dashed var(--mantine-color-gray-3)",
+                    }}
                   >
-                    Register Now
-                  </Button>
-
-                  {/* Footer */}
-                  <Group justify="center" gap={4} c="dimmed">
-                    <IconShieldCheck size={14} />
-                    <Text size="xs" fw={500}>
-                      Secure payment & instant confirmation
+                    <IconMapPin size={48} color="var(--mantine-color-gray-4)" />
+                    <Text c="dimmed" fw={600} mt="sm">
+                      Interactive Map Placeholder
                     </Text>
-                  </Group>
+                    <Text size="xs" c="dimmed">
+                      Google Maps API will be integrated here
+                    </Text>
+                  </Box>
                 </Stack>
-              </Paper>
-            </Box>
-          </Grid.Col>
-        </Grid>
+
+                <Divider />
+
+                {/* 6. EXPLORE RELEVANT EVENTS SECTION */}
+                <Stack gap="xl">
+                  <Group justify="space-between" align="center">
+                    <Title order={3}>Explore relevant events</Title>
+                    <Button
+                      variant="subtle"
+                      color="var(--upagain-neutral-green)"
+                      rightSection={<IconChevronRight size={14} />}
+                    >
+                      See all {mockEvent.category}s
+                    </Button>
+                  </Group>
+                  <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
+                    {[1, 2, 3].map((i) => (
+                      <EventCard
+                        key={i}
+                        {...mockRelevantEvent}
+                        title={`Relevant Event ${i}`}
+                      />
+                    ))}
+                  </SimpleGrid>
+                </Stack>
+              </Stack>
+            </Grid.Col>
+
+            {/* 5. FLOATING DETAILS CARD (Right Side) */}
+            <Grid.Col span={{ base: 12, md: 4 }}>
+              <Box style={{ position: "sticky", top: 100 }}>
+                <Paper
+                  variant="primary"
+                  shadow="xl"
+                  p="xl"
+                  radius="lg"
+                  withBorder
+                >
+                  <Stack gap="lg">
+                    {/* Price */}
+                    <Group gap="sm">
+                      <Title order={2} c="var(--upagain-neutral-green)">
+                        {mockEvent.price > 0
+                          ? `${mockEvent.price}€`
+                          : "Free Entry"}
+                      </Title>
+                      <Text size="sm" fw={700} tt="uppercase" c="dimmed">
+                        / per person
+                      </Text>
+                    </Group>
+
+                    {/* Dates */}
+                    <Stack gap="md">
+                      <Group gap="md" wrap="nowrap">
+                        <IconCalendar
+                          size={24}
+                          color="var(--upagain-neutral-green)"
+                        />
+                        <Stack gap={0}>
+                          <Text size="xs" c="dimmed">
+                            Start date
+                          </Text>
+                          <Text size="sm" fw={700}>
+                            {new Date(mockEvent.startDate).toLocaleDateString(
+                              "en-US",
+                              {
+                                weekday: "long",
+                                month: "long",
+                                day: "numeric",
+                              },
+                            )}{" "}
+                            -{" "}
+                            {new Date(mockEvent.startDate).toLocaleTimeString(
+                              [],
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </Text>
+                        </Stack>
+                      </Group>
+                      <Group gap="md" wrap="nowrap">
+                        <IconClockCheck
+                          size={24}
+                          color="var(--upagain-neutral-green)"
+                        />
+                        <Stack gap={0}>
+                          <Text size="xs" c="dimmed">
+                            End date
+                          </Text>
+                          <Text size="sm" fw={700}>
+                            {new Date(mockEvent.startDate).toLocaleDateString(
+                              "en-US",
+                              {
+                                weekday: "long",
+                                month: "long",
+                                day: "numeric",
+                              },
+                            )}
+                            {" - "}
+                            {new Date(mockEvent.startDate).toLocaleTimeString(
+                              [],
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </Text>
+                        </Stack>
+                      </Group>
+                    </Stack>
+
+                    <Divider />
+
+                    {/* Capacity */}
+                    <Stack gap="xs">
+                      <Group justify="space-between">
+                        <Group gap={6}>
+                          <IconUsers size={18} />
+                          <Text size="sm" fw={600}>
+                            Capacity
+                          </Text>
+                        </Group>
+                        <Text
+                          size="sm"
+                          fw={700}
+                          c="var(--upagain-neutral-green)"
+                        >
+                          {mockEvent.capacity - mockEvent.registered} spots left
+                        </Text>
+                      </Group>
+                      <Progress
+                        value={
+                          (mockEvent.registered / mockEvent.capacity) * 100
+                        }
+                        color="var(--upagain-neutral-green)"
+                        size="md"
+                        radius="xl"
+                      />
+                      <Text size="xs" c="dimmed">
+                        {mockEvent.capacity - mockEvent.registered} spots left
+                      </Text>
+                    </Stack>
+
+                    {/* CTA */}
+                    <Button
+                      size="lg"
+                      radius="md"
+                      variant="cta-reverse"
+                      fullWidth
+                      color="var(--upagain-neutral-green)"
+                      rightSection={<IconChevronRight size={18} />}
+                    >
+                      Register Now
+                    </Button>
+
+                    {/* Footer */}
+                    <Group justify="center" gap={4} c="dimmed">
+                      <IconShieldCheck size={14} />
+                      <Text size="xs" fw={500}>
+                        Secure payment & instant confirmation
+                      </Text>
+                    </Group>
+                  </Stack>
+                </Paper>
+              </Box>
+            </Grid.Col>
+          </Grid>
+        </Stack>
       </Container>
     </Stack>
   );

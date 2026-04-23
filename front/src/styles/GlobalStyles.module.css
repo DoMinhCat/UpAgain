@@ -193,11 +193,28 @@
 /* this is for custom mantine paper */
 .paper {
   /* Default styles for all papers using this class */
-  transition: transform 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   &[data-variant="primary"] {
-    background-color: var(--paper-border-color) !important;
+    background-color: var(--paper-color) !important;
     border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+
+    &:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  &[data-variant="brand"] {
+    background-color: var(--upagain-neutral-green);
+    color: white;
+    border: none;
+    box-shadow: 0 10px 30px rgba(69, 165, 117, 0.15);
+
+    &:hover {
+      background-color: #43966c;
+      transform: translateY(-2px);
+    }
   }
 }
 
