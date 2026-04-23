@@ -115,7 +115,7 @@ export function EventCard({
             tt="lowercase"
             style={{
               backgroundColor: "rgba(255, 255, 255, 0.9)",
-              color: "var(--mantine-color-text)",
+              color: "#2a2a28",
               border: "none",
               backdropFilter: "blur(4px)",
             }}

@@ -10,18 +10,15 @@ import {
   Divider,
   Button,
   Modal,
-  TextInput,
   type ComboboxItem,
   type OptionsFilter,
   Table,
-  NumberInput,
-  Select,
   MultiSelect,
   Loader,
   Tooltip,
   SimpleGrid,
 } from "@mantine/core";
-import { DateTimePicker } from "@mantine/dates";
+
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import "@mantine/carousel/styles.css";
 import { PATHS } from "../../../routes/paths";
@@ -37,14 +34,13 @@ import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import { TextEditor } from "../../../components/input/TextEditor";
+
 import {
   useAssignEmployeeToEvent,
   useUpdateEventStatus,
   useGetAssignedEmployees,
   useGetEventDetails,
   useUnAssignEmployee,
-  useUpdateEvent,
 } from "../../../hooks/eventHooks";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
@@ -52,9 +48,10 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
-import ImageDropzone from "../../../components/input/ImageDropzone";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
+import { EditEventModal } from "../../../components/event/EditEventModal";
+import { CancelEventModal } from "../../../components/event/CancelEventModal";
 export default function AdminEventDetails() {
   const location = useLocation();
   const origin = location.state;
@@ -87,203 +84,6 @@ export default function AdminEventDetails() {
   const id_event = Number(useParams().id);
   const { data: eventDetails, isLoading: isLoadingEventDetails } =
     useGetEventDetails(id_event);
-
-  const [titleEdit, setTitleEdit] = useState<string>("");
-  const [capacityEdit, setCapacityEdit] = useState<number | null>(null);
-  const [priceEdit, setPriceEdit] = useState<number>(0);
-  const [streetEdit, setStreetEdit] = useState<string>("");
-  const [cityEdit, setCityEdit] = useState<string>("");
-  const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
-  const [dateEdit, setDateEdit] = useState<string>("");
-  const [endDateEdit, setEndDateEdit] = useState<string>("");
-  const [categoryEdit, setCategoryEdit] = useState<string>("");
-  const [descriptionEdit, setDescriptionEdit] = useState<string>("");
-  const [errorTitle, setErrorTitle] = useState<string | null>(null);
-  const [errorCapacity, setErrorCapacity] = useState<string | null>(null);
-  const [errorPrice, setErrorPrice] = useState<string | null>(null);
-  const [errorStreet, setErrorStreet] = useState<string | null>(null);
-  const [errorCity, setErrorCity] = useState<string | null>(null);
-  const [errorDate, setErrorDate] = useState<string | null>(null);
-  const [errorEndDate, setErrorEndDate] = useState<string | null>(null);
-  const [errorCategory, setErrorCategory] = useState<string | null>(null);
-  const [errorDescription, setErrorDescription] = useState<string | null>(null);
-  const [fileEdit, setFileEdit] = useState<any[]>([]);
-
-  const handleOpenEdit = () => {
-    if (eventDetails) {
-      setTitleEdit(eventDetails.title || "");
-      setCapacityEdit(eventDetails.capacity || 0);
-      setPriceEdit(eventDetails.price || 0);
-      setStreetEdit(eventDetails.street || "");
-      setCityEdit(eventDetails.city || "");
-      setLocationDetailEdit(eventDetails.location_detail || "");
-      setDateEdit(eventDetails.start_at || "");
-      setEndDateEdit(eventDetails.end_at || "");
-      setCategoryEdit(eventDetails.category || "");
-      setDescriptionEdit(eventDetails.description || "");
-      const files = eventDetails.images?.map((path) => {
-        return {
-          path: path,
-        };
-      });
-      setFileEdit(files || []);
-    }
-    openEdit();
-  };
-
-  // validations
-  const validateTitle = () => {
-    if (!titleEdit || titleEdit.trim() === "") {
-      setErrorTitle("Title is required");
-      return false;
-    }
-    setErrorTitle("");
-    return true;
-  };
-  const validateCapacity = () => {
-    if (capacityEdit && capacityEdit <= 0) {
-      setErrorCapacity("Capacity must be greater than 0");
-      return false;
-    }
-    setErrorCapacity("");
-    return true;
-  };
-  const validatePrice = () => {
-    if (priceEdit < 0) {
-      setErrorPrice("Price must be greater than or equal to 0");
-      return false;
-    }
-    setErrorPrice("");
-    return true;
-  };
-  const validateStreet = () => {
-    if (!streetEdit || streetEdit.trim() === "") {
-      setErrorStreet("Street is required");
-      return false;
-    }
-    setErrorStreet("");
-    return true;
-  };
-  const validateCity = () => {
-    if (!cityEdit || cityEdit.trim() === "") {
-      setErrorCity("City is required");
-      return false;
-    }
-    setErrorCity("");
-    return true;
-  };
-  const validateDate = () => {
-    if (!dateEdit || dateEdit.trim() === "") {
-      setErrorDate("Start date is required");
-      return false;
-    }
-    setErrorDate("");
-    return true;
-  };
-  const validateCategory = () => {
-    if (!categoryEdit || categoryEdit.trim() === "") {
-      setErrorCategory("Category is required");
-      return false;
-    }
-    setErrorCategory("");
-    return true;
-  };
-  const validateDescription = () => {
-    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
-    if (!descriptionEdit || stripped === "") {
-      setErrorDescription("A description is required");
-      return false;
-    }
-    setErrorDescription("");
-    return true;
-  };
-  const validateStartDate = (date: string | null) => {
-    if (!date || date.trim() === "") {
-      setErrorDate("Start date is required");
-      return false;
-    }
-    setErrorDate("");
-    return true;
-  };
-  const validateEndDate = (date: string | null) => {
-    if (!date || date.trim() === "") {
-      setErrorEndDate("End date is required");
-      return false;
-    }
-    setErrorEndDate("");
-    return true;
-  };
-
-  const updateEvent = useUpdateEvent(id_event);
-  const handleEdit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !validateTitle() ||
-      !validateCapacity() ||
-      !validatePrice() ||
-      !validateStreet() ||
-      !validateCity() ||
-      !validateDate() ||
-      !validateCategory() ||
-      !validateDescription() ||
-      !validateStartDate(dateEdit) ||
-      !validateEndDate(endDateEdit)
-    )
-      return;
-    const imagesData = new FormData();
-    fileEdit.forEach((obj) => {
-      if (obj instanceof File) {
-        imagesData.append("new_images", obj);
-      } else if (obj.path) {
-        imagesData.append("existing_images", obj.path);
-      }
-    });
-
-    updateEvent.mutate(
-      {
-        title: titleEdit,
-        capacity: capacityEdit || undefined,
-        price: priceEdit,
-        street: streetEdit,
-        city: cityEdit,
-        location_detail: locationDetailEdit,
-        start_at: dateEdit,
-        end_at: endDateEdit,
-        category: categoryEdit,
-        description: descriptionEdit,
-        images: imagesData,
-      },
-      {
-        onSuccess: () => {
-          handleCloseEdit();
-        },
-      },
-    );
-  };
-  const handleCloseEdit = () => {
-    if (eventDetails) {
-      setTitleEdit(eventDetails.title || "");
-      setCapacityEdit(eventDetails.capacity || 0);
-      setPriceEdit(eventDetails.price || 0);
-      setStreetEdit(eventDetails.street || "");
-      setCityEdit(eventDetails.city || "");
-      setLocationDetailEdit(eventDetails.location_detail || "");
-      setDateEdit(eventDetails.start_at || "");
-      setEndDateEdit(eventDetails.end_at || "");
-      setCategoryEdit(eventDetails.category || "");
-      setDescriptionEdit(eventDetails.description || "");
-      setErrorTitle("");
-      setErrorCapacity("");
-      setErrorPrice("");
-      setErrorStreet("");
-      setErrorCity("");
-      setErrorDate("");
-      setErrorEndDate("");
-      setErrorCategory("");
-      setErrorDescription("");
-    }
-    closeEdit();
-  };
 
   // GET ASSIGNED EMPLOYEES
   const {
@@ -560,7 +360,7 @@ export default function AdminEventDetails() {
               {/* Footer Actions */}
               <Stack mt="xl">
                 <Group grow>
-                  <Button variant="edit" onClick={handleOpenEdit} fullWidth>
+                  <Button variant="edit" onClick={openEdit} fullWidth>
                     Edit event
                   </Button>
                   <Button
@@ -586,181 +386,12 @@ export default function AdminEventDetails() {
               </Stack>
 
               {/* Edit Modal Logic */}
-              <Modal
+              <EditEventModal
                 opened={openedEdit}
-                onClose={handleCloseEdit}
-                title="Edit event"
-                centered
-                size="xl"
-              >
-                <Stack>
-                  <TextInput
-                    data-autofocus
-                    withAsterisk
-                    placeholder="Give the event a catchy title"
-                    label="Title"
-                    value={titleEdit}
-                    onChange={(e) => {
-                      setTitleEdit(e.target.value);
-                    }}
-                    onBlur={() => validateTitle()}
-                    error={errorTitle}
-                    disabled={updateEvent.isPending}
-                    required
-                  />
-                  <NumberInput
-                    label="Capacity"
-                    placeholder="Maximum number of attendees"
-                    min={0}
-                    disabled={updateEvent.isPending}
-                    value={capacityEdit ?? 0}
-                    suffix=" people"
-                    onChange={(value) => {
-                      setCapacityEdit(Number(value));
-                    }}
-                    onBlur={() => validateCapacity()}
-                    error={errorCapacity}
-                  />
-                  <NumberInput
-                    withAsterisk
-                    label="Price"
-                    placeholder="Entry fee - (0 if free)"
-                    min={0}
-                    prefix="€"
-                    value={priceEdit}
-                    disabled={updateEvent.isPending}
-                    onChange={(value) => {
-                      setPriceEdit(Number(value));
-                    }}
-                    onBlur={() => validatePrice()}
-                    error={errorPrice}
-                    required
-                  />
-                  <Grid>
-                    <Grid.Col span={{ base: 12, md: 9 }}>
-                      <TextInput
-                        withAsterisk
-                        label="Street"
-                        disabled={updateEvent.isPending}
-                        value={streetEdit}
-                        placeholder="21 Erard street"
-                        onChange={(e) => {
-                          setStreetEdit(e.target.value);
-                        }}
-                        onBlur={() => validateStreet()}
-                        error={errorStreet}
-                        required
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, md: 3 }}>
-                      <TextInput
-                        withAsterisk
-                        placeholder="Paris"
-                        label="City"
-                        value={cityEdit}
-                        disabled={updateEvent.isPending}
-                        onChange={(e) => {
-                          setCityEdit(e.target.value);
-                        }}
-                        onBlur={() => validateCity()}
-                        error={errorCity}
-                        required
-                      />
-                    </Grid.Col>
-                  </Grid>
-                  <TextInput
-                    label="Additional location details"
-                    placeholder="Room 12, 2nd floor"
-                    disabled={updateEvent.isPending}
-                    value={locationDetailEdit}
-                    onChange={(e) => {
-                      setLocationDetailEdit(e.target.value);
-                    }}
-                  />
-                  <Grid>
-                    <Grid.Col span={{ base: 12, md: 6 }}>
-                      <DateTimePicker
-                        clearable
-                        withAsterisk
-                        label="Start date"
-                        placeholder="When does it start?"
-                        value={dateEdit ? new Date(dateEdit) : null}
-                        disabled={updateEvent.isPending}
-                        onChange={(val) =>
-                          setDateEdit(val ? dayjs(val).toISOString() : "")
-                        }
-                        required
-                        onBlur={() => validateDate()}
-                        error={errorDate}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, md: 6 }}>
-                      <DateTimePicker
-                        withAsterisk
-                        clearable
-                        label="End date"
-                        placeholder="When does it end?"
-                        onBlur={() => validateEndDate(endDateEdit)}
-                        error={errorEndDate}
-                        value={endDateEdit ? new Date(endDateEdit) : null}
-                        disabled={updateEvent.isPending}
-                        onChange={(val) =>
-                          setEndDateEdit(val ? dayjs(val).toISOString() : "")
-                        }
-                        required
-                      />
-                    </Grid.Col>
-                  </Grid>
-                  <Select
-                    withAsterisk
-                    clearable
-                    label="Category"
-                    value={categoryEdit}
-                    disabled={updateEvent.isPending}
-                    placeholder="Select a category"
-                    error={errorCategory}
-                    onBlur={() => validateCategory()}
-                    data={[
-                      { value: "workshop", label: "Workshop" },
-                      { value: "conference", label: "Conference" },
-                      { value: "meetups", label: "Meetups" },
-                      { value: "exposition", label: "Exposition" },
-                      { value: "other", label: "Other" },
-                    ]}
-                    onChange={(value) => {
-                      setCategoryEdit(value as string);
-                    }}
-                  />
-                  <TextEditor
-                    label="Event's description"
-                    value={descriptionEdit}
-                    placeholder="Write your event's description here..."
-                    error={errorDescription ?? ""}
-                    onChange={(value) => {
-                      setDescriptionEdit(value);
-                    }}
-                  />
-                  <ImageDropzone
-                    loading={updateEvent.isPending}
-                    files={fileEdit}
-                    setFiles={setFileEdit}
-                  />
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={handleCloseEdit} variant="grey">
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={(e) => {
-                      handleEdit(e);
-                    }}
-                    variant="primary"
-                    loading={updateEvent.isPending}
-                  >
-                    Confirm
-                  </Button>
-                </Group>
-              </Modal>
+                onClose={closeEdit}
+                id_event={id_event}
+                eventDetails={eventDetails}
+              />
             </Card>
           </Grid.Col>
         </Grid>
@@ -950,9 +581,11 @@ export default function AdminEventDetails() {
           </Button>
         </Group>
       </Modal>
-      <Modal
+      <CancelEventModal
         opened={openedUpdateStatusModal}
         onClose={closeUpdateStatusModal}
+        onConfirm={handleUpdateEventStatus}
+        loading={cancelEvent.isPending}
         title={
           eventDetails?.status === "cancelled"
             ? "Reopen Event"
@@ -961,38 +594,23 @@ export default function AdminEventDetails() {
               ? "Approve Event"
               : "Cancel Event"
         }
-      >
-        <Text>
-          Are you sure you want to{" "}
-          {eventDetails?.status === "cancelled"
-            ? "reopen"
+        message={
+          eventDetails?.status === "cancelled"
+            ? "Are you sure you want to reopen this event? It will be visible to all users again."
             : eventDetails?.status === "pending" ||
                 eventDetails?.status === "refused"
-              ? "approve"
-              : "cancel"}{" "}
-          this event?
-        </Text>
-        <Group mt="lg" justify="end">
-          <Button onClick={closeUpdateStatusModal} variant="grey">
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              handleUpdateEventStatus();
-            }}
-            variant={
-              eventDetails?.status === "cancelled" ||
-              eventDetails?.status === "pending" ||
-              eventDetails?.status === "refused"
-                ? "primary"
-                : "delete"
-            }
-            loading={cancelEvent.isPending}
-          >
-            Confirm
-          </Button>
-        </Group>
-      </Modal>
+              ? "Are you sure you want to approve this event? It will be published and visible to all users."
+              : "Are you sure you want to cancel this event? This action will notify all registered participants."
+        }
+        confirmLabel={
+          eventDetails?.status === "cancelled"
+            ? "Confirm Reopen"
+            : eventDetails?.status === "pending" ||
+                eventDetails?.status === "refused"
+              ? "Confirm Approval"
+              : "Confirm Cancellation"
+        }
+      />
     </Container>
   );
 }
