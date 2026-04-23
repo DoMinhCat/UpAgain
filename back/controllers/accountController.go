@@ -723,8 +723,9 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	getOldAccountOk := true
+	var oldAccount interface{}
 	if claims.Role == "admin" {
-		oldAccount, err := db.GetAccountDetailsById(id_account)
+		oldAccount, err = db.GetAccountDetailsById(id_account)
 		if err != nil {
 			getOldAccountOk = false
 			slog.Error("GetAccountDetailsById() failed to get old account state", "controller", "UpdateAccount", "error", err)
