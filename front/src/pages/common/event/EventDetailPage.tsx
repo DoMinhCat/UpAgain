@@ -146,6 +146,9 @@ export default function EventDetailPage() {
     ],
   };
 
+  // if (isLoading) {
+  //   return <FullScreenLoader />;
+  // }
   return (
     <>
       <Stack gap={0} mb={120}>
