@@ -10,12 +10,13 @@ import {
   Anchor,
   useComputedColorScheme,
 } from "@mantine/core";
-import { useColorScheme } from "@mantine/hooks";
 import { IconLeaf, IconDroplet, IconBolt } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { PATHS } from "../../routes/paths";
 
 interface UserImpactObjectCardProps {
   title: string;
+  description?: string;
   image: string;
   price: number;
   material: string;
@@ -30,6 +31,7 @@ interface UserImpactObjectCardProps {
 
 export function UserImpactObjectCard({
   title,
+  description,
   image,
   price,
   material,
@@ -39,6 +41,7 @@ export function UserImpactObjectCard({
 }: UserImpactObjectCardProps) {
   const navigate = useNavigate();
   const theme = useComputedColorScheme("light");
+
   return (
     <Card
       className="paper"
@@ -49,30 +52,53 @@ export function UserImpactObjectCard({
         display: "flex",
         flexDirection: "row",
         overflow: "hidden",
-        minHeight: 160,
+        minHeight: 180,
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        cursor: "default",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = "var(--mantine-shadow-md)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "none";
       }}
     >
       {/* 1. IMAGE SECTION (LEFT) */}
-      <Box style={{ width: "25%", minWidth: 140, position: "relative", overflow: "hidden" }}>
+      <Box
+        style={{
+          width: "22%",
+          minWidth: 160,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
         <Image
           src={image}
           alt={title}
-          style={{ 
-            position: 'absolute',
+          style={{
+            position: "absolute",
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: "cover" 
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
           }}
         />
         <Badge
           className="badge"
           data-variant="gray"
           pos="absolute"
-          bottom={8}
-          left={8}
+          top={12}
+          right={12}
           size="xs"
+          style={{
+            backdropFilter: "blur(8px)",
+            backgroundColor: "rgba(255,255,255,0.8)",
+            color: "var(--upagain-dark-green)",
+            boxShadow: "var(--mantine-shadow-xs)",
+          }}
         >
           {material}
         </Badge>
@@ -80,37 +106,58 @@ export function UserImpactObjectCard({
 
       {/* 2. GENERAL INFO SECTION (MIDDLE) */}
       <Stack
-        p="md"
+        p="lg"
         gap="xs"
         style={{ flex: 1, borderRight: "1px solid var(--border-color)" }}
       >
-        <Box>
+        <Stack gap={4}>
           <Title
             order={4}
             className="text"
             data-variant="primary"
             lineClamp={1}
+            mb="md"
           >
             {title}
           </Title>
-        </Box>
+          <Text size="sm" lineClamp={2} style={{ lineHeight: 1.4 }}>
+            {description ||
+              "A second-hand object carefully restored and redirected to a new home. A second-hand object carefully restored and redirected to a new home. A second-hand object carefully restored and redirected to a new home. A second-hand object carefully restored and redirected to a new home."}
+          </Text>
+        </Stack>
 
-        <Stack gap={4}>
-          <Group gap={8}>
-            <Text size="sm" fw={600}>
-              {price}€
+        <Stack gap={8} mt="auto">
+          <Group gap={12} wrap="nowrap">
+            <Text
+              size="md"
+              fw={800}
+              c={
+                theme === "dark"
+                  ? "var(--upagain-light-green)"
+                  : "var(--upagain-dark-green)"
+              }
+            >
+              {price === 0 ? "FREE" : `${price}€`}
             </Text>
-            <Text c="dimmed" size="xs">
-              •
-            </Text>
+            <Box
+              style={{
+                width: 1,
+                height: 12,
+                backgroundColor: "var(--border-color)",
+              }}
+            />
             <Text size="xs" c="dimmed">
               Sold on {new Date(soldDate).toLocaleDateString()}
             </Text>
           </Group>
 
           <Text size="xs">
-            Sold to{" "}
-            <Anchor onClick={() => navigate("/user/profile")} fw={700}>
+            Saved by{" "}
+            <Anchor
+              onClick={() => navigate(PATHS.USER.PROFILE)}
+              fw={700}
+              underline="hover"
+            >
               {buyerName}
             </Anchor>
           </Text>
@@ -118,66 +165,93 @@ export function UserImpactObjectCard({
       </Stack>
 
       {/* 3. IMPACT SECTION (RIGHT) */}
-      <Box
-        p="md"
-        style={{ width: "30%", backgroundColor: "rgba(69, 165, 117, 0.03)" }}
-      >
-        <Text
-          size="xs"
-          fw={800}
-          tt="uppercase"
-          c={
+      <Stack
+        p="lg"
+        gap="md"
+        style={{
+          width: "28%",
+          minWidth: 200,
+          backgroundColor:
             theme === "dark"
-              ? "var(--upagain-light-green)"
-              : "var(--upagain-dark-green)"
-          }
-          ta="center"
-          mb="sm"
-        >
-          Resources saved
-        </Text>
+              ? "rgba(69, 165, 117, 0.05)"
+              : "rgba(69, 165, 117, 0.03)",
+        }}
+      >
+        <Stack gap={2}>
+          <Text
+            size="xs"
+            fw={800}
+            tt="uppercase"
+            c={
+              theme === "dark"
+                ? "var(--upagain-light-green)"
+                : "var(--upagain-dark-green)"
+            }
+            style={{ letterSpacing: 0.5 }}
+          >
+            Resources Redirected
+          </Text>
+          <Text size="10px" c="dimmed">
+            Your green contribution for this item.
+          </Text>
+        </Stack>
 
         <Stack gap="xs">
-          {/* CO2 Savings */}
-          <Group justify="space-between" wrap="nowrap">
-            <Group gap={6}>
-              <IconLeaf size={14} color="var(--upagain-neutral-green)" />
-              <Text size="xs" fw={600}>
-                CO2
-              </Text>
-            </Group>
-            <Text size="xs" fw={800} c="var(--upagain-neutral-green)">
-              {impact.co2}kg
-            </Text>
-          </Group>
-
-          {/* Water Savings */}
-          <Group justify="space-between" wrap="nowrap">
-            <Group gap={6}>
-              <IconDroplet size={14} color="var(--mantine-color-blue-5)" />
-              <Text size="xs" fw={600}>
-                Water
-              </Text>
-            </Group>
-            <Text size="xs" fw={800} c="var(--mantine-color-blue-5)">
-              {impact.water}L
-            </Text>
-          </Group>
-
-          {/* Electricity Savings */}
-          <Group justify="space-between" wrap="nowrap">
-            <Group gap={6}>
-              <IconBolt size={14} color="var(--upagain-yellow)" />
-              <Text size="xs" fw={600}>
-                Energy
-              </Text>
-            </Group>
-            <Text size="xs" fw={800} c="var(--upagain-yellow)">
-              {impact.electricity}kWh
-            </Text>
-          </Group>
+          <ImpactRow
+            icon={<IconLeaf size={14} color="var(--upagain-neutral-green)" />}
+            label="Carbon"
+            value={`${impact.co2}kg`}
+            color="var(--upagain-neutral-green)"
+          />
+          <ImpactRow
+            icon={<IconDroplet size={14} color="var(--mantine-color-blue-5)" />}
+            label="Water"
+            value={`${impact.water}L`}
+            color="var(--mantine-color-blue-5)"
+          />
+          <ImpactRow
+            icon={<IconBolt size={14} color="var(--upagain-yellow)" />}
+            label="Energy"
+            value={`${impact.electricity}kWh`}
+            color="var(--upagain-yellow)"
+          />
         </Stack>
-      </Box>
+      </Stack>
     </Card>
+  );
+}
+
+function ImpactRow({
+  icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  color: string;
+}) {
+  return (
+    <Group
+      justify="space-between"
+      wrap="nowrap"
+      p="xs"
+      style={{
+        borderRadius: "var(--mantine-radius-sm)",
+        backgroundColor: "var(--mantine-color-body)",
+        border: "1px solid var(--border-color)",
+      }}
+    >
+      <Group gap={8}>
+        {icon}
+        <Text size="xs" fw={600}>
+          {label}
+        </Text>
+      </Group>
+      <Text size="xs" fw={800} c={color}>
+        {value}
+      </Text>
+    </Group>
   );
 }

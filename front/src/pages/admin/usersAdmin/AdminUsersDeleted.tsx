@@ -1,5 +1,5 @@
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import {
   Container,
   Stack,
@@ -164,7 +164,7 @@ export default function AdminUsersDeleted() {
       <Title order={2} mt="xs" mb="sm">
         Deleted Accounts
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           { title: "User Management", href: PATHS.ADMIN.USERS.ALL },
           { title: "Deleted Accounts", href: "#" },

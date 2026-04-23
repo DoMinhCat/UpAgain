@@ -75,7 +75,7 @@ create table pros
     is_premium boolean not null default false
 );
 
-CREATE TYPE event_category AS ENUM ('workshop', 'conference', 'conference', 'exposition', 'other');
+CREATE TYPE event_category AS ENUM ('workshop', 'conference', 'meetups', 'exposition', 'other');
 CREATE TYPE event_status AS ENUM ('pending', 'approved', 'refused', 'cancelled');
 create table events
 (
@@ -92,6 +92,9 @@ create table events
     city         varchar(255)   not null,
     street       varchar(255)   not null,
     location_detail varchar(255),
+    -- TODO: add lat and lng returned by geocoding
+    -- lat NUMERIC(10, 8), 
+    -- lng NUMERIC(11, 8)
     created_by   integer references accounts(id) on delete restrict,
 );
 CREATE INDEX idx_events_status ON events (status);
