@@ -164,7 +164,7 @@ const SORT_OPTIONS = [
   { value: "highest_view", label: "Most viewed" },
 ];
 
-const USE_FAKE_DATA = false;
+const USE_FAKE_DATA = true;
 
 export default function UserPostsPage() {
   const navigate = useNavigate();
