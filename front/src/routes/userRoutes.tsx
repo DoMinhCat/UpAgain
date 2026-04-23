@@ -1,20 +1,42 @@
-import { type RouteObject, useLocation } from "react-router-dom";
+import { type ReactNode, useEffect, useRef } from "react";
+import { type RouteObject, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "./paths";
 import FullScreenLoader from "../components/common/FullScreenLoader";
 import UserLayout from "../layouts/UserLayout";
 import GuestLayout from "../layouts/GuestLayout";
 import GuestHome from "../pages/guest/GuestHome";
-import { Navigate } from "react-router-dom";
 import UserScorePage from "../pages/user/UserScorePage";
 import Profile from "../pages/common/Profile";
 import Home from "../pages/common/Home";
 import EventPage from "../pages/common/event/EventPage";
 import EventCategoryPage from "../pages/common/event/EventCategoryPage";
+import { showErrorNotification } from "../components/common/NotificationToast";
+import EventDetailPage from "../pages/common/event/EventDetailPage";
 
-const UserGuard = ({ children }: { children: React.ReactNode }) => {
+const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
   const location = useLocation();
+  const prevUser = useRef(user);
+
+  useEffect(() => {
+    // Only show notification if user is NOT logged in AND they didn't just log out
+    // (i.e. they were already logged out and are trying to access the page)
+    if (
+      !isInitializing &&
+      !user &&
+      !prevUser.current &&
+      location.pathname.includes("events")
+    ) {
+      if (location.pathname !== PATHS.GUEST.LOGIN) {
+        showErrorNotification(
+          "Login required",
+          "You must be logged in to access events",
+        );
+      }
+    }
+    prevUser.current = user;
+  }, [isInitializing, user, location.pathname]);
 
   if (isInitializing) {
     return <FullScreenLoader />;
@@ -29,7 +51,7 @@ const UserGuard = ({ children }: { children: React.ReactNode }) => {
         </GuestLayout>
       );
     }
-    // Oherwise if guest go to user routes, redirect to login
+
     return (
       <Navigate to={PATHS.GUEST.LOGIN} replace state={{ from: location }} />
     );
@@ -56,7 +78,13 @@ export const userRoutes: RouteObject = {
       path: "events",
       children: [
         { index: true, element: <EventPage /> },
-        { path: ":category", element: <EventCategoryPage /> },
+        {
+          path: ":category",
+          children: [
+            { index: true, element: <EventCategoryPage /> },
+            { path: ":id", element: <EventDetailPage /> },
+          ],
+        },
       ],
     },
   ],

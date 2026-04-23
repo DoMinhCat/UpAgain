@@ -1,4 +1,4 @@
-import { AppShell, Burger, Group, Image } from "@mantine/core";
+import { AppShell, Burger, Group, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Outlet } from "react-router-dom";
 import { AdminNavbar } from "../components/nav/AdminNavbar";
@@ -8,18 +8,23 @@ export default function AdminLayout() {
 
   return (
     <AppShell
-      header={{ height: 60, collapsed: !opened, offset: false }}
+      header={{ height: { base: 60, sm: 0 } }}
       navbar={{
-        width: 80,
+        width: { base: "100%", sm: 80 },
         breakpoint: "sm",
         collapsed: { mobile: !opened },
       }}
       padding="md"
+      withBorder={false}
     >
-      <AppShell.Header hiddenFrom="sm" zIndex={100}>
-        <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Image src="/brand-name.png" h={30} w="auto" />
+      {/* Mobile-only top bar — always visible so burger is always reachable */}
+      <AppShell.Header hiddenFrom="sm" zIndex={200}>
+        <Group h="100%" px="md" justify="space-between">
+          <Burger opened={opened} onClick={toggle} size="sm" />
+          <Text fw={700} size="sm" c="dimmed">
+            Admin Panel
+          </Text>
+          <div style={{ width: 28 }} />
         </Group>
       </AppShell.Header>
 

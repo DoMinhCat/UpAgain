@@ -15,6 +15,8 @@ import { EventCard } from "../../../components/event/EventCard";
 
 import { HeroBanner } from "../../../components/hero/HeroBanner";
 import { useNavigate } from "react-router-dom";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
+import { PATHS } from "../../../routes/paths";
 
 const CATEGORIES = [
   "workshop",
@@ -63,7 +65,14 @@ export default function EventPage() {
         </Stack>
       </HeroBanner>
 
-      <Container size="xl" py={40} w="100%" mt="xl">
+      <Container size="xl" py={40} w="100%" mt="md">
+        <MyBreadcrumbs
+          mb="lg"
+          breadcrumbs={[
+            { title: "Home", href: PATHS.HOME },
+            { title: "Events", href: "#" },
+          ]}
+        />
         <Stack gap={60}>
           {/* 2. CATEGORY SECTIONS */}
           {CATEGORIES.map((cat) => (
@@ -77,7 +86,7 @@ export default function EventPage() {
                   size="sm"
                   fw={700}
                   c="var(--upagain-neutral-green)"
-                  onClick={() => navigate(`/events/${cat}`)}
+                  onClick={() => navigate(`/events/${cat}s`)}
                 >
                   <Group gap={4}>
                     See all {cat}s

@@ -9,8 +9,12 @@ interface MyBreadcrumbsProps {
 
 export default function MyBreadcrumbs({
   breadcrumbs,
+  mb,
+  mt,
 }: {
   breadcrumbs: MyBreadcrumbsProps[];
+  mb?: string | number;
+  mt?: string | number;
 }) {
   const navigate = useNavigate();
 
@@ -44,8 +48,8 @@ export default function MyBreadcrumbs({
 
   return (
     <Breadcrumbs
-      mt="lg"
-      mb="xl"
+      {...(mt && { mt })}
+      {...(mb && { mb })}
       separator={
         <IconChevronRight
           size={14}

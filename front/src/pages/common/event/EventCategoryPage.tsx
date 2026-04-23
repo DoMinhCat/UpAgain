@@ -9,26 +9,60 @@ import {
   Select,
   Paper,
   Box,
+  Button,
+  Tooltip,
+  ActionIcon,
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
 import {
   IconSearch,
   IconFilter,
   IconSortDescending,
+  IconRefresh,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { EventCard } from "../../../components/event/EventCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
+import { NotFoundPage } from "../../error/404";
+// import FullScreenLoader from "../../../components/common/FullScreenLoader";
 
 export default function EventCategoryPage() {
   const { category } = useParams<{ category: string }>();
-  const [page, setPage] = useState(1);
+
+  // FILTER OPTIONS
+  const [page, setPage] = useState<number>(1);
+  const LIMIT = 12;
+  const [filters, setFilters] = useState<{
+    search: string | null;
+    city: string | null;
+    sort: string | null;
+  }>({ search: null, city: null, sort: null });
+
+  const handleApply = () => {
+    // TODO: fetch data with search, filter and sort
+    setPage(1);
+  };
+
+  const handleReset = () => {
+    setFilters({ search: null, city: null, sort: null });
+    setPage(1);
+  };
+
+  if (
+    category != "workshops" &&
+    category != "conferences" &&
+    category != "meetups" &&
+    category != "expositions" &&
+    category != "others"
+  ) {
+    return <NotFoundPage />;
+  }
 
   // Mock data for drafting
   const categoryTitle = category
-    ? category.charAt(0).toUpperCase() + category.slice(1) + "s"
+    ? category.charAt(0).toUpperCase() + category.slice(1)
     : "Events";
   const categoryDescription = `Explore our collection of ${category || "upcoming"} events. Join workshops, conferences, and meetups to learn new skills and connect with the community.`;
 
@@ -47,6 +81,9 @@ export default function EventCategoryPage() {
     registeredCount: 24,
   };
 
+  // if(isloading){
+  //   return <FullScreenLoader />
+  // }
   return (
     <Stack gap={0}>
       {/* 1. FILTER BAR (Below Navbar) */}
@@ -61,35 +98,67 @@ export default function EventCategoryPage() {
         py="md"
       >
         <Container size="xl">
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xl">
+          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+            {/* SEARCH INPUT */}
             <TextInput
               placeholder="Search in this category..."
-              leftSection={<IconSearch size={18} />}
-              size="sm"
-              radius="xl"
+              leftSection={
+                <IconSearch size={18} color="var(--upagain-neutral-green)" />
+              }
+              value={filters.search || ""}
+              onChange={(e) =>
+                setFilters({ ...filters, search: e.target.value })
+              }
             />
-            <Group justify="flex-end">
+
+            {/* ACTIONS & FILTERS */}
+            <Group justify="flex-end" gap="xs" wrap="nowrap">
               <Select
-                placeholder="Filter"
-                leftSection={<IconFilter size={18} />}
+                placeholder="City"
+                leftSection={<IconFilter size={16} />}
                 data={["Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse"]}
-                size="sm"
-                radius="xl"
-                style={{ width: 200 }}
+                value={filters.city}
+                onChange={(value) => setFilters({ ...filters, city: value })}
+                style={{ width: 140 }}
               />
+
               <Select
                 placeholder="Sort by"
-                leftSection={<IconSortDescending size={18} />}
+                leftSection={<IconSortDescending size={16} />}
                 data={[
-                  "Date: Soonest",
-                  "Date: Latest",
-                  "Price: Low to High",
-                  "Price: High to Low",
+                  { value: "soonest_date", label: "Soonest" },
+                  { value: "lowest_price", label: "Lowest price" },
+                  { value: "highest_price", label: "Highest price" },
+                  { value: "most_popular", label: "Most popular" },
                 ]}
-                size="sm"
-                radius="xl"
-                style={{ width: 200 }}
+                value={filters.sort}
+                onChange={(value) => setFilters({ ...filters, sort: value })}
+                style={{ width: 140 }}
               />
+
+              <Group gap={8}>
+                <Button
+                  className="button"
+                  data-variant="primary"
+                  size="sm"
+                  onClick={handleApply}
+                >
+                  Apply
+                </Button>
+
+                {/* Reset icon button instead of text button to save space */}
+                <Tooltip label="Reset Filters" position="bottom">
+                  <ActionIcon
+                    className="actionIcon"
+                    data-variant="primary"
+                    size="lg"
+                    radius="xl"
+                    onClick={handleReset}
+                  >
+                    <IconRefresh size={18} stroke={1.5} />
+                  </ActionIcon>
+                </Tooltip>
+              </Group>
             </Group>
           </SimpleGrid>
         </Container>
@@ -136,9 +205,9 @@ export default function EventCategoryPage() {
           <PaginationFooter
             activePage={page}
             setPage={setPage}
-            total_records={48}
+            total_records={999}
             last_page={6}
-            limit={8}
+            limit={LIMIT}
             unit="events"
           />
         </Stack>
