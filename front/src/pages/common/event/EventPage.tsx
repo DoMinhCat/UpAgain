@@ -9,8 +9,9 @@ import {
   useComputedColorScheme,
   Box,
   Paper,
+  Button,
 } from "@mantine/core";
-import { IconChevronRight } from "@tabler/icons-react";
+import { IconCalendar, IconChevronRight } from "@tabler/icons-react";
 import { EventCard } from "../../../components/event/EventCard";
 
 import { HeroBanner } from "../../../components/hero/HeroBanner";
@@ -66,13 +67,22 @@ export default function EventPage() {
       </HeroBanner>
 
       <Container size="xl" py={40} w="100%" mt="md">
-        <MyBreadcrumbs
-          mb="lg"
-          breadcrumbs={[
-            { title: "Home", href: PATHS.HOME },
-            { title: "Events", href: "#" },
-          ]}
-        />
+        <Group justify="space-between" align="center" mb="lg">
+          <MyBreadcrumbs
+            breadcrumbs={[
+              { title: "Home", href: PATHS.HOME },
+              { title: "Events", href: "#" },
+            ]}
+          />
+          <Button
+            className="button"
+            data-variant="primary"
+            onClick={() => navigate(PATHS.EVENTS.PLANNING)}
+            rightSection={<IconCalendar size={16} />}
+          >
+            My Events
+          </Button>
+        </Group>
         <Stack gap={60}>
           {/* 2. CATEGORY SECTIONS */}
           {CATEGORIES.map((cat) => (

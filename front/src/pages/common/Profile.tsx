@@ -16,6 +16,8 @@ const Profile = () => {
       //   return <ProProfilePage />;
       // case "admin":
       //   return <AdminProfilePage />;
+      // case "employee":
+      //   return <EmployeeProfilePage />;
       case "user":
         return <UserProfilePage />;
       default:
