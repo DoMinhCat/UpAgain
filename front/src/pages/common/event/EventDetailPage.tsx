@@ -213,8 +213,17 @@ export default function EventDetailPage() {
               <Group gap="xs">
                 <Badge
                   size="lg"
-                  variant="filled"
-                  color="var(--upagain-neutral-green)"
+                  variant={
+                    mockEvent.category === "other"
+                      ? "gray"
+                      : mockEvent.category === "workshop"
+                        ? "blue"
+                        : mockEvent.category === "conference"
+                          ? "green"
+                          : mockEvent.category === "meetups"
+                            ? "yellow"
+                            : "red"
+                  }
                 >
                   {mockEvent.category.toUpperCase()}
                 </Badge>

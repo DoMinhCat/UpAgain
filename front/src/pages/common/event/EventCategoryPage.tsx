@@ -19,17 +19,24 @@ import {
   IconFilter,
   IconSortDescending,
   IconRefresh,
+  IconCalendar,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { EventCard } from "../../../components/event/EventCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
 import { NotFoundPage } from "../../error/404";
 // import FullScreenLoader from "../../../components/common/FullScreenLoader";
 
 export default function EventCategoryPage() {
+  const navigate = useNavigate();
   const { category } = useParams<{ category: string }>();
+  let event_category = category?.substring(0, category.length - 1);
+  if (event_category === "meetup") {
+    event_category = "meetups";
+  }
 
   // FILTER OPTIONS
   const [page, setPage] = useState<number>(1);
@@ -178,9 +185,20 @@ export default function EventCategoryPage() {
             <Title order={1} size={42} fw={900}>
               {categoryTitle}
             </Title>
-            <Text c="dimmed" size="lg" maw={800}>
-              {categoryDescription}
-            </Text>
+            xxx
+            <Group justify="space-between" align="end" mb="lg">
+              <Text c="dimmed" size="lg" maw={800}>
+                {categoryDescription}
+              </Text>
+              <Button
+                className="button"
+                data-variant="primary"
+                onClick={() => navigate(PATHS.EVENTS.PLANNING)}
+                rightSection={<IconCalendar size={16} />}
+              >
+                My Events
+              </Button>
+            </Group>
           </Stack>
 
           {/* 3. BODY: EVENT LIST */}
