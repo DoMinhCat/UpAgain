@@ -19,8 +19,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGetHistoryDetails } from "../../../hooks/historyHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 export function AdminHistoryDetails() {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const params = useParams();
 
@@ -49,7 +51,7 @@ export function AdminHistoryDetails() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
-        History Details
+        {t("history.details.title")}
       </Title>
 
       <Grid mt="xl" gap="lg">
@@ -63,13 +65,13 @@ export function AdminHistoryDetails() {
               style={{ border: "1px solid var(--border-color)" }}
             >
               <Text fw={700} size="xs" c="dimmed" tt="uppercase" mb="lg">
-                Log Information
+                {t("history.details.log_information")}
               </Text>
 
               <Stack gap="xl">
                 <DetailItem
                   icon={<IconUser size={18} />}
-                  label="Performed By"
+                  label={t("history.details.performed_by")}
                   value={
                     <Group gap="xs" mt={4}>
                       <Avatar
@@ -101,7 +103,7 @@ export function AdminHistoryDetails() {
 
                 <DetailItem
                   icon={<IconBox size={18} />}
-                  label="Module / Section"
+                  label={t("history.details.module_section")}
                   value={
                     <Badge variant="light" mt={4}>
                       {historyData?.module}
@@ -112,7 +114,7 @@ export function AdminHistoryDetails() {
                 {/* TODO: Link to subscription + finance settings */}
                 <DetailItem
                   icon={<IconHash size={18} />}
-                  label="Reference ID"
+                  label={t("history.details.reference_id")}
                   value={
                     <Anchor
                       size="sm"
@@ -193,20 +195,20 @@ export function AdminHistoryDetails() {
                       {(historyData?.module === "user" ||
                       historyData?.module === "pro" ||
                       historyData?.module === "employee"
-                        ? "Account #"
+                        ? t("history.details.ref_account")
                         : historyData?.module === "container"
-                          ? "Container #"
+                          ? t("history.details.ref_container")
                           : historyData?.module === "post" ||
                               historyData?.module === "ads"
-                            ? "Post #"
+                            ? t("history.details.ref_post")
                             : historyData?.module === "event"
-                              ? "Event #"
+                              ? t("history.details.ref_event")
                               : historyData?.module === "comment"
-                                ? "Comment #"
+                                ? t("history.details.ref_comment")
                                 : historyData?.module === "listing"
-                                  ? "Listing #"
+                                  ? t("history.details.ref_listing")
                                   : historyData?.module === "deposit"
-                                    ? "Deposit #"
+                                    ? t("history.details.ref_deposit")
                                     : "") + historyData?.item_id}
                     </Anchor>
                   }
@@ -214,7 +216,7 @@ export function AdminHistoryDetails() {
 
                 <DetailItem
                   icon={<IconClock size={18} />}
-                  label="Date & Time"
+                  label={t("history.details.date_time")}
                   value={
                     <Text size="sm" mt={4} fw={500}>
                       {dayjs(historyData?.created_at).format(
@@ -232,7 +234,7 @@ export function AdminHistoryDetails() {
           <Paper withBorder radius="md" p={0} style={{ overflow: "hidden" }}>
             <Box p="md" bg="var(--paper-color)">
               <Text fw={700} size="sm">
-                Modification Comparison
+                {t("history.details.modification_comparison")}
               </Text>
             </Box>
 
@@ -243,7 +245,7 @@ export function AdminHistoryDetails() {
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Box p="md" style={{ border: "1px solid var(--border-color)" }}>
                   <Badge color="red" variant="dot" mb="sm">
-                    Previous State
+                    {t("history.details.previous_state")}
                   </Badge>
                   <Paper withBorder p="sm" bg="var(--paper-color)" radius="sm">
                     <Code block style={{ background: "transparent" }}>
@@ -257,7 +259,7 @@ export function AdminHistoryDetails() {
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Box p="md" style={{ border: "1px solid var(--border-color)" }}>
                   <Badge color="green" variant="dot" mb="sm">
-                    Updated State
+                    {t("history.details.updated_state")}
                   </Badge>
                   <Paper withBorder p="sm" bg="var(--paper-color)" radius="sm">
                     <Code block style={{ background: "transparent" }}>
@@ -270,7 +272,7 @@ export function AdminHistoryDetails() {
           </Paper>
 
           <Text c="dimmed" size="xs" mt="sm" ta="right">
-            * This is a permanent audit record and cannot be modified.
+            {t("history.details.audit_note")}
           </Text>
         </Grid.Col>
       </Grid>

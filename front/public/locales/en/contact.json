@@ -1,0 +1,54 @@
+{
+  "header": {
+    "badge": "Get In Touch",
+    "title": "We'd love to hear from you",
+    "description": "Whether you have a question about dropping off items, running a workshop, or just want to say hello, our team is ready to answer all your questions."
+  },
+  "info": {
+    "email": {
+      "title": "Email",
+      "description": "Our friendly team is here to help."
+    },
+    "office": {
+      "title": "Office",
+      "description": "Come say hello at our headquarters."
+    },
+    "phone": {
+      "title": "Phone",
+      "description": "Mon-Fri from 9am to 6pm."
+    }
+  },
+  "form": {
+    "title": "Send us a message",
+    "first_name": {
+      "label": "First Name",
+      "placeholder": "John",
+      "error": "First name is required"
+    },
+    "last_name": {
+      "label": "Last Name",
+      "placeholder": "Doe",
+      "error": "Last name is required"
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "johndoe@example.com",
+      "error": "Email is required"
+    },
+    "subject": {
+      "label": "Subject",
+      "placeholder": "How can we help you?",
+      "error": "Subject is required"
+    },
+    "message": {
+      "label": "Message",
+      "placeholder": "Leave us a detailed message...",
+      "error": "Message is required"
+    },
+    "submit": "Send Message",
+    "success": {
+      "title": "Message sent",
+      "message": "Thank you for your message. We will get back to you as soon as possible."
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "footer": {
+    "description": "Donner une seconde vie aux matériaux grâce au réemploi communautaire et à une logistique intelligente.",
+    "explore": "Explorer",
+    "browse_objects": "Parcourir les objets",
+    "smart_deposits": "Dépôts intelligents",
+    "community_articles": "Articles de la communauté",
+    "contact": "Contact",
+    "legal": "Mentions légales",
+    "terms_conditions": "Conditions générales",
+    "privacy_policy": "Politique de confidentialité",
+    "rights_reserved": "© {{year}} UpAgain. Tous droits réservés.",
+    "address": "21 Rue Erard, 75012 Paris, France"
+  },
+  "about_us": "À propos",
+  "pricing": "Tarification",
+  "contact": "Contact",
+  "search": "Rechercher",
+  "sort_by": "Trier par",
+  "confirm": "Confirmer",
+  "all_status": "Tous les statuts",
+  "not_assigned": "Non assigné",
+  "not_set": "Non défini",
+  "roles": {
+    "user": "Utilisateur",
+    "pro": "Pro",
+    "employee": "Employé",
+    "admin": "Admin"
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Fév",
+    "mar": "Mar",
+    "apr": "Avr",
+    "may": "Mai",
+    "jun": "Juin",
+    "jul": "Juil",
+    "aug": "Août",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Déc"
+  },
+  "actions": {
+    "cancel": "Annuler",
+    "save": "Sauvegarder",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "confirm": "Confirmer",
+    "update": "Mettre à jour",
+    "create": "Créer",
+    "type": "Type",
+    "apply_filters": "Appliquer les filtres",
+    "reset": "Réinitialiser"
+  },
+  "notifications": {
+    "loading": "Chargement...",
+    "not_found": "Non trouvé",
+    "success": "Succès",
+    "error": "Erreur"
+  },
+  "time": {
+    "day": "jour",
+    "days": "jours",
+    "month": "mois",
+    "months": "mois",
+    "year": "an",
+    "years": "ans"
+  },
+  "timeframe": {
+    "title": "Période",
+    "all": "Toute la période",
+    "today": "Aujourd'hui",
+    "last_3_days": "3 derniers jours",
+    "last_week": "7 derniers jours",
+    "last_month": "30 derniers jours",
+    "last_year": "365 derniers jours"
+  },
+  "timeframe_options": {
+    "today": "Aujourd'hui",
+    "last_3_days": "3 derniers jours",
+    "last_week": "7 derniers jours",
+    "last_month": "30 derniers jours",
+    "last_year": "365 derniers jours"
+  },
+  "materials": {
+    "all": "Tous les matériaux",
+    "wood": "Bois",
+    "metal": "Métal",
+    "textile": "Textile",
+    "glass": "Verre",
+    "plastic": "Plastique",
+    "other": "Autre",
+    "mixed": "Mixte"
+  },
+  "status": {
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "refused": "Refusé",
+    "completed": "Terminé",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "banned": "Banni",
+    "deleted": "Supprimé"
+  },
+  "event_categories": {
+    "workshop": "Atelier",
+    "conference": "Conférence",
+    "meetups": "Rencontres",
+    "exposition": "Exposition",
+    "other": "Autre"
+  }
+}

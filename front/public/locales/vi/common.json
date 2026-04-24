@@ -1,0 +1,113 @@
+{
+  "footer": {
+    "description": "Hô biến đồ cũ thành đồ mới thông qua cộng đồng tái chế và hệ thống vận chuyển thông minh.",
+    "explore": "Khám phá",
+    "browse_objects": "Săn đồ tái chế",
+    "smart_deposits": "Ký gửi thông minh",
+    "community_articles": "Góc chia sẻ bí kíp",
+    "contact": "Liên hệ",
+    "legal": "Pháp lý",
+    "terms_conditions": "Điều khoản sử dụng",
+    "privacy_policy": "Chính sách bảo mật",
+    "rights_reserved": "© {{year}} UpAgain. Giữ bản quyền luôn nha.",
+    "address": "Trụ sở: 21 Rue Erard, 75012 Paris, Pháp"
+  },
+  "about_us": "Về tụi mình",
+  "pricing": "Bảng giá",
+  "contact": "Liên hệ",
+  "search": "Tìm kiếm",
+  "sort_by": "Sắp xếp theo",
+  "confirm": "Xác nhận nha",
+  "all_status": "Tất cả trạng thái",
+  "not_assigned": "Chưa phân công",
+  "not_set": "Chưa đặt",
+  "roles": {
+    "user": "Người dùng",
+    "pro": "Chuyên nghiệp",
+    "employee": "Nhân viên",
+    "admin": "Quản trị viên"
+  },
+  "months": {
+    "jan": "Tháng 1",
+    "feb": "Tháng 2",
+    "mar": "Tháng 3",
+    "apr": "Tháng 4",
+    "may": "Tháng 5",
+    "jun": "Tháng 6",
+    "jul": "Tháng 7",
+    "aug": "Tháng 8",
+    "sep": "Tháng 9",
+    "oct": "Tháng 10",
+    "nov": "Tháng 11",
+    "dec": "Tháng 12"
+  },
+  "actions": {
+    "cancel": "Thôi bỏ đi",
+    "save": "Lưu lại nè",
+    "edit": "Sửa xíu",
+    "delete": "Xóa luôn",
+    "confirm": "Xác nhận nha",
+    "update": "Cập nhật",
+    "create": "Tạo mới",
+    "type": "Loại",
+    "apply_filters": "Áp dụng bộ lọc",
+    "reset": "Đặt lại"
+  },
+  "notifications": {
+    "loading": "Đang tải, đợi xíu nha...",
+    "not_found": "Hổng tìm thấy rồi",
+    "success": "Xong rồi đó!",
+    "error": "Lỗi rồi đại vương ơi"
+  },
+  "time": {
+    "day": "ngày",
+    "days": "ngày",
+    "month": "tháng",
+    "months": "tháng",
+    "year": "năm",
+    "years": "năm"
+  },
+  "timeframe": {
+    "title": "Khung thời gian",
+    "all": "Tất cả",
+    "today": "Hôm nay",
+    "last_3_days": "3 ngày qua",
+    "last_week": "7 ngày qua",
+    "last_month": "30 ngày qua",
+    "last_year": "365 ngày qua"
+  },
+  "timeframe_options": {
+    "today": "Hôm nay",
+    "last_3_days": "3 ngày qua",
+    "last_week": "7 ngày qua",
+    "last_month": "30 ngày qua",
+    "last_year": "365 ngày qua"
+  },
+  "materials": {
+    "all": "Tất cả vật liệu",
+    "wood": "Gỗ",
+    "metal": "Kim loại",
+    "textile": "Vải",
+    "glass": "Kính",
+    "plastic": "Nhựa",
+    "other": "Khác",
+    "mixed": "Hỗn hợp"
+  },
+  "status": {
+    "pending": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "refused": "Bị từ chối",
+    "completed": "Hoàn thành",
+    "active": "Đang hoạt động",
+    "inactive": "Không hoạt động",
+    "banned": "Bị cấm",
+    "deleted": "Đã xóa"
+  },
+  "event_categories": {
+    "workshop": "Hội thảo",
+    "conference": "Hội nghị",
+    "meetups": "Gặp gỡ",
+    "exposition": "Triển lãm",
+    "other": "Khác"
+  }
+}

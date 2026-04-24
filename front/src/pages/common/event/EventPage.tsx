@@ -11,6 +11,7 @@ import {
   Paper,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons-react";
+import { useTranslation, Trans } from "react-i18next";
 import { EventCard } from "../../../components/event/EventCard";
 
 import { HeroBanner } from "../../../components/hero/HeroBanner";
@@ -27,6 +28,7 @@ const CATEGORIES = [
 ] as const;
 
 export default function EventPage() {
+  const { t } = useTranslation("events");
   const theme = useComputedColorScheme("light");
   const navigate = useNavigate();
 
@@ -56,11 +58,10 @@ export default function EventPage() {
       >
         <Stack justify="center" align="center" gap="md">
           <Title order={1} size={52} c="white" ta="center" fw={900}>
-            Sustainable Events & Workshops
+            {t("hero.title")}
           </Title>
           <Text c="white" size="xl" ta="center" maw={600} opacity={0.9}>
-            Join our community of eco-conscious creators. Learn, share, and
-            impact the world through meaningful experiences.
+            {t("hero.subtitle")}
           </Text>
         </Stack>
       </HeroBanner>
@@ -69,8 +70,8 @@ export default function EventPage() {
         <MyBreadcrumbs
           mb="lg"
           breadcrumbs={[
-            { title: "Home", href: PATHS.HOME },
-            { title: "Events", href: "#" },
+            { title: t("home:home_title", { defaultValue: "Home" }), href: PATHS.HOME },
+            { title: t("events", { defaultValue: "Events" }), href: "#" },
           ]}
         />
         <Stack gap={60}>
@@ -79,7 +80,7 @@ export default function EventPage() {
             <Stack key={cat} gap="xl">
               <Group justify="space-between" align="center">
                 <Title order={2} style={{ textTransform: "capitalize" }}>
-                  {cat}s
+                  {t(`categories.${cat}_plural`)}
                 </Title>
                 <Anchor
                   component="button"
@@ -89,7 +90,7 @@ export default function EventPage() {
                   onClick={() => navigate(`/events/${cat}s`)}
                 >
                   <Group gap={4}>
-                    See all {cat}s
+                    {t("categories.see_all", { category: t(`categories.${cat}_plural`) })}
                     <IconChevronRight size={14} />
                   </Group>
                 </Anchor>
@@ -124,12 +125,10 @@ export default function EventPage() {
             <Stack gap={50} align="center" pos="relative" style={{ zIndex: 2 }}>
               <Stack gap={10} align="center">
                 <Title order={2} size={48} fw={900} ta="center">
-                  How does it work?
+                  {t("how_it_works.title")}
                 </Title>
                 <Text size="lg" fw={500} ta="center" maw={600}>
-                  Joining the upcycling movement is as easy as 1-2-3 (and 4).
-                  <br />
-                  Here's your roadmap to our events.
+                  {t("how_it_works.subtitle")}
                 </Text>
               </Stack>
 
@@ -154,11 +153,10 @@ export default function EventPage() {
                     1
                   </Box>
                   <Title order={4} ta="center">
-                    Pick your passion
+                    {t("how_it_works.step1_title")}
                   </Title>
                   <Text size="sm" ta="center" c="dimmed" fw={500}>
-                    Browse our workshops, meetups, and conferences. There's
-                    something for every eco-soul!
+                    {t("how_it_works.step1_desc")}
                   </Text>
                 </Stack>
 
@@ -182,11 +180,10 @@ export default function EventPage() {
                     2
                   </Box>
                   <Title order={4} ta="center">
-                    Grab your spot
+                    {t("how_it_works.step2_title")}
                   </Title>
                   <Text size="sm" ta="center" c="dimmed" fw={500}>
-                    Secure your place with one click. Psst... most of our events
-                    are totally free!
+                    {t("how_it_works.step2_desc")}
                   </Text>
                 </Stack>
 
@@ -210,14 +207,22 @@ export default function EventPage() {
                     3
                   </Box>
                   <Title order={4} ta="center">
-                    Stay Organized
+                    {t("how_it_works.step3_title")}
                   </Title>
                   <Text size="sm" ta="center" c="dimmed" fw={500}>
-                    Keep track of all your upcoming fun in your personal{" "}
-                    <Anchor href="#" fw={700} c="var(--upagain-neutral-green)">
-                      My Planning
-                    </Anchor>{" "}
-                    page.
+                    <Trans
+                      i18nKey="how_it_works.step3_desc"
+                      ns="events"
+                      components={{
+                        1: (
+                          <Anchor
+                            href="#"
+                            fw={700}
+                            c="var(--upagain-neutral-green)"
+                          />
+                        ),
+                      }}
+                    />
                   </Text>
                 </Stack>
 
@@ -241,11 +246,10 @@ export default function EventPage() {
                     4
                   </Box>
                   <Title order={4} ta="center">
-                    Enjoy & Share
+                    {t("how_it_works.step4_title")}
                   </Title>
                   <Text size="sm" ta="center" c="dimmed" fw={500}>
-                    Learn new skills, meet amazing makers, and share your
-                    upcycling story with the world!
+                    {t("how_it_works.step4_desc")}
                   </Text>
                 </Stack>
               </SimpleGrid>
