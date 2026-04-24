@@ -20,7 +20,6 @@ import { router } from "./routes/routes";
 import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
 import { DateTimePicker, DatePickerInput } from "@mantine/dates";
-import { useTranslation } from "react-i18next";
 import React from "react";
 import FullScreenLoader from "./components/common/FullScreenLoader";
 

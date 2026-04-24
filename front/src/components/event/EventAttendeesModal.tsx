@@ -1,6 +1,5 @@
 import { Modal, Stack, Group, Text, Avatar } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { PATHS } from "../../routes/paths";
 
 interface Attendee {
   id: number;

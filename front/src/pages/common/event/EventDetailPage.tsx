@@ -420,6 +420,11 @@ export default function EventDetailPage() {
                       {[1, 2, 3].map((i) => (
                         <EventCard
                           key={i}
+                          onclick={() =>
+                            navigate(
+                              `/events/${mockRelevantEvent.category}/${i}`,
+                            )
+                          }
                           {...mockRelevantEvent}
                           title={`Relevant Event ${i}`}
                         />

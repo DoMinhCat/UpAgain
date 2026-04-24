@@ -28,7 +28,6 @@ import { useAuth } from "../../context/AuthContext";
 import { HeaderLink } from "./NavBarComponents";
 import { LANGUAGES } from "../../i18n/index";
 import { Indicator } from "@mantine/core";
-import { useState } from "react";
 import { useAccountDetails } from "../../hooks/accountHooks";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";

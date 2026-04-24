@@ -87,13 +87,6 @@ const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) =>
   String(CURRENT_YEAR - i),
 );
 
-const SETTING_LABELS: Record<string, string> = {
-  trial_days: "Trial Days",
-  commission_rate: "Commission Rate (%)",
-  subscription_price: "Subscription Price (€)",
-  ads_price_per_month: "Ads Price / Month (€)",
-};
-
 const TYPE_COLORS: Record<string, string> = {
   transaction: "teal",
   subscription: "blue",

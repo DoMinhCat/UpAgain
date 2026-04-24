@@ -32,7 +32,6 @@ import { useAuth } from "../../context/AuthContext";
 import { useAccountDetails } from "../../hooks/accountHooks";
 import { useTranslation } from "react-i18next";
 import { LANGUAGES } from "../../i18n/index";
-import { changeLanguage } from "../../utils/langUtils";
 
 interface NavbarLinkProps {
   icon: typeof IconHome2;
@@ -137,7 +136,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
     setColorScheme(scheme === "dark" ? "light" : "dark");
   };
 
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const currentLanguage =
     LANGUAGES.find((lang) => lang.lng === i18n.language)?.path ||
     "united-kingdom";
