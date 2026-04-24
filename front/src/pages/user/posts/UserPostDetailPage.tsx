@@ -47,6 +47,7 @@ import {
 } from "../../../components/common/NotificationToast";
 import type { Post, PostComment } from "../../../api/interfaces/post";
 import { getTimeAgo } from "../../../utils/timeUtils";
+import { useAuth } from "../../../context/AuthContext";
 
 const USE_FAKE_DATA = true;
 
@@ -81,10 +82,7 @@ const FAKE_POST: Post = {
   creator: "Jean-Paul Forge",
   creator_id: 5,
   created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-  photos: [
-    "/banners/user-banner1-light.png",
-    "/banners/user-banner1-dark.png",
-  ],
+  photos: ["/banners/user-banner1-light.png", "/banners/user-banner1-dark.png"],
   ads_id: 1,
   ads_from: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
   ads_to: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toISOString(),
@@ -142,6 +140,8 @@ const CATEGORY_COLOR: Record<string, string> = {
 
 export default function UserPostDetailPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const role: string = user?.role || "";
   const { id } = useParams<{ id: string }>();
   const postId = parseInt(id ?? "0", 10);
   const isValidId = !isNaN(postId) && postId > 0;
@@ -202,9 +202,7 @@ export default function UserPostDetailPage() {
   const isSaved =
     localSaved !== undefined ? localSaved : (post?.is_saved ?? false);
   const likeCount =
-    localLikeCount !== undefined
-      ? localLikeCount
-      : (post?.like_count ?? 0);
+    localLikeCount !== undefined ? localLikeCount : (post?.like_count ?? 0);
 
   const handleLike = () => {
     const next = !isLiked;
@@ -237,7 +235,10 @@ export default function UserPostDetailPage() {
         { content: commentText.trim() },
         {
           onSuccess: () => {
-            showSuccessNotification("Comment posted", "Your comment was added.");
+            showSuccessNotification(
+              "Comment posted",
+              "Your comment was added.",
+            );
             setCommentText("");
           },
         },
@@ -325,10 +326,7 @@ export default function UserPostDetailPage() {
         {/* Header */}
         <Stack gap="sm">
           <Group justify="space-between" wrap="wrap">
-            <Badge
-              variant={CATEGORY_COLOR[post.category] ?? "gray"}
-              size="lg"
-            >
+            <Badge variant={CATEGORY_COLOR[post.category] ?? "gray"} size="lg">
               {post.category}
             </Badge>
             {post.ads_id && (
@@ -371,6 +369,7 @@ export default function UserPostDetailPage() {
               <Group gap={4}>
                 <ActionIcon
                   className="actionIcon"
+                  disabled={role !== "user" && role !== "pro"}
                   data-variant="primary"
                   variant="subtle"
                   radius="xl"
@@ -384,10 +383,7 @@ export default function UserPostDetailPage() {
                       color="var(--mantine-color-red-6)"
                     />
                   ) : (
-                    <IconHeart
-                      size={20}
-                      color="var(--mantine-color-red-6)"
-                    />
+                    <IconHeart size={20} color="var(--mantine-color-red-6)" />
                   )}
                 </ActionIcon>
                 <Text size="sm" fw={600}>
@@ -395,11 +391,9 @@ export default function UserPostDetailPage() {
                 </Text>
               </Group>
 
-              <Tooltip
-                label={isSaved ? "Unsave" : "Save for later"}
-                withArrow
-              >
+              <Tooltip label={isSaved ? "Unsave" : "Save for later"} withArrow>
                 <ActionIcon
+                  disabled={role !== "user" && role !== "pro"}
                   className="actionIcon"
                   data-variant="primary"
                   variant="subtle"
@@ -471,6 +465,7 @@ export default function UserPostDetailPage() {
           {/* Add comment */}
           <Stack gap="sm">
             <Textarea
+              disabled={role !== "user" && role !== "pro"}
               placeholder="Share your thoughts..."
               value={commentText}
               onChange={(e) => setCommentText(e.currentTarget.value)}
@@ -483,7 +478,9 @@ export default function UserPostDetailPage() {
                 data-variant="primary"
                 onClick={handleAddComment}
                 loading={isPosting}
-                disabled={!commentText.trim()}
+                disabled={
+                  !commentText.trim() || (role !== "user" && role !== "pro")
+                }
               >
                 Post comment
               </Button>
@@ -503,6 +500,7 @@ export default function UserPostDetailPage() {
             <Stack gap="md">
               {comments.map((comment) => (
                 <PostCommentCard
+                  role={role}
                   key={comment.id}
                   comment={{
                     ...comment,
