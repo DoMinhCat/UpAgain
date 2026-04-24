@@ -1,0 +1,66 @@
+{
+  "events": "Events",
+  "hero": {
+    "title": "Sustainable Events & Workshops",
+    "subtitle": "Join our community of eco-conscious creators. Learn, share, and impact the world through meaningful experiences."
+  },
+  "categories": {
+    "workshop": "Workshop",
+    "conference": "Conference",
+    "meetup": "Meetup",
+    "exposition": "Exposition",
+    "other": "Other",
+    "workshop_plural": "Workshops",
+    "conference_plural": "Conferences",
+    "meetup_plural": "Meetups",
+    "exposition_plural": "Expositions",
+    "other_plural": "Others",
+    "see_all": "See all {{category}}",
+    "search_placeholder": "Search in this category...",
+    "explore_description": "Explore our collection of {{category}} events. Join workshops, conferences, and meetups to learn new skills and connect with the community."
+  },
+  "how_it_works": {
+    "title": "How does it work?",
+    "subtitle": "Joining the upcycling movement is as easy as 1-2-3 (and 4). Here's your roadmap to our events.",
+    "step1_title": "Pick your passion",
+    "step1_desc": "Browse our workshops, meetups, and conferences. There's something for every eco-soul!",
+    "step2_title": "Grab your spot",
+    "step2_desc": "Secure your place with one click. Psst... most of our events are totally free!",
+    "step3_title": "Stay Organized",
+    "step3_desc": "Keep track of all your upcoming fun in your personal <1>My Planning</1> page.",
+    "step4_title": "Enjoy & Share",
+    "step4_desc": "Learn new skills, meet amazing makers, and share your upcycling story with the world!"
+  },
+  "filters": {
+    "city": "City",
+    "sort": "Sort by",
+    "sort_soonest": "Soonest",
+    "sort_lowest": "Lowest price",
+    "sort_highest": "Highest price",
+    "sort_popular": "Most popular",
+    "apply": "Apply",
+    "reset": "Reset Filters"
+  },
+  "detail": {
+    "organized_by": "Organized by",
+    "published_on": "Published on",
+    "about": "About this event",
+    "location": "Location",
+    "map_placeholder": "Interactive Map Placeholder",
+    "map_api_note": "Google Maps API will be integrated here",
+    "relevant_events": "Explore relevant events",
+    "free_entry": "Free Entry",
+    "per_person": "/ per person",
+    "start_date": "Start date",
+    "end_date": "End date",
+    "capacity": "Capacity",
+    "spots_left": "{{count}} spots left",
+    "register_now": "Register Now",
+    "cancel_registration": "Cancel Registration",
+    "see_attendees": "See Attendees",
+    "edit_event": "Edit Event",
+    "cancel_event": "Cancel Event",
+    "secure_payment": "Secure payment & instant confirmation",
+    "already_registered": "You are already registered to this event"
+  }
+}

@@ -7,6 +7,7 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -50,17 +51,25 @@ function PasswordRequirement({
 }
 
 export default function PasswordStrengthInput(props: PasswordInputProps) {
+  const { t } = useTranslation("auth");
   const [popoverOpened, setPopoverOpened] = useState(false);
 
   const password = (props.value as string) || "";
 
-  const checks = requirements.map((requirement, index) => (
-    <PasswordRequirement
-      key={index}
-      label={requirement.label}
-      meets={requirement.re.test(password)}
-    />
-  ));
+  const checks = requirements.map((requirement, index) => {
+    const labels: Record<string, string> = {
+      "Includes number": t("password.requirement_number"),
+      "Includes uppercase letter": t("password.requirement_uppercase"),
+      "Includes special character": t("password.requirement_special"),
+    };
+    return (
+      <PasswordRequirement
+        key={index}
+        label={labels[requirement.label] || requirement.label}
+        meets={requirement.re.test(password)}
+      />
+    );
+  });
 
   const strength = getStrength(password);
   const color = strength === 100 ? "teal" : strength > 50 ? "yellow" : "red";
@@ -91,7 +100,7 @@ export default function PasswordStrengthInput(props: PasswordInputProps) {
           <Progress color={color} value={strength} size={5} mb="xs" />
 
           <PasswordRequirement
-            label="Includes at least 12 characters"
+            label={t("password.requirement_length")}
             meets={password.length > 11}
           />
           {checks}

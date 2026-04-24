@@ -19,6 +19,7 @@ import {
 import { showErrorNotification } from "./components/common/NotificationToast.tsx";
 import type { AxiosError } from "axios";
 import type { ApiErrorData } from "./api/axios.ts";
+import "./i18n";
 
 // global error handling
 const queryClient = new QueryClient({

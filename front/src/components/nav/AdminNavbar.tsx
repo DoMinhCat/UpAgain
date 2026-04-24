@@ -10,6 +10,7 @@ import {
   IconArticle,
   IconBuildingStore,
   IconUser,
+  IconChevronRight,
 } from "@tabler/icons-react";
 import {
   Center,
@@ -29,6 +30,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import { useAuth } from "../../context/AuthContext";
 import { useAccountDetails } from "../../hooks/accountHooks";
+import { useTranslation } from "react-i18next";
+import { LANGUAGES } from "../../i18n/index";
+import { changeLanguage } from "../../utils/langUtils";
 
 interface NavbarLinkProps {
   icon: typeof IconHome2;
@@ -133,6 +137,11 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
     setColorScheme(scheme === "dark" ? "light" : "dark");
   };
 
+  const { t, i18n } = useTranslation();
+  const currentLanguage =
+    LANGUAGES.find((lang) => lang.lng === i18n.language)?.path ||
+    "united-kingdom";
+
   return (
     <nav className={classes.navbar}>
       <Center
@@ -218,6 +227,50 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
               >
                 {scheme === "dark" ? "Light mode" : "Dark mode"}
               </Menu.Item>
+
+              <Menu trigger="click" position="right-start" offset={5} withArrow>
+                <Menu.Target>
+                  <Menu.Item
+                    closeMenuOnClick={false}
+                    leftSection={
+                      <Image
+                        src={`/flags/${currentLanguage}.png`}
+                        w="14px"
+                        fit="contain"
+                      />
+                    }
+                    rightSection={<IconChevronRight size={14} />}
+                  >
+                    {
+                      LANGUAGES.find(
+                        (language) => language.path === currentLanguage,
+                      )?.label
+                    }
+                  </Menu.Item>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Label>Select Language</Menu.Label>
+                  {LANGUAGES.map((language) => (
+                    <Menu.Item
+                      disabled={language.path === currentLanguage}
+                      key={language.path}
+                      onClick={() => {
+                        i18n.changeLanguage(language.lng);
+                        localStorage.setItem("i18nextLng", language.lng);
+                      }}
+                      leftSection={
+                        <Image
+                          src={`/flags/${language.path}.png`}
+                          w="14px"
+                          fit="contain"
+                        />
+                      }
+                    >
+                      {language.label}
+                    </Menu.Item>
+                  ))}
+                </Menu.Dropdown>
+              </Menu>
 
               <Menu.Divider />
               <Menu.Item

@@ -1,0 +1,914 @@
+{
+  "dashboard": {
+    "title": "Bảng Điều Khiển Tổng Quan",
+    "total_users": "Tổng số người dùng",
+    "pending_requests": "Yêu cầu đang chờ",
+    "total_upscore": "Tổng UpScore",
+    "available_containers": "Thùng thu gom khả dụng",
+    "errors": {
+      "user_stats": "Có lỗi khi tải thống kê người dùng rồi",
+      "validation_stats": "Lỗi tải thống kê phê duyệt rồi nè",
+      "score_stats": "Không tải được tổng điểm UpScore rồi",
+      "container_stats": "Lỗi tải thống kê thùng thu gom rồi"
+    },
+    "stats": {
+      "users_since_last_month": " người dùng mới trong tháng này",
+      "waiting_validation": " yêu cầu đang đợi bạn phê duyệt",
+      "co2_avoided": " kg CO2 đã được cộng đồng cắt giảm",
+      "containers_in_service": "{{percent}}% thùng thu gom đang hoạt động"
+    }
+  },
+  "navigation": {
+    "title": "Truy Cập Nhanh",
+    "user": {
+      "title": "Người dùng",
+      "description": "Quản lý tài khoản người dùng"
+    },
+    "validation": {
+      "title": "Phê duyệt",
+      "description": "Duyệt hoặc từ chối các yêu cầu"
+    },
+    "container": {
+      "title": "Thùng thu gom",
+      "description": "Quản lý hệ thống thùng của UpAgain"
+    },
+    "event": {
+      "title": "Sự kiện/Workshop",
+      "description": "Quản lý các hoạt động cộng đồng"
+    },
+    "subscription": {
+      "title": "Gói thành viên",
+      "description": "Quản lý giá và tài khoản Premium"
+    },
+    "posts": {
+      "title": "Bài viết",
+      "description": "Quản lý bài viết cộng đồng và tài trợ"
+    },
+    "listings": {
+      "title": "Tin đăng",
+      "description": "Quản lý tin đăng của người dùng"
+    },
+    "finance": {
+      "title": "Trung tâm tài chính",
+      "description": "Phân tích doanh thu của UpAgain"
+    }
+  },
+  "history": {
+    "title": "Lịch Sử Admin",
+    "table": {
+      "timestamp": "Thời gian",
+      "admin": "Quản trị viên",
+      "module": "Chuyên mục",
+      "item_id": "ID đối tượng",
+      "action": "Hành động",
+      "transaction_id": "ID",
+      "no_records": "Hổng thấy lịch sử nào hết trơn"
+    },
+    "filters": {
+      "search": "Tìm kiếm",
+      "search_placeholder": "Tìm theo tên admin hoặc ID...",
+      "sort": "Sắp xếp",
+      "sort_placeholder": "Chọn cách sắp xếp",
+      "sort_recent": "Hoạt động mới nhất",
+      "sort_oldest": "Hoạt động cũ nhất",
+      "module": "Chuyên mục",
+      "module_placeholder": "Tất cả chuyên mục",
+      "material": "Vật liệu",
+      "status": "Trạng thái",
+      "category": "Danh mục",
+      "action": "Hành động",
+      "action_placeholder": "Tất cả hành động",
+      "apply": "Áp dụng",
+      "reset": "Đặt lại"
+    },
+    "details": {
+      "title": "Chi Tiết Lịch Sử",
+      "log_information": "Thông tin nhật ký",
+      "performed_by": "Thực hiện bởi",
+      "module_section": "Chương trình / Phần",
+      "reference_id": "ID tham chiếu",
+      "date_time": "Ngày & giờ",
+      "modification_comparison": "So sánh sự thay đổi",
+      "previous_state": "Trạng thái trước",
+      "updated_state": "Trạng thái sau",
+      "audit_note": "* Đây là bản ghi kiểm toán vĩnh viễn và không thể sửa được đâu nha.",
+      "ref_account": "Tài khoản #",
+      "ref_container": "Thùng #",
+      "ref_post": "Bài viết #",
+      "ref_event": "Sự kiện #",
+      "ref_comment": "Bình luận #",
+      "ref_listing": "Tin đăng #",
+      "ref_deposit": "Ký gửi #"
+    }
+  },
+  "modules": {
+    "employee": "Nhân viên",
+    "user": "Người dùng",
+    "pro": "Chuyên nghiệp",
+    "event": "Sự kiện",
+    "container": "Thùng thu gom",
+    "post": "Bài viết",
+    "comment": "Bình luận",
+    "listing": "Tin đăng",
+    "deposit": "Ký gửi",
+    "subscription": "Gói thành viên",
+    "finance_setting": "Cài đặt tài chính",
+    "posts": "Bài viết",
+    "finance": "Tài chính"
+  },
+  "users": {
+    "title": "Quản Lý Người Dùng",
+    "subtitle": "Quản lý tài khoản và phân quyền người dùng",
+    "export_csv": "Xuất file CSV",
+    "recover_accounts": "Khôi phục tài khoản",
+    "new_account": "Tạo tài khoản mới",
+    "search_placeholder": "Tìm theo tên, email hoặc ID...",
+    "sort": {
+      "recent_reg": "Đăng ký gần đây nhất",
+      "oldest_reg": "Đăng ký cũ nhất",
+      "recent_active": "Hoạt động gần đây nhất",
+      "oldest_active": "Hoạt động cũ nhất"
+    },
+    "roles": {
+      "all": "Tất cả các quyền",
+      "user": "Người dùng",
+      "pro": "Chuyên nghiệp",
+      "employee": "Nhân viên",
+      "admin": "Quản trị viên"
+    },
+    "status": {
+      "all": "Tất cả trạng thái",
+      "active": "Đang hoạt động",
+      "banned": "Đã bị chặn"
+    },
+    "table": {
+      "registered_on": "Ngày đăng ký",
+      "id": "ID",
+      "username": "Tên người dùng",
+      "email": "Email",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "last_active": "Hoạt động cuối",
+      "actions": "Thao tác",
+      "no_users": "Hổng tìm thấy người dùng nào hết"
+    },
+    "delete_modal": {
+      "title": "Xóa tài khoản này hả?",
+      "text": "Bạn có chắc muốn xóa tài khoản này không? Tài khoản sẽ được chuyển vào mục khôi phục nha.",
+      "confirm": "Xóa luôn",
+      "cancel": "Thôi bỏ đi"
+    },
+    "create_modal": {
+      "title": "Tạo tài khoản mới",
+      "username": "Tên người dùng",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "confirm_password": "Xác nhận mật khẩu",
+      "phone": "Số điện thoại",
+      "role": "Vai trò",
+      "is_premium": "Gói Premium?",
+      "is_trial": "Dùng thử?",
+      "submit": "Tạo ngay"
+    },
+    "edit_modal": {
+      "title": "Chỉnh sửa tài khoản",
+      "submit": "Cập nhật",
+      "cancel": "Hủy bỏ"
+    },
+    "errors": {
+      "username_required": "Tên người dùng là bắt buộc nha",
+      "username_min": "Tên người dùng phải dài ít nhất 4 ký tự",
+      "username_max": "Tên người dùng tối đa 20 ký tự thôi nè",
+      "email_required": "Email đâu rồi ta?",
+      "email_invalid": "Email không đúng định dạng rồi",
+      "password_required": "Mật khẩu là bắt buộc nha",
+      "password_min": "Mật khẩu phải dài ít nhất 12 ký tự",
+      "password_max": "Mật khẩu tối đa 60 ký tự thôi nè",
+      "password_complexity": "Mật khẩu phải có số, chữ hoa và ký tự đặc biệt mới xịn!",
+      "confirm_required": "Nhập lại mật khẩu cái nè",
+      "confirm_mismatch": "Mật khẩu không khớp rồi",
+      "phone_numbers_only": "Số điện thoại chỉ được chứa số thôi nha",
+      "phone_min": "Số điện thoại phải dài ít nhất 10 số đó",
+      "phone_max": "Số điện thoại tối đa 15 số thôi nè",
+      "role_required": "Vai trò là bắt buộc nha",
+      "export_failed": "Xuất file thất bại rồi",
+      "export_error": "Có lỗi khi xuất danh sách người dùng rồi."
+    },
+    "details": {
+      "title": "Chi Tiết Người Dùng",
+      "general_info": "Thông Tin Chung",
+      "contact": "Liên Lạc",
+      "activities": "Hoạt Động",
+      "danger_zone": "Khu vực nguy hiểm",
+      "fields": {
+        "username": "Tên người dùng",
+        "registered_on": "Ngày tham gia",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "subscription": "Gói thành viên",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "last_active": "Hoạt động cuối",
+        "total_deposits": "Tổng số món ký gửi",
+        "total_listings": "Tổng số tin đã đăng",
+        "total_spendings": "Tổng số tiền đã chi",
+        "total_events": "Tổng sự kiện được giao",
+        "total_posts": "Tổng bài viết đã đăng",
+        "total_listings_purchased": "Tổng tin đã mua",
+        "total_deposits_purchased": "Tổng món ký gửi đã mua",
+        "total_projects": "Tổng dự án đã đăng",
+        "n_a": "Chưa có",
+        "freemium": "Thành viên thường",
+        "premium": "Thành viên Premium",
+        "deleted": "Đã xóa",
+        "banned": "Đã bị chặn",
+        "active": "Đang hoạt động",
+        "posted": "đã đăng",
+        "assigned": "đã được giao",
+        "purchased": "đã mua",
+        "deposit_plural": "món",
+        "deposit_singular": "món",
+        "listing_plural": "tin",
+        "listing_singular": "tin",
+        "event_plural": "sự kiện/workshop",
+        "event_singular": "sự kiện/workshop",
+        "article_plural": "bài viết",
+        "article_singular": "bài viết",
+        "project_plural": "dự án",
+        "project_singular": "dự án",
+        "show_tasks": "Xem danh sách công việc",
+        "stats_error": "Hổng lấy được thống kê rồi"
+      },
+      "actions": {
+        "recover": "Khôi phục tài khoản",
+        "edit": "Sửa thông tin",
+        "change_password": "Đổi mật khẩu",
+        "ban": "Chặn tài khoản",
+        "unban": "Bỏ chặn tài khoản",
+        "delete": "Xóa tài khoản"
+      },
+      "tooltips": {
+        "edit_admin": "Hổng cho sửa tài khoản admin khác đâu nha",
+        "password_admin": "Hổng cho đổi mật khẩu admin khác đâu nha"
+      },
+      "modals": {
+        "recover_title": "Khôi Phục Tài Khoản",
+        "recover_text": "Bạn có chắc muốn khôi phục tài khoản này không? Người ta sẽ vào lại được đó.",
+        "delete_title": "Xóa Tài Khoản",
+        "delete_text": "Bạn có chắc muốn xóa tài khoản này không? Xóa này là xóa tạm, khôi phục được nha.",
+        "ban_title": "Chặn Tài Khoản",
+        "unban_title": "Bỏ Chặn Tài Khoản",
+        "ban_text": "Bạn có chắc muốn chặn người này không? Người ta hết vào được hệ thống luôn đó.",
+        "unban_text": "Bỏ chặn cho người ta nha? Họ sẽ vào lại được bình thường nè.",
+        "password_title": "Đổi Mật Khẩu",
+        "password_placeholder": "Mật khẩu mới nè",
+        "password_confirm_placeholder": "Nhập lại mật khẩu mới nha"
+      }
+    },
+    "deleted": {
+      "title": "Tài Khoản Đã Xóa",
+      "subtitle": "Khôi phục các tài khoản đã bị xóa tạm",
+      "table": {
+        "deleted_at": "Ngày xóa",
+        "no_users": "Hổng tìm thấy ai hết trơn"
+      }
+    }
+  },
+  "validations": {
+    "title": "Trung Tâm Phê Duyệt",
+    "tabs": {
+      "overview": "Tổng quan",
+      "deposits": "Ký gửi",
+      "listings": "Tin đăng",
+      "events": "Sự kiện",
+      "history": "Lịch sử phê duyệt"
+    },
+    "overview": {
+      "pending": "Tổng đang chờ",
+      "approved": "Tổng đã duyệt",
+      "refused": "Tổng từ chối",
+      "rate": "Tỉ lệ phê duyệt",
+      "distribution": "Phân bổ trạng thái chung",
+      "breakdown": "Chi tiết theo loại",
+      "types": {
+        "deposit": "Ký gửi",
+        "listing": "Tin đăng",
+        "event": "Sự kiện"
+      }
+    },
+    "table": {
+      "submitted_on": "Ngày gửi",
+      "executed_on": "Đã tạo lúc",
+      "title": "Tiêu đề",
+      "user": "Người dùng",
+      "creator": "Người tạo",
+      "container": "Thùng thu gom",
+      "material": "Vật liệu",
+      "city": "Thành phố",
+      "price": "Giá",
+      "category": "Chuyên mục",
+      "start_date": "Ngày bắt đầu",
+      "search_placeholder": "Tìm theo tiêu đề, người dùng hoặc ID...",
+      "actions": {
+        "approve": "Duyệt",
+        "refuse": "Từ chối"
+      },
+      "no_pending": {
+        "deposits": "Hổng có yêu cầu ký gửi nào đang chờ hết.",
+        "listings": "Hổng thấy tin đăng nào đang chờ duyệt hết á.",
+        "events": "Chưa có sự kiện nào đang chờ bạn duyệt nè."
+      }
+    },
+    "history": {
+      "error": "Hổng lấy được lịch sử rồi, lỗi gì á.",
+      "no_history": "Hổng thấy lịch sử nào hết trơn."
+    },
+    "refuse_modal": {
+      "title": "Từ Chối Phê Duyệt",
+      "text": "Cho xin cái lý do từ chối để còn lưu lại log nha.",
+      "text_shared": "Cho xin cái lý do từ chối để hệ thống gửi cho người dùng biết nha.",
+      "label": "Lý do từ chối",
+      "placeholder": "Viết vài dòng giải thích tại sao từ chối nè...",
+      "confirm": "Từ chối ngay",
+      "cancel": "Thôi quay lại"
+    },
+    "details": {
+      "title": "Chi Tiết Phê Duyệt",
+      "types": {
+        "listings": "Tin đăng",
+        "deposits": "Ký gửi",
+        "events": "Sự kiện"
+      },
+      "waiting_validation": "Đang đợi gật đầu nè",
+      "general_info": "Thông Tin Chung",
+      "item_details": "Chi Tiết Món Đồ",
+      "event_details": "Chi Tiết Sự Kiện",
+      "decision": "Ra Quyết Định",
+      "decision_desc": "Coi kỹ thông tin trước khi nhấn nút nha bạn ơi.",
+      "fields": {
+        "title": "Tiêu đề",
+        "description": "Mô tả",
+        "no_description": "Hổng thấy mô tả gì hết.",
+        "created_at": "Ngày tạo",
+        "material": "Chất liệu",
+        "condition": "Tình trạng",
+        "weight": "Khối lượng",
+        "price": "Giá",
+        "location": "Địa điểm & Người dùng",
+        "category": "Danh mục",
+        "scheduled_date": "Ngày diễn ra",
+        "at": " lúc ",
+        "capacity": "Sức chứa",
+        "spots": "{{count}} chỗ",
+        "unlimited": "Vô tư luôn",
+        "organizer": "Người tổ chức"
+      },
+      "actions": {
+        "approve": "Duyệt luôn",
+        "refuse": "Từ chối"
+      },
+      "refuse_modal": {
+        "title": "Lý do từ chối (Bắt buộc nha)",
+        "placeholder": "Giải thích xíu tại sao từ chối nè...",
+        "confirm": "Xác nhận từ chối"
+      }
+    }
+  },
+  "containers": {
+    "title": "Quản Lý Thùng Thu Gom",
+    "stats": {
+      "inventory": "Tổng Kho Hàng",
+      "inventory_desc": "thùng thu gom trên toàn quốc",
+      "inventory_desc_single": "thùng thu gom trên toàn quốc",
+      "operational": "Tỷ Lệ Hoạt Động",
+      "operational_desc": "thùng đã sẵn sàng để thu gom",
+      "operational_desc_single": "thùng đã sẵn sàng để thu gom",
+      "distribution": "Phân Bố Kho Hàng",
+      "label_containers": "Thùng thu gom"
+    },
+    "table": {
+      "location": "Vị trí",
+      "zip": "Mã bưu điện",
+      "no_containers": "Hổng thấy thùng nào hết trơn",
+      "search_placeholder": "Tìm theo thành phố hoặc mã bưu điện nha..."
+    },
+    "create_modal": {
+      "title": "Triển Khai Thùng Mới",
+      "street": "Địa chỉ",
+      "city": "Thành phố",
+      "zip": "Mã bưu điện",
+      "submit": "Triển khai ngay"
+    },
+    "delete_modal": {
+      "title": "Xác Nhận Lưu Trữ",
+      "text": "Bạn có chắc muốn dọn dẹp thùng #{{id}} ({{city}}) không? Nó sẽ được chuyển vào kho lưu trữ nha.",
+      "confirm": "Xác nhận xóa"
+    },
+    "details": {
+      "title": "Chi Tiết Thùng Thu Gom",
+      "general_info": "Thông tin chung",
+      "current_status": "Trạng thái hiện tại",
+      "change_status": "Thay đổi trạng thái",
+      "location": "Vị trí",
+      "change_location": "Thay đổi vị trí",
+      "created_on": "Ngày tạo",
+      "activities": "Hoạt động",
+      "current_object": "Đồ vật hiện tại",
+      "under_maintenance": "Thùng này đang được bảo trì rồi bạn ơi.",
+      "no_object": "Hổng có đồ vật nào đang chờ xử lý ở thùng này hết.",
+      "view_schedule": "Xem lịch trình của thùng",
+      "danger_zone": "Khu vực nguy hiểm",
+      "permanently_remove": "Xóa vĩnh viễn",
+      "permanently_remove_desc": "Thao tác này sẽ gỡ thùng ra khỏi hệ thống vận hành nha.",
+      "delete_button": "Xóa thùng ngay",
+      "schedule_title": "Lịch trình thùng #{{id}}",
+      "drop_off": "[Gửi đồ] ",
+      "pick_up": "[Nhận đồ] "
+    }
+  },
+  "listings": {
+    "title": "Quản Lý Đồ Vật",
+    "stats": {
+      "active_objects": "Tổng Đồ Vật Đang Hoạt Động *",
+      "new_objects_desc": " món đồ mới được đăng từ tháng trước",
+      "new_objects_desc_single": " món đồ mới được đăng từ tháng trước",
+      "pending_approval": "Đang Chờ Duyệt *",
+      "require_validation": " món đồ cần được kiểm duyệt ngay",
+      "require_validation_single": " món đồ cần được kiểm duyệt ngay",
+      "completed_transactions": "Giao Dịch Đã Hoàn Thành",
+      "new_transactions_desc": " giao dịch mới từ tháng trước",
+      "new_transactions_desc_single": " giao dịch mới từ tháng trước",
+      "timeframe_note": "* Thời gian không áp dụng cho các chỉ số này nha"
+    },
+    "analytics": {
+      "title": "Phân Tích Đồ Vật",
+      "desc": "Phân bổ theo chất liệu và danh mục",
+      "by_material": "Theo Chất Liệu",
+      "by_type": "Theo Loại",
+      "no_data": "Hổng có dữ liệu nào trong khoảng thời gian này hết"
+    },
+    "filters": {
+      "title": "Quản lý tin đăng và đồ ký gửi",
+      "search_placeholder": "Tìm theo tên chủ sở hữu, ID hoặc tiêu đề...",
+      "sort": {
+        "most_recent": "Mới đăng gần đây",
+        "oldest": "Đăng từ đời nào rồi",
+        "highest_price": "Giá trên trời",
+        "lowest_price": "Giá hạt dẻ"
+      },
+      "category": "Loại hình",
+      "status": "Trạng thái",
+      "material": "Chất liệu",
+      "state": "Độ mới",
+      "weight": "Cân nặng"
+    },
+    "table": {
+      "creator": "Người tạo",
+      "no_items": "Hổng tìm thấy món nào hết"
+    },
+    "delete_modal": {
+      "title": "Xóa món này hả?",
+      "text": "Bạn có chắc muốn xóa món đồ này không? Nó sẽ được chuyển vào kho lưu trữ nha."
+    },
+    "details": {
+      "title": "Chi Tiết Món Đồ",
+      "submitted_on": "Đã tạo vào lúc {{date}}",
+      "photos": "Hình ảnh",
+      "access_info": "Thông tin ra vào",
+      "no_access_code": "Món này chưa có mã ra vào đâu nha.",
+      "owner": "Mã của chủ đồ",
+      "buyer": "Mã của người mua",
+      "six_digits_code": "MÃ 6 CHỮ SỐ NHA",
+      "valid_from": "Có hiệu lực từ: ",
+      "valid_to": "Hết hạn lúc: ",
+      "buyer_code_waiting": "Đang đợi người mua lấy mã nha.",
+      "posted_by": "Đăng bởi",
+      "edit_item": "Sửa món này",
+      "reopen_item": "Mở lại món này",
+      "approve_item": "Duyệt món này",
+      "delete_item": "Xóa món này",
+      "transfer_container": "Chuyển sang thùng khác",
+      "edit_modal": {
+        "title": "Sửa Thông Tin Món Đồ",
+        "description_label": "Mô tả"
+      },
+      "transfer_modal": {
+        "title": "Chuyển Sang Thùng Khác",
+        "choose": "Chọn thùng mới cho món này nha",
+        "confirm": "Chuyển luôn"
+      },
+      "status_modal": {
+        "title": "Cập Nhật Trạng Thái",
+        "reopen": "Mở lại món đồ",
+        "approve": "Duyệt món đồ",
+        "delete": "Xóa món đồ",
+        "confirm": "Bạn có chắc muốn {{action}} món này không?"
+      },
+      "transactions": {
+        "title": "Lịch Sử Giao Dịch",
+        "no_transactions": "Hổng có giao dịch nào hết",
+        "cancel_modal_title": "Hủy giao dịch",
+        "cancel_confirm": "Bạn có chắc muốn hủy giao dịch #{{id}} không? Hủy là hổng có quay lại được đâu đó."
+      }
+    }
+  },
+  "posts": {
+    "title": "Quản Lý Bài Viết",
+    "manage_subtitle": "Quản lý bài viết và dự án",
+    "new_post": "Bài Viết Mới",
+    "stats": {
+      "total_active": "Tổng bài đang hoạt động",
+      "posts_since": " bài mới từ tháng trước",
+      "engagement_rate": "Tỷ lệ tương tác",
+      "interactions_per_post": " tương tác mỗi bài",
+      "distribution": "Phân bổ bài viết theo danh mục",
+      "posts_count": "Bài viết"
+    },
+    "filters": {
+      "search_placeholder": "Tìm theo tên, ID hoặc tiêu đề...",
+      "sort_options": {
+        "most_recent_creation": "Mới đăng nhất",
+        "oldest_creation": "Cũ nhất",
+        "highest_like": "Nhiều like nhất",
+        "lowest_like": "Ít like nhất",
+        "highest_view": "Nhiều lượt xem nhất",
+        "lowest_view": "Ít lượt xem nhất"
+      }
+    },
+    "table": {
+      "created_on": "Ngày tạo",
+      "id": "ID",
+      "title": "Tiêu đề",
+      "creator": "Người tạo",
+      "category": "Danh mục",
+      "views": "Lượt xem",
+      "likes": "Lượt thích",
+      "actions": "Hành động",
+      "no_posts": "Hổng tìm thấy bài nào hết"
+    },
+    "categories": {
+      "all": "Tất cả danh mục",
+      "tutorial": "Hướng dẫn",
+      "project": "Dự án",
+      "tips": "Mẹo hay",
+      "news": "Tin tức",
+      "case_study": "Nghiên cứu tình huống",
+      "other": "Khác",
+      "sponsored": "Được tài trợ"
+    },
+    "create_modal": {
+      "title": "Tạo Bài Viết",
+      "title_label": "Tiêu đề",
+      "title_placeholder": "Viết cái tiêu đề đỉnh đạc nào nha",
+      "category_label": "Danh mục",
+      "category_placeholder": "Chọn danh mục",
+      "content_label": "Nội dung",
+      "content_placeholder": "Viết nội dung bài ở đây nha...",
+      "errors": {
+        "title": "Tiêu đề không được bỏ trống",
+        "category": "Danh mục là bắt buộc nha",
+        "category_project": "Chỉ pro mới tạo dự án được",
+        "description": "Nội dung bài viết không được bỏ trống"
+      }
+    },
+    "delete_modal": {
+      "title": "Xóa bài này hả?",
+      "text": "Bạn có chắc muốn xóa bài viết này không?",
+      "confirm": "Xóa luôn",
+      "cancel": "Thôi bỏ đi"
+    },
+    "details": {
+      "title": "Chi Tiết Bài Viết",
+      "photos": "Hình ảnh",
+      "project_steps": "Các bước dự án",
+      "items_used": "Những đồ dùng trong bước này",
+      "created_on": "Được tạo vào",
+      "written_by": "Viết bởi",
+      "engagement": "Hiệu suất tương tác",
+      "views": "Lượt xem",
+      "likes": "Lượt thích",
+      "saves": "Lượt lưu",
+      "comments": "Bình luận",
+      "no_comments": "Chưa có bình luận nào hết",
+      "sponsored": "Được tài trợ",
+      "delete_step_tooltip": "Xóa bước này",
+      "delete_comment_tooltip": "Xóa bình luận",
+      "anonymous": "Nặc danh",
+      "edit_post": "Sửa bài",
+      "delete_post": "Xóa bài",
+      "create_ads": "Tạo quảng cáo",
+      "edit_ads": "Sửa quảng cáo",
+      "remove_ads": "Xóa quảng cáo"
+    },
+    "edit_modal": {
+      "title": "Sửa bài viết",
+      "title_label": "Tiêu đề",
+      "category_label": "Danh mục",
+      "description_label": "Mô tả bài viết",
+      "cancel": "Thôi",
+      "confirm": "Xác nhận"
+    },
+    "delete_post_modal": {
+      "title": "Xóa bài viết",
+      "text": "Bạn có chắc muốn xóa bài viết này không?",
+      "cancel": "Thôi",
+      "confirm": "Xác nhận"
+    },
+    "delete_comment_modal": {
+      "title": "Xóa bình luận",
+      "text": "Bạn có chắc muốn xóa bình luận này không?",
+      "cancel": "Thôi",
+      "confirm": "Xác nhận"
+    },
+    "delete_step_modal": {
+      "title": "Xóa bước dự án",
+      "text": "Bạn có chắc muốn xóa bước này không?",
+      "cancel": "Thôi",
+      "confirm": "Xác nhận"
+    },
+    "ads_modal": {
+      "add_title": "Thêm trạng thái tài trợ",
+      "edit_title": "Sửa trạng thái tài trợ",
+      "remove_title": "Xóa trạng thái tài trợ",
+      "remove_text": "Bạn có chắc muốn xóa tài trợ khỏi bài viết này không?",
+      "start_date": "Ngày bắt đầu",
+      "end_date": "Ngày kết thúc",
+      "duration": "Thời gian (tháng)",
+      "date_placeholder": "Chọn ngày",
+      "cancel": "Thôi bỏ",
+      "confirm": "Xác nhận",
+      "errors": {
+        "start_required": "Ngày bắt đầu là bắt buộc",
+        "start_future": "Ngày bắt đầu phải trong tương lai nha",
+        "duration_required": "Thời gian là bắt buộc",
+        "duration_min": "Tối thiểu 1 tháng nha",
+        "end_required": "Ngày kết thúc là bắt buộc",
+        "end_after_start": "Ngày kết thúc phải sau ngày bắt đầu"
+      }
+    },
+    "notifications": {
+      "created_title": "Bài viết được tạo",
+      "created_msg": "Bài viết mới được tạo thành công rồi!",
+      "deleted_title": "Bài viết được xóa",
+      "deleted_msg": "Bài viết được xóa thành công rồi!"
+    }
+  },
+  "events": {
+    "title": "Quản Lý Sự Kiện",
+    "manage_subtitle": "Quản lý sự kiện và phân công nhân viên nè",
+    "new_event": "Sự Kiện Mới",
+    "create_modal": {
+      "title": "Tạo Sự Kiện",
+      "title_label": "Tiêu đề",
+      "title_placeholder": "Đặt cái tên nào kêu kêu xíu nha",
+      "capacity_label": "Sức chứa",
+      "capacity_placeholder": "Tối đa bao nhiêu người tham gia nè",
+      "capacity_suffix": " người",
+      "price_label": "Giá vé",
+      "price_placeholder": "Phí tham gia - (0 là miễn phí nha)",
+      "street_label": "Địa chỉ",
+      "street_placeholder": "Số nhà, tên đường...",
+      "city_label": "Thành phố",
+      "city_placeholder": "Hồ Chí Minh",
+      "location_detail_label": "Chi tiết địa điểm thêm",
+      "location_detail_placeholder": "Phòng 12, lầu 2...",
+      "start_date_label": "Ngày bắt đầu",
+      "start_date_placeholder": "Khi nào thì khai mạc đây?",
+      "end_date_label": "Ngày kết thúc",
+      "end_date_placeholder": "Khi nào thì bế mạc nè?",
+      "category_label": "Danh mục",
+      "category_placeholder": "Chọn một cái danh mục nha",
+      "description_label": "Mô tả sự kiện",
+      "description_placeholder": "Viết gì đó hay hay về sự kiện đi nè...",
+      "errors": {
+        "title": "Tiêu đề là bắt buộc nha",
+        "capacity": "Sức chứa phải lớn hơn 0 chớ",
+        "price": "Giá vé hổng được âm đâu nha",
+        "street": "Cho xin cái tên đường đi",
+        "city": "Thành phố nào vậy cà?",
+        "category": "Chọn danh mục giùm cái nè",
+        "description": "Mô tả xíu cho người ta biết chớ",
+        "start_date": "Ngày bắt đầu đâu nè?",
+        "end_date": "Ngày kết thúc đâu nè?"
+      }
+    },
+    "stats": {
+      "total_active": "Tổng sự kiện đang chạy",
+      "new_event": " sự kiện mới trong {{time}}",
+      "new_events": " sự kiện mới trong {{time}}",
+      "upcoming_title": "Sự kiện sắp tới *",
+      "upcoming_desc": " sự kiện sắp diễn ra trong 30 ngày tới",
+      "upcoming_desc_plural": " sự kiện sắp diễn ra trong 30 ngày tới",
+      "registrations": "Lượt đăng ký",
+      "registration": " lượt đăng ký trong {{time}}",
+      "registrations_in": " lượt đăng ký trong {{time}}",
+      "pending_title": "Đang chờ duyệt *",
+      "pending_desc": " sự kiện đang đợi bạn gật đầu nè",
+      "pending_desc_plural": " sự kiện đang đợi bạn gật đầu nè",
+      "timeframe_note": "* Thời gian hổng áp dụng cho mấy cái này nha"
+    },
+    "filters": {
+      "search_placeholder": "Tìm theo tên nhân viên, ID hoặc tiêu đề...",
+      "sort_placeholder": "Chọn cách sắp xếp nha",
+      "sort_options": {
+        "most_recent_creation": "Mới tạo gần đây nhất",
+        "oldest_creation": "Tạo từ đời nào rồi",
+        "highest_price": "Giá cao ngất ngưỡng",
+        "lowest_price": "Giá rẻ bèo nhèo",
+        "earliest_start_date": "Bắt đầu sớm nhất",
+        "latest_start_date": "Bắt đầu trễ nhất"
+      }
+    },
+    "table": {
+      "no_events": "Hổng tìm thấy sự kiện nào hết trơn.",
+      "creator": "Người tạo",
+      "start_date": "Ngày bắt đầu",
+      "end_date": "Ngày kết thúc"
+    },
+    "details": {
+      "title": "Chi Tiết Sự Kiện",
+      "no_specified_date": "Chưa có ngày cụ thể nha",
+      "unlimited": "Vô tư luôn",
+      "people_max": "Tối đa {{count}} người nha",
+      "edit_event": "Chỉnh sửa sự kiện",
+      "reopen_event": "Mở lại sự kiện",
+      "approve_event": "Duyệt sự kiện",
+      "cancel_event": "Hủy sự kiện",
+      "assigned_employees": {
+        "title": "Nhân viên phụ trách",
+        "assign_button": "Phân công nhân viên",
+        "tooltip_assign": "Sự kiện phải được duyệt mới phân công được nha",
+        "tooltip_unassign": "Sự kiện phải được duyệt mới rút phân công được nha",
+        "modal_title": "Phân công nhân viên",
+        "select_label": "Nhân viên",
+        "error_select": "Chọn ít nhất một người giùm cái nè",
+        "no_employees_available": "Hổng có nhân viên nào rảnh hết trơn",
+        "unassign_modal_title": "Rút Phân Công",
+        "unassign_confirm": "Bạn có chắc muốn rút nhân viên này khỏi sự kiện hông?",
+        "no_assigned": "Chưa có nhân viên nào được phân công hết.",
+        "table": {
+          "assigned_on": "Đã phân công lúc"
+        }
+      },
+      "cancel_modal": {
+        "reopen_title": "Mở Lại Sự Kiện",
+        "approve_title": "Duyệt Sự Kiện",
+        "cancel_title": "Hủy Sự Kiện",
+        "reopen_msg": "Bạn có chắc muốn mở lại sự kiện này không? Mọi người sẽ thấy nó lại đó nha.",
+        "approve_msg": "Duyệt sự kiện này nha? Nó sẽ được đăng lên cho bàn dân thiên hạ cùng thấy nè.",
+        "cancel_msg": "Bạn có chắc muốn hủy sự kiện này hông? Hệ thống sẽ báo cho mấy người đã đăng ký biết đó nha.",
+        "confirm_reopen": "Xác nhận mở lại",
+        "confirm_approve": "Xác nhận duyệt",
+        "confirm_cancel": "Xác nhận hủy"
+      }
+    }
+  },
+  "subscriptions": {
+    "title": "Quản Lý Gói Hội Viên",
+    "stats": {
+      "total": "Tổng số hội viên *",
+      "active": " đang hoạt động nha",
+      "new": "Hội viên mới",
+      "new_desc": " có {{timeLabel}} hội viên mới",
+      "new_desc_plural": " có {{timeLabel}} hội viên mới",
+      "active_trials": "Đang dùng thử *",
+      "trials_desc": " người đang dùng thử",
+      "trials_desc_plural": " người đang dùng thử",
+      "cancellations": "Đã hủy *",
+      "total_cancellations": " tổng số người đã hủy",
+      "timeframe_note": "* Mấy cái này hổng có tính theo thời gian nha"
+    },
+    "settings": {
+      "price_label": "Giá gói Hội Viên Premium",
+      "trial_period": "Thời gian dùng thử",
+      "modify": "Sửa lại nè",
+      "update_trial_title": "Cập Nhật Thời Gian Dùng Thử",
+      "trial_days": "Số ngày dùng thử",
+      "update_price_title": "Cập Nhật Giá Gói Hội Viên",
+      "new_price": "Giá mới nè (€)"
+    },
+    "filters": {
+      "search_placeholder": "Tìm theo tên hoặc ID nha...",
+      "sort_options": {
+        "oldest": "Cũ nhất trước nha",
+        "ends_earliest": "Hết hạn sớm nhất",
+        "ends_latest": "Hết hạn trễ nhất"
+      },
+      "types": {
+        "all": "Tất cả các loại",
+        "trial": "Dùng thử",
+        "premium": "Xịn xò (Premium)"
+      }
+    },
+    "tabs": {
+      "active": "Đang dùng",
+      "canceled": "Đã hủy"
+    },
+    "table": {
+      "start_date": "Ngày bắt đầu",
+      "end_date": "Ngày hết hạn",
+      "cancel_reason": "Lý do hủy",
+      "no_subscriptions": "Hổng tìm thấy gói hội viên nào hết."
+    },
+    "details": {
+      "title": "Chi Tiết Gói Hội Viên",
+      "general_info": "Thông tin chung",
+      "user_info": "Thông tin người dùng",
+      "subscription_status": "Trạng thái gói",
+      "billing_info": "Thông tin thanh toán",
+      "cancel_subscription": "Hủy gói hội viên",
+      "cancel_subscription_desc": "Hủy cái này là người ta mất quyền lợi Premium liền luôn đó.",
+      "cancel_modal": {
+        "title": "Hủy Gói Hội Viên",
+        "reason_label": "Lý do hủy nè",
+        "reason_placeholder": "Ghi lý do vô đây (hổng bắt buộc)...",
+        "confirm": "Hủy luôn cho rồi"
+      }
+    }
+  },
+  "finance": {
+    "title": "Quản Lý Tài Chính",
+    "edit_settings": "Sửa Cài Đặt",
+    "summary": {
+      "ads": "Quảng cáo",
+      "commissions": "Hoa hồng",
+      "events": "Sự kiện",
+      "subscriptions": "Gói đăng ký"
+    },
+    "revenue": {
+      "title": "Doanh Thu Hàng Tháng",
+      "chart": {
+        "subscriptions": "Đăng ký",
+        "commissions": "Hoa hồng",
+        "ads": "Quảng cáo",
+        "events": "Sự kiện"
+      }
+    },
+    "invoices": {
+      "title": "Hóa Đơn Theo Người Dùng",
+      "search_placeholder": "Tìm theo tên hoặc email nè...",
+      "sort_placeholder": "Sắp xếp theo",
+      "sort_options": {
+        "most_spending": "Đại gia chịu chi",
+        "least_spending": "Tiết kiệm là quốc sách",
+        "most_invoices": "Nhiều hóa đơn nhất",
+        "least_invoices": "Ít hóa đơn nhất"
+      },
+      "table": {
+        "user": "Người dùng",
+        "email": "Email",
+        "role": "Vai trò",
+        "total_invoices": "Tổng hóa đơn",
+        "total_spending": "Tổng chi tiêu",
+        "no_users": "Hổng thấy ai hết trơn.",
+        "view_invoices": "Xem hóa đơn"
+      },
+      "modal": {
+        "title": "Hóa Đơn — {{username}}",
+        "loading": "Đang lấy hóa đơn, đợi xíu nha...",
+        "no_invoices": "Người này hổng có hóa đơn nào hết.",
+        "download_invoice": "Tải hóa đơn về máy",
+        "table": {
+          "date": "Ngày",
+          "type": "Loại",
+          "description": "Mô tả",
+          "details": "Chi tiết",
+          "total_paid": "Tổng thanh toán"
+        }
+      }
+    },
+    "settings_modal": {
+      "title": "Cài Đặt Tài Chính",
+      "disclaimer": "Sửa cái là ăn ngay nha. Đơn vị tính là Euro (€) đó.",
+      "labels": {
+        "trial_days": "Số ngày dùng thử",
+        "commission_rate": "Tỷ lệ hoa hồng (%)",
+        "subscription_price": "Giá gói đăng ký (€)",
+        "ads_price_per_month": "Giá quảng cáo / tháng (€)"
+      },
+      "last_updated": "Cập nhật lần cuối: {{date}}",
+      "save": "Lưu lại",
+      "success_title": "Cập nhật xong rồi nha",
+      "success_msg": "Đã sửa xong mục {{setting}} rồi nè.",
+      "error_title": "Cập nhật thất bại rồi"
+    }
+  },
+  "status": {
+    "ready": "Sẵn sàng",
+    "occupied": "Đang dùng",
+    "maintenance": "Bảo trì",
+    "waiting": "Đang chờ",
+    "pending": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "refused": "Bị từ chối",
+    "completed": "Hoàn thành",
+    "active": "Đang hoạt động",
+    "banned": "Bị cấm",
+    "deleted": "Đã xóa"
+  },
+  "actions": {
+    "create": "Tạo mới",
+    "update": "Cập nhật",
+    "delete": "Xóa"
+  }
+}
