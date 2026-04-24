@@ -42,9 +42,9 @@ export function GuestNavBar() {
       {/* 2. Navigation Section */}
       <Group h="100%" gap="sm" visibleFrom="sm">
         <HeaderLink label={t("community:community")} path={PATHS.GUEST.POSTS} />
-        <HeaderLink label="About Us" path={PATHS.GUEST.ABOUT} />
-        <HeaderLink label="Pricing" path={PATHS.GUEST.PRICING} />
-        <HeaderLink label="Contact" path={PATHS.GUEST.CONTACT} />
+        <HeaderLink label={t("common:about_us")} path={PATHS.GUEST.ABOUT} />
+        <HeaderLink label={t("common:pricing")} path={PATHS.GUEST.PRICING} />
+        <HeaderLink label={t("common:contact")} path={PATHS.GUEST.CONTACT} />
       </Group>
 
       {/* 3. Actions Section */}
@@ -135,17 +135,17 @@ export function GuestNavBar() {
             onClick={closeDrawer}
           />
           <HeaderLink
-            label="About Us"
+            label={t("common:about_us")}
             path={PATHS.GUEST.ABOUT}
             onClick={closeDrawer}
           />
           <HeaderLink
-            label="Pricing"
+            label={t("common:pricing")}
             path={PATHS.GUEST.PRICING}
             onClick={closeDrawer}
           />
           <HeaderLink
-            label="Contact"
+            label={t("common:contact")}
             path={PATHS.GUEST.CONTACT}
             onClick={closeDrawer}
           />
