@@ -428,7 +428,7 @@ export const AdminPostDetails = () => {
 
       <Container p="lg" size="xl">
         {/* LEFT SECTION */}
-        <Grid gutter="xl" align="flex-start" mb="xl">
+        <Grid gap="xl" align="flex-start" mb="xl">
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap={0} style={{ width: "100%" }}>
               <Group>
