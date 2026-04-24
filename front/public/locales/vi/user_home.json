@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "title": "Chào {{username}} nè, cùng nhau giải cứu Trái đất, từng món đồ một nhé!",
+    "subtitle": "Nơi xịn sò để chia sẻ đồ đạc, tạo giá trị và cùng nhau 'tiễn biệt' rác thải."
+  },
+  "impact": {
+    "title": "Thành tích 'khủng' của bạn",
+    "subtitle": "Theo dõi 'dấu chân xanh' của bạn trong thời gian thực",
+    "co2_saved": "Tổng CO² đã 'né' được",
+    "elephant_comparison": "Nặng tương đương một chú Voi luôn đó, ghê chưa!",
+    "resources_saved": "Tài nguyên đã bảo vệ",
+    "water": "Nước sạch",
+    "electricity": "Điện năng",
+    "upcycling_score": "Điểm Upcycling",
+    "score_rank": "Nằm trong Top {{percentage}}% cao thủ Upcycling tháng này!",
+    "altogether_saved": "Cả hội mình đã cùng nhau cứu được <span>{{amount}}</span> kg CO2"
+  },
+  "manage": {
+    "title": "Đồ đạc đang 'lên sóng'",
+    "subtitle": "Theo dõi hành trình 'cũ người mới ta' của bạn.",
+    "listings_title": "Tin đăng",
+    "listings_status": "Bạn đang có <b>{{count}} món đồ</b> đang 'tìm chủ mới' ở <1>Cửa hàng</1>.",
+    "manage_listings": "Quản lý tất cả tin đăng →",
+    "deposits_title": "Ký gửi",
+    "deposits_status_one": "Còn 1 món đồ đang chờ bạn mang đến nè.",
+    "deposits_status_other": "Còn {{count}} món đồ đang chờ bạn mang đến nè.",
+    "track_deposits": "Theo dõi lịch ký gửi →",
+    "ready_to_do_more": "Muốn 'bung lụa' thêm không, {{username}} ơi?",
+    "create_listing": "Đăng tin mới",
+    "create_deposit": "Ký gửi đồ",
+    "explore_community": "Dạo quanh cộng đồng",
+    "guides_projects": "Bí kíp & Dự án",
+    "workshops_events": "Workshop & Sự kiện"
+  },
+  "community": {
+    "highlights": "Gương mặt tiêu biểu",
+    "highlights_desc": "Những dự án 'chất phát ngất' từ các thành viên khác.",
+    "quiet_community": "Cộng đồng đang hơi im ắng... chắc đang bận sáng tạo rồi. Đợi tí nha!",
+    "discover_topics": "Xem tất cả chủ đề →"
+  },
+  "agenda": {
+    "title": "Lịch trình của bạn",
+    "subtitle": "Đừng quên mấy cái hẹn Workshop thú vị nhé.",
+    "no_events_title": "Chưa có hẹn hò gì hết!",
+    "no_events_desc": "Đang rảnh tay hả? Đăng ký ngay một Workshop để học chiêu mới đi nào.",
+    "explore_workshops": "Khám phá Workshop & Sự kiện"
+  }
+}

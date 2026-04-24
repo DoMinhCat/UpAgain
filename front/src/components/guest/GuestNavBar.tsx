@@ -16,7 +16,6 @@ import classes from "../../styles/Guest.module.css";
 import { PATHS } from "../../routes/paths";
 import { ThemeToggleButton, HeaderLink } from "../nav/NavBarComponents";
 import { LANGUAGES } from "../../i18n/index";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "../../utils/langUtils";
 
@@ -101,14 +100,14 @@ export function GuestNavBar() {
             name="login"
             onClick={() => navigate(PATHS.GUEST.LOGIN)}
           >
-            {t("auth:login")}
+            {t("auth:login.login_btn")}
           </Button>
           <Button
             variant="primary"
             name="register"
             onClick={() => navigate(PATHS.GUEST.REGISTER)}
           >
-            {t("auth:register")}
+            {t("auth:login.register_btn")}
           </Button>
         </Group>
 
@@ -158,7 +157,7 @@ export function GuestNavBar() {
                 closeDrawer();
               }}
             >
-              {t("auth:login")}
+              {t("auth:login.login")}
             </Button>
             <Button
               variant="primary"
@@ -167,7 +166,7 @@ export function GuestNavBar() {
                 closeDrawer();
               }}
             >
-              {t("auth:register")}
+              {t("auth:login.register")}
             </Button>
           </Group>
         </Stack>

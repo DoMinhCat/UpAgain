@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "title": "Hi {{username}}, let's Save the Planet, One Piece at a Time.",
+    "subtitle": "One platform to share objects, create value, and reduce waste together."
+  },
+  "impact": {
+    "title": "Your impact so far",
+    "subtitle": "Real-time tracking of your environmental contribution",
+    "co2_saved": "Total CO² saved",
+    "elephant_comparison": "That is about 1 Elephant!",
+    "resources_saved": "Resources saved",
+    "water": "Water",
+    "electricity": "Electricity",
+    "upcycling_score": "Upcycling Score",
+    "score_rank": "Top {{percentage}}% of Upcyclers this month!",
+    "altogether_saved": "Altogether we saved <span>{{amount}}</span> kg of CO2"
+  },
+  "manage": {
+    "title": "My active objects",
+    "subtitle": "Track your ongoing contributions to the circular economy.",
+    "listings_title": "Listings",
+    "listings_status": "You have <b>{{count}} active</b> items in the <1>Marketplace</1>.",
+    "manage_listings": "Manage all listings →",
+    "deposits_title": "Deposits",
+    "deposits_status_one": "1 object to be delivered.",
+    "deposits_status_other": "{{count}} objects to be delivered.",
+    "track_deposits": "Track all my deposits →",
+    "ready_to_do_more": "Ready to do more, {{username}}?",
+    "create_listing": "Create a listing",
+    "create_deposit": "Create a deposit",
+    "explore_community": "Explore the community",
+    "guides_projects": "Guides & Projects",
+    "workshops_events": "Workshops & Events"
+  },
+  "community": {
+    "highlights": "Community Highlights",
+    "highlights_desc": "Inspiring projects and top guides from our global members.",
+    "quiet_community": "The community is quiet... for now. Stay tuned for inspiring new projects!",
+    "discover_topics": "Discover all topics →"
+  },
+  "agenda": {
+    "title": "Your Agenda",
+    "subtitle": "Track your upcoming workshops and events.",
+    "no_events_title": "No upcoming events",
+    "no_events_desc": "Ready to learn a new upcycling skill? Join a workshop today.",
+    "explore_workshops": "Explore our workshops and events"
+  }
+}

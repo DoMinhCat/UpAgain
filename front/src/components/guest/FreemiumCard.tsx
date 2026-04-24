@@ -8,6 +8,7 @@ import {
   ThemeIcon,
   Button,
 } from "@mantine/core";
+import { useTranslation, Trans } from "react-i18next";
 import { IconCheck, IconStar } from "@tabler/icons-react";
 
 interface FreemiumCardProps {
@@ -16,6 +17,7 @@ interface FreemiumCardProps {
 }
 
 export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
+  const { t } = useTranslation("auth");
   return (
     <Paper
       withBorder
@@ -68,10 +70,10 @@ export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
             <IconStar size={32} fill="currentColor" />
           </ThemeIcon>
           <Title order={4} size={32} mt="md" c="var(--mantine-color-text)">
-            Freemium
+            {t("plans.freemium.title")}
           </Title>
           <Text c="var(--mantine-color-dimmed)" size="sm" ta="center" px="md">
-            Get started with essential features.
+            {t("plans.freemium.subtitle")}
           </Text>
         </Stack>
 
@@ -91,17 +93,22 @@ export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
         >
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              Up to <b>10</b> material deposits / month
+              <Trans
+                i18nKey="plans.freemium.feature_deposits"
+                ns="auth"
+                values={{ count: 10 }}
+                components={{ b: <b /> }}
+              />
             </Text>
           </List.Item>
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              Basic Dashboard
+              {t("plans.freemium.feature_dashboard")}
             </Text>
           </List.Item>
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              Community access
+              {t("plans.freemium.feature_community")}
             </Text>
           </List.Item>
         </List>
@@ -120,7 +127,7 @@ export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
               0€
             </Text>
             <Text c="var(--mantine-color-dimmed)" fw={600} pb={8}>
-              / month
+              {t("plans.premium.per_month")}
             </Text>
           </Group>
 
@@ -131,11 +138,13 @@ export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
             radius="xl"
             mt="sm"
           >
-            {selected ? "Freemium Selected" : "Select Freemium"}
+            {selected
+              ? t("plans.freemium.selected")
+              : t("plans.freemium.select")}
           </Button>
 
           <Text size="xs" c="var(--mantine-color-dimmed)" ta="center">
-            Free forever
+            {t("plans.freemium.free_forever")}
           </Text>
         </Stack>
       </Stack>
