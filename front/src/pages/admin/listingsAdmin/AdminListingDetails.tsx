@@ -481,7 +481,7 @@ export default function AdminListingDetails() {
       />
 
       <Container p="lg" size="xl">
-        <Grid gutter="xl" align="flex-start" mb="xl">
+        <Grid gap="xl" align="flex-start" mb="xl">
           {/* LEFT SECTION */}
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap={0} style={{ width: "100%" }}>

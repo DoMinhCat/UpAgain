@@ -113,7 +113,7 @@ export default function ContactPage() {
         </Text>
       </Stack>
 
-      <Grid gutter={50}>
+      <Grid gap={50}>
         {/* Contact Information */}
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Stack gap="xl">
@@ -246,7 +246,7 @@ export default function ContactPage() {
               Send us a message
             </Title>
             <form onSubmit={handleSubmit}>
-              <Grid gutter="md">
+              <Grid gap="md">
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput
                     label="First Name"

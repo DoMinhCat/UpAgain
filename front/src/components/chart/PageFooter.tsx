@@ -36,7 +36,7 @@ export default function PageFooter() {
       }}
     >
       <Container size="xl">
-        <Grid gutter={50}>
+        <Grid gap={50}>
           <Grid.Col span={{ base: 12, md: 4 }}>
             <Stack gap="md">
               <Title order={3} size="h3" fw={900}>

@@ -245,7 +245,7 @@ export default function EventDetailPage() {
                 { title: mockEvent.title, href: "#" },
               ]}
             />
-            <Grid gutter={40}>
+            <Grid gap={40}>
               {/* LEFT COLUMN: Main Info */}
               <Grid.Col span={{ base: 12, md: 8 }}>
                 <Stack gap={40}>

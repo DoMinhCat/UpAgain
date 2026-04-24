@@ -77,7 +77,7 @@ export const showSuccessNotification = (title = "Success", message: string) => {
         boxShadow: "var(--mantine-shadow-lg)",
 
         "&::before": {
-          backgroundColor: "var(--mantine-color-green-6)",
+          backgroundColor: "var(--upagain-neutral-green)",
         },
       },
     },

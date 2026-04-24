@@ -52,7 +52,7 @@ export function AdminHistoryDetails() {
         History Details
       </Title>
 
-      <Grid mt="xl" gutter="lg">
+      <Grid mt="xl" gap="lg">
         {/* Left Column: Metadata Summary */}
         <Grid.Col span={{ base: 12, md: 4, lg: 3 }}>
           <Stack gap="md">
@@ -238,7 +238,7 @@ export function AdminHistoryDetails() {
 
             <Divider />
 
-            <Grid gutter={0}>
+            <Grid gap={0}>
               {/* Old State */}
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Box p="md" style={{ border: "1px solid var(--border-color)" }}>
