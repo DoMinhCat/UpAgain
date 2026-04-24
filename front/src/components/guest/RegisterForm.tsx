@@ -11,6 +11,7 @@ import {
   Button,
   Divider,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconLock } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
 import { useState } from "react";
@@ -21,27 +22,26 @@ import { useRegister } from "../../hooks/authHooks";
 import { useNavigate } from "react-router-dom";
 
 export default function RegisterForm() {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   // password
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const validatePassword = (val: string) => {
     if (!val) {
-      setPasswordError("Password is required");
+      setPasswordError(t("register.errors.password_required"));
       return false;
     }
     if (val.length < 12) {
-      setPasswordError("Password must be at least 12 characters long");
+      setPasswordError(t("register.errors.password_min"));
       return false;
     }
     if (val.length > 60) {
-      setPasswordError("Password must be at most 60 characters long");
+      setPasswordError(t("register.errors.password_max"));
       return false;
     }
     if (!requirements.every((requirement) => requirement.re.test(val))) {
-      setPasswordError(
-        "Password must contain at least one number, one uppercase letter, and one special character",
-      );
+      setPasswordError(t("register.errors.password_complexity"));
       return false;
     }
     setPasswordError(null);
@@ -55,10 +55,10 @@ export default function RegisterForm() {
   >(null);
   const validateConfirmPassword = (val: string) => {
     if (!val) {
-      setConfirmPasswordError("You must confirm your password");
+      setConfirmPasswordError(t("register.errors.confirm_required"));
       return false;
     } else if (val !== password) {
-      setConfirmPasswordError("Passwords do not match");
+      setConfirmPasswordError(t("register.errors.confirm_mismatch"));
       return false;
     }
     setConfirmPasswordError(null);
@@ -74,10 +74,10 @@ export default function RegisterForm() {
   const validateEmail = (val: string) => {
     const regex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$/;
     if (!val) {
-      setEmailError("Email is required");
+      setEmailError(t("login.errors.email_required"));
       return false;
     } else if (!regex.test(val)) {
-      setEmailError("Invalid email format");
+      setEmailError(t("login.errors.email_invalid"));
       return false;
     }
     setEmailError(null);
@@ -89,15 +89,15 @@ export default function RegisterForm() {
   const [UsernameError, setUsernameError] = useState<string | null>(null);
   const validateUsername = (val: string) => {
     if (!val) {
-      setUsernameError("Username is required");
+      setUsernameError(t("register.errors.username_required"));
       return false;
     }
     if (val.length < 4) {
-      setUsernameError("Username must be at least 4 characters long");
+      setUsernameError(t("register.errors.username_min"));
       return false;
     }
     if (val.length > 20) {
-      setUsernameError("Username must be at most 20 characters long");
+      setUsernameError(t("register.errors.username_max"));
       return false;
     }
     setUsernameError(null);
@@ -109,19 +109,19 @@ export default function RegisterForm() {
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const validatePhone = (val: string) => {
     if (!val) {
-      setPhoneError("Phone number is required");
+      setPhoneError(t("register.errors.phone_required"));
       return false;
     }
     if (!val.match(/^[0-9]+$/)) {
-      setPhoneError("Phone number must contain only numbers");
+      setPhoneError(t("register.errors.phone_numbers_only"));
       return false;
     }
     if (val.length < 10) {
-      setPhoneError("Phone number must be at least 10 characters long");
+      setPhoneError(t("register.errors.phone_min"));
       return false;
     }
     if (val.length > 15) {
-      setPhoneError("Phone number must be at most 15 characters long");
+      setPhoneError(t("register.errors.phone_max"));
       return false;
     }
     setPhoneError(null);
@@ -151,11 +151,11 @@ export default function RegisterForm() {
 
   return (
     <Container size={520} my={40}>
-      <Title ta="center">Join us today!</Title>
+      <Title ta="center">{t("register.title")}</Title>
 
       <Text mt="sm" ta={"center"}>
-        Already have an account?{" "}
-        <Anchor href={PATHS.GUEST.LOGIN}>Sign in</Anchor>
+        {t("register.already_account")}{" "}
+        <Anchor href={PATHS.GUEST.LOGIN}>{t("login.submit")}</Anchor>
       </Text>
 
       <Paper
@@ -167,11 +167,11 @@ export default function RegisterForm() {
         variant="primary"
       >
         <form onSubmit={handleSubmit}>
-          <Fieldset legend="Credentials" variant="unstyled">
+          <Fieldset legend={t("register.credentials_legend")} variant="unstyled">
             <TextInput
               variant="body-color"
-              label="Email"
-              placeholder="example@gmail.com"
+              label={t("login.email_label")}
+              placeholder={t("login.email_placeholder")}
               radius="md"
               error={emailError}
               mb="md"
@@ -188,7 +188,7 @@ export default function RegisterForm() {
             <PasswordStrengthInput
               variant="body-color"
               withAsterisk
-              label="Password"
+              label={t("login.password_label")}
               placeholder="Your super secret"
               value={password}
               disabled={registerMutation.isPending}
@@ -203,10 +203,10 @@ export default function RegisterForm() {
             />
 
             <PasswordInput
-              label="Confirm Password"
+              label={t("register.confirm_password_label")}
               variant="body-color"
               leftSection={<IconLock size={14} />}
-              placeholder="Confirm your password"
+              placeholder={t("register.confirm_password_placeholder")}
               value={ConfirmPassword}
               mt="md"
               onChange={(event) => {
@@ -221,11 +221,11 @@ export default function RegisterForm() {
           </Fieldset>
           <Divider my="md" color="gray.5" />
 
-          <Fieldset legend="Personal information" variant="unstyled">
+          <Fieldset legend={t("register.personal_legend")} variant="unstyled">
             <TextInput
-              label="Username"
+              label={t("register.username_label")}
               variant="body-color"
-              placeholder="John Doe"
+              placeholder={t("register.username_placeholder")}
               radius="md"
               mb="md"
               error={UsernameError}
@@ -239,9 +239,9 @@ export default function RegisterForm() {
               required
             />
             <TextInput
-              label="Phone number"
+              label={t("register.phone_label")}
               variant="body-color"
-              placeholder="06 12 34 56 78"
+              placeholder={t("register.phone_placeholder")}
               withAsterisk
               radius="md"
               mb="md"
@@ -258,7 +258,7 @@ export default function RegisterForm() {
           <Checkbox
             mt="md"
             defaultChecked
-            label="I agree to sell my privacy to UpAgain"
+            label={t("register.privacy_agreement")}
             color="teal"
             required
           />
@@ -270,17 +270,17 @@ export default function RegisterForm() {
             disabled={registerMutation.isPending}
             loading={registerMutation.isPending}
           >
-            Register
+            {t("register.submit")}
           </Button>
         </form>
         <Text c="dimmed" size="sm" ta="center" mt="md">
-          Are you a professional?{" "}
+          {t("register.is_pro")}{" "}
           <Anchor
             onClick={() =>
               navigate(PATHS.GUEST.REGISTER, { state: { role: "pro" } })
             }
           >
-            Register here
+            {t("register.register_here")}
           </Anchor>
         </Text>
       </Paper>
