@@ -13,6 +13,7 @@ import {
   Card,
   Badge,
 } from "@mantine/core";
+import { useTranslation, Trans } from "react-i18next";
 import {
   IconLeaf,
   IconHammer,
@@ -23,29 +24,27 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import classes from "../../styles/Guest.module.css";
 
-const aboutFeatures = [
-  {
-    icon: IconHeartHandshake,
-    title: "Connect & Share",
-    description:
-      "Find local communities to share items you no longer need. Give objects a second life by passing them to those who will cherish them.",
-  },
-  {
-    icon: IconHammer,
-    title: "Upcycle & Create",
-    description:
-      "Transform ordinary discarded items into valuable treasures. Join upcycling workshops, learn new restoration skills, and monetize your creations.",
-  },
-  {
-    icon: IconLeaf,
-    title: "Reduce Waste",
-    description:
-      "Every upcycled item is a win for our planet! Track your CO2 savings and actively participate in building a circular, sustainable economy.",
-  },
-];
-
 export default function AboutPage() {
+  const { t } = useTranslation("about");
   const navigate = useNavigate();
+
+  const aboutFeatures = [
+    {
+      icon: IconHeartHandshake,
+      title: t("impact.features.connect.title"),
+      description: t("impact.features.connect.description"),
+    },
+    {
+      icon: IconHammer,
+      title: t("impact.features.upcycle.title"),
+      description: t("impact.features.upcycle.description"),
+    },
+    {
+      icon: IconLeaf,
+      title: t("impact.features.reduce.title"),
+      description: t("impact.features.reduce.description"),
+    },
+  ];
 
   return (
     <Container size="xl" py="xl">
@@ -58,23 +57,25 @@ export default function AboutPage() {
               color="var(--upagain-neutral-green)"
               size="lg"
             >
-              Our Vision
+              {t("hero.badge")}
             </Badge>
             <Title order={1} style={{ fontSize: 48, lineHeight: 1.1 }}>
-              Breathe new life into every{" "}
-              <Text
-                component="span"
-                inherit
-                style={{ color: "var(--upagain-neutral-green)" }}
-              >
-                object
-              </Text>
+              <Trans
+                i18nKey="hero.title"
+                ns="about"
+                components={{
+                  1: (
+                    <Text
+                      component="span"
+                      inherit
+                      style={{ color: "var(--upagain-neutral-green)" }}
+                    />
+                  ),
+                }}
+              />
             </Title>
             <Text c="dimmed" size="lg">
-              UpAgain is a collaborative platform dedicated to reducing waste
-              and empowering local communities. We make it easy to exchange
-              underutilized items, embark on upcycling projects, and create
-              tangible value through sustainability.
+              {t("hero.description")}
             </Text>
             <Group mt="md">
               <Button
@@ -82,14 +83,14 @@ export default function AboutPage() {
                 size="lg"
                 onClick={() => navigate(PATHS.GUEST.REGISTER)}
               >
-                Join the Movement
+                {t("hero.cta_join")}
               </Button>
               <Button
                 variant="secondary"
                 size="lg"
                 onClick={() => navigate(PATHS.GUEST.POSTS)}
               >
-                Explore Community
+                {t("hero.cta_explore")}
               </Button>
             </Group>
           </Stack>
@@ -130,18 +131,13 @@ export default function AboutPage() {
           <Grid.Col span={{ base: 12, md: 7 }}>
             <Stack>
               <Title order={2} style={{ color: "var(--upagain-yellow)" }}>
-                Why UpAgain?
+                {t("mission.title")}
               </Title>
               <Text size="lg">
-                Millions of tons of usable items are discarded every year. We
-                believe that the fastest way to environmental sustainability is
-                fostering localized connection and equipping people with the
-                inspiration to create rather than discard.
+                {t("mission.text1")}
               </Text>
               <Text size="lg">
-                We're bridging the gap between individuals who have too much and
-                creators who see potential in everything. Together, we're
-                building an economy where creativity dictates value.
+                {t("mission.text2")}
               </Text>
               <Group mt="xs">
                 <ThemeIcon
@@ -153,7 +149,7 @@ export default function AboutPage() {
                   <IconRecycle size={24} color="var(--upagain-dark-green)" />
                 </ThemeIcon>
                 <Text fw={600} style={{ color: "#f9f7f2" }}>
-                  Make sustainability an easy, everyday choice.
+                  {t("mission.footer")}
                 </Text>
               </Group>
             </Stack>
@@ -163,10 +159,9 @@ export default function AboutPage() {
 
       {/* Features Grid */}
       <Stack align="center" mb={40}>
-        <Title order={2}>How We Make An Impact</Title>
+        <Title order={2}>{t("impact.title")}</Title>
         <Text c="dimmed" ta="center" maw={600}>
-          Whether you're looking to clean out your garage or you're an artisan
-          seeking fresh materials, UpAgain offers the perfect ecosystem.
+          {t("impact.description")}
         </Text>
       </Stack>
 

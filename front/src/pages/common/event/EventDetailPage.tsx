@@ -38,8 +38,10 @@ import { EditEventModal } from "../../../components/event/EditEventModal";
 import { EventAttendeesModal } from "../../../components/event/EventAttendeesModal";
 import { CancelEventModal } from "../../../components/event/CancelEventModal";
 import { useDisclosure } from "@mantine/hooks";
+import { useTranslation } from "react-i18next";
 
 export default function EventDetailPage() {
+  const { t } = useTranslation("events");
   const { user } = useAuth();
   const role = user?.role;
   const isUser = role === "user";
@@ -233,13 +235,16 @@ export default function EventDetailPage() {
               mb="xl"
               mt="md"
               breadcrumbs={[
-                { title: "Home", href: PATHS.HOME },
-                { title: "Events", href: "/events" },
                 {
-                  title:
-                    mockEvent.category.charAt(0).toUpperCase() +
-                    mockEvent.category.slice(1) +
-                    "s",
+                  title: t("home:home_title", { defaultValue: "Home" }),
+                  href: PATHS.HOME,
+                },
+                {
+                  title: t("events", { defaultValue: "Events" }),
+                  href: "/events",
+                },
+                {
+                  title: t(`categories.${mockEvent.category}_plural`),
                   href: `/events/${mockEvent.category}s`,
                 },
                 { title: mockEvent.title, href: "#" },
@@ -254,7 +259,7 @@ export default function EventDetailPage() {
                     <Group justify="space-between" align="center">
                       <Stack gap={4}>
                         <Text c="dimmed" size="xs" fw={700} tt="uppercase">
-                          Organized by
+                          {t("detail.organized_by")}
                         </Text>
                         <Group gap="sm">
                           <Avatar.Group>
@@ -326,7 +331,7 @@ export default function EventDetailPage() {
                       </Stack>
                       <Stack gap={4} align="flex-end">
                         <Text c="dimmed" size="xs" fw={700} tt="uppercase">
-                          Published on
+                          {t("detail.published_on")}
                         </Text>
                         <Group gap={6}>
                           <IconClock size={16} color="dimmed" />
@@ -340,7 +345,7 @@ export default function EventDetailPage() {
 
                   {/* 3. CONTENT SECTION (HTML Rendering) */}
                   <Stack gap="md">
-                    <Title order={3}>About this event</Title>
+                    <Title order={3}>{t("detail.about")}</Title>
                     <div
                       style={{ lineHeight: 1.6, fontSize: "1.05rem" }}
                       dangerouslySetInnerHTML={{
@@ -354,7 +359,7 @@ export default function EventDetailPage() {
                   {/* 4. LOCATION SECTION */}
                   <Stack gap="xl">
                     <Stack gap="xs">
-                      <Title order={3}>Location</Title>
+                      <Title order={3}>{t("detail.location")}</Title>
                       <Group gap={8}>
                         <IconMapPin
                           size={20}
@@ -385,10 +390,10 @@ export default function EventDetailPage() {
                         color="var(--mantine-color-gray-4)"
                       />
                       <Text c="dimmed" fw={600} mt="sm">
-                        Interactive Map Placeholder
+                        {t("detail.map_placeholder")}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        Google Maps API will be integrated here
+                        {t("detail.map_api_note")}
                       </Text>
                     </Box>
                   </Stack>
@@ -398,13 +403,17 @@ export default function EventDetailPage() {
                   {/* 6. EXPLORE RELEVANT EVENTS SECTION */}
                   <Stack gap="xl">
                     <Group justify="space-between" align="center">
-                      <Title order={3}>Explore relevant events</Title>
+                      <Title order={3}>{t("detail.relevant_events")}</Title>
                       <Button
                         variant="subtle"
                         color="var(--upagain-neutral-green)"
                         rightSection={<IconChevronRight size={14} />}
                       >
-                        See all {mockEvent.category}s
+                        {t("categories.see_all", {
+                          category: t(
+                            `categories.${mockEvent.category}_plural`,
+                          ),
+                        })}
                       </Button>
                     </Group>
                     <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
@@ -436,10 +445,10 @@ export default function EventDetailPage() {
                         <Title order={2} c="var(--upagain-neutral-green)">
                           {mockEvent.price > 0
                             ? `${mockEvent.price}€`
-                            : "Free Entry"}
+                            : t("detail.free_entry")}
                         </Title>
                         <Text size="sm" fw={700} tt="uppercase" c="dimmed">
-                          / per person
+                          {t("detail.per_person")}
                         </Text>
                       </Group>
 
@@ -452,7 +461,7 @@ export default function EventDetailPage() {
                           />
                           <Stack gap={0}>
                             <Text size="xs" c="dimmed">
-                              Start date
+                              {t("detail.start_date")}
                             </Text>
                             <Text size="sm" fw={700}>
                               {new Date(mockEvent.startDate).toLocaleDateString(
@@ -481,7 +490,7 @@ export default function EventDetailPage() {
                           />
                           <Stack gap={0}>
                             <Text size="xs" c="dimmed">
-                              End date
+                              {t("detail.end_date")}
                             </Text>
                             <Text size="sm" fw={700}>
                               {new Date(mockEvent.startDate).toLocaleDateString(
@@ -513,7 +522,7 @@ export default function EventDetailPage() {
                           <Group gap={6}>
                             <IconUsers size={18} />
                             <Text size="sm" fw={600}>
-                              Capacity
+                              {t("detail.capacity")}
                             </Text>
                           </Group>
                           <Text
@@ -521,8 +530,9 @@ export default function EventDetailPage() {
                             fw={700}
                             c="var(--upagain-neutral-green)"
                           >
-                            {mockEvent.capacity - mockEvent.registered} spots
-                            left
+                            {t("detail.spots_left", {
+                              count: mockEvent.capacity - mockEvent.registered,
+                            })}
                           </Text>
                         </Group>
                         <Progress
@@ -534,7 +544,9 @@ export default function EventDetailPage() {
                           radius="xl"
                         />
                         <Text size="xs" c="dimmed">
-                          {mockEvent.capacity - mockEvent.registered} spots left
+                          {t("detail.spots_left", {
+                            count: mockEvent.capacity - mockEvent.registered,
+                          })}
                         </Text>
                       </Stack>
 
@@ -550,7 +562,7 @@ export default function EventDetailPage() {
                             color="var(--upagain-neutral-green)"
                             rightSection={<IconChevronRight size={18} />}
                           >
-                            Register Now
+                            {t("detail.register_now")}
                           </Button>
                         )}
                       {(isUser || isPro) &&
@@ -565,7 +577,7 @@ export default function EventDetailPage() {
                             rightSection={<IconX size={18} />}
                             // onClick={() => call cancel registration mutate}
                           >
-                            Cancel Registration
+                            {t("detail.cancel_registration")}
                           </Button>
                         )}
 
@@ -578,7 +590,7 @@ export default function EventDetailPage() {
                             onClick={openAttendees}
                             rightSection={<IconUsers size={18} />}
                           >
-                            See Attendees
+                            {t("detail.see_attendees")}
                           </Button>
                           <Button
                             radius="md"
@@ -587,7 +599,7 @@ export default function EventDetailPage() {
                             onClick={openEdit}
                             rightSection={<IconEdit size={18} />}
                           >
-                            Edit Event
+                            {t("detail.edit_event")}
                           </Button>
                           <Button
                             radius="md"
@@ -596,7 +608,7 @@ export default function EventDetailPage() {
                             onClick={openCancel}
                             rightSection={<IconX size={18} />}
                           >
-                            Cancel Event
+                            {t("detail.cancel_event")}
                           </Button>
                         </Group>
                       )}
@@ -609,7 +621,7 @@ export default function EventDetailPage() {
                             <>
                               <IconShieldCheck size={14} />
                               <Text size="xs" fw={500}>
-                                Secure payment & instant confirmation
+                                {t("detail.secure_payment")}
                               </Text>
                             </>
                           )}
@@ -619,7 +631,7 @@ export default function EventDetailPage() {
                             <>
                               <IconCheck size={14} />
                               <Text size="xs" fw={500}>
-                                You are already registered to this event
+                                {t("detail.already_registered")}
                               </Text>
                             </>
                           )}
@@ -631,33 +643,34 @@ export default function EventDetailPage() {
             </Grid>
           </Stack>
         </Container>
-      </Stack>
-      <EditEventModal
-        opened={openedEdit}
-        onClose={closeEdit}
-        id_event={idEvent}
-        eventDetails={mockEvent}
-      />
-      <EventAttendeesModal
-        opened={openedAttendees}
-        onClose={closeAttendees}
-        attendees={mockEvent.attendees}
-      />
-      <CancelEventModal
-        opened={openedCancel}
-        onClose={closeCancel}
-        onConfirm={() => {
-          console.log("Event cancelled");
-          closeCancel();
-        }}
-      />
 
-      <PhotosCarousel
-        photos={mockEvent.photos}
-        opened={lightboxOpened}
-        onClose={() => setLightboxOpened(false)}
-        defaultActiveSlide={lightboxSlide}
-      />
+        <EditEventModal
+          opened={openedEdit}
+          onClose={closeEdit}
+          id_event={idEvent}
+          eventDetails={mockEvent}
+        />
+        <EventAttendeesModal
+          opened={openedAttendees}
+          onClose={closeAttendees}
+          attendees={mockEvent.attendees}
+        />
+        <CancelEventModal
+          opened={openedCancel}
+          onClose={closeCancel}
+          onConfirm={() => {
+            console.log("Event cancelled");
+            closeCancel();
+          }}
+        />
+
+        <PhotosCarousel
+          photos={mockEvent.photos}
+          opened={lightboxOpened}
+          onClose={() => setLightboxOpened(false)}
+          defaultActiveSlide={lightboxSlide}
+        />
+      </Stack>
     </>
   );
 }
