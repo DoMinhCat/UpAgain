@@ -70,7 +70,10 @@ export default function EventPage() {
         <MyBreadcrumbs
           mb="lg"
           breadcrumbs={[
-            { title: t("home:home_title", { defaultValue: "Home" }), href: PATHS.HOME },
+            {
+              title: t("home:home_title", { defaultValue: "Home" }),
+              href: PATHS.HOME,
+            },
             { title: t("events", { defaultValue: "Events" }), href: "#" },
           ]}
         />
@@ -90,7 +93,9 @@ export default function EventPage() {
                   onClick={() => navigate(`/events/${cat}s`)}
                 >
                   <Group gap={4}>
-                    {t("categories.see_all", { category: t(`categories.${cat}_plural`) })}
+                    {t("categories.see_all", {
+                      category: t(`categories.${cat}_plural`),
+                    })}
                     <IconChevronRight size={14} />
                   </Group>
                 </Anchor>
@@ -99,6 +104,7 @@ export default function EventPage() {
               <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
                 {[1, 2, 3, 4].map((i) => (
                   <EventCard
+                    onclick={() => navigate(`/events/${cat}s/${99}`)}
                     key={`${cat}-${i}`}
                     {...mockEvent}
                     category={cat}
