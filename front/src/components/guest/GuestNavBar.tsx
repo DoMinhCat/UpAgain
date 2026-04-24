@@ -17,13 +17,18 @@ import { PATHS } from "../../routes/paths";
 import { ThemeToggleButton, HeaderLink } from "../nav/NavBarComponents";
 import { LANGUAGES } from "../../i18n/index";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { changeLanguage } from "../../utils/langUtils";
 
 export function GuestNavBar() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
   const navigate = useNavigate();
 
-  const [currentLanguage, setCurrentLanguage] = useState("united-kingdom");
+  const { t, i18n } = useTranslation();
+  const currentLanguage =
+    LANGUAGES.find((lang) => lang.lng === i18n.language)?.path ||
+    "united-kingdom";
 
   return (
     <Group justify="space-between" h="100%" px="xl" className={classes.header}>
@@ -37,7 +42,7 @@ export function GuestNavBar() {
 
       {/* 2. Navigation Section */}
       <Group h="100%" gap="sm" visibleFrom="sm">
-        <HeaderLink label="Community" path={PATHS.GUEST.POSTS} />
+        <HeaderLink label={t("community:community")} path={PATHS.GUEST.POSTS} />
         <HeaderLink label="About Us" path={PATHS.GUEST.ABOUT} />
         <HeaderLink label="Pricing" path={PATHS.GUEST.PRICING} />
         <HeaderLink label="Contact" path={PATHS.GUEST.CONTACT} />
@@ -75,7 +80,7 @@ export function GuestNavBar() {
             {LANGUAGES.map((language) => (
               <Menu.Item
                 key={language.path}
-                onClick={() => setCurrentLanguage(language.path)}
+                onClick={() => changeLanguage(language.lng)}
                 leftSection={
                   <Image
                     src={`/flags/${language.path}.png`}
@@ -96,14 +101,14 @@ export function GuestNavBar() {
             name="login"
             onClick={() => navigate(PATHS.GUEST.LOGIN)}
           >
-            Log in
+            {t("auth:login")}
           </Button>
           <Button
             variant="primary"
             name="register"
             onClick={() => navigate(PATHS.GUEST.REGISTER)}
           >
-            Sign up
+            {t("auth:register")}
           </Button>
         </Group>
 
@@ -126,7 +131,7 @@ export function GuestNavBar() {
       >
         <Stack gap="md">
           <HeaderLink
-            label="Community"
+            label={t("community:community")}
             path={PATHS.GUEST.POSTS}
             onClick={closeDrawer}
           />
@@ -146,11 +151,23 @@ export function GuestNavBar() {
             onClick={closeDrawer}
           />
           <Group grow>
-            <Button variant="secondary" onClick={closeDrawer}>
-              Log in
+            <Button
+              variant="secondary"
+              onClick={() => {
+                navigate(PATHS.GUEST.LOGIN);
+                closeDrawer();
+              }}
+            >
+              {t("auth:login")}
             </Button>
-            <Button variant="primary" onClick={closeDrawer}>
-              Sign up
+            <Button
+              variant="primary"
+              onClick={() => {
+                navigate(PATHS.GUEST.REGISTER);
+                closeDrawer();
+              }}
+            >
+              {t("auth:register")}
             </Button>
           </Group>
         </Stack>

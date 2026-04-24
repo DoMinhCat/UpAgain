@@ -1,6 +1,7 @@
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";
+import LanguageDetector from "i18next-browser-languagedetector";
 
 export const LANGUAGES = [
   { label: "English", path: "united-kingdom", lng: "en" },
@@ -8,16 +9,25 @@ export const LANGUAGES = [
   { label: "Tiếng Việt", path: "vietnam", lng: "vi" },
 ];
 
+const namespaces = [
+  "common",
+  "auth",
+  "errors",
+  "marketplace",
+  "community",
+  "events",
+];
+
 i18next
   .use(Backend)
+  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     debug: true,
-    lng: "en",
-    supportedLngs: ["en", "fr", "vi"],
-    ns: ["common", "auth", "errors"],
-    defaultNS: "common",
     fallbackLng: "en",
+    supportedLngs: LANGUAGES.map((lang) => lang.lng),
+    ns: namespaces,
+    defaultNS: "common",
     interpolation: {
       escapeValue: false,
     },
