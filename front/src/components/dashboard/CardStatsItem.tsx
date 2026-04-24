@@ -1,4 +1,5 @@
 import { Group, Text, ThemeIcon } from "@mantine/core";
+import type { JSX } from "react";
 
 interface CardStatsItemProps {
   icon: React.ReactNode;

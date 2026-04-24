@@ -556,6 +556,7 @@ export default function UserHome() {
                 {accountDetails?.id && false ? ( // Replace 'false' with 'accountDetails.events.length > 0'
                   <Stack gap="md">
                     <EventCard
+                      onclick={() => navigate("/events/workshops/1")}
                       orientation="horizontal"
                       category="Workshop"
                       title="Restoring Mid-Century Furniture"

@@ -27,11 +27,13 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
 import { NotFoundPage } from "../../error/404";
+import { useNavigate } from "react-router-dom";
 // import FullScreenLoader from "../../../components/common/FullScreenLoader";
 
 export default function EventCategoryPage() {
   const { t } = useTranslation("events");
   const { category } = useParams<{ category: string }>();
+  const navigate = useNavigate();
 
   // FILTER OPTIONS
   const [page, setPage] = useState<number>(1);
@@ -174,8 +176,14 @@ export default function EventCategoryPage() {
           <Stack gap="xs">
             <MyBreadcrumbs
               breadcrumbs={[
-                { title: t("home:home_title", { defaultValue: "Home" }), href: PATHS.HOME },
-                { title: t("events", { defaultValue: "Events" }), href: "/events" },
+                {
+                  title: t("home:home_title", { defaultValue: "Home" }),
+                  href: PATHS.HOME,
+                },
+                {
+                  title: t("events", { defaultValue: "Events" }),
+                  href: "/events",
+                },
                 { title: categoryTitle, href: "#" },
               ]}
             />
@@ -197,6 +205,7 @@ export default function EventCategoryPage() {
               {/* Placeholders for dynamic data */}
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                 <EventCard
+                  onclick={() => navigate(`${i}`)}
                   key={i}
                   {...mockEvent}
                   category={category || "other"}
