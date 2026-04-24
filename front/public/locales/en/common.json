@@ -1,3 +1,15 @@
 {
-  "key": "value"
+  "footer": {
+    "description": "Giving materials a second life through community-driven reuse and smart logistics.",
+    "explore": "Explore",
+    "browse_objects": "Browse Objects",
+    "smart_deposits": "Smart Deposits",
+    "community_articles": "Community Articles",
+    "contact": "Contact",
+    "legal": "Legal",
+    "terms_conditions": "Terms & Conditions",
+    "privacy_policy": "Privacy Policy",
+    "rights_reserved": "© {{year}} UpAgain. All rights reserved.",
+    "address": "21 Rue Erard, 75012 Paris, France"
+  }
 }

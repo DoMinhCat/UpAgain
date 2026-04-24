@@ -1,3 +1,15 @@
 {
-  "home": "Trang chủ"
+  "footer": {
+    "description": "Hô biến đồ cũ thành đồ mới thông qua cộng đồng tái chế và hệ thống vận chuyển thông minh.",
+    "explore": "Khám phá",
+    "browse_objects": "Săn đồ tái chế",
+    "smart_deposits": "Ký gửi thông minh",
+    "community_articles": "Góc chia sẻ bí kíp",
+    "contact": "Liên hệ",
+    "legal": "Pháp lý",
+    "terms_conditions": "Điều khoản sử dụng",
+    "privacy_policy": "Chính sách bảo mật",
+    "rights_reserved": "© {{year}} UpAgain. Giữ bản quyền luôn nha.",
+    "address": "Trụ sở: 21 Rue Erard, 75012 Paris, Pháp"
+  }
 }
