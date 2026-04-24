@@ -245,12 +245,13 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("SoftDeleteAccount() failed", "controller", "SoftDeleteAccount", "error", err)
 		return
 	}
+	if role_deleted == "admin"{
+		role_deleted = "employee"
+	}
 	if role == "admin" {
 		err = db.InsertHistory(role_deleted, id_account, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
 		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while soft deleting an account.")
 			slog.Error("InsertHistory() failed", "controller", "SoftDeleteAccount", "error", err)
-			return
 		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -339,14 +340,14 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deleteRole, err := db.GetRoleById(id_account)
+	updateRole, err := db.GetRoleById(id_account)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating password.")
 		slog.Error("GetRoleById() failed", "controller", "UpdatePassword", "error", err)
 		return
 	}
 	// an admin changes password of another admin
-	if deleteRole == "admin" && id_account != userID {
+	if updateRole == "admin" && id_account != userID {
 		utils.RespondWithError(w, http.StatusForbidden, "Only the admin himself/herself can update his/her account's password.")
 		return
 	}
@@ -378,11 +379,9 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		err = db.InsertHistory(deleteRole, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, nil, nil)
+		err = db.InsertHistory(updateRole, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, nil, nil)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating account's password.")
 			slog.Error("InsertHistory() failed", "controller", "UpdatePassword", "error", err)
-			return
 		}
 	}
 
@@ -480,9 +479,7 @@ func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 	if role == "admin" {
 		err = db.InsertHistory(banRole, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, oldState, newState)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, errMsg)
 			slog.Error("InsertHistory() failed", "controller", "ToggleBanAccount", "error", err)
-			return
 		}
 	}
 
@@ -547,9 +544,7 @@ func RecoverAccount(w http.ResponseWriter, r *http.Request) {
 	if role == "admin" {
 		err = db.InsertHistory(role_recovered, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": true}, map[string]interface{}{"is_deleted": false})
 		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while recovering an account.")
 			slog.Error("InsertHistory() failed", "controller", "RecoverAccount", "error", err)
-			return
 		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -727,12 +722,14 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get old state for history before update
-	oldAccount, err := db.GetAccountDetailsById(id_account)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountDetailsById() failed", "controller", "UpdateAccount", "error", err)
-		return
+	getOldAccountOk := true
+	var oldAccount interface{}
+	if claims.Role == "admin" {
+		oldAccount, err = db.GetAccountDetailsById(id_account)
+		if err != nil {
+			getOldAccountOk = false
+			slog.Error("GetAccountDetailsById() failed to get old account state", "controller", "UpdateAccount", "error", err)
+		}
 	}
 
 	payload.Id = id_account
@@ -743,12 +740,10 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if claims.Role == "admin" {
+	if claims.Role == "admin" && getOldAccountOk {
 		err = db.InsertHistory(role, id_account, "update", claims.Id, oldAccount, payload)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
 			slog.Error("InsertHistory() failed", "controller", "UpdateAccount", "error", err)
-			return
 		}
 	}
 

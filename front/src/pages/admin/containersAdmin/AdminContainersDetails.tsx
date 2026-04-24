@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import {
   Navigate,
   useLocation,
@@ -60,7 +60,6 @@ export default function AdminContainersDetails() {
   const containerId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(containerId) && containerId > 0;
   if (!isValidId) {
-    console.log("Invalid container ID", containerId);
     navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
   }
 
@@ -131,7 +130,7 @@ export default function AdminContainersDetails() {
       <Title order={2} mt="xs" mb="sm">
         Container's Details
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [
@@ -176,7 +175,7 @@ export default function AdminContainersDetails() {
         <Title order={3} ta="left" mt="xl">
           General Information
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
           <InfoField label="Current Status">
             <Group mt="xs" mb="xl">
               <Text fw={700} c={statusColor}>
@@ -220,7 +219,7 @@ export default function AdminContainersDetails() {
         <Title order={3} ta="left" mt="xl">
           Activities
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
           <InfoField label="Current Object">
             {container?.status === "maintenance" ? (
               <Text ps="sm" mt="xs" mb="lg">
@@ -271,6 +270,7 @@ export default function AdminContainersDetails() {
           px="lg"
           py="md"
           mt="sm"
+          radius="lg"
           style={{ border: "1px solid #ff000033" }}
         >
           <InfoField label="Permanently Remove">

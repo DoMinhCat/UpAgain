@@ -19,6 +19,8 @@ import {
   Image,
   Menu,
   Avatar,
+  Group,
+  Text,
 } from "@mantine/core";
 import classes from "../../styles/Admin.module.css";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
@@ -59,14 +61,24 @@ function NavbarLink({ icon: Icon, label, path, onClick }: NavbarLinkProps) {
   };
 
   return (
-    <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
+    <Tooltip
+      label={label}
+      position="right"
+      transitionProps={{ duration: 0 }}
+      visibleFrom="sm"
+    >
       <UnstyledButton
         onClick={handleClick}
         className={classes.link}
         data-active={isActive || undefined}
         aria-label={label}
       >
-        <Icon size={20} stroke={1.5} />
+        <Group gap="xs" wrap="nowrap">
+          <Icon size={20} stroke={1.5} />
+          <Text size="sm" fw={500} hiddenFrom="sm">
+            {label}
+          </Text>
+        </Group>
       </UnstyledButton>
     </Tooltip>
   );
@@ -135,7 +147,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
           position="right"
           transitionProps={{ duration: 0 }}
         >
-          <Image src="/common/logo.png" />
+          <Image src="/common/logo.png" h={40} w="auto" />
         </Tooltip>
       </Center>
 
@@ -145,31 +157,52 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
         </Stack>
       </div>
 
-      <Stack justify="center" gap="sm" py="md">
+      <Stack align="center" gap="sm" py="md">
         {!errorAccountDetails && (
-          <Menu shadow="md" width={150}>
+          <Menu shadow="md" width={200} position="bottom-start" zIndex={300}>
             <Menu.Target>
-              {accountDetails?.avatar ? (
-                <Avatar
-                  src={accountDetails?.avatar}
-                  name={accountDetails?.username}
-                  color="initials"
-                  size="40"
-                  className={classes.avatarNavbar}
-                />
-              ) : (
-                <Avatar
-                  name={accountDetails?.username}
-                  color="initials"
-                  size="40"
-                  className={classes.avatarNavbar}
-                />
-              )}
+              <UnstyledButton
+                className={classes.userButton}
+                aria-label="User menu"
+              >
+                <Group gap="xs" wrap="nowrap">
+                  {accountDetails?.avatar ? (
+                    <Avatar
+                      src={accountDetails?.avatar}
+                      name={accountDetails?.username}
+                      color="initials"
+                      size="40"
+                      className={classes.avatarNavbar}
+                    />
+                  ) : (
+                    <Avatar
+                      name={accountDetails?.username}
+                      color="initials"
+                      size="40"
+                      className={classes.avatarNavbar}
+                    />
+                  )}
+                  <Text
+                    size="sm"
+                    fw={500}
+                    hiddenFrom="sm"
+                    truncate
+                    c="var(--mantine-color-body)"
+                  >
+                    {accountDetails?.username}
+                  </Text>
+                </Group>
+              </UnstyledButton>
             </Menu.Target>
 
             <Menu.Dropdown>
-              {/* TODO: navigate to personal profile page */}
-              <Menu.Item leftSection={<IconUser size={14} />}>
+              <Menu.Item
+                leftSection={<IconUser size={14} />}
+                onClick={() => {
+                  navigate(PATHS.USER.PROFILE);
+                  if (onLinkClick) onLinkClick();
+                }}
+              >
                 Profile
               </Menu.Item>
               <Menu.Item

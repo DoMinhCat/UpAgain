@@ -270,7 +270,7 @@ func CheckEventExistsById(id_event int) (bool, error) {
 	return exists, nil
 }
 
-func UpdateEventStatusByEventId(eventID int, newStatus string, employeeID int) error {
+func UpdateEventStatusByEventId(eventID int, newStatus string) error {
 	tx, err := utils.Conn.Begin()
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %v", err)
@@ -280,14 +280,6 @@ func UpdateEventStatusByEventId(eventID int, newStatus string, employeeID int) e
 	_, err = tx.Exec(`UPDATE events SET status = $1 WHERE id = $2`, newStatus, eventID)
 	if err != nil {
 		return fmt.Errorf("error updating event status in tx: %v", err)
-	}
-
-	_, err = tx.Exec(`
-		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
-		VALUES ('event', $1, 'update', $2)
-	`, eventID, employeeID)
-	if err != nil {
-		return fmt.Errorf("error inserting into admin_history in tx: %v", err)
 	}
 
 	if err = tx.Commit(); err != nil {
