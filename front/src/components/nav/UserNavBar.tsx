@@ -26,7 +26,7 @@ import {
 } from "@tabler/icons-react";
 import { useAuth } from "../../context/AuthContext";
 import { HeaderLink } from "./NavBarComponents";
-import { LANGUAGES } from "../../i18n/languages";
+import { LANGUAGES } from "../../i18n/index";
 import { Indicator } from "@mantine/core";
 import { useState } from "react";
 import { useAccountDetails } from "../../hooks/accountHooks";

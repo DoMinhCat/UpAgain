@@ -19,6 +19,8 @@ import {
 import { showErrorNotification } from "./components/common/NotificationToast.tsx";
 import type { AxiosError } from "axios";
 import type { ApiErrorData } from "./api/axios.ts";
+import "./i18n";
+import React from "react";
 
 // global error handling
 const queryClient = new QueryClient({
@@ -48,7 +50,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <App />
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <App />
+        </React.Suspense>
       </AuthProvider>
     </QueryClientProvider>
   </StrictMode>,

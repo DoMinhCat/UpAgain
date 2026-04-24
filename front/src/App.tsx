@@ -20,6 +20,7 @@ import { router } from "./routes/routes";
 import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
 import { DateTimePicker, DatePickerInput } from "@mantine/dates";
+import { useTranslation } from "react-i18next";
 
 const UpAgainTheme = createTheme({
   focusRing: "never",
@@ -146,6 +147,7 @@ const UpAgainTheme = createTheme({
 });
 
 function App() {
+  const { t } = useTranslation();
   return (
     <MantineProvider
       theme={UpAgainTheme}
