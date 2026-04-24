@@ -38,7 +38,6 @@ import {
   IconTrash,
   IconHeartFilled,
   IconRouteSquare,
-  IconLink,
   IconCrownFilled,
 } from "@tabler/icons-react";
 import { TextEditor } from "../../../components/input/TextEditor";
@@ -56,6 +55,7 @@ import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
+import { EditPostModal } from "../../../components/post/EditPostModal";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimeline";
 import PaginationFooter from "../../../components/common/PaginationFooter";
@@ -93,93 +93,6 @@ export const AdminPostDetails = () => {
   // EDIT
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
-  const [fileEdit, setFileEdit] = useState<any[]>([]);
-  const [titleEdit, setTitleEdit] = useState<string>("");
-  const [categoryEdit, setCategoryEdit] = useState<string>("");
-  const [descriptionEdit, setDescriptionEdit] = useState<string>("");
-  const [errorTitle, setErrorTitle] = useState<string>("");
-  const [errorCategory, setErrorCategory] = useState<string>("");
-  const [errorDescription, setErrorDescription] = useState<string>("");
-
-  const validateTitleEdit = () => {
-    if (!titleEdit || titleEdit.trim() === "") {
-      setErrorTitle("Title is required");
-      return false;
-    }
-    setErrorTitle("");
-    return true;
-  };
-
-  const validateCategoryEdit = () => {
-    if (!categoryEdit || categoryEdit.trim() === "") {
-      setErrorCategory("Category is required");
-      return false;
-    }
-    setErrorCategory("");
-    return true;
-  };
-
-  const validateDescriptionEdit = () => {
-    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
-    if (!descriptionEdit || stripped === "") {
-      setErrorDescription("Post's content is required");
-      return false;
-    }
-    setErrorDescription("");
-    return true;
-  };
-
-  const handleOpenEdit = () => {
-    if (postDetails) {
-      setTitleEdit(postDetails.title || "");
-      setCategoryEdit(postDetails.category || "");
-      setDescriptionEdit(postDetails.content || "");
-      const files = postDetails.photos?.map((path) => {
-        return {
-          path: path,
-        };
-      });
-      setFileEdit(files || []);
-    }
-    openEdit();
-  };
-
-  const handleCloseEdit = () => {
-    setErrorTitle("");
-    setErrorCategory("");
-    setErrorDescription("");
-    closeEdit();
-  };
-
-  const updatePostMutate = useUpdatePost(postId);
-
-  const handleEdit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (postDetails) {
-      const isValidTitle = validateTitleEdit();
-      const isValidCategory = validateCategoryEdit();
-      const isValidDescription = validateDescriptionEdit();
-      if (!isValidTitle || !isValidCategory || !isValidDescription) {
-        return;
-      }
-      const formData = new FormData();
-      formData.append("title", titleEdit);
-      formData.append("category", categoryEdit);
-      formData.append("content", descriptionEdit);
-      fileEdit.forEach((obj) => {
-        if (obj instanceof File) {
-          formData.append("new_images", obj);
-        } else if (obj.path) {
-          formData.append("existing_images", obj.path);
-        }
-      });
-      updatePostMutate.mutate(formData, {
-        onSuccess: () => {
-          closeEdit();
-        },
-      });
-    }
-  };
 
   // DELETE POST
   const deletePostMutate = useDeletePost();
@@ -716,7 +629,7 @@ export const AdminPostDetails = () => {
 
               {/* Footer Actions */}
               <Group mt="xl" grow>
-                <Button variant="edit" onClick={handleOpenEdit}>
+                <Button variant="edit" onClick={openEdit}>
                   Edit post
                 </Button>
                 <Button variant="delete" onClick={openDelete}>
@@ -742,75 +655,12 @@ export const AdminPostDetails = () => {
                 ) : null}
               </Group>
 
-              <Modal
-                title="Edit event"
+              <EditPostModal
                 opened={openedEdit}
                 onClose={closeEdit}
-                centered
-                size="xl"
-              >
-                <Stack>
-                  <TextInput
-                    data-autofocus
-                    withAsterisk
-                    label="Title"
-                    value={titleEdit}
-                    onChange={(e) => {
-                      setTitleEdit(e.target.value);
-                    }}
-                    error={errorTitle}
-                    onBlur={() => validateTitleEdit()}
-                    disabled={updatePostMutate.isPending}
-                    required
-                  />
-                  <Select
-                    withAsterisk
-                    clearable
-                    label="Category"
-                    value={categoryEdit}
-                    error={errorCategory}
-                    onBlur={() => validateCategoryEdit()}
-                    data={[
-                      { value: "tutorial", label: "Tutorial" },
-                      { value: "project", label: "Project" },
-                      { value: "tips", label: "Tips" },
-                      { value: "news", label: "News" },
-                      { value: "case_study", label: "Case Study" },
-                      { value: "other", label: "Other" },
-                    ]}
-                    onChange={(value) => {
-                      setCategoryEdit(value as string);
-                    }}
-                  />
-                  <TextEditor
-                    label="Post's description"
-                    value={descriptionEdit}
-                    onChange={(value) => {
-                      setDescriptionEdit(value);
-                    }}
-                    error={errorDescription ?? ""}
-                  />
-                  <ImageDropzone
-                    loading={updatePostMutate.isPending}
-                    files={fileEdit}
-                    setFiles={setFileEdit}
-                  />
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={handleCloseEdit} variant="grey">
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleEdit(e);
-                    }}
-                    variant="primary"
-                    loading={updatePostMutate.isPending || isLoadingPostDetails}
-                  >
-                    Confirm
-                  </Button>
-                </Group>
-              </Modal>
+                postDetails={postDetails}
+                postId={postId}
+              />
 
               <Modal
                 title="Delete post"
