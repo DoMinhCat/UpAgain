@@ -20,6 +20,7 @@ import {
 import { getTimeAgo } from "../../utils/timeUtils";
 
 interface PostCardProps {
+  currentRole: string;
   title: string;
   description: string;
   image: string;
@@ -47,6 +48,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 
 // TODO: Add crown if sponsored on the top left
 export default function PostCard({
+  currentRole,
   title,
   description,
   image,
@@ -138,6 +140,7 @@ export default function PostCard({
           <Group gap="sm">
             <Group gap={4}>
               <ActionIcon
+                disabled={currentRole !== "user" && currentRole !== "pro"}
                 className="actionIcon"
                 data-variant="primary"
                 variant="subtle"
@@ -162,8 +165,13 @@ export default function PostCard({
               </Text>
             </Group>
 
-            <Tooltip label={isSaved ? "Unsave post" : "Save post"} position="top" withArrow>
+            <Tooltip
+              label={isSaved ? "Unsave post" : "Save post"}
+              position="top"
+              withArrow
+            >
               <ActionIcon
+                disabled={currentRole !== "user" && currentRole !== "pro"}
                 className="actionIcon"
                 data-variant="primary"
                 variant="subtle"
@@ -175,10 +183,7 @@ export default function PostCard({
                 }}
               >
                 {isSaved ? (
-                  <IconBookmarkFilled
-                    size={18}
-                    color="var(--upagain-yellow)"
-                  />
+                  <IconBookmarkFilled size={18} color="var(--upagain-yellow)" />
                 ) : (
                   <IconBookmark size={18} color="var(--upagain-yellow)" />
                 )}

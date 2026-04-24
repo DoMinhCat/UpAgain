@@ -7,12 +7,14 @@ interface PostCommentCardProps {
   comment: PostComment;
   onLike?: (id: number) => void;
   isLiking?: boolean;
+  role?: string;
 }
 
 export default function PostCommentCard({
   comment,
   onLike,
   isLiking,
+  role,
 }: PostCommentCardProps) {
   return (
     <Paper className="paper" data-variant="primary" p="md" radius="md">
@@ -39,6 +41,7 @@ export default function PostCommentCard({
           <Group gap={4} mt={4}>
             <ActionIcon
               className="actionIcon"
+              disabled={role !== "user" && role !== "pro"}
               data-variant="primary"
               variant="subtle"
               size="xs"

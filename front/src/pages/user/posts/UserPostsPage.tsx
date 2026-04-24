@@ -19,6 +19,7 @@ import PaginationFooter from "../../../components/common/PaginationFooter";
 import { PATHS } from "../../../routes/paths";
 import { useGetUserPosts } from "../../../hooks/postHooks";
 import type { Post } from "../../../api/interfaces/post";
+import { useAuth } from "../../../context/AuthContext";
 
 const FAKE_POSTS: Post[] = [
   {
@@ -168,6 +169,8 @@ const USE_FAKE_DATA = true;
 
 export default function UserPostsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const role: string = user?.role || "";
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("most_recent_creation");
@@ -191,7 +194,9 @@ export default function UserPostsPage() {
       })
     : (data?.posts ?? []);
 
-  const totalRecords = USE_FAKE_DATA ? posts.length : (data?.total_records ?? 0);
+  const totalRecords = USE_FAKE_DATA
+    ? posts.length
+    : (data?.total_records ?? 0);
   const lastPage = USE_FAKE_DATA ? 1 : (data?.last_page ?? 1);
   const limit = USE_FAKE_DATA ? posts.length : (data?.limit ?? 12);
 
@@ -268,6 +273,7 @@ export default function UserPostsPage() {
           <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
             {posts.map((post) => (
               <PostCard
+                currentRole={role}
                 key={post.id}
                 title={post.title}
                 description={post.content}
@@ -280,9 +286,7 @@ export default function UserPostsPage() {
                 likes={post.like_count}
                 isLiked={post.is_liked}
                 isSaved={post.is_saved}
-                onClick={() =>
-                  navigate(PATHS.USER.POSTS.DETAILS_FN(post.id))
-                }
+                onClick={() => navigate(PATHS.USER.POSTS.DETAILS_FN(post.id))}
               />
             ))}
           </SimpleGrid>
