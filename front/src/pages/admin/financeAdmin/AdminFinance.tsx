@@ -22,6 +22,7 @@ import {
   Divider,
   Tooltip as MantineTooltip,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useNavigate } from "react-router-dom";
@@ -103,6 +104,7 @@ const TYPE_COLORS: Record<string, string> = {
 // --- Page ---
 
 export default function AdminFinance() {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const [year, setYear] = useState<string>(String(CURRENT_YEAR));
   const [search, setSearch] = useState("");
@@ -112,6 +114,7 @@ export default function AdminFinance() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const { i18n } = useTranslation();
 
   const { data: revenueData, isLoading: isLoadingRevenue } =
     useGetFinanceRevenue(Number(year));
@@ -136,7 +139,9 @@ export default function AdminFinance() {
 
   const chartData =
     revenueData?.data.map((d, i) => ({
-      month: MONTH_LABELS[i],
+      month: t(`common:months.${MONTH_LABELS[i].toLowerCase()}` as any, {
+        defaultValue: MONTH_LABELS[i],
+      }),
       Subscriptions: d.subscriptions,
       Commissions: d.commissions,
       Ads: d.ads,
@@ -146,14 +151,14 @@ export default function AdminFinance() {
   return (
     <Stack gap="xl" p="md">
       <Group justify="space-between">
-        <Title order={2}>Finance Management</Title>
+        <Title order={2}>{t("finance.title")}</Title>
         <Button
           classNames={{ root: GlobalStyles.button }}
           variant="secondary"
           leftSection={<IconEdit size={16} />}
           onClick={() => setSettingsModalOpen(true)}
         >
-          Edit Settings
+          {t("finance.edit_settings")}
         </Button>
       </Group>
 
@@ -161,22 +166,22 @@ export default function AdminFinance() {
       {revenueData && (
         <SimpleGrid cols={{ base: 2, md: 4 }}>
           <SummaryCard
-            label="Ads"
+            label={t("finance.summary.ads")}
             value={revenueData.summary.total_ads}
             color="red"
           />
           <SummaryCard
-            label="Commissions"
+            label={t("finance.summary.commissions")}
             value={revenueData.summary.total_commissions}
             color="var(--upagain-neutral-green)"
           />
           <SummaryCard
-            label="Events"
+            label={t("finance.summary.events")}
             value={revenueData.summary.total_events}
             color="var(--upagain-yellow)"
           />
           <SummaryCard
-            label="Subscriptions"
+            label={t("finance.summary.subscriptions")}
             value={revenueData.summary.total_subscriptions}
             color="blue"
           />
@@ -187,7 +192,7 @@ export default function AdminFinance() {
       <Paper withBorder p="md" radius="md" variant="primary">
         <Group justify="space-between" mb="md">
           <Text fw={600} size="lg">
-            Monthly Revenue
+            {t("finance.revenue.title")}
           </Text>
           <Select
             data={YEAR_OPTIONS}
@@ -212,7 +217,9 @@ export default function AdminFinance() {
               <YAxis tickFormatter={(v) => `${v}€`} />
               <Tooltip
                 formatter={(value) =>
-                  typeof value === "number" ? formatEuros(value) : value
+                  typeof value === "number"
+                    ? formatEuros(value, i18n.language)
+                    : value
                 }
                 contentStyle={{
                   backgroundColor: "var(--mantine-color-body)",
@@ -232,17 +239,25 @@ export default function AdminFinance() {
               <Legend />
               <Bar
                 dataKey="Subscriptions"
+                name={t("finance.revenue.chart.subscriptions")}
                 fill="#228be6"
                 radius={[4, 4, 0, 0]}
               />
               <Bar
                 dataKey="Commissions"
+                name={t("finance.revenue.chart.commissions")}
                 fill="var(--upagain-neutral-green)"
                 radius={[4, 4, 0, 0]}
               />
-              <Bar dataKey="Ads" fill="#eb4034" radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey="Ads"
+                name={t("finance.revenue.chart.ads")}
+                fill="#eb4034"
+                radius={[4, 4, 0, 0]}
+              />
               <Bar
                 dataKey="Events"
+                name={t("finance.revenue.chart.events")}
                 fill="var(--upagain-yellow)"
                 radius={[4, 4, 0, 0]}
               />
@@ -255,16 +270,28 @@ export default function AdminFinance() {
       <Paper withBorder p="md" radius="md">
         <Group justify="space-between" mb="md">
           <Text fw={600} size="lg">
-            Invoices by User
+            {t("finance.invoices.title")}
           </Text>
           <Group>
             <Select
-              placeholder="Sort by"
+              placeholder={t("finance.invoices.sort_placeholder")}
               data={[
-                { value: "most_spending", label: "Most spending" },
-                { value: "least_spending", label: "Least spending" },
-                { value: "most_invoices", label: "Most invoices" },
-                { value: "least_invoices", label: "Least invoices" },
+                {
+                  value: "most_spending",
+                  label: t("finance.invoices.sort_options.most_spending"),
+                },
+                {
+                  value: "least_spending",
+                  label: t("finance.invoices.sort_options.least_spending"),
+                },
+                {
+                  value: "most_invoices",
+                  label: t("finance.invoices.sort_options.most_invoices"),
+                },
+                {
+                  value: "least_invoices",
+                  label: t("finance.invoices.sort_options.least_invoices"),
+                },
               ]}
               value={sort}
               onChange={(val) => {
@@ -275,7 +302,7 @@ export default function AdminFinance() {
               w={180}
             />
             <TextInput
-              placeholder="Search by username or email..."
+              placeholder={t("finance.invoices.search_placeholder")}
               rightSection={<IconSearch size={14} />}
               value={search}
               onChange={(e) => {
@@ -290,11 +317,11 @@ export default function AdminFinance() {
         <AdminTable
           loading={isLoadingUsers}
           header={[
-            "User",
-            "Email",
-            "Role",
-            "Total Invoices",
-            "Total Spending",
+            t("finance.invoices.table.user"),
+            t("finance.invoices.table.email"),
+            t("finance.invoices.table.role"),
+            t("finance.invoices.table.total_invoices"),
+            t("finance.invoices.table.total_spending"),
             "",
           ]}
           footer={
@@ -314,7 +341,7 @@ export default function AdminFinance() {
             <Table.Tr>
               <Table.Td colSpan={6}>
                 <Center py="lg">
-                  <Text c="dimmed">No users found.</Text>
+                  <Text c="dimmed">{t("finance.invoices.table.no_users")}</Text>
                 </Center>
               </Table.Td>
             </Table.Tr>
@@ -337,20 +364,30 @@ export default function AdminFinance() {
                 </Table.Td>
                 <Table.Td ta="center">
                   {u.role === "user" ? (
-                    <Pill variant="blue">User</Pill>
+                    <Pill variant="blue">
+                      {t("common:roles.user", { defaultValue: "User" })}
+                    </Pill>
                   ) : u.role === "pro" ? (
-                    <Pill variant="yellow">Pro</Pill>
+                    <Pill variant="yellow">
+                      {t("common:roles.pro", { defaultValue: "Pro" })}
+                    </Pill>
                   ) : u.role === "employee" ? (
-                    <Pill variant="green">Employee</Pill>
+                    <Pill variant="green">
+                      {t("common:roles.employee", { defaultValue: "Employee" })}
+                    </Pill>
                   ) : (
-                    <Pill variant="red">Admin</Pill>
+                    <Pill variant="red">
+                      {t("common:roles.admin", { defaultValue: "Admin" })}
+                    </Pill>
                   )}
                 </Table.Td>
                 <Table.Td ta="center">{u.transaction_count}</Table.Td>
-                <Table.Td ta="center">{formatEuros(u.total_spent)}</Table.Td>
+                <Table.Td ta="center">
+                  {formatEuros(u.total_spent, i18n.language)}
+                </Table.Td>
                 <Table.Td ta="center">
                   <MantineTooltip
-                    label="View invoices"
+                    label={t("finance.invoices.table.view_invoices")}
                     withArrow
                     position="top"
                   >
@@ -377,8 +414,10 @@ export default function AdminFinance() {
         onClose={() => setInvoiceModalOpen(false)}
         title={
           invoicesData
-            ? `Invoices — ${invoicesData.username}`
-            : "Loading invoices..."
+            ? t("finance.invoices.modal.title", {
+                username: invoicesData.username,
+              })
+            : t("finance.invoices.modal.loading")
         }
         size="xl"
       >
@@ -390,7 +429,7 @@ export default function AdminFinance() {
           <Center py="xl">
             <Stack align="center" gap="xs">
               <IconFileInvoice size={40} color="gray" />
-              <Text c="dimmed">No invoices for this user.</Text>
+              <Text c="dimmed">{t("finance.invoices.modal.no_invoices")}</Text>
             </Stack>
           </Center>
         ) : (
@@ -398,18 +437,26 @@ export default function AdminFinance() {
             <Table highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Date</Table.Th>
-                  <Table.Th>Type</Table.Th>
-                  <Table.Th>Description</Table.Th>
-                  <Table.Th>Details</Table.Th>
-                  <Table.Th>Total Paid</Table.Th>
+                  <Table.Th>{t("finance.invoices.modal.table.date")}</Table.Th>
+                  <Table.Th>{t("finance.invoices.modal.table.type")}</Table.Th>
+                  <Table.Th>
+                    {t("finance.invoices.modal.table.description")}
+                  </Table.Th>
+                  <Table.Th>
+                    {t("finance.invoices.modal.table.details")}
+                  </Table.Th>
+                  <Table.Th>
+                    {t("finance.invoices.modal.table.total_paid")}
+                  </Table.Th>
                   <Table.Th />
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {invoicesData?.invoices?.map((inv, idx) => (
                   <Table.Tr key={`${inv.type}-${inv.id}-${idx}`}>
-                    <Table.Td>{formatDate(inv.created_at)}</Table.Td>
+                    <Table.Td>
+                      {formatDate(inv.created_at, i18n.language)}
+                    </Table.Td>
                     <Table.Td>
                       <Badge
                         variant="light"
@@ -418,14 +465,18 @@ export default function AdminFinance() {
                         {inv.type}
                       </Badge>
                     </Table.Td>
-                    <Table.Td>{getInvoiceDescription(inv)}</Table.Td>
-                    <Table.Td c="dimmed" fz="sm">
-                      {getInvoiceDetails(inv)}
+                    <Table.Td>
+                      {getInvoiceDescription(inv, i18n.language)}
                     </Table.Td>
-                    <Table.Td fw={500}>{formatEuros(inv.amount)}</Table.Td>
+                    <Table.Td c="dimmed" fz="sm">
+                      {getInvoiceDetails(inv, i18n.language)}
+                    </Table.Td>
+                    <Table.Td fw={500}>
+                      {formatEuros(inv.amount, i18n.language)}
+                    </Table.Td>
                     <Table.Td>
                       <MantineTooltip
-                        label="Download invoice"
+                        label={t("finance.invoices.modal.download_invoice")}
                         withArrow
                         position="top"
                       >
@@ -474,6 +525,7 @@ function FinanceSettingsModal({
   settings,
   isLoading,
 }: FinanceSettingsModalProps) {
+  const { t, i18n } = useTranslation("admin");
   const [values, setValues] = useState<Record<string, number>>({});
   const { mutateAsync: updateSetting, isPending } = useUpdateFinanceSetting();
 
@@ -489,11 +541,19 @@ function FinanceSettingsModal({
     try {
       await updateSetting({ key, value: getValue(key) });
       showSuccessNotification(
-        "Settings updated",
-        `${SETTING_LABELS[key] ?? key} updated successfully.`,
+        t("finance.settings_modal.success_title"),
+        t("finance.settings_modal.success_msg", {
+          setting: t(`finance.settings_modal.labels.${key}` as any, {
+            defaultValue: key,
+          }),
+        }),
       );
     } catch (error: any) {
-      showErrorNotification("Update failed", undefined, error);
+      showErrorNotification(
+        t("finance.settings_modal.error_title"),
+        undefined,
+        error,
+      );
     }
   };
 
@@ -509,7 +569,12 @@ function FinanceSettingsModal({
   };
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Finance Settings" size="md">
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={t("finance.settings_modal.title")}
+      size="md"
+    >
       {isLoading ? (
         <Center h={200}>
           <Loader />
@@ -517,7 +582,7 @@ function FinanceSettingsModal({
       ) : (
         <Stack gap="md">
           <Text c="dimmed" size="sm">
-            Changes take effect immediately. All amounts in euros (€).
+            {t("finance.settings_modal.disclaimer")}
           </Text>
           <Divider />
           {settings.map((setting) => {
@@ -526,10 +591,14 @@ function FinanceSettingsModal({
               <Group key={setting.key} justify="space-between" align="flex-end">
                 <Stack gap={2} style={{ flex: 1 }}>
                   <Text size="sm" fw={600}>
-                    {SETTING_LABELS[setting.key] ?? setting.key}
+                    {t(`finance.settings_modal.labels.${setting.key}` as any, {
+                      defaultValue: setting.key,
+                    })}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Last updated: {formatDate(setting.updated_at)}
+                    {t("finance.settings_modal.last_updated", {
+                      date: formatDate(setting.updated_at, i18n.language),
+                    })}
                   </Text>
                 </Stack>
                 <Group gap="xs" align="flex-end">
@@ -548,7 +617,7 @@ function FinanceSettingsModal({
                     classNames={{ root: GlobalStyles.actionIcon }}
                     variant="primary"
                     size="lg"
-                    title="Save"
+                    title={t("finance.settings_modal.save")}
                     loading={isPending}
                     onClick={() => handleSave(setting.key)}
                   >
@@ -573,13 +642,14 @@ interface SummaryCardProps {
 }
 
 function SummaryCard({ label, value, color }: SummaryCardProps) {
+  const { i18n } = useTranslation();
   return (
     <Card withBorder radius="md" p="md" shadow="sm">
       <Text size="sm" c="dimmed" mb={4}>
         {label}
       </Text>
       <Text fw={700} size="xl" c={color}>
-        {new Intl.NumberFormat("en-US", {
+        {new Intl.NumberFormat(i18n.language, {
           style: "currency",
           currency: "EUR",
           minimumFractionDigits: 2,

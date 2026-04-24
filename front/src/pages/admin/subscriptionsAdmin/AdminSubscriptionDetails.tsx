@@ -30,8 +30,10 @@ import { showErrorNotification } from "../../../components/common/NotificationTo
 import { useState } from "react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function AdminSubscriptionDetails() {
+  const { t } = useTranslation("admin");
   const location = useLocation();
   const origin = location.state;
 
@@ -57,8 +59,10 @@ export default function AdminSubscriptionDetails() {
   const handleDownloadInvoice = () => {
     if (!invoicesData || !invoicesData.invoices) {
       showErrorNotification(
-        "Loading",
-        "Invoices data is not yet available, please try again.",
+        t("common:notifications.loading"),
+        t("subscriptions.details.notifications.invoice_loading_error", {
+          defaultValue: "Invoices data is not yet available, please try again.",
+        }),
       );
       return;
     }
@@ -69,8 +73,10 @@ export default function AdminSubscriptionDetails() {
       generateInvoicePDF(invoice, invoicesData.username);
     } else {
       showErrorNotification(
-        "Not Found",
-        "No invoice found for this subscription.",
+        t("common:notifications.not_found"),
+        t("subscriptions.details.notifications.invoice_not_found", {
+          defaultValue: "No invoice found for this subscription.",
+        }),
       );
     }
   };
@@ -94,7 +100,7 @@ export default function AdminSubscriptionDetails() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
-        Subscription Details
+        {t("subscriptions.details.title")}
       </Title>
       <MyBreadcrumbs
         breadcrumbs={[
@@ -107,12 +113,12 @@ export default function AdminSubscriptionDetails() {
               ]
             : [
                 {
-                  title: "Subscription Management",
+                  title: t("subscriptions.title"),
                   href: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
                 },
               ]),
           {
-            title: "Subscription Details",
+            title: t("subscriptions.details.title"),
             href: PATHS.ADMIN.SUBSCRIPTIONS.ALL + "/" + id,
           },
         ]}
@@ -161,15 +167,17 @@ export default function AdminSubscriptionDetails() {
             color={sub?.is_active ? "var(--upagain-neutral-green)" : "red"}
             size="lg"
           >
-            {sub?.is_active ? "Active" : "Canceled"}
+            {sub?.is_active
+              ? t("subscriptions.tabs.active")
+              : t("subscriptions.tabs.canceled")}
           </Badge>
         </Stack>
 
         <Title order={3} ta="left" mt="xl">
-          Subscription Information
+          {t("subscriptions.details.general_info")}
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
-          <InfoField label="Type">
+          <InfoField label={t("common:actions.type")}>
             <Text
               ps="sm"
               mt="xs"
@@ -177,21 +185,23 @@ export default function AdminSubscriptionDetails() {
               c={sub?.is_trial ? "dimmed" : "var(--upagain-yellow)"}
               fw={700}
             >
-              {sub?.is_trial ? "Trial" : "Premium"}
+              {sub?.is_trial
+                ? t("subscriptions.filters.types.trial")
+                : t("subscriptions.filters.types.premium")}
             </Text>
           </InfoField>
-          <InfoField label="Start Date">
+          <InfoField label={t("subscriptions.table.start_date")}>
             <Text ps="sm" mt="xs" mb="xl">
               {dayjs(sub?.sub_from).format("DD/MM/YYYY - HH:mm")}
             </Text>
           </InfoField>
-          <InfoField label="End Date">
+          <InfoField label={t("subscriptions.table.end_date")}>
             <Text ps="sm" mt="xs" mb="xl">
               {dayjs(sub?.sub_to).format("DD/MM/YYYY - HH:mm")}
             </Text>
           </InfoField>
           {!sub?.is_active && sub?.cancel_reason && (
-            <InfoField label="Cancel Reason">
+            <InfoField label={t("subscriptions.table.cancel_reason")}>
               <Text ps="sm" mt="xs" c="dimmed">
                 {sub.cancel_reason}
               </Text>
@@ -200,10 +210,10 @@ export default function AdminSubscriptionDetails() {
         </Paper>
 
         <Title order={3} ta="left" mt="xl">
-          Invoice
+          {t("finance.invoices.title")}
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
-          <InfoField label="Invoice">
+          <InfoField label={t("finance.invoices.title")}>
             <Button
               variant="primary"
               ps="sm"
@@ -212,7 +222,7 @@ export default function AdminSubscriptionDetails() {
               onClick={handleDownloadInvoice}
               loading={isLoadingInvoices}
             >
-              Download invoice
+              {t("subscriptions.details.billing_info")}
             </Button>
           </InfoField>
         </Paper>
@@ -220,7 +230,7 @@ export default function AdminSubscriptionDetails() {
         {sub?.is_active && (
           <>
             <Title order={3} ta="left" mt="xl" c="red">
-              Danger Zone
+              {t("containers.details.danger_zone")}
             </Title>
             <Paper
               variant="primary"
@@ -230,9 +240,9 @@ export default function AdminSubscriptionDetails() {
               radius="lg"
               style={{ border: "1px solid #ff000033" }}
             >
-              <InfoField label="Revoke Subscription">
+              <InfoField label={t("subscriptions.details.cancel_subscription")}>
                 <Text c="dimmed" size="sm" mt="xs">
-                  This will immediately cancel the user's premium access.
+                  {t("subscriptions.details.cancel_subscription_desc")}
                 </Text>
                 <Button
                   mt="xs"
@@ -240,7 +250,7 @@ export default function AdminSubscriptionDetails() {
                   leftSection={<IconX size={16} />}
                   onClick={openRevoke}
                 >
-                  Revoke Subscription
+                  {t("subscriptions.details.cancel_subscription")}
                 </Button>
               </InfoField>
             </Paper>
@@ -251,19 +261,21 @@ export default function AdminSubscriptionDetails() {
       <Modal
         opened={openedRevoke}
         onClose={closeRevoke}
-        title="Revoke Subscription"
+        title={t("subscriptions.details.cancel_modal.title")}
         centered
       >
         <Textarea
-          label="Cancel Reason"
-          placeholder="Explain why the subscription is being revoked..."
+          label={t("subscriptions.details.cancel_modal.reason_label")}
+          placeholder={t(
+            "subscriptions.details.cancel_modal.reason_placeholder",
+          )}
           value={cancelReason}
           onChange={(e) => setCancelReason(e.currentTarget.value)}
           minRows={3}
         />
         <Group mt="xl" justify="flex-end">
           <Button variant="grey" onClick={closeRevoke}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             variant="delete"
@@ -271,7 +283,7 @@ export default function AdminSubscriptionDetails() {
             disabled={!cancelReason.trim()}
             onClick={handleRevoke}
           >
-            Confirm Revoke
+            {t("common:actions.confirm")}
           </Button>
         </Group>
       </Modal>
