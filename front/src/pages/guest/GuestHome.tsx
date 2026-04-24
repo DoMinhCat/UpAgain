@@ -488,7 +488,7 @@ export default function GuestHome() {
                 Looking for materials for your next upcycling project?
               </Text>
             </Stack>
-            <Grid gutter={40} align="stretch">
+            <Grid gap={40} align="stretch">
               <Grid.Col span={{ base: 12, md: 6 }}>
                 <Paper
                   p="xl"

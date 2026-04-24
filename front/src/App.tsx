@@ -25,6 +25,7 @@ const UpAgainTheme = createTheme({
   focusRing: "never",
   fontFamily: "Nunito, sans-serif",
   cursorType: "pointer",
+  defaultRadius: "sm",
 
   components: {
     Select: Select.extend({
@@ -186,7 +187,7 @@ function App() {
         },
       })}
     >
-      <Notifications limit={3} zIndex={1000} />
+      <Notifications limit={3} zIndex={1000} pauseResetOnHover="notification" />
       <RouterProvider router={router} />
     </MantineProvider>
   );

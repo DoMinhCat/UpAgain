@@ -50,7 +50,7 @@ export default function AboutPage() {
   return (
     <Container size="xl" py="xl">
       {/* Hero Section */}
-      <Grid gutter="xl" align="center" mb={60} mt={40}>
+      <Grid gap="xl" align="center" mb={60} mt={40}>
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Stack align="flex-start" gap="md">
             <Badge
@@ -117,7 +117,7 @@ export default function AboutPage() {
           color: "white",
         }}
       >
-        <Grid gutter="xl" align="center">
+        <Grid gap="xl" align="center">
           <Grid.Col span={{ base: 12, md: 5 }}>
             <Image
               radius="md"
