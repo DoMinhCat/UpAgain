@@ -1,0 +1,33 @@
+{
+  "hero": {
+    "badge": "Notre Vision",
+    "title": "Redonnez vie à chaque <1>objet</1>",
+    "description": "UpAgain est une plateforme collaborative dédiée à la réduction des déchets et à l'autonomisation des communautés locales. Nous facilitons l'échange d'objets sous-utilisés, le lancement de projets d'upcycling et la création de valeur tangible grâce au développement durable.",
+    "cta_join": "Rejoindre le mouvement",
+    "cta_explore": "Explorer la communauté"
+  },
+  "mission": {
+    "title": "Pourquoi UpAgain ?",
+    "text1": "Des millions de tonnes d'objets utilisables sont jetées chaque année. Nous pensons que le moyen le plus rapide d'atteindre la durabilité environnementale est de favoriser les connexions locales et de donner aux gens l'inspiration nécessaire pour créer plutôt que de jeter.",
+    "text2": "Nous faisons le pont entre les particuliers qui en ont trop et les créateurs qui voient du potentiel en tout. Ensemble, nous construisons une économie où la créativité dicte la valeur.",
+    "footer": "Faire du développement durable un choix simple et quotidien."
+  },
+  "impact": {
+    "title": "Notre Impact",
+    "description": "Que vous cherchiez à vider votre garage ou que vous soyez un artisan à la recherche de nouveaux matériaux, UpAgain offre l'écosystème parfait.",
+    "features": {
+      "connect": {
+        "title": "Connecter & Partager",
+        "description": "Trouvez des communautés locales pour partager les objets dont vous n'avez plus besoin. Donnez une seconde vie aux objets en les transmettant à ceux qui les apprécieront."
+      },
+      "upcycle": {
+        "title": "Transformer & Créer",
+        "description": "Transformez des objets ordinaires mis au rebut en trésors de valeur. Rejoignez des ateliers d'upcycling, apprenez de nouvelles techniques de restauration et monétisez vos créations."
+      },
+      "reduce": {
+        "title": "Réduire les déchets",
+        "description": "Chaque objet upcyclé est une victoire pour notre planète ! Suivez vos économies de CO2 et participez activement à la construction d'une économie circulaire et durable."
+      }
+    }
+  }
+}

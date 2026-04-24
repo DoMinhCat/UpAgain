@@ -1,0 +1,33 @@
+{
+  "hero": {
+    "badge": "Tầm nhìn của UpAgain",
+    "title": "Thổi hồn sức sống mới vào từng <1>đồ vật</1>",
+    "description": "UpAgain là nền tảng cộng đồng giúp giảm thiểu rác thải và gắn kết mọi người. Chúng mình giúp việc trao đổi đồ cũ, thực hiện các dự án tái chế và tạo ra giá trị bền vững trở nên dễ dàng hơn bao giờ hết.",
+    "cta_join": "Tham gia ngay nào",
+    "cta_explore": "Dạo quanh cộng đồng"
+  },
+  "mission": {
+    "title": "Tại sao lại là UpAgain?",
+    "text1": "Mỗi năm có hàng triệu tấn đồ đạc còn dùng tốt bị vứt bỏ. Tụi mình tin rằng cách nhanh nhất để bảo vệ môi trường là kết nối mọi người lại với nhau, khơi nguồn cảm hứng để 'hồi sinh' đồ cũ thay vì vứt chúng đi.",
+    "text2": "UpAgain là cầu nối giữa những người thừa đồ và những nghệ nhân thấy được tiềm năng trong mọi thứ. Cùng nhau, chúng ta xây dựng một nền kinh tế nơi sự sáng tạo định nghĩa giá trị.",
+    "footer": "Biến sống xanh thành một lựa chọn thú vị mỗi ngày."
+  },
+  "impact": {
+    "title": "Chúng mình tạo ra thay đổi thế nào?",
+    "description": "Dù bạn muốn dọn sạch kho đồ hay là một nghệ nhân đang tìm nguyên liệu, UpAgain luôn có chỗ cho bạn.",
+    "features": {
+      "connect": {
+        "title": "Kết nối & Chia sẻ",
+        "description": "Tìm kiếm những người hàng xóm để tặng lại món đồ bạn không dùng tới. Giúp đồ vật có vòng đời thứ hai trong vòng tay người trân trọng chúng."
+      },
+      "upcycle": {
+        "title": "Tái chế & Sáng tạo",
+        "description": "Biến những món đồ bỏ đi thành những món đồ trang trí xịn sò. Tham gia workshop, học kỹ năng mới và thậm chí kiếm tiền từ thành phẩm của mình."
+      },
+      "reduce": {
+        "title": "Giảm thiểu rác thải",
+        "description": "Mỗi món đồ được tái chế là một điểm 10 cho hành tinh! Theo dõi lượng CO2 cắt giảm được và cùng nhau xây dựng tương lai bền vững."
+      }
+    }
+  }
+}

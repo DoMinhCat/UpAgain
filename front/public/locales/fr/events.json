@@ -1,3 +1,66 @@
 {
-  "events": "Évènements"
+  "events": "Événements",
+  "hero": {
+    "title": "Événements & Ateliers Durables",
+    "subtitle": "Rejoignez notre communauté de créateurs éco-responsables. Apprenez, partagez et impactez le monde à travers des expériences enrichissantes."
+  },
+  "categories": {
+    "workshop": "Atelier",
+    "conference": "Conférence",
+    "meetup": "Rencontre",
+    "exposition": "Exposition",
+    "other": "Autre",
+    "workshop_plural": "Ateliers",
+    "conference_plural": "Conférences",
+    "meetup_plural": "Rencontres",
+    "exposition_plural": "Expositions",
+    "other_plural": "Autres",
+    "see_all": "Voir tous les {{category}}",
+    "search_placeholder": "Rechercher dans cette catégorie...",
+    "explore_description": "Découvrez notre collection d'événements de type {{category}}. Rejoignez des ateliers, des conférences et des rencontres pour apprendre de nouvelles compétences et vous connecter avec la communauté."
+  },
+  "how_it_works": {
+    "title": "Comment ça marche ?",
+    "subtitle": "Rejoindre le mouvement de l'upcycling est aussi simple que 1-2-3 (et 4). Voici votre guide pour nos événements.",
+    "step1_title": "Choisissez votre passion",
+    "step1_desc": "Parcourez nos ateliers, rencontres et conférences. Il y en a pour tous les goûts écolos !",
+    "step2_title": "Réservez votre place",
+    "step2_desc": "Sécurisez votre place en un clic. Psst... la plupart de nos événements sont gratuits !",
+    "step3_title": "Restez organisé",
+    "step3_desc": "Gardez une trace de tous vos événements à venir dans votre page <1>Mon Planning</1>.",
+    "step4_title": "Profitez & Partagez",
+    "step4_desc": "Apprenez de nouvelles compétences, rencontrez des makers incroyables et partagez votre histoire d'upcycling avec le monde !"
+  },
+  "filters": {
+    "city": "Ville",
+    "sort": "Trier par",
+    "sort_soonest": "Le plus proche",
+    "sort_lowest": "Prix le plus bas",
+    "sort_highest": "Prix le plus élevé",
+    "sort_popular": "Le plus populaire",
+    "apply": "Appliquer",
+    "reset": "Réinitialiser les filtres"
+  },
+  "detail": {
+    "organized_by": "Organisé par",
+    "published_on": "Publié le",
+    "about": "À propos de cet événement",
+    "location": "Emplacement",
+    "map_placeholder": "Emplacement de la carte interactive",
+    "map_api_note": "L'API Google Maps sera intégrée ici",
+    "relevant_events": "Explorer des événements similaires",
+    "free_entry": "Entrée libre",
+    "per_person": "/ par personne",
+    "start_date": "Date de début",
+    "end_date": "Date de fin",
+    "capacity": "Capacité",
+    "spots_left": "{{count}} places restantes",
+    "register_now": "S'inscrire maintenant",
+    "cancel_registration": "Annuler l'inscription",
+    "see_attendees": "Voir les participants",
+    "edit_event": "Modifier l'événement",
+    "cancel_event": "Annuler l'événement",
+    "secure_payment": "Paiement sécurisé & confirmation instantanée",
+    "already_registered": "Vous êtes déjà inscrit à cet événement"
+  }
 }
