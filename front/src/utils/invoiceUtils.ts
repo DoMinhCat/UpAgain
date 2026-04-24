@@ -1,7 +1,7 @@
 import { type UserInvoice } from "../api/interfaces/finance";
 
-export function formatEuros(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
+export function formatEuros(amount: number, lang: string = "en-US"): string {
+  return new Intl.NumberFormat(lang, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
@@ -9,17 +9,20 @@ export function formatEuros(amount: number): string {
   }).format(amount);
 }
 
-export function formatDate(dateStr?: string): string {
+export function formatDate(dateStr?: string, lang: string = "fr-FR"): string {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("fr-FR");
+  return new Date(dateStr).toLocaleDateString(lang);
 }
 
-export function getInvoiceDescription(inv: UserInvoice): string {
+export function getInvoiceDescription(
+  inv: UserInvoice,
+  lang: string = "fr-FR",
+): string {
   switch (inv.type) {
     case "transaction":
       return inv.item_title ?? "—";
     case "subscription":
-      return `${formatDate(inv.sub_from)} → ${formatDate(inv.sub_to)}`;
+      return `${formatDate(inv.sub_from, lang)} → ${formatDate(inv.sub_to, lang)}`;
     case "ad":
       return inv.post_title ? `Post #${inv.post_id} — ${inv.post_title}` : "—";
     case "event":
@@ -31,12 +34,15 @@ export function getInvoiceDescription(inv: UserInvoice): string {
   }
 }
 
-export function getInvoiceDetails(inv: UserInvoice): string {
+export function getInvoiceDetails(
+  inv: UserInvoice,
+  lang: string = "en-US",
+): string {
   switch (inv.type) {
     case "transaction":
-      return `Price: ${formatEuros(inv.item_price ?? 0)} · Commission: ${formatEuros(inv.commission ?? 0)}`;
+      return `Price: ${formatEuros(inv.item_price ?? 0, lang)} · Commission: ${formatEuros(inv.commission ?? 0, lang)}`;
     case "ad":
-      return `${formatDate(inv.ad_start_date)} → ${formatDate(inv.ad_end_date)}`;
+      return `${formatDate(inv.ad_start_date, lang)} → ${formatDate(inv.ad_end_date, lang)}`;
     default:
       return "";
   }

@@ -10,13 +10,16 @@ export const LANGUAGES = [
 ];
 
 const namespaces = [
-  "common",
+  "about",
+  "admin",
   "auth",
-  "errors",
-  "marketplace",
+  "common",
   "community",
+  "contact",
+  "errors",
   "events",
   "home",
+  "marketplace",
 ];
 
 i18next
@@ -33,6 +36,6 @@ i18next
       escapeValue: false,
     },
     backend: {
-      loadPath: "locales/{{lng}}/{{ns}}.json",
+      loadPath: "/locales/{{lng}}/{{ns}}.json",
     },
   });

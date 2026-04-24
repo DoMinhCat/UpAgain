@@ -14,5 +14,100 @@
   },
   "about_us": "About us",
   "pricing": "Pricing",
-  "contact": "Contact"
+  "contact": "Contact",
+  "search": "Search",
+  "sort_by": "Sort by",
+  "confirm": "Confirm",
+  "all_status": "All status",
+  "not_assigned": "Not assigned",
+  "not_set": "Not set",
+  "roles": {
+    "user": "User",
+    "pro": "Pro",
+    "employee": "Employee",
+    "admin": "Admin"
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "update": "Update",
+    "create": "Create",
+    "type": "Type",
+    "apply_filters": "Apply filters",
+    "reset": "Reset"
+  },
+  "notifications": {
+    "loading": "Loading...",
+    "not_found": "Not found",
+    "success": "Success",
+    "error": "Error"
+  },
+  "time": {
+    "day": "day",
+    "days": "days",
+    "month": "month",
+    "months": "months",
+    "year": "year",
+    "years": "years"
+  },
+  "timeframe": {
+    "title": "Timeframe",
+    "all": "All time",
+    "today": "Today",
+    "last_3_days": "Last 3 days",
+    "last_week": "Last 7 days",
+    "last_month": "Last 30 days",
+    "last_year": "Last 365 days"
+  },
+  "timeframe_options": {
+    "today": "Today",
+    "last_3_days": "Last 3 days",
+    "last_week": "Last 7 days",
+    "last_month": "Last 30 days",
+    "last_year": "Last 365 days"
+  },
+  "materials": {
+    "all": "All materials",
+    "wood": "Wood",
+    "metal": "Metal",
+    "textile": "Textile",
+    "glass": "Glass",
+    "plastic": "Plastic",
+    "other": "Other",
+    "mixed": "Mixed"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "refused": "Refused",
+    "completed": "Completed",
+    "active": "Active",
+    "inactive": "Inactive",
+    "banned": "Banned",
+    "deleted": "Deleted"
+  },
+  "event_categories": {
+    "workshop": "Workshop",
+    "conference": "Conference",
+    "meetups": "Meetups",
+    "exposition": "Exposition",
+    "other": "Other"
+  }
 }

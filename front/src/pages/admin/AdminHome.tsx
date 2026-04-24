@@ -17,6 +17,7 @@ import {
   Group,
   Badge,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -50,6 +51,7 @@ import { useGetTotalScore } from "../../hooks/userHooks";
 import { useGetAdminHistory } from "../../hooks/historyHooks";
 
 export default function AdminHome() {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
@@ -100,7 +102,13 @@ export default function AdminHome() {
     appliedFilters.actionValue ?? undefined,
   );
 
-  const historyHeader = ["Timestamp", "Admin", "Module", "Item's ID", "Action"];
+  const historyHeader = [
+    t("history.table.timestamp"),
+    t("history.table.admin"),
+    t("history.table.module"),
+    t("history.table.item_id"),
+    t("history.table.action"),
+  ];
 
   const {
     data: accountCountStats,
@@ -129,18 +137,18 @@ export default function AdminHome() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
-        Overview Dashboard
+        {t("dashboard.title")}
       </Title>
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
         <AdminCardInfo
           icon={IconUsers}
-          title="Total Users"
+          title={t("dashboard.total_users")}
           value={accountCountStats?.total ?? 0}
           path={PATHS.ADMIN.USERS.ALL}
           description={
             errorAccountCountStats ? (
-              <Text c="red">An error occurred while loading user stats</Text>
+              <Text c="red">{t("dashboard.errors.user_stats")}</Text>
             ) : isLoadingAccountCountStats ? (
               <Loader size="sm" />
             ) : (
@@ -152,14 +160,14 @@ export default function AdminHome() {
                     color="var(--upagain-neutral-green)"
                   />
                 }
-                description=" users since last month"
+                description={t("dashboard.stats.users_since_last_month")}
               />
             )
           }
         />
         <AdminCardInfo
           icon={IconClipboardCheck}
-          title="Pending requests"
+          title={t("dashboard.pending_requests")}
           value={
             validationStats?.pending_deposits ||
             0 +
@@ -170,7 +178,7 @@ export default function AdminHome() {
           description={
             errorValidationStats ? (
               <Text c="red">
-                An error occurred while loading validation stats
+                {t("dashboard.errors.validation_stats")}
               </Text>
             ) : isLoadingValidationStats ? (
               <Loader size="sm" />
@@ -185,38 +193,34 @@ export default function AdminHome() {
                 icon={
                   <IconAlertTriangle size={24} color="var(--upagain-yellow)" />
                 }
-                description=" requests waiting for validation"
+                description={t("dashboard.stats.waiting_validation")}
               />
             )
           }
         />
         <AdminCardInfo
           icon={IconLeaf}
-          title="Total UpScore"
+          title={t("dashboard.total_upscore")}
           value={totalScore?.total || 0}
           description={
             isLoadingTotalScore ? (
               <Loader size="sm" />
             ) : errorTotalScore ? (
-              <Text c="red">An error occurred while loading total score</Text>
+              <Text c="red">{t("dashboard.errors.score_stats")}</Text>
             ) : (
               <StatsCardDesc
                 stats={totalScore?.co2 || 0}
                 icon={
                   <IconLeaf size={24} color="var(--upagain-neutral-green)" />
                 }
-                description={
-                  totalScore?.co2 === 1
-                    ? " kg of CO2 avoided by the community"
-                    : " kg of CO2 avoided by the community"
-                }
+                description={t("dashboard.stats.co2_avoided")}
               />
             )
           }
         />
         <AdminCardInfo
           icon={IconBox}
-          title="Available containers"
+          title={t("dashboard.available_containers")}
           value={
             containerCountStats?.active + " / " + containerCountStats?.total
           }
@@ -224,17 +228,19 @@ export default function AdminHome() {
           description={
             errorContainerCountStats ? (
               <Text c="red">
-                An error occurred while loading container stats
+                {t("dashboard.errors.container_stats")}
               </Text>
             ) : isLoadingContainerCountStats ? (
               <Loader size="sm" />
             ) : (
               <Box mt="xs">
                 <Text c="dimmed">
-                  {((containerCountStats?.active ?? 0) /
-                    (containerCountStats?.total ?? 0)) *
-                    100}
-                  % of containers in service
+                  {t("dashboard.stats.containers_in_service", {
+                    percent:
+                      ((containerCountStats?.active ?? 0) /
+                        (containerCountStats?.total ?? 0)) *
+                      100,
+                  })}
                 </Text>
                 <Progress
                   value={
@@ -252,54 +258,54 @@ export default function AdminHome() {
       <Divider my="xl" size="xs" color="gray.3" />
 
       <Title order={2} mb="xl">
-        Quick Navigation
+        {t("navigation.title")}
       </Title>
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
         <AdminCardNav
-          title="User"
-          description="Manage user accounts"
+          title={t("navigation.user.title")}
+          description={t("navigation.user.description")}
           icon={IconUsers}
           path={PATHS.ADMIN.USERS.ALL}
         />
         <AdminCardNav
-          title="Validation"
-          description="Validate or reject pending requests"
+          title={t("navigation.validation.title")}
+          description={t("navigation.validation.description")}
           icon={IconClipboardCheck}
           path={PATHS.ADMIN.VALIDATIONS.ALL}
         />
         <AdminCardNav
-          title="Container"
-          description="Manage UpAgain's containers"
+          title={t("navigation.container.title")}
+          description={t("navigation.container.description")}
           icon={IconBox}
           path={PATHS.ADMIN.CONTAINERS}
         />
         <AdminCardNav
-          title="Event/Workshop"
-          description="Manage upcoming & on-going events/workshops"
+          title={t("navigation.event.title")}
+          description={t("navigation.event.description")}
           icon={IconCalendarEventFilled}
           path={PATHS.ADMIN.EVENTS.ALL}
         />
         <AdminCardNav
-          title="Subscription"
-          description="Manage subscription price & premium accounts"
+          title={t("navigation.subscription.title")}
+          description={t("navigation.subscription.description")}
           icon={IconDiamond}
           path={PATHS.ADMIN.SUBSCRIPTIONS.ALL}
         />
         <AdminCardNav
-          title="Posts"
-          description="Manage comunity & sponsored posts"
+          title={t("navigation.posts.title")}
+          description={t("navigation.posts.description")}
           icon={IconArticle}
           path={PATHS.ADMIN.POSTS}
         />
         <AdminCardNav
-          title="Listings"
-          description="Manage listings posted by users"
+          title={t("navigation.listings.title")}
+          description={t("navigation.listings.description")}
           icon={IconBuildingStore}
           path={PATHS.ADMIN.LISTINGS}
         />
         <AdminCardNav
-          title="Finance Hub"
-          description="Analyze UpAgain's income"
+          title={t("navigation.finance.title")}
+          description={t("navigation.finance.description")}
           icon={IconPigMoney}
           path={PATHS.ADMIN.FINANCE.ALL}
         />
@@ -308,14 +314,14 @@ export default function AdminHome() {
       <Divider my="xl" size="xs" color="gray.3" />
 
       <Title order={2} mb="xl">
-        Admin History
+        {t("history.title")}
       </Title>
 
       <Grid align="flex-end" mb="md">
         <Grid.Col span={{ base: 12, md: 3 }}>
           <TextInput
-            label="Search"
-            placeholder="Search by admin's name or item's ID..."
+            label={t("history.filters.search")}
+            placeholder={t("history.filters.search_placeholder")}
             disabled={isLoadingHistory}
             rightSection={<IconSearch size={14} />}
             value={filters.searchValue}
@@ -330,14 +336,14 @@ export default function AdminHome() {
 
         <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
           <Select
-            label="Sort by"
-            placeholder="Pick one sort method"
+            label={t("history.filters.sort")}
+            placeholder={t("history.filters.sort_placeholder")}
             data={[
               {
                 value: "most_recent_activity",
-                label: "Most recent activity",
+                label: t("history.filters.sort_recent"),
               },
-              { value: "oldest_activity", label: "Oldest activity" },
+              { value: "oldest_activity", label: t("history.filters.sort_oldest") },
             ]}
             value={filters.sortValue}
             clearable
@@ -348,22 +354,22 @@ export default function AdminHome() {
 
         <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
           <Select
-            label="Module"
-            placeholder="All modules"
+            label={t("history.filters.module")}
+            placeholder={t("history.filters.module_placeholder")}
             data={[
-              { value: "employee", label: "Employee" },
-              { value: "user", label: "User" },
-              { value: "pro", label: "Pro" },
-              { value: "event", label: "Event" },
-              { value: "container", label: "Container" },
-              { value: "post", label: "Post" },
-              { value: "comment", label: "Comment" },
-              { value: "listing", label: "Listing" },
-              { value: "deposit", label: "Deposit" },
-              { value: "subscription", label: "Subscription" },
-              { value: "finance_setting", label: "Finance Setting" },
-              { value: "posts", label: "Posts" },
-              { value: "finance", label: "Finance" },
+              { value: "employee", label: t("modules.employee") },
+              { value: "user", label: t("modules.user") },
+              { value: "pro", label: t("modules.pro") },
+              { value: "event", label: t("modules.event") },
+              { value: "container", label: t("modules.container") },
+              { value: "post", label: t("modules.post") },
+              { value: "comment", label: t("modules.comment") },
+              { value: "listing", label: t("modules.listing") },
+              { value: "deposit", label: t("modules.deposit") },
+              { value: "subscription", label: t("modules.subscription") },
+              { value: "finance_setting", label: t("modules.finance_setting") },
+              { value: "posts", label: t("modules.posts") },
+              { value: "finance", label: t("modules.finance") },
             ]}
             value={filters.moduleValue}
             disabled={isLoadingHistory}
@@ -373,12 +379,12 @@ export default function AdminHome() {
         </Grid.Col>
         <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
           <Select
-            label="Action"
-            placeholder="All actions"
+            label={t("history.filters.action")}
+            placeholder={t("history.filters.action_placeholder")}
             data={[
-              { value: "create", label: "Create" },
-              { value: "update", label: "Update" },
-              { value: "delete", label: "Delete" },
+              { value: "create", label: t("actions.create") },
+              { value: "update", label: t("actions.update") },
+              { value: "delete", label: t("actions.delete") },
             ]}
             value={filters.actionValue}
             disabled={isLoadingHistory}
@@ -390,10 +396,10 @@ export default function AdminHome() {
         <Grid.Col span={{ base: 6, sm: 12, md: 3 }}>
           <Group gap="xs" grow>
             <Button variant="primary" onClick={handleSearchClick}>
-              Apply filters
+              {t("history.filters.apply")}
             </Button>
             <Button variant="secondary" onClick={handleResetFilters}>
-              Reset
+              {t("history.filters.reset")}
             </Button>
           </Group>
         </Grid.Col>
@@ -431,7 +437,7 @@ export default function AdminHome() {
             <Table.Tr>
               <Table.Td colSpan={5}>
                 <Flex justify="center" py="md">
-                  <Text>No history records found</Text>
+                  <Text>{t("history.table.no_records")}</Text>
                 </Flex>
               </Table.Td>
             </Table.Tr>
@@ -454,9 +460,12 @@ export default function AdminHome() {
                 </Table.Td>
                 <Table.Td ta="center">{row.admin_name}</Table.Td>
                 <Table.Td ta="center">
-                  {(
-                    row.module.charAt(0).toUpperCase() + row.module.slice(1)
-                  ).replace("_", " ")}
+                  {t(`modules.${row.module}` as any, {
+                    defaultValue: row.module
+                      .replace(/_/g, " ")
+                      .charAt(0)
+                      .toUpperCase() + row.module.slice(1).replace(/_/g, " "),
+                  })}
                 </Table.Td>
                 <Table.Td ta="center">
                   {typeof row.item_id === "string"
@@ -474,7 +483,11 @@ export default function AdminHome() {
                           : "red"
                     }
                   >
-                    {row.action.charAt(0).toUpperCase() + row.action.slice(1)}
+                    {t(`actions.${row.action}` as any, {
+                      defaultValue:
+                        row.action.charAt(0).toUpperCase() +
+                        row.action.slice(1),
+                    })}
                   </Badge>
                 </Table.Td>
               </Table.Tr>

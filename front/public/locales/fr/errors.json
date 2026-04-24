@@ -1,3 +1,18 @@
 {
-  "key": "value"
+  "403": {
+    "title": "Vous avez trouvé un coffre-fort !",
+    "description": "Malheureusement, ce n'est qu'une page d'erreur 403. Vous n'avez pas la bonne clé pour accéder au coffre que vous venez de trouver.",
+    "back_to_home": "Retour à la page d'accueil"
+  },
+  "404": {
+    "title": "Vous avez trouvé un endroit secret.",
+    "description": "Malheureusement, ce n'est qu'une page d'erreur 404. Vous avez peut-être mal tapé l'adresse, ou la page a été déplacée vers une autre URL.",
+    "back_to_home": "Retour à la page d'accueil"
+  },
+  "500": {
+    "title": "Oups ! Vous avez trouvé un bug ?",
+    "description": "Nous avons rencontré un problème inattendu. Veuillez nous contacter ou réessayer plus tard.",
+    "back_to_previous": "Retour à la page précédente",
+    "back_to_home": "Retour à la page d'accueil"
+  }
 }

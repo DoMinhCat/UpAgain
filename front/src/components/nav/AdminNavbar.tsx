@@ -254,7 +254,10 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
                     <Menu.Item
                       disabled={language.path === currentLanguage}
                       key={language.path}
-                      onClick={() => changeLanguage(language.lng)}
+                      onClick={() => {
+                        i18n.changeLanguage(language.lng);
+                        localStorage.setItem("i18nextLng", language.lng);
+                      }}
                       leftSection={
                         <Image
                           src={`/flags/${language.path}.png`}

@@ -51,19 +51,24 @@ import {
   StatsCardDesc,
 } from "../../../components/dashboard/AdminCardInfo";
 import { useGetSubscriptionStats } from "../../../hooks/subscriptionHooks";
+import { useTranslation } from "react-i18next";
 
 const LIMIT = 10;
 
-const timeframeLabel: Record<string, string> = {
-  all: "all time",
-  today: "today",
-  last_3_days: "the last 3 days",
-  last_week: "the last 7 days",
-  last_month: "the last 30 days",
-  last_year: "the last 365 days",
+const getTimeframeLabel = (t: any, key: string) => {
+  const labels: Record<string, string> = {
+    all: t("common:timeframe.all"),
+    today: t("common:timeframe.today"),
+    last_3_days: t("common:timeframe.last_3_days"),
+    last_week: t("common:timeframe.last_week"),
+    last_month: t("common:timeframe.last_month"),
+    last_year: t("common:timeframe.last_year"),
+  };
+  return labels[key] || labels.all;
 };
 
 export default function AdminSubscriptions() {
+  const { t } = useTranslation("admin");
   const { data: price } = useGetSubscriptionPrice();
   const priceMutation = useUpdateSubscriptionPrice();
   const [openedPrice, { open: openPrice, close: closePrice }] =
@@ -92,7 +97,7 @@ export default function AdminSubscriptions() {
     isLoading: isLoadingStats,
     isError: errorStats,
   } = useGetSubscriptionStats(chartTime || undefined);
-  const timeLabel = timeframeLabel[chartTime ?? "all"] ?? "all time";
+  const timeLabel = getTimeframeLabel(t, chartTime ?? "all");
   const { data: trialDays } = useGetTrialDays();
 
   //trial
@@ -151,7 +156,7 @@ export default function AdminSubscriptions() {
       <Table.Tr>
         <Table.Td colSpan={showReason ? 5 : 4}>
           <Text ta="center" c="dimmed" py="md">
-            No subscriptions found.
+            {t("subscriptions.table.no_subscriptions")}
           </Text>
         </Table.Td>
       </Table.Tr>
@@ -182,7 +187,9 @@ export default function AdminSubscriptions() {
           </Table.Td>
           <Table.Td ta="center">
             <Badge variant="light" color={sub.is_trial ? "blue" : "violet"}>
-              {sub.is_trial ? "Trial" : "Premium"}
+              {sub.is_trial
+                ? t("subscriptions.filters.types.trial")
+                : t("subscriptions.filters.types.premium")}
             </Badge>
           </Table.Td>
           {showReason && (
@@ -212,28 +219,28 @@ export default function AdminSubscriptions() {
     <Container px="md" size="xl">
       <Group justify="space-between" mb="xl">
         <Title order={2} mt="lg">
-          Subscriptions Management
+          {t("subscriptions.title")}
         </Title>
         <Select
-          label="Timeframe"
-          placeholder="All time"
+          label={t("common:timeframe.title")}
+          placeholder={t("common:timeframe.all")}
           value={chartTime}
           disabled={isLoadingStats}
           onChange={(value) => setChartTime(value)}
           data={[
-            { value: "all", label: "All Time" },
-            { value: "today", label: "Today" },
-            { value: "last_3_days", label: "Last 3 days" },
-            { value: "last_week", label: "Last 7 days" },
-            { value: "last_month", label: "Last 30 days" },
-            { value: "last_year", label: "Last 365 days" },
+            { value: "all", label: t("common:timeframe.all") },
+            { value: "today", label: t("common:timeframe.today") },
+            { value: "last_3_days", label: t("common:timeframe.last_3_days") },
+            { value: "last_week", label: t("common:timeframe.last_week") },
+            { value: "last_month", label: t("common:timeframe.last_month") },
+            { value: "last_year", label: t("common:timeframe.last_year") },
           ]}
         />
       </Group>
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg" mb="sm">
         <AdminCardInfo
           icon={IconCrown}
-          title="Total subscriptions *"
+          title={t("subscriptions.stats.total")}
           value={subStats?.total ?? 0}
           error={errorStats}
           loading={isLoadingStats}
@@ -246,13 +253,13 @@ export default function AdminSubscriptions() {
                   color="var(--upagain-neutral-green)"
                 />
               }
-              description=" currently active"
+              description={t("subscriptions.stats.active")}
             />
           }
         />
         <AdminCardInfo
           icon={IconChartBar}
-          title="New subscriptions"
+          title={t("subscriptions.stats.new")}
           value={subStats?.new_subscriptions ?? 0}
           error={errorStats}
           loading={isLoadingStats}
@@ -267,15 +274,15 @@ export default function AdminSubscriptions() {
               }
               description={
                 subStats?.new_subscriptions === 1
-                  ? " new subscription in ${timeLabel}"
-                  : ` new subscriptions in ${timeLabel}`
+                  ? t("subscriptions.stats.new_desc", { timeLabel })
+                  : t("subscriptions.stats.new_desc_plural", { timeLabel })
               }
             />
           }
         />
         <AdminCardInfo
           icon={IconUserCheck}
-          title="Active trials *"
+          title={t("subscriptions.stats.active_trials")}
           value={subStats?.active_trials ?? 0}
           error={errorStats}
           loading={isLoadingStats}
@@ -290,15 +297,15 @@ export default function AdminSubscriptions() {
               }
               description={
                 subStats?.active_trials === 1
-                  ? " trial currently in use"
-                  : " trials currently in use"
+                  ? t("subscriptions.stats.trials_desc")
+                  : t("subscriptions.stats.trials_desc_plural")
               }
             />
           }
         />
         <AdminCardInfo
           icon={IconCancel}
-          title="Cancellations *"
+          title={t("subscriptions.stats.cancellations")}
           value={subStats?.cancelled ?? 0}
           error={errorStats}
           loading={isLoadingStats}
@@ -306,13 +313,13 @@ export default function AdminSubscriptions() {
             <StatsCardDesc
               stats={subStats?.cancelled ?? 0}
               icon={<IconX size={24} color="red" />}
-              description=" total cancellations"
+              description={t("subscriptions.stats.total_cancellations")}
             />
           }
         />
       </SimpleGrid>
       <Text size="sm" c="dimmed" mb="xl">
-        * Timeframe not applicable for these metrics
+        {t("subscriptions.stats.timeframe_note")}
       </Text>
 
       {/* Price card */}
@@ -329,7 +336,7 @@ export default function AdminSubscriptions() {
             </ThemeIcon>
             <Stack gap={2}>
               <Text size="sm" c="dimmed" fw={500}>
-                Premium subscription price
+                {t("subscriptions.settings.price_label")}
               </Text>
               <Text fw={900} size="xl">
                 {price != null ? `${price} €` : "—"}
@@ -344,7 +351,7 @@ export default function AdminSubscriptions() {
               openPrice();
             }}
           >
-            Modify
+            {t("subscriptions.settings.modify")}
           </Button>
         </Group>
         <Divider my="sm" />
@@ -360,11 +367,14 @@ export default function AdminSubscriptions() {
             </ThemeIcon>
             <Stack gap={2}>
               <Text size="sm" c="dimmed" fw={500}>
-                Trial period
+                {t("subscriptions.settings.trial_period")}
               </Text>
               <Text fw={900} size="xl">
                 {trialDays != null
-                  ? `${trialDays} ` + (trialDays > 1 ? "days" : "day")
+                  ? `${trialDays} ` +
+                    (trialDays > 1
+                      ? t("common:time.days")
+                      : t("common:time.day"))
                   : "—"}
               </Text>
             </Stack>
@@ -377,7 +387,7 @@ export default function AdminSubscriptions() {
               openTrial();
             }}
           >
-            Modify
+            {t("subscriptions.settings.modify")}
           </Button>
         </Group>
       </Paper>
@@ -385,11 +395,11 @@ export default function AdminSubscriptions() {
       <Modal
         opened={openedTrial}
         onClose={closeTrial}
-        title="Update Trial Period"
+        title={t("subscriptions.settings.update_trial_title")}
         centered
       >
         <NumberInput
-          label="Trial Days"
+          label={t("subscriptions.settings.trial_days")}
           min={1}
           max={90}
           value={newTrialDays}
@@ -397,7 +407,7 @@ export default function AdminSubscriptions() {
         />
         <Group mt="xl" justify="flex-end">
           <Button variant="grey" onClick={closeTrial}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             variant="primary"
@@ -409,7 +419,7 @@ export default function AdminSubscriptions() {
               })
             }
           >
-            Confirm
+            {t("common:actions.confirm")}
           </Button>
         </Group>
       </Modal>
@@ -417,9 +427,9 @@ export default function AdminSubscriptions() {
         <Grid align="flex-end">
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
-              label="Search"
+              label={t("history.filters.search")}
               variant="filled"
-              placeholder="Search by username or ID..."
+              placeholder={t("subscriptions.filters.search_placeholder")}
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
@@ -432,13 +442,24 @@ export default function AdminSubscriptions() {
           </Grid.Col>
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Select
-              label="Sort by"
-              placeholder="Most recent"
+              label={t("history.filters.sort")}
+              placeholder={t(
+                "subscriptions.filters.sort_options.ends_earliest",
+              )}
               clearable
               data={[
-                { value: "sub_from_asc", label: "Oldest first" },
-                { value: "sub_to_asc", label: "Ends earliest" },
-                { value: "sub_to_desc", label: "Ends latest" },
+                {
+                  value: "sub_from_asc",
+                  label: t("subscriptions.filters.sort_options.oldest"),
+                },
+                {
+                  value: "sub_to_asc",
+                  label: t("subscriptions.filters.sort_options.ends_earliest"),
+                },
+                {
+                  value: "sub_to_desc",
+                  label: t("subscriptions.filters.sort_options.ends_latest"),
+                },
               ]}
               value={filters.sortValue}
               onChange={(val) => handleFilterChange("sortValue", val)}
@@ -446,12 +467,18 @@ export default function AdminSubscriptions() {
           </Grid.Col>
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Type"
-              placeholder="All types"
+              label={t("common:actions.type")}
+              placeholder={t("subscriptions.filters.types.all")}
               clearable
               data={[
-                { value: "true", label: "Trial" },
-                { value: "false", label: "Premium" },
+                {
+                  value: "true",
+                  label: t("subscriptions.filters.types.trial"),
+                },
+                {
+                  value: "false",
+                  label: t("subscriptions.filters.types.premium"),
+                },
               ]}
               value={filters.isTrialValue}
               onChange={(val) => handleFilterChange("isTrialValue", val)}
@@ -460,10 +487,10 @@ export default function AdminSubscriptions() {
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
               <Button onClick={handleSearchClick} variant="primary">
-                Apply filters
+                {t("history.filters.apply")}
               </Button>
               <Button onClick={handleResetFilters} variant="secondary">
-                Reset
+                {t("history.filters.reset")}
               </Button>
             </Group>
           </Grid.Col>
@@ -473,17 +500,22 @@ export default function AdminSubscriptions() {
       <Tabs defaultValue="ongoing">
         <Tabs.List mb="md">
           <Tabs.Tab value="ongoing" color="var(--upagain-neutral-green)">
-            Active
+            {t("subscriptions.tabs.active")}
           </Tabs.Tab>
           <Tabs.Tab value="canceled" color="red">
-            Canceled
+            {t("subscriptions.tabs.canceled")}
           </Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="ongoing">
           <AdminTable
             loading={loadingOngoing}
-            header={["Start date", "End date", "Username", "Type"]}
+            header={[
+              t("subscriptions.table.start_date"),
+              t("subscriptions.table.end_date"),
+              t("users.details.fields.username"),
+              t("common:actions.type"),
+            ]}
             footer={
               <PaginationFooter
                 activePage={ongoingPage}
@@ -504,11 +536,11 @@ export default function AdminSubscriptions() {
           <AdminTable
             loading={loadingCanceled}
             header={[
-              "Start date",
-              "End date",
-              "Username",
-              "Type",
-              "Cancel reason",
+              t("subscriptions.table.start_date"),
+              t("subscriptions.table.end_date"),
+              t("users.details.fields.username"),
+              t("common:actions.type"),
+              t("subscriptions.table.cancel_reason"),
             ]}
             footer={
               <PaginationFooter
@@ -531,12 +563,12 @@ export default function AdminSubscriptions() {
       <Modal
         opened={openedPrice}
         onClose={closePrice}
-        title="Update Subscription Price"
+        title={t("subscriptions.settings.update_price_title")}
         centered
       >
         <Stack gap="md">
           <NumberInput
-            label="New Price (€)"
+            label={t("subscriptions.settings.new_price")}
             min={1}
             step={0.5}
             decimalScale={2}
@@ -545,7 +577,7 @@ export default function AdminSubscriptions() {
           />
           <Group mt="sm" justify="flex-end">
             <Button variant="grey" onClick={closePrice}>
-              Cancel
+              {t("common:actions.cancel")}
             </Button>
             <Button
               variant="primary"
@@ -557,7 +589,7 @@ export default function AdminSubscriptions() {
                 })
               }
             >
-              Confirm
+              {t("common:actions.confirm")}
             </Button>
           </Group>
         </Stack>
