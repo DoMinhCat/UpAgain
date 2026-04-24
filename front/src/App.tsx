@@ -25,6 +25,7 @@ const UpAgainTheme = createTheme({
   focusRing: "never",
   fontFamily: "Nunito, sans-serif",
   cursorType: "pointer",
+  defaultRadius: "sm",
 
   components: {
     Select: Select.extend({
@@ -157,9 +158,9 @@ function App() {
           "--mantine-color-text": "#2a2a28",
           // these for custom components that need different color than background
           "--component-color-bg": "#44444e",
-          "--component-color-primary": "#45a575", // opposite
+          "--component-color-primary": "#45a575",
           "--border-color": "#c7c7c7",
-          "--paper-border-color": "#f6f4f4",
+          "--paper-color": "#fcfaf5",
           "--mantine-color-anchor": "#7a5c3e",
           "--mantine-primary-color-filled": "#45a575",
           "--upagain-yellow": "#e3b23c",
@@ -179,14 +180,14 @@ function App() {
           "--component-color-bg": "#f9f7f2",
           "--component-color-primary": "#45a575",
           "--border-color": "#78756e",
-          "--paper-border-color": "#3a3a3a",
+          "--paper-color": "#3a3a3a",
           "--mantine-color-dimmed": "#c9c9c9",
           "--mantine-color-anchor": "#e3b23c",
           "--mantine-primary-color-filled": "#45a575",
         },
       })}
     >
-      <Notifications limit={3} zIndex={1000} />
+      <Notifications limit={3} zIndex={1000} pauseResetOnHover="notification" />
       <RouterProvider router={router} />
     </MantineProvider>
   );

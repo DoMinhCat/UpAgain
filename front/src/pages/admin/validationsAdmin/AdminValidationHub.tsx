@@ -1064,22 +1064,39 @@ export default function AdminValidationHub() {
 
       <Tabs defaultValue="overview" keepMounted={false}>
         <Tabs.List>
-          <Tabs.Tab value="overview" leftSection={<IconChartBar size={16} />}>
+          <Tabs.Tab
+            color="var(--upagain-neutral-green)"
+            value="overview"
+            leftSection={<IconChartBar size={16} />}
+          >
             Overview
           </Tabs.Tab>
-          <Tabs.Tab value="deposits" leftSection={<IconSofa size={16} />}>
+          <Tabs.Tab
+            color="var(--upagain-neutral-green)"
+            value="deposits"
+            leftSection={<IconSofa size={16} />}
+          >
             Deposits
           </Tabs.Tab>
-          <Tabs.Tab value="listings" leftSection={<IconTags size={16} />}>
+          <Tabs.Tab
+            color="var(--upagain-neutral-green)"
+            value="listings"
+            leftSection={<IconTags size={16} />}
+          >
             Listings
           </Tabs.Tab>
           <Tabs.Tab
+            color="var(--upagain-neutral-green)"
             value="events"
             leftSection={<IconCalendarEvent size={16} />}
           >
             Events
           </Tabs.Tab>
-          <Tabs.Tab value="history" leftSection={<IconHistory size={16} />}>
+          <Tabs.Tab
+            color="var(--upagain-neutral-green)"
+            value="history"
+            leftSection={<IconHistory size={16} />}
+          >
             History
           </Tabs.Tab>
         </Tabs.List>

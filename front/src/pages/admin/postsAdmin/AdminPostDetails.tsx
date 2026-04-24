@@ -25,7 +25,7 @@ import {
   NumberInput,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
-import AdminBreadcrumbs from "../../../components/nav/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import {
@@ -410,7 +410,7 @@ export const AdminPostDetails = () => {
       <Title order={2} mt="xs" mb="sm">
         Post's Details
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin.from === "allPosts"
             ? [{ title: "Post Management", href: "/admin/posts" }]
@@ -428,7 +428,7 @@ export const AdminPostDetails = () => {
 
       <Container p="lg" size="xl">
         {/* LEFT SECTION */}
-        <Grid gutter="xl" align="flex-start" mb="xl">
+        <Grid gap="xl" align="flex-start" mb="xl">
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap={0} style={{ width: "100%" }}>
               <Group>

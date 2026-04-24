@@ -61,4 +61,10 @@ export const PATHS = {
     LISTINGS: "/marketplace/listings",
     DEPOSITS: "/marketplace/deposits",
   },
+  EVENTS: {
+    HOME: "/events",
+  },
+  POSTS: {
+    HOME: "/posts",
+  },
 } as const;
