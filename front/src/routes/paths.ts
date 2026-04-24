@@ -48,7 +48,6 @@ export const PATHS = {
     REGISTER: "/register",
     ABOUT: "/about",
     PRICING: "/pricing",
-    POSTS: "/posts",
     CONTACT: "/contact",
     FORGOT: "/forgot",
   },

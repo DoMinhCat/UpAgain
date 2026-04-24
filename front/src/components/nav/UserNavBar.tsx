@@ -66,7 +66,7 @@ export function UserNavBar() {
       {/* 2. Navigation Section */}
       <Group h="100%" gap="sm" visibleFrom="sm">
         <HeaderLink label="Marketplace" path="/marketplace" />
-        <HeaderLink label="Community" path={PATHS.GUEST.POSTS} />
+        <HeaderLink label="Community" path={PATHS.USER.POSTS.ALL} />
         <HeaderLink label="Events" path="/events" />
       </Group>
 
@@ -250,7 +250,7 @@ export function UserNavBar() {
           />
           <HeaderLink
             label="Community"
-            path={PATHS.GUEST.POSTS}
+            path={PATHS.USER.POSTS.ALL}
             onClick={closeDrawer}
           />
           <HeaderLink label="Events" path="/events" onClick={closeDrawer} />
