@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
 import { PATHS } from "../../routes/paths";
 import { ThemeToggleButton, HeaderLink } from "../nav/NavBarComponents";
-import { LANGUAGES } from "../../i18n/languages";
+import { LANGUAGES } from "../../i18n/index";
 import { useState } from "react";
 
 export function GuestNavBar() {
