@@ -99,6 +99,12 @@ export function UserNavBar() {
                   color="var(--upagain-neutral-green)"
                   leftSection={<IconLeaf size={16} />}
                   style={{ padding: "0 10px", cursor: "pointer" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.transform = "translateY(-2px)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.transform = "translateY(0)")
+                  }
                 >
                   {accountDetails?.score ?? 0} pts
                 </Badge>
@@ -109,6 +115,13 @@ export function UserNavBar() {
                     variant="subtle"
                     color="gray"
                     size="lg"
+                    style={{ backgroundColor: "transparent" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.transform = "translateY(-2px)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.transform = "translateY(0)")
+                    }
                     radius="md"
                   >
                     <Indicator color="red" size={8} offset={2} processing>
