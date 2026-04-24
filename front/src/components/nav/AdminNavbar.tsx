@@ -162,6 +162,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
           <Menu shadow="md" width={200} position="bottom-start" zIndex={300}>
             <Menu.Target>
               <UnstyledButton
+                style={{ backgroundColor: "transparent" }}
                 className={classes.userButton}
                 aria-label="User menu"
               >
