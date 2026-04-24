@@ -33,9 +33,11 @@ interface EventCardProps {
   city: string;
   postalCode: string;
   registeredCount: number;
+  onclick: () => void;
 }
 
 export function EventCard({
+  onclick,
   orientation = "vertical",
   category,
   title,
@@ -57,6 +59,7 @@ export function EventCard({
     <Card
       className="paper"
       data-variant="primary"
+      onClick={onclick}
       radius="lg"
       p={0}
       withBorder
