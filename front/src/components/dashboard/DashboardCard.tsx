@@ -1,5 +1,5 @@
 import { Paper, Stack, Group, Text, ThemeIcon } from "@mantine/core";
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 interface DashboardCardProps {
   title: string;
@@ -29,9 +29,7 @@ export function DashboardCard({
       onMouseEnter={(e) =>
         (e.currentTarget.style.transform = "translateY(-4px)")
       }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.transform = "translateY(0)")
-      }
+      onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
     >
       <Stack gap="md" align={align} h="100%">
         <Group justify="space-between" w="100%">

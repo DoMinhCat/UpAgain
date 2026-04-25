@@ -18,6 +18,7 @@ import EventPlanning from "../pages/common/event/EventPlanning";
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
   const location = useLocation();
+  const pathname = location.pathname;
   const prevUser = useRef(user);
 
   useEffect(() => {
@@ -27,12 +28,15 @@ const UserGuard = ({ children }: { children: ReactNode }) => {
       !isInitializing &&
       !user &&
       !prevUser.current &&
-      location.pathname.includes("events")
+      (pathname.includes("events") ||
+        pathname.includes("score") ||
+        pathname.includes("profile") ||
+        pathname.includes("marketplace"))
     ) {
-      if (location.pathname !== PATHS.GUEST.LOGIN) {
+      if (pathname !== PATHS.GUEST.LOGIN) {
         showErrorNotification(
           "Login required",
-          "You must be logged in to access events",
+          "You must be logged in to access this page",
         );
       }
     }

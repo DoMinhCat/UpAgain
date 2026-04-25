@@ -44,8 +44,10 @@ import PaginationFooter from "../../../components/common/PaginationFooter";
 import dayjs from "dayjs";
 import { PATHS } from "../../../routes/paths";
 import type { Post } from "../../../api/interfaces/post";
+import { useTranslation } from "react-i18next";
 
 export const AdminPostsModule = () => {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
 
   // STATS CARD
@@ -59,37 +61,37 @@ export const AdminPostsModule = () => {
     if (!postStats?.category_counts) return [];
     return [
       {
-        label: "Tutorial",
+        label: t("posts.categories.tutorial"),
         value: postStats.category_counts["tutorial"] || 0,
         color: "var(--mantine-color-blue-6)",
       },
       {
-        label: "Project",
+        label: t("posts.categories.project"),
         value: postStats.category_counts["project"] || 0,
         color: "var(--mantine-color-green-6)",
       },
       {
-        label: "Tips",
+        label: t("posts.categories.tips"),
         value: postStats.category_counts["tips"] || 0,
         color: "var(--mantine-color-yellow-6)",
       },
       {
-        label: "News",
+        label: t("posts.categories.news"),
         value: postStats.category_counts["news"] || 0,
         color: "var(--mantine-color-red-6)",
       },
       {
-        label: "Case Study",
+        label: t("posts.categories.case_study"),
         value: postStats.category_counts["case_study"] || 0,
         color: "var(--mantine-color-violet-6)",
       },
       {
-        label: "Other",
+        label: t("posts.categories.other"),
         value: postStats.category_counts["other"] || 0,
         color: "var(--mantine-color-gray-6)",
       },
     ];
-  }, [postStats]);
+  }, [postStats, t]);
 
   // CREATE MODAL
   const [openedCreate, { open: openCreate, close: closeCreate }] =
@@ -104,7 +106,7 @@ export const AdminPostsModule = () => {
 
   const validateTitle = () => {
     if (!title) {
-      setErrorTitle("Title is required");
+      setErrorTitle(t("posts.create_modal.errors.title"));
       return false;
     } else {
       setErrorTitle("");
@@ -113,10 +115,10 @@ export const AdminPostsModule = () => {
   };
   const validateCategory = () => {
     if (!category) {
-      setErrorCategory("Category is required");
+      setErrorCategory(t("posts.create_modal.errors.category"));
       return false;
     } else if (category === "project") {
-      setErrorCategory("Only professionals can create a project");
+      setErrorCategory(t("posts.create_modal.errors.category_project"));
       return false;
     } else {
       setErrorCategory("");
@@ -126,7 +128,7 @@ export const AdminPostsModule = () => {
   const validateDescription = () => {
     const stripped = description.replace(/<[^>]*>/g, "").trim();
     if (!description || stripped === "") {
-      setErrorDescription("Post's content is required");
+      setErrorDescription(t("posts.create_modal.errors.description"));
       return false;
     } else {
       setErrorDescription("");
@@ -164,8 +166,8 @@ export const AdminPostsModule = () => {
     createPostMutation.mutate(formData, {
       onSuccess: () => {
         showSuccessNotification(
-          "Post created ",
-          "A new post has been created successfully",
+          t("posts.notifications.created_title"),
+          t("posts.notifications.created_msg"),
         );
         handleCloseCreate();
       },
@@ -239,8 +241,8 @@ export const AdminPostsModule = () => {
         onSuccess: () => {
           closeDelete();
           showSuccessNotification(
-            "Post deleted",
-            "The post has been deleted successfully",
+            t("posts.notifications.deleted_title"),
+            t("posts.notifications.deleted_msg"),
           );
         },
       });
@@ -249,7 +251,7 @@ export const AdminPostsModule = () => {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
-        Post Management
+        {t("posts.title")}
       </Title>
 
       {/* stats cards */}
@@ -258,7 +260,7 @@ export const AdminPostsModule = () => {
           <Stack gap="md" h="100%">
             <AdminCardInfo
               icon={IconCalendarEventFilled}
-              title="Total active posts"
+              title={t("posts.stats.total_active")}
               value={postStats?.total_posts ?? 0}
               error={isErrorPostStats}
               loading={isLoadingPostStats}
@@ -271,13 +273,13 @@ export const AdminPostsModule = () => {
                       color="var(--upagain-neutral-green)"
                     />
                   }
-                  description={" posts since last month"}
+                  description={t("posts.stats.posts_since")}
                 />
               }
             />
             <AdminCardInfo
               icon={IconCalendarTime}
-              title="Engagement rate"
+              title={t("posts.stats.engagement_rate")}
               value={(postStats?.engagement_rate ?? 0) + "%"}
               error={isErrorPostStats}
               loading={isLoadingPostStats}
@@ -290,7 +292,7 @@ export const AdminPostsModule = () => {
                       color="var(--upagain-neutral-green)"
                     />
                   }
-                  description={" interactions per post"}
+                  description={t("posts.stats.interactions_per_post")}
                 />
               }
             />
@@ -300,7 +302,7 @@ export const AdminPostsModule = () => {
         <Grid.Col span={{ base: 12, md: 8 }}>
           <Paper px="md" radius="lg" shadow="sm" h="100%">
             <Title order={4} mb="lg" pt="md">
-              Posts Distribution by Category
+              {t("posts.stats.distribution")}
             </Title>
             <BarChart
               h={300}
@@ -329,7 +331,7 @@ export const AdminPostsModule = () => {
                           {data.label}
                         </Text>
                         <Text fw={700} size="sm">
-                          {data.value} Posts
+                          {data.value} {t("posts.stats.posts_count")}
                         </Text>
                       </Paper>
                     );
@@ -345,7 +347,7 @@ export const AdminPostsModule = () => {
       <Stack gap="md" my="xl">
         <Group justify="space-between" align="flex-end">
           <Title c="dimmed" order={3}>
-            Manage posts and projects
+            {t("posts.manage_subtitle")}
           </Title>
 
           <Group gap="xs" align="flex-end">
@@ -354,22 +356,22 @@ export const AdminPostsModule = () => {
               leftSection={<IconPlus size={16} />}
               onClick={openCreate}
             >
-              New Post
+              {t("posts.new_post")}
             </Button>
 
             {/* create modal */}
             <Modal
               opened={openedCreate}
               onClose={handleCloseCreate}
-              title="Create Post"
+              title={t("posts.create_modal.title")}
               size="xl"
             >
               <Stack mb="md">
                 <TextInput
                   data-autofocus
                   withAsterisk
-                  placeholder="Give the post a catchy title"
-                  label="Title"
+                  placeholder={t("posts.create_modal.title_placeholder")}
+                  label={t("posts.create_modal.title_label")}
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
@@ -386,28 +388,38 @@ export const AdminPostsModule = () => {
                 <Select
                   withAsterisk
                   clearable
-                  label="Category"
+                  label={t("posts.create_modal.category_label")}
                   value={category}
                   disabled={createPostMutation.isPending}
-                  placeholder="Select a category"
+                  placeholder={t("posts.create_modal.category_placeholder")}
                   error={errorCategory}
                   onBlur={() => validateCategory()}
                   data={[
-                    { value: "tutorial", label: "Tutorial" },
-                    { value: "tips", label: "Tips" },
-                    { value: "news", label: "News" },
-                    { value: "case_study", label: "Case Study" },
-                    { value: "project", label: "Project", disabled: true },
-                    { value: "other", label: "Other" },
+                    {
+                      value: "tutorial",
+                      label: t("posts.categories.tutorial"),
+                    },
+                    { value: "tips", label: t("posts.categories.tips") },
+                    { value: "news", label: t("posts.categories.news") },
+                    {
+                      value: "case_study",
+                      label: t("posts.categories.case_study"),
+                    },
+                    {
+                      value: "project",
+                      label: t("posts.categories.project"),
+                      disabled: true,
+                    },
+                    { value: "other", label: t("posts.categories.other") },
                   ]}
                   onChange={(value) => {
                     setCategory(value as string);
                   }}
                 />
                 <TextEditor
-                  label="Content"
+                  label={t("posts.create_modal.content_label")}
                   value={description}
-                  placeholder="Write your post content here..."
+                  placeholder={t("posts.create_modal.content_placeholder")}
                   error={errorDescription}
                   onChange={(value) => {
                     setDescription(value);
@@ -420,7 +432,9 @@ export const AdminPostsModule = () => {
                 setFiles={setFiles}
               />
               <Group mt="lg" justify="center">
-                <Button variant="grey">Cancel</Button>
+                <Button variant="grey" onClick={handleCloseCreate}>
+                  {t("posts.create_modal.cancel", { defaultValue: "Cancel" })}
+                </Button>
                 <Button
                   onClick={(e) => {
                     handleCreatePost(e);
@@ -428,7 +442,7 @@ export const AdminPostsModule = () => {
                   loading={createPostMutation.isPending}
                   variant="primary"
                 >
-                  Confirm
+                  {t("common:actions.confirm")}
                 </Button>
               </Group>
             </Modal>
@@ -438,8 +452,8 @@ export const AdminPostsModule = () => {
         <Grid align="flex-end">
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
-              label="Search"
-              placeholder="Search by employee's name, event's ID or title..."
+              label={t("common:search")}
+              placeholder={t("posts.filters.search_placeholder")}
               rightSection={<IconSearch size={14} />}
               disabled={isAllPostsLoading}
               value={filters.searchValue}
@@ -456,29 +470,32 @@ export const AdminPostsModule = () => {
 
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Select
-              label="Sort by"
-              placeholder="Pick one sort method"
+              label={t("common:sort_by")}
+              placeholder={t("common:sort_by")}
               data={[
                 {
                   value: "most_recent_creation",
-                  label: "Most recent creation",
+                  label: t("posts.filters.sort_options.most_recent_creation"),
                 },
-                { value: "oldest_creation", label: "Oldest creation" },
+                {
+                  value: "oldest_creation",
+                  label: t("posts.filters.sort_options.oldest_creation"),
+                },
                 {
                   value: "highest_like",
-                  label: "Highest like",
+                  label: t("posts.filters.sort_options.highest_like"),
                 },
                 {
                   value: "lowest_like",
-                  label: "Lowest like",
+                  label: t("posts.filters.sort_options.lowest_like"),
                 },
                 {
                   value: "highest_view",
-                  label: "Highest view",
+                  label: t("posts.filters.sort_options.highest_view"),
                 },
                 {
                   value: "lowest_view",
-                  label: "Lowest view",
+                  label: t("posts.filters.sort_options.lowest_view"),
                 },
               ]}
               value={filters.sortValue}
@@ -490,16 +507,19 @@ export const AdminPostsModule = () => {
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Category"
-              placeholder="All category"
+              label={t("posts.table.category")}
+              placeholder={t("posts.categories.all")}
               data={[
-                { value: "tutorial", label: "Tutorial" },
-                { value: "project", label: "Project" },
-                { value: "tips", label: "Tips" },
-                { value: "news", label: "News" },
-                { value: "case_study", label: "Case study" },
-                { value: "other", label: "Other" },
-                { value: "sponsored", label: "Sponsored" },
+                { value: "tutorial", label: t("posts.categories.tutorial") },
+                { value: "project", label: t("posts.categories.project") },
+                { value: "tips", label: t("posts.categories.tips") },
+                { value: "news", label: t("posts.categories.news") },
+                {
+                  value: "case_study",
+                  label: t("posts.categories.case_study"),
+                },
+                { value: "other", label: t("posts.categories.other") },
+                { value: "sponsored", label: t("posts.categories.sponsored") },
               ]}
               value={filters.categoryValue}
               disabled={isAllPostsLoading}
@@ -511,10 +531,10 @@ export const AdminPostsModule = () => {
           <Grid.Col span={{ base: 12, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
               <Button variant="primary" onClick={handleSearchClick}>
-                Apply filters
+                {t("common:actions.apply_filters")}
               </Button>
               <Button variant="secondary" onClick={handleResetFilters}>
-                Reset
+                {t("common:actions.reset")}
               </Button>
             </Group>
           </Grid.Col>
@@ -526,14 +546,14 @@ export const AdminPostsModule = () => {
         loading={isAllPostsLoading}
         error={allPostsError}
         header={[
-          "Created on",
-          "ID",
-          "Title",
-          "Creator",
-          "Category",
-          "Views",
-          "Likes",
-          "Actions",
+          t("posts.table.created_on"),
+          t("posts.table.id"),
+          t("posts.table.title"),
+          t("posts.table.creator"),
+          t("posts.table.category"),
+          t("posts.table.views"),
+          t("posts.table.likes"),
+          t("posts.table.actions"),
         ]}
         footer={
           <PaginationFooter
@@ -566,7 +586,10 @@ export const AdminPostsModule = () => {
                 <Group>
                   <Text>{post.title}</Text>
                   {post.ads_id && (
-                    <Tooltip label="This post is sponsored" position="top">
+                    <Tooltip
+                      label={t("posts.details.sponsored")}
+                      position="top"
+                    >
                       <IconCrownFilled
                         size={16}
                         color="var(--upagain-yellow)"
@@ -592,8 +615,11 @@ export const AdminPostsModule = () => {
                               : "red"
                   }
                 >
-                  {post.category.charAt(0).toUpperCase() +
-                    post.category.slice(1)}
+                  {t(`posts.categories.${post.category}` as any, {
+                    defaultValue:
+                      post.category.charAt(0).toUpperCase() +
+                      post.category.slice(1),
+                  })}
                 </Badge>
               </Table.Td>
               <Table.Td ta="center">{post.view_count}</Table.Td>
@@ -608,7 +634,7 @@ export const AdminPostsModule = () => {
                       navigate(PATHS.ADMIN.POSTS + "/" + post.id);
                     }}
                   >
-                    Edit
+                    {t("common:actions.edit")}
                   </Button>
                   <Button
                     size="xs"
@@ -618,7 +644,7 @@ export const AdminPostsModule = () => {
                       handleModalDelete(post);
                     }}
                   >
-                    Delete
+                    {t("common:actions.delete")}
                   </Button>
                 </Group>
               </Table.Td>
@@ -627,21 +653,20 @@ export const AdminPostsModule = () => {
         ) : (
           <Table.Tr>
             <Table.Td colSpan={8} ta="center">
-              No posts found
+              {t("posts.table.no_posts")}
             </Table.Td>
           </Table.Tr>
         )}
       </AdminTable>
       <Modal
-        title="Delete this post?"
+        title={t("posts.delete_modal.title")}
         opened={openedDelete}
         onClose={closeDelete}
       >
-        Are you sure you want to delete this post? This post will be soft
-        deleted.
+        {t("posts.delete_modal.text")}
         <Group mt="lg" justify="flex-end">
           <Button onClick={closeDelete} variant="grey">
-            Cancel
+            {t("posts.delete_modal.cancel")}
           </Button>
           <Button
             onClick={(e) => {
@@ -650,7 +675,7 @@ export const AdminPostsModule = () => {
             variant="delete"
             loading={deletePostMutation.isPending}
           >
-            Delete
+            {t("posts.delete_modal.confirm")}
           </Button>
         </Group>
       </Modal>

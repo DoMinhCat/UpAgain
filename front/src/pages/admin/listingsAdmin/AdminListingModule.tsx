@@ -40,8 +40,10 @@ import { useNavigate } from "react-router-dom";
 import type { Item } from "../../../api/interfaces/item";
 import { useDisclosure } from "@mantine/hooks";
 import { ChartLegend } from "../../../components/chart/ChartLegend";
+import { useTranslation } from "react-i18next";
 
 export function AdminListingModule() {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
 
   // Get table data
@@ -137,21 +139,46 @@ export function AdminListingModule() {
     <Container px="md" size="xl">
       <Group justify="space-between" mb="xl">
         <Title order={2} mt="lg">
-          Object Management
+          {t("listings.title")}
         </Title>
         <Select
-          label="Timeframe"
-          placeholder="All time"
+          label={t("common:timeframe.title", { defaultValue: "Timeframe" })}
+          placeholder={t("users.status.all")}
           value={chartTime}
           disabled={isItemStatsLoading}
           onChange={(value) => setChartTime(value)}
           data={[
-            { value: "all", label: "All Time" },
-            { value: "today", label: "Today" },
-            { value: "last_3_days", label: "Last 3 days" },
-            { value: "last_week", label: "Last 7 days" },
-            { value: "last_month", label: "Last 30 days" },
-            { value: "last_year", label: "Last 365 days" },
+            { value: "all", label: t("users.status.all") },
+            {
+              value: "today",
+              label: t("common:timeframe_options.today", {
+                defaultValue: "Today",
+              }),
+            },
+            {
+              value: "last_3_days",
+              label: t("common:timeframe_options.last_3_days", {
+                defaultValue: "Last 3 days",
+              }),
+            },
+            {
+              value: "last_week",
+              label: t("common:timeframe_options.last_week", {
+                defaultValue: "Last 7 days",
+              }),
+            },
+            {
+              value: "last_month",
+              label: t("common:timeframe_options.last_month", {
+                defaultValue: "Last 30 days",
+              }),
+            },
+            {
+              value: "last_year",
+              label: t("common:timeframe_options.last_year", {
+                defaultValue: "Last 365 days",
+              }),
+            },
           ]}
         />
       </Group>
@@ -160,7 +187,7 @@ export function AdminListingModule() {
       <SimpleGrid cols={{ base: 1, sm: 3 }} mb="sm">
         <AdminCardInfo
           icon={IconCalendarEvent}
-          title="Total Active Objects *"
+          title={t("listings.stats.active_objects")}
           value={itemStats?.active || 0}
           loading={isItemStatsLoading}
           description={
@@ -174,15 +201,15 @@ export function AdminListingModule() {
               }
               description={
                 itemStats?.new_since != 1
-                  ? " new objects posted since last month"
-                  : " new object posted since last month"
+                  ? t("listings.stats.new_objects_desc")
+                  : t("listings.stats.new_objects_desc_single")
               }
             />
           }
         />
         <AdminCardInfo
           icon={IconClockPause}
-          title="Pending Approval *"
+          title={t("listings.stats.pending_approval")}
           value={itemStats?.pending || 0}
           loading={isItemStatsLoading}
           description={
@@ -193,15 +220,15 @@ export function AdminListingModule() {
               }
               description={
                 itemStats?.pending != 1
-                  ? " objects require validation"
-                  : " object require validation"
+                  ? t("listings.stats.require_validation")
+                  : t("listings.stats.require_validation_single")
               }
             />
           }
         />
         <AdminCardInfo
           icon={IconChecklist}
-          title="Completed Transactions"
+          title={t("listings.stats.completed_transactions")}
           value={itemStats?.total_transactions || 0}
           loading={isItemStatsLoading}
           description={
@@ -215,15 +242,15 @@ export function AdminListingModule() {
               }
               description={
                 itemStats?.new_transactions_since != 1
-                  ? " new transactions since last month"
-                  : " new transaction since last month"
+                  ? t("listings.stats.new_transactions_desc")
+                  : t("listings.stats.new_transactions_desc_single")
               }
             />
           }
         />
       </SimpleGrid>
       <Text size="sm" c="dimmed" mb="xl">
-        * Timeframe not applicable for these metrics
+        {t("listings.stats.timeframe_note")}
       </Text>
 
       {/* 2. Bottom Row: Distribution Analysis */}
@@ -232,9 +259,9 @@ export function AdminListingModule() {
           <Paper withBorder p="lg" radius="md" shadow="sm" variant="primary">
             <Group justify="space-between" mb="xl">
               <Stack gap={0}>
-                <Title order={4}>Objects Analytics</Title>
+                <Title order={4}>{t("listings.analytics.title")}</Title>
                 <Text size="sm" c="dimmed">
-                  Distribution by material and category
+                  {t("listings.analytics.desc")}
                 </Text>
               </Stack>
             </Group>
@@ -243,7 +270,7 @@ export function AdminListingModule() {
               {/* Material Chart */}
               <Stack align="center">
                 <Text fw={700} size="sm" c="dimmed" tt="uppercase">
-                  By Material
+                  {t("listings.analytics.by_material")}
                 </Text>
                 {isItemStatsLoading ? (
                   <Loader size="xl" />
@@ -255,9 +282,7 @@ export function AdminListingModule() {
                     (itemStats?.total_other || 0) +
                     (itemStats?.total_mixed || 0) ===
                   0 ? (
-                  <Text c="dimmed">
-                    No data available during the selected timeframe
-                  </Text>
+                  <Text c="dimmed">{t("listings.analytics.no_data")}</Text>
                 ) : (
                   <PieChart
                     withLabelsLine
@@ -270,37 +295,51 @@ export function AdminListingModule() {
                     w={280}
                     data={[
                       {
-                        name: "Wood",
+                        name: t("common:materials.wood", {
+                          defaultValue: "Wood",
+                        }),
                         value: itemStats?.total_wood || 0,
                         color: "blue.6",
                       },
                       {
-                        name: "Metal",
+                        name: t("common:materials.metal", {
+                          defaultValue: "Metal",
+                        }),
                         value: itemStats?.total_metal || 0,
                         color: "green.6",
                       },
                       {
-                        name: "Textile",
+                        name: t("common:materials.textile", {
+                          defaultValue: "Textile",
+                        }),
                         value: itemStats?.total_textile || 0,
                         color: "yellow.6",
                       },
                       {
-                        name: "Glass",
+                        name: t("common:materials.glass", {
+                          defaultValue: "Glass",
+                        }),
                         value: itemStats?.total_glass || 0,
                         color: "red.6",
                       },
                       {
-                        name: "Plastic",
+                        name: t("common:materials.plastic", {
+                          defaultValue: "Plastic",
+                        }),
                         value: itemStats?.total_plastic || 0,
                         color: "violet.6",
                       },
                       {
-                        name: "Other",
+                        name: t("common:materials.other", {
+                          defaultValue: "Other",
+                        }),
                         value: itemStats?.total_other || 0,
                         color: "gray.6",
                       },
                       {
-                        name: "Mixed",
+                        name: t("common:materials.mixed", {
+                          defaultValue: "Mixed",
+                        }),
                         value: itemStats?.total_mixed || 0,
                         color: "cyan.6",
                       },
@@ -309,13 +348,48 @@ export function AdminListingModule() {
                 )}
                 <ChartLegend
                   data={[
-                    { label: "Wood", color: "blue.6" },
-                    { label: "Metal", color: "green.6" },
-                    { label: "Textile", color: "yellow.6" },
-                    { label: "Glass", color: "red.6" },
-                    { label: "Plastic", color: "violet.6" },
-                    { label: "Other", color: "gray.6" },
-                    { label: "Mixed", color: "cyan.6" },
+                    {
+                      label: t("common:materials.wood", {
+                        defaultValue: "Wood",
+                      }),
+                      color: "blue.6",
+                    },
+                    {
+                      label: t("common:materials.metal", {
+                        defaultValue: "Metal",
+                      }),
+                      color: "green.6",
+                    },
+                    {
+                      label: t("common:materials.textile", {
+                        defaultValue: "Textile",
+                      }),
+                      color: "yellow.6",
+                    },
+                    {
+                      label: t("common:materials.glass", {
+                        defaultValue: "Glass",
+                      }),
+                      color: "red.6",
+                    },
+                    {
+                      label: t("common:materials.plastic", {
+                        defaultValue: "Plastic",
+                      }),
+                      color: "violet.6",
+                    },
+                    {
+                      label: t("common:materials.other", {
+                        defaultValue: "Other",
+                      }),
+                      color: "gray.6",
+                    },
+                    {
+                      label: t("common:materials.mixed", {
+                        defaultValue: "Mixed",
+                      }),
+                      color: "cyan.6",
+                    },
                   ]}
                 />
               </Stack>
@@ -323,16 +397,14 @@ export function AdminListingModule() {
               {/* Category Chart */}
               <Stack align="center">
                 <Text fw={700} size="sm" c="dimmed" tt="uppercase">
-                  By Type
+                  {t("listings.analytics.by_type")}
                 </Text>
                 {isItemStatsLoading ? (
                   <Loader size="xl" />
                 ) : (itemStats?.total_listings || 0) +
                     (itemStats?.total_deposits || 0) ===
                   0 ? (
-                  <Text c="dimmed">
-                    No data available during the selected timeframe
-                  </Text>
+                  <Text c="dimmed">{t("listings.analytics.no_data")}</Text>
                 ) : (
                   <PieChart
                     withTooltip
@@ -345,12 +417,12 @@ export function AdminListingModule() {
                     w={280}
                     data={[
                       {
-                        name: "Listing",
+                        name: t("validations.overview.types.listing"),
                         value: itemStats?.total_listings || 0,
                         color: "indigo.6",
                       },
                       {
-                        name: "Deposit",
+                        name: t("validations.overview.types.deposit"),
                         value: itemStats?.total_deposits || 0,
                         color: "cyan.6",
                       },
@@ -359,8 +431,14 @@ export function AdminListingModule() {
                 )}
                 <ChartLegend
                   data={[
-                    { label: "Listing", color: "indigo.6" },
-                    { label: "Deposit", color: "cyan.6" },
+                    {
+                      label: t("validations.overview.types.listing"),
+                      color: "indigo.6",
+                    },
+                    {
+                      label: t("validations.overview.types.deposit"),
+                      color: "cyan.6",
+                    },
                   ]}
                 />
               </Stack>
@@ -372,15 +450,15 @@ export function AdminListingModule() {
       {/* Search and filters */}
       <Stack gap="md" my="xl">
         <Title c="dimmed" order={3}>
-          Manage listings and deposits
+          {t("listings.filters.title")}
         </Title>
 
         {/* filter options */}
         <Grid align="flex-end">
           <Grid.Col span={{ base: 12, md: 4 }}>
             <TextInput
-              label="Search"
-              placeholder="Search by owner's name, item's ID or title..."
+              label={t("history.filters.search")}
+              placeholder={t("listings.filters.search_placeholder")}
               rightSection={<IconSearch size={14} />}
               disabled={isItemsLoading}
               value={filters.searchValue}
@@ -397,21 +475,24 @@ export function AdminListingModule() {
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Sort by"
-              placeholder="Pick one sort method"
+              label={t("history.filters.sort")}
+              placeholder={t("history.filters.sort_placeholder")}
               data={[
                 {
                   value: "most_recent_creation",
-                  label: "Most recent creation",
+                  label: t("listings.filters.sort.most_recent"),
                 },
-                { value: "oldest_creation", label: "Oldest creation" },
+                {
+                  value: "oldest_creation",
+                  label: t("listings.filters.sort.oldest"),
+                },
                 {
                   value: "highest_price",
-                  label: "Highest price",
+                  label: t("listings.filters.sort.highest_price"),
                 },
                 {
                   value: "lowest_price",
-                  label: "Lowest price",
+                  label: t("listings.filters.sort.lowest_price"),
                 },
               ]}
               clearable
@@ -423,13 +504,16 @@ export function AdminListingModule() {
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Status"
-              placeholder="All status"
+              label={t("history.filters.status")}
+              placeholder={t("users.status.all")}
               data={[
-                { value: "pending", label: "Pending" },
-                { value: "approved", label: "Approved" },
-                { value: "refused", label: "Refused" },
-                { value: "completed", label: "Completed" },
+                { value: "pending", label: t("status.pending") },
+                { value: "approved", label: t("status.approved") },
+                { value: "refused", label: t("status.refused") },
+                {
+                  value: "completed",
+                  label: t("status.completed", { defaultValue: "Completed" }),
+                },
               ]}
               value={filters.statusValue}
               disabled={isItemsLoading}
@@ -440,16 +524,20 @@ export function AdminListingModule() {
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Material"
-              placeholder="All materials"
+              label={t("history.filters.material", {
+                defaultValue: "Material",
+              })}
+              placeholder={t("common:materials.all", {
+                defaultValue: "All materials",
+              })}
               data={[
-                { value: "wood", label: "Wood" },
-                { value: "metal", label: "Metal" },
-                { value: "textile", label: "Textile" },
-                { value: "glass", label: "Glass" },
-                { value: "plastic", label: "Plastic" },
-                { value: "other", label: "Other" },
-                { value: "mixed", label: "Mixed" },
+                { value: "wood", label: t("common:materials.wood") },
+                { value: "metal", label: t("common:materials.metal") },
+                { value: "textile", label: t("common:materials.textile") },
+                { value: "glass", label: t("common:materials.glass") },
+                { value: "plastic", label: t("common:materials.plastic") },
+                { value: "other", label: t("common:materials.other") },
+                { value: "mixed", label: t("common:materials.mixed") },
               ]}
               value={filters.materialValue}
               disabled={isItemsLoading}
@@ -460,11 +548,17 @@ export function AdminListingModule() {
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Category"
-              placeholder="All categories"
+              label={t("history.table.module")}
+              placeholder={t("history.filters.module_placeholder")}
               data={[
-                { value: "listing", label: "Listing" },
-                { value: "deposit", label: "Deposit" },
+                {
+                  value: "listing",
+                  label: t("validations.overview.types.listing"),
+                },
+                {
+                  value: "deposit",
+                  label: t("validations.overview.types.deposit"),
+                },
               ]}
               value={filters.categoryValue}
               disabled={isItemsLoading}
@@ -476,10 +570,10 @@ export function AdminListingModule() {
           <Grid.Col span={{ base: 12, md: 12 }}>
             <Group gap="xs" grow>
               <Button variant="primary" onClick={handleSearchClick}>
-                Apply filters
+                {t("history.filters.apply")}
               </Button>
               <Button variant="secondary" onClick={handleResetFilters}>
-                Reset
+                {t("history.filters.reset")}
               </Button>
             </Group>
           </Grid.Col>
@@ -490,15 +584,15 @@ export function AdminListingModule() {
         loading={isItemsLoading}
         error={itemsError}
         header={[
-          "Created on",
-          "ID",
-          "Title",
-          "Creator",
-          "Category",
-          "Material",
-          "Price",
-          "Status",
-          "Actions",
+          t("validations.table.submitted_on"),
+          t("users.table.id"),
+          t("validations.table.title"),
+          t("listings.table.creator"),
+          t("history.table.module"),
+          t("history.filters.material", { defaultValue: "Material" }),
+          t("validations.table.price"),
+          t("users.table.status"),
+          t("users.table.actions"),
         ]}
         footer={
           <PaginationFooter
@@ -536,18 +630,24 @@ export function AdminListingModule() {
                 </Pill>
               </Table.Td>
               <Table.Td ta="center">
-                {item.material.charAt(0).toUpperCase() + item.material.slice(1)}
+                {t(`common:materials.${item.material}` as any, {
+                  defaultValue:
+                    item.material.charAt(0).toUpperCase() +
+                    item.material.slice(1),
+                })}
               </Table.Td>
               <Table.Td ta="center">{item.price}</Table.Td>
               <Table.Td ta="center">
                 {item.status === "pending" ? (
-                  <Badge variant="blue">Pending</Badge>
+                  <Badge variant="blue">{t("status.pending")}</Badge>
                 ) : item.status === "approved" ? (
-                  <Badge variant="green">Approved</Badge>
+                  <Badge variant="green">{t("status.approved")}</Badge>
                 ) : item.status === "refused" ? (
-                  <Badge variant="red">Refused</Badge>
+                  <Badge variant="red">{t("status.refused")}</Badge>
                 ) : (
-                  <Badge variant="gray">Completed</Badge>
+                  <Badge variant="gray">
+                    {t("status.completed", { defaultValue: "Completed" })}
+                  </Badge>
                 )}
               </Table.Td>
               <Table.Td ta="center">
@@ -559,7 +659,7 @@ export function AdminListingModule() {
                     handleModalDelete(item);
                   }}
                 >
-                  Delete
+                  {t("actions.delete")}
                 </Button>
               </Table.Td>
             </Table.Tr>
@@ -567,21 +667,20 @@ export function AdminListingModule() {
         ) : (
           <Table.Tr>
             <Table.Td colSpan={9} ta="center">
-              No items found
+              {t("listings.table.no_items")}
             </Table.Td>
           </Table.Tr>
         )}
       </AdminTable>
       <Modal
-        title="Delete this object?"
+        title={t("listings.delete_modal.title")}
         opened={openedDelete}
         onClose={closeDelete}
       >
-        Are you sure you want to delete this object? This object will be soft
-        deleted.
+        {t("listings.delete_modal.text")}
         <Group mt="lg" justify="flex-end">
           <Button onClick={closeDelete} variant="grey">
-            Cancel
+            {t("users.delete_modal.cancel")}
           </Button>
           <Button
             onClick={(e) => {
@@ -590,7 +689,7 @@ export function AdminListingModule() {
             variant="delete"
             loading={deleteItemMutation.isPending}
           >
-            Delete
+            {t("actions.delete")}
           </Button>
         </Group>
       </Modal>

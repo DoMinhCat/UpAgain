@@ -10,6 +10,7 @@ import {
   Title,
   ActionIcon,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import {
   IconBrandFacebook,
   IconBrandInstagram,
@@ -20,6 +21,7 @@ import {
 import { useComputedColorScheme } from "@mantine/core";
 
 export default function PageFooter() {
+  const { t } = useTranslation("common");
   const scheme = useComputedColorScheme("light");
   return (
     <Box
@@ -47,8 +49,7 @@ export default function PageFooter() {
                 lh={1.6}
                 c={scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"}
               >
-                Giving materials a second life through community-driven reuse
-                and smart logistics.
+                {t("footer.description")}
               </Text>
               <Group gap="xs">
                 <ActionIcon
@@ -89,7 +90,7 @@ export default function PageFooter() {
           </Grid.Col>
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Text fw={700} mb="lg" size="sm" tt="uppercase">
-              Explore
+              {t("footer.explore")}
             </Text>
             <Stack gap="xs">
               <Anchor
@@ -98,7 +99,7 @@ export default function PageFooter() {
                 c={scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"}
                 underline="hover"
               >
-                Browse Objects
+                {t("footer.browse_objects")}
               </Anchor>
               <Anchor
                 href="#"
@@ -106,7 +107,7 @@ export default function PageFooter() {
                 c={scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"}
                 underline="hover"
               >
-                Smart Deposits
+                {t("footer.smart_deposits")}
               </Anchor>
               <Anchor
                 href="#"
@@ -114,13 +115,13 @@ export default function PageFooter() {
                 c={scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"}
                 underline="hover"
               >
-                Community Articles
+                {t("footer.community_articles")}
               </Anchor>
             </Stack>
           </Grid.Col>
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Text fw={700} mb="lg" size="sm" tt="uppercase">
-              Contact
+              {t("footer.contact")}
             </Text>
             <Stack gap="sm">
               <Group gap="xs" wrap="nowrap">
@@ -143,14 +144,14 @@ export default function PageFooter() {
                     scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"
                   }
                 >
-                  21 Erard street, 75012 Paris
+                  {t("footer.address")}
                 </Text>
               </Group>
             </Stack>
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 4, md: 3 }}>
             <Text fw={700} mb="lg" size="sm" tt="uppercase">
-              Legal
+              {t("footer.legal")}
             </Text>
             <Stack gap="xs">
               <Anchor
@@ -159,7 +160,7 @@ export default function PageFooter() {
                 c={scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"}
                 underline="hover"
               >
-                Terms & Conditions
+                {t("footer.terms_conditions")}
               </Anchor>
               <Anchor
                 href="#"
@@ -167,14 +168,16 @@ export default function PageFooter() {
                 c={scheme === "dark" ? "#c7c7c7" : "var(--mantine-color-text)"}
                 underline="hover"
               >
-                Privacy Policy
+                {t("footer.privacy_policy")}
               </Anchor>
             </Stack>
           </Grid.Col>
         </Grid>
         <Divider
           my="xl"
-          label={`© ${new Date().getFullYear()} UpAgain. All rights reserved.`}
+          label={t("footer.rights_reserved", {
+            year: new Date().getFullYear(),
+          })}
           labelPosition="center"
         />
       </Container>
