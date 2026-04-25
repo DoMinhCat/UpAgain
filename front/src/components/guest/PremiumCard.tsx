@@ -10,6 +10,7 @@ import {
   Badge,
   Loader,
 } from "@mantine/core";
+import { useTranslation, Trans } from "react-i18next";
 import { IconCheck, IconStar } from "@tabler/icons-react";
 import { useGetFinanceSettingByKey } from "../../hooks/financeHooks";
 
@@ -26,6 +27,7 @@ export function PremiumCard({
   selectedTrial,
   onTrialClick,
 }: PremiumCardProps) {
+  const { t } = useTranslation("auth");
   const { data: trialDays, isLoading: isTrialDaysLoading } =
     useGetFinanceSettingByKey("trial_days");
   const { data: subscriptionPrice, isLoading: isSubscriptionPriceLoading } =
@@ -87,7 +89,7 @@ export function PremiumCard({
           boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
         }}
       >
-        Best Value
+        {t("plans.premium.best_value")}
       </Badge>
 
       <Stack gap="xl">
@@ -104,10 +106,10 @@ export function PremiumCard({
             <IconStar size={32} fill="currentColor" />
           </ThemeIcon>
           <Title order={4} size={32} mt="md" c="var(--mantine-color-text)">
-            Premium
+            {t("plans.premium.title")}
           </Title>
           <Text c="var(--mantine-color-dimmed)" size="sm" ta="center" px="md">
-            The professional choice for serious upcyclers.
+            {t("plans.premium.subtitle")}
           </Text>
         </Stack>
 
@@ -128,27 +130,39 @@ export function PremiumCard({
         >
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              <b>All Freemium features</b> plus...
+              <Trans
+                i18nKey="plans.premium.feature_plus"
+                ns="auth"
+                components={{ b: <b /> }}
+              />
             </Text>
           </List.Item>
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              <b>Unlimited</b> material deposits
+              <Trans
+                i18nKey="plans.premium.feature_unlimited"
+                ns="auth"
+                components={{ b: <b /> }}
+              />
             </Text>
           </List.Item>
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              Verified <b>Artisan</b> Badge
+              <Trans
+                i18nKey="plans.premium.feature_badge"
+                ns="auth"
+                components={{ b: <b /> }}
+              />
             </Text>
           </List.Item>
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              Smart alerts for rare finds
+              {t("plans.premium.feature_alerts")}
             </Text>
           </List.Item>
           <List.Item>
             <Text size="sm" c="var(--mantine-color-text)">
-              Advanced Impact Dashboard
+              {t("plans.premium.feature_advanced_dashboard")}
             </Text>
           </List.Item>
         </List>
@@ -168,7 +182,7 @@ export function PremiumCard({
               {subscriptionPrice}€
             </Text>
             <Text c="var(--mantine-color-dimmed)" fw={600} pb={8}>
-              / month
+              {t("plans.premium.per_month")}
             </Text>
           </Group>
 
@@ -183,7 +197,9 @@ export function PremiumCard({
               if (onClick) onClick();
             }}
           >
-            {selected && !selectedTrial ? "Premium Selected" : "Go Premium"}
+            {selected && !selectedTrial
+              ? t("plans.premium.selected")
+              : t("plans.premium.select")}
           </Button>
 
           {trialDays && trialDays > 0 && (
@@ -199,13 +215,13 @@ export function PremiumCard({
               }}
             >
               {selectedTrial
-                ? `Trial Selected`
-                : `Start ${trialDays}-day free trial`}
+                ? t("plans.premium.trial_selected")
+                : t("plans.premium.trial_select", { count: trialDays })}
             </Button>
           )}
 
           <Text size="xs" c="var(--mantine-color-dimmed)" ta="center">
-            Secured by UpAgain • Cancel anytime
+            {t("plans.premium.secured")}
           </Text>
         </Stack>
       </Stack>

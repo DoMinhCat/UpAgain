@@ -16,8 +16,10 @@ import { IconMail, IconPhone, IconMapPin, IconSend } from "@tabler/icons-react";
 import { useComputedColorScheme } from "@mantine/core";
 import { useState } from "react";
 import { showSuccessNotification } from "../../components/common/NotificationToast";
+import { useTranslation } from "react-i18next";
 
 export default function ContactPage() {
+  const { t } = useTranslation("contact");
   const scheme = useComputedColorScheme("light");
   const isDark = scheme !== "light";
 
@@ -51,23 +53,23 @@ export default function ContactPage() {
     e.preventDefault();
     const firstNameValid = validateInput(
       firstName,
-      "First name is required",
+      t("form.first_name.error"),
       setErrorFirstName,
     );
     const lastNameValid = validateInput(
       lastName,
-      "Last name is required",
+      t("form.last_name.error"),
       setErrorLastName,
     );
-    const emailValid = validateInput(email, "Email is required", setErrorEmail);
+    const emailValid = validateInput(email, t("form.email.error"), setErrorEmail);
     const subjectValid = validateInput(
       subject,
-      "Subject is required",
+      t("form.subject.error"),
       setErrorSubject,
     );
     const messageValid = validateInput(
       message,
-      "Message is required",
+      t("form.message.error"),
       setErrorMessage,
     );
     return (
@@ -83,8 +85,8 @@ export default function ContactPage() {
     e.preventDefault();
     if (validateForm(e)) {
       showSuccessNotification(
-        "Message sent",
-        "Thank you for your message. We will get back to you as soon as possible.",
+        t("form.success.title"),
+        t("form.success.message"),
       );
       setFirstName("");
       setLastName("");
@@ -97,19 +99,17 @@ export default function ContactPage() {
     <Container size="xl" py={60}>
       <Stack align="center" mb={50}>
         <Badge variant="light" color="var(--upagain-neutral-green)" size="lg">
-          Get In Touch
+          {t("header.badge")}
         </Badge>
         <Title
           order={1}
           ta="center"
           c={isDark ? "var(--upagain-yellow)" : "var(--upagain-dark-green)"}
         >
-          We'd love to hear from you
+          {t("header.title")}
         </Title>
         <Text c="dimmed" ta="center" maw={600} size="lg">
-          Whether you have a question about dropping off items, running a
-          workshop, or just want to say hello, our team is ready to answer all
-          your questions.
+          {t("header.description")}
         </Text>
       </Stack>
 
@@ -135,10 +135,10 @@ export default function ContactPage() {
                 </ThemeIcon>
                 <div>
                   <Text fw={700} size="lg" mb={5}>
-                    Email
+                    {t("info.email.title")}
                   </Text>
                   <Text c="dimmed" size="sm">
-                    Our friendly team is here to help.
+                    {t("info.email.description")}
                   </Text>
                   <Text
                     fw={600}
@@ -173,10 +173,10 @@ export default function ContactPage() {
                 </ThemeIcon>
                 <div>
                   <Text fw={700} size="lg" mb={5}>
-                    Office
+                    {t("info.office.title")}
                   </Text>
                   <Text c="dimmed" size="sm">
-                    Come say hello at our headquarters.
+                    {t("info.office.description")}
                   </Text>
                   <Text
                     fw={600}
@@ -187,7 +187,7 @@ export default function ContactPage() {
                         : "var(--upagain-dark-green)"
                     }
                   >
-                    21 Erard street, 75012 Paris
+                    {t("common:footer.address")}
                   </Text>
                 </div>
               </Group>
@@ -211,10 +211,10 @@ export default function ContactPage() {
                 </ThemeIcon>
                 <div>
                   <Text fw={700} size="lg" mb={5}>
-                    Phone
+                    {t("info.phone.title")}
                   </Text>
                   <Text c="dimmed" size="sm">
-                    Mon-Fri from 9am to 6pm.
+                    {t("info.phone.description")}
                   </Text>
                   <Text
                     fw={600}
@@ -243,14 +243,14 @@ export default function ContactPage() {
             variant={isDark ? "primary" : ""}
           >
             <Title order={3} mb="xl">
-              Send us a message
+              {t("form.title")}
             </Title>
             <form onSubmit={handleSubmit}>
               <Grid gap="md">
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput
-                    label="First Name"
-                    placeholder="John"
+                    label={t("form.first_name.label")}
+                    placeholder={t("form.first_name.placeholder")}
                     required
                     error={errorFirstName}
                     value={firstName}
@@ -260,8 +260,8 @@ export default function ContactPage() {
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput
-                    label="Last Name"
-                    placeholder="Doe"
+                    label={t("form.last_name.label")}
+                    placeholder={t("form.last_name.placeholder")}
                     required
                     error={errorLastName}
                     value={lastName}
@@ -269,7 +269,7 @@ export default function ContactPage() {
                     onBlur={() =>
                       validateInput(
                         lastName,
-                        "Last name is required",
+                        t("form.last_name.error"),
                         setErrorLastName,
                       )
                     }
@@ -279,13 +279,13 @@ export default function ContactPage() {
                 <Grid.Col span={12}>
                   <TextInput
                     type="email"
-                    label="Email"
-                    placeholder="johndoe@example.com"
+                    label={t("form.email.label")}
+                    placeholder={t("form.email.placeholder")}
                     error={errorEmail}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={() =>
-                      validateInput(email, "Email is required", setErrorEmail)
+                      validateInput(email, t("form.email.error"), setErrorEmail)
                     }
                     required
                     size="md"
@@ -293,8 +293,8 @@ export default function ContactPage() {
                 </Grid.Col>
                 <Grid.Col span={12}>
                   <TextInput
-                    label="Subject"
-                    placeholder="How can we help you?"
+                    label={t("form.subject.label")}
+                    placeholder={t("form.subject.placeholder")}
                     required
                     error={errorSubject}
                     value={subject}
@@ -302,7 +302,7 @@ export default function ContactPage() {
                     onBlur={() =>
                       validateInput(
                         subject,
-                        "Subject is required",
+                        t("form.subject.error"),
                         setErrorSubject,
                       )
                     }
@@ -311,8 +311,8 @@ export default function ContactPage() {
                 </Grid.Col>
                 <Grid.Col span={12}>
                   <Textarea
-                    label="Message"
-                    placeholder="Leave us a detailed message..."
+                    label={t("form.message.label")}
+                    placeholder={t("form.message.placeholder")}
                     minRows={5}
                     required
                     error={errorMessage}
@@ -321,7 +321,7 @@ export default function ContactPage() {
                     onBlur={() =>
                       validateInput(
                         message,
-                        "Message is required",
+                        t("form.message.error"),
                         setErrorMessage,
                       )
                     }
@@ -336,7 +336,7 @@ export default function ContactPage() {
                     type="submit"
                     rightSection={<IconSend size={18} />}
                   >
-                    Send Message
+                    {t("form.submit")}
                   </Button>
                 </Grid.Col>
               </Grid>

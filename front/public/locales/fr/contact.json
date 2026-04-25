@@ -1,0 +1,54 @@
+{
+  "header": {
+    "badge": "Contactez-nous",
+    "title": "Nous serions ravis de vous lire",
+    "description": "Que vous ayez une question sur le dépôt d'objets, l'organisation d'un atelier ou que vous souhaitiez simplement nous dire bonjour, notre équipe est prête à répondre à toutes vos questions."
+  },
+  "info": {
+    "email": {
+      "title": "E-mail",
+      "description": "Notre équipe amicale est là pour vous aider."
+    },
+    "office": {
+      "title": "Bureau",
+      "description": "Venez nous saluer à notre siège social."
+    },
+    "phone": {
+      "title": "Téléphone",
+      "description": "Lun-Ven de 9h à 18h."
+    }
+  },
+  "form": {
+    "title": "Envoyez-nous un message",
+    "first_name": {
+      "label": "Prénom",
+      "placeholder": "Jean",
+      "error": "Le prénom est requis"
+    },
+    "last_name": {
+      "label": "Nom",
+      "placeholder": "Dupont",
+      "error": "Le nom est requis"
+    },
+    "email": {
+      "label": "E-mail",
+      "placeholder": "jean.dupont@exemple.com",
+      "error": "L'adresse e-mail est requise"
+    },
+    "subject": {
+      "label": "Sujet",
+      "placeholder": "Comment pouvons-nous vous aider ?",
+      "error": "Le sujet est requis"
+    },
+    "message": {
+      "label": "Message",
+      "placeholder": "Laissez-nous un message détaillé...",
+      "error": "Le message est requis"
+    },
+    "submit": "Envoyer le message",
+    "success": {
+      "title": "Message envoyé",
+      "message": "Merci pour votre message. Nous vous répondrons dans les plus brefs délais."
+    }
+  }
+}

@@ -20,6 +20,8 @@ import { router } from "./routes/routes";
 import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
 import { DateTimePicker, DatePickerInput } from "@mantine/dates";
+import React from "react";
+import FullScreenLoader from "./components/common/FullScreenLoader";
 
 const UpAgainTheme = createTheme({
   focusRing: "never",
@@ -187,8 +189,14 @@ function App() {
         },
       })}
     >
-      <Notifications limit={3} zIndex={1000} pauseResetOnHover="notification" />
-      <RouterProvider router={router} />
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <Notifications
+          limit={3}
+          zIndex={1000}
+          pauseResetOnHover="notification"
+        />
+        <RouterProvider router={router} />
+      </React.Suspense>
     </MantineProvider>
   );
 }

@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
 import { BarChart } from "@mantine/charts";
+import { useTranslation } from "react-i18next";
 
 import { AdminCardInfo } from "../../../components/dashboard/AdminCardInfo";
 import AdminTable from "../../../components/admin/AdminTable";
@@ -39,6 +40,7 @@ import { PATHS } from "../../../routes/paths";
 import type { Container as ContainerInterface } from "../../../api/interfaces/container";
 
 export default function AdminContainersModule() {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
@@ -124,14 +126,14 @@ export default function AdminContainersModule() {
 
   const chartData = useMemo(
     () => [
-      { label: "Ready", value: stats.ready, color: "#45a575" },
+      { label: t("status.ready", { defaultValue: "Ready" }), value: stats.ready, color: "#45a575" },
       {
-        label: "Occupied",
+        label: t("status.occupied", { defaultValue: "Occupied" }),
         value: stats.occupied,
         color: "var(--mantine-color-yellow-6)",
       },
       {
-        label: "Maintenance",
+        label: t("status.maintenance", { defaultValue: "Maintenance" }),
         value: stats.maintenance,
         color: "var(--mantine-color-red-6)",
       },
@@ -166,7 +168,7 @@ export default function AdminContainersModule() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
-        Container Management
+        {t("containers.title")}
       </Title>
 
       <Grid mb="xl" align="stretch">
@@ -174,12 +176,12 @@ export default function AdminContainersModule() {
           <Stack gap="md" h="100%">
             <AdminCardInfo
               icon={IconBox}
-              title="Total Inventory"
+              title={t("containers.stats.inventory")}
               value={stats.total}
               description={
                 stats.total !== 1
-                  ? "containers across all regions"
-                  : "container across all regions"
+                  ? t("containers.stats.inventory_desc")
+                  : t("containers.stats.inventory_desc_single")
               }
               style={{
                 flex: 1,
@@ -190,12 +192,12 @@ export default function AdminContainersModule() {
             />
             <AdminCardInfo
               icon={IconPackage}
-              title="Operational Rate"
+              title={t("containers.stats.operational")}
               value={`${stats.ready + stats.occupied} / ${stats.total}`}
               description={
                 stats.ready + stats.occupied !== 1
-                  ? "containers available for collection"
-                  : "container available for collection"
+                  ? t("containers.stats.operational_desc")
+                  : t("containers.stats.operational_desc_single")
               }
               style={{
                 flex: 1,
@@ -210,7 +212,7 @@ export default function AdminContainersModule() {
         <Grid.Col span={{ base: 12, md: 8 }}>
           <Paper px="md" radius="lg" shadow="sm" h="100%" py="sm">
             <Title order={4} mb="lg">
-              Inventory Distribution
+              {t("containers.stats.distribution")}
             </Title>
             <BarChart
               h={300}
@@ -239,7 +241,7 @@ export default function AdminContainersModule() {
                           {data.label}
                         </Text>
                         <Text fw={700} size="sm">
-                          {data.value} Containers
+                          {data.value} {t("containers.stats.label_containers")}
                         </Text>
                       </Paper>
                     );
@@ -259,13 +261,13 @@ export default function AdminContainersModule() {
             variant="primary"
             onClick={openCreate}
           >
-            Add New Container
+            {t("admin:actions.create")}
           </Button>
         </Group>
         <Group align="flex-end">
           <TextInput
-            label="Search"
-            placeholder="Search by city or zip..."
+            label={t("history.filters.search")}
+            placeholder={t("containers.table.search_placeholder")}
             rightSection={<IconSearch size={16} />}
             value={filters.searchValue}
             onChange={(e) => handleFilterChange("searchValue", e.target.value)}
@@ -277,12 +279,12 @@ export default function AdminContainersModule() {
             style={{ flex: 1 }}
           />
           <Select
-            label="Status"
-            placeholder="Filter by Status"
+            label={t("history.filters.status")}
+            placeholder={t("users.status.all")}
             data={[
-              { label: "Ready", value: "ready" },
-              { label: "Occupied", value: "occupied" },
-              { label: "Maintenance", value: "maintenance" },
+              { label: t("status.ready"), value: "ready" },
+              { label: t("status.occupied"), value: "occupied" },
+              { label: t("status.maintenance"), value: "maintenance" },
             ]}
             value={filters.statusValue}
             onChange={(val) => handleFilterChange("statusValue", val)}
@@ -290,10 +292,10 @@ export default function AdminContainersModule() {
           />
           <Group gap="xs">
             <Button onClick={handleSearchClick} variant="primary">
-              Apply Filters
+              {t("history.filters.apply")}
             </Button>
             <Button onClick={handleResetFilters} variant="secondary">
-              Reset
+              {t("history.filters.reset")}
             </Button>
           </Group>
         </Group>
@@ -301,12 +303,12 @@ export default function AdminContainersModule() {
         <AdminTable
           loading={isLoading}
           header={[
-            "Created At",
-            "ID",
-            "Location",
-            "Zip Code",
-            "Status",
-            "Actions",
+            t("validations.table.submitted_on"),
+            t("users.table.id"),
+            t("containers.table.location"),
+            t("containers.table.zip"),
+            t("users.table.status"),
+            t("users.table.actions"),
           ]}
           footer={
             <PaginationFooter
@@ -336,17 +338,16 @@ export default function AdminContainersModule() {
               <Table.Td ta="center">{c.postal_code}</Table.Td>
               <Table.Td ta="center">
                 <Pill
-                  style={{
-                    backgroundColor:
-                      c.status === "ready"
-                        ? "#45a575"
-                        : c.status === "occupied" || c.status === "waiting"
-                          ? "var(--mantine-color-yellow-6)"
-                          : "var(--mantine-color-red-6)",
-                  }}
+                  bg={
+                    c.status === "ready"
+                      ? "var(--upagain-neutral-green)"
+                      : c.status === "occupied" || c.status === "waiting"
+                        ? "var(--mantine-color-yellow-6)"
+                        : "var(--mantine-color-red-6)"
+                  }
                   c="white"
                 >
-                  {c.status.toUpperCase()}
+                  {t(`status.${c.status}` as any, { defaultValue: c.status.toUpperCase() })}
                 </Pill>
               </Table.Td>
               <Table.Td ta="center">
@@ -359,7 +360,7 @@ export default function AdminContainersModule() {
                       navigate(`${PATHS.ADMIN.CONTAINERS}/${c.id}`);
                     }}
                   >
-                    Edit
+                    {t("common:actions.update")}
                   </Button>
                   <Button
                     variant="delete"
@@ -369,7 +370,7 @@ export default function AdminContainersModule() {
                       handleOpenDelete(c);
                     }}
                   >
-                    Delete
+                    {t("common:actions.delete")}
                   </Button>
                 </Group>
               </Table.Td>
@@ -384,26 +385,26 @@ export default function AdminContainersModule() {
       <Modal
         opened={openedCreate}
         onClose={closeCreate}
-        title="Deploy New Container"
+        title={t("containers.create_modal.title")}
         centered
       >
         <form onSubmit={handleCreateSubmit}>
           <Stack>
             <TextInput
-              label="Street"
+              label={t("containers.create_modal.street")}
               name="street"
               required
               placeholder="e.g. 21 Erard street"
             />
             <SimpleGrid cols={2}>
               <TextInput
-                label="City Name"
+                label={t("containers.create_modal.city")}
                 name="city"
                 required
                 placeholder="e.g. Lyon"
               />
               <TextInput
-                label="Postal Code"
+                label={t("containers.create_modal.zip")}
                 name="zip"
                 required
                 placeholder="e.g. 69000"
@@ -411,14 +412,14 @@ export default function AdminContainersModule() {
             </SimpleGrid>
             <Group justify="flex-end" mt="md">
               <Button variant="grey" onClick={closeCreate}>
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
               <Button
                 type="submit"
                 variant="primary"
                 loading={createMutation.isPending}
               >
-                Deploy
+                {t("containers.create_modal.submit")}
               </Button>
             </Group>
           </Stack>
@@ -429,17 +430,18 @@ export default function AdminContainersModule() {
       <Modal
         opened={openedDelete}
         onClose={handleCloseDelete}
-        title="Confirm Archiving"
+        title={t("containers.delete_modal.title")}
         centered
       >
         <Text size="sm" mb="lg">
-          Are you sure you want to remove container{" "}
-          <strong>#{selectedContainer?.id}</strong> (
-          {selectedContainer?.city_name})? This will perform a soft delete.
+          {t("containers.delete_modal.text", {
+            id: selectedContainer?.id,
+            city: selectedContainer?.city_name,
+          })}
         </Text>
         <Group justify="flex-end">
           <Button variant="grey" onClick={handleCloseDelete}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             variant="delete"
@@ -448,7 +450,7 @@ export default function AdminContainersModule() {
               selectedContainer && handleDeleteContainer(selectedContainer.id)
             }
           >
-            Confirm Delete
+            {t("containers.delete_modal.confirm")}
           </Button>
         </Group>
       </Modal>

@@ -1,0 +1,69 @@
+{
+  "events": "Sự kiện",
+  "buttons": {
+    "my_events": "Sự kiện của tôi"
+  },
+  "hero": {
+    "title": "Sự kiện & Workshop Tái Chế",
+    "subtitle": "Gia nhập cộng đồng những người kiến tạo xanh. Cùng học hỏi, chia sẻ và lan tỏa những trải nghiệm ý nghĩa."
+  },
+  "categories": {
+    "workshop": "Workshop",
+    "conference": "Hội thảo",
+    "meetup": "Giao lưu",
+    "exposition": "Triển lãm",
+    "other": "Khác",
+    "workshop_plural": "Workshop",
+    "conference_plural": "Hội thảo",
+    "meetup_plural": "Giao lưu",
+    "exposition_plural": "Triển lãm",
+    "other_plural": "Khác",
+    "see_all": "Xem tất cả {{category}}",
+    "search_placeholder": "Tìm kiếm trong chuyên mục này...",
+    "explore_description": "Khám phá danh sách các sự kiện {{category}} của chúng mình. Tham gia workshop, hội thảo và giao lưu để học chiêu mới và kết nối với mọi người nha."
+  },
+  "how_it_works": {
+    "title": "Nó hoạt động như thế nào?",
+    "subtitle": "Tham gia phong trào nâng cấp đồ cũ dễ như ăn kẹo (1-2-3 và 4 luôn). Đây là lộ trình cho bạn nè.",
+    "step1_title": "Chọn niềm đam mê",
+    "step1_desc": "Dạo quanh các buổi workshop, hội thảo và giao lưu. Món nào cũng 'xanh' hết nha!",
+    "step2_title": "Giữ chỗ cho mình",
+    "step2_desc": "Chốt đơn giữ chỗ chỉ với một cú click. À mà... hầu hết đều miễn phí hết đó!",
+    "step3_title": "Sắp xếp lịch trình",
+    "step3_desc": "Theo dõi mấy cái hẹn thú vị của bạn tại trang <1>Lịch trình của tôi</1> nha.",
+    "step4_title": "Tận hưởng & Chia sẻ",
+    "step4_desc": "Học chiêu mới, làm quen bạn mới và khoe câu chuyện tái chế của bạn với cả thế giới nào!"
+  },
+  "filters": {
+    "city": "Thành phố",
+    "sort": "Sắp xếp theo",
+    "sort_soonest": "Sớm nhất",
+    "sort_lowest": "Giá thấp nhất",
+    "sort_highest": "Giá cao nhất",
+    "sort_popular": "Phổ biến nhất",
+    "apply": "Áp dụng",
+    "reset": "Đặt lại bộ lọc"
+  },
+  "detail": {
+    "organized_by": "Người tổ chức",
+    "published_on": "Đăng vào ngày",
+    "about": "Thông tin sự kiện",
+    "location": "Địa điểm",
+    "map_placeholder": "Bản đồ tương tác (đang chờ xíu)",
+    "map_api_note": "Google Maps API sẽ sớm xuất hiện ở đây nha",
+    "relevant_events": "Có thể bạn cũng thích",
+    "free_entry": "Vào cửa tự do",
+    "per_person": "/ người",
+    "start_date": "Ngày bắt đầu",
+    "end_date": "Ngày kết thúc",
+    "capacity": "Sức chứa",
+    "spots_left": "Còn {{count}} chỗ trống",
+    "register_now": "Đăng ký ngay",
+    "cancel_registration": "Hủy đăng ký",
+    "see_attendees": "Xem danh sách tham gia",
+    "edit_event": "Sửa sự kiện",
+    "cancel_event": "Hủy sự kiện",
+    "secure_payment": "Thanh toán an toàn & xác nhận ngay",
+    "already_registered": "Bạn đã đăng ký sự kiện này rồi nha"
+  }
+}

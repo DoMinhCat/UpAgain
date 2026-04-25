@@ -26,17 +26,21 @@ import {
 } from "@tabler/icons-react";
 import { useAuth } from "../../context/AuthContext";
 import { HeaderLink } from "./NavBarComponents";
-import { LANGUAGES } from "../../i18n/languages";
+import { LANGUAGES } from "../../i18n/index";
 import { Indicator } from "@mantine/core";
-import { useState } from "react";
 import { useAccountDetails } from "../../hooks/accountHooks";
 import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useTranslation } from "react-i18next";
+import { changeLanguage } from "../../utils/langUtils";
 
 export function UserNavBar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [currentLanguage, setCurrentLanguage] = useState("united-kingdom");
+  const { t, i18n } = useTranslation();
+  const currentLanguage =
+    LANGUAGES.find((lang) => lang.lng === i18n.language)?.path ||
+    "united-kingdom";
   const { data: accountDetails, error: errorAccountDetails } =
     useAccountDetails(user?.id || 0, true);
 
@@ -71,9 +75,15 @@ export function UserNavBar() {
 
         {/* 2. Navigation Section */}
         <Group h="100%" gap="sm" visibleFrom="sm">
-          <HeaderLink label="Marketplace" path="/marketplace" />
-          <HeaderLink label="Community" path={PATHS.GUEST.POSTS} />
-          <HeaderLink label="Events" path="/events" />
+          <HeaderLink
+            label={t("marketplace:marketplace")}
+            path={PATHS.MARKETPLACE.HOME}
+          />
+          <HeaderLink
+            label={t("community:community")}
+            path={PATHS.GUEST.POSTS}
+          />
+          <HeaderLink label={t("events:events")} path={PATHS.EVENTS.HOME} />
         </Group>
 
         {/* User Actions - Desktop */}
@@ -88,6 +98,12 @@ export function UserNavBar() {
                   color="var(--upagain-neutral-green)"
                   leftSection={<IconLeaf size={16} />}
                   style={{ padding: "0 10px", cursor: "pointer" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.transform = "translateY(-2px)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.transform = "translateY(0)")
+                  }
                 >
                   {accountDetails?.score ?? 0} pts
                 </Badge>
@@ -98,6 +114,13 @@ export function UserNavBar() {
                     variant="subtle"
                     color="gray"
                     size="lg"
+                    style={{ backgroundColor: "transparent" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.transform = "translateY(-2px)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.transform = "translateY(0)")
+                    }
                     radius="md"
                   >
                     <Indicator color="red" size={8} offset={2} processing>
@@ -212,8 +235,9 @@ export function UserNavBar() {
                     <Menu.Label>Select Language</Menu.Label>
                     {LANGUAGES.map((language) => (
                       <Menu.Item
+                        disabled={language.path === currentLanguage}
                         key={language.path}
-                        onClick={() => setCurrentLanguage(language.path)}
+                        onClick={() => changeLanguage(language.lng)}
                         leftSection={
                           <Image
                             src={`/flags/${language.path}.png`}
@@ -236,7 +260,7 @@ export function UserNavBar() {
                     handleLogout();
                   }}
                 >
-                  Logout
+                  {t("auth:logout")}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -263,16 +287,20 @@ export function UserNavBar() {
         <Stack gap="lg">
           <Stack gap="md">
             <HeaderLink
-              label="Marketplace"
-              path="/marketplace"
+              label={t("marketplace:marketplace")}
+              path={PATHS.MARKETPLACE.HOME}
               onClick={closeDrawer}
             />
             <HeaderLink
-              label="Community"
+              label={t("community:community")}
               path={PATHS.GUEST.POSTS}
               onClick={closeDrawer}
             />
-            <HeaderLink label="Events" path="/events" onClick={closeDrawer} />
+            <HeaderLink
+              label={t("events:events")}
+              path={PATHS.EVENTS.HOME}
+              onClick={closeDrawer}
+            />
           </Stack>
 
           <div
@@ -299,7 +327,12 @@ export function UserNavBar() {
                   {accountDetails?.score ?? 0} pts
                 </Badge>
 
-                <Menu shadow="md" width={300} position="bottom-end" zIndex={1000001}>
+                <Menu
+                  shadow="md"
+                  width={300}
+                  position="bottom-end"
+                  zIndex={1000001}
+                >
                   <Menu.Target>
                     <ActionIcon
                       variant="subtle"
@@ -367,7 +400,12 @@ export function UserNavBar() {
                   </Group>
                 </UnstyledButton>
 
-                <Menu trigger="click" position="bottom-start" offset={5} zIndex={1000001}>
+                <Menu
+                  trigger="click"
+                  position="bottom-start"
+                  offset={5}
+                  zIndex={1000001}
+                >
                   <Menu.Target>
                     <UnstyledButton className={classes.link}>
                       <Group justify="space-between" style={{ width: "100%" }}>
@@ -393,8 +431,12 @@ export function UserNavBar() {
                     <Menu.Label>Select Language</Menu.Label>
                     {LANGUAGES.map((language) => (
                       <Menu.Item
+                        disabled={language.path === currentLanguage}
                         key={language.path}
-                        onClick={() => setCurrentLanguage(language.path)}
+                        onClick={() => {
+                          changeLanguage(language.lng);
+                          closeDrawer();
+                        }}
                         leftSection={
                           <Image
                             src={`/flags/${language.path}.png`}
@@ -419,7 +461,7 @@ export function UserNavBar() {
                 >
                   <Group>
                     <IconLogout size={20} stroke={1.5} />
-                    <span>Logout</span>
+                    <span>{t("auth:logout")}</span>
                   </Group>
                 </UnstyledButton>
               </>

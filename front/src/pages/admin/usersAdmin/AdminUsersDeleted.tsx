@@ -13,6 +13,7 @@ import {
   Pill,
   Modal,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import dayjs from "dayjs";
@@ -26,6 +27,7 @@ import {
 import PaginationFooter from "../../../components/common/PaginationFooter";
 
 export default function AdminUsersDeleted() {
+  const { t } = useTranslation("admin");
   // hooks
   const { mutate: recover, isPending: isPendingRecover } = useRecoverAccount();
   const handleRecover = () => {
@@ -127,13 +129,13 @@ export default function AdminUsersDeleted() {
           <Table.Td ta="center">{account.email}</Table.Td>
           <Table.Td ta="center">
             {account.role === "user" ? (
-              <Pill variant="blue">User</Pill>
+              <Pill variant="blue">{t("users.roles.user")}</Pill>
             ) : account.role === "pro" ? (
-              <Pill variant="yellow">Pro</Pill>
+              <Pill variant="yellow">{t("users.roles.pro")}</Pill>
             ) : account.role === "employee" ? (
-              <Pill variant="green">Employee</Pill>
+              <Pill variant="green">{t("users.roles.employee")}</Pill>
             ) : (
-              <Pill variant="red">Admin</Pill>
+              <Pill variant="red">{t("users.roles.admin")}</Pill>
             )}
           </Table.Td>
           <Table.Td ta="center">
@@ -146,7 +148,7 @@ export default function AdminUsersDeleted() {
                 handleModalRecover(account.id);
               }}
             >
-              Recover
+              {t("users.details.actions.recover")}
             </Button>
           </Table.Td>
         </Table.Tr>
@@ -154,7 +156,7 @@ export default function AdminUsersDeleted() {
     ) : (
       <Table.Tr>
         <Table.Td colSpan={8} ta="center">
-          No users found
+          {t("users.deleted.table.no_users")}
         </Table.Td>
       </Table.Tr>
     );
@@ -162,26 +164,26 @@ export default function AdminUsersDeleted() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
-        Deleted Accounts
+        {t("users.deleted.title")}
       </Title>
       <MyBreadcrumbs
         breadcrumbs={[
-          { title: "User Management", href: PATHS.ADMIN.USERS.ALL },
-          { title: "Deleted Accounts", href: "#" },
+          { title: t("users.title"), href: PATHS.ADMIN.USERS.ALL },
+          { title: t("users.deleted.title"), href: "#" },
         ]}
       />
       <Stack gap="md" mb="xl">
         <Group justify="space-between" align="flex-end">
           <Title c="dimmed" order={3}>
-            Recover soft-deleted accounts
+            {t("users.deleted.subtitle")}
           </Title>
         </Group>
 
         <Grid align="flex-end">
           <Grid.Col span={{ base: 12, md: 5 }}>
             <TextInput
-              label="Search"
-              placeholder="Search by username, email or ID..."
+              label={t("history.filters.search")}
+              placeholder={t("users.search_placeholder")}
               rightSection={<IconSearch size={14} />}
               value={filters.searchValue}
               onChange={(e) =>
@@ -197,21 +199,24 @@ export default function AdminUsersDeleted() {
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Sort by"
-              placeholder="Pick one"
+              label={t("history.filters.sort")}
+              placeholder={t("history.filters.sort_placeholder")}
               data={[
                 {
                   value: "most_recent_registration",
-                  label: "Most recent registration",
+                  label: t("users.sort.recent_reg"),
                 },
-                { value: "oldest_registration", label: "Oldest registration" },
+                {
+                  value: "oldest_registration",
+                  label: t("users.sort.oldest_reg"),
+                },
                 {
                   value: "most_recent_last_active",
-                  label: "Most recent last active",
+                  label: t("users.sort.recent_active"),
                 },
                 {
                   value: "oldest_last_active",
-                  label: "Oldest last active",
+                  label: t("users.sort.oldest_active"),
                 },
               ]}
               value={filters.sortValue}
@@ -222,13 +227,13 @@ export default function AdminUsersDeleted() {
 
           <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
-              label="Role"
-              placeholder="All roles"
+              label={t("users.table.role")}
+              placeholder={t("users.roles.all")}
               data={[
-                { value: "user", label: "User" },
-                { value: "pro", label: "Pro" },
-                { value: "employee", label: "Employee" },
-                { value: "admin", label: "Admin" },
+                { value: "user", label: t("users.roles.user") },
+                { value: "pro", label: t("users.roles.pro") },
+                { value: "employee", label: t("users.roles.employee") },
+                { value: "admin", label: t("users.roles.admin") },
               ]}
               value={filters.roleValue}
               onChange={(val) => handleFilterChange("roleValue", val)}
@@ -239,10 +244,10 @@ export default function AdminUsersDeleted() {
           <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
             <Group gap="xs" grow>
               <Button onClick={handleSearchClick} variant="primary">
-                Apply filters
+                {t("history.filters.apply")}
               </Button>
               <Button variant="secondary" onClick={handleResetFilters}>
-                Reset
+                {t("history.filters.reset")}
               </Button>
             </Group>
           </Grid.Col>
@@ -251,13 +256,13 @@ export default function AdminUsersDeleted() {
       <AdminTable
         loading={isDeletedAccountsLoading}
         header={[
-          "Registered on",
-          "Deleted at",
+          t("users.details.fields.registered_on"),
+          t("users.deleted.table.deleted_at"),
           "ID",
-          "Username",
-          "Email",
-          "Role",
-          "Actions",
+          t("users.details.fields.username"),
+          t("users.details.fields.email"),
+          t("users.details.fields.role"),
+          t("users.table.actions"),
         ]}
         footer={
           <PaginationFooter
@@ -277,20 +282,19 @@ export default function AdminUsersDeleted() {
       <Modal
         opened={openedRecover}
         onClose={closeRecover}
-        title="Recover account"
+        title={t("users.details.modals.recover_title")}
       >
-        Are you sure you want to recover this account? This account will regain
-        access.
+        {t("users.details.modals.recover_text")}
         <Group mt="lg" justify="flex-end">
           <Button onClick={closeRecover} variant="grey">
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleRecover}
             variant="primary"
             loading={isPendingRecover}
           >
-            Recover account
+            {t("users.details.actions.recover")}
           </Button>
         </Group>
       </Modal>

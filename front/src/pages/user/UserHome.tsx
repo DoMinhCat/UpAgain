@@ -17,6 +17,7 @@ import {
   Progress,
   Center,
 } from "@mantine/core";
+import { useTranslation, Trans } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAccountDetails } from "../../hooks/accountHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader";
@@ -29,6 +30,7 @@ import { EventCard } from "../../components/event/EventCard";
 import { DashboardCard } from "../../components/dashboard/DashboardCard";
 
 export default function UserHome() {
+  const { t } = useTranslation("home");
   const navigate = useNavigate();
   const scheme = useComputedColorScheme("light");
   const { user } = useAuth();
@@ -125,12 +127,10 @@ export default function UserHome() {
           }}
         >
           <Title size={56} ta="center" style={{ lineHeight: 1.1 }}>
-            Hi {accountDetails?.username}, let's <br /> Save the Planet, One
-            Piece at a Time.
+            {t("user.hero.title", { username: accountDetails?.username })}
           </Title>
           <Text size="xl" fw={500} ta="center" maw={700} c="dimmed">
-            One platform to share objects, create value, and reduce waste
-            together.
+            {t("user.hero.subtitle")}
           </Text>
         </Stack>
       </HeroBanner>
@@ -141,17 +141,17 @@ export default function UserHome() {
           {/* Section Header */}
           <Stack gap={0}>
             <Title order={2} size={32} c="var(--mantine-color-text)">
-              Your impact so far
+              {t("user.impact.title")}
             </Title>
             <Text c="dimmed" size="sm">
-              Real-time tracking of your environmental contribution
+              {t("user.impact.subtitle")}
             </Text>
           </Stack>
 
           <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
             {/* CARD 1: CO2 IMPACT */}
             <DashboardCard
-              title="Total CO² saved"
+              title={t("user.impact.co2_saved")}
               icon={<IconLeaf size={18} />}
               color="var(--upagain-neutral-green)"
               align="center"
@@ -185,21 +185,21 @@ export default function UserHome() {
                     padding: "2px 8px",
                   }}
                 >
-                  That is about 1 Elephant!
+                  {t("user.impact.elephant_comparison")}
                 </Text>
               </Box>
             </DashboardCard>
 
             {/* CARD 2: RESOURCES */}
             <DashboardCard
-              title="Resources saved"
+              title={t("user.impact.resources_saved")}
               icon={<IconDroplet size={18} />}
               color="var(--upagain-yellow)"
             >
               <Stack gap="xs" mt="sm">
                 <Group justify="space-between">
                   <Text size="sm" fw={500}>
-                    Water
+                    {t("user.impact.water")}
                   </Text>
                   <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
                     4,500 L
@@ -214,7 +214,7 @@ export default function UserHome() {
 
                 <Group justify="space-between" mt="xs">
                   <Text size="sm" fw={500}>
-                    Electricity
+                    {t("user.impact.electricity")}
                   </Text>
                   <Text size="sm" fw={700} c="var(--upagain-yellow)">
                     820 kWh
@@ -231,7 +231,7 @@ export default function UserHome() {
 
             {/* CARD 3: SCORE */}
             <DashboardCard
-              title="Upcycling Score"
+              title={t("user.impact.upcycling_score")}
               icon={<IconTrophy size={18} />}
               color="var(--upagain-light-green)"
               align="center"
@@ -240,7 +240,7 @@ export default function UserHome() {
                 <ScoreRing score={99} size={140} />
               </Box>
               <Text size="xs" c="dimmed" ta="center">
-                Top 99999% of Upcyclers this month!
+                {t("user.impact.score_rank", { percentage: 99 })}
               </Text>
             </DashboardCard>
           </SimpleGrid>
@@ -248,17 +248,32 @@ export default function UserHome() {
       </Container>
 
       <Title ta="center" order={2} my="md">
-        Altogether we saved{" "}
-        <Text
-          span
-          c="var(--upagain-yellow)"
-          inherit
-          style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
+        <Trans
+          i18nKey="user.impact.altogether_saved"
+          ns="home"
+          values={{ amount: "123,456,789+" }}
+          components={{
+            span: (
+              <Text
+                span
+                c="var(--upagain-yellow)"
+                inherit
+                style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
+              />
+            ),
+          }}
         >
-          {/* {accountDetails?.totalWaterSaved}  */}
-          123456789+{" "}
-        </Text>
-        kg of CO2
+          Altogether we saved{" "}
+          <Text
+            span
+            c="var(--upagain-yellow)"
+            inherit
+            style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
+          >
+            123,456,789+
+          </Text>{" "}
+          kg of CO2
+        </Trans>
       </Title>
 
       {/* SECTION 3: MANAGE OBJECTS */}
@@ -283,10 +298,10 @@ export default function UserHome() {
             <Stack gap="xl">
               <Stack gap={5}>
                 <Title order={2} size={32}>
-                  My active objects
+                  {t("user.manage.title")}
                 </Title>
                 <Text c="dimmed" size="sm">
-                  Track your ongoing contributions to the circular economy.
+                  {t("user.manage.subtitle")}
                 </Text>
               </Stack>
 
@@ -303,14 +318,24 @@ export default function UserHome() {
                     tt="uppercase"
                     lts={1}
                   >
-                    Listings
+                    {t("user.manage.listings_title")}
                   </Title>
                   <Text size="sm">
-                    You have <b>3 active</b> items in the{" "}
-                    <Anchor href={PATHS.MARKETPLACE.LISTINGS}>
-                      Marketplace
-                    </Anchor>
-                    .
+                    <Trans
+                      i18nKey="user.manage.listings_status"
+                      ns="home"
+                      values={{ count: 3 }}
+                      components={{
+                        1: <Anchor href={PATHS.MARKETPLACE.LISTINGS} />,
+                        b: <b />,
+                      }}
+                    >
+                      You have <b>3 active</b> items in the{" "}
+                      <Anchor href={PATHS.MARKETPLACE.LISTINGS}>
+                        Marketplace
+                      </Anchor>
+                      .
+                    </Trans>
                   </Text>
                   <Text
                     className="text"
@@ -319,7 +344,7 @@ export default function UserHome() {
                     fw={700}
                     onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
                   >
-                    Manage all listings →
+                    {t("user.manage.manage_listings")}
                   </Text>
                 </Stack>
 
@@ -335,10 +360,10 @@ export default function UserHome() {
                     tt="uppercase"
                     lts={1}
                   >
-                    Deposits
+                    {t("user.manage.deposits_title")}
                   </Title>
                   <Text size="sm">
-                    <b>1 object</b> to be delivered.
+                    {t("user.manage.deposits_status", { count: 1 })}
                   </Text>
                   <Text
                     className="text"
@@ -347,7 +372,7 @@ export default function UserHome() {
                     fw={700}
                     onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
                   >
-                    Track all my deposits →
+                    {t("user.manage.track_deposits")}
                   </Text>
                 </Stack>
               </Group>
@@ -356,7 +381,9 @@ export default function UserHome() {
             {/* RIGHT COLUMN: QUICK ACTIONS */}
             <Stack gap="lg" justify="center">
               <Title order={3} ta="center">
-                Ready to do more, {accountDetails?.username}?
+                {t("user.manage.ready_to_do_more", {
+                  username: accountDetails?.username,
+                })}
               </Title>
 
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
@@ -366,7 +393,7 @@ export default function UserHome() {
                   size="lg"
                   onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
                 >
-                  Create a listing
+                  {t("user.manage.create_listing")}
                 </Button>
                 <Button
                   className="button"
@@ -374,13 +401,13 @@ export default function UserHome() {
                   size="lg"
                   onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
                 >
-                  Create a deposit
+                  {t("user.manage.create_deposit")}
                 </Button>
               </SimpleGrid>
 
               <Stack gap="xs">
                 <Title order={3} ta="center">
-                  Explore the community
+                  {t("user.manage.explore_community")}
                 </Title>
                 <Group justify="center">
                   <Button
@@ -389,7 +416,7 @@ export default function UserHome() {
                     size="sm"
                     onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
                   >
-                    Guides & Projects
+                    {t("user.manage.guides_projects")}
                   </Button>
                   <Button
                     className="button"
@@ -397,7 +424,7 @@ export default function UserHome() {
                     size="sm"
                     onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
                   >
-                    Workshops & Events
+                    {t("user.manage.workshops_events")}
                   </Button>
                 </Group>
               </Stack>
@@ -430,10 +457,10 @@ export default function UserHome() {
             <Stack gap="xl" style={{ flex: 1 }}>
               <Stack gap={5}>
                 <Title order={2} size={28}>
-                  Community Highlights
+                  {t("user.community.highlights")}
                 </Title>
                 <Text c="dimmed" size="sm">
-                  Inspiring projects and top guides from our global members.
+                  {t("user.community.highlights_desc")}
                 </Text>
               </Stack>
 
@@ -472,8 +499,7 @@ export default function UserHome() {
                         stroke={1.5}
                       />
                       <Text c="dimmed" ta="center" maw={300}>
-                        The community is quiet... for now. Stay tuned for
-                        inspiring new projects!
+                        {t("user.community.quiet_community")}
                       </Text>
                     </Stack>
                   </Center>
@@ -487,7 +513,7 @@ export default function UserHome() {
                 onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
                 fullWidth
               >
-                Discover all topics →
+                {t("user.community.discover_topics")}
               </Button>
             </Stack>
           </Paper>
@@ -513,10 +539,10 @@ export default function UserHome() {
             <Stack gap="xl" style={{ flex: 1 }}>
               <Stack gap={5}>
                 <Title order={2} size={28}>
-                  Your Agenda
+                  {t("user.agenda.title")}
                 </Title>
                 <Text c="dimmed" size="sm">
-                  Track your upcoming workshops and events.
+                  {t("user.agenda.subtitle")}
                 </Text>
               </Stack>
 
@@ -530,6 +556,7 @@ export default function UserHome() {
                 {accountDetails?.id && false ? ( // Replace 'false' with 'accountDetails.events.length > 0'
                   <Stack gap="md">
                     <EventCard
+                      onclick={() => navigate("/events/workshops/1")}
                       orientation="horizontal"
                       category="Workshop"
                       title="Restoring Mid-Century Furniture"
@@ -540,6 +567,7 @@ export default function UserHome() {
                       createdAt={new Date().toISOString()}
                       eventDate="2026-05-12T10:00:00Z"
                       price={15}
+                      registeredCount={99}
                       city="Paris"
                       postalCode="75012"
                     />
@@ -564,11 +592,10 @@ export default function UserHome() {
                           stroke={1.5}
                         />
                         <Text fw={600} size="lg" mt="md">
-                          No upcoming events
+                          {t("user.agenda.no_events_title")}
                         </Text>
                         <Text c="dimmed" ta="center" size="sm" maw={280}>
-                          Ready to learn a new upcycling skill? Join a workshop
-                          today.
+                          {t("user.agenda.no_events_desc")}
                         </Text>
                       </Stack>
                       <Button
@@ -578,7 +605,7 @@ export default function UserHome() {
                         fullWidth
                         onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)} // Assuming event exploration is there
                       >
-                        Explore our workshops and events
+                        {t("user.agenda.explore_workshops")}
                       </Button>
                     </Stack>
                   </Center>

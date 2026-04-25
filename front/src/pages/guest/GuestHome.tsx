@@ -14,6 +14,7 @@ import {
   ThemeIcon,
   Button,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { HeroBanner } from "../../components/hero/HeroBanner";
 import { useComputedColorScheme } from "@mantine/core";
 import HeroBadge from "../../components/hero/HeroBadge";
@@ -31,6 +32,7 @@ import { PATHS } from "../../routes/paths";
 import classes from "../../styles/GlobalStyles.module.css";
 
 export default function GuestHome() {
+  const { t } = useTranslation("home");
   const navigate = useNavigate();
   const scheme = useComputedColorScheme("light");
   const cardHoverStyle = {
@@ -72,11 +74,10 @@ export default function GuestHome() {
           style={{ animation: "fadeIn 1s ease-out" }}
         >
           <Title size={56} ta="center" style={{ lineHeight: 1.1 }}>
-            Nothing is waste until you give up on it.
+            {t("guest.hero_title")}
           </Title>
           <Text size="xl" fw={500} ta="center" maw={700} c="dimmed">
-            One platform to share objects, create value, and reduce waste
-            together.
+            {t("guest.hero_desc")}
           </Text>
           <Group mt="xl">
             <Button
@@ -91,10 +92,10 @@ export default function GuestHome() {
                 (e.currentTarget.style.transform = "scale(1)")
               }
             >
-              Join us today
+              {t("guest.cta_join")}
             </Button>
             <Button size="lg" variant="secondary">
-              See our articles
+              {t("guest.cta_articles")}
             </Button>
           </Group>
         </Stack>
@@ -114,24 +115,23 @@ export default function GuestHome() {
         >
           <Stack align="center" gap="md">
             <Title ta="center" size={42} fw={800}>
-              The sad reality: waste is{" "}
+              {t("guest.reality_title").split(":")[0]}:{" "}
               <Text
                 span
                 c="var(--upagain-yellow)"
                 inherit
                 style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
               >
-                everywhere
+                {t("guest.reality_title").split(":")[1]?.trim()}
               </Text>
             </Title>
             <Text ta="center" size="lg" maw={600} c="dimmed">
-              Every minute, tons of usable objects are thrown away while
-              resources become scarcer.
+              {t("guest.reality_desc")}
             </Text>
             <Group gap="md" mt="xl">
-              <HeroBadge text="More waste" height={32} />
-              <HeroBadge text="Less resources" height={32} />
-              <HeroBadge text="Climate change" height={32} />
+              <HeroBadge text={t("guest.badge_waste")} height={32} />
+              <HeroBadge text={t("guest.badge_resources")} height={32} />
+              <HeroBadge text={t("guest.badge_climate")} height={32} />
             </Group>
           </Stack>
         </HeroBanner>
@@ -166,14 +166,14 @@ export default function GuestHome() {
           <Stack align="center" gap="xl">
             <Stack gap={0} align="center">
               <Title size={64} fw={900} variant="gradient">
-                Meet UpAgain
+                {t("guest.mission_title")}
               </Title>
               <Title order={2} size={28} ta="center" fw={600} mt="md">
-                Reuse and upcycling made simple.
+                {t("guest.mission_subtitle")}
               </Title>
             </Stack>
             <Text size="lg" ta="center">
-              A common space where we connect to give materials a second life.
+              {t("guest.mission_desc")}
             </Text>
           </Stack>
         </HeroBanner>
@@ -225,32 +225,32 @@ export default function GuestHome() {
                 <HeroBadge text="1" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
-                    Give or sell objects you no longer use
+                    {t("guest.step1_title")}
                   </Title>
                   <Text c="dimmed" fw={500}>
-                    Simple actions, real impact.
+                    {t("guest.step1_subtitle")}
                   </Text>
                 </Stack>
                 <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="xl" w="100%">
                   <HeroCard
                     scheme={scheme}
                     step={1}
-                    title="Gather materials"
-                    description="Find items you no longer need"
+                    title={t("guest.step1_card1_title")}
+                    description={t("guest.step1_card1_desc")}
                     icon={<IconArchive size={32} />}
                   />
                   <HeroCard
                     scheme={scheme}
                     step={2}
-                    title="Post announcement"
-                    description="Upload details to the platform"
+                    title={t("guest.step1_card2_title")}
+                    description={t("guest.step1_card2_desc")}
                     icon={<IconUpload size={32} />}
                   />
                   <HeroCard
                     scheme={scheme}
                     step={3}
-                    title="Professional collection"
-                    description="A pro will buy and collect it"
+                    title={t("guest.step1_card3_title")}
+                    description={t("guest.step1_card3_desc")}
                     icon={<IconTruck size={32} />}
                   />
                 </SimpleGrid>
@@ -301,33 +301,32 @@ export default function GuestHome() {
                 <HeroBadge text="2" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
-                    Smart container deposits
+                    {t("guest.step2_title")}
                   </Title>
                   <Text c="dimmed" fw={500} ta="center" maw={600}>
-                    Don’t have time to meet? Deposit your objects in our smart
-                    containers.
+                    {t("guest.step2_subtitle")}
                   </Text>
                 </Stack>
                 <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="xl" w="100%">
                   <HeroCard
                     scheme={scheme}
                     step={1}
-                    title="Request deposit"
-                    description="We assess the object first"
+                    title={t("guest.step2_card1_title")}
+                    description={t("guest.step2_card1_desc")}
                     icon={<IconUpload size={32} />}
                   />
                   <HeroCard
                     scheme={scheme}
                     step={2}
-                    title="Secure drop-off"
-                    description="Scan your code and deposit"
+                    title={t("guest.step2_card2_title")}
+                    description={t("guest.step2_card2_desc")}
                     icon={<IconBox size={32} />}
                   />
                   <HeroCard
                     scheme={scheme}
                     step={3}
-                    title="Final collection"
-                    description="Pros collect from the hub"
+                    title={t("guest.step2_card3_title")}
+                    description={t("guest.step2_card3_desc")}
                     icon={<IconTruck size={32} />}
                   />
                 </SimpleGrid>
@@ -378,18 +377,17 @@ export default function GuestHome() {
                 <HeroBadge text="3" height={48} />
                 <Stack gap={4} align="center">
                   <Title order={2} size={32} ta="center">
-                    A lively community
+                    {t("guest.step3_title")}
                   </Title>
                   <Text c="dimmed" fw={500} ta="center" maw={600}>
-                    Discover our latest guides, events, workshops, and much more
-                    !
+                    {t("guest.step3_subtitle")}
                   </Text>
                 </Stack>
                 <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="xl" w="100%">
                   {/* TODO: 3 random articles */}
                   <Center h={100} w="100%" style={{ gridColumn: "1 / -1" }}>
                     <Text c="dimmed" fs="italic">
-                      3 random articles coming soon...
+                      3 random articles coming soon... (HEHE)
                     </Text>
                   </Center>
                 </SimpleGrid>
@@ -441,10 +439,10 @@ export default function GuestHome() {
                   ta="center"
                   style={{ lineHeight: 1.2 }}
                 >
-                  Are you hyped up to upcycle and save our planet?
+                  {t("guest.cta_title")}
                 </Title>
                 <Text c="green.1" size="xl" fw={500} ta="center" maw={600}>
-                  Join a community of thousands making reuse the new standard.
+                  {t("guest.cta_subtitle")}
                 </Text>
               </Stack>
               <Group w="100%" justify="center">
@@ -467,7 +465,7 @@ export default function GuestHome() {
                       (e.currentTarget.style.transform = "scale(1)")
                     }
                   >
-                    Join us today
+                    {t("guest.cta_join")}
                   </Button>
                 </Stack>
               </Group>
@@ -482,10 +480,10 @@ export default function GuestHome() {
           <Stack gap={50} align="center" mt="xl">
             <Stack gap="xs" align="center">
               <Title order={2} size={42} ta="center" style={{ maxWidth: 800 }}>
-                Are you a Professional or Artisan?
+                {t("guest.pro_title")}
               </Title>
               <Text size="xl" c="dimmed" ta="center" fw={500}>
-                Looking for materials for your next upcycling project?
+                {t("guest.pro_subtitle")}
               </Text>
             </Stack>
             <Grid gap={40} align="stretch">
@@ -504,7 +502,7 @@ export default function GuestHome() {
                   <Stack justify="space-between" h="100%" gap="xl">
                     <Stack gap="md">
                       <Title order={3} size={24}>
-                        Source with Precision
+                        {t("guest.pro_source_title")}
                       </Title>
                       <List
                         spacing="sm"
@@ -519,16 +517,10 @@ export default function GuestHome() {
                           </ThemeIcon>
                         }
                       >
-                        <List.Item>
-                          Access to high-quality reusable materials
-                        </List.Item>
-                        <List.Item>
-                          Smart alerts for specific material arrivals
-                        </List.Item>
-                        <List.Item>
-                          Real-time impact and circularity analytics
-                        </List.Item>
-                        <List.Item>Premium dedicated dashboard</List.Item>
+                        <List.Item>{t("guest.pro_source_item1")}</List.Item>
+                        <List.Item>{t("guest.pro_source_item2")}</List.Item>
+                        <List.Item>{t("guest.pro_source_item3")}</List.Item>
+                        <List.Item>{t("guest.pro_source_item4")}</List.Item>
                       </List>
                     </Stack>
                     <Image
@@ -554,7 +546,7 @@ export default function GuestHome() {
                   <Stack justify="space-between" h="100%" gap="xl">
                     <Stack gap="md">
                       <Title order={3} size={24}>
-                        Grow Your Impact
+                        {t("guest.pro_grow_title")}
                       </Title>
                       <List
                         spacing="sm"
@@ -569,18 +561,10 @@ export default function GuestHome() {
                           </ThemeIcon>
                         }
                       >
-                        <List.Item>
-                          Promote your upcycling projects to our community
-                        </List.Item>
-                        <List.Item>
-                          Reach new audiences interested in sustainability
-                        </List.Item>
-                        <List.Item>
-                          Build local B2B and B2C partnerships
-                        </List.Item>
-                        <List.Item>
-                          Track your impact via Upcycling Score
-                        </List.Item>
+                        <List.Item>{t("guest.pro_grow_item1")}</List.Item>
+                        <List.Item>{t("guest.pro_grow_item2")}</List.Item>
+                        <List.Item>{t("guest.pro_grow_item3")}</List.Item>
+                        <List.Item>{t("guest.pro_grow_item4")}</List.Item>
                       </List>
                     </Stack>
                     <Image
@@ -602,7 +586,7 @@ export default function GuestHome() {
                   navigate(PATHS.GUEST.REGISTER, { state: { role: "pro" } })
                 }
               >
-                Sign up as a Professional
+                {t("guest.pro_cta")}
               </Button>
             </Center>
           </Stack>
