@@ -73,12 +73,12 @@ export default function EventCategoryPage() {
 
   const baseCat = category.slice(0, -1); // remove 's'
 
-  // Mock data for drafting
   const categoryTitle = t(`categories.${baseCat}_plural`);
   const categoryDescription = t("categories.explore_description", {
     category: t(`categories.${baseCat}`),
   });
 
+  // Mock data for drafting
   const mockEvent = {
     title: "Eco-Design Workshop",
     description: "Learn how to upcycle your old furniture into modern pieces.",
@@ -98,7 +98,7 @@ export default function EventCategoryPage() {
   //   return <FullScreenLoader />
   // }
   return (
-    <Stack gap={0}>
+    <Stack gap={0} mb="xl">
       {/* 1. FILTER BAR (Below Navbar) */}
       <Box
         style={{
@@ -184,7 +184,7 @@ export default function EventCategoryPage() {
             <MyBreadcrumbs
               breadcrumbs={[
                 {
-                  title: t("home:home_title", { defaultValue: "Home" }),
+                  title: t("home:title", { defaultValue: "Home" }),
                   href: PATHS.HOME,
                 },
                 {
@@ -205,10 +205,14 @@ export default function EventCategoryPage() {
                 <Button
                   className="button"
                   data-variant="primary"
-                  onClick={() => navigate(PATHS.EVENTS.PLANNING)}
+                  onClick={() =>
+                    navigate(PATHS.EVENTS.PLANNING, {
+                      state: { from: "eventCategory", category: category },
+                    })
+                  }
                   rightSection={<IconCalendar size={16} />}
                 >
-                  {t("buttons.my_events")}
+                  {t("my_events.title")}
                 </Button>
               )}
             </Group>

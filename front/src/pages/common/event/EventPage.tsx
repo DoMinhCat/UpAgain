@@ -52,7 +52,7 @@ export default function EventPage() {
   };
 
   return (
-    <Stack gap={0}>
+    <Stack gap={0} mb="xl">
       {/* 1. HERO SECTION */}
       <HeroBanner
         src={`/banners/event-banner1-${theme === "light" ? "light" : "dark"}.png`}
@@ -75,7 +75,7 @@ export default function EventPage() {
             mb="lg"
             breadcrumbs={[
               {
-                title: t("home:home_title", { defaultValue: "Home" }),
+                title: t("home:title", { defaultValue: "Home" }),
                 href: PATHS.HOME,
               },
               { title: t("events", { defaultValue: "Events" }), href: "#" },
@@ -85,10 +85,14 @@ export default function EventPage() {
             <Button
               className="button"
               data-variant="primary"
-              onClick={() => navigate(PATHS.EVENTS.PLANNING)}
+              onClick={() =>
+                navigate(PATHS.EVENTS.PLANNING, {
+                  state: { from: "eventIndex" },
+                })
+              }
               rightSection={<IconCalendar size={16} />}
             >
-              {t("buttons.my_events")}
+              {t("my_events.title")}
             </Button>
           )}
         </Group>

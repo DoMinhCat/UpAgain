@@ -245,7 +245,7 @@ export default function EventDetailPage() {
               mt="md"
               breadcrumbs={[
                 {
-                  title: t("home:home_title", { defaultValue: "Home" }),
+                  title: t("home:title", { defaultValue: "Home" }),
                   href: PATHS.HOME,
                 },
                 {
