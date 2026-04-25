@@ -6,20 +6,17 @@ import {
   Text,
   Badge,
   Group,
-  TextInput,
   Button,
   Box,
   Modal,
   Paper,
   Tooltip,
   Divider,
-  Select,
   Card,
   SimpleGrid,
   Avatar,
   ActionIcon,
   Anchor,
-  Timeline,
   Loader,
   Center,
   NumberInput,
@@ -40,8 +37,6 @@ import {
   IconRouteSquare,
   IconCrownFilled,
 } from "@tabler/icons-react";
-import { TextEditor } from "../../../components/input/TextEditor";
-import ImageDropzone from "../../../components/input/ImageDropzone";
 import {
   useDeleteComment,
   useDeletePost,
@@ -49,7 +44,6 @@ import {
   useGetPostComments,
   useGetPostDetails,
   useGetProjectStepsByPostId,
-  useUpdatePost,
 } from "../../../hooks/postHooks";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
