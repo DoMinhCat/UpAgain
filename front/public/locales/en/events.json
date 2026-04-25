@@ -66,6 +66,7 @@
     "edit_event": "Edit Event",
     "cancel_event": "Cancel Event",
     "secure_payment": "Secure payment & instant confirmation",
-    "already_registered": "You are already registered to this event"
+    "already_registered": "You are already registered to this event",
+    "registered_other": "{{count}} registered"
   }
 }

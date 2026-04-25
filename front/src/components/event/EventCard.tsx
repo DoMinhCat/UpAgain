@@ -18,6 +18,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import { getTimeAgo } from "../../utils/timeUtils";
+import { useTranslation } from "react-i18next";
 
 interface EventCardProps {
   orientation?: "vertical" | "horizontal";
@@ -52,8 +53,12 @@ export function EventCard({
   postalCode,
   registeredCount,
 }: EventCardProps) {
+  const { t } = useTranslation();
   const isHorizontal = orientation === "horizontal";
   const displayPrice = price === 0 || price === "Free" ? "Free" : `${price}€`;
+  const categoryValue = t(`common:event_categories.${category}` as any, {
+    defaultValue: category.charAt(0).toUpperCase() + category.slice(1),
+  });
 
   return (
     <Card
@@ -110,7 +115,7 @@ export function EventCard({
             }
             size="sm"
           >
-            {category}
+            {categoryValue}
           </Badge>
           <Badge
             variant="default"
@@ -124,7 +129,7 @@ export function EventCard({
             }}
             leftSection={<IconUsers size={12} />}
           >
-            {registeredCount} registered
+            {t("events:detail.registered", { count: registeredCount })}
           </Badge>
         </Stack>
       </Box>
