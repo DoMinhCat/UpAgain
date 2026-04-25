@@ -176,9 +176,10 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	}
 
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username 
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username, a.avatar,
+		(SELECT count(*) FROM event_registrations er WHERE er.id_event=e.id) as registered
 		FROM events e 
-		JOIN accounts a ON e.created_by=a.id 
+		JOIN accounts a ON e.created_by=a.id
 		` + whereClause + " " + orderBy
 
 	// pagination
@@ -197,7 +198,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 
 	for rows.Next() {
 		var event models.Event
-		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.EndAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail, &event.EmployeeName)
+		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.EndAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail, &event.EmployeeName, &event.EmployeeAvatar, &event.Registered)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllEvents() scan failed: %v", err.Error())
 		}

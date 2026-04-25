@@ -20,14 +20,9 @@ import { useNavigate } from "react-router-dom";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
-
-const CATEGORIES = [
-  "workshop",
-  "conference",
-  "meetup",
-  "exposition",
-  "other",
-] as const;
+import { useGetAllEvents } from "../../../hooks/eventHooks";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import type { AppEvent } from "../../../api/interfaces/event";
 
 export default function EventPage() {
   const { user } = useAuth();
@@ -50,6 +45,71 @@ export default function EventPage() {
     postalCode: "75001",
     registeredCount: 12,
   };
+  // GET EVENTS BY CATE
+  const LIMIT = 4;
+
+  // workshop
+  const { data: workshops, isLoading: isLoadingWorkshop } = useGetAllEvents(
+    -1,
+    LIMIT,
+    undefined,
+    "approved",
+    "most_recent_creation",
+    "workshop",
+  );
+  // conference
+  const { data: conferences, isLoading: isLoadingConference } = useGetAllEvents(
+    -1,
+    LIMIT,
+    undefined,
+    "approved",
+    "most_recent_creation",
+    "conference",
+  );
+  // meetup
+  const { data: meetups, isLoading: isLoadingMeetup } = useGetAllEvents(
+    -1,
+    LIMIT,
+    undefined,
+    "approved",
+    "most_recent_creation",
+    "meetups",
+  );
+  // exposition
+  const { data: expositions, isLoading: isLoadingExposition } = useGetAllEvents(
+    -1,
+    LIMIT,
+    undefined,
+    "approved",
+    "most_recent_creation",
+    "exposition",
+  );
+  // other
+  const { data: others, isLoading: isLoadingOther } = useGetAllEvents(
+    -1,
+    LIMIT,
+    undefined,
+    "approved",
+    "most_recent_creation",
+    "other",
+  );
+  const eventsByCategory = [
+    { name: "workshop", items: workshops },
+    { name: "conference", items: conferences },
+    { name: "meetup", items: meetups },
+    { name: "exposition", items: expositions },
+    { name: "other", items: others },
+  ];
+
+  if (
+    isLoadingWorkshop ||
+    isLoadingConference ||
+    isLoadingMeetup ||
+    isLoadingExposition ||
+    isLoadingOther
+  ) {
+    return <FullScreenLoader />;
+  }
 
   return (
     <Stack gap={0} mb="xl">
@@ -99,22 +159,22 @@ export default function EventPage() {
 
         <Stack gap={60}>
           {/* 2. CATEGORY SECTIONS */}
-          {CATEGORIES.map((cat) => (
-            <Stack key={cat} gap="xl">
+          {eventsByCategory.map(({ name, items }) => (
+            <Stack key={name} gap="xl">
               <Group justify="space-between" align="center">
                 <Title order={2} style={{ textTransform: "capitalize" }}>
-                  {t(`categories.${cat}_plural`)}
+                  {t(`categories.${name}_plural`)}
                 </Title>
                 <Anchor
                   component="button"
                   size="sm"
                   fw={700}
                   c="var(--upagain-neutral-green)"
-                  onClick={() => navigate(`/events/${cat}s`)}
+                  onClick={() => navigate(`/events/${name}s`)}
                 >
                   <Group gap={4}>
                     {t("categories.see_all", {
-                      category: t(`categories.${cat}_plural`),
+                      category: t(`categories.${name}_plural`),
                     })}
                     <IconChevronRight size={14} />
                   </Group>
@@ -122,14 +182,33 @@ export default function EventPage() {
               </Group>
 
               <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
-                {[1, 2, 3, 4].map((i) => (
-                  <EventCard
-                    onclick={() => navigate(`/events/${cat}s/${99}`)}
-                    key={`${cat}-${i}`}
-                    {...mockEvent}
-                    category={cat}
-                  />
-                ))}
+                {items?.events && items?.events.length > 0 ? (
+                  items?.events?.map((event: AppEvent) => (
+                    <EventCard
+                      onclick={() => navigate(`/events/${name}s/${event.id}`)}
+                      key={`${event.id}`}
+                      title={event.title}
+                      image={event.images?.[0] || ""}
+                      description={event.description}
+                      authorName={event.employee_name || "Unknown organizer"}
+                      authorAvatar={event?.employee_avatar || ""}
+                      createdAt={event.created_at}
+                      eventDate={event.start_at}
+                      price={event.price}
+                      city={event.city}
+                      registeredCount={event.registered}
+                      category={name}
+                    />
+                  ))
+                ) : (
+                  <Text ta="center" w="100%">
+                    {t("no_event", {
+                      event_type:
+                        t(`categories.${name}_plural`).charAt(0).toLowerCase() +
+                        t(`categories.${name}_plural`).slice(1),
+                    })}
+                  </Text>
+                )}
               </SimpleGrid>
             </Stack>
           ))}

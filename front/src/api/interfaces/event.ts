@@ -14,6 +14,8 @@ export interface AppEvent {
   street: string;
   location_detail: string;
   employee_name: string | null;
+  employee_avatar: string | null;
+  registered: number;
   images?: string[];
 }
 

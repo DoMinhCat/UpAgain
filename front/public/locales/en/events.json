@@ -68,5 +68,6 @@
     "secure_payment": "Secure payment & instant confirmation",
     "already_registered": "You are already registered to this event",
     "registered_other": "{{count}} registered"
-  }
+  },
+  "no_event": "No {{event_type}} found"
 }
