@@ -14,6 +14,7 @@ import {
   Divider,
   SimpleGrid,
   useComputedColorScheme,
+  Center,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useState } from "react";
@@ -29,6 +30,7 @@ import {
   IconCheck,
   IconX,
   IconRestore,
+  IconCalendarOff,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
@@ -422,27 +424,43 @@ export default function EventDetailPage() {
                         })}
                       </Button>
                     </Group>
-                    <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-                      {suggestedEvents.map((event) => (
-                        <EventCard
-                          key={event.id}
-                          onclick={() =>
-                            navigate(`/events/${event.category}s/${event.id}`)
-                          }
-                          category={event.category}
-                          title={event.title}
-                          description={event.description}
-                          authorName={event.employee_name || "Unknown"}
-                          authorAvatar={event.employee_avatar || ""}
-                          createdAt={event.created_at}
-                          eventDate={event.start_at}
-                          image={event.images?.[0] || ""}
-                          price={event.price}
-                          city={event.city}
-                          registeredCount={event.registered}
-                        />
-                      ))}
-                    </SimpleGrid>
+                    {suggestedEvents.length > 0 ? (
+                      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
+                        {suggestedEvents.map((event) => (
+                          <EventCard
+                            key={event.id}
+                            onclick={() =>
+                              navigate(`/events/${event.category}s/${event.id}`)
+                            }
+                            category={event.category}
+                            title={event.title}
+                            description={event.description}
+                            authorName={event.employee_name || "Unknown"}
+                            authorAvatar={event.employee_avatar || ""}
+                            createdAt={event.created_at}
+                            eventDate={event.start_at}
+                            image={event.images?.[0] || ""}
+                            price={event.price}
+                            city={event.city}
+                            registeredCount={event.registered}
+                          />
+                        ))}
+                      </SimpleGrid>
+                    ) : (
+                      <Center mt="lg" w="100%" style={{ gridColumn: "1 / -1" }}>
+                        <Stack align="center" gap="xs">
+                          <IconCalendarOff
+                            size={40}
+                            stroke={1.5}
+                            color="var(--mantine-color-dimmed)"
+                            style={{ opacity: 0.6 }}
+                          />
+                          <Text c="dimmed" fw={500} size="sm" ta="center">
+                            {t("events:detail.no_relevant_events")}
+                          </Text>
+                        </Stack>
+                      </Center>
+                    )}
                   </Stack>
                 </Stack>
               </Grid.Col>
@@ -552,7 +570,9 @@ export default function EventDetailPage() {
                         <Progress
                           value={
                             event.capacity !== null && event.capacity !== 0
-                              ? (event.registered / event.capacity) * 100
+                              ? ((event.capacity - event.registered) /
+                                  event.capacity) *
+                                100
                               : 100
                           }
                           color="var(--upagain-neutral-green)"

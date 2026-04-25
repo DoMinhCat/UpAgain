@@ -69,7 +69,8 @@
     "secure_payment": "Secure payment & instant confirmation",
     "already_registered": "You are already registered to this event",
     "registered_one": "{{count}} registered",
-    "registered_other": "{{count}} registered"
+    "registered_other": "{{count}} registered",
+    "no_relevant_events": "No other relevant events found at the moment."
   },
   "no_event": "No {{event_type}} found",
   "empty_state": {
