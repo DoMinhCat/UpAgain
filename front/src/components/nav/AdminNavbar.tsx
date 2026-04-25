@@ -137,6 +137,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
   };
 
   const { i18n } = useTranslation();
+  const { t } = useTranslation();
   const currentLanguage =
     LANGUAGES.find((lang) => lang.lng === i18n.language)?.path ||
     "united-kingdom";
@@ -151,7 +152,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
         }}
       >
         <Tooltip
-          label="Go to front office"
+          label={t("admin:navigation.to_front")}
           position="right"
           transitionProps={{ duration: 0 }}
         >
@@ -279,7 +280,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
                   if (onLinkClick) onLinkClick();
                 }}
               >
-                Logout
+                {t("auth:logout")}
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>

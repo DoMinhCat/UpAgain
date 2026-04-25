@@ -19,6 +19,7 @@
     }
   },
   "navigation": {
+    "to_front": "Quay lại giao diện người dùng",
     "title": "Truy Cập Nhanh",
     "user": {
       "title": "Người dùng",
@@ -708,6 +709,7 @@
       "timeframe_note": "* Thời gian hổng áp dụng cho mấy cái này nha"
     },
     "filters": {
+      "category_placeholder": "Tất cả danh mục",
       "search_placeholder": "Tìm theo tên nhân viên, ID hoặc tiêu đề...",
       "sort_placeholder": "Chọn cách sắp xếp nha",
       "sort_options": {
