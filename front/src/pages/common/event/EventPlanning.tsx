@@ -4,7 +4,7 @@ import { NotFoundPage } from "../../error/404";
 import EmployeeEventsPlanning from "./EmployeeEventsPlanning";
 import UpcomingEventsPage from "./UpcomingEventsPage";
 
-const Home = () => {
+const EventPlanning = () => {
   const { user } = useAuth();
 
   // Redirect unauthenticated users
@@ -26,4 +26,4 @@ const Home = () => {
   }
 };
 
-export default Home;
+export default EventPlanning;

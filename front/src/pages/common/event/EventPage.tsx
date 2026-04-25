@@ -18,6 +18,7 @@ import { HeroBanner } from "../../../components/hero/HeroBanner";
 import { useNavigate } from "react-router-dom";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
+import { useAuth } from "../../../context/AuthContext";
 
 const CATEGORIES = [
   "workshop",
@@ -28,6 +29,7 @@ const CATEGORIES = [
 ] as const;
 
 export default function EventPage() {
+  const { user } = useAuth();
   const theme = useComputedColorScheme("light");
   const navigate = useNavigate();
 
@@ -74,14 +76,16 @@ export default function EventPage() {
               { title: "Events", href: "#" },
             ]}
           />
-          <Button
-            className="button"
-            data-variant="primary"
-            onClick={() => navigate(PATHS.EVENTS.PLANNING)}
-            rightSection={<IconCalendar size={16} />}
-          >
-            My Events
-          </Button>
+          {user?.role !== "admin" && (
+            <Button
+              className="button"
+              data-variant="primary"
+              onClick={() => navigate(PATHS.EVENTS.PLANNING)}
+              rightSection={<IconCalendar size={16} />}
+            >
+              My Events
+            </Button>
+          )}
         </Group>
         <Stack gap={60}>
           {/* 2. CATEGORY SECTIONS */}
