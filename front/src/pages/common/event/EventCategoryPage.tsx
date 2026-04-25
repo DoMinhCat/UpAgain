@@ -29,8 +29,10 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
 import { NotFoundPage } from "../../error/404";
 // import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function EventCategoryPage() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { category } = useParams<{ category: string }>();
   let event_category = category?.substring(0, category.length - 1);
@@ -185,19 +187,20 @@ export default function EventCategoryPage() {
             <Title order={1} size={42} fw={900}>
               {categoryTitle}
             </Title>
-            xxx
             <Group justify="space-between" align="end" mb="lg">
               <Text c="dimmed" size="lg" maw={800}>
                 {categoryDescription}
               </Text>
-              <Button
-                className="button"
-                data-variant="primary"
-                onClick={() => navigate(PATHS.EVENTS.PLANNING)}
-                rightSection={<IconCalendar size={16} />}
-              >
-                My Events
-              </Button>
+              {user?.role !== "admin" && (
+                <Button
+                  className="button"
+                  data-variant="primary"
+                  onClick={() => navigate(PATHS.EVENTS.PLANNING)}
+                  rightSection={<IconCalendar size={16} />}
+                >
+                  My Events
+                </Button>
+              )}
             </Group>
           </Stack>
 
