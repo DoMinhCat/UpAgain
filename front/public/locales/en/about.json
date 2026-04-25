@@ -1,0 +1,33 @@
+{
+  "hero": {
+    "badge": "Our Vision",
+    "title": "Breathe new life into every <1>object</1>",
+    "description": "UpAgain is a collaborative platform dedicated to reducing waste and empowering local communities. We make it easy to exchange underutilized items, embark on upcycling projects, and create tangible value through sustainability.",
+    "cta_join": "Join the Movement",
+    "cta_explore": "Explore Community"
+  },
+  "mission": {
+    "title": "Why UpAgain?",
+    "text1": "Millions of tons of usable items are discarded every year. We believe that the fastest way to environmental sustainability is fostering localized connection and equipping people with the inspiration to create rather than discard.",
+    "text2": "We're bridging the gap between individuals who have too much and creators who see potential in everything. Together, we're building an economy where creativity dictates value.",
+    "footer": "Make sustainability an easy, everyday choice."
+  },
+  "impact": {
+    "title": "How We Make An Impact",
+    "description": "Whether you're looking to clean out your garage or you're an artisan seeking fresh materials, UpAgain offers the perfect ecosystem.",
+    "features": {
+      "connect": {
+        "title": "Connect & Share",
+        "description": "Find local communities to share items you no longer need. Give objects a second life by passing them to those who will cherish them."
+      },
+      "upcycle": {
+        "title": "Upcycle & Create",
+        "description": "Transform ordinary discarded items into valuable treasures. Join upcycling workshops, learn new restoration skills, and monetize your creations."
+      },
+      "reduce": {
+        "title": "Reduce Waste",
+        "description": "Every upcycled item is a win for our planet! Track your CO2 savings and actively participate in building a circular, sustainable economy."
+      }
+    }
+  }
+}

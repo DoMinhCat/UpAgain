@@ -1,0 +1,18 @@
+{
+  "403": {
+    "title": "Trời ơi, bạn tìm thấy kho báu hả!",
+    "description": "Cơ mà tiếc ghê, đây chỉ là trang lỗi 403 thôi. Bạn hổng có chìa khóa để vào kho báu này đâu nha.",
+    "back_to_home": "Cho tui về trang chủ đi"
+  },
+  "404": {
+    "title": "Chà, bạn tìm thấy chỗ bí mật rồi nè.",
+    "description": "Xui ghê, đây chỉ là trang lỗi 404 thôi. Bạn gõ sai địa chỉ, hoặc trang này đã chuyển nhà sang chỗ khác rồi đó.",
+    "back_to_home": "Cho tui về trang chủ đi"
+  },
+  "500": {
+    "title": "Ối chao! Bạn bắt được lỗi hả?",
+    "description": "Hệ thống gặp vấn đề tí xíu gòi. Bạn liên hệ tụi mình hoặc thử lại sau nha.",
+    "back_to_previous": "Quay lại trang hồi nãy",
+    "back_to_home": "Cho tui về trang chủ đi"
+  }
+}

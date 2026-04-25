@@ -1,0 +1,914 @@
+{
+  "dashboard": {
+    "title": "Tableau de bord",
+    "total_users": "Utilisateurs totaux",
+    "pending_requests": "Requêtes en attente",
+    "total_upscore": "UpScore total",
+    "available_containers": "Conteneurs disponibles",
+    "errors": {
+      "user_stats": "Une erreur est survenue lors du chargement des statistiques utilisateurs",
+      "validation_stats": "Une erreur est survenue lors du chargement des statistiques de validation",
+      "score_stats": "Une erreur est survenue lors du chargement du score total",
+      "container_stats": "Une erreur est survenue lors du chargement des statistiques de conteneurs"
+    },
+    "stats": {
+      "users_since_last_month": " utilisateurs depuis le mois dernier",
+      "waiting_validation": " requêtes en attente de validation",
+      "co2_avoided": " kg de CO2 évités par la communauté",
+      "containers_in_service": "{{percent}}% de conteneurs en service"
+    }
+  },
+  "navigation": {
+    "title": "Navigation Rapide",
+    "user": {
+      "title": "Utilisateurs",
+      "description": "Gérer les comptes utilisateurs"
+    },
+    "validation": {
+      "title": "Validations",
+      "description": "Valider ou rejeter les demandes en attente"
+    },
+    "container": {
+      "title": "Conteneurs",
+      "description": "Gérer les conteneurs UpAgain"
+    },
+    "event": {
+      "title": "Événements/Ateliers",
+      "description": "Gérer les événements et ateliers à venir"
+    },
+    "subscription": {
+      "title": "Abonnements",
+      "description": "Gérer les prix et les comptes premium"
+    },
+    "posts": {
+      "title": "Articles",
+      "description": "Gérer les articles communautaires et sponsorisés"
+    },
+    "listings": {
+      "title": "Annonces",
+      "description": "Gérer les annonces postées par les utilisateurs"
+    },
+    "finance": {
+      "title": "Centre Financier",
+      "description": "Analyser les revenus de UpAgain"
+    }
+  },
+  "history": {
+    "title": "Historique Admin",
+    "table": {
+      "timestamp": "Horodatage",
+      "admin": "Admin",
+      "module": "Module",
+      "item_id": "ID de l'élément",
+      "action": "Action",
+      "transaction_id": "ID",
+      "no_records": "Aucun enregistrement d'historique trouvé"
+    },
+    "filters": {
+      "search": "Rechercher",
+      "search_placeholder": "Nom de l'admin ou ID de l'élément...",
+      "sort": "Trier par",
+      "sort_placeholder": "Méthode de tri",
+      "sort_recent": "Activité la plus récente",
+      "sort_oldest": "Activité la plus ancienne",
+      "module": "Module",
+      "module_placeholder": "Tous les modules",
+      "material": "Matériau",
+      "status": "Statut",
+      "category": "Catégorie",
+      "action": "Action",
+      "action_placeholder": "Toutes les actions",
+      "apply": "Appliquer les filtres",
+      "reset": "Réinitialiser"
+    },
+    "details": {
+      "title": "Détails de l'historique",
+      "log_information": "Informations du journal",
+      "performed_by": "Effectué par",
+      "module_section": "Module / Section",
+      "reference_id": "ID de référence",
+      "date_time": "Date et heure",
+      "modification_comparison": "Comparaison des modifications",
+      "previous_state": "État précédent",
+      "updated_state": "État mis à jour",
+      "audit_note": "* Il s'agit d'un enregistrement d'audit permanent et ne peut pas être modifié.",
+      "ref_account": "Compte #",
+      "ref_container": "Conteneur #",
+      "ref_post": "Article #",
+      "ref_event": "Événement #",
+      "ref_comment": "Commentaire #",
+      "ref_listing": "Annonce #",
+      "ref_deposit": "Dépôt #"
+    }
+  },
+  "modules": {
+    "employee": "Employé",
+    "user": "Utilisateur",
+    "pro": "Pro",
+    "event": "Événement",
+    "container": "Conteneur",
+    "post": "Article",
+    "comment": "Commentaire",
+    "listing": "Annonce",
+    "deposit": "Dépôt",
+    "subscription": "Abonnement",
+    "finance_setting": "Paramètres financiers",
+    "posts": "Articles",
+    "finance": "Finance"
+  },
+  "users": {
+    "title": "Gestion des utilisateurs",
+    "subtitle": "Gérer les utilisateurs et leurs permissions",
+    "export_csv": "Exporter en CSV",
+    "recover_accounts": "Récupérer des comptes",
+    "new_account": "Nouveau compte",
+    "search_placeholder": "Nom d'utilisateur, e-mail ou ID...",
+    "sort": {
+      "recent_reg": "Inscription la plus récente",
+      "oldest_reg": "Inscription la plus ancienne",
+      "recent_active": "Dernière activité la plus récente",
+      "oldest_active": "Dernière activité la plus ancienne"
+    },
+    "roles": {
+      "all": "Tous les rôles",
+      "user": "Utilisateur",
+      "pro": "Pro",
+      "employee": "Employé",
+      "admin": "Admin"
+    },
+    "status": {
+      "all": "Tous les statuts",
+      "active": "Actif",
+      "banned": "Banni"
+    },
+    "table": {
+      "registered_on": "Inscrit le",
+      "id": "ID",
+      "username": "Nom d'utilisateur",
+      "email": "E-mail",
+      "role": "Rôle",
+      "status": "Statut",
+      "last_active": "Dernière activité",
+      "actions": "Actions",
+      "no_users": "Aucun utilisateur trouvé"
+    },
+    "delete_modal": {
+      "title": "Supprimer ce compte ?",
+      "text": "Êtes-vous sûr de vouloir supprimer ce compte ? Il sera supprimé de manière réversible (soft delete).",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "create_modal": {
+      "title": "Créer un compte",
+      "username": "Nom d'utilisateur",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "confirm_password": "Confirmer le mot de passe",
+      "phone": "Téléphone",
+      "role": "Rôle",
+      "is_premium": "Premium ?",
+      "is_trial": "Essai ?",
+      "submit": "Créer"
+    },
+    "edit_modal": {
+      "title": "Modifier le compte",
+      "submit": "Mettre à jour",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "username_required": "Le nom d'utilisateur est requis",
+      "username_min": "Le nom d'utilisateur doit comporter au moins 4 caractères",
+      "username_max": "Le nom d'utilisateur doit comporter au plus 20 caractères",
+      "email_required": "L'e-mail est requis",
+      "email_invalid": "Format d'e-mail invalide",
+      "password_required": "Le mot de passe est requis",
+      "password_min": "Le mot de passe doit comporter au moins 12 caractères",
+      "password_max": "Le mot de passe doit comporter au plus 60 caractères",
+      "password_complexity": "Le mot de passe doit contenir au moins un chiffre, une lettre majuscule et un caractère spécial",
+      "confirm_required": "La confirmation du mot de passe est requise",
+      "confirm_mismatch": "Les mots de passe ne correspondent pas",
+      "phone_numbers_only": "Le numéro de téléphone ne doit contenir que des chiffres",
+      "phone_min": "Le téléphone doit comporter au moins 10 chiffres",
+      "phone_max": "Le téléphone doit comporter au plus 15 chiffres",
+      "role_required": "Le rôle est requis",
+      "export_failed": "L'exportation a échoué",
+      "export_error": "Une erreur est survenue lors de l'exportation des comptes."
+    },
+    "details": {
+      "title": "Détails de l'utilisateur",
+      "general_info": "Informations Générales",
+      "contact": "Contact",
+      "activities": "Activités",
+      "danger_zone": "Zone de danger",
+      "fields": {
+        "username": "Nom d'utilisateur",
+        "registered_on": "Inscrit le",
+        "role": "Rôle",
+        "status": "Statut",
+        "subscription": "Abonnement",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "last_active": "Dernière activité",
+        "total_deposits": "Dépôts en conteneur postés",
+        "total_listings": "Annonces postées",
+        "total_spendings": "Dépenses totales",
+        "total_events": "Événements/Ateliers assignés",
+        "total_posts": "Articles postés",
+        "total_listings_purchased": "Annonces achetées",
+        "total_deposits_purchased": "Dépôts en conteneur achetés",
+        "total_projects": "Projets postés",
+        "n_a": "N/A",
+        "freemium": "Freemium",
+        "premium": "Premium",
+        "deleted": "Supprimé",
+        "banned": "Banni",
+        "active": "Actif",
+        "posted": "posté(s)",
+        "assigned": "assigné(s)",
+        "purchased": "acheté(s)",
+        "deposit_plural": "dépôts",
+        "deposit_singular": "dépôt",
+        "listing_plural": "annonces",
+        "listing_singular": "annonce",
+        "event_plural": "événements/ateliers",
+        "event_singular": "événement/atelier",
+        "article_plural": "articles",
+        "article_singular": "article",
+        "project_plural": "projets",
+        "project_singular": "projet",
+        "show_tasks": "Afficher les tâches actuelles",
+        "stats_error": "Échec de la récupération des statistiques"
+      },
+      "actions": {
+        "recover": "Récupérer le compte",
+        "edit": "Modifier le compte",
+        "change_password": "Changer le mot de passe",
+        "ban": "Bannir le compte",
+        "unban": "Débannir le compte",
+        "delete": "Supprimer le compte"
+      },
+      "tooltips": {
+        "edit_admin": "Impossible de modifier le compte d'un autre admin",
+        "password_admin": "Impossible de changer le mot de passe d'un autre admin"
+      },
+      "modals": {
+        "recover_title": "Récupérer le compte",
+        "recover_text": "Êtes-vous sûr de vouloir récupérer ce compte ? Il retrouvera ses accès.",
+        "delete_title": "Supprimer le compte",
+        "delete_text": "Êtes-vous sûr de vouloir supprimer ce compte ? Cette action est réversible.",
+        "ban_title": "Bannir le compte",
+        "unban_title": "Débannir le compte",
+        "ban_text": "Êtes-vous sûr de vouloir bannir ce compte ? L'utilisateur ne pourra plus se connecter.",
+        "unban_text": "Êtes-vous sûr de vouloir débannir ce compte ? L'utilisateur retrouvera ses accès.",
+        "password_title": "Changer le mot de passe",
+        "password_placeholder": "Nouveau mot de passe",
+        "password_confirm_placeholder": "Confirmer le nouveau mot de passe"
+      }
+    },
+    "deleted": {
+      "title": "Comptes Supprimés",
+      "subtitle": "Récupérer les comptes supprimés réversiblement",
+      "table": {
+        "deleted_at": "Supprimé le",
+        "no_users": "Aucun utilisateur trouvé"
+      }
+    }
+  },
+  "validations": {
+    "title": "Centre de Validation",
+    "tabs": {
+      "overview": "Vue d'ensemble",
+      "deposits": "Dépôts",
+      "listings": "Annonces",
+      "events": "Événements",
+      "history": "Historique complet"
+    },
+    "overview": {
+      "pending": "Total en attente",
+      "approved": "Total approuvés",
+      "refused": "Total refusés",
+      "rate": "Taux d'approbation",
+      "distribution": "Répartition globale des statuts",
+      "breakdown": "Répartition par type",
+      "types": {
+        "deposit": "Dépôts",
+        "listing": "Annonces",
+        "event": "Événements"
+      }
+    },
+    "table": {
+      "submitted_on": "Soumis le",
+      "executed_on": "Créé le",
+      "title": "Titre",
+      "user": "Utilisateur",
+      "creator": "Créateur",
+      "container": "Conteneur",
+      "material": "Matériau",
+      "city": "Ville",
+      "price": "Prix",
+      "category": "Catégorie",
+      "start_date": "Date de début",
+      "search_placeholder": "Rechercher par titre, utilisateur ou ID...",
+      "actions": {
+        "approve": "Approuver",
+        "refuse": "Refuser"
+      },
+      "no_pending": {
+        "deposits": "Aucun dépôt en attente trouvé.",
+        "listings": "Aucune annonce en attente trouvée.",
+        "events": "Aucun événement en attente trouvé."
+      }
+    },
+    "history": {
+      "error": "Impossible de charger l'historique.",
+      "no_history": "Aucun enregistrement d'historique trouvé."
+    },
+    "refuse_modal": {
+      "title": "Refuser la Validation",
+      "text": "Veuillez fournir un motif de refus. Cela sera enregistré dans les logs.",
+      "text_shared": "Veuillez fournir un motif de refus. Cela sera envoyé à l'utilisateur.",
+      "label": "Raison du refus",
+      "placeholder": "Expliquez pourquoi cet élément est refusé...",
+      "confirm": "Refuser l'élément",
+      "cancel": "Annuler"
+    },
+    "details": {
+      "title": "Détails de la Validation",
+      "types": {
+        "listings": "Annonce",
+        "deposits": "Dépôt",
+        "events": "Événement"
+      },
+      "waiting_validation": "En attente de validation",
+      "general_info": "Informations Générales",
+      "item_details": "Détails de l'Objet",
+      "event_details": "Détails de l'Événement",
+      "decision": "Décision",
+      "decision_desc": "Veuillez examiner attentivement les informations avant de prendre une décision.",
+      "fields": {
+        "title": "Titre",
+        "description": "Description",
+        "no_description": "Aucune description fournie.",
+        "created_at": "Créé le",
+        "material": "Matériau",
+        "condition": "État",
+        "weight": "Poids",
+        "price": "Prix",
+        "location": "Lieu & Utilisateur",
+        "category": "Catégorie",
+        "scheduled_date": "Date prévue",
+        "at": " à ",
+        "capacity": "Capacité",
+        "spots": "{{count}} places",
+        "unlimited": "Illimitée",
+        "organizer": "Organisateur"
+      },
+      "actions": {
+        "approve": "Approuver",
+        "refuse": "Refuser"
+      },
+      "refuse_modal": {
+        "title": "Motif du refus (Requis)",
+        "placeholder": "Veuillez expliquer pourquoi cet élément est refusé...",
+        "confirm": "Confirmer le refus"
+      }
+    }
+  },
+  "containers": {
+    "title": "Gestion des Conteneurs",
+    "stats": {
+      "inventory": "Inventaire Total",
+      "inventory_desc": "conteneurs dans toutes les régions",
+      "inventory_desc_single": "conteneur dans toutes les régions",
+      "operational": "Taux Opérationnel",
+      "operational_desc": "conteneurs disponibles pour la collecte",
+      "operational_desc_single": "conteneur disponible pour la collecte",
+      "distribution": "Répartition de l'Inventaire",
+      "label_containers": "Conteneurs"
+    },
+    "table": {
+      "location": "Localisation",
+      "zip": "Code Postal",
+      "no_containers": "Aucun conteneur trouvé",
+      "search_placeholder": "Rechercher par ville ou code postal..."
+    },
+    "create_modal": {
+      "title": "Déployer un nouveau conteneur",
+      "street": "Rue",
+      "city": "Ville",
+      "zip": "Code Postal",
+      "submit": "Déployer"
+    },
+    "delete_modal": {
+      "title": "Confirmer l'archivage",
+      "text": "Êtes-vous sûr de vouloir supprimer le conteneur #{{id}} ({{city}}) ? Cela effectuera une suppression réversible.",
+      "confirm": "Confirmer la suppression"
+    },
+    "details": {
+      "title": "Détails du conteneur",
+      "general_info": "Informations générales",
+      "current_status": "Statut actuel",
+      "change_status": "Changer le statut",
+      "location": "Localisation",
+      "change_location": "Changer la localisation",
+      "created_on": "Créé le",
+      "activities": "Activités",
+      "current_object": "Objet actuel",
+      "under_maintenance": "Ce conteneur est actuellement en maintenance.",
+      "no_object": "Il n'y a aucun objet prêt pour l'enlèvement ou le dépôt dans ce conteneur.",
+      "view_schedule": "Voir le planning du conteneur",
+      "danger_zone": "Zone de danger",
+      "permanently_remove": "Suppression permanente",
+      "permanently_remove_desc": "Cela supprimera le conteneur du parc actif de manière réversible.",
+      "delete_button": "Supprimer le conteneur",
+      "schedule_title": "Planning du conteneur #{{id}}",
+      "drop_off": "[Dépôt] ",
+      "pick_up": "[Retrait] "
+    }
+  },
+  "listings": {
+    "title": "Gestion des Objets",
+    "stats": {
+      "active_objects": "Total Objets Actifs *",
+      "new_objects_desc": " nouveaux objets postés depuis le mois dernier",
+      "new_objects_desc_single": " nouvel objet posté depuis le mois dernier",
+      "pending_approval": "En attente d'approbation *",
+      "require_validation": " objets nécessitent une validation",
+      "require_validation_single": " objet nécessite une validation",
+      "completed_transactions": "Transactions Terminées",
+      "new_transactions_desc": " nouvelles transactions depuis le mois dernier",
+      "new_transactions_desc_single": " nouvelle transaction depuis le mois dernier",
+      "timeframe_note": "* La période ne s'applique pas à ces indicateurs"
+    },
+    "analytics": {
+      "title": "Analytique des Objets",
+      "desc": "Distribution par matériau et catégorie",
+      "by_material": "Par Matériau",
+      "by_type": "Par Type",
+      "no_data": "Aucune donnée disponible pour la période sélectionnée"
+    },
+    "filters": {
+      "title": "Gérer les annonces et les dépôts",
+      "search_placeholder": "Rechercher par nom de propriétaire, ID ou titre...",
+      "sort": {
+        "most_recent": "Création la plus récente",
+        "oldest": "Création la plus ancienne",
+        "highest_price": "Prix le plus élevé",
+        "lowest_price": "Prix le plus bas"
+      },
+      "category": "Catégorie",
+      "status": "Statut",
+      "material": "Matériau",
+      "state": "État",
+      "weight": "Poids"
+    },
+    "table": {
+      "creator": "Créateur",
+      "no_items": "Aucun objet trouvé"
+    },
+    "delete_modal": {
+      "title": "Supprimer cet objet ?",
+      "text": "Êtes-vous sûr de vouloir supprimer cet objet ? Il sera supprimé de manière réversible."
+    },
+    "details": {
+      "title": "Détails de l'objet",
+      "submitted_on": "Créé le {{date}}",
+      "photos": "Photos",
+      "access_info": "Informations d'accès",
+      "no_access_code": "Aucun code d'accès généré pour ce dépôt pour le moment.",
+      "owner": "Code Propriétaire",
+      "buyer": "Code Acheteur",
+      "six_digits_code": "CODE À 6 CHIFFRES",
+      "valid_from": "Valide à partir du : ",
+      "valid_to": "Valide jusqu'au : ",
+      "buyer_code_waiting": "En attente qu'un acheteur génère son code.",
+      "posted_by": "Posté par",
+      "edit_item": "Modifier l'objet",
+      "reopen_item": "Réouvrir l'objet",
+      "approve_item": "Approuver l'objet",
+      "delete_item": "Supprimer l'objet",
+      "transfer_container": "Transférer vers un autre conteneur",
+      "edit_modal": {
+        "title": "Modifier les détails de l'objet",
+        "description_label": "Description"
+      },
+      "transfer_modal": {
+        "title": "Transférer vers un autre conteneur",
+        "choose": "Choisissez un nouveau conteneur pour ce dépôt",
+        "confirm": "Transférer"
+      },
+      "status_modal": {
+        "title": "Mettre à jour le statut",
+        "reopen": "Réouvrir l'objet",
+        "approve": "Approuver l'objet",
+        "delete": "Supprimer l'objet",
+        "confirm": "Êtes-vous sûr de vouloir {{action}} cet objet ?"
+      },
+      "transactions": {
+        "title": "Historique des Transactions",
+        "no_transactions": "Aucune transaction trouvée",
+        "cancel_modal_title": "Annuler la transaction",
+        "cancel_confirm": "Êtes-vous sûr de vouloir annuler la transaction #{{id}} ? Cette action est irréversible."
+      }
+    }
+  },
+  "posts": {
+    "title": "Gestion des Articles",
+    "manage_subtitle": "Gérer les articles et projets",
+    "new_post": "Nouvel Article",
+    "stats": {
+      "total_active": "Total des articles actifs",
+      "posts_since": " articles depuis le mois dernier",
+      "engagement_rate": "Taux d'engagement",
+      "interactions_per_post": " interactions par article",
+      "distribution": "Répartition des articles par catégorie",
+      "posts_count": "Articles"
+    },
+    "filters": {
+      "search_placeholder": "Rechercher par nom d'employé, ID ou titre...",
+      "sort_options": {
+        "most_recent_creation": "Création la plus récente",
+        "oldest_creation": "Création la plus ancienne",
+        "highest_like": "Plus de likes",
+        "lowest_like": "Moins de likes",
+        "highest_view": "Plus de vues",
+        "lowest_view": "Moins de vues"
+      }
+    },
+    "table": {
+      "created_on": "Créé le",
+      "id": "ID",
+      "title": "Titre",
+      "creator": "Créateur",
+      "category": "Catégorie",
+      "views": "Vues",
+      "likes": "J'aime",
+      "actions": "Actions",
+      "no_posts": "Aucun article trouvé"
+    },
+    "categories": {
+      "all": "Toutes les catégories",
+      "tutorial": "Tutoriel",
+      "project": "Projet",
+      "tips": "Conseils",
+      "news": "Actualités",
+      "case_study": "Étude de cas",
+      "other": "Autre",
+      "sponsored": "Sponsorisé"
+    },
+    "create_modal": {
+      "title": "Créer un article",
+      "title_label": "Titre",
+      "title_placeholder": "Donnez un titre accrocheur à l'article",
+      "category_label": "Catégorie",
+      "category_placeholder": "Sélectionner une catégorie",
+      "content_label": "Contenu",
+      "content_placeholder": "Rédigez le contenu de votre article ici...",
+      "errors": {
+        "title": "Le titre est requis",
+        "category": "La catégorie est requise",
+        "category_project": "Seuls les professionnels peuvent créer un projet",
+        "description": "Le contenu de l'article est requis"
+      }
+    },
+    "delete_modal": {
+      "title": "Supprimer cet article ?",
+      "text": "Voulez-vous vraiment supprimer cet article ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "details": {
+      "title": "Détails de l'article",
+      "photos": "Photos",
+      "project_steps": "Étapes du projet",
+      "items_used": "Objets utilisés dans cette étape",
+      "created_on": "Créé le",
+      "written_by": "Écrit par",
+      "engagement": "Performance d'engagement",
+      "views": "Vues",
+      "likes": "J'aime",
+      "saves": "Sauvegardes",
+      "comments": "Commentaires",
+      "no_comments": "Aucun commentaire pour l'instant",
+      "sponsored": "Sponsorisé",
+      "delete_step_tooltip": "Supprimer cette étape",
+      "delete_comment_tooltip": "Supprimer ce commentaire",
+      "anonymous": "Anonyme",
+      "edit_post": "Modifier l'article",
+      "delete_post": "Supprimer l'article",
+      "create_ads": "Créer une pub",
+      "edit_ads": "Modifier la pub",
+      "remove_ads": "Retirer la pub"
+    },
+    "edit_modal": {
+      "title": "Modifier l'article",
+      "title_label": "Titre",
+      "category_label": "Catégorie",
+      "description_label": "Description de l'article",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "delete_post_modal": {
+      "title": "Supprimer l'article",
+      "text": "Voulez-vous vraiment supprimer cet article ?",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "delete_comment_modal": {
+      "title": "Supprimer le commentaire",
+      "text": "Voulez-vous vraiment supprimer ce commentaire ?",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "delete_step_modal": {
+      "title": "Supprimer l'étape",
+      "text": "Voulez-vous vraiment supprimer cette étape de projet ?",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "ads_modal": {
+      "add_title": "Ajouter le statut sponsor",
+      "edit_title": "Modifier le statut sponsor",
+      "remove_title": "Retirer le statut sponsor",
+      "remove_text": "Voulez-vous vraiment retirer le statut sponsor de cet article ?",
+      "start_date": "Date de début",
+      "end_date": "Date de fin",
+      "duration": "Durée (mois)",
+      "date_placeholder": "Choisir une date",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "errors": {
+        "start_required": "La date de début est requise",
+        "start_future": "La date de début doit être dans le futur",
+        "duration_required": "La durée est requise",
+        "duration_min": "La durée doit être d'au moins 1 mois",
+        "end_required": "La date de fin est requise",
+        "end_after_start": "La date de fin doit être après la date de début"
+      }
+    },
+    "notifications": {
+      "created_title": "Article créé",
+      "created_msg": "Le nouvel article a été créé avec succès",
+      "deleted_title": "Article supprimé",
+      "deleted_msg": "L'article a été supprimé avec succès"
+    }
+  },
+  "events": {
+    "title": "Gestion des Événements",
+    "manage_subtitle": "Gérer les événements et assigner des employés",
+    "new_event": "Nouvel Événement",
+    "create_modal": {
+      "title": "Créer un Événement",
+      "title_label": "Titre",
+      "title_placeholder": "Donnez un titre accrocheur à l'événement",
+      "capacity_label": "Capacité",
+      "capacity_placeholder": "Nombre maximum de participants",
+      "capacity_suffix": " personnes",
+      "price_label": "Prix",
+      "price_placeholder": "Frais d'entrée - (0 si gratuit)",
+      "street_label": "Rue",
+      "street_placeholder": "21 rue Erard",
+      "city_label": "Ville",
+      "city_placeholder": "Paris",
+      "location_detail_label": "Détails supplémentaires sur le lieu",
+      "location_detail_placeholder": "Salle 12, 2ème étage",
+      "start_date_label": "Date de début",
+      "start_date_placeholder": "Quand est-ce que ça commence ?",
+      "end_date_label": "Date de fin",
+      "end_date_placeholder": "Quand est-ce que ça finit ?",
+      "category_label": "Catégorie",
+      "category_placeholder": "Sélectionnez une catégorie",
+      "description_label": "Description de l'événement",
+      "description_placeholder": "Écrivez votre description ici...",
+      "errors": {
+        "title": "Le titre est requis",
+        "capacity": "La capacité doit être supérieure à 0",
+        "price": "Le prix doit être supérieur ou égal à 0",
+        "street": "La rue est requise",
+        "city": "La ville est requise",
+        "category": "La catégorie est requise",
+        "description": "Une description est requise",
+        "start_date": "La date de début est requise",
+        "end_date": "La date de fin est requise"
+      }
+    },
+    "stats": {
+      "total_active": "Total des événements actifs",
+      "new_event": " nouvel événement en {{time}}",
+      "new_events": " nouveaux événements en {{time}}",
+      "upcoming_title": "Événements à venir *",
+      "upcoming_desc": " événement à venir dans les 30 prochains jours",
+      "upcoming_desc_plural": " événements à venir dans les 30 prochains jours",
+      "registrations": "Inscriptions",
+      "registration": " inscription en {{time}}",
+      "registrations_in": " inscriptions en {{time}}",
+      "pending_title": "En attente d'approbation *",
+      "pending_desc": " événement nécessite une validation",
+      "pending_desc_plural": " événements nécessitent une validation",
+      "timeframe_note": "* Période non applicable pour ces indicateurs"
+    },
+    "filters": {
+      "search_placeholder": "Chercher par nom d'employé, ID ou titre...",
+      "sort_placeholder": "Choisir une méthode de tri",
+      "sort_options": {
+        "most_recent_creation": "Création la plus récente",
+        "oldest_creation": "Création la plus ancienne",
+        "highest_price": "Prix le plus élevé",
+        "lowest_price": "Prix le plus bas",
+        "earliest_start_date": "Date de début la plus proche",
+        "latest_start_date": "Date de début la plus lointaine"
+      }
+    },
+    "table": {
+      "no_events": "Aucun événement trouvé",
+      "creator": "Créateur",
+      "start_date": "Date de début",
+      "end_date": "Date de fin"
+    },
+    "details": {
+      "title": "Détails de l'événement",
+      "no_specified_date": "Aucune date spécifiée",
+      "unlimited": "Illimitée",
+      "people_max": "{{count}} personnes max",
+      "edit_event": "Modifier l'événement",
+      "reopen_event": "Rouvrir l'événement",
+      "approve_event": "Approuver l'événement",
+      "cancel_event": "Annuler l'événement",
+      "assigned_employees": {
+        "title": "Employés assignés",
+        "assign_button": "Assigner un employé",
+        "tooltip_assign": "L'événement doit être approuvé pour assigner des employés",
+        "tooltip_unassign": "L'événement doit être approuvé pour désassigner des employés",
+        "modal_title": "Assigner un employé",
+        "select_label": "Employé",
+        "error_select": "Veuillez sélectionner au moins un employé",
+        "no_employees_available": "Aucun employé disponible",
+        "unassign_modal_title": "Désassigner l'employé",
+        "unassign_confirm": "Êtes-vous sûr de vouloir désassigner cet employé de cet événement ?",
+        "no_assigned": "Aucun employé assigné",
+        "table": {
+          "assigned_on": "Assigné le"
+        }
+      },
+      "cancel_modal": {
+        "reopen_title": "Rouvrir l'événement",
+        "approve_title": "Approuver l'événement",
+        "cancel_title": "Annuler l'événement",
+        "reopen_msg": "Êtes-vous sûr de vouloir rouvrir cet événement ? Il sera à nouveau visible par tous les utilisateurs.",
+        "approve_msg": "Êtes-vous sûr de vouloir approuver cet événement ? Il sera publié et visible par tous les utilisateurs.",
+        "cancel_msg": "Êtes-vous sûr de vouloir annuler cet événement ? Cette action informera tous les participants inscrits.",
+        "confirm_reopen": "Confirmer la réouverture",
+        "confirm_approve": "Confirmer l'approbation",
+        "confirm_cancel": "Confirmer l'annulation"
+      }
+    }
+  },
+  "subscriptions": {
+    "title": "Gestion des Abonnements",
+    "stats": {
+      "total": "Total des abonnements *",
+      "active": " actuellement actifs",
+      "new": "Nouveaux abonnements",
+      "new_desc": " nouvel abonnement sur {{timeLabel}}",
+      "new_desc_plural": " nouveaux abonnements sur {{timeLabel}}",
+      "active_trials": "Essais actifs *",
+      "trials_desc": " essai actuellement utilisé",
+      "trials_desc_plural": " essais hiện đang sử dụng",
+      "cancellations": "Annulations *",
+      "total_cancellations": " total des annulations",
+      "timeframe_note": "* Période non applicable pour ces mesures"
+    },
+    "settings": {
+      "price_label": "Prix de l'abonnement Premium",
+      "trial_period": "Période d'essai",
+      "modify": "Modifier",
+      "update_trial_title": "Mettre à jour la période d'essai",
+      "trial_days": "Jours d'essai",
+      "update_price_title": "Mettre à jour le prix de l'abonnement",
+      "new_price": "Nouveau prix (€)"
+    },
+    "filters": {
+      "search_placeholder": "Rechercher par nom d'utilisateur ou ID...",
+      "sort_options": {
+        "oldest": "Plus ancien en premier",
+        "ends_earliest": "Finit le plus tôt",
+        "ends_latest": "Finit le plus tard"
+      },
+      "types": {
+        "all": "Tous les types",
+        "trial": "Essai",
+        "premium": "Premium"
+      }
+    },
+    "tabs": {
+      "active": "Actifs",
+      "canceled": "Annulés"
+    },
+    "table": {
+      "start_date": "Date de début",
+      "end_date": "Date de fin",
+      "cancel_reason": "Raison de l'annulation",
+      "no_subscriptions": "Aucun abonnement trouvé."
+    },
+    "details": {
+      "title": "Détails de l'abonnement",
+      "general_info": "Informations générales",
+      "user_info": "Informations utilisateur",
+      "subscription_status": "Statut de l'abonnement",
+      "billing_info": "Informations de facturation",
+      "cancel_subscription": "Révoquer l'abonnement",
+      "cancel_subscription_desc": "Ceci mettra fin immédiatement à l'accès premium de l'utilisateur.",
+      "cancel_modal": {
+        "title": "Révoquer l'abonnement",
+        "reason_label": "Raison de l'annulation",
+        "reason_placeholder": "Raison facultative...",
+        "confirm": "Confirmer la révocation"
+      }
+    }
+  },
+  "finance": {
+    "title": "Gestion Financière",
+    "edit_settings": "Modifier les paramètres",
+    "summary": {
+      "ads": "Publicités",
+      "commissions": "Commissions",
+      "events": "Événements",
+      "subscriptions": "Abonnements"
+    },
+    "revenue": {
+      "title": "Revenu Mensuel",
+      "chart": {
+        "subscriptions": "Abonnements",
+        "commissions": "Commissions",
+        "ads": "Publicités",
+        "events": "Événements"
+      }
+    },
+    "invoices": {
+      "title": "Factures par Utilisateur",
+      "search_placeholder": "Chercher par nom d'utilisateur ou email...",
+      "sort_placeholder": "Trier par",
+      "sort_options": {
+        "most_spending": "Plus dépensier",
+        "least_spending": "Moins dépensier",
+        "most_invoices": "Plus de factures",
+        "least_invoices": "Moins de factures"
+      },
+      "table": {
+        "user": "Utilisateur",
+        "email": "Email",
+        "role": "Rôle",
+        "total_invoices": "Total Factures",
+        "total_spending": "Total Dépensé",
+        "no_users": "Aucun utilisateur trouvé.",
+        "view_invoices": "Voir les factures"
+      },
+      "modal": {
+        "title": "Factures — {{username}}",
+        "loading": "Chargement des factures...",
+        "no_invoices": "Aucune facture pour cet utilisateur.",
+        "download_invoice": "Télécharger la facture",
+        "table": {
+          "date": "Date",
+          "type": "Type",
+          "description": "Description",
+          "details": "Détails",
+          "total_paid": "Total Payé"
+        }
+      }
+    },
+    "settings_modal": {
+      "title": "Paramètres Financiers",
+      "disclaimer": "Les modifications prennent effet immédiatement. Tous les montants sont en euros (€).",
+      "labels": {
+        "trial_days": "Jours d'essai",
+        "commission_rate": "Taux de commission (%)",
+        "subscription_price": "Prix de l'abonnement (€)",
+        "ads_price_per_month": "Prix Pub / Mois (€)"
+      },
+      "last_updated": "Dernière mise à jour : {{date}}",
+      "save": "Sauvegarder",
+      "success_title": "Paramètres mis à jour",
+      "success_msg": "{{setting}} mis à jour avec succès.",
+      "error_title": "Échec de la mise à jour"
+    }
+  },
+  "status": {
+    "ready": "Prêt",
+    "occupied": "Occupé",
+    "maintenance": "Maintenance",
+    "waiting": "En attente",
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "refused": "Refusé",
+    "completed": "Terminé",
+    "active": "Actif",
+    "banned": "Banni",
+    "deleted": "Supprimé"
+  },
+  "actions": {
+    "create": "Créer",
+    "update": "Modifier",
+    "delete": "Supprimer"
+  }
+}
