@@ -1,7 +1,9 @@
 {
   "events": "Événements",
-  "buttons": {
-    "my_events": "Mes évènements"
+  "my_events": {
+    "title": "Mes événements",
+    "description": "Prêt pour vos prochains événements ?",
+    "schedule_description": "Tous vos événements dans un planning simple"
   },
   "hero": {
     "title": "Événements & Ateliers Durables",

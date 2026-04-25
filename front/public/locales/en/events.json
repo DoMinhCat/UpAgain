@@ -1,7 +1,9 @@
 {
   "events": "Events",
-  "buttons": {
-    "my_events": "My Events"
+  "my_events": {
+    "title": "My events",
+    "description": "Ready for your upcoming events?",
+    "schedule_description": "All your events in one simple schedule"
   },
   "hero": {
     "title": "Sustainable Events & Workshops",
