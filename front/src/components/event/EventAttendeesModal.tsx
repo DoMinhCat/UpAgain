@@ -43,8 +43,6 @@ export function EventAttendeesModal({
                   backgroundColor: "rgba(0,0,0,0.03)", // Subtle background
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    "var(--upagain-neutral-green-soft)"; // Or a light green
                   e.currentTarget.style.borderColor =
                     "var(--upagain-neutral-green)";
                   e.currentTarget.style.transform = "translateY(-2px)";
