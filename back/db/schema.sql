@@ -27,7 +27,8 @@ create table accounts
     password   varchar(255) not null,
     role       account_role not null,
     deleted_at timestamptz  null,
-    is_banned  boolean      not null default false
+    is_banned  boolean      not null default false,
+    avatar     varchar(255)
 );
 -- create index on role for faster query
 CREATE INDEX idx_account_role ON account (role);

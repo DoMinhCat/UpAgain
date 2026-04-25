@@ -36,7 +36,9 @@ type Event struct {
 	City           string      `json:"city"`
 	Street         string      `json:"street"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
-	EmployeeName   null.String `json:"employee_name" swaggertype:"string"`
+	EmployeeName   null.String `json:"employee_name" swaggertype:"string"` // creator
+	EmployeeAvatar null.String `json:"employee_avatar" swaggertype:"string"`
+	Registered     int         `json:"registered"`
 	Images         []string    `json:"images"`
 }
 

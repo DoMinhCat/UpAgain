@@ -68,7 +68,12 @@
     "month": "tháng",
     "months": "tháng",
     "year": "năm",
-    "years": "năm"
+    "years": "năm",
+    "just_now": "Mới tinh",
+    "minutes_ago": "{{count}} phút trước",
+    "hours_ago": "{{count}} giờ trước",
+    "yesterday": "Hôm qua",
+    "days_ago": "{{count}} ngày trước"
   },
   "timeframe": {
     "title": "Khung thời gian",
