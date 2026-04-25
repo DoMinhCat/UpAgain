@@ -1,4 +1,7 @@
 {
+  "profile": "Profile",
+  "light_mode": "Light mode",
+  "dark_mode": "Dark mode",
   "footer": {
     "description": "Giving materials a second life through community-driven reuse and smart logistics.",
     "explore": "Explore",
