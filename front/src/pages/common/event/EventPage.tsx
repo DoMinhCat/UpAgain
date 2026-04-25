@@ -10,8 +10,9 @@ import {
   Box,
   Paper,
   Button,
+  Center,
 } from "@mantine/core";
-import { IconCalendar, IconChevronRight } from "@tabler/icons-react";
+import { IconCalendar, IconChevronRight, IconCalendarOff } from "@tabler/icons-react";
 import { useTranslation, Trans } from "react-i18next";
 import { EventCard } from "../../../components/event/EventCard";
 
@@ -201,13 +202,23 @@ export default function EventPage() {
                     />
                   ))
                 ) : (
-                  <Text ta="center" w="100%">
-                    {t("no_event", {
-                      event_type:
-                        t(`categories.${name}_plural`).charAt(0).toLowerCase() +
-                        t(`categories.${name}_plural`).slice(1),
-                    })}
-                  </Text>
+                  <Center h={200} w="100%" style={{ gridColumn: "1 / -1" }}>
+                    <Stack align="center" gap="xs">
+                      <IconCalendarOff
+                        size={40}
+                        stroke={1.5}
+                        color="var(--mantine-color-dimmed)"
+                        style={{ opacity: 0.6 }}
+                      />
+                      <Text c="dimmed" fw={500} size="sm" ta="center">
+                        {t("no_event", {
+                          event_type:
+                            t(`categories.${name}_plural`).charAt(0).toLowerCase() +
+                            t(`categories.${name}_plural`).slice(1),
+                        })}
+                      </Text>
+                    </Stack>
+                  </Center>
                 )}
               </SimpleGrid>
             </Stack>

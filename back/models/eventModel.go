@@ -20,6 +20,7 @@ type EventFilters struct {
 	Status     string
 	Validation bool
 	Category   string
+	City       string
 }
 
 type Event struct {
