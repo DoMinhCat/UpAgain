@@ -236,7 +236,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
                   if (onLinkClick) onLinkClick();
                 }}
               >
-                Profile
+                {t("common:profile")}
               </Menu.Item>
               <Menu.Item
                 leftSection={
@@ -248,7 +248,9 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
                 }
                 onClick={toggle}
               >
-                {scheme === "dark" ? "Light mode" : "Dark mode"}
+                {scheme === "dark"
+                  ? t("common:light_mode")
+                  : t("common:dark_mode")}
               </Menu.Item>
 
               <Menu trigger="click" position="right-start" offset={5} withArrow>
