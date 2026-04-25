@@ -17,10 +17,11 @@ export const getAllEvents = async (
   search?: string,
   status?: string,
   sort?: string,
+  category?: string,
   validation?: boolean,
 ): Promise<EventsListPagination> => {
   const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL, {
-    params: { page, limit, search, status, sort, validation },
+    params: { page, limit, search, status, sort, category, validation },
   });
   return response.data;
 };

@@ -19,6 +19,7 @@ type EventFilters struct {
 	Sort       string
 	Status     string
 	Validation bool
+	Category   string
 }
 
 type Event struct {
