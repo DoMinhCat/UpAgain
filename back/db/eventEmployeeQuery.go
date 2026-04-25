@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 )
 
@@ -73,4 +74,32 @@ func UnAssignEmployeeByEventId(eventId int, employeeIds int) error {
 		return fmt.Errorf("UnAssignEmployeeByEventId() failed: %v", err.Error())
 	}
 	return nil
+}
+
+func GetOrganizersByEventId(id_event int) ([]models.Account, error) {
+	var organizers []models.Account
+	query := `
+		SELECT a.id, a.username, a.avatar
+		FROM event_employee ee
+		JOIN accounts a ON ee.id_employee=a.id
+		WHERE ee.id_event=$1;
+	`
+	rows, err := utils.Conn.Query(query, id_event)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []models.Account{}, nil
+		}
+		return nil, fmt.Errorf("GetOrganizersByEventId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var organizer models.Account
+		err := rows.Scan(&organizer.Id, &organizer.Username, &organizer.Avatar)
+		if err != nil {
+			return nil, fmt.Errorf("GetOrganizersByEventId() failed: %v", err.Error())
+		}
+		organizers = append(organizers, organizer)
+	}
+	return organizers, nil
 }

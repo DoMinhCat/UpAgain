@@ -1,16 +1,11 @@
 import { Modal, Stack, Group, Text, Avatar } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-
-interface Attendee {
-  id: number;
-  username: string;
-  avatar?: string;
-}
+import type { Account } from "../../api/interfaces/account";
 
 interface EventAttendeesModalProps {
   opened: boolean;
   onClose: () => void;
-  attendees: Attendee[];
+  attendees: Account[];
 }
 
 export function EventAttendeesModal({

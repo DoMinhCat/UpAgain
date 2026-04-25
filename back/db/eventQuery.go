@@ -177,6 +177,8 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 			orderBy = "ORDER BY e.price DESC"
 		case "lowest_price":
 			orderBy = "ORDER BY e.price ASC"
+		case "random":
+			orderBy = "ORDER BY RANDOM()"
 		default:
 			orderBy = "ORDER BY e.id ASC"
 		}
@@ -209,6 +211,12 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllEvents() scan failed: %v", err.Error())
 		}
+
+		images, err := GetPhotosPathsByObjectId(event.Id, "event")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllEvents() failed: %v", err.Error())
+		}
+		event.Images = images
 		results = append(results, event)
 	}
 
@@ -240,10 +248,13 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 func GetEventDetailsById(id_event int) (models.Event, error) {
 	var event models.Event
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail
-		FROM events e WHERE e.id=$1;
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail,
+		a.username, a.avatar
+		FROM events e 
+		JOIN accounts a ON e.created_by=a.id 
+		WHERE e.id=$1;
 	`
-	err := utils.Conn.QueryRow(query, id_event).Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.EndAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail)
+	err := utils.Conn.QueryRow(query, id_event).Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.EndAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail, &event.EmployeeName, &event.EmployeeAvatar)
 	if err != nil {
 		return models.Event{}, fmt.Errorf("GetEventDetailsById() failed: %v", err.Error())
 	}
@@ -251,9 +262,23 @@ func GetEventDetailsById(id_event int) (models.Event, error) {
 	// Fetch photos
 	photos, err := GetPhotosPathsByObjectId(id_event, "event")
 	if err != nil {
-		return event, fmt.Errorf("failed to fetch photos: %v", err.Error())
+		return event, fmt.Errorf("GetPhotosPathsByObjectId() failed: %v", err.Error())
 	}
 	event.Images = photos
+
+	// fetch organizers
+	organizers, err := GetOrganizersByEventId(id_event)
+	if err != nil {
+		return event, fmt.Errorf("GetOrganizersByEventId() failed: %v", err.Error())
+	}
+	event.Organizers = organizers
+
+	// fetch attendees
+	attendees, err := GetAttendeesByEventId(id_event)
+	if err != nil {
+		return event, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
+	}
+	event.Attendees = attendees
 
 	return event, nil
 }

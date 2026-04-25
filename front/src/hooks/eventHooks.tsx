@@ -32,8 +32,28 @@ export const useGetAllEvents = (
   validation?: boolean,
 ) => {
   return useQuery<EventsListPagination>({
-    queryKey: ["events", page, limit, search, status, sort, category, city, validation],
-    queryFn: () => getAllEvents(page, limit, search, status, sort, category, city, validation),
+    queryKey: [
+      "events",
+      page,
+      limit,
+      search,
+      status,
+      sort,
+      category,
+      city,
+      validation,
+    ],
+    queryFn: () =>
+      getAllEvents(
+        page,
+        limit,
+        search,
+        status,
+        sort,
+        category,
+        city,
+        validation,
+      ),
     staleTime: 60 * 1000,
     meta: {
       errorTitle: "Error",
@@ -103,9 +123,13 @@ export const useAssignEmployeeToEvent = () => {
   });
 };
 
-export const useGetEventDetails = (id_event: number) => {
+export const useGetEventDetails = (
+  id_event: number,
+  enabled: boolean = true,
+) => {
   return useQuery<AppEvent>({
     queryKey: ["event", id_event],
+    enabled: enabled,
     queryFn: () => getEventDetails(id_event),
     staleTime: 60 * 1000,
     meta: {

@@ -1,3 +1,5 @@
+import type { Account } from "./account";
+
 // uing "AppEvent" because "Event" is reserved
 export interface AppEvent {
   id: number;
@@ -17,6 +19,8 @@ export interface AppEvent {
   employee_avatar: string | null;
   registered: number;
   images?: string[];
+  attendees?: Account[];
+  organizers?: Account[];
 }
 
 export interface EventsListPagination {

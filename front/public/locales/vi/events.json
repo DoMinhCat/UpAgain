@@ -60,6 +60,7 @@
     "end_date": "Ngày kết thúc",
     "capacity": "Sức chứa",
     "spots_left": "Còn {{count}} chỗ trống",
+    "spots_unspecified": "Không xác định",
     "register_now": "Đăng ký ngay",
     "cancel_registration": "Hủy đăng ký",
     "see_attendees": "Xem danh sách tham gia",
