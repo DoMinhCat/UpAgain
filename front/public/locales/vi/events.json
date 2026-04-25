@@ -69,5 +69,10 @@
     "already_registered": "Bạn đã đăng ký sự kiện này rồi nha",
     "registered_other": "{{count}} người đăng ký"
   },
-  "no_event": "Chưa có {{event_type}} nào cả"
+  "no_event": "Chưa có {{event_type}} nào cả",
+  "empty_state": {
+    "no_events": "Hổng thấy sự kiện nào hết trơn",
+    "try_adjusting": "Thử chỉnh lại mấy cái lọc hoặc từ khóa tìm kiếm xem sao nè.",
+    "clear_filters": "Xóa hết bộ lọc luôn"
+  }
 }

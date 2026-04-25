@@ -69,5 +69,10 @@
     "already_registered": "You are already registered to this event",
     "registered_other": "{{count}} registered"
   },
-  "no_event": "No {{event_type}} found"
+  "no_event": "No {{event_type}} found",
+  "empty_state": {
+    "no_events": "No events found",
+    "try_adjusting": "Try adjusting your filters or search terms to find what you're looking for.",
+    "clear_filters": "Clear all filters"
+  }
 }

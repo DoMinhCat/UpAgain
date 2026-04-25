@@ -148,6 +148,13 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 		paramIndex++
 	}
 
+	if filters.City != "" && filters.City != "all" {
+		whereClause += fmt.Sprintf(" AND e.city = $%d", paramIndex)
+		params = append(params, filters.City)
+		countParams = append(countParams, filters.City)
+		paramIndex++
+	}
+
 	var totalRecords int
 	countQuery := "SELECT COUNT(*) FROM events e JOIN accounts a ON e.created_by=a.id " + whereClause
 	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)

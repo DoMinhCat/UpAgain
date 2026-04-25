@@ -70,5 +70,10 @@
     "registered_one": "{{count}} inscrit",
     "registered_other": "{{count}} inscrits"
   },
-  "no_event": "Aucun {{event_type}} trouvé"
+  "no_event": "Aucun {{event_type}} trouvé",
+  "empty_state": {
+    "no_events": "Aucun événement trouvé",
+    "try_adjusting": "Essayez de modifier vos filtres ou vos termes de recherche pour trouver ce que vous cherchez.",
+    "clear_filters": "Réinitialiser tous les filtres"
+  }
 }

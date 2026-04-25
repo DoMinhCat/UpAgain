@@ -116,6 +116,7 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 // @Param        search  query     string  false  "Search in title or city"
 // @Param        status  query     string  false  "Filter by status: pending, approved, refused"
 // @Param        category query    string  false  "Filter by category"
+// @Param        city    query     string  false  "Filter by city"
 // @Param        sort    query     string  false  "Sort by field"
 // @Success      200     {object}  models.EventsListPagination  "Events list retrieved successfully"
 // @Failure      400     {object}  nil                          "Invalid query parameters"
@@ -166,6 +167,7 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 		Status:     query.Get("status"),
 		Validation: isValidation,
 		Category:   query.Get("category"),
+		City:       query.Get("city"),
 	}
 
 	events, total, err := db.GetAllEvents(page, limit, filters)

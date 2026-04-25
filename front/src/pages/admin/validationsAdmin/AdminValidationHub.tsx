@@ -669,6 +669,8 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
     appliedFilters.searchValue || undefined,
     "pending",
     appliedFilters.sortValue || undefined,
+    undefined,
+    undefined,
     true,
   );
 
