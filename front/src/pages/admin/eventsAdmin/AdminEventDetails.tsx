@@ -192,7 +192,10 @@ export default function AdminEventDetails() {
         breadcrumbs={[
           ...(origin === "validationHub"
             ? [
-                { title: t("validations.title"), href: PATHS.ADMIN.VALIDATIONS.ALL },
+                {
+                  title: t("validations.title"),
+                  href: PATHS.ADMIN.VALIDATIONS.ALL,
+                },
                 { title: t("events.details.title"), href: "#" },
               ]
             : origin?.from === "historyDetails"
@@ -240,7 +243,10 @@ export default function AdminEventDetails() {
                             : "red"
                   }
                 >
-                  {t(`common:event_categories.${eventDetails?.category}` as any, { defaultValue: eventDetails?.category })}
+                  {t(
+                    `common:event_categories.${eventDetails?.category}` as any,
+                    { defaultValue: eventDetails?.category },
+                  )}
                 </Badge>
                 <Badge
                   variant={
@@ -253,7 +259,9 @@ export default function AdminEventDetails() {
                           : "gray"
                   }
                 >
-                  {t(`status.${eventDetails?.status}` as any, { defaultValue: eventDetails?.status })}
+                  {t(`status.${eventDetails?.status}` as any, {
+                    defaultValue: eventDetails?.status,
+                  })}
                 </Badge>
               </Group>
 
@@ -261,7 +269,11 @@ export default function AdminEventDetails() {
                 {eventDetails?.title}
               </Title>
               <Text c="dimmed" size="xs" mb="xl">
-                {t("listings.details.submitted_on", { date: dayjs(eventDetails?.created_at).format("DD/MM/YYYY HH:mm A") })}
+                {t("listings.details.submitted_on", {
+                  date: dayjs(eventDetails?.created_at).format(
+                    "DD/MM/YYYY HH:mm A",
+                  ),
+                })}
               </Text>
               <div
                 dangerouslySetInnerHTML={{
@@ -334,7 +346,9 @@ export default function AdminEventDetails() {
                       c={!eventDetails?.price ? "green" : "inherit"}
                       fw={!eventDetails?.price ? 700 : 600}
                     >
-                      {eventDetails?.price ? `${eventDetails.price} €` : t("common:free", { defaultValue: "Free" })}
+                      {eventDetails?.price
+                        ? `${eventDetails.price} €`
+                        : t("common:free", { defaultValue: "Free" })}
                     </Text>
                   }
                 />
@@ -345,7 +359,9 @@ export default function AdminEventDetails() {
                   color="blue"
                   value={
                     eventDetails?.capacity
-                      ? t("events.details.people_max", { count: eventDetails.capacity })
+                      ? t("events.details.people_max", {
+                          count: eventDetails.capacity,
+                        })
                       : t("events.details.unlimited")
                   }
                 />
@@ -361,11 +377,21 @@ export default function AdminEventDetails() {
               {/* Footer Actions */}
               <Stack mt="xl">
                 <Group grow>
-                  <Button variant="edit" onClick={openEdit} fullWidth>
+                  <Button
+                    variant="edit"
+                    onClick={openEdit}
+                    fullWidth
+                    disabled={
+                      dayjs(eventDetails?.start_at) < dayjs().startOf("day")
+                    }
+                  >
                     {t("events.details.edit_event")}
                   </Button>
                   <Button
                     fullWidth
+                    disabled={
+                      dayjs(eventDetails?.start_at) < dayjs().startOf("day")
+                    }
                     variant={
                       ["cancelled", "pending", "refused"].includes(
                         eventDetails?.status ?? "",
@@ -464,7 +490,9 @@ export default function AdminEventDetails() {
                     }}
                     hidePickedOptions
                     comboboxProps={{ shadow: "md" }}
-                    nothingFoundMessage={t("events.details.assigned_employees.no_employees_available")}
+                    nothingFoundMessage={t(
+                      "events.details.assigned_employees.no_employees_available",
+                    )}
                   />
                 </Stack>
                 <Group mt="lg" justify="center">
@@ -532,7 +560,9 @@ export default function AdminEventDetails() {
                   <Table.Td ta="center">{employee?.email}</Table.Td>
                   <Table.Td ta="center">
                     <Tooltip
-                      label={t("events.details.assigned_employees.tooltip_unassign")}
+                      label={t(
+                        "events.details.assigned_employees.tooltip_unassign",
+                      )}
                       /* Only enable the tooltip if the button is disabled */
                       disabled={eventDetails?.status === "approved"}
                       closeDelay={200}
@@ -548,7 +578,9 @@ export default function AdminEventDetails() {
                             handleUnassignModal(employee);
                           }}
                         >
-                          {t("common:actions.unassign", { defaultValue: "Unassign" })}
+                          {t("common:actions.unassign", {
+                            defaultValue: "Unassign",
+                          })}
                         </Button>
                       </div>
                     </Tooltip>
@@ -570,9 +602,7 @@ export default function AdminEventDetails() {
         onClose={handleCloseUnassign}
         title={t("events.details.assigned_employees.unassign_modal_title")}
       >
-        <Text>
-          {t("events.details.assigned_employees.unassign_confirm")}
-        </Text>
+        <Text>{t("events.details.assigned_employees.unassign_confirm")}</Text>
         <Group mt="lg" justify="end">
           <Button onClick={handleCloseUnassign} variant="grey">
             {t("users.delete_modal.cancel")}

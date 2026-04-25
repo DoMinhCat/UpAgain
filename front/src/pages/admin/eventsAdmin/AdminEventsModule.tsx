@@ -752,6 +752,10 @@ export default function AdminEventsModule() {
                   value: "latest_start_date",
                   label: t("events.filters.sort_options.latest_start_date"),
                 },
+                {
+                  value: "most_popular",
+                  label: t("events.filters.sort_options.most_popular"),
+                },
               ]}
               value={filters.sortValue}
               clearable

@@ -163,7 +163,10 @@ export default function EventCategoryPage() {
                 placeholder={t("filters.sort")}
                 leftSection={<IconSortDescending size={16} />}
                 data={[
-                  { value: "soonest_date", label: t("filters.sort_soonest") },
+                  {
+                    value: "earliest_start_date",
+                    label: t("filters.sort_soonest"),
+                  },
                   { value: "lowest_price", label: t("filters.sort_lowest") },
                   { value: "highest_price", label: t("filters.sort_highest") },
                   { value: "most_popular", label: t("filters.sort_popular") },

@@ -179,6 +179,8 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 			orderBy = "ORDER BY e.price ASC"
 		case "random":
 			orderBy = "ORDER BY RANDOM()"
+		case "most_popular":
+			orderBy = "ORDER BY registered DESC"
 		default:
 			orderBy = "ORDER BY e.id ASC"
 		}

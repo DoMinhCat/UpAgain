@@ -28,6 +28,7 @@ import {
   IconEdit,
   IconCheck,
   IconX,
+  IconRestore,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
@@ -41,12 +42,17 @@ import { CancelEventModal } from "../../../components/event/CancelEventModal";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { NotFoundPage } from "../../error/404";
-import { useGetAllEvents, useGetEventDetails } from "../../../hooks/eventHooks";
+import {
+  useGetAllEvents,
+  useGetEventDetails,
+  useUpdateEventStatus,
+} from "../../../hooks/eventHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { resolveUrl } from "../../../utils/imageUtils";
+import dayjs from "dayjs";
 
 export default function EventDetailPage() {
-  const { t } = useTranslation("events");
+  const { t } = useTranslation(["events", "admin"]);
   const { user } = useAuth();
   const navigate = useNavigate();
   const role = user?.role;
@@ -100,6 +106,23 @@ export default function EventDetailPage() {
   // CANCEL EVENT MODAL
   const [openedCancel, { open: openCancel, close: closeCancel }] =
     useDisclosure(false);
+
+  // HANDLE CANCEL EVENT
+  const cancelEvent = useUpdateEventStatus(
+    idEvent,
+    event?.status === "cancelled"
+      ? "approved"
+      : event?.status === "pending" || event?.status === "refused"
+        ? "approved"
+        : "cancelled",
+  );
+  const handleCancel = () => {
+    cancelEvent.mutate(undefined, {
+      onSuccess: () => {
+        closeCancel();
+      },
+    });
+  };
 
   if (isLoadingEvent || isLoadingSuggestedEvents) {
     return <FullScreenLoader />;
@@ -590,6 +613,9 @@ export default function EventDetailPage() {
                           <Button
                             radius="md"
                             variant="edit"
+                            disabled={
+                              dayjs(event.start_at) < dayjs().startOf("day")
+                            }
                             fullWidth
                             onClick={openEdit}
                             rightSection={<IconEdit size={18} />}
@@ -598,12 +624,37 @@ export default function EventDetailPage() {
                           </Button>
                           <Button
                             radius="md"
-                            variant="delete"
+                            variant={
+                              ["cancelled", "pending", "refused"].includes(
+                                event.status ?? "",
+                              )
+                                ? "primary"
+                                : "delete"
+                            }
+                            disabled={
+                              dayjs(event.start_at) < dayjs().startOf("day")
+                            }
                             fullWidth
                             onClick={openCancel}
-                            rightSection={<IconX size={18} />}
+                            rightSection={
+                              event?.status === "cancelled" ? (
+                                <IconRestore size={18} />
+                              ) : ["pending", "refused"].includes(
+                                  event?.status ?? "",
+                                ) ? (
+                                <IconCheck size={18} />
+                              ) : (
+                                <IconX size={18} />
+                              )
+                            }
                           >
-                            {t("detail.cancel_event")}
+                            {event?.status === "cancelled"
+                              ? t("admin:events.details.reopen_event")
+                              : ["pending", "refused"].includes(
+                                    event?.status ?? "",
+                                  )
+                                ? t("admin:events.details.approve_event")
+                                : t("admin:events.details.cancel_event")}
                           </Button>
                         </Group>
                       )}
@@ -654,9 +705,29 @@ export default function EventDetailPage() {
           opened={openedCancel}
           onClose={closeCancel}
           onConfirm={() => {
-            console.log("Event cancelled");
-            closeCancel();
+            handleCancel();
           }}
+          title={
+            event?.status === "cancelled"
+              ? t("admin:events.details.cancel_modal.reopen_title")
+              : event?.status === "pending" || event?.status === "refused"
+                ? t("admin:events.details.cancel_modal.approve_title")
+                : t("admin:events.details.cancel_modal.cancel_title")
+          }
+          message={
+            event?.status === "cancelled"
+              ? t("admin:events.details.cancel_modal.reopen_msg")
+              : event?.status === "pending" || event?.status === "refused"
+                ? t("admin:events.details.cancel_modal.approve_msg")
+                : t("admin:events.details.cancel_modal.cancel_msg")
+          }
+          confirmLabel={
+            event?.status === "cancelled"
+              ? t("admin:events.details.cancel_modal.confirm_reopen")
+              : event?.status === "pending" || event?.status === "refused"
+                ? t("admin:events.details.cancel_modal.confirm_approve")
+                : t("admin:events.details.cancel_modal.confirm_cancel")
+          }
         />
 
         <PhotosCarousel

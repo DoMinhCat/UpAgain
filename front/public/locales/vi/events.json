@@ -68,6 +68,7 @@
     "cancel_event": "Hủy sự kiện",
     "secure_payment": "Thanh toán an toàn & xác nhận ngay",
     "already_registered": "Bạn đã đăng ký sự kiện này rồi nha",
+    "registered_one": "{{count}} người đăng ký",
     "registered_other": "{{count}} người đăng ký"
   },
   "no_event": "Chưa có {{event_type}} nào cả",
