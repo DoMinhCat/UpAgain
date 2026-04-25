@@ -4,6 +4,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"database/sql"
+	"fmt"
 )
 
 func GetPostCommentsByPostId(id int, page int, limit int) ([]models.Comment, error) {
@@ -56,6 +57,16 @@ func GetTotalCommentsByPostId(id int) (int, error) {
 		return 0, err
 	}
 	return total, nil
+}
+
+func CreateComment(id_post int, id_account int, content string) (models.Comment, error) {
+	var comment models.Comment
+	query := `INSERT INTO comments (content, id_post, id_account) VALUES ($1, $2, $3) RETURNING id, content, created_at, like_count, id_post, id_account;`
+	err := utils.Conn.QueryRow(query, content, id_post, id_account).Scan(&comment.Id, &comment.Content, &comment.CreatedAt, &comment.LikeCount, &comment.IdPost, &comment.IdAccount)
+	if err != nil {
+		return models.Comment{}, fmt.Errorf("CreateComment() failed: '%v'", err)
+	}
+	return comment, nil
 }
 
 func DeleteCommentById(id int) error {

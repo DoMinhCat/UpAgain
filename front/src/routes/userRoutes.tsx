@@ -7,6 +7,8 @@ import UserLayout from "../layouts/UserLayout";
 import GuestLayout from "../layouts/GuestLayout";
 import GuestHome from "../pages/guest/GuestHome";
 import UserScorePage from "../pages/user/UserScorePage";
+import UserPostsPage from "../pages/user/posts/UserPostsPage";
+import UserPostDetailPage from "../pages/user/posts/UserPostDetailPage";
 import Profile from "../pages/common/Profile";
 import Home from "../pages/common/Home";
 import EventPage from "../pages/common/event/EventPage";
@@ -77,6 +79,8 @@ export const userRoutes: RouteObject = {
       element: <Home />,
     },
     { path: "score", element: <UserScorePage /> },
+    { path: "community", element: <UserPostsPage /> },
+    { path: "community/:id", element: <UserPostDetailPage /> },
     { path: "profile", element: <Profile /> },
     {
       path: "events",

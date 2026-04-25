@@ -39,6 +39,8 @@ type Post struct {
 	AdsId        null.Int  `json:"ads_id" swaggertype:"string"`
 	AdsFrom      null.Time `json:"ads_from" swaggertype:"string"`
 	AdsTo        null.Time `json:"ads_to" swaggertype:"string"`
+	IsLiked      bool      `json:"is_liked"`
+	IsSaved      bool      `json:"is_saved"`
 }
 
 type PostListPagination struct {

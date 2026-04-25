@@ -378,7 +378,8 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := db.GetPostDetailsById(id)
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+	post, err := db.GetPostDetailsById(id, idAccount)
 	if err != nil {
 		slog.Error("db.GetPostDetailsById() failed", "controller", "GetPostDetailsById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post details")
@@ -386,6 +387,129 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, post)
+}
+
+// ViewPost godoc
+// @Summary Increment post view count
+// @Description Increments the view counter of a post by 1.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Success 204 "No Content"
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post}/view [post]
+func ViewPost(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
+	id, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "ViewPost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to register view")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	counted, err := db.IncrementPostView(id, idAccount)
+	if err != nil {
+		slog.Error("db.IncrementPostView() failed", "controller", "ViewPost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to register view")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]bool{"counted": counted})
+}
+
+// LikePost godoc
+// @Summary Toggle like on a post
+// @Description Like or unlike a post. Returns the new like state.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Success 200 {object} map[string]bool
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post}/like [post]
+func LikePost(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
+	id, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "LikePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to toggle like")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	isLiked, err := db.ToggleLikePost(id, idAccount)
+	if err != nil {
+		slog.Error("db.ToggleLikePost() failed", "controller", "LikePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to toggle like")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]bool{"is_liked": isLiked})
+}
+
+// SavePost godoc
+// @Summary Toggle save on a post
+// @Description Save or unsave a post. Returns the new save state.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Success 200 {object} map[string]bool
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post}/save [post]
+func SavePost(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
+	id, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "SavePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to toggle save")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	isSaved, err := db.ToggleSavePost(id, idAccount)
+	if err != nil {
+		slog.Error("db.ToggleSavePost() failed", "controller", "SavePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to toggle save")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]bool{"is_saved": isSaved})
 }
 
 // UpdatePostById godoc

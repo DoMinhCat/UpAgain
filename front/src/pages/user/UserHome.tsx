@@ -414,7 +414,7 @@ export default function UserHome() {
                     className="button"
                     data-variant="secondary"
                     size="sm"
-                    onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+                    onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                   >
                     {t("user.manage.guides_projects")}
                   </Button>
@@ -422,7 +422,7 @@ export default function UserHome() {
                     className="button"
                     data-variant="secondary"
                     size="sm"
-                    onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+                    onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                   >
                     {t("user.manage.workshops_events")}
                   </Button>
@@ -476,6 +476,7 @@ export default function UserHome() {
                       {/* We display max 2 posts to keep the layout clean */}
                       {POST_MOCK.slice(0, 2).map((post) => (
                         <PostCard
+                          currentRole={user?.role || ""}
                           key={post.id}
                           title={post.title}
                           description={post.description}
@@ -510,7 +511,7 @@ export default function UserHome() {
                 variant="secondary"
                 className="button"
                 data-variant="secondary"
-                onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+                onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                 fullWidth
               >
                 {t("user.community.discover_topics")}
