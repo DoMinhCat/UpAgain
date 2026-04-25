@@ -87,34 +87,7 @@ function NavbarLink({ icon: Icon, label, path, onClick }: NavbarLinkProps) {
   );
 }
 
-const navButtonData = [
-  { icon: IconHome2, label: "Overview", path: PATHS.ADMIN.HOME },
-  { icon: IconUsers, label: "Users", path: PATHS.ADMIN.USERS.ALL },
-  {
-    icon: IconClipboardCheck,
-    label: "Validations",
-    path: PATHS.ADMIN.VALIDATIONS.ALL,
-  },
-  { icon: IconBox, label: "Containers", path: PATHS.ADMIN.CONTAINERS },
-  {
-    icon: IconCalendarEventFilled,
-    label: "Events",
-    path: PATHS.ADMIN.EVENTS.ALL,
-  },
-  { icon: IconArticle, label: "Posts", path: PATHS.ADMIN.POSTS },
-  { icon: IconBuildingStore, label: "Listings", path: PATHS.ADMIN.LISTINGS },
-  {
-    icon: IconDiamond,
-    label: "Subscriptions",
-    path: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
-  },
-  { icon: IconPigMoney, label: "Finance", path: PATHS.ADMIN.FINANCE.ALL },
-];
-
 export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
-  const links = navButtonData.map((link) => (
-    <NavbarLink {...link} key={link.label} onClick={onLinkClick} />
-  ));
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -142,6 +115,56 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
     LANGUAGES.find((lang) => lang.lng === i18n.language)?.path ||
     "united-kingdom";
 
+  const navButtonData = [
+    {
+      icon: IconHome2,
+      label: t("home:title"),
+      path: PATHS.ADMIN.HOME,
+    },
+    {
+      icon: IconUsers,
+      label: t("admin:users.title"),
+      path: PATHS.ADMIN.USERS.ALL,
+    },
+    {
+      icon: IconClipboardCheck,
+      label: t("admin:validations.title"),
+      path: PATHS.ADMIN.VALIDATIONS.ALL,
+    },
+    {
+      icon: IconBox,
+      label: t("admin:containers.title"),
+      path: PATHS.ADMIN.CONTAINERS,
+    },
+    {
+      icon: IconCalendarEventFilled,
+      label: t("admin:events.title"),
+      path: PATHS.ADMIN.EVENTS.ALL,
+    },
+    {
+      icon: IconArticle,
+      label: t("admin:posts.title"),
+      path: PATHS.ADMIN.POSTS,
+    },
+    {
+      icon: IconBuildingStore,
+      label: t("admin:listings.title"),
+      path: PATHS.ADMIN.LISTINGS,
+    },
+    {
+      icon: IconDiamond,
+      label: t("admin:subscriptions.title"),
+      path: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
+    },
+    {
+      icon: IconPigMoney,
+      label: t("admin:finance.title"),
+      path: PATHS.ADMIN.FINANCE.ALL,
+    },
+  ];
+  const links = navButtonData.map((link) => (
+    <NavbarLink {...link} key={link.label} onClick={onLinkClick} />
+  ));
   return (
     <nav className={classes.navbar}>
       <Center
