@@ -1,5 +1,3 @@
-// for navigations ONLY, routes in routes/ should use relative path
-
 export const PATHS = {
   // common endpoints here for all roles
   HOME: "/",
@@ -33,7 +31,9 @@ export const PATHS = {
     },
   },
   USER: {
+    // paths for user espace here
     SCORE: "/score",
+    PROFILE: "/profile",
     POSTS: {
       ALL: "/community",
       DETAILS: "/community/:id",
@@ -48,6 +48,7 @@ export const PATHS = {
     REGISTER: "/register",
     ABOUT: "/about",
     PRICING: "/pricing",
+    POSTS: "/posts",
     CONTACT: "/contact",
     FORGOT: "/forgot",
   },

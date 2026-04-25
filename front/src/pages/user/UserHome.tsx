@@ -476,6 +476,7 @@ export default function UserHome() {
                       {/* We display max 2 posts to keep the layout clean */}
                       {POST_MOCK.slice(0, 2).map((post) => (
                         <PostCard
+                          currentRole={user?.role || ""}
                           key={post.id}
                           title={post.title}
                           description={post.description}
