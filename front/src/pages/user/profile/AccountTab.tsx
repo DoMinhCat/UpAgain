@@ -10,6 +10,7 @@ import {
   Title,
   Text,
   Badge,
+  Loader,
 } from "@mantine/core";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -199,29 +200,35 @@ export default function AccountTab() {
             </Group>
           </Anchor>
 
-          <Stack gap="md">
-            <Group gap={6}>
-              <IconPackage size={24} />
-              <Title order={4}>Container deposits posted</Title>
-            </Group>
-            <Text>
-              {" "}
-              {stats?.total_deposits} container{" "}
-              {stats?.total_deposits === 1 ? "deposit" : "deposits"} posted
-            </Text>
-          </Stack>
-          <Stack gap="md">
-            <Group gap={6}>
-              <IconClipboardList size={24} />
-              <Title order={4}>Listings posted</Title>
-            </Group>
-            <Text>
-              {" "}
-              {stats?.total_listings}{" "}
-              {stats?.total_listings === 1 ? "listing" : "listings"} posted
-            </Text>
-          </Stack>
-          {/* Total spendings are shown in billings tab */}
+          {isLoadingStats ? (
+            <Loader />
+          ) : (
+            <>
+              <Stack gap="md">
+                <Group gap={6}>
+                  <IconPackage size={24} />
+                  <Title order={4}>Container deposits posted</Title>
+                </Group>
+                <Text>
+                  {" "}
+                  {stats?.total_deposits} container{" "}
+                  {stats?.total_deposits === 1 ? "deposit" : "deposits"} posted
+                </Text>
+              </Stack>
+              <Stack gap="md">
+                <Group gap={6}>
+                  <IconClipboardList size={24} />
+                  <Title order={4}>Listings posted</Title>
+                </Group>
+                <Text>
+                  {" "}
+                  {stats?.total_listings}{" "}
+                  {stats?.total_listings === 1 ? "listing" : "listings"} posted
+                </Text>
+              </Stack>
+              {/* Total spendings are shown in billings tab */}
+            </>
+          )}
         </Stack>
       </Paper>
 

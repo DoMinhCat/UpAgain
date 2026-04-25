@@ -66,8 +66,10 @@ import {
   useUpdateAds,
 } from "../../../hooks/adsHooks";
 import type { Step } from "../../../api/interfaces/step";
+import { useTranslation } from "react-i18next";
 
 export const AdminPostDetails = () => {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const location = useLocation();
   const origin = location.state || {};
@@ -176,11 +178,11 @@ export const AdminPostDetails = () => {
 
   const validateStartDateNewAds = () => {
     if (!startDateNewAds) {
-      setErrorStartDateNewAds("Start date is required");
+      setErrorStartDateNewAds(t("posts.ads_modal.errors.start_date_req"));
       return false;
     }
     if (startDateNewAds < new Date().toISOString()) {
-      setErrorStartDateNewAds("Start date must be in the future");
+      setErrorStartDateNewAds(t("posts.ads_modal.errors.start_date_future"));
       return false;
     }
     setErrorStartDateNewAds(null);
@@ -188,11 +190,11 @@ export const AdminPostDetails = () => {
   };
   const validatedurationNewAds = () => {
     if (!durationNewAds) {
-      setErrordurationNewAds("Duration is required");
+      setErrordurationNewAds(t("posts.ads_modal.errors.duration_req"));
       return false;
     }
     if (typeof durationNewAds === "number" && durationNewAds <= 0) {
-      setErrordurationNewAds("Duration must be at least 1 month");
+      setErrordurationNewAds(t("posts.ads_modal.errors.duration_min"));
       return false;
     }
     setErrordurationNewAds(null);
@@ -256,11 +258,11 @@ export const AdminPostDetails = () => {
 
   const validateStartDateEditAds = () => {
     if (!startDateEditAds) {
-      setErrorStartDateEditAds("Start date is required");
+      setErrorStartDateEditAds(t("posts.ads_modal.errors.start_date_req"));
       return false;
     }
     if (startDateEditAds < new Date()) {
-      setErrorStartDateEditAds("Start date must be in the future");
+      setErrorStartDateEditAds(t("posts.ads_modal.errors.start_date_future"));
       return false;
     }
     setErrorStartDateEditAds(null);
@@ -268,11 +270,11 @@ export const AdminPostDetails = () => {
   };
   const validateEndDateEditAds = () => {
     if (!endDateEditAds) {
-      setErrorEndDateEditAds("End date is required");
+      setErrorEndDateEditAds(t("posts.ads_modal.errors.end_date_req"));
       return false;
     }
     if (startDateEditAds && endDateEditAds < startDateEditAds) {
-      setErrorEndDateEditAds("End date must be after start date");
+      setErrorEndDateEditAds(t("posts.ads_modal.errors.end_date_after"));
       return false;
     }
     setErrorEndDateEditAds(null);
@@ -323,21 +325,21 @@ export const AdminPostDetails = () => {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
-        Post's Details
+        {t("posts.details.title")}
       </Title>
       <MyBreadcrumbs
         breadcrumbs={[
           ...(origin.from === "allPosts"
-            ? [{ title: "Post Management", href: "/admin/posts" }]
+            ? [{ title: t("posts.title"), href: "/admin/posts" }]
             : origin.from === "historyDetails"
               ? [
                   {
-                    title: "History Details",
+                    title: t("history.details.title"),
                     href: `/admin/history/${origin.id_history}`,
                   },
                 ]
-              : [{ title: "Post Management", href: "/admin/posts" }]),
-          { title: "Post's Details", href: "#" },
+              : [{ title: t("posts.title"), href: "/admin/posts" }]),
+          { title: t("posts.details.title"), href: "#" },
         ]}
       />
 
@@ -363,7 +365,10 @@ export const AdminPostDetails = () => {
                               : "red"
                   }
                 >
-                  {postDetails?.category}
+                  {postDetails?.category &&
+                    t(`posts.categories.${postDetails.category}` as any, {
+                      defaultValue: postDetails.category,
+                    })}
                 </Badge>
                 {postDetails?.ads_id && (
                   <Badge
@@ -379,7 +384,7 @@ export const AdminPostDetails = () => {
                       />
                     }
                   >
-                    Sponsored
+                    {t("posts.details.sponsored")}
                   </Badge>
                 )}
               </Group>
@@ -388,7 +393,7 @@ export const AdminPostDetails = () => {
                 {postDetails?.title}
               </Title>
               <Text c="dimmed" size="xs" mb="xl">
-                Created on{" "}
+                {t("posts.details.created_on")}{" "}
                 {dayjs(postDetails?.created_at).format("DD/MM/YYYY HH:mm A")}
               </Text>
               <div
@@ -402,7 +407,7 @@ export const AdminPostDetails = () => {
                   <Divider my="xl" />
                   <Group gap="sm">
                     <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
-                    <Title order={3}>Photos</Title>
+                    <Title order={3}>{t("posts.details.photos")}</Title>
                   </Group>
                   <div style={{ marginTop: "16px" }}>
                     <PhotosCarousel
@@ -422,7 +427,7 @@ export const AdminPostDetails = () => {
                       color="var(--component-color-primary)"
                       size={32}
                     />
-                    <Title order={3}>Project Steps</Title>
+                    <Title order={3}>{t("posts.details.project_steps")}</Title>
                   </Group>
 
                   {isLoadingProjectSteps ? (
@@ -448,7 +453,7 @@ export const AdminPostDetails = () => {
                   <Divider my="xl" />
                   <Group gap="sm">
                     <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
-                    <Title order={3}>Photos</Title>
+                    <Title order={3}>{t("posts.details.photos")}</Title>
                   </Group>
                   <div style={{ marginTop: "16px" }}>
                     <PhotosCarousel
@@ -465,12 +470,12 @@ export const AdminPostDetails = () => {
             <Stack gap="md" maw={800} mx="auto" p="md">
               <Group justify="space-between">
                 <Text size="xl" fw={800}>
-                  Comments • {comments?.total_comments}
+                  {t("posts.details.comments")} • {comments?.total_comments}
                 </Text>
               </Group>
 
               {comments?.total_comments === 0 ? (
-                <Text>No comments yet</Text>
+                <Text>{t("posts.details.no_comments")}</Text>
               ) : (
                 comments?.comments.map((comment) => (
                   <Stack gap="sm" key={comment.id}>
@@ -491,7 +496,7 @@ export const AdminPostDetails = () => {
                           alt={
                             comment.id_account != 0
                               ? comment.user_name
-                              : "Anonymous"
+                              : t("posts.details.anonymous")
                           }
                           radius="xl"
                           size="lg"
@@ -503,7 +508,7 @@ export const AdminPostDetails = () => {
                               <Text size="sm" fw={700}>
                                 {comment.id_account != 0
                                   ? comment.user_name
-                                  : "Anonymous"}
+                                  : t("posts.details.anonymous")}
                               </Text>
                               <Text size="xs" c="dimmed">
                                 {dayjs(comment.created_at).format("DD/MM/YYYY")}{" "}
@@ -519,7 +524,10 @@ export const AdminPostDetails = () => {
 
                         {/* Admin Stats & Actions Column */}
                         <Stack align="center" gap="sm">
-                          <Tooltip label="Delete Comment" position="left">
+                          <Tooltip
+                            label={t("posts.details.delete_comment_tooltip")}
+                            position="left"
+                          >
                             <ActionIcon
                               variant="subtle"
                               color="red"
@@ -573,7 +581,7 @@ export const AdminPostDetails = () => {
                   <Group gap="xs">
                     <IconUser size={18} stroke={1.5} />
                     <Text fw={600} size="sm">
-                      Written by{" "}
+                      {t("posts.details.written_by")}{" "}
                       <Anchor
                         onClick={() =>
                           navigate(`/admin/users/${postDetails?.creator_id}`, {
@@ -596,31 +604,31 @@ export const AdminPostDetails = () => {
               {/* Body Content: Stats Grid */}
               <Box mt="md">
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="xs">
-                  Engagement Performance
+                  {t("posts.details.engagement")}
                 </Text>
 
                 <SimpleGrid cols={2} spacing="md">
                   <CardStatsItem
                     icon={<IconEye size={20} />}
-                    label="Views"
+                    label={t("posts.details.views")}
                     value={postDetails?.view_count ?? 0}
                     color="blue"
                   />
                   <CardStatsItem
                     icon={<IconHeart size={20} />}
-                    label="Likes"
+                    label={t("posts.details.likes")}
                     value={postDetails?.like_count ?? 0}
                     color="red"
                   />
                   <CardStatsItem
                     icon={<IconBookmark size={20} />}
-                    label="Saves"
+                    label={t("posts.details.saves")}
                     value={postDetails?.save_count ?? 0}
                     color="yellow"
                   />
                   <CardStatsItem
                     icon={<IconMessageCircle size={20} />}
-                    label="Comments"
+                    label={t("posts.details.comments")}
                     value={postDetails?.comment_count ?? 0}
                     color="teal"
                   />
@@ -630,27 +638,27 @@ export const AdminPostDetails = () => {
               {/* Footer Actions */}
               <Group mt="xl" grow>
                 <Button variant="edit" onClick={openEdit}>
-                  Edit post
+                  {t("posts.details.edit_post")}
                 </Button>
                 <Button variant="delete" onClick={openDelete}>
-                  Delete post
+                  {t("posts.details.delete_post")}
                 </Button>
               </Group>
 
               <Group grow>
                 {postDetails?.ads_id ? (
                   <Button variant="edit" mt="md" onClick={openEditSponsor}>
-                    Edit ads
+                    {t("posts.details.edit_ads")}
                   </Button>
                 ) : postDetails?.category === "project" &&
                   !postDetails?.ads_id ? (
                   <Button variant="primary" mt="md" onClick={openAddSponsor}>
-                    Create ads
+                    {t("posts.details.create_ads")}
                   </Button>
                 ) : null}
                 {postDetails?.ads_id ? (
                   <Button variant="delete" mt="md" onClick={openRemoveAds}>
-                    Remove ads
+                    {t("posts.details.remove_ads")}
                   </Button>
                 ) : null}
               </Group>
@@ -663,18 +671,18 @@ export const AdminPostDetails = () => {
               />
 
               <Modal
-                title="Delete post"
+                title={t("posts.delete_post_modal.title")}
                 opened={openedDelete}
                 onClose={closeDelete}
                 centered
                 size="md"
               >
                 <Stack>
-                  <Text>Are you sure you want to delete this post?</Text>
+                  <Text>{t("posts.delete_post_modal.text")}</Text>
                 </Stack>
                 <Group mt="lg" justify="center">
                   <Button onClick={closeDelete} variant="grey">
-                    Cancel
+                    {t("common:actions.cancel")}
                   </Button>
                   <Button
                     onClick={(e: React.FormEvent) => {
@@ -683,24 +691,24 @@ export const AdminPostDetails = () => {
                     variant="delete"
                     loading={deletePostMutate.isPending || isLoadingPostDetails}
                   >
-                    Confirm
+                    {t("common:actions.confirm")}
                   </Button>
                 </Group>
               </Modal>
 
               <Modal
-                title="Delete comment"
+                title={t("posts.delete_comment_modal.title")}
                 opened={openedDeleteComment}
                 onClose={closeDeleteComment}
                 centered
                 size="md"
               >
                 <Stack>
-                  <Text>Are you sure you want to delete this comment?</Text>
+                  <Text>{t("posts.delete_comment_modal.text")}</Text>
                 </Stack>
                 <Group mt="lg" justify="center">
                   <Button onClick={closeDeleteComment} variant="grey">
-                    Cancel
+                    {t("common:actions.cancel")}
                   </Button>
                   <Button
                     onClick={(e: React.FormEvent) => {
@@ -709,14 +717,14 @@ export const AdminPostDetails = () => {
                     variant="delete"
                     loading={deleteComment.isPending}
                   >
-                    Confirm
+                    {t("common:actions.confirm")}
                   </Button>
                 </Group>
               </Modal>
 
               {/* Add sponsor status modal */}
               <Modal
-                title="Add sponsor status"
+                title={t("posts.ads_modal.create_title")}
                 opened={openedAddSponsor}
                 onClose={closeAddSponsor}
                 centered
@@ -724,16 +732,16 @@ export const AdminPostDetails = () => {
               >
                 <Group justify="space-between" gap="md" grow>
                   <DatePickerInput
-                    label="Start date"
+                    label={t("posts.ads_modal.start_date")}
                     withAsterisk
-                    placeholder="Pick date and time"
+                    placeholder={t("posts.ads_modal.start_date_placeholder")}
                     value={startDateNewAds}
                     onChange={setStartDateNewAds}
                     onBlur={() => validateStartDateNewAds()}
                     error={errorStartDateNewAds}
                   />
                   <NumberInput
-                    label="Duration (months)"
+                    label={t("posts.ads_modal.duration")}
                     min={1}
                     withAsterisk
                     value={durationNewAds}
@@ -744,7 +752,7 @@ export const AdminPostDetails = () => {
                 </Group>
                 <Group mt="lg" justify="center">
                   <Button onClick={closeAddSponsor} variant="grey">
-                    Cancel
+                    {t("posts.ads_modal.cancel")}
                   </Button>
                   <Button
                     onClick={(e: React.FormEvent) => {
@@ -753,14 +761,14 @@ export const AdminPostDetails = () => {
                     loading={createAdsMutate.isPending}
                     variant="primary"
                   >
-                    Confirm
+                    {t("posts.ads_modal.confirm")}
                   </Button>
                 </Group>
               </Modal>
 
               {/* Edit sponsor status modal */}
               <Modal
-                title="Edit sponsor status"
+                title={t("posts.ads_modal.edit_title")}
                 opened={openedEditSponsor}
                 onClose={closeEditSponsor}
                 centered
@@ -768,17 +776,18 @@ export const AdminPostDetails = () => {
               >
                 <Group justify="space-between" gap="md" grow>
                   <DatePickerInput
-                    label="Start date"
+                    label={t("posts.ads_modal.start_date")}
                     withAsterisk
-                    placeholder="Pick date and time"
+                    placeholder={t("posts.ads_modal.start_date_placeholder")}
                     value={startDateEditAds}
                     onChange={handleStartDateEditAdsChange}
                     onBlur={() => validateStartDateEditAds()}
                     error={errorStartDateEditAds}
                   />
                   <DatePickerInput
-                    label="End date"
+                    label={t("posts.ads_modal.end_date")}
                     withAsterisk
+                    placeholder={t("posts.ads_modal.end_date_placeholder")}
                     value={endDateEditAds}
                     onChange={handleEndDateEditAdsChange}
                     onBlur={() => validateEndDateEditAds()}
@@ -787,7 +796,7 @@ export const AdminPostDetails = () => {
                 </Group>
                 <Group mt="lg" justify="center">
                   <Button onClick={closeEditSponsor} variant="grey">
-                    Cancel
+                    {t("posts.ads_modal.cancel")}
                   </Button>
                   <Button
                     onClick={(e: React.FormEvent) => {
@@ -796,27 +805,24 @@ export const AdminPostDetails = () => {
                     loading={editAdsMutate.isPending}
                     variant="primary"
                   >
-                    Confirm
+                    {t("posts.ads_modal.confirm")}
                   </Button>
                 </Group>
               </Modal>
               {/* Confirm remove ads modal */}
               <Modal
-                title="Remove sponsored status"
+                title={t("posts.ads_modal.remove_title")}
                 opened={openedRemoveAds}
                 onClose={closeRemoveAds}
                 centered
                 size="md"
               >
                 <Stack>
-                  <Text>
-                    Are you sure you want to remove sponsored status from this
-                    post?
-                  </Text>
+                  <Text>{t("posts.ads_modal.remove_text")}</Text>
                 </Stack>
                 <Group mt="lg" justify="center">
                   <Button onClick={closeRemoveAds} variant="grey">
-                    Cancel
+                    {t("posts.ads_modal.cancel")}
                   </Button>
                   <Button
                     onClick={(e: React.FormEvent) => {
@@ -825,7 +831,7 @@ export const AdminPostDetails = () => {
                     loading={deleteAdsMutate.isPending}
                     variant="delete"
                   >
-                    Confirm
+                    {t("posts.ads_modal.remove_confirm")}
                   </Button>
                 </Group>
               </Modal>
@@ -835,17 +841,17 @@ export const AdminPostDetails = () => {
       </Container>
 
       <Modal
-        title="Delete project step"
+        title={t("posts.delete_step_modal.title")}
         opened={openedDeleteStep}
         onClose={closeDeleteStep}
         size="md"
       >
         <Stack>
-          <Text>Are you sure you want to delete this project step?</Text>
+          <Text>{t("posts.delete_step_modal.text")}</Text>
         </Stack>
         <Group mt="lg" justify="center">
           <Button onClick={closeDeleteStep} variant="grey">
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={(e: React.FormEvent) => {
@@ -854,7 +860,7 @@ export const AdminPostDetails = () => {
             variant="delete"
             loading={deleteStep.isPending}
           >
-            Confirm
+            {t("common:actions.confirm")}
           </Button>
         </Group>
       </Modal>

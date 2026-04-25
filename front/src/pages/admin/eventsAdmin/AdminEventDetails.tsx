@@ -18,6 +18,7 @@ import {
   Tooltip,
   SimpleGrid,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import "@mantine/carousel/styles.css";
@@ -53,6 +54,7 @@ import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { EditEventModal } from "../../../components/event/EditEventModal";
 import { CancelEventModal } from "../../../components/event/CancelEventModal";
 export default function AdminEventDetails() {
+  const { t } = useTranslation("admin");
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -106,7 +108,7 @@ export default function AdminEventDetails() {
   const [assignError, setAssignError] = useState<string>("");
   const validateAssign = () => {
     if (employeeAssign.length === 0) {
-      setAssignError("Please select at least one employee");
+      setAssignError(t("events.details.assigned_employees.error_select"));
       return false;
     }
     return true;
@@ -184,38 +186,38 @@ export default function AdminEventDetails() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
-        Event's Details
+        {t("events.details.title")}
       </Title>
       <MyBreadcrumbs
         breadcrumbs={[
           ...(origin === "validationHub"
             ? [
-                { title: "Validation Hub", href: PATHS.ADMIN.VALIDATIONS.ALL },
-                { title: "Event's Details", href: "#" },
+                { title: t("validations.title"), href: PATHS.ADMIN.VALIDATIONS.ALL },
+                { title: t("events.details.title"), href: "#" },
               ]
             : origin?.from === "historyDetails"
               ? [
                   {
-                    title: "History Details",
+                    title: t("history.details.title"),
                     href: "/admin/history/" + origin.id_history,
                   },
-                  { title: "Event's Details", href: "#" },
+                  { title: t("events.details.title"), href: "#" },
                 ]
               : origin?.from === "userDetails"
                 ? [
                     {
-                      title: "User Management",
+                      title: t("users.title"),
                       href: "/admin/users/",
                     },
                     {
-                      title: "User's Details",
+                      title: t("users.details.title"),
                       href: "/admin/users/" + origin.id_user,
                     },
-                    { title: "Event's Details", href: "#" },
+                    { title: t("events.details.title"), href: "#" },
                   ]
                 : [
-                    { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
-                    { title: "Event's Details", href: "#" },
+                    { title: t("events.title"), href: PATHS.ADMIN.EVENTS.ALL },
+                    { title: t("events.details.title"), href: "#" },
                   ]),
         ]}
       />
@@ -238,7 +240,7 @@ export default function AdminEventDetails() {
                             : "red"
                   }
                 >
-                  {eventDetails?.category}
+                  {t(`common:event_categories.${eventDetails?.category}` as any, { defaultValue: eventDetails?.category })}
                 </Badge>
                 <Badge
                   variant={
@@ -251,7 +253,7 @@ export default function AdminEventDetails() {
                           : "gray"
                   }
                 >
-                  {eventDetails?.status}
+                  {t(`status.${eventDetails?.status}` as any, { defaultValue: eventDetails?.status })}
                 </Badge>
               </Group>
 
@@ -259,8 +261,7 @@ export default function AdminEventDetails() {
                 {eventDetails?.title}
               </Title>
               <Text c="dimmed" size="xs" mb="xl">
-                Created on{" "}
-                {dayjs(eventDetails?.created_at).format("DD/MM/YYYY HH:mm A")}
+                {t("listings.details.submitted_on", { date: dayjs(eventDetails?.created_at).format("DD/MM/YYYY HH:mm A") })}
               </Text>
               <div
                 dangerouslySetInnerHTML={{
@@ -273,7 +274,7 @@ export default function AdminEventDetails() {
                 <Divider my="xl" />
                 <Group gap="sm">
                   <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
-                  <Title order={3}>Photos</Title>
+                  <Title order={3}>{t("listings.details.photos")}</Title>
                 </Group>
                 <div style={{ marginTop: "16px" }}>
                   <PhotosCarousel
@@ -286,7 +287,7 @@ export default function AdminEventDetails() {
             <Divider my="xl" />
             <Group gap="sm">
               <IconMapPinFilled color="green" size={32} />
-              <Title order={3}>Location</Title>
+              <Title order={3}>{t("containers.details.location")}</Title>
             </Group>
             <Text mt="md">
               {eventDetails?.street + " · " + eventDetails?.city}
@@ -314,7 +315,7 @@ export default function AdminEventDetails() {
                               )
                             : ""
                         }`
-                      : "No specified date"}
+                      : t("events.details.no_specified_date")}
                   </Text>
                   <Text size="xs" c="dimmed">
                     UTC {dayjs(eventDetails?.start_at).format("Z")}
@@ -325,7 +326,7 @@ export default function AdminEventDetails() {
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg" mt="md">
                 <CardStatsItem
                   icon={<IconCoinEuro size={18} />}
-                  label="Price"
+                  label={t("validations.table.price")}
                   color="yellow"
                   value={
                     <Text
@@ -333,25 +334,25 @@ export default function AdminEventDetails() {
                       c={!eventDetails?.price ? "green" : "inherit"}
                       fw={!eventDetails?.price ? 700 : 600}
                     >
-                      {eventDetails?.price ? `${eventDetails.price} €` : "Free"}
+                      {eventDetails?.price ? `${eventDetails.price} €` : t("common:free", { defaultValue: "Free" })}
                     </Text>
                   }
                 />
 
                 <CardStatsItem
                   icon={<IconUsers size={18} />}
-                  label="Capacity"
+                  label={t("events.create_modal.capacity_label")}
                   color="blue"
                   value={
                     eventDetails?.capacity
-                      ? `${eventDetails.capacity} people max`
-                      : "Unlimited"
+                      ? t("events.details.people_max", { count: eventDetails.capacity })
+                      : t("events.details.unlimited")
                   }
                 />
 
                 <CardStatsItem
                   icon={<IconMapPin size={18} />}
-                  label="Location"
+                  label={t("containers.details.location")}
                   color="green"
                   value={`${eventDetails?.street}, ${eventDetails?.city}`}
                 />
@@ -361,7 +362,7 @@ export default function AdminEventDetails() {
               <Stack mt="xl">
                 <Group grow>
                   <Button variant="edit" onClick={openEdit} fullWidth>
-                    Edit event
+                    {t("events.details.edit_event")}
                   </Button>
                   <Button
                     fullWidth
@@ -375,12 +376,12 @@ export default function AdminEventDetails() {
                     onClick={openUpdateStatusModal}
                   >
                     {eventDetails?.status === "cancelled"
-                      ? "Reopen event"
+                      ? t("events.details.reopen_event")
                       : ["pending", "refused"].includes(
                             eventDetails?.status ?? "",
                           )
-                        ? "Approve event"
-                        : "Cancel event"}
+                        ? t("events.details.approve_event")
+                        : t("events.details.cancel_event")}
                   </Button>
                 </Group>
               </Stack>
@@ -400,10 +401,10 @@ export default function AdminEventDetails() {
         <Divider my="xl" />
         <Group justify="space-between">
           <Title order={3} mb="lg">
-            Assigned employees
+            {t("events.details.assigned_employees.title")}
           </Title>
           <Tooltip
-            label="Event must be approved to assign employees"
+            label={t("events.details.assigned_employees.tooltip_assign")}
             disabled={eventDetails?.status === "approved"}
             closeDelay={200}
             transitionProps={{ transition: "pop", duration: 300 }}
@@ -415,12 +416,12 @@ export default function AdminEventDetails() {
                 leftSection={<IconPlus size={16} />}
                 disabled={eventDetails?.status !== "approved"}
               >
-                Assign employee
+                {t("events.details.assigned_employees.assign_button")}
               </Button>
             </div>
           </Tooltip>
           <Modal
-            title="Assign employee"
+            title={t("events.details.assigned_employees.modal_title")}
             opened={openedAssign}
             onClose={handleCloseAssign}
             centered
@@ -434,7 +435,7 @@ export default function AdminEventDetails() {
                   <MultiSelect
                     withAsterisk
                     clearable
-                    label="Employee"
+                    label={t("events.details.assigned_employees.select_label")}
                     value={employeeAssign}
                     error={assignError}
                     styles={{
@@ -463,12 +464,12 @@ export default function AdminEventDetails() {
                     }}
                     hidePickedOptions
                     comboboxProps={{ shadow: "md" }}
-                    nothingFoundMessage="No employees available"
+                    nothingFoundMessage={t("events.details.assigned_employees.no_employees_available")}
                   />
                 </Stack>
                 <Group mt="lg" justify="center">
                   <Button onClick={handleCloseAssign} variant="grey">
-                    Cancel
+                    {t("users.delete_modal.cancel")}
                   </Button>
                   <Button
                     onClick={(e) => {
@@ -477,7 +478,7 @@ export default function AdminEventDetails() {
                     variant="primary"
                     loading={assignEmployees.isPending}
                   >
-                    Confirm
+                    {t("common:confirm", { defaultValue: "Confirm" })}
                   </Button>
                 </Group>
               </>
@@ -487,7 +488,13 @@ export default function AdminEventDetails() {
         <AdminTable
           loading={isLoadingAssignedEmployees}
           error={errorAssignedEmployees}
-          header={["Assigned on", "ID", "Employee", "Email", "Actions"]}
+          header={[
+            t("events.details.assigned_employees.table.assigned_on"),
+            t("history.table.transaction_id"),
+            t("common:employee", { defaultValue: "Employee" }),
+            t("users.table.email"),
+            t("users.table.actions"),
+          ]}
           footer={
             <PaginationFooter
               activePage={1}
@@ -525,7 +532,7 @@ export default function AdminEventDetails() {
                   <Table.Td ta="center">{employee?.email}</Table.Td>
                   <Table.Td ta="center">
                     <Tooltip
-                      label="Event must be approved to unassign employees"
+                      label={t("events.details.assigned_employees.tooltip_unassign")}
                       /* Only enable the tooltip if the button is disabled */
                       disabled={eventDetails?.status === "approved"}
                       closeDelay={200}
@@ -541,7 +548,7 @@ export default function AdminEventDetails() {
                             handleUnassignModal(employee);
                           }}
                         >
-                          Unassign
+                          {t("common:actions.unassign", { defaultValue: "Unassign" })}
                         </Button>
                       </div>
                     </Tooltip>
@@ -552,7 +559,7 @@ export default function AdminEventDetails() {
           ) : (
             <Table.Tr>
               <Table.Td ta="center" colSpan={5}>
-                No employees assigned
+                {t("events.details.assigned_employees.no_assigned")}
               </Table.Td>
             </Table.Tr>
           )}
@@ -561,14 +568,14 @@ export default function AdminEventDetails() {
       <Modal
         opened={openedUnassign}
         onClose={handleCloseUnassign}
-        title="Unassign Employee"
+        title={t("events.details.assigned_employees.unassign_modal_title")}
       >
         <Text>
-          Are you sure you want to unassign this employee from this event?
+          {t("events.details.assigned_employees.unassign_confirm")}
         </Text>
         <Group mt="lg" justify="end">
           <Button onClick={handleCloseUnassign} variant="grey">
-            Cancel
+            {t("users.delete_modal.cancel")}
           </Button>
           <Button
             onClick={() => {
@@ -577,7 +584,7 @@ export default function AdminEventDetails() {
             variant="delete"
             loading={unassignEmployee.isPending}
           >
-            Confirm
+            {t("common:confirm", { defaultValue: "Confirm" })}
           </Button>
         </Group>
       </Modal>
@@ -588,27 +595,27 @@ export default function AdminEventDetails() {
         loading={cancelEvent.isPending}
         title={
           eventDetails?.status === "cancelled"
-            ? "Reopen Event"
+            ? t("events.details.cancel_modal.reopen_title")
             : eventDetails?.status === "pending" ||
                 eventDetails?.status === "refused"
-              ? "Approve Event"
-              : "Cancel Event"
+              ? t("events.details.cancel_modal.approve_title")
+              : t("events.details.cancel_modal.cancel_title")
         }
         message={
           eventDetails?.status === "cancelled"
-            ? "Are you sure you want to reopen this event? It will be visible to all users again."
+            ? t("events.details.cancel_modal.reopen_msg")
             : eventDetails?.status === "pending" ||
                 eventDetails?.status === "refused"
-              ? "Are you sure you want to approve this event? It will be published and visible to all users."
-              : "Are you sure you want to cancel this event? This action will notify all registered participants."
+              ? t("events.details.cancel_modal.approve_msg")
+              : t("events.details.cancel_modal.cancel_msg")
         }
         confirmLabel={
           eventDetails?.status === "cancelled"
-            ? "Confirm Reopen"
+            ? t("events.details.cancel_modal.confirm_reopen")
             : eventDetails?.status === "pending" ||
                 eventDetails?.status === "refused"
-              ? "Confirm Approval"
-              : "Confirm Cancellation"
+              ? t("events.details.cancel_modal.confirm_approve")
+              : t("events.details.cancel_modal.confirm_cancel")
         }
       />
     </Container>

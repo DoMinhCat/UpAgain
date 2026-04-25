@@ -25,6 +25,7 @@ import {
   Loader,
   Center,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
@@ -81,6 +82,7 @@ import PhotoModal from "../../../components/photo/PhotoModal";
 import { useGetAvailableContainers } from "../../../hooks/containerHooks";
 
 export default function AdminListingDetails() {
+  const { t } = useTranslation("admin");
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -115,10 +117,10 @@ export default function AdminListingDetails() {
     updateItemStatus.mutate(status, {
       onSuccess: () => {
         status === "deleted"
-          ? showSuccessNotification("Item deleted", "Item deleted successfully")
+          ? showSuccessNotification(t("listings.details.status_modal.delete"), t("common:notifications.success", { defaultValue: "Item deleted successfully" }))
           : showSuccessNotification(
-              "Item updated",
-              "Item status updated successfully",
+              t("listings.details.status_modal.approve"),
+              t("common:notifications.success", { defaultValue: "Item status updated successfully" }),
             );
         navigate(PATHS.ADMIN.LISTINGS);
       },
@@ -439,42 +441,42 @@ export default function AdminListingDetails() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
-        Object Details
+        {t("listings.details.title")}
       </Title>
       <MyBreadcrumbs
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [
                 {
-                  title: "History Details",
+                  title: t("history.details.title"),
                   href: PATHS.ADMIN.HISTORY.ALL + "/" + origin.id_history,
                 },
               ]
             : origin?.from === "postDetails"
               ? [
                   {
-                    title: "Post Management",
+                    title: t("posts.title"),
                     href: PATHS.ADMIN.POSTS,
                   },
                   {
-                    title: "Post Details",
+                    title: t("posts.details.title"),
                     href: PATHS.ADMIN.POSTS + "/" + origin.id_post,
                   },
                 ]
               : origin?.from === "containerDetails"
                 ? [
                     {
-                      title: "Container Management",
+                      title: t("containers.title"),
                       href: PATHS.ADMIN.CONTAINERS,
                     },
                     {
-                      title: "Container Details",
+                      title: t("containers.details.title"),
                       href: PATHS.ADMIN.CONTAINERS + "/" + origin.idContainer,
                     },
                   ]
-                : [{ title: "Object Management", href: PATHS.ADMIN.LISTINGS }]),
+                : [{ title: t("listings.title"), href: PATHS.ADMIN.LISTINGS }]),
           {
-            title: "Object's Details",
+            title: t("listings.details.title"),
             href: PATHS.ADMIN.LISTINGS + "/" + id,
           },
         ]}
@@ -502,7 +504,7 @@ export default function AdminListingDetails() {
                           : "gray"
                   }
                 >
-                  {itemDetails?.status}
+                  {t(`status.${itemDetails?.status}` as any, { defaultValue: itemDetails?.status })}
                 </Badge>
               </Group>
 
@@ -510,8 +512,7 @@ export default function AdminListingDetails() {
                 {itemDetails?.title}
               </Title>
               <Text c="dimmed" size="xs" mb="xl">
-                Created on{" "}
-                {dayjs(itemDetails?.created_at).format("DD/MM/YYYY HH:mm A")}
+                {t("listings.details.submitted_on", { date: dayjs(itemDetails?.created_at).format("DD/MM/YYYY HH:mm A") })}
               </Text>
               <div
                 dangerouslySetInnerHTML={{
@@ -524,7 +525,7 @@ export default function AdminListingDetails() {
                 <Divider my="xl" />
                 <Group gap="sm">
                   <IconPhoto color="var(--mantine-color-blue-6)" size={32} />
-                  <Title order={3}>Photos</Title>
+                  <Title order={3}>{t("listings.details.photos")}</Title>
                 </Group>
                 <div style={{ marginTop: "16px" }}>
                   <PhotosCarousel
@@ -540,7 +541,7 @@ export default function AdminListingDetails() {
                 <Divider my="xl" />
                 <Group>
                   <IconKey color="var(--mantine-color-yellow-6)" size={32} />
-                  <Title order={3}>Access information</Title>
+                  <Title order={3}>{t("listings.details.access_info")}</Title>
                 </Group>
                 {isLoadingDepositCodes && (
                   <Center>
@@ -549,7 +550,7 @@ export default function AdminListingDetails() {
                 )}
                 {!userCode && !proCode && (
                   <Text c="dimmed" mt="lg">
-                    No access code generated yet for this deposit
+                    {t("listings.details.no_access_code")}
                   </Text>
                 )}
                 {/* User code */}
@@ -563,7 +564,7 @@ export default function AdminListingDetails() {
                               <IconUserShield />
                             </ThemeIcon>
                             <Text>
-                              <strong>Owner</strong>
+                              <strong>{t("listings.details.owner")}</strong>
                             </Text>
                           </Group>
                           <Badge
@@ -580,7 +581,7 @@ export default function AdminListingDetails() {
                         </Group>
                         <Paper variant="primary" p="lg">
                           <Title order={5} c="dimmed" ta="center">
-                            6 DIGITS CODE
+                            {t("listings.details.six_digits_code")}
                           </Title>
                           <Group gap={"xs"} justify="center">
                             <Title order={3} ta="center" my="md">
@@ -590,7 +591,7 @@ export default function AdminListingDetails() {
                             <CopyButton value={userCode?.code} timeout={3000}>
                               {({ copied, copy }) => (
                                 <Tooltip
-                                  label={copied ? "Copied" : "Copy code"}
+                                  label={copied ? t("common:actions.copied", { defaultValue: "Copied" }) : t("common:actions.copy", { defaultValue: "Copy code" })}
                                   withArrow
                                   position="right"
                                 >
@@ -621,13 +622,13 @@ export default function AdminListingDetails() {
                           />
                           <Divider my="md" />
                           <Text c="dimmed">
-                            Valid from:{" "}
+                            {t("listings.details.valid_from")}
                             {dayjs(userCode?.valid_from).format(
                               "DD/MM/YYYY HH:mm A",
                             )}
                           </Text>
                           <Text c="dimmed">
-                            Valid until:{" "}
+                            {t("listings.details.valid_to")}
                             {dayjs(userCode?.valid_to).format(
                               "DD/MM/YYYY HH:mm A",
                             )}
@@ -647,7 +648,7 @@ export default function AdminListingDetails() {
                               <IconBasketCheck />
                             </ThemeIcon>
                             <Text>
-                              <strong>Buyer</strong>
+                              <strong>{t("listings.details.buyer")}</strong>
                             </Text>
                           </Group>
                           <Badge
@@ -664,7 +665,7 @@ export default function AdminListingDetails() {
                         </Group>
                         <Paper variant="primary" p="lg">
                           <Title order={5} c="dimmed" ta="center">
-                            6 DIGITS CODE
+                            {t("listings.details.six_digits_code")}
                           </Title>
                           <Group gap={"xs"} justify="center">
                             <Title order={3} ta="center" my="md">
@@ -674,7 +675,7 @@ export default function AdminListingDetails() {
                             <CopyButton value={proCode?.code} timeout={3000}>
                               {({ copied, copy }) => (
                                 <Tooltip
-                                  label={copied ? "Copied" : "Copy code"}
+                                  label={copied ? t("common:actions.copied", { defaultValue: "Copied" }) : t("common:actions.copy", { defaultValue: "Copy code" })}
                                   withArrow
                                   position="right"
                                 >
@@ -705,13 +706,13 @@ export default function AdminListingDetails() {
                           />
                           <Divider my="md" />
                           <Text c="dimmed">
-                            Valid from:{" "}
+                            {t("listings.details.valid_from")}
                             {dayjs(userCode?.valid_from).format(
                               "DD/MM/YYYY HH:mm A",
                             )}
                           </Text>
                           <Text c="dimmed">
-                            Valid until:{" "}
+                            {t("listings.details.valid_to")}
                             {dayjs(userCode?.valid_to).format(
                               "DD/MM/YYYY HH:mm A",
                             )}
@@ -723,8 +724,7 @@ export default function AdminListingDetails() {
                   {userCode && !proCode && (
                     <Stack justify="center">
                       <Text c="dimmed" mt="lg" ta="center">
-                        Access code for buyer will be generated once owner
-                        delivers the object
+                        {t("listings.details.buyer_code_waiting")}
                       </Text>
                     </Stack>
                   )}
@@ -742,7 +742,7 @@ export default function AdminListingDetails() {
               <Card.Section withBorder inheritPadding py="xs">
                 <Group justify="space-between">
                   <Text>
-                    Posted by{" "}
+                    {t("listings.details.posted_by")}{" "}
                     <Anchor
                       style={{ cursor: "pointer" }}
                       c="var(--component-color-primary)"
@@ -764,7 +764,7 @@ export default function AdminListingDetails() {
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg" mt="md">
                 <CardStatsItem
                   icon={<IconCoinEuro size={18} />}
-                  label="Price"
+                  label={t("validations.table.price")}
                   color="yellow"
                   value={
                     <Text
@@ -772,14 +772,14 @@ export default function AdminListingDetails() {
                       c={!itemDetails?.price ? "green" : "inherit"}
                       fw={!itemDetails?.price ? 700 : 600}
                     >
-                      {itemDetails?.price ? `${itemDetails.price} €` : "Free"}
+                      {itemDetails?.price ? `${itemDetails.price} €` : t("common:free", { defaultValue: "Free" })}
                     </Text>
                   }
                 />
 
                 <CardStatsItem
                   icon={<IconWeight size={18} />}
-                  label="Weight"
+                  label={t("listings.filters.weight")}
                   color="blue"
                   value={`${itemDetails?.weight} kg`}
                 />
@@ -802,17 +802,20 @@ export default function AdminListingDetails() {
                       <IconArrowsShuffle size={18} />
                     )
                   }
-                  label="Material"
+                  label={t("listings.filters.material")}
                   color="brown"
                   value={
-                    itemDetails?.material.charAt(0).toUpperCase() +
-                    (itemDetails?.material.slice(1) ?? "")
+                    t(`common:materials.${itemDetails?.material}` as any, {
+                      defaultValue:
+                        itemDetails?.material.charAt(0).toUpperCase() +
+                        (itemDetails?.material.slice(1) ?? ""),
+                    })
                   }
                 />
 
                 <CardStatsItem
                   icon={<IconStars size={18} />}
-                  label="State"
+                  label={t("listings.filters.state")}
                   color={
                     itemDetails?.state === "new"
                       ? "green"
@@ -823,22 +826,25 @@ export default function AdminListingDetails() {
                           : "red"
                   }
                   value={
-                    itemDetails?.state.charAt(0).toUpperCase() +
-                    (itemDetails?.state.slice(1).replace(/_/g, " ") ?? "")
+                    t(`common:states.${itemDetails?.state}` as any, {
+                      defaultValue:
+                        itemDetails?.state.charAt(0).toUpperCase() +
+                        (itemDetails?.state.slice(1).replace(/_/g, " ") ?? ""),
+                    })
                   }
                 />
 
                 {itemDetails?.category === "listing" ? (
                   <CardStatsItem
                     icon={<IconMapPin size={18} />}
-                    label="Location"
+                    label={t("containers.details.location")}
                     color="white"
                     value={`${listingDetails?.city} ${listingDetails?.postal_code}`}
                   />
                 ) : (
                   <CardStatsItem
                     icon={<IconBox size={18} />}
-                    label="Container"
+                    label={t("common:container", { defaultValue: "Container" })}
                     color="green"
                     value={
                       <Anchor
@@ -856,7 +862,7 @@ export default function AdminListingDetails() {
                         style={{ cursor: "pointer" }}
                         c="var(--component-color-primary)"
                       >
-                        Container #{depositDetails?.container_id}
+                        {t("common:container", { defaultValue: "Container" })} #{depositDetails?.container_id}
                       </Anchor>
                     }
                   />
@@ -885,7 +891,7 @@ export default function AdminListingDetails() {
                         }
                         fullWidth
                       >
-                        Edit item
+                        {t("listings.details.edit_item")}
                       </Button>
 
                       <Button
@@ -908,10 +914,10 @@ export default function AdminListingDetails() {
                         loading={updateItemStatus.isPending}
                       >
                         {itemDetails?.status === "refused"
-                          ? "Reopen item"
+                          ? t("listings.details.reopen_item")
                           : itemDetails?.status === "pending"
-                            ? "Approve item"
-                            : "Delete item"}
+                            ? t("listings.details.approve_item")
+                            : t("listings.details.delete_item")}
                       </Button>
                     </Group>
                     {itemDetails?.category === "deposit" && (
@@ -925,7 +931,7 @@ export default function AdminListingDetails() {
                         }
                         onClick={handleOpenTransferContainerModal}
                       >
-                        Transfer container
+                        {t("listings.details.transfer_container")}
                       </Button>
                     )}
                   </Stack>
@@ -936,7 +942,7 @@ export default function AdminListingDetails() {
               <Modal
                 opened={openedEdit}
                 onClose={handleCloseEdit}
-                title="Edit item"
+                title={t("listings.details.edit_modal.title")}
                 centered
                 size="xl"
               >
@@ -944,7 +950,7 @@ export default function AdminListingDetails() {
                   <TextInput
                     data-autofocus
                     withAsterisk
-                    label="Title"
+                    label={t("validations.table.title")}
                     value={titleEdit}
                     onChange={(e) => {
                       setTitleEdit(e.target.value);
@@ -960,7 +966,7 @@ export default function AdminListingDetails() {
                   <NumberInput
                     min={0}
                     withAsterisk
-                    label="Price"
+                    label={t("validations.table.price")}
                     value={priceEdit}
                     onChange={(value) => {
                       setPriceEdit(Number(value));
@@ -976,7 +982,7 @@ export default function AdminListingDetails() {
                   <NumberInput
                     min={0}
                     withAsterisk
-                    label="Weight"
+                    label={t("listings.filters.weight")}
                     value={weightEdit}
                     onChange={(value) => {
                       setWeightEdit(Number(value));
@@ -991,7 +997,7 @@ export default function AdminListingDetails() {
                   />
                   <Select
                     withAsterisk
-                    label="Material"
+                    label={t("listings.filters.material")}
                     value={materialEdit}
                     error={errorMaterial}
                     onBlur={() => validateMaterial()}
@@ -1000,13 +1006,13 @@ export default function AdminListingDetails() {
                       updateListingMutation.isPending
                     }
                     data={[
-                      { value: "wood", label: "Wood" },
-                      { value: "glass", label: "Glass" },
-                      { value: "plastic", label: "Plastic" },
-                      { value: "metal", label: "Metal" },
-                      { value: "textile", label: "Textile" },
-                      { value: "mixed", label: "Mixed" },
-                      { value: "other", label: "Other" },
+                      { value: "wood", label: t("common:materials.wood") },
+                      { value: "glass", label: t("common:materials.glass") },
+                      { value: "plastic", label: t("common:materials.plastic") },
+                      { value: "metal", label: t("common:materials.metal") },
+                      { value: "textile", label: t("common:materials.textile") },
+                      { value: "mixed", label: t("common:materials.mixed") },
+                      { value: "other", label: t("common:materials.other") },
                     ]}
                     onChange={(value) => {
                       setMaterialEdit(value as string);
@@ -1014,7 +1020,7 @@ export default function AdminListingDetails() {
                   />
                   <Select
                     withAsterisk
-                    label="State"
+                    label={t("listings.filters.state")}
                     value={stateEdit}
                     error={errorState}
                     onBlur={() => validateState()}
@@ -1023,10 +1029,10 @@ export default function AdminListingDetails() {
                       updateListingMutation.isPending
                     }
                     data={[
-                      { value: "new", label: "New" },
-                      { value: "very_good", label: "Very good" },
-                      { value: "good", label: "Good" },
-                      { value: "need_repair", label: "Need repair" },
+                      { value: "new", label: t("common:states.new") },
+                      { value: "very_good", label: t("common:states.very_good") },
+                      { value: "good", label: t("common:states.good") },
+                      { value: "need_repair", label: t("common:states.need_repair") },
                     ]}
                     onChange={(value) => {
                       setStateEdit(value as string);
@@ -1036,7 +1042,7 @@ export default function AdminListingDetails() {
                     <SimpleGrid cols={2}>
                       <TextInput
                         withAsterisk
-                        label="City"
+                        label={t("containers.create_modal.city")}
                         value={cityEdit}
                         error={errorCity}
                         onBlur={() => validateCity()}
@@ -1051,7 +1057,7 @@ export default function AdminListingDetails() {
                       />
                       <TextInput
                         withAsterisk
-                        label="Postal code"
+                        label={t("containers.create_modal.postal_code")}
                         value={postalCodeEdit}
                         error={errorPostalCode}
                         onBlur={() => validatePostalCode()}
@@ -1068,7 +1074,7 @@ export default function AdminListingDetails() {
                   )}
 
                   <TextEditor
-                    label="Item's description"
+                    label={t("listings.details.edit_modal.description_label")}
                     value={descriptionEdit}
                     error={errorDescription ?? ""}
                     onChange={(value) => {
@@ -1086,7 +1092,7 @@ export default function AdminListingDetails() {
                 </Stack>
                 <Group mt="lg" justify="center">
                   <Button onClick={handleCloseEdit} variant="grey">
-                    Cancel
+                    {t("common:actions.cancel")}
                   </Button>
                   <Button
                     onClick={(e) => {
@@ -1098,7 +1104,7 @@ export default function AdminListingDetails() {
                     }
                     variant="primary"
                   >
-                    Confirm
+                    {t("common:actions.confirm")}
                   </Button>
                 </Group>
               </Modal>
@@ -1109,13 +1115,19 @@ export default function AdminListingDetails() {
         <Divider my="xl" />
         <Group justify="space-between">
           <Title order={3} mb="lg">
-            Transaction history
+            {t("listings.details.transactions.title")}
           </Title>
         </Group>
         <AdminTable
           loading={isLoadingTransactions}
           error={errorTransactions}
-          header={["Executed on", "TransactionID", "Buyer", "Status", "Action"]}
+          header={[
+            t("validations.table.executed_on"),
+            t("history.table.transaction_id"),
+            t("listings.details.buyer"),
+            t("users.details.fields.status"),
+            t("common:actions.title", { defaultValue: "Actions" }),
+          ]}
         >
           {transactions && transactions.length > 0 ? (
             transactions.map((transaction: Transaction) => (
@@ -1153,8 +1165,7 @@ export default function AdminListingDetails() {
                             : "blue"
                     }
                   >
-                    {transaction?.action.charAt(0).toUpperCase() +
-                      transaction?.action.slice(1)}
+                    {t(`status.${transaction?.action}` as any, { defaultValue: transaction?.action.charAt(0).toUpperCase() + transaction?.action.slice(1) })}
                   </Badge>
                 </Table.Td>
                 <Table.Td ta="center">
@@ -1166,7 +1177,7 @@ export default function AdminListingDetails() {
                       handleOpenCancelModal(transaction);
                     }}
                   >
-                    Cancel
+                    {t("common:actions.cancel")}
                   </Button>
                 </Table.Td>
               </Table.Tr>
@@ -1174,7 +1185,7 @@ export default function AdminListingDetails() {
           ) : (
             <Table.Tr>
               <Table.Td ta="center" colSpan={5}>
-                No transactions found for this object
+                {t("listings.details.transactions.no_transactions")}
               </Table.Td>
             </Table.Tr>
           )}
@@ -1196,24 +1207,25 @@ export default function AdminListingDetails() {
         onClose={closeUpdateStatusModal}
         title={
           itemDetails?.status === "refused"
-            ? "Reopen Item"
+            ? t("listings.details.status_modal.reopen")
             : itemDetails?.status === "pending"
-              ? "Approve Item"
-              : "Delete Item"
+              ? t("listings.details.status_modal.approve")
+              : t("listings.details.status_modal.delete")
         }
       >
         <Text>
-          Are you sure you want to{" "}
-          {itemDetails?.status === "refused"
-            ? "reopen"
-            : itemDetails?.status === "pending"
-              ? "approve"
-              : "delete"}{" "}
-          this item?
+          {t("listings.details.status_modal.confirm", {
+            action:
+              itemDetails?.status === "refused"
+                ? t("common:actions.reopen", { defaultValue: "reopen" })
+                : itemDetails?.status === "pending"
+                  ? t("common:actions.approve", { defaultValue: "approve" })
+                  : t("common:actions.delete", { defaultValue: "delete" }),
+          })}
         </Text>
         <Group mt="lg" justify="end">
           <Button onClick={closeUpdateStatusModal} variant="grey">
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={() => {
@@ -1232,7 +1244,7 @@ export default function AdminListingDetails() {
             }
             loading={updateItemStatus.isPending}
           >
-            Confirm
+            {t("common:actions.confirm")}
           </Button>
         </Group>
       </Modal>
@@ -1240,16 +1252,15 @@ export default function AdminListingDetails() {
       <Modal
         opened={openedCancelModal}
         onClose={closeCancelModal}
-        title="Cancel Transaction"
+        title={t("listings.details.transactions.cancel_modal_title")}
         size="lg"
       >
         <Text>
-          Are you sure you want to cancel transaction{" "}
-          {cancelTransactionId?.id_transaction} on behalf of the buyer?
+          {t("listings.details.transactions.cancel_confirm", { id: cancelTransactionId?.id_transaction })}
         </Text>
         <Group mt="lg" justify="end">
           <Button onClick={closeCancelModal} variant="grey">
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={() => {
@@ -1258,7 +1269,7 @@ export default function AdminListingDetails() {
             variant="delete"
             loading={cancelTransactionMutation.isPending}
           >
-            Confirm
+            {t("common:actions.confirm")}
           </Button>
         </Group>
       </Modal>
@@ -1274,10 +1285,10 @@ export default function AdminListingDetails() {
       <Modal
         opened={openedTransferContainerModal}
         onClose={closeTransferContainerModal}
-        title="Transfer Container"
+        title={t("listings.details.transfer_modal.title")}
         size="lg"
       >
-        <Text mb="sm">Please choose from available containers</Text>
+        <Text mb="sm">{t("listings.details.transfer_modal.choose")}</Text>
         <Select
           withAsterisk
           value={transferContainer}
@@ -1288,7 +1299,7 @@ export default function AdminListingDetails() {
           }
           data={availableContainers.map((container) => ({
             value: container.id.toString(),
-            label: `Container #${container.id}`,
+            label: `${t("common:container", { defaultValue: "Container" })} #${container.id}`,
           }))}
           onChange={(value) => {
             setTransferContainer(value as string);
@@ -1296,7 +1307,7 @@ export default function AdminListingDetails() {
         />
         <Group mt="lg" justify="center">
           <Button onClick={closeTransferContainerModal} variant="grey">
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={() => {
@@ -1305,7 +1316,7 @@ export default function AdminListingDetails() {
             variant="primary"
             loading={transferContainerMutation.isPending}
           >
-            Confirm
+            {t("common:actions.confirm")}
           </Button>
         </Group>
       </Modal>

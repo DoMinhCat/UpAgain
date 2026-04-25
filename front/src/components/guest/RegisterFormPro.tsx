@@ -13,6 +13,7 @@ import {
   Group,
   Modal,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconLock } from "@tabler/icons-react";
 import { PATHS } from "../../routes/paths";
 import { useState } from "react";
@@ -28,6 +29,7 @@ import { useGetFinanceSettingByKey } from "../../hooks/financeHooks";
 import { showErrorNotification } from "../common/NotificationToast";
 
 export default function RegisterFormPro() {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
 
   // SUB MODAL
@@ -56,9 +58,7 @@ export default function RegisterFormPro() {
       return false;
     }
     if (!requirements.every((requirement) => requirement.re.test(val))) {
-      setPasswordError(
-        "Password must contain at least one number, one uppercase letter, and one special character",
-      );
+      setPasswordError(t("register.errors.password_complexity"));
       return false;
     }
     setPasswordError(null);
@@ -72,10 +72,10 @@ export default function RegisterFormPro() {
   >(null);
   const validateConfirmPassword = (val: string) => {
     if (!val) {
-      setConfirmPasswordError("You must confirm your password");
+      setConfirmPasswordError(t("register.errors.confirm_required"));
       return false;
     } else if (val !== password) {
-      setConfirmPasswordError("Passwords do not match");
+      setConfirmPasswordError(t("register.errors.confirm_mismatch"));
       return false;
     }
     setConfirmPasswordError(null);
@@ -91,10 +91,10 @@ export default function RegisterFormPro() {
   const validateEmail = (val: string) => {
     const regex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$/;
     if (!val) {
-      setEmailError("Email is required");
+      setEmailError(t("login.errors.email_required"));
       return false;
     } else if (!regex.test(val)) {
-      setEmailError("Invalid email format");
+      setEmailError(t("login.errors.email_invalid"));
       return false;
     }
     setEmailError(null);
@@ -106,15 +106,15 @@ export default function RegisterFormPro() {
   const [UsernameError, setUsernameError] = useState<string | null>(null);
   const validateUsername = (val: string) => {
     if (!val) {
-      setUsernameError("Username is required");
+      setUsernameError(t("register.errors.username_required"));
       return false;
     }
     if (val.length < 4) {
-      setUsernameError("Username must be at least 4 characters long");
+      setUsernameError(t("register.errors.username_min"));
       return false;
     }
     if (val.length > 20) {
-      setUsernameError("Username must be at most 20 characters long");
+      setUsernameError(t("register.errors.username_max"));
       return false;
     }
     setUsernameError(null);
@@ -126,19 +126,19 @@ export default function RegisterFormPro() {
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const validatePhone = (val: string) => {
     if (!val) {
-      setPhoneError("Phone number is required");
+      setPhoneError(t("register.errors.phone_required"));
       return false;
     }
     if (!val.match(/^[0-9]+$/)) {
-      setPhoneError("Phone number must contain only numbers");
+      setPhoneError(t("register.errors.phone_numbers_only"));
       return false;
     }
     if (val.length < 10) {
-      setPhoneError("Phone number must be at least 10 characters long");
+      setPhoneError(t("register.errors.phone_min"));
       return false;
     }
     if (val.length > 15) {
-      setPhoneError("Phone number must be at most 15 characters long");
+      setPhoneError(t("register.errors.phone_max"));
       return false;
     }
     setPhoneError(null);
@@ -157,7 +157,7 @@ export default function RegisterFormPro() {
     )
       return;
     if (selectedPlan == null) {
-      showErrorNotification("Register failed", "Please select a plan");
+      showErrorNotification(t("register.errors.failed"), t("register.errors.plan_required"));
       return;
     }
 
@@ -174,11 +174,11 @@ export default function RegisterFormPro() {
 
   return (
     <Container size={520} my={40}>
-      <Title ta="center">Let's grow your impact!</Title>
+      <Title ta="center">{t("register.pro_title")}</Title>
 
       <Text mt="sm" ta={"center"}>
-        Already have an account?{" "}
-        <Anchor href={PATHS.GUEST.LOGIN}>Sign in</Anchor>
+        {t("register.already_account")}{" "}
+        <Anchor href={PATHS.GUEST.LOGIN}>{t("login.submit")}</Anchor>
       </Text>
 
       <Paper
@@ -190,11 +190,11 @@ export default function RegisterFormPro() {
         variant="primary"
       >
         <form onSubmit={handleSubmit}>
-          <Fieldset legend="Credentials" variant="unstyled">
+          <Fieldset legend={t("register.credentials_legend")} variant="unstyled">
             <TextInput
               variant="body-color"
-              label="Email"
-              placeholder="example@gmail.com"
+              label={t("login.email_label")}
+              placeholder={t("login.email_placeholder")}
               radius="md"
               error={emailError}
               mb="md"
@@ -211,8 +211,8 @@ export default function RegisterFormPro() {
             <PasswordStrengthInput
               variant="body-color"
               withAsterisk
-              label="Password"
-              placeholder="Your super secret"
+              label={t("login.password_label")}
+              placeholder={t("login.password_placeholder")}
               value={password}
               disabled={registerMutation.isPending}
               leftSection={<IconLock size={14} />}
@@ -226,10 +226,10 @@ export default function RegisterFormPro() {
             />
 
             <PasswordInput
-              label="Confirm Password"
+              label={t("register.confirm_password_label")}
               variant="body-color"
               leftSection={<IconLock size={14} />}
-              placeholder="Confirm your password"
+              placeholder={t("register.confirm_password_placeholder")}
               value={ConfirmPassword}
               mt="md"
               onChange={(event) => {
@@ -244,11 +244,11 @@ export default function RegisterFormPro() {
           </Fieldset>
           <Divider my="xl" color="var(--border-color)" />
 
-          <Fieldset legend="Personal information" variant="unstyled">
+          <Fieldset legend={t("register.personal_legend")} variant="unstyled">
             <TextInput
-              label="Username"
+              label={t("register.username_label")}
               variant="body-color"
-              placeholder="John Doe"
+              placeholder={t("register.username_placeholder")}
               radius="md"
               mb="md"
               error={UsernameError}
@@ -262,9 +262,9 @@ export default function RegisterFormPro() {
               required
             />
             <TextInput
-              label="Phone number"
+              label={t("register.phone_label")}
               variant="body-color"
-              placeholder="06 12 34 56 78"
+              placeholder={t("register.phone_placeholder")}
               withAsterisk
               radius="md"
               error={phoneError}
@@ -279,7 +279,7 @@ export default function RegisterFormPro() {
           </Fieldset>
           <Divider my="xl" color="var(--border-color)" />
 
-          <Fieldset legend="Subscription" variant="unstyled">
+          <Fieldset legend={t("register.subscription_legend")} variant="unstyled">
             <Group justify="center">
               <Button
                 variant={
@@ -294,19 +294,19 @@ export default function RegisterFormPro() {
                 disabled={registerMutation.isPending}
               >
                 {selectedPlan === "freemium"
-                  ? "Freemium plan chosen"
+                  ? t("register.pro.plan_freemium")
                   : selectedPlan === "premium"
-                    ? "Premium plan chosen"
+                    ? t("register.pro.plan_premium")
                     : selectedPlan === "trial"
-                      ? `${trialDays}-day trial plan chosen`
-                      : "See our subscriptions"}
+                      ? t("register.pro.plan_trial", { count: trialDays })
+                      : t("register.pro.see_subscriptions")}
               </Button>
             </Group>
           </Fieldset>
           <Checkbox
             mt="lg"
             defaultChecked
-            label="I agree to sell my privacy to UpAgain"
+            label={t("register.privacy_agreement")}
             color="teal"
             required
           />
@@ -317,13 +317,13 @@ export default function RegisterFormPro() {
             type="submit"
             loading={registerMutation.isPending}
           >
-            Register
+            {t("register.submit")}
           </Button>
         </form>
         <Text c="dimmed" size="sm" ta="center" mt="md">
-          Not a professional?{" "}
+          {t("register.not_pro")}{" "}
           <Anchor onClick={() => navigate(PATHS.GUEST.REGISTER)}>
-            Register here
+            {t("register.register_here")}
           </Anchor>
         </Text>
       </Paper>
@@ -336,7 +336,7 @@ export default function RegisterFormPro() {
         centered
       >
         <Title ta="center" mb="xl">
-          Choose your plan
+          {t("register.pro.choose_plan")}
         </Title>
         <Group justify="center" mt="md" gap="xl">
           <FreemiumCard
@@ -358,7 +358,7 @@ export default function RegisterFormPro() {
             onClick={closePremium}
             disabled={registerMutation.isPending}
           >
-            Close
+            {t("register.pro.close")}
           </Button>
           <Button
             size="lg"
@@ -367,7 +367,7 @@ export default function RegisterFormPro() {
             onClick={closePremium}
             disabled={!selectedPlan || registerMutation.isPending}
           >
-            Confirm
+            {t("register.pro.confirm")}
           </Button>
         </Group>
       </Modal>

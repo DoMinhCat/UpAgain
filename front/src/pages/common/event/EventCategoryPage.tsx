@@ -23,13 +23,17 @@ import {
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { EventCard } from "../../../components/event/EventCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
 import { NotFoundPage } from "../../error/404";
+import { useNavigate } from "react-router-dom";
 // import FullScreenLoader from "../../../components/common/FullScreenLoader";
 
 export default function EventCategoryPage() {
+  const { t } = useTranslation("events");
   const { category } = useParams<{ category: string }>();
+  const navigate = useNavigate();
 
   // FILTER OPTIONS
   const [page, setPage] = useState<number>(1);
@@ -60,11 +64,13 @@ export default function EventCategoryPage() {
     return <NotFoundPage />;
   }
 
+  const baseCat = category.slice(0, -1); // remove 's'
+
   // Mock data for drafting
-  const categoryTitle = category
-    ? category.charAt(0).toUpperCase() + category.slice(1)
-    : "Events";
-  const categoryDescription = `Explore our collection of ${category || "upcoming"} events. Join workshops, conferences, and meetups to learn new skills and connect with the community.`;
+  const categoryTitle = t(`categories.${baseCat}_plural`);
+  const categoryDescription = t("categories.explore_description", {
+    category: t(`categories.${baseCat}`),
+  });
 
   const mockEvent = {
     title: "Eco-Design Workshop",
@@ -101,7 +107,7 @@ export default function EventCategoryPage() {
           <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
             {/* SEARCH INPUT */}
             <TextInput
-              placeholder="Search in this category..."
+              placeholder={t("categories.search_placeholder")}
               leftSection={
                 <IconSearch size={18} color="var(--upagain-neutral-green)" />
               }
@@ -114,7 +120,7 @@ export default function EventCategoryPage() {
             {/* ACTIONS & FILTERS */}
             <Group justify="flex-end" gap="xs" wrap="nowrap">
               <Select
-                placeholder="City"
+                placeholder={t("filters.city")}
                 leftSection={<IconFilter size={16} />}
                 data={["Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse"]}
                 value={filters.city}
@@ -123,13 +129,13 @@ export default function EventCategoryPage() {
               />
 
               <Select
-                placeholder="Sort by"
+                placeholder={t("filters.sort")}
                 leftSection={<IconSortDescending size={16} />}
                 data={[
-                  { value: "soonest_date", label: "Soonest" },
-                  { value: "lowest_price", label: "Lowest price" },
-                  { value: "highest_price", label: "Highest price" },
-                  { value: "most_popular", label: "Most popular" },
+                  { value: "soonest_date", label: t("filters.sort_soonest") },
+                  { value: "lowest_price", label: t("filters.sort_lowest") },
+                  { value: "highest_price", label: t("filters.sort_highest") },
+                  { value: "most_popular", label: t("filters.sort_popular") },
                 ]}
                 value={filters.sort}
                 onChange={(value) => setFilters({ ...filters, sort: value })}
@@ -143,11 +149,11 @@ export default function EventCategoryPage() {
                   size="sm"
                   onClick={handleApply}
                 >
-                  Apply
+                  {t("filters.apply")}
                 </Button>
 
                 {/* Reset icon button instead of text button to save space */}
-                <Tooltip label="Reset Filters" position="bottom">
+                <Tooltip label={t("filters.reset")} position="bottom">
                   <ActionIcon
                     className="actionIcon"
                     data-variant="primary"
@@ -170,8 +176,14 @@ export default function EventCategoryPage() {
           <Stack gap="xs">
             <MyBreadcrumbs
               breadcrumbs={[
-                { title: "Home", href: PATHS.HOME },
-                { title: "Events", href: "/events" },
+                {
+                  title: t("home:home_title", { defaultValue: "Home" }),
+                  href: PATHS.HOME,
+                },
+                {
+                  title: t("events", { defaultValue: "Events" }),
+                  href: "/events",
+                },
                 { title: categoryTitle, href: "#" },
               ]}
             />
@@ -193,6 +205,7 @@ export default function EventCategoryPage() {
               {/* Placeholders for dynamic data */}
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                 <EventCard
+                  onclick={() => navigate(`${i}`)}
                   key={i}
                   {...mockEvent}
                   category={category || "other"}

@@ -32,6 +32,7 @@ import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
 import { IconBox, IconTrash, IconEdit } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import { useTranslation } from "react-i18next";
 
 import {
   useContainerDetails,
@@ -45,6 +46,7 @@ import {
 import { useState } from "react";
 
 export default function AdminContainersDetails() {
+  const { t } = useTranslation("admin");
   const origin = useLocation().state;
   const navigate = useNavigate();
   const params = useParams();
@@ -128,35 +130,35 @@ export default function AdminContainersDetails() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
-        Container's Details
+        {t("containers.details.title")}
       </Title>
       <MyBreadcrumbs
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [
                 {
-                  title: "History Details",
+                  title: t("history.details.title"),
                   href: PATHS.ADMIN.HISTORY.ALL + "/" + origin.id_history,
                 },
               ]
             : origin?.from === "listingDetails"
               ? [
                   {
-                    title: "Object Management",
+                    title: t("common:object_management", { defaultValue: "Object Management" }),
                     href: PATHS.ADMIN.LISTINGS,
                   },
                   {
-                    title: "Object's Details",
+                    title: t("listings.details.title"),
                     href: PATHS.ADMIN.LISTINGS + "/" + origin.id_listing,
                   },
                 ]
               : [
                   {
-                    title: "Container Management",
+                    title: t("containers.title"),
                     href: PATHS.ADMIN.CONTAINERS,
                   },
                 ]),
-          { title: `Container's Details`, href: "#" },
+          { title: t("containers.details.title"), href: "#" },
         ]}
       />
 
@@ -165,7 +167,7 @@ export default function AdminContainersDetails() {
           <ThemeIcon size={80} radius="xl" color={statusColor}>
             <IconBox size={45} />
           </ThemeIcon>
-          <Title order={2}>Container #{container?.id}</Title>
+          <Title order={2}>{t("common:container")} #{container?.id}</Title>
           <Text c="dimmed">
             {container?.street}, {container?.city_name} -{" "}
             {container?.postal_code}
@@ -173,13 +175,13 @@ export default function AdminContainersDetails() {
         </Stack>
 
         <Title order={3} ta="left" mt="xl">
-          General Information
+          {t("containers.details.general_info")}
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
-          <InfoField label="Current Status">
+          <InfoField label={t("containers.details.current_status")}>
             <Group mt="xs" mb="xl">
               <Text fw={700} c={statusColor}>
-                {container?.status.toUpperCase()}
+                {t(`status.${container?.status}` as any, { defaultValue: container?.status.toUpperCase() })}
               </Text>
               <Button
                 size="compact-xs"
@@ -187,12 +189,12 @@ export default function AdminContainersDetails() {
                 onClick={openStatus}
                 leftSection={<IconEdit size={14} />}
               >
-                Change Status
+                {t("containers.details.change_status")}
               </Button>
             </Group>
           </InfoField>
 
-          <InfoField label="Location">
+          <InfoField label={t("containers.details.location")}>
             <Group mt="xs" mb="xl">
               <Text fw={500}>
                 {container?.street}, {container?.city_name} (
@@ -204,12 +206,12 @@ export default function AdminContainersDetails() {
                 onClick={handleOpenLocation}
                 leftSection={<IconEdit size={14} />}
               >
-                Change Location
+                {t("containers.details.change_location")}
               </Button>
             </Group>
           </InfoField>
 
-          <InfoField label="Created On">
+          <InfoField label={t("containers.details.created_on")}>
             <Text ps="sm" mt="xs">
               {dayjs(container?.created_at).format("DD/MM/YYYY - HH:mm")}
             </Text>
@@ -217,18 +219,17 @@ export default function AdminContainersDetails() {
         </Paper>
 
         <Title order={3} ta="left" mt="xl">
-          Activities
+          {t("containers.details.activities")}
         </Title>
         <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
-          <InfoField label="Current Object">
+          <InfoField label={t("containers.details.current_object")}>
             {container?.status === "maintenance" ? (
               <Text ps="sm" mt="xs" mb="lg">
-                This container is currently under maintenance.
+                {t("containers.details.under_maintenance")}
               </Text>
             ) : container?.current_deposit_id === 0 ? (
               <Text ps="sm" mt="xs" mb="lg">
-                There is no object ready for pickup or drop-off for this
-                container.
+                {t("containers.details.no_object")}
               </Text>
             ) : (
               <Anchor
@@ -255,15 +256,15 @@ export default function AdminContainersDetails() {
             )}
           </InfoField>
 
-          <InfoField label="Schedule">
+          <InfoField label={t("common:schedule")}>
             <Button mt="xs" variant="primary" size="sm" onClick={openCalendar}>
-              View container's schedule
+              {t("containers.details.view_schedule")}
             </Button>
           </InfoField>
         </Paper>
 
         <Title order={3} ta="left" mt="xl" c="red">
-          Danger Zone
+          {t("containers.details.danger_zone")}
         </Title>
         <Paper
           variant="primary"
@@ -273,10 +274,10 @@ export default function AdminContainersDetails() {
           radius="lg"
           style={{ border: "1px solid #ff000033" }}
         >
-          <InfoField label="Permanently Remove">
+          <InfoField label={t("containers.details.permanently_remove")}>
             <Box ps="sm">
               <Text c="dimmed" size="sm" mt="xs">
-                This will soft-delete the container from the active park.
+                {t("containers.details.permanently_remove_desc")}
               </Text>
               <Button
                 mt="xs"
@@ -284,7 +285,7 @@ export default function AdminContainersDetails() {
                 leftSection={<IconTrash size={16} />}
                 onClick={openDelete}
               >
-                Delete Container
+                {t("containers.details.delete_button")}
               </Button>
             </Box>
           </InfoField>
@@ -295,16 +296,16 @@ export default function AdminContainersDetails() {
       <Modal
         opened={openedStatus}
         onClose={closeStatus}
-        title="Update Container Status"
+        title={t("containers.details.change_status")}
         centered
       >
         <Select
-          label="New Status"
-          placeholder="Pick one"
+          label={t("history.filters.status")}
+          placeholder={t("history.filters.sort_placeholder")}
           withAsterisk
           data={[
-            { value: "ready", label: "Ready" },
-            { value: "maintenance", label: "Maintenance" },
+            { value: "ready", label: t("status.ready") },
+            { value: "maintenance", label: t("status.maintenance") },
           ]}
           defaultValue={container?.status}
           onChange={(val) => val && handleStatusChange(val)}
@@ -314,20 +315,20 @@ export default function AdminContainersDetails() {
       <Modal
         opened={openedLocation}
         onClose={closeLocation}
-        title="Update container's location"
+        title={t("containers.details.change_location")}
         centered
       >
         <Stack>
           <Select
             withAsterisk
-            label="City"
+            label={t("containers.create_modal.city")}
             required
             data={cityOptions}
             value={locationCity}
             onChange={(val) => val && setLocationCity(val)}
           />
           <TextInput
-            label="Street"
+            label={t("containers.create_modal.street")}
             withAsterisk
             value={locationStreet}
             onChange={(e) => setLocationStreet(e.target.value)}
@@ -335,15 +336,13 @@ export default function AdminContainersDetails() {
           />
           <Group justify="flex-end" mt="md">
             <Button variant="grey" onClick={closeLocation}>
-              Cancel
+              {t("common:actions.cancel")}
             </Button>
             <Button
-              variant="primary"
-              loading={locationMutation.isPending}
               disabled={!locationCity || !locationStreet}
               onClick={() => handleLocationChange(locationCity, locationStreet)}
             >
-              Confirm
+              {t("common:actions.confirm")}
             </Button>
           </Group>
         </Stack>
@@ -352,30 +351,29 @@ export default function AdminContainersDetails() {
       <Modal
         opened={openedDelete}
         onClose={closeDelete}
-        title="Confirm Deletion"
+        title={t("containers.delete_modal.title")}
         centered
       >
         <Text size="sm">
-          Are you sure? This action will remove the container from the
-          monitoring dashboard.
+          {t("containers.delete_modal.text", { id: container?.id, city: container?.city_name })}
         </Text>
         <Group mt="xl" justify="flex-end">
           <Button variant="grey" onClick={closeDelete}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             variant="delete"
             loading={deleteMutation.isPending}
             onClick={handleDelete}
           >
-            Confirm Delete
+            {t("containers.delete_modal.confirm")}
           </Button>
         </Group>
       </Modal>
 
       <Modal
         size="lg"
-        title={<Text fw={700}>Container #{container?.id} schedule</Text>}
+        title={<Text fw={700}>{t("containers.details.schedule_title", { id: container?.id })}</Text>}
         opened={openedCalendar}
         onClose={closeCalendar}
         centered
@@ -534,8 +532,8 @@ export default function AdminContainersDetails() {
                                 <Group gap="xs" wrap="nowrap">
                                   <Text size="sm" truncate>
                                     {task.type === "user"
-                                      ? "[Drop-off] "
-                                      : "[Pick-up] "}
+                                      ? t("containers.details.drop_off")
+                                      : t("containers.details.pick_up")}
                                     {task.deposit_title}
                                   </Text>
                                 </Group>
