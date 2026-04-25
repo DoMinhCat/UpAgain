@@ -27,7 +27,6 @@ i18next
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    debug: true,
     fallbackLng: "en",
     supportedLngs: LANGUAGES.map((lang) => lang.lng),
     ns: namespaces,

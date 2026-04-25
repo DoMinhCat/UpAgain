@@ -21,6 +21,7 @@ import {
 import { getTimeAgo } from "../../utils/timeUtils";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
+import { resolveUrl } from "../../utils/imageUtils";
 
 interface EventCardProps {
   orientation?: "vertical" | "horizontal";
@@ -60,7 +61,6 @@ export function EventCard({
   const categoryValue = t(`common:event_categories.${category}` as any, {
     defaultValue: category.charAt(0).toUpperCase() + category.slice(1),
   });
-
   return (
     <Card
       className="paper"
@@ -90,16 +90,16 @@ export function EventCard({
       <Box
         style={{
           width: isHorizontal ? "40%" : "100%",
-          minHeight: isHorizontal ? "100%" : 180,
+          height: isHorizontal ? "auto" : 200,
           position: "relative",
         }}
       >
         <Image
-          src={image}
+          src={resolveUrl(image)}
           alt={title}
           fallbackSrc={`/banners/event-banner1-${theme}.png`}
           height="100%"
-          style={{ objectFit: "cover" }}
+          fit="cover"
         />
         <Stack pos="absolute" top={12} left={12} gap={6}>
           <Badge

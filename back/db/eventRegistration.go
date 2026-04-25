@@ -1,7 +1,9 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 )
 
@@ -31,4 +33,32 @@ func CheckEventHasParticipant(id_event int) (bool, error) {
 		return false, fmt.Errorf("CheckEventHasParticipant() failed: %v", err.Error())
 	}
 	return exists, nil
+}
+
+func GetAttendeesByEventId(id_event int) ([]models.Account, error) {
+	var attendees []models.Account
+	query := `
+		SELECT a.id, a.username, a.avatar
+		FROM event_registrations er
+		JOIN accounts a ON er.id_account=a.id
+		WHERE er.id_event=$1 and (er.status='registered' OR er.status='attended');
+	`
+	rows, err := utils.Conn.Query(query, id_event)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []models.Account{}, nil
+		}
+		return nil, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var attendee models.Account
+		err := rows.Scan(&attendee.Id, &attendee.Username, &attendee.Avatar)
+		if err != nil {
+			return nil, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
+		}
+		attendees = append(attendees, attendee)
+	}
+	return attendees, nil
 }

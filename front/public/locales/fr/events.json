@@ -47,7 +47,7 @@
     "reset": "Réinitialiser les filtres"
   },
   "detail": {
-    "organized_by": "Organisé par",
+    "organized_by": "Accueilli par",
     "published_on": "Publié le",
     "about": "À propos de cet événement",
     "location": "Emplacement",
@@ -60,6 +60,7 @@
     "end_date": "Date de fin",
     "capacity": "Capacité",
     "spots_left": "{{count}} places restantes",
+    "spots_unspecified": "Capacité non spécifiée",
     "register_now": "S'inscrire maintenant",
     "cancel_registration": "Annuler l'inscription",
     "see_attendees": "Voir les participants",

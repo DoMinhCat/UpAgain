@@ -47,7 +47,7 @@
     "reset": "Reset Filters"
   },
   "detail": {
-    "organized_by": "Organized by",
+    "organized_by": "Hosted by",
     "published_on": "Published on",
     "about": "About this event",
     "location": "Location",
@@ -60,6 +60,7 @@
     "end_date": "End date",
     "capacity": "Capacity",
     "spots_left": "{{count}} spots left",
+    "spots_unspecified": "Unspecified capacity",
     "register_now": "Register Now",
     "cancel_registration": "Cancel Registration",
     "see_attendees": "See Attendees",

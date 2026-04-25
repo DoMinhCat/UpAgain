@@ -13,6 +13,7 @@ import {
   Progress,
   Divider,
   SimpleGrid,
+  useComputedColorScheme,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useState } from "react";
@@ -39,20 +40,50 @@ import { EventAttendeesModal } from "../../../components/event/EventAttendeesMod
 import { CancelEventModal } from "../../../components/event/CancelEventModal";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
+import { NotFoundPage } from "../../error/404";
+import { useGetAllEvents, useGetEventDetails } from "../../../hooks/eventHooks";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import { resolveUrl } from "../../../utils/imageUtils";
 
 export default function EventDetailPage() {
   const { t } = useTranslation("events");
   const { user } = useAuth();
+  const navigate = useNavigate();
   const role = user?.role;
   const isUser = role === "user";
   const isPro = role === "pro";
   const isEmployee = role === "employee";
   const isAdmin = role === "admin";
-  const { idEventStr } = useParams<{ idEventStr: string }>();
-  const idEvent = parseInt(idEventStr || "0");
-  // const isValidId = !isNaN(idEvent) && idEvent > 0;
+  const theme = useComputedColorScheme("light");
 
-  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const idEvent = parseInt(id || "0");
+  const isValidId = !isNaN(idEvent) && idEvent > 0;
+  if (!isValidId) return <NotFoundPage />;
+
+  // GET EVENT
+  const { data: event, isLoading: isLoadingEvent } = useGetEventDetails(
+    idEvent,
+    isValidId,
+  );
+
+  // GET RANDOM SUGGESTED EVENTS
+  const SUGGESTED_EVENT_LIMIT = 4;
+  const { data: suggestedEventsData, isLoading: isLoadingSuggestedEvents } =
+    useGetAllEvents(
+      -1,
+      SUGGESTED_EVENT_LIMIT,
+      undefined,
+      "approved",
+      "random",
+      event?.category,
+      undefined,
+      undefined,
+    );
+  const suggestedEventsAll = suggestedEventsData?.events || [];
+  const suggestedEvents = suggestedEventsAll.filter(
+    (event) => event.id !== idEvent,
+  );
 
   // PHOTO CAROUSEL MODAL
   const [lightboxOpened, setLightboxOpened] = useState(false);
@@ -70,137 +101,83 @@ export default function EventDetailPage() {
   const [openedCancel, { open: openCancel, close: closeCancel }] =
     useDisclosure(false);
 
-  // Mock data for drafting
-  const mockRelevantEvent = {
-    title: "Eco-Design Workshop",
-    category: "workshop",
-    description: "Learn how to upcycle your old furniture into modern pieces.",
-    authorName: "Julian Thorne",
-    authorAvatar: "",
-    createdAt: new Date().toISOString(),
-    eventDate: new Date().toISOString(),
-    image:
-      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop",
-    price: 15,
-    city: "Paris",
-    postalCode: "75001",
-    registeredCount: 12,
-  };
-
-  const mockEvent = {
-    title: "Artisanal Woodworking Workshop",
-    category: "workshop",
-    description: `
-      <h2>Join us for a hands-on experience!</h2>
-      <p>Learn the secrets of traditional woodworking with our expert artisans. In this 4-hour session, you will:</p>
-      <ul>
-        <li>Understand different types of wood and their properties</li>
-        <li>Master basic hand tool techniques</li>
-        <li>Create your own custom small furniture piece to take home</li>
-      </ul>
-      <p>No prior experience required. All materials and safety equipment will be provided.</p>
-    `,
-    price: 45,
-    capacity: 20,
-    registered: 12,
-    location: {
-      street: "123 Eco Avenue",
-      city: "Paris",
-      zip: "75011",
-    },
-    organizers: [
-      { name: "Julian Thorne", avatar: "" },
-      { name: "Marie Curie", avatar: "" },
-      { name: "Bob Builder", avatar: "" },
-      { name: "Alice Wonderland", avatar: "" },
-    ],
-    photos: [
-      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=2070&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1540575861501-7ad058ca3c98?q=80&w=2070&auto=format&fit=crop",
-    ],
-    createdAt: new Date().toISOString(),
-    eventDate: new Date().toISOString(),
-    startDate: new Date().toISOString(),
-    endDate: new Date().toISOString(),
-    attendees: [
-      { id: 1, username: "Alice Johnson" },
-      {
-        id: 2,
-        username: "Bob Smith",
-        avatar:
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      { id: 3, username: "Charlie Davis" },
-      {
-        id: 4,
-        username: "Diana Prince",
-        avatar:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      { id: 5, username: "Eve Martinez" },
-      {
-        id: 6,
-        username: "Frank Miller",
-        avatar:
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-    ],
-  };
-
-  // if (isLoading) {
-  //   return <FullScreenLoader />;
-  // }
+  if (isLoadingEvent || isLoadingSuggestedEvents) {
+    return <FullScreenLoader />;
+  }
+  if (!event) {
+    return <NotFoundPage />;
+  }
   return (
     <>
       <Stack gap={0} mb={120}>
-        {/* 1. HERO SECTION (Carousel Hybrid) */}
+        {/* 1. HERO SECTION */}
         <Box pos="relative">
-          <Carousel
-            withIndicators
-            emblaOptions={{
-              loop: true,
-              dragFree: false,
-              align: "center",
-            }}
-            height={500}
-            styles={{
-              indicator: {
-                width: 12,
-                height: 4,
-                transition: "width 250ms ease",
-                "&[dataActive]": { width: 40 },
-              },
-            }}
-          >
-            {mockEvent.photos.map((url, index) => (
-              <Carousel.Slide key={index}>
-                <Box
-                  h="100%"
-                  style={{
-                    backgroundImage: `url(${url})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    cursor: "zoom-in",
-                  }}
-                  onClick={() => {
-                    setLightboxSlide(index);
-                    setLightboxOpened(true);
-                  }}
-                >
+          {event?.images && event.images.length > 0 ? (
+            <Carousel
+              withIndicators
+              emblaOptions={{
+                loop: true,
+                dragFree: false,
+                align: "center",
+              }}
+              height={500}
+              styles={{
+                indicator: {
+                  width: 12,
+                  height: 4,
+                  transition: "width 250ms ease",
+                  "&[dataActive]": { width: 40 },
+                },
+              }}
+            >
+              {event.images.map((url, index) => (
+                <Carousel.Slide key={index}>
                   <Box
-                    pos="absolute"
-                    inset={0}
+                    h="100%"
                     style={{
-                      background:
-                        "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%)",
-                      pointerEvents: "none",
+                      backgroundImage: `url("${resolveUrl(url)}")`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      cursor: "zoom-in",
                     }}
-                  />
-                </Box>
-              </Carousel.Slide>
-            ))}
-          </Carousel>
+                    onClick={() => {
+                      setLightboxSlide(index);
+                      setLightboxOpened(true);
+                    }}
+                  >
+                    <Box
+                      pos="absolute"
+                      inset={0}
+                      style={{
+                        background:
+                          "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.5) 100%)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                  </Box>
+                </Carousel.Slide>
+              ))}
+            </Carousel>
+          ) : (
+            <Box
+              h={500}
+              style={{
+                backgroundImage: `url("/banners/event-banner1-${theme}.png")`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              <Box
+                pos="absolute"
+                inset={0}
+                style={{
+                  background:
+                    "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.5) 100%)",
+                  pointerEvents: "none",
+                }}
+              />
+            </Box>
+          )}
 
           <Container
             size="xl"
@@ -216,22 +193,22 @@ export default function EventDetailPage() {
                 <Badge
                   size="lg"
                   variant={
-                    mockEvent.category === "other"
+                    event.category === "other"
                       ? "gray"
-                      : mockEvent.category === "workshop"
+                      : event.category === "workshop"
                         ? "blue"
-                        : mockEvent.category === "conference"
+                        : event.category === "conference"
                           ? "green"
-                          : mockEvent.category === "meetups"
+                          : event.category === "meetups"
                             ? "yellow"
                             : "red"
                   }
                 >
-                  {mockEvent.category.toUpperCase()}
+                  {event.category.toUpperCase()}
                 </Badge>
               </Group>
               <Title order={1} size={48} c="white" fw={900}>
-                {mockEvent.title}
+                {event.title}
               </Title>
             </Stack>
           </Container>
@@ -253,10 +230,10 @@ export default function EventDetailPage() {
                   href: "/events",
                 },
                 {
-                  title: t(`categories.${mockEvent.category}_plural`),
-                  href: `/events/${mockEvent.category}s`,
+                  title: t(`categories.${event.category}_plural`),
+                  href: `/events/${event.category}s`,
                 },
-                { title: mockEvent.title, href: "#" },
+                { title: event.title, href: "#" },
               ]}
             />
             <Grid gap={40}>
@@ -272,18 +249,18 @@ export default function EventDetailPage() {
                         </Text>
                         <Group gap="sm">
                           <Avatar.Group>
-                            {mockEvent.organizers.slice(0, 3).map((org, i) => (
+                            {event.organizers?.slice(0, 3).map((org, i) => (
                               <Avatar
                                 key={i}
-                                src={org.avatar}
-                                name={org.name}
+                                src={resolveUrl(org.avatar || "")}
+                                name={org.username}
                                 color="initials"
                                 radius="xl"
                               />
                             ))}
-                            {mockEvent.organizers.length > 3 && (
+                            {event.organizers?.length! > 3 && (
                               <Avatar radius="xl">
-                                +{mockEvent.organizers.length - 3}
+                                +{event.organizers?.length! - 3}
                               </Avatar>
                             )}
                           </Avatar.Group>
@@ -296,11 +273,11 @@ export default function EventDetailPage() {
                           }}
                           c="var(--color-text)"
                         >
-                          {mockEvent.organizers.map((o) => o.name).join(", ")}
+                          {event.organizers.map((o) => o.name).join(", ")}
                         </Anchor> */}
                           <Group gap={4} wrap="wrap">
-                            {mockEvent.organizers.map((organizer, index) => (
-                              <Group key={organizer.name || index} gap={4}>
+                            {event.organizers?.map((organizer, index) => (
+                              <Group key={organizer.username || index} gap={4}>
                                 <Text
                                   className="text"
                                   size="sm"
@@ -324,11 +301,11 @@ export default function EventDetailPage() {
                                       "var(--mantine-color-text)";
                                   }}
                                 >
-                                  {organizer.name}
+                                  {organizer.username}
                                 </Text>
 
                                 {/* Add a comma if it's not the last organizer */}
-                                {index < mockEvent.organizers.length - 1 && (
+                                {index < event.organizers!.length - 1 && (
                                   <Text size="sm" c="dimmed">
                                     ,{" "}
                                   </Text>
@@ -345,7 +322,7 @@ export default function EventDetailPage() {
                         <Group gap={6}>
                           <IconClock size={16} color="dimmed" />
                           <Text size="sm" fw={600}>
-                            {new Date(mockEvent.createdAt).toLocaleDateString()}
+                            {new Date(event.created_at).toLocaleDateString()}
                           </Text>
                         </Group>
                       </Stack>
@@ -358,7 +335,7 @@ export default function EventDetailPage() {
                     <div
                       style={{ lineHeight: 1.6, fontSize: "1.05rem" }}
                       dangerouslySetInnerHTML={{
-                        __html: mockEvent.description,
+                        __html: event.description,
                       }}
                     />
                   </Stack>
@@ -375,8 +352,7 @@ export default function EventDetailPage() {
                           color="var(--upagain-neutral-green)"
                         />
                         <Text size="lg" fw={500}>
-                          {mockEvent.location.street}, {mockEvent.location.city}{" "}
-                          {mockEvent.location.zip}
+                          {event.street}, {event.city} {event.location_detail}
                         </Text>
                       </Group>
                     </Stack>
@@ -419,23 +395,28 @@ export default function EventDetailPage() {
                         rightSection={<IconChevronRight size={14} />}
                       >
                         {t("categories.see_all", {
-                          category: t(
-                            `categories.${mockEvent.category}_plural`,
-                          ),
+                          category: t(`categories.${event.category}_plural`),
                         })}
                       </Button>
                     </Group>
                     <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-                      {[1, 2, 3].map((i) => (
+                      {suggestedEvents.map((event) => (
                         <EventCard
-                          key={i}
+                          key={event.id}
                           onclick={() =>
-                            navigate(
-                              `/events/${mockRelevantEvent.category}/${i}`,
-                            )
+                            navigate(`/events/${event.category}s/${event.id}`)
                           }
-                          {...mockRelevantEvent}
-                          title={`Relevant Event ${i}`}
+                          category={event.category}
+                          title={event.title}
+                          description={event.description}
+                          authorName={event.employee_name || "Unknown"}
+                          authorAvatar={event.employee_avatar || ""}
+                          createdAt={event.created_at}
+                          eventDate={event.start_at}
+                          image={event.images?.[0] || ""}
+                          price={event.price}
+                          city={event.city}
+                          registeredCount={event.registered}
                         />
                       ))}
                     </SimpleGrid>
@@ -457,8 +438,8 @@ export default function EventDetailPage() {
                       {/* Price */}
                       <Group gap="sm">
                         <Title order={2} c="var(--upagain-neutral-green)">
-                          {mockEvent.price > 0
-                            ? `${mockEvent.price}€`
+                          {event.price > 0
+                            ? `${event.price}€`
                             : t("detail.free_entry")}
                         </Title>
                         <Text size="sm" fw={700} tt="uppercase" c="dimmed">
@@ -478,7 +459,7 @@ export default function EventDetailPage() {
                               {t("detail.start_date")}
                             </Text>
                             <Text size="sm" fw={700}>
-                              {new Date(mockEvent.startDate).toLocaleDateString(
+                              {new Date(event.start_at).toLocaleDateString(
                                 "en-US",
                                 {
                                   weekday: "long",
@@ -487,13 +468,10 @@ export default function EventDetailPage() {
                                 },
                               )}{" "}
                               -{" "}
-                              {new Date(mockEvent.startDate).toLocaleTimeString(
-                                [],
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
+                              {new Date(event.start_at).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </Text>
                           </Stack>
                         </Group>
@@ -507,7 +485,7 @@ export default function EventDetailPage() {
                               {t("detail.end_date")}
                             </Text>
                             <Text size="sm" fw={700}>
-                              {new Date(mockEvent.startDate).toLocaleDateString(
+                              {new Date(event.end_at).toLocaleDateString(
                                 "en-US",
                                 {
                                   weekday: "long",
@@ -516,13 +494,10 @@ export default function EventDetailPage() {
                                 },
                               )}
                               {" - "}
-                              {new Date(mockEvent.startDate).toLocaleTimeString(
-                                [],
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
+                              {new Date(event.end_at).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </Text>
                           </Stack>
                         </Group>
@@ -544,23 +519,29 @@ export default function EventDetailPage() {
                             fw={700}
                             c="var(--upagain-neutral-green)"
                           >
-                            {t("detail.spots_left", {
-                              count: mockEvent.capacity - mockEvent.registered,
-                            })}
+                            {event.capacity === null || event.capacity === 0
+                              ? t("detail.spots_unspecified")
+                              : t("detail.spots_left", {
+                                  count: event.capacity - event.registered,
+                                })}
                           </Text>
                         </Group>
                         <Progress
                           value={
-                            (mockEvent.registered / mockEvent.capacity) * 100
+                            event.capacity !== null && event.capacity !== 0
+                              ? (event.registered / event.capacity) * 100
+                              : 100
                           }
                           color="var(--upagain-neutral-green)"
                           size="md"
                           radius="xl"
                         />
                         <Text size="xs" c="dimmed">
-                          {t("detail.spots_left", {
-                            count: mockEvent.capacity - mockEvent.registered,
-                          })}
+                          {event.capacity !== null && event.capacity !== 0
+                            ? t("detail.spots_left", {
+                                count: event.capacity - event.registered,
+                              })
+                            : ""}
                         </Text>
                       </Stack>
 
@@ -662,12 +643,12 @@ export default function EventDetailPage() {
           opened={openedEdit}
           onClose={closeEdit}
           id_event={idEvent}
-          eventDetails={mockEvent}
+          eventDetails={event}
         />
         <EventAttendeesModal
           opened={openedAttendees}
           onClose={closeAttendees}
-          attendees={mockEvent.attendees}
+          attendees={event.attendees || []}
         />
         <CancelEventModal
           opened={openedCancel}
@@ -679,7 +660,7 @@ export default function EventDetailPage() {
         />
 
         <PhotosCarousel
-          photos={mockEvent.photos}
+          photos={event.images || []}
           opened={lightboxOpened}
           onClose={() => setLightboxOpened(false)}
           defaultActiveSlide={lightboxSlide}

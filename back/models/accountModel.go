@@ -25,6 +25,7 @@ type Account struct {
 	CreatedAt  time.Time `json:"created_at"`
 	LastActive null.Time `json:"last_active"`
 	DeletedAt  null.Time `json:"deleted_at"`
+	Avatar     null.String `json:"avatar" swaggertype:"string"`
 }
 
 type AccountsListPagination struct {

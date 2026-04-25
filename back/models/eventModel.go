@@ -41,6 +41,8 @@ type Event struct {
 	EmployeeAvatar null.String `json:"employee_avatar" swaggertype:"string"`
 	Registered     int         `json:"registered"`
 	Images         []string    `json:"images"`
+	Attendees      []Account   `json:"attendees"`
+	Organizers     []Account   `json:"organizers"`
 }
 
 type EventsListPagination struct {
