@@ -957,12 +957,13 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 // RegisterToEventByEventId godoc
 // @Summary      Register to event
-// @Description  Register to an event by event ID.
+// @Description  Register to an event by event ID. If the event is paid, it returns a Stripe checkout URL unless already paid.
 // @Tags         event
 // @Accept       json
 // @Produce      json
 // @Param        payload  body      models.EventRegistrationRequest  true  "Event registration payload"
-// @Success      201      {object}  nil                              "Registered successfully"
+// @Success      201      {object}  models.EventRegistrationResponse "Registered successfully"
+// @Success      200      {object}  models.EventRegistrationResponse "Stripe checkout URL returned"
 // @Failure      400      {object}  nil                              "Invalid request payload or event conditions not met"
 // @Failure      401      {object}  nil                              "Unauthorized"
 // @Failure      500      {object}  nil                              "Internal server error"

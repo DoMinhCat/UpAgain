@@ -8,6 +8,16 @@ import (
 	"net/http"
 )
 
+// VerifyPayment godoc
+// @Summary      Verify Stripe payment session
+// @Description  Verify if a Stripe checkout session has been paid.
+// @Tags         payment
+// @Accept       json
+// @Produce      json
+// @Param        payload  body      models.VerifyPaymentRequest  true  "Stripe session ID"
+// @Success      200      {object}  models.VerifyPaymentResponse "Payment verification result"
+// @Failure      400      {object}  nil                          "Invalid payload or session"
+// @Router       /payments/verify/ [post]
 func VerifyPayment(w http.ResponseWriter, r *http.Request) {
 	payload := models.VerifyPaymentRequest{}
 
