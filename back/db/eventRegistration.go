@@ -1,7 +1,9 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 )
 
@@ -31,4 +33,80 @@ func CheckEventHasParticipant(id_event int) (bool, error) {
 		return false, fmt.Errorf("CheckEventHasParticipant() failed: %v", err.Error())
 	}
 	return exists, nil
+}
+
+func GetAttendeesByEventId(id_event int) ([]models.Account, error) {
+	var attendees []models.Account
+	query := `
+		SELECT a.id, a.username, a.avatar
+		FROM event_registrations er
+		JOIN accounts a ON er.id_account=a.id
+		WHERE er.id_event=$1 and (er.status='registered' OR er.status='attended');
+	`
+	rows, err := utils.Conn.Query(query, id_event)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []models.Account{}, nil
+		}
+		return nil, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var attendee models.Account
+		err := rows.Scan(&attendee.Id, &attendee.Username, &attendee.Avatar)
+		if err != nil {
+			return nil, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
+		}
+		attendees = append(attendees, attendee)
+	}
+	return attendees, nil
+}
+
+func InsertEventRegistration(id_account int, event models.Event) error {
+	query := `
+		INSERT INTO event_registrations (id_account, id_event, paid_price)
+		VALUES ($1, $2, $3);
+	`
+	var paidPrice float64
+	if event.Price.Valid && event.Price.Float64 > 0 {
+		paidPrice = event.Price.Float64
+	} else {
+		paidPrice = 0.0
+	}
+	_, err := utils.Conn.Exec(query, id_account, event.Id, paidPrice)
+	if err != nil {
+		// try update
+		err = UpdateEventRegistrationStatus(id_account, event.Id, "registered")
+		if err != nil {
+			return fmt.Errorf("InsertEventRegistration() failed: %v", err.Error())
+		}
+	}
+	return nil
+}
+
+func CheckUserRegisteredToEvent(id_account int, id_event int) (bool, error) {
+	var exists bool
+	query := `
+		SELECT EXISTS(SELECT 1 FROM event_registrations WHERE id_account=$1 AND id_event=$2 AND status='registered');
+	`
+	err := utils.Conn.QueryRow(query, id_account, id_event).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckUserRegisteredToEvent() failed: %v", err.Error())
+	}
+	return exists, nil
+}
+
+func UpdateEventRegistrationStatus(id_account int, id_event int, status string) error {
+	if status != "registered" && status != "cancelled" && status != "attended" {
+		return fmt.Errorf("invalid status: %s", status)
+	}
+	query := `
+		UPDATE event_registrations SET status=$1 WHERE id_account=$2 AND id_event=$3;
+	`
+	_, err := utils.Conn.Exec(query, status, id_account, id_event)
+	if err != nil {
+		return fmt.Errorf("UpdateEventRegistrationStatus() failed: %v", err.Error())
+	}
+	return nil
 }

@@ -5,11 +5,13 @@ import (
 	"backend/models"
 	"backend/utils"
 	"backend/utils/helper"
+	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -115,7 +117,10 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 // @Param        limit   query     int     false  "Number of events per page (default all)"
 // @Param        search  query     string  false  "Search in title or city"
 // @Param        status  query     string  false  "Filter by status: pending, approved, refused"
+// @Param        category query    string  false  "Filter by category"
+// @Param        city    query     string  false  "Filter by city"
 // @Param        sort    query     string  false  "Sort by field"
+// @Param        future_only query boolean false  "Filter by future events only"
 // @Success      200     {object}  models.EventsListPagination  "Events list retrieved successfully"
 // @Failure      400     {object}  nil                          "Invalid query parameters"
 // @Failure      401     {object}  nil                          "Unauthorized"
@@ -159,11 +164,25 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var onlyFuture bool
+	onlyFutureStr := query.Get("future_only")
+	if onlyFutureStr != "" {
+		onlyFuture, err = strconv.ParseBool(onlyFutureStr)
+		if err != nil {
+			slog.Error("strconv.ParseBool() failed", "controller", "GetAllEvents", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching events.")
+			return
+		}
+	}
+
 	filters := models.EventFilters{
 		Search:     query.Get("search"),
 		Sort:       query.Get("sort"),
 		Status:     query.Get("status"),
 		Validation: isValidation,
+		Category:   query.Get("category"),
+		City:       query.Get("city"),
+		OnlyFuture: onlyFuture,
 	}
 
 	events, total, err := db.GetAllEvents(page, limit, filters)
@@ -652,17 +671,17 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 
 // CancelEventByEventId godoc
 // @Summary      Update event status
-// @Description  Update the status of an event (approve, refuse, cancel, or set to pending).
+// @Description  Update the status of an event (cancelled, approved, refused, pending).
 // @Tags         event
 // @Accept       json
 // @Produce      json
-// @Param        id      path      int                           true  "Event ID"
-// @Param        payload body      models.UpdateEventStatusRequest true  "Target status"
-// @Success      204     {object}  nil                           "Status updated"
-// @Failure      400     {object}  nil                           "Invalid status or ID"
-// @Failure      401     {object}  nil                           "Unauthorized"
-// @Failure      404     {object}  nil                           "Event not found"
-// @Failure      500     {object}  nil                           "Internal server error"
+// @Param        id       path      int                             true  "Event ID"
+// @Param        payload  body      models.UpdateEventStatusRequest true  "New status"
+// @Success      204      {object}  nil                             "Status updated"
+// @Failure      400      {object}  nil                             "Invalid ID or status"
+// @Failure      401      {object}  nil                             "Unauthorized"
+// @Failure      409      {object}  nil                             "Event already ended or has paid participants"
+// @Failure      500      {object}  nil                             "Internal server error"
 // @Router       /events/{id}/status/ [patch]
 func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
@@ -932,5 +951,200 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: notify users participating in event
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+// RegisterToEventByEventId godoc
+// @Summary      Register to event
+// @Description  Register to an event by event ID. If the event is paid, it returns a Stripe checkout URL unless already paid.
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        payload  body      models.EventRegistrationRequest  true  "Event registration payload"
+// @Success      201      {object}  models.EventRegistrationResponse "Registered successfully"
+// @Success      200      {object}  models.EventRegistrationResponse "Stripe checkout URL returned"
+// @Failure      400      {object}  nil                              "Invalid request payload or event conditions not met"
+// @Failure      401      {object}  nil                              "Unauthorized"
+// @Failure      500      {object}  nil                              "Internal server error"
+// @Router       /events/register/ [post]
+func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "user" && role != "pro" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	requestorId := r.Context().Value("user").(models.AuthClaims).Id
+
+	var payload models.EventRegistrationRequest
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+		return
+	}
+
+	exist, err := db.CheckEventExistsById(payload.IdEvent)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		return
+	}
+
+	event, err := db.GetEventDetailsById(payload.IdEvent)
+	if err != nil {
+		slog.Error("GetEventDetailsById() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+
+	// current status of event is not approved
+	if event.Status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "This event has not been approved yet.")
+		return
+	}
+	// not already started
+	if !event.StartAt.Time.IsZero() && event.StartAt.Time.Before(time.Now()) && event.EndAt.Time.After(time.Now()) {
+		utils.RespondWithError(w, http.StatusBadRequest, "This event has already started.")
+		return
+	}
+	// event has already ended
+	if !event.EndAt.Time.IsZero() && event.EndAt.Time.Before(time.Now()) {
+		utils.RespondWithError(w, http.StatusBadRequest, "This event has already ended.")
+		return
+	}
+	// capacity not full
+	if event.Capacity.Valid && int64(event.Registered) >= event.Capacity.Int64 {
+		utils.RespondWithError(w, http.StatusBadRequest, "There is no more available places left for this event.")
+		return
+	}
+	// not already registered
+	alreadyRegistered, err := db.CheckUserRegisteredToEvent(requestorId, payload.IdEvent)
+	if err != nil {
+		slog.Error("CheckUserRegisteredToEvent() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+	if alreadyRegistered {
+		utils.RespondWithError(w, http.StatusBadRequest, "You are already registered to this event.")
+		return
+	}
+
+	isPaid := event.Price.Valid && event.Price.Float64 > 0.0
+	if isPaid {
+		if payload.Paid {
+			err = db.InsertEventRegistration(requestorId, event)
+			if err != nil {
+				slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
+			return
+		}
+		slog.Debug("Origin url", "controller", "RegisterToEventByEventId", "value", payload.OriginUrl)
+		slog.Debug("Frontend origin", "controller", "RegisterToEventByEventId", "value", utils.GetFrontOrigin())
+		frontendOrigin := utils.GetFrontOrigin()
+		if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
+			return
+		}
+		checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+			EventName:    event.Title,
+			PriceInCents: int64(event.Price.Float64 * 100),
+			// return to the origin URL with param, frontend will check for that params to handle next steps
+			SuccessURL: payload.OriginUrl + "?payment=success&sessionid={CHECKOUT_SESSION_ID}",
+			CancelURL:  payload.OriginUrl + "?payment=cancel",
+		})
+		if err != nil {
+			slog.Error("CreateStripeSession() failed", "controller", "RegisterToEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+			return
+		}
+		utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
+		return
+	} else {
+		err = db.InsertEventRegistration(requestorId, event)
+		if err != nil {
+			slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+			return
+		}
+		utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
+		return
+	}
+}
+
+// CancelRegistrationByEventId godoc
+// @Summary      Cancel registration to event
+// @Description  Cancel registration to an event by event ID.
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        payload  body      models.EventCancelRegistrationRequest  true  "Event cancellation payload"
+// @Success      204      {object}  nil                                    "Registration cancelled successfully"
+// @Failure      400      {object}  nil                                    "Invalid request payload or registration conditions not met"
+// @Failure      401      {object}  nil                                    "Unauthorized"
+// @Failure      500      {object}  nil                                    "Internal server error"
+// @Router       /events/cancel/ [patch]
+func CancelRegistrationByEventId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "user" && role != "pro" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	requestorId := r.Context().Value("user").(models.AuthClaims).Id
+
+	var payload models.EventCancelRegistrationRequest
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+		return
+	}
+
+	exist, err := db.CheckEventExistsById(payload.IdEvent)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		return
+	}
+
+	event, err := db.GetEventDetailsById(payload.IdEvent)
+	if err != nil {
+		slog.Error("GetEventDetailsById() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+
+	// not already registered
+	alreadyRegistered, err := db.CheckUserRegisteredToEvent(requestorId, payload.IdEvent)
+	if err != nil {
+		slog.Error("CheckUserRegisteredToEvent() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+	if !alreadyRegistered {
+		utils.RespondWithError(w, http.StatusBadRequest, "You are not registered to this event.")
+		return
+	}
+	// event has already ended
+	if !event.EndAt.Time.IsZero() && event.EndAt.Time.Before(time.Now()) {
+		utils.RespondWithError(w, http.StatusBadRequest, "This event has already ended.")
+		return
+	}
+
+	err = db.UpdateEventRegistrationStatus(requestorId, payload.IdEvent, "cancelled")
+	if err != nil {
+		slog.Error("UpdateEventRegistrationStatus() failed", "controller", "CancelRegistrationByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling registration to the event.")
+		return
+	}
+
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }

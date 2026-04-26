@@ -8,6 +8,8 @@ import {
   type AssignedEmployee,
   type UnassignEmployeePayload,
   type UpdateEventPayload,
+  type EventRegistrationPayload,
+  type EventRegistrationResponse,
 } from "./interfaces/event";
 
 // get active or deleted events
@@ -17,10 +19,23 @@ export const getAllEvents = async (
   search?: string,
   status?: string,
   sort?: string,
+  category?: string,
+  city?: string,
   validation?: boolean,
+  future_only?: boolean,
 ): Promise<EventsListPagination> => {
   const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL, {
-    params: { page, limit, search, status, sort, validation },
+    params: {
+      page,
+      limit,
+      search,
+      status,
+      sort,
+      category,
+      city,
+      validation,
+      future_only,
+    },
   });
   return response.data;
 };
@@ -135,6 +150,23 @@ export const updateEvent = async (
         "Content-Type": "multipart/form-data",
       },
     },
+  );
+  return response.data;
+};
+
+export const registerToEvent = async (
+  event: EventRegistrationPayload,
+): Promise<EventRegistrationResponse> => {
+  const response = await api.post(ENDPOINTS.ADMIN.EVENTS.REGISTER, event);
+  return response.data;
+};
+
+export const cancelRegistration = async (
+  event: EventRegistrationPayload,
+): Promise<void> => {
+  const response = await api.patch(
+    ENDPOINTS.ADMIN.EVENTS.CANCEL_REGISTRATION,
+    event,
   );
   return response.data;
 };

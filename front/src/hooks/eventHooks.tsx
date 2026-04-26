@@ -9,6 +9,8 @@ import {
   unassignEmployee,
   updateEventStatus,
   updateEvent,
+  registerToEvent,
+  cancelRegistration,
 } from "../api/eventModule";
 import {
   type EventCreationPayload,
@@ -18,6 +20,8 @@ import {
   type AssignedEmployee,
   type UnassignEmployeePayload,
   type UpdateEventPayload,
+  type EventRegistrationPayload,
+  type EventRegistrationResponse,
 } from "../api/interfaces/event";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
@@ -27,11 +31,36 @@ export const useGetAllEvents = (
   search?: string,
   status?: string,
   sort?: string,
+  category?: string,
+  city?: string,
   validation?: boolean,
+  future_only?: boolean,
 ) => {
   return useQuery<EventsListPagination>({
-    queryKey: ["events", page, limit, search, status, sort, validation],
-    queryFn: () => getAllEvents(page, limit, search, status, sort, validation),
+    queryKey: [
+      "events",
+      page,
+      limit,
+      search,
+      status,
+      sort,
+      category,
+      city,
+      validation,
+      future_only,
+    ],
+    queryFn: () =>
+      getAllEvents(
+        page,
+        limit,
+        search,
+        status,
+        sort,
+        category,
+        city,
+        validation,
+        future_only,
+      ),
     staleTime: 60 * 1000,
     meta: {
       errorTitle: "Error",
@@ -101,9 +130,13 @@ export const useAssignEmployeeToEvent = () => {
   });
 };
 
-export const useGetEventDetails = (id_event: number) => {
+export const useGetEventDetails = (
+  id_event: number,
+  enabled: boolean = true,
+) => {
   return useQuery<AppEvent>({
     queryKey: ["event", id_event],
+    enabled: enabled,
     queryFn: () => getEventDetails(id_event),
     staleTime: 60 * 1000,
     meta: {
@@ -224,6 +257,49 @@ export const useApproveRefuseEvent = () => {
     meta: {
       errorTitle: "Event action failed",
       errorMessage: "Could not update the event status",
+    },
+  });
+};
+
+export const useRegisterToEvent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (
+      payload: EventRegistrationPayload,
+    ): Promise<EventRegistrationResponse> => registerToEvent(payload),
+    onSuccess: (_data, payload) => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["event", payload.id_event],
+      });
+      queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+    },
+    meta: {
+      errorTitle: "Event registration failed",
+      errorMessage: "An error occured while registering to event",
+    },
+  });
+};
+
+export const useCancelRegistration = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: EventRegistrationPayload): Promise<void> =>
+      cancelRegistration(payload),
+    onSuccess: (_data, payload) => {
+      showSuccessNotification(
+        "Registration cancelled successfully",
+        "Registration to event has been cancelled",
+      );
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["event", payload.id_event],
+      });
+      queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+    },
+    meta: {
+      errorTitle: "Registration cancellation failed",
+      errorMessage: "An error occured while cancelling registration to event",
     },
   });
 };

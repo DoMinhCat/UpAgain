@@ -49,6 +49,8 @@ export const ENDPOINTS = {
       UNASSIGN: (id_event: number) => `/events/${id_event}/unassign/`,
       CANCEL: (id_event: number) => `/events/${id_event}/status/`,
       UPDATE: (id_event: number) => `/events/${id_event}/update/`,
+      REGISTER: "/events/register/",
+      CANCEL_REGISTRATION: "/events/cancel/",
     },
 
     EMPLOYEES: {
@@ -110,5 +112,9 @@ export const ENDPOINTS = {
     CREATE: "/ads/",
     DELETE: (id_ads: number) => `/ads/${id_ads}/`,
     UPDATE: (id_ads: number) => `/ads/${id_ads}/`,
+  },
+
+  STRIPE: {
+    VERIFY: "/payments/verify/",
   },
 } as const;

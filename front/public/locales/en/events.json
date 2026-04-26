@@ -1,5 +1,10 @@
 {
   "events": "Events",
+  "my_events": {
+    "title": "My events",
+    "description": "Ready for your upcoming events?",
+    "schedule_description": "All your events in one simple schedule"
+  },
   "hero": {
     "title": "Sustainable Events & Workshops",
     "subtitle": "Join our community of eco-conscious creators. Learn, share, and impact the world through meaningful experiences."
@@ -39,10 +44,12 @@
     "sort_highest": "Highest price",
     "sort_popular": "Most popular",
     "apply": "Apply",
-    "reset": "Reset Filters"
+    "reset": "Reset Filters",
+    "only_future": "Future events only"
   },
   "detail": {
-    "organized_by": "Organized by",
+    "price": "Price",
+    "organized_by": "Hosted by",
     "published_on": "Published on",
     "about": "About this event",
     "location": "Location",
@@ -55,12 +62,27 @@
     "end_date": "End date",
     "capacity": "Capacity",
     "spots_left": "{{count}} spots left",
+    "spots_unspecified": "Unspecified capacity",
     "register_now": "Register Now",
     "cancel_registration": "Cancel Registration",
     "see_attendees": "See Attendees",
     "edit_event": "Edit Event",
     "cancel_event": "Cancel Event",
     "secure_payment": "Secure payment & instant confirmation",
-    "already_registered": "You are already registered to this event"
+    "already_registered": "You are already registered to this event",
+    "registered_one": "{{count}} registered",
+    "registered_other": "{{count}} registered",
+    "no_relevant_events": "No other relevant events found at the moment.",
+    "refund_warning": "Note: Refunds are not possible once registered.",
+    "confirm_registration_msg": "You are about to register for this event. Please review the details below.",
+    "event_ended": "This event has already ended.",
+    "cancel_registration_title": "Cancel Registration",
+    "cancel_registration_msg": "Are you sure you want to cancel your registration? This action cannot be undone."
+  },
+  "no_event": "No {{event_type}} found",
+  "empty_state": {
+    "no_events": "No events found",
+    "try_adjusting": "Try adjusting your filters or search terms to find what you're looking for.",
+    "clear_filters": "Clear all filters"
   }
 }

@@ -1,5 +1,10 @@
 {
   "events": "Sự kiện",
+  "my_events": {
+    "title": "Sự kiện của tôi",
+    "schedule_description": "Tất cả sự kiện của bạn trong một thời khóa biểu",
+    "description": "Sẵn sàng cho các sự kiện sắp tới của bạn chưa nè?"
+  },
   "hero": {
     "title": "Sự kiện & Workshop Tái Chế",
     "subtitle": "Gia nhập cộng đồng những người kiến tạo xanh. Cùng học hỏi, chia sẻ và lan tỏa những trải nghiệm ý nghĩa."
@@ -39,9 +44,11 @@
     "sort_highest": "Giá cao nhất",
     "sort_popular": "Phổ biến nhất",
     "apply": "Áp dụng",
-    "reset": "Đặt lại bộ lọc"
+    "reset": "Đặt lại bộ lọc",
+    "only_future": "Chỉ xem sự kiện sắp tới"
   },
   "detail": {
+    "price": "Giá",
     "organized_by": "Người tổ chức",
     "published_on": "Đăng vào ngày",
     "about": "Thông tin sự kiện",
@@ -55,12 +62,27 @@
     "end_date": "Ngày kết thúc",
     "capacity": "Sức chứa",
     "spots_left": "Còn {{count}} chỗ trống",
+    "spots_unspecified": "Không xác định",
     "register_now": "Đăng ký ngay",
     "cancel_registration": "Hủy đăng ký",
     "see_attendees": "Xem danh sách tham gia",
     "edit_event": "Sửa sự kiện",
     "cancel_event": "Hủy sự kiện",
     "secure_payment": "Thanh toán an toàn & xác nhận ngay",
-    "already_registered": "Bạn đã đăng ký sự kiện này rồi nha"
+    "already_registered": "Bạn đã đăng ký sự kiện này rồi nha",
+    "registered_one": "{{count}} người đăng ký",
+    "registered_other": "{{count}} người đăng ký",
+    "no_relevant_events": "Hiện tại không tìm thấy sự kiện liên quan nào khác.",
+    "refund_warning": "Lưu ý: Không thể hoàn tiền sau khi đã đăng ký.",
+    "confirm_registration_msg": "Bạn sắp đăng ký tham gia sự kiện này. Vui lòng xem lại các chi tiết bên dưới.",
+    "event_ended": "Sự kiện này đã kết thúc.",
+    "cancel_registration_title": "Hủy đăng ký",
+    "cancel_registration_msg": "Bạn có chắc chắn muốn hủy đăng ký không? Hành động này không thể hoàn tác."
+  },
+  "no_event": "Chưa có {{event_type}} nào cả",
+  "empty_state": {
+    "no_events": "Hổng thấy sự kiện nào hết trơn",
+    "try_adjusting": "Thử chỉnh lại mấy cái lọc hoặc từ khóa tìm kiếm xem sao nè.",
+    "clear_filters": "Xóa hết bộ lọc luôn"
   }
 }

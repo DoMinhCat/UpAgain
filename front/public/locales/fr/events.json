@@ -1,5 +1,10 @@
 {
   "events": "Événements",
+  "my_events": {
+    "title": "Mes événements",
+    "description": "Prêt pour vos prochains événements ?",
+    "schedule_description": "Tous vos événements dans un planning simple"
+  },
   "hero": {
     "title": "Événements & Ateliers Durables",
     "subtitle": "Rejoignez notre communauté de créateurs éco-responsables. Apprenez, partagez et impactez le monde à travers des expériences enrichissantes."
@@ -39,10 +44,12 @@
     "sort_highest": "Prix le plus élevé",
     "sort_popular": "Le plus populaire",
     "apply": "Appliquer",
-    "reset": "Réinitialiser les filtres"
+    "reset": "Réinitialiser les filtres",
+    "only_future": "Événements futurs uniquement"
   },
   "detail": {
-    "organized_by": "Organisé par",
+    "price": "Prix",
+    "organized_by": "Accueilli par",
     "published_on": "Publié le",
     "about": "À propos de cet événement",
     "location": "Emplacement",
@@ -55,12 +62,27 @@
     "end_date": "Date de fin",
     "capacity": "Capacité",
     "spots_left": "{{count}} places restantes",
+    "spots_unspecified": "Capacité non spécifiée",
     "register_now": "S'inscrire maintenant",
     "cancel_registration": "Annuler l'inscription",
     "see_attendees": "Voir les participants",
     "edit_event": "Modifier l'événement",
     "cancel_event": "Annuler l'événement",
     "secure_payment": "Paiement sécurisé & confirmation instantanée",
-    "already_registered": "Vous êtes déjà inscrit à cet événement"
+    "already_registered": "Vous êtes déjà inscrit à cet événement",
+    "registered_one": "{{count}} inscrit",
+    "registered_other": "{{count}} inscrits",
+    "no_relevant_events": "Aucun autre événement pertinent trouvé pour le moment.",
+    "refund_warning": "Note : Les remboursements ne sont pas possibles une fois inscrit.",
+    "confirm_registration_msg": "Vous êtes sur le point de vous inscrire à cet événement. Veuillez vérifier les détails ci-dessous.",
+    "event_ended": "Cet événement est déjà terminé.",
+    "cancel_registration_title": "Annuler l'inscription",
+    "cancel_registration_msg": "Êtes-vous sûr de vouloir annuler votre inscription ? Cette action est irréversible."
+  },
+  "no_event": "Aucun {{event_type}} trouvé",
+  "empty_state": {
+    "no_events": "Aucun événement trouvé",
+    "try_adjusting": "Essayez de modifier vos filtres ou vos termes de recherche pour trouver ce que vous cherchez.",
+    "clear_filters": "Réinitialiser tous les filtres"
   }
 }

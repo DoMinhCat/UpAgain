@@ -1,4 +1,7 @@
 {
+  "profile": "Profil",
+  "light_mode": "Mode clair",
+  "dark_mode": "Mode sombre",
   "footer": {
     "description": "Donner une seconde vie aux matériaux grâce au réemploi communautaire et à une logistique intelligente.",
     "explore": "Explorer",
@@ -65,7 +68,12 @@
     "month": "mois",
     "months": "mois",
     "year": "an",
-    "years": "ans"
+    "years": "ans",
+    "just_now": "À l'instant",
+    "minutes_ago": "il y a {{count}}m",
+    "hours_ago": "il y a {{count}}h",
+    "yesterday": "Hier",
+    "days_ago": "il y a {{count}}j"
   },
   "timeframe": {
     "title": "Période",

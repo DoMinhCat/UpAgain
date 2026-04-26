@@ -87,13 +87,13 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 		}
 
 		newState := map[string]interface{}{
-			"id": idAds,
-			"id_post": project_id,
-			"start_date": payload.From,
-			"end_date":   payload.From.AddDate(0, payload.Duration, 0),
-			"status": "active",
+			"id":              idAds,
+			"id_post":         project_id,
+			"start_date":      payload.From,
+			"end_date":        payload.From.AddDate(0, payload.Duration, 0),
+			"status":          "active",
 			"price_per_month": 0,
-			"total_price": 0,
+			"total_price":     0,
 		}
 		err = db.InsertHistory("ads", project_id, "create", idRequestor, nil, newState)
 		if err != nil {
@@ -101,7 +101,7 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 		}
 		utils.RespondWithJSON(w, http.StatusOK, "Ad created successfully.")
 		return
-	} else{
+	} else {
 		// TODO: for pro need to do payment first then insert into db
 	}
 }
@@ -174,7 +174,7 @@ func UpdateAds(w http.ResponseWriter, r *http.Request) {
 
 	// insert history
 	newState := map[string]interface{}{
-		"id": payload.IdAds,
+		"id":         payload.IdAds,
 		"start_date": payload.From,
 		"end_date":   payload.To,
 	}
@@ -255,7 +255,7 @@ func DeleteAds(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// insert history
-	if role == "admin"{
+	if role == "admin" {
 		err = db.InsertHistory("ads", adDetails.IdPost, "delete", idRequestor, adDetails, nil)
 		if err != nil {
 			slog.Error("InsertHistory() failed", "controller", "DeleteAds", "error", err)

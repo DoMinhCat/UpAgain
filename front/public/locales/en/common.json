@@ -1,4 +1,7 @@
 {
+  "profile": "Profile",
+  "light_mode": "Light mode",
+  "dark_mode": "Dark mode",
   "footer": {
     "description": "Giving materials a second life through community-driven reuse and smart logistics.",
     "explore": "Explore",
@@ -65,7 +68,12 @@
     "month": "month",
     "months": "months",
     "year": "year",
-    "years": "years"
+    "years": "years",
+    "just_now": "Just now",
+    "minutes_ago": "{{count}} minutes ago",
+    "hours_ago": "{{count}} hours ago",
+    "yesterday": "Yesterday",
+    "days_ago": "{{count}} days ago"
   },
   "timeframe": {
     "title": "Timeframe",

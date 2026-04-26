@@ -10,6 +10,7 @@ import {
   Box,
   Title,
   Tooltip,
+  useComputedColorScheme,
 } from "@mantine/core";
 import {
   IconMapPin,
@@ -18,6 +19,9 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import { getTimeAgo } from "../../utils/timeUtils";
+import { useTranslation } from "react-i18next";
+import DOMPurify from "dompurify";
+import { resolveUrl } from "../../utils/imageUtils";
 
 interface EventCardProps {
   orientation?: "vertical" | "horizontal";
@@ -31,7 +35,6 @@ interface EventCardProps {
   image: string;
   price: number | string; // e.g., 0 or "Free"
   city: string;
-  postalCode: string;
   registeredCount: number;
   onclick: () => void;
 }
@@ -49,12 +52,15 @@ export function EventCard({
   image,
   price,
   city,
-  postalCode,
   registeredCount,
 }: EventCardProps) {
+  const { t } = useTranslation();
+  const theme = useComputedColorScheme("light");
   const isHorizontal = orientation === "horizontal";
   const displayPrice = price === 0 || price === "Free" ? "Free" : `${price}€`;
-
+  const categoryValue = t(`common:event_categories.${category}` as any, {
+    defaultValue: category.charAt(0).toUpperCase() + category.slice(1),
+  });
   return (
     <Card
       className="paper"
@@ -84,15 +90,16 @@ export function EventCard({
       <Box
         style={{
           width: isHorizontal ? "40%" : "100%",
-          minHeight: isHorizontal ? "100%" : 180,
+          height: isHorizontal ? "auto" : 200,
           position: "relative",
         }}
       >
         <Image
-          src={image}
+          src={resolveUrl(image)}
           alt={title}
+          fallbackSrc={`/banners/event-banner1-${theme}.png`}
           height="100%"
-          style={{ objectFit: "cover" }}
+          fit="cover"
         />
         <Stack pos="absolute" top={12} left={12} gap={6}>
           <Badge
@@ -110,7 +117,7 @@ export function EventCard({
             }
             size="sm"
           >
-            {category}
+            {categoryValue}
           </Badge>
           <Badge
             variant="default"
@@ -124,7 +131,7 @@ export function EventCard({
             }}
             leftSection={<IconUsers size={12} />}
           >
-            {registeredCount} registered
+            {t("events:detail.registered", { count: registeredCount })}
           </Badge>
         </Stack>
       </Box>
@@ -156,9 +163,15 @@ export function EventCard({
             {title}
           </Title>
 
-          <Text size="sm" c="dimmed" lineClamp={isHorizontal ? 3 : 2} mt={4}>
-            {description}
-          </Text>
+          <Text
+            size="sm"
+            c="dimmed"
+            lineClamp={isHorizontal ? 3 : 2}
+            mt={4}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(description),
+            }}
+          />
         </Box>
 
         <Stack gap="sm">
@@ -167,7 +180,7 @@ export function EventCard({
             <Group gap={4}>
               <IconMapPin size={14} />
               <Text size="xs" fw={600}>
-                {city} ({postalCode})
+                {city}
               </Text>
             </Group>
             <Group gap={4}>
