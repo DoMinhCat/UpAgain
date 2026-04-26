@@ -50,6 +50,7 @@ export const ENDPOINTS = {
       CANCEL: (id_event: number) => `/events/${id_event}/status/`,
       UPDATE: (id_event: number) => `/events/${id_event}/update/`,
       REGISTER: "/events/register/",
+      CANCEL_REGISTRATION: "/events/cancel/",
     },
 
     EMPLOYEES: {

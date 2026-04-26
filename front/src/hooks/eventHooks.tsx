@@ -10,6 +10,7 @@ import {
   updateEventStatus,
   updateEvent,
   registerToEvent,
+  cancelRegistration,
 } from "../api/eventModule";
 import {
   type EventCreationPayload,
@@ -278,6 +279,29 @@ export const useRegisterToEvent = () => {
     meta: {
       errorTitle: "Event registration failed",
       errorMessage: "An error occured while registering to event",
+    },
+  });
+};
+
+export const useCancelRegistration = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: EventRegistrationPayload): Promise<void> =>
+      cancelRegistration(payload),
+    onSuccess: (_data, payload) => {
+      showSuccessNotification(
+        "Registration cancelled successfully",
+        "Registration to event has been cancelled",
+      );
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["event", payload.id_event],
+      });
+      queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+    },
+    meta: {
+      errorTitle: "Registration cancellation failed",
+      errorMessage: "An error occured while cancelling registration to event",
     },
   });
 };

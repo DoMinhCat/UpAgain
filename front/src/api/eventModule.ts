@@ -159,3 +159,13 @@ export const registerToEvent = async (
   const response = await api.post(ENDPOINTS.ADMIN.EVENTS.REGISTER, event);
   return response.data;
 };
+
+export const cancelRegistration = async (
+  event: EventRegistrationPayload,
+): Promise<void> => {
+  const response = await api.patch(
+    ENDPOINTS.ADMIN.EVENTS.CANCEL_REGISTRATION,
+    event,
+  );
+  return response.data;
+};

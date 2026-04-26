@@ -100,3 +100,7 @@ type UpdateEventRequest struct {
 type EventRegistrationRequest struct {
 	IdEvent int `json:"id_event"`
 }
+
+type EventCancelRegistrationRequest struct {
+	IdEvent int `json:"id_event"`
+}
