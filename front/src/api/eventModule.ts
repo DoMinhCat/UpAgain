@@ -9,6 +9,7 @@ import {
   type UnassignEmployeePayload,
   type UpdateEventPayload,
   type EventRegistrationPayload,
+  type EventRegistrationResponse,
 } from "./interfaces/event";
 
 // get active or deleted events
@@ -155,7 +156,7 @@ export const updateEvent = async (
 
 export const registerToEvent = async (
   event: EventRegistrationPayload,
-): Promise<void> => {
+): Promise<EventRegistrationResponse> => {
   const response = await api.post(ENDPOINTS.ADMIN.EVENTS.REGISTER, event);
   return response.data;
 };

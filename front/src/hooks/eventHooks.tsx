@@ -21,6 +21,7 @@ import {
   type UnassignEmployeePayload,
   type UpdateEventPayload,
   type EventRegistrationPayload,
+  type EventRegistrationResponse,
 } from "../api/interfaces/event";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
@@ -263,13 +264,10 @@ export const useApproveRefuseEvent = () => {
 export const useRegisterToEvent = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: EventRegistrationPayload): Promise<void> =>
-      registerToEvent(payload),
+    mutationFn: (
+      payload: EventRegistrationPayload,
+    ): Promise<EventRegistrationResponse> => registerToEvent(payload),
     onSuccess: (_data, payload) => {
-      showSuccessNotification(
-        "Event registered successfully",
-        "Event has been registered",
-      );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({
         queryKey: ["event", payload.id_event],

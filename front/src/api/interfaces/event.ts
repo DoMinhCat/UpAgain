@@ -81,4 +81,10 @@ export interface UpdateEventPayload {
 
 export interface EventRegistrationPayload {
   id_event: number;
+  origin_url?: string;
+  paid?: boolean;
+}
+
+export interface EventRegistrationResponse {
+  checkout_url: string;
 }

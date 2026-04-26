@@ -1,24 +1,34 @@
 package controllers
 
 import (
+	"backend/models"
 	"backend/utils"
 	stripe "backend/utils/stripe"
+	"encoding/json"
 	"net/http"
 )
 
 func VerifyPayment(w http.ResponseWriter, r *http.Request) {
-	sessionID := r.URL.Query().Get("session_id")
+	payload := models.VerifyPaymentRequest{}
 
-	isPaid, err := stripe.IsPaymentPaid(sessionID)
+	err := json.NewDecoder(r.Body).Decode(&payload)
+
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid payload")
+		return
+	}
+
+	if payload.SessionID == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid session ID")
+		return
+	}
+
+	isPaid, err := stripe.IsPaymentPaid(payload.SessionID)
 
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid session")
 		return
 	}
 
-	type response struct {
-		IsPaid bool `json:"is_paid"`
-	}
-
-	utils.RespondWithJSON(w, http.StatusOK, response{IsPaid: isPaid})
+	utils.RespondWithJSON(w, http.StatusOK, models.VerifyPaymentResponse{IsPaid: isPaid})
 }

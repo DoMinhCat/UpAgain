@@ -5,11 +5,13 @@ import (
 	"backend/models"
 	"backend/utils"
 	"backend/utils/helper"
+	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -1031,18 +1033,48 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isPaid := event.Price.Valid && event.Price.Float64 > 0.0
-	if !isPaid {
+	if isPaid {
+		if payload.Paid {
+			err = db.InsertEventRegistration(requestorId, event)
+			if err != nil {
+				slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
+			return
+		}
+		slog.Debug("Origin url", "controller", "RegisterToEventByEventId", "value", payload.OriginUrl)
+		slog.Debug("Frontend origin", "controller", "RegisterToEventByEventId", "value", utils.GetFrontOrigin())
+		frontendOrigin := utils.GetFrontOrigin()
+		if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
+			return
+		}
+		checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+			EventName:    event.Title,
+			PriceInCents: int64(event.Price.Float64 * 100),
+			// return to the origin URL with param, frontend will check for that params to handle next steps
+			SuccessURL: payload.OriginUrl + "?payment=success&sessionid={CHECKOUT_SESSION_ID}",
+			CancelURL:  payload.OriginUrl + "?payment=cancel",
+		})
+		if err != nil {
+			slog.Error("CreateStripeSession() failed", "controller", "RegisterToEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+			return
+		}
+		utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
+		return
+	} else {
 		err = db.InsertEventRegistration(requestorId, event)
 		if err != nil {
 			slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
 			return
 		}
-	} else {
-		// STRIPE
+		utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
+		return
 	}
-
-	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }
 
 // CancelRegistrationByEventId godoc

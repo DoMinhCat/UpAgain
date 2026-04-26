@@ -17,7 +17,7 @@ import {
   Center,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   IconCalendar,
   IconMapPin,
@@ -33,7 +33,7 @@ import {
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { EventCard } from "../../../components/event/EventCard";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useAuth } from "../../../context/AuthContext";
@@ -55,6 +55,11 @@ import {
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { resolveUrl } from "../../../utils/imageUtils";
 import dayjs from "dayjs";
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from "../../../components/common/NotificationToast";
+import { useVerifyStripeSession } from "../../../hooks/stripeHooks";
 
 export default function EventDetailPage() {
   const { t } = useTranslation(["events", "admin"]);
@@ -70,6 +75,86 @@ export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const idEvent = parseInt(id || "0");
   const isValidId = !isNaN(idEvent) && idEvent > 0;
+
+  const [searchParams] = useSearchParams();
+
+  // REGISTER TO EVENT
+  const registerToEvent = useRegisterToEvent();
+  const handleRegisterToEvent = () => {
+    if (event?.price != 0) {
+      registerToEvent.mutate(
+        {
+          id_event: idEvent,
+          origin_url: window.location.origin + window.location.pathname,
+        },
+        {
+          onSuccess: (data) => {
+            closeRegister();
+            if (data.checkout_url) {
+              window.location.href = data.checkout_url;
+            }
+          },
+        },
+      );
+    } else {
+      registerToEvent.mutate(
+        { id_event: idEvent },
+        {
+          onSuccess: () => {
+            showSuccessNotification(
+              "Event registered successfully",
+              "Event has been registered",
+            );
+            closeRegister();
+          },
+        },
+      );
+    }
+  };
+
+  // VERIFY PAYMENT SESSION
+  const verifyStripeSession = useVerifyStripeSession();
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+
+    if (status === "success" && sessionId) {
+      verifyStripeSession.mutate(
+        {
+          session_id: sessionId,
+        },
+        {
+          onSuccess: (data) => {
+            if (data.is_paid) {
+              // call again to register with paid = true to bypass payment and save to db
+              registerToEvent.mutate(
+                { id_event: idEvent, paid: true },
+                {
+                  onSuccess: () => {
+                    showSuccessNotification(
+                      "Registration successful",
+                      "You successfully registered to this event",
+                    );
+                  },
+                },
+              );
+            } else {
+              showErrorNotification(
+                "Registration failed",
+                "The payment was not completed",
+              );
+            }
+          },
+        },
+      );
+    } else if (status === "cancelled") {
+      showErrorNotification(
+        "Registration cancelled",
+        "You cancelled the registration to this event",
+      );
+    }
+  }, [searchParams]);
 
   // GET EVENT
   const { data: event, isLoading: isLoadingEvent } = useGetEventDetails(
@@ -94,19 +179,6 @@ export default function EventDetailPage() {
   const suggestedEvents = suggestedEventsAll.filter(
     (event) => event.id !== idEvent,
   );
-
-  // REGISTER TO EVENT
-  const registerToEvent = useRegisterToEvent();
-  const handleRegisterToEvent = () => {
-    registerToEvent.mutate(
-      { id_event: idEvent },
-      {
-        onSuccess: () => {
-          closeRegister();
-        },
-      },
-    );
-  };
 
   // CANCEL REGISTRATION MODAL
   const [
@@ -648,6 +720,10 @@ export default function EventDetailPage() {
                               color="var(--upagain-neutral-green)"
                               rightSection={<IconChevronRight size={18} />}
                               onClick={openRegister}
+                              loading={
+                                registerToEvent.isPending ||
+                                verifyStripeSession.isPending
+                              }
                             >
                               {t("detail.register_now")}
                             </Button>
@@ -769,7 +845,7 @@ export default function EventDetailPage() {
           opened={openedRegister}
           onClose={closeRegister}
           onConfirm={handleRegisterToEvent}
-          loading={registerToEvent.isPending}
+          loading={registerToEvent.isPending || verifyStripeSession.isPending}
           event={event}
         />
 
