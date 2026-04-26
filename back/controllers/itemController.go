@@ -480,7 +480,7 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
 				return
 			}
-		}		
+		}
 	}
 
 	oldStatus, _ := db.GetItemStatusByItemId(id_item)

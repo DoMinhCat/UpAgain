@@ -1,6 +1,7 @@
 import { Carousel } from "@mantine/carousel";
 import { Center, Image, Modal, UnstyledButton } from "@mantine/core";
 import { useState } from "react";
+import { resolveUrl } from "../../utils/imageUtils";
 
 interface PhotosCarouselProps {
   photos: string[];
@@ -42,10 +43,6 @@ export function PhotosCarousel({
       setActiveSlide(defaultActiveSlide);
     }
   }
-
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const resolveUrl = (path: string) =>
-    path.startsWith("http") ? path : `${baseUrl}/${path}`;
 
   if (!photos || photos.length === 0) {
     return null;

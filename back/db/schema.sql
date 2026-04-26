@@ -27,7 +27,8 @@ create table accounts
     password   varchar(255) not null,
     role       account_role not null,
     deleted_at timestamptz  null,
-    is_banned  boolean      not null default false
+    is_banned  boolean      not null default false,
+    avatar     varchar(255)
 );
 -- create index on role for faster query
 CREATE INDEX idx_account_role ON account (role);
@@ -107,7 +108,7 @@ create table event_registrations
     id_event   integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_account),
     created_at timestamptz not null       default now(),
-    status     event_registrations_status default 'registered',
+    status     event_registrations_status not null default 'registered',
     paid_price numeric(10,2) not null -- set at registration, prevent price change after registered
 );
 

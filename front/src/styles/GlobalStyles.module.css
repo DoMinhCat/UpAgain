@@ -157,6 +157,26 @@
       transform: translateY(-1px);
     }
   }
+
+  &[data-variant="subtle"] {
+    background-color: transparent; /* Invisible initially */
+    color: var(--mantine-color-text); /* Standard text color */
+    border-radius: 100px;
+    border: 1px solid rgba(69, 165, 117, 0.2); /* Very subtle brand border */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother brand transition */
+
+    &:hover {
+      background-color: #45a575; /* Fills with brand green */
+      color: #f9f7f2; /* Swaps text to off-white */
+      border-color: #45a575;
+      transform: translateY(-2px); /* Signature UpAgain lift */
+      box-shadow: 0 6px 15px rgba(69, 165, 117, 0.25); /* Elegant brand glow */
+    }
+
+    &:active {
+      transform: translateY(0); /* Tactile feedback */
+    }
+  }
 }
 
 /* this is for custom mantine text variants */

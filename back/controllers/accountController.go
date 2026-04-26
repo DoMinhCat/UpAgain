@@ -245,7 +245,7 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("SoftDeleteAccount() failed", "controller", "SoftDeleteAccount", "error", err)
 		return
 	}
-	if role_deleted == "admin"{
+	if role_deleted == "admin" {
 		role_deleted = "employee"
 	}
 	if role == "admin" {
@@ -789,7 +789,6 @@ func GetAccountCount(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, stats)
 }
 
-
 // ExportAccountsCsv godoc
 // @Summary      Export accounts to CSV
 // @Description  Exports a list of all accounts into a CSV file downloaded by the client. Admin only.
@@ -808,7 +807,7 @@ func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/csv")
-    w.Header().Set("Content-Disposition", "attachment; filename=UpAgain_accounts.csv")
+	w.Header().Set("Content-Disposition", "attachment; filename=UpAgain_accounts.csv")
 
 	writer := csv.NewWriter(w)
 	defer writer.Flush()
@@ -823,29 +822,29 @@ func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
 
 		// get Phone
 		phone := "N/A"
-		if a.Role == "user"{
+		if a.Role == "user" {
 			user, err := db.GetUserDetailsById(a.Id)
 			if err != nil {
 				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while exporting accounts.")
 				slog.Error("GetUserDetailsById() failed", "controller", "ExportAccountsCsv", "error", err)
 				return
 			}
-			if user.Phone.Valid{
+			if user.Phone.Valid {
 				phone = user.Phone.String
 			}
 		}
-		if a.Role == "pro"{
+		if a.Role == "pro" {
 			pro, err := db.GetProDetailsById(a.Id)
 			if err != nil {
 				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while exporting accounts.")
 				slog.Error("GetProDetailsById() failed", "controller", "ExportAccountsCsv", "error", err)
 				return
 			}
-			if pro.Phone.Valid{
+			if pro.Phone.Valid {
 				phone = pro.Phone.String
 			}
 		}
-		err :=writer.Write([]string{
+		err := writer.Write([]string{
 			a.CreatedAt.Format("2006-01-02 15:04:05"),
 			strconv.Itoa(a.Id),
 			a.Username,
@@ -855,8 +854,8 @@ func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
 			phone,
 		})
 		if err != nil {
-            slog.Error("Write() failed", "controller", "ExportAccountsCsv", "error", err)
-            return
-        }
+			slog.Error("Write() failed", "controller", "ExportAccountsCsv", "error", err)
+			return
+		}
 	}
 }

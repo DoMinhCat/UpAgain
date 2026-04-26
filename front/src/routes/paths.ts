@@ -61,6 +61,7 @@ export const PATHS = {
   },
   EVENTS: {
     HOME: "/events",
+    PLANNING: "/events/planning",
   },
   POSTS: {
     HOME: "/posts",

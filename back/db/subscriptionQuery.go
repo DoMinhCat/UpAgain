@@ -203,7 +203,7 @@ func GetSubscriptionStats(timeframe *string) (models.SubscriptionStats, error) {
 	return stats, nil
 }
 
-func CreateSubscription(id_pro int, is_trial bool) (error) {
+func CreateSubscription(id_pro int, is_trial bool) error {
 	sub_to := time.Now().AddDate(0, 1, 0)
 	current_price, err := GetFinanceSettingByKey("subscription_price")
 	if err != nil {

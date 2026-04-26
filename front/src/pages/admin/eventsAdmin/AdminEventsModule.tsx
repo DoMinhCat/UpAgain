@@ -52,7 +52,13 @@ export default function AdminEventsModule() {
     searchValue: string | undefined;
     sortValue: string | null;
     statusValue: string | null;
-  }>({ searchValue: "", sortValue: null, statusValue: null });
+    categoryValue: string | null;
+  }>({
+    searchValue: "",
+    sortValue: null,
+    statusValue: null,
+    categoryValue: null,
+  });
   const [appliedFilters, setAppliedFilters] = useState(filters);
   const [activePage, setPage] = useState(1);
   const LIMIT = 10;
@@ -63,7 +69,8 @@ export default function AdminEventsModule() {
   const hasFilters = Boolean(
     appliedFilters.searchValue ||
     appliedFilters.statusValue ||
-    appliedFilters.sortValue,
+    appliedFilters.sortValue ||
+    appliedFilters.categoryValue,
   );
 
   const handleSearchClick = () => {
@@ -76,6 +83,7 @@ export default function AdminEventsModule() {
       searchValue: "",
       sortValue: null,
       statusValue: null,
+      categoryValue: null,
     };
     setFilters(defaultFilters);
     setAppliedFilters(defaultFilters);
@@ -92,6 +100,7 @@ export default function AdminEventsModule() {
     appliedFilters.searchValue,
     appliedFilters.statusValue || undefined,
     appliedFilters.sortValue || undefined,
+    appliedFilters.categoryValue || undefined,
   );
   const filteredEvents = events?.events || [];
   const listEvents =
@@ -696,7 +705,7 @@ export default function AdminEventsModule() {
         </Group>
         {/* filter options */}
         <Grid align="flex-end">
-          <Grid.Col span={{ base: 12, md: 4 }}>
+          <Grid.Col span={{ base: 12, md: 3 }}>
             <TextInput
               label={t("common:search")}
               placeholder={t("events.filters.search_placeholder")}
@@ -714,7 +723,7 @@ export default function AdminEventsModule() {
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
             <Select
               label={t("common:sort_by")}
               placeholder={t("events.filters.sort_placeholder")}
@@ -743,11 +752,47 @@ export default function AdminEventsModule() {
                   value: "latest_start_date",
                   label: t("events.filters.sort_options.latest_start_date"),
                 },
+                {
+                  value: "most_popular",
+                  label: t("events.filters.sort_options.most_popular"),
+                },
               ]}
               value={filters.sortValue}
               clearable
               disabled={isLoadingEvents}
               onChange={(val) => handleFilterChange("sortValue", val)}
+            />
+          </Grid.Col>
+
+          <Grid.Col span={{ base: 6, sm: 4, md: 2 }}>
+            <Select
+              label={t("history.filters.category", {
+                defaultValue: "Category",
+              })}
+              placeholder={t("events.filters.category_placeholder")}
+              data={[
+                {
+                  value: "workshop",
+                  label: t("common:event_categories.workshop"),
+                },
+                {
+                  value: "conference",
+                  label: t("common:event_categories.conference"),
+                },
+                {
+                  value: "meetups",
+                  label: t("common:event_categories.meetups"),
+                },
+                {
+                  value: "exposition",
+                  label: t("common:event_categories.exposition"),
+                },
+                { value: "other", label: t("common:event_categories.other") },
+              ]}
+              value={filters.categoryValue}
+              disabled={isLoadingEvents}
+              onChange={(val) => handleFilterChange("categoryValue", val)}
+              clearable
             />
           </Grid.Col>
 

@@ -1910,8 +1910,26 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by city",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Sort by field",
                         "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by future events only",
+                        "name": "future_only",
                         "in": "query"
                     }
                 ],
@@ -2030,6 +2048,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/events/cancel/": {
+            "patch": {
+                "description": "Cancel registration to an event by event ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Cancel registration to event",
+                "parameters": [
+                    {
+                        "description": "Event cancellation payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.EventCancelRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Registration cancelled successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request payload or registration conditions not met"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/events/count/": {
             "get": {
                 "description": "Get general stats of events to show in event module's cards. Stats include:\n- total events\n- new events since last month (30 days)\n- upcoming events in next 30 days\n- total registrations since last month\n- total pending approvals for events",
@@ -2107,6 +2165,46 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Event not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/events/register/": {
+            "post": {
+                "description": "Register to an event by event ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Register to event",
+                "parameters": [
+                    {
+                        "description": "Event registration payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.EventRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Registered successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request payload or event conditions not met"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -2207,7 +2305,7 @@ const docTemplate = `{
         },
         "/events/{id}/status/": {
             "patch": {
-                "description": "Update the status of an event (approve, refuse, cancel, or set to pending).",
+                "description": "Update the status of an event (cancelled, approved, refused, pending).",
                 "consumes": [
                     "application/json"
                 ],
@@ -2227,7 +2325,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Target status",
+                        "description": "New status",
                         "name": "payload",
                         "in": "body",
                         "required": true,
@@ -2241,13 +2339,13 @@ const docTemplate = `{
                         "description": "Status updated"
                     },
                     "400": {
-                        "description": "Invalid status or ID"
+                        "description": "Invalid ID or status"
                     },
                     "401": {
                         "description": "Unauthorized"
                     },
-                    "404": {
-                        "description": "Event not found"
+                    "409": {
+                        "description": "Event already ended or has paid participants"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -4096,6 +4194,38 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.Account": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_banned": {
+                    "type": "boolean"
+                },
+                "last_active": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "models.AccountCountStats": {
             "type": "object",
             "properties": {
@@ -4323,6 +4453,9 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },
@@ -4445,6 +4578,12 @@ const docTemplate = `{
         "models.Event": {
             "type": "object",
             "properties": {
+                "attendees": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Account"
+                    }
+                },
                 "capacity": {
                     "type": "integer"
                 },
@@ -4460,7 +4599,11 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "employee_avatar": {
+                    "type": "string"
+                },
                 "employee_name": {
+                    "description": "creator",
                     "type": "string"
                 },
                 "end_at": {
@@ -4478,8 +4621,17 @@ const docTemplate = `{
                 "location_detail": {
                     "type": "string"
                 },
+                "organizers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Account"
+                    }
+                },
                 "price": {
                     "type": "number"
+                },
+                "registered": {
+                    "type": "integer"
                 },
                 "start_at": {
                     "type": "string"
@@ -4492,6 +4644,22 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "models.EventCancelRegistrationRequest": {
+            "type": "object",
+            "properties": {
+                "id_event": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.EventRegistrationRequest": {
+            "type": "object",
+            "properties": {
+                "id_event": {
+                    "type": "integer"
                 }
             }
         },
@@ -5265,7 +5433,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "street": {
-                    "description": "TODO: allow edit street",
                     "type": "string"
                 }
             }

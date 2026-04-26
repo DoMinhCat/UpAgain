@@ -19,6 +19,9 @@ type EventFilters struct {
 	Sort       string
 	Status     string
 	Validation bool
+	Category   string
+	City       string
+	OnlyFuture bool
 }
 
 type Event struct {
@@ -35,8 +38,12 @@ type Event struct {
 	City           string      `json:"city"`
 	Street         string      `json:"street"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
-	EmployeeName   null.String `json:"employee_name" swaggertype:"string"`
+	EmployeeName   null.String `json:"employee_name" swaggertype:"string"` // creator
+	EmployeeAvatar null.String `json:"employee_avatar" swaggertype:"string"`
+	Registered     int         `json:"registered"`
 	Images         []string    `json:"images"`
+	Attendees      []Account   `json:"attendees"`
+	Organizers     []Account   `json:"organizers"`
 }
 
 type EventsListPagination struct {
@@ -88,4 +95,18 @@ type UpdateEventRequest struct {
 	Street         string      `json:"street"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
 	Images         []string    `json:"images"`
+}
+
+type EventRegistrationRequest struct {
+	IdEvent   int    `json:"id_event"`
+	OriginUrl string `json:"origin_url"`
+	Paid      bool   `json:"paid"`
+}
+
+type EventCancelRegistrationRequest struct {
+	IdEvent int `json:"id_event"`
+}
+
+type EventRegistrationResponse struct {
+	CheckoutUrl string `json:"checkout_url"`
 }

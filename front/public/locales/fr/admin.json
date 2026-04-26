@@ -19,6 +19,7 @@
     }
   },
   "navigation": {
+    "to_front": "Aller au front-office",
     "title": "Navigation Rapide",
     "user": {
       "title": "Utilisateurs",
@@ -708,6 +709,7 @@
       "timeframe_note": "* Période non applicable pour ces indicateurs"
     },
     "filters": {
+      "category_placeholder": "Toutes les catégories",
       "search_placeholder": "Chercher par nom d'employé, ID ou titre...",
       "sort_placeholder": "Choisir une méthode de tri",
       "sort_options": {

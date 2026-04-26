@@ -27,6 +27,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetSubscriptionRoutes(mux)
 	GetFinanceRoutes(mux)
 	GetAdsRoutes(mux)
+	GetStripeRoutes(mux)
 
 	// swagger API documentation
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)

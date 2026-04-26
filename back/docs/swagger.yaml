@@ -1,5 +1,26 @@
 basePath: /
 definitions:
+  models.Account:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_banned:
+        type: boolean
+      last_active:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
   models.AccountCountStats:
     properties:
       increase:
@@ -149,6 +170,8 @@ definitions:
         type: string
       status:
         type: string
+      street:
+        type: string
     type: object
   models.ContainerCountStats:
     properties:
@@ -227,6 +250,10 @@ definitions:
     type: object
   models.Event:
     properties:
+      attendees:
+        items:
+          $ref: '#/definitions/models.Account'
+        type: array
       capacity:
         type: integer
       category:
@@ -237,7 +264,10 @@ definitions:
         type: string
       description:
         type: string
+      employee_avatar:
+        type: string
       employee_name:
+        description: creator
         type: string
       end_at:
         type: string
@@ -249,8 +279,14 @@ definitions:
         type: array
       location_detail:
         type: string
+      organizers:
+        items:
+          $ref: '#/definitions/models.Account'
+        type: array
       price:
         type: number
+      registered:
+        type: integer
       start_at:
         type: string
       status:
@@ -259,6 +295,16 @@ definitions:
         type: string
       title:
         type: string
+    type: object
+  models.EventCancelRegistrationRequest:
+    properties:
+      id_event:
+        type: integer
+    type: object
+  models.EventRegistrationRequest:
+    properties:
+      id_event:
+        type: integer
     type: object
   models.EventStats:
     properties:
@@ -763,7 +809,6 @@ definitions:
       city_name:
         type: string
       street:
-        description: 'TODO: allow edit street'
         type: string
     type: object
   models.UpdatePasswordRequest:
@@ -2135,10 +2180,22 @@ paths:
         in: query
         name: status
         type: string
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      - description: Filter by city
+        in: query
+        name: city
+        type: string
       - description: Sort by field
         in: query
         name: sort
         type: string
+      - description: Filter by future events only
+        in: query
+        name: future_only
+        type: boolean
       produces:
       - application/json
       responses:
@@ -2284,15 +2341,14 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update the status of an event (approve, refuse, cancel, or set
-        to pending).
+      description: Update the status of an event (cancelled, approved, refused, pending).
       parameters:
       - description: Event ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Target status
+      - description: New status
         in: body
         name: payload
         required: true
@@ -2304,11 +2360,11 @@ paths:
         "204":
           description: Status updated
         "400":
-          description: Invalid status or ID
+          description: Invalid ID or status
         "401":
           description: Unauthorized
-        "404":
-          description: Event not found
+        "409":
+          description: Event already ended or has paid participants
         "500":
           description: Internal server error
       summary: Update event status
@@ -2424,6 +2480,32 @@ paths:
       summary: Update event details
       tags:
       - event
+  /events/cancel/:
+    patch:
+      consumes:
+      - application/json
+      description: Cancel registration to an event by event ID.
+      parameters:
+      - description: Event cancellation payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.EventCancelRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Registration cancelled successfully
+        "400":
+          description: Invalid request payload or registration conditions not met
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Cancel registration to event
+      tags:
+      - event
   /events/count/:
     get:
       consumes:
@@ -2484,6 +2566,32 @@ paths:
         "500":
           description: Internal server error
       summary: Get assigned employees
+      tags:
+      - event
+  /events/register/:
+    post:
+      consumes:
+      - application/json
+      description: Register to an event by event ID.
+      parameters:
+      - description: Event registration payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.EventRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Registered successfully
+        "400":
+          description: Invalid request payload or event conditions not met
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Register to event
       tags:
       - event
   /finance/invoices/:

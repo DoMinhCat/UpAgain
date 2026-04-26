@@ -31,7 +31,7 @@ func ValidateCreateAdsRequest(payload models.CreateAdsRequest) models.Validation
 			Error:   http.StatusBadRequest,
 		}
 	}
-	
+
 	return models.ValidationResponse{
 		Success: true,
 		Message: nil,
@@ -79,7 +79,7 @@ func ValidateUpdateAdsRequest(payload models.UpdateAdsRequest) models.Validation
 			Error:   http.StatusBadRequest,
 		}
 	}
-	
+
 	return models.ValidationResponse{
 		Success: true,
 		Message: nil,
