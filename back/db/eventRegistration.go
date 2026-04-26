@@ -110,3 +110,83 @@ func UpdateEventRegistrationStatus(id_account int, id_event int, status string) 
 	}
 	return nil
 }
+
+func GetEventRegistrationsByAccountId(id_account int) ([]models.Event, error) {
+	var events []models.Event
+	query := `
+		SELECT 
+    e.id AS event_id, 
+    e.created_at, 
+    e.title, 
+    e.description, 
+    e.start_at, 
+    e.end_at, 
+    e.price, 
+    e.category, 
+    e.capacity, 
+    e.status, 
+    e.city, 
+    e.street, 
+    e.location_detail, 
+    a.username AS creator_username, 
+    a.avatar AS creator_avatar, 
+    a.id AS creator_id,
+    -- Total people registered for this event
+    (SELECT count(*) 
+     FROM event_registrations er2 
+     WHERE er2.id_event = e.id 
+       AND er2.status != 'cancelled') AS total_registered
+FROM event_registrations er
+JOIN events e ON er.id_event = e.id
+JOIN accounts a ON e.created_by = a.id
+WHERE er.id_account = $1
+  AND er.status != 'cancelled'
+  AND e.status = 'approved'
+ORDER BY e.start_at ASC;
+	`
+	rows, err := utils.Conn.Query(query, id_account)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []models.Event{}, nil
+		}
+		return nil, fmt.Errorf("GetEventRegistrationsByAccountId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event models.Event
+		var currentEventId int
+		err := rows.Scan(
+			&event.Id,
+			&event.CreatedAt,
+			&event.Title,
+			&event.Description,
+			&event.StartAt,
+			&event.EndAt,
+			&event.Price,
+			&event.Category,
+			&event.Capacity,
+			&event.Status,
+			&event.City,
+			&event.Street,
+			&event.LocationDetail,
+			&event.EmployeeName,
+			&event.EmployeeAvatar,
+			&event.EmployeeId,
+			&event.Registered,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("GetEventRegistrationsByAccountId() failed: %v", err.Error())
+		}
+
+		// get photos
+		currentEventId = event.Id
+		photos, err := GetPhotosPathsByObjectId(currentEventId, "event")
+		if err != nil {
+			return events, fmt.Errorf("GetPhotosPathsByObjectId() failed: %v", err.Error())
+		}
+		event.Images = photos
+		events = append(events, event)
+	}
+	return events, nil
+}
