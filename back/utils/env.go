@@ -62,3 +62,11 @@ func GetFrontOrigin() string {
 	}
 	return frontOrigin
 }
+
+func GetStripeSecretKey() string {
+	secret := os.Getenv("STRIPE_SECRET_API_KEY")
+	if secret == "" {
+		log.Panic("STRIPE_SECRET_API_KEY not find in .env")
+	}
+	return secret
+}
