@@ -44,9 +44,11 @@
     "sort_highest": "Prix le plus élevé",
     "sort_popular": "Le plus populaire",
     "apply": "Appliquer",
-    "reset": "Réinitialiser les filtres"
+    "reset": "Réinitialiser les filtres",
+    "only_future": "Événements futurs uniquement"
   },
   "detail": {
+    "price": "Prix",
     "organized_by": "Accueilli par",
     "published_on": "Publié le",
     "about": "À propos de cet événement",
@@ -70,7 +72,10 @@
     "already_registered": "Vous êtes déjà inscrit à cet événement",
     "registered_one": "{{count}} inscrit",
     "registered_other": "{{count}} inscrits",
-    "no_relevant_events": "Aucun autre événement pertinent trouvé pour le moment."
+    "no_relevant_events": "Aucun autre événement pertinent trouvé pour le moment.",
+    "refund_warning": "Note : Les remboursements ne sont pas possibles une fois inscrit.",
+    "confirm_registration_msg": "Vous êtes sur le point de vous inscrire à cet événement. Veuillez vérifier les détails ci-dessous.",
+    "event_ended": "Cet événement est déjà terminé."
   },
   "no_event": "Aucun {{event_type}} trouvé",
   "empty_state": {

@@ -118,6 +118,7 @@ func GetEventStats(w http.ResponseWriter, r *http.Request) {
 // @Param        category query    string  false  "Filter by category"
 // @Param        city    query     string  false  "Filter by city"
 // @Param        sort    query     string  false  "Sort by field"
+// @Param        future_only query boolean false  "Filter by future events only"
 // @Success      200     {object}  models.EventsListPagination  "Events list retrieved successfully"
 // @Failure      400     {object}  nil                          "Invalid query parameters"
 // @Failure      401     {object}  nil                          "Unauthorized"
@@ -161,6 +162,17 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var onlyFuture bool
+	onlyFutureStr := query.Get("future_only")
+	if onlyFutureStr != "" {
+		onlyFuture, err = strconv.ParseBool(onlyFutureStr)
+		if err != nil {
+			slog.Error("strconv.ParseBool() failed", "controller", "GetAllEvents", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching events.")
+			return
+		}
+	}
+
 	filters := models.EventFilters{
 		Search:     query.Get("search"),
 		Sort:       query.Get("sort"),
@@ -168,6 +180,7 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 		Validation: isValidation,
 		Category:   query.Get("category"),
 		City:       query.Get("city"),
+		OnlyFuture: onlyFuture,
 	}
 
 	events, total, err := db.GetAllEvents(page, limit, filters)
@@ -937,4 +950,84 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: notify users participating in event
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "user" && role != "pro" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	requestorId := r.Context().Value("user").(models.AuthClaims).Id
+
+	var payload models.EventRegistrationRequest
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+		return
+	}
+
+	exist, err := db.CheckEventExistsById(payload.IdEvent)
+	if err != nil {
+		slog.Error("CheckEventExistsById() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		return
+	}
+
+	event, err := db.GetEventDetailsById(payload.IdEvent)
+	if err != nil {
+		slog.Error("GetEventDetailsById() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+
+	// current status of event is not approved
+	if event.Status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "This event has not been approved yet.")
+		return
+	}
+	// not already started
+	if !event.StartAt.Time.IsZero() && event.StartAt.Time.Before(time.Now()) && event.EndAt.Time.After(time.Now()) {
+		utils.RespondWithError(w, http.StatusBadRequest, "This event has already started.")
+		return
+	}
+	// event has already ended
+	if !event.EndAt.Time.IsZero() && event.EndAt.Time.Before(time.Now()) {
+		utils.RespondWithError(w, http.StatusBadRequest, "This event has already ended.")
+		return
+	}
+	// capacity not full
+	if event.Capacity.Valid && int64(event.Registered) >= event.Capacity.Int64 {
+		utils.RespondWithError(w, http.StatusBadRequest, "There is no more available places left for this event.")
+		return
+	}
+	// not already registered
+	alreadyRegistered, err := db.CheckUserRegisteredToEvent(requestorId, payload.IdEvent)
+	if err != nil {
+		slog.Error("CheckUserRegisteredToEvent() failed", "controller", "RegisterToEventByEventId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		return
+	}
+	if alreadyRegistered {
+		utils.RespondWithError(w, http.StatusBadRequest, "You are already registered to this event.")
+		return
+	}
+
+	isPaid := event.Price.Valid && event.Price.Float64 > 0.0
+	if !isPaid {
+		err = db.InsertEventRegistration(requestorId, event, "registered")
+		if err != nil {
+			slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+			return
+		}
+	} else {
+		// STRIPE
+	}
+
+	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }

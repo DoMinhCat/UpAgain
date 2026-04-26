@@ -44,9 +44,11 @@
     "sort_highest": "Giá cao nhất",
     "sort_popular": "Phổ biến nhất",
     "apply": "Áp dụng",
-    "reset": "Đặt lại bộ lọc"
+    "reset": "Đặt lại bộ lọc",
+    "only_future": "Chỉ xem sự kiện sắp tới"
   },
   "detail": {
+    "price": "Giá",
     "organized_by": "Người tổ chức",
     "published_on": "Đăng vào ngày",
     "about": "Thông tin sự kiện",
@@ -70,7 +72,10 @@
     "already_registered": "Bạn đã đăng ký sự kiện này rồi nha",
     "registered_one": "{{count}} người đăng ký",
     "registered_other": "{{count}} người đăng ký",
-    "no_relevant_events": "Hiện tại không tìm thấy sự kiện liên quan nào khác."
+    "no_relevant_events": "Hiện tại không tìm thấy sự kiện liên quan nào khác.",
+    "refund_warning": "Lưu ý: Không thể hoàn tiền sau khi đã đăng ký.",
+    "confirm_registration_msg": "Bạn sắp đăng ký tham gia sự kiện này. Vui lòng xem lại các chi tiết bên dưới.",
+    "event_ended": "Sự kiện này đã kết thúc."
   },
   "no_event": "Chưa có {{event_type}} nào cả",
   "empty_state": {

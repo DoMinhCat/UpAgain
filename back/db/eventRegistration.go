@@ -62,3 +62,33 @@ func GetAttendeesByEventId(id_event int) ([]models.Account, error) {
 	}
 	return attendees, nil
 }
+
+func InsertEventRegistration(id_account int, event models.Event, status string) error {
+	query := `
+		INSERT INTO event_registrations (id_account, id_event, status, paid_price)
+		VALUES ($1, $2, $3, $4);
+	`
+	var paidPrice float64
+	if event.Price.Valid && event.Price.Float64 > 0 {
+		paidPrice = event.Price.Float64
+	} else {
+		paidPrice = 0.0
+	}
+	_, err := utils.Conn.Exec(query, id_account, event.Id, status, paidPrice)
+	if err != nil {
+		return fmt.Errorf("InsertEventRegistration() failed: %v", err.Error())
+	}
+	return nil
+}
+
+func CheckUserRegisteredToEvent(id_account int, id_event int) (bool, error) {
+	var exists bool
+	query := `
+		SELECT EXISTS(SELECT 1 FROM event_registrations WHERE id_account=$1 AND id_event=$2 AND status='registered');
+	`
+	err := utils.Conn.QueryRow(query, id_account, id_event).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckUserRegisteredToEvent() failed: %v", err.Error())
+	}
+	return exists, nil
+}
