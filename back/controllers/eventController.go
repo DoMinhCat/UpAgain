@@ -669,7 +669,6 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-
 // CancelEventByEventId godoc
 // @Summary      Update event status
 // @Description  Update the status of an event (cancelled, approved, refused, pending).
@@ -1138,7 +1137,7 @@ func CancelRegistrationByEventId(w http.ResponseWriter, r *http.Request) {
 	if !event.EndAt.Time.IsZero() && event.EndAt.Time.Before(time.Now()) {
 		utils.RespondWithError(w, http.StatusBadRequest, "This event has already ended.")
 		return
-	}	
+	}
 
 	err = db.UpdateEventRegistrationStatus(requestorId, payload.IdEvent, "cancelled")
 	if err != nil {

@@ -98,9 +98,9 @@ type UpdateEventRequest struct {
 }
 
 type EventRegistrationRequest struct {
-	IdEvent     int    `json:"id_event"`
+	IdEvent   int    `json:"id_event"`
 	OriginUrl string `json:"origin_url"`
-	Paid        bool   `json:"paid"`
+	Paid      bool   `json:"paid"`
 }
 
 type EventCancelRegistrationRequest struct {
