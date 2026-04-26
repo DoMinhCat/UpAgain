@@ -57,6 +57,9 @@ export default function EventPage() {
     "approved",
     "most_recent_creation",
     "workshop",
+    undefined,
+    false,
+    true,
   );
   // conference
   const { data: conferences, isLoading: isLoadingConference } = useGetAllEvents(
@@ -66,6 +69,9 @@ export default function EventPage() {
     "approved",
     "most_recent_creation",
     "conference",
+    undefined,
+    false,
+    true,
   );
   // meetup
   const { data: meetups, isLoading: isLoadingMeetup } = useGetAllEvents(
@@ -75,6 +81,9 @@ export default function EventPage() {
     "approved",
     "most_recent_creation",
     "meetups",
+    undefined,
+    false,
+    true,
   );
   // exposition
   const { data: expositions, isLoading: isLoadingExposition } = useGetAllEvents(
@@ -84,6 +93,9 @@ export default function EventPage() {
     "approved",
     "most_recent_creation",
     "exposition",
+    undefined,
+    false,
+    true,
   );
   // other
   const { data: others, isLoading: isLoadingOther } = useGetAllEvents(
@@ -93,6 +105,9 @@ export default function EventPage() {
     "approved",
     "most_recent_creation",
     "other",
+    undefined,
+    false,
+    true,
   );
   const eventsByCategory = [
     { name: "workshop", items: workshops },
@@ -213,7 +228,9 @@ export default function EventPage() {
                       <Text c="dimmed" fw={500} size="sm" ta="center">
                         {t("no_event", {
                           event_type:
-                            t(`categories.${name}_plural`).charAt(0).toLowerCase() +
+                            t(`categories.${name}_plural`)
+                              .charAt(0)
+                              .toLowerCase() +
                             t(`categories.${name}_plural`).slice(1),
                         })}
                       </Text>

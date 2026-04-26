@@ -78,3 +78,7 @@ export interface UpdateEventPayload {
   location_detail?: string;
   images?: FormData;
 }
+
+export interface EventRegistrationPayload {
+  id_event: number;
+}

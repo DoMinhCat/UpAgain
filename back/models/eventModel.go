@@ -21,6 +21,7 @@ type EventFilters struct {
 	Validation bool
 	Category   string
 	City       string
+	OnlyFuture bool
 }
 
 type Event struct {
@@ -94,4 +95,8 @@ type UpdateEventRequest struct {
 	Street         string      `json:"street"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
 	Images         []string    `json:"images"`
+}
+
+type EventRegistrationRequest struct {
+	IdEvent int `json:"id_event"`
 }

@@ -108,7 +108,7 @@ create table event_registrations
     id_event   integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_account),
     created_at timestamptz not null       default now(),
-    status     event_registrations_status default 'registered',
+    status     event_registrations_status not null default 'registered',
     paid_price numeric(10,2) not null -- set at registration, prevent price change after registered
 );
 

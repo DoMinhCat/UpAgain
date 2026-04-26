@@ -9,6 +9,7 @@ import {
   unassignEmployee,
   updateEventStatus,
   updateEvent,
+  registerToEvent,
 } from "../api/eventModule";
 import {
   type EventCreationPayload,
@@ -18,6 +19,7 @@ import {
   type AssignedEmployee,
   type UnassignEmployeePayload,
   type UpdateEventPayload,
+  type EventRegistrationPayload,
 } from "../api/interfaces/event";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
@@ -30,6 +32,7 @@ export const useGetAllEvents = (
   category?: string,
   city?: string,
   validation?: boolean,
+  future_only?: boolean,
 ) => {
   return useQuery<EventsListPagination>({
     queryKey: [
@@ -42,6 +45,7 @@ export const useGetAllEvents = (
       category,
       city,
       validation,
+      future_only,
     ],
     queryFn: () =>
       getAllEvents(
@@ -53,6 +57,7 @@ export const useGetAllEvents = (
         category,
         city,
         validation,
+        future_only,
       ),
     staleTime: 60 * 1000,
     meta: {
@@ -250,6 +255,29 @@ export const useApproveRefuseEvent = () => {
     meta: {
       errorTitle: "Event action failed",
       errorMessage: "Could not update the event status",
+    },
+  });
+};
+
+export const useRegisterToEvent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: EventRegistrationPayload): Promise<void> =>
+      registerToEvent(payload),
+    onSuccess: (_data, payload) => {
+      showSuccessNotification(
+        "Event registered successfully",
+        "Event has been registered",
+      );
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["event", payload.id_event],
+      });
+      queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+    },
+    meta: {
+      errorTitle: "Event registration failed",
+      errorMessage: "An error occured while registering to event",
     },
   });
 };

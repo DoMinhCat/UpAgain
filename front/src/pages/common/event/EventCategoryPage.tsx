@@ -89,6 +89,9 @@ export default function EventCategoryPage() {
     "approved",
     appliedFilters.sort || "",
     event_category,
+    appliedFilters.city || "",
+    false,
+    true,
   );
   const events = eventsData?.events || [];
 

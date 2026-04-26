@@ -29,7 +29,6 @@ import {
   IconEdit,
   IconCheck,
   IconX,
-  IconRestore,
   IconCalendarOff,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
@@ -41,12 +40,14 @@ import { useAuth } from "../../../context/AuthContext";
 import { EditEventModal } from "../../../components/event/EditEventModal";
 import { EventAttendeesModal } from "../../../components/event/EventAttendeesModal";
 import { CancelEventModal } from "../../../components/event/CancelEventModal";
+import { EventRegistrationModal } from "../../../components/event/EventRegistrationModal";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { NotFoundPage } from "../../error/404";
 import {
   useGetAllEvents,
   useGetEventDetails,
+  useRegisterToEvent,
   useUpdateEventStatus,
 } from "../../../hooks/eventHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
@@ -74,6 +75,7 @@ export default function EventDetailPage() {
     idEvent,
     isValidId,
   );
+  if (event?.status !== "approved") return <NotFoundPage />;
 
   // GET RANDOM SUGGESTED EVENTS
   const SUGGESTED_EVENT_LIMIT = 4;
@@ -93,6 +95,19 @@ export default function EventDetailPage() {
     (event) => event.id !== idEvent,
   );
 
+  // REGISTER TO EVENT
+  const registerToEvent = useRegisterToEvent();
+  const handleRegisterToEvent = () => {
+    registerToEvent.mutate(
+      { id_event: idEvent },
+      {
+        onSuccess: () => {
+          closeRegister();
+        },
+      },
+    );
+  };
+
   // PHOTO CAROUSEL MODAL
   const [lightboxOpened, setLightboxOpened] = useState(false);
   const [lightboxSlide, setLightboxSlide] = useState(0);
@@ -105,19 +120,13 @@ export default function EventDetailPage() {
   const [openedAttendees, { open: openAttendees, close: closeAttendees }] =
     useDisclosure(false);
 
-  // CANCEL EVENT MODAL
+  // CANCEL EVENT M
   const [openedCancel, { open: openCancel, close: closeCancel }] =
     useDisclosure(false);
-
-  // HANDLE CANCEL EVENT
-  const cancelEvent = useUpdateEventStatus(
-    idEvent,
-    event?.status === "cancelled"
-      ? "approved"
-      : event?.status === "pending" || event?.status === "refused"
-        ? "approved"
-        : "cancelled",
-  );
+  // REGISTER EVENT MODAL
+  const [openedRegister, { open: openRegister, close: closeRegister }] =
+    useDisclosure(false);
+  const cancelEvent = useUpdateEventStatus(idEvent, "cancelled");
   const handleCancel = () => {
     cancelEvent.mutate(undefined, {
       onSuccess: () => {
@@ -125,6 +134,9 @@ export default function EventDetailPage() {
       },
     });
   };
+
+  const isRegistered = event?.attendees?.some((a) => a.id === user?.id);
+  const isPast = dayjs(event?.end_at).isBefore(dayjs());
 
   if (isLoadingEvent || isLoadingSuggestedEvents) {
     return <FullScreenLoader />;
@@ -589,35 +601,53 @@ export default function EventDetailPage() {
                       </Stack>
 
                       {/* CTA */}
-                      {(isUser || isPro) &&
-                        //  TODO: not registered to this event &&
-                        true && (
-                          <Button
-                            size="lg"
-                            radius="md"
-                            variant="cta-reverse"
-                            fullWidth
-                            color="var(--upagain-neutral-green)"
-                            rightSection={<IconChevronRight size={18} />}
-                          >
-                            {t("detail.register_now")}
-                          </Button>
-                        )}
-                      {(isUser || isPro) &&
-                        //  TODO: already registered to this event &&
-                        false && (
-                          <Button
-                            size="lg"
-                            radius="md"
-                            variant="delete"
-                            fullWidth
-                            color="var(--upagain-neutral-green)"
-                            rightSection={<IconX size={18} />}
-                            // onClick={() => call cancel registration mutate}
-                          >
-                            {t("detail.cancel_registration")}
-                          </Button>
-                        )}
+                      {isPast ? (
+                        <Paper
+                          withBorder
+                          p="md"
+                          radius="md"
+                          bg="var(--mantine-color-gray-0)"
+                        >
+                          <Group gap="xs">
+                            <IconCalendarOff
+                              size={18}
+                              color="var(--mantine-color-red-6)"
+                            />
+                            <Text size="sm" fw={600} c="red.6">
+                              {t("detail.event_ended")}
+                            </Text>
+                          </Group>
+                        </Paper>
+                      ) : (
+                        <>
+                          {(isUser || isPro) && !isRegistered && (
+                            <Button
+                              size="lg"
+                              radius="md"
+                              variant="cta-reverse"
+                              fullWidth
+                              color="var(--upagain-neutral-green)"
+                              rightSection={<IconChevronRight size={18} />}
+                              onClick={openRegister}
+                            >
+                              {t("detail.register_now")}
+                            </Button>
+                          )}
+                          {(isUser || isPro) && isRegistered && (
+                            <Button
+                              size="lg"
+                              radius="md"
+                              variant="delete"
+                              fullWidth
+                              color="var(--upagain-neutral-green)"
+                              rightSection={<IconX size={18} />}
+                              // TODO: onClick={() => call cancel registration mutate}
+                            >
+                              {t("detail.cancel_registration")}
+                            </Button>
+                          )}
+                        </>
+                      )}
 
                       {(isEmployee || isAdmin) && (
                         <Group gap="sm">
@@ -656,25 +686,9 @@ export default function EventDetailPage() {
                             }
                             fullWidth
                             onClick={openCancel}
-                            rightSection={
-                              event?.status === "cancelled" ? (
-                                <IconRestore size={18} />
-                              ) : ["pending", "refused"].includes(
-                                  event?.status ?? "",
-                                ) ? (
-                                <IconCheck size={18} />
-                              ) : (
-                                <IconX size={18} />
-                              )
-                            }
+                            rightSection={<IconX size={18} />}
                           >
-                            {event?.status === "cancelled"
-                              ? t("admin:events.details.reopen_event")
-                              : ["pending", "refused"].includes(
-                                    event?.status ?? "",
-                                  )
-                                ? t("admin:events.details.approve_event")
-                                : t("admin:events.details.cancel_event")}
+                            {t("admin:events.details.cancel_event")}
                           </Button>
                         </Group>
                       )}
@@ -727,27 +741,17 @@ export default function EventDetailPage() {
           onConfirm={() => {
             handleCancel();
           }}
-          title={
-            event?.status === "cancelled"
-              ? t("admin:events.details.cancel_modal.reopen_title")
-              : event?.status === "pending" || event?.status === "refused"
-                ? t("admin:events.details.cancel_modal.approve_title")
-                : t("admin:events.details.cancel_modal.cancel_title")
-          }
-          message={
-            event?.status === "cancelled"
-              ? t("admin:events.details.cancel_modal.reopen_msg")
-              : event?.status === "pending" || event?.status === "refused"
-                ? t("admin:events.details.cancel_modal.approve_msg")
-                : t("admin:events.details.cancel_modal.cancel_msg")
-          }
-          confirmLabel={
-            event?.status === "cancelled"
-              ? t("admin:events.details.cancel_modal.confirm_reopen")
-              : event?.status === "pending" || event?.status === "refused"
-                ? t("admin:events.details.cancel_modal.confirm_approve")
-                : t("admin:events.details.cancel_modal.confirm_cancel")
-          }
+          title={t("admin:events.details.cancel_modal.cancel_title")}
+          message={t("admin:events.details.cancel_modal.cancel_msg")}
+          confirmLabel={t("admin:events.details.cancel_modal.confirm_cancel")}
+        />
+
+        <EventRegistrationModal
+          opened={openedRegister}
+          onClose={closeRegister}
+          onConfirm={handleRegisterToEvent}
+          loading={registerToEvent.isPending}
+          event={event}
         />
 
         <PhotosCarousel

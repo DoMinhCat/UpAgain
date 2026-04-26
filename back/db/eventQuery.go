@@ -122,7 +122,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	paramIndex := 1
 
 	// for validation hub request show only events in the future
-	if filters.Validation {
+	if filters.Validation || filters.OnlyFuture {
 		whereClause += " AND e.start_at > now()"
 	}
 
