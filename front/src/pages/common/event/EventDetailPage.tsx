@@ -41,6 +41,7 @@ import { EditEventModal } from "../../../components/event/EditEventModal";
 import { EventAttendeesModal } from "../../../components/event/EventAttendeesModal";
 import { CancelEventModal } from "../../../components/event/CancelEventModal";
 import { EventRegistrationModal } from "../../../components/event/EventRegistrationModal";
+import { CancelRegistrationModal } from "../../../components/event/CancelRegistrationModal";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { NotFoundPage } from "../../error/404";
@@ -48,6 +49,7 @@ import {
   useGetAllEvents,
   useGetEventDetails,
   useRegisterToEvent,
+  useCancelRegistration,
   useUpdateEventStatus,
 } from "../../../hooks/eventHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
@@ -68,14 +70,12 @@ export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const idEvent = parseInt(id || "0");
   const isValidId = !isNaN(idEvent) && idEvent > 0;
-  if (!isValidId) return <NotFoundPage />;
 
   // GET EVENT
   const { data: event, isLoading: isLoadingEvent } = useGetEventDetails(
     idEvent,
     isValidId,
   );
-  if (event?.status !== "approved") return <NotFoundPage />;
 
   // GET RANDOM SUGGESTED EVENTS
   const SUGGESTED_EVENT_LIMIT = 4;
@@ -103,6 +103,25 @@ export default function EventDetailPage() {
       {
         onSuccess: () => {
           closeRegister();
+        },
+      },
+    );
+  };
+
+  // CANCEL REGISTRATION MODAL
+  const [
+    openedCancelRegistration,
+    { open: openCancelRegistration, close: closeCancelRegistration },
+  ] = useDisclosure(false);
+
+  // CANCEL REGISTRATION TO EVENT
+  const cancelRegistrationMutation = useCancelRegistration();
+  const handleCancelRegistration = () => {
+    cancelRegistrationMutation.mutate(
+      { id_event: idEvent },
+      {
+        onSuccess: () => {
+          closeCancelRegistration();
         },
       },
     );
@@ -141,7 +160,7 @@ export default function EventDetailPage() {
   if (isLoadingEvent || isLoadingSuggestedEvents) {
     return <FullScreenLoader />;
   }
-  if (!event) {
+  if (!isValidId || !event || event.status !== "approved") {
     return <NotFoundPage />;
   }
   return (
@@ -641,7 +660,7 @@ export default function EventDetailPage() {
                               fullWidth
                               color="var(--upagain-neutral-green)"
                               rightSection={<IconX size={18} />}
-                              // TODO: onClick={() => call cancel registration mutate}
+                              onClick={openCancelRegistration}
                             >
                               {t("detail.cancel_registration")}
                             </Button>
@@ -752,6 +771,13 @@ export default function EventDetailPage() {
           onConfirm={handleRegisterToEvent}
           loading={registerToEvent.isPending}
           event={event}
+        />
+
+        <CancelRegistrationModal
+          opened={openedCancelRegistration}
+          onClose={closeCancelRegistration}
+          onConfirm={handleCancelRegistration}
+          loading={cancelRegistrationMutation.isPending}
         />
 
         <PhotosCarousel

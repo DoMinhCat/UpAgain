@@ -75,7 +75,9 @@
     "no_relevant_events": "No other relevant events found at the moment.",
     "refund_warning": "Note: Refunds are not possible once registered.",
     "confirm_registration_msg": "You are about to register for this event. Please review the details below.",
-    "event_ended": "This event has already ended."
+    "event_ended": "This event has already ended.",
+    "cancel_registration_title": "Cancel Registration",
+    "cancel_registration_msg": "Are you sure you want to cancel your registration? This action cannot be undone."
   },
   "no_event": "No {{event_type}} found",
   "empty_state": {

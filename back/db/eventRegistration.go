@@ -63,10 +63,10 @@ func GetAttendeesByEventId(id_event int) ([]models.Account, error) {
 	return attendees, nil
 }
 
-func InsertEventRegistration(id_account int, event models.Event, status string) error {
+func InsertEventRegistration(id_account int, event models.Event) error {
 	query := `
-		INSERT INTO event_registrations (id_account, id_event, status, paid_price)
-		VALUES ($1, $2, $3, $4);
+		INSERT INTO event_registrations (id_account, id_event, paid_price)
+		VALUES ($1, $2, $3);
 	`
 	var paidPrice float64
 	if event.Price.Valid && event.Price.Float64 > 0 {
@@ -74,9 +74,13 @@ func InsertEventRegistration(id_account int, event models.Event, status string) 
 	} else {
 		paidPrice = 0.0
 	}
-	_, err := utils.Conn.Exec(query, id_account, event.Id, status, paidPrice)
+	_, err := utils.Conn.Exec(query, id_account, event.Id, paidPrice)
 	if err != nil {
-		return fmt.Errorf("InsertEventRegistration() failed: %v", err.Error())
+		// try update
+		err = UpdateEventRegistrationStatus(id_account, event.Id, "registered")
+		if err != nil {
+			return fmt.Errorf("InsertEventRegistration() failed: %v", err.Error())
+		}
 	}
 	return nil
 }
@@ -91,4 +95,18 @@ func CheckUserRegisteredToEvent(id_account int, id_event int) (bool, error) {
 		return false, fmt.Errorf("CheckUserRegisteredToEvent() failed: %v", err.Error())
 	}
 	return exists, nil
+}
+
+func UpdateEventRegistrationStatus(id_account int, id_event int, status string) error {
+	if status != "registered" && status != "cancelled" && status != "attended" {
+		return fmt.Errorf("invalid status: %s", status)
+	}
+	query := `
+		UPDATE event_registrations SET status=$1 WHERE id_account=$2 AND id_event=$3;
+	`
+	_, err := utils.Conn.Exec(query, status, id_account, id_event)
+	if err != nil {
+		return fmt.Errorf("UpdateEventRegistrationStatus() failed: %v", err.Error())
+	}
+	return nil
 }

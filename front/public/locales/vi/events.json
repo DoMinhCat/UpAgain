@@ -75,7 +75,9 @@
     "no_relevant_events": "Hiện tại không tìm thấy sự kiện liên quan nào khác.",
     "refund_warning": "Lưu ý: Không thể hoàn tiền sau khi đã đăng ký.",
     "confirm_registration_msg": "Bạn sắp đăng ký tham gia sự kiện này. Vui lòng xem lại các chi tiết bên dưới.",
-    "event_ended": "Sự kiện này đã kết thúc."
+    "event_ended": "Sự kiện này đã kết thúc.",
+    "cancel_registration_title": "Hủy đăng ký",
+    "cancel_registration_msg": "Bạn có chắc chắn muốn hủy đăng ký không? Hành động này không thể hoàn tác."
   },
   "no_event": "Chưa có {{event_type}} nào cả",
   "empty_state": {
