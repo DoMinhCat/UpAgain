@@ -1148,3 +1148,38 @@ func CancelRegistrationByEventId(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	deleted := false
+	exist, err := db.CheckAccountExistsById(idRequestor, &deleted)
+	if err != nil {
+		slog.Error("CheckAccountExistsById() failed", "controller", "GetMyEventsByAccountId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Account not found.")
+		return
+	}
+	
+	var events []models.Event
+	if role == "employee" {
+		// events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
+		// if err != nil {
+		// 	slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
+		// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+		// 	return
+		// }
+	} else {
+		events, err = db.GetEventRegistrationsByAccountId(idRequestor)
+		if err != nil {
+			slog.Error("GetUpcomingRegisteredEventsByAccountId() failed", "controller", "GetMyEventsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+			return
+		}
+	}
+	utils.RespondWithJSON(w, http.StatusOK, events)
+}

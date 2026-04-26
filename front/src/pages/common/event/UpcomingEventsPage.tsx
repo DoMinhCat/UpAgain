@@ -16,9 +16,12 @@ import { PATHS } from "../../../routes/paths";
 import { Schedule } from "@mantine/schedule";
 import { EventCard } from "../../../components/event/EventCard";
 import { IconChevronRight, IconChevronLeft } from "@tabler/icons-react";
+import { useAuth } from "../../../context/AuthContext";
+import { NotFoundPage } from "../../error/404";
 
 export default function UpcomingEventsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { state } = useLocation();
   const { t } = useTranslation();
 
@@ -61,6 +64,10 @@ export default function UpcomingEventsPage() {
     postalCode: "75001",
     registeredCount: 24,
   };
+
+  if (!user || (user?.role !== "user" && user.role !== "pro")) {
+    return <NotFoundPage />;
+  }
 
   return (
     <Container size="xl" py={40} w="100%" mb="xl">
