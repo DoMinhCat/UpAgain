@@ -93,7 +93,7 @@ func CreateAds(payload models.CreateAdsRequest, role string) (int, error) {
 	return idAds, nil
 }
 
-func UpdateAdsByAdsId(payload models.UpdateAdsRequest) (error) {
+func UpdateAdsByAdsId(payload models.UpdateAdsRequest) error {
 	query := `
 		UPDATE ads SET start_date=$1, end_date=$2 WHERE id=$3
 	`
@@ -104,7 +104,7 @@ func UpdateAdsByAdsId(payload models.UpdateAdsRequest) (error) {
 	return nil
 }
 
-func DeleteAdsByAdsId(id_ads int) (error) {
+func DeleteAdsByAdsId(id_ads int) error {
 	query := `
 		UPDATE ads SET status='cancelled' WHERE id=$1;
 	`
