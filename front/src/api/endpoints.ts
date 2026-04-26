@@ -113,4 +113,8 @@ export const ENDPOINTS = {
     DELETE: (id_ads: number) => `/ads/${id_ads}/`,
     UPDATE: (id_ads: number) => `/ads/${id_ads}/`,
   },
+
+  STRIPE: {
+    VERIFY: "/payments/verify/",
+  },
 } as const;
