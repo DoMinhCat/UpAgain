@@ -60,7 +60,8 @@
     "loading": "Chargement...",
     "not_found": "Non trouvé",
     "success": "Succès",
-    "error": "Erreur"
+    "error": "Erreur",
+    "btn_push_noti": "Activer la notification push"
   },
   "stripe": {
     "verification_failed": "Échec de la vérification du paiement",
