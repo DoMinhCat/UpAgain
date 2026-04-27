@@ -572,7 +572,7 @@ export default function UserHome() {
                       price={15}
                       registeredCount={99}
                       city="Paris"
-                      postalCode="75012"
+                      // TODO: implement fullEvent
                     />
                     {/* Add more cards selectively if returned by backend */}
                     <Text

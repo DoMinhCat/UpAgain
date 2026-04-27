@@ -1,13 +1,9 @@
-import { Container, Stack, Title, Group, Text, Button } from "@mantine/core";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Container, Stack, Title, Group, Text } from "@mantine/core";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
 import { PATHS } from "../../../routes/paths";
-import { IconCalendar } from "@tabler/icons-react";
 
 export default function EventPlanningPage() {
-  const navigate = useNavigate();
-  const { state } = useLocation();
   const { t } = useTranslation();
 
   return (

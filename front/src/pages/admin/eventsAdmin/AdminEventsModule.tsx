@@ -9,8 +9,6 @@ import {
   Button,
   Stack,
   Table,
-  Modal,
-  NumberInput,
   Pill,
   Text,
   Badge,
@@ -33,14 +31,10 @@ import {
 import { useState } from "react";
 import AdminTable from "../../../components/admin/AdminTable";
 import { useDisclosure } from "@mantine/hooks";
-import { DateTimePicker } from "@mantine/dates";
 import { useGetAllEvents, useGetEventStats } from "../../../hooks/eventHooks";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
-import { TextEditor } from "../../../components/input/TextEditor";
-import ImageDropzone from "../../../components/input/ImageDropzone";
 import dayjs from "dayjs";
-import { useCreateEvent } from "../../../hooks/eventHooks";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { CreateEventModal } from "../../../components/event/CreateEventModal";
 
