@@ -24,12 +24,16 @@ import { useAuth } from "../../../context/AuthContext";
 import { useGetAllEvents } from "../../../hooks/eventHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import type { AppEvent } from "../../../api/interfaces/event";
+import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function EventPage() {
   const { user } = useAuth();
   const { t } = useTranslation("events");
   const theme = useComputedColorScheme("light");
   const navigate = useNavigate();
+
+  // Stripe redirect handler
+  useHandleStripeEventRegistration();
 
   // Placeholder data for drafting layout
   const mockEvent = {
@@ -214,6 +218,7 @@ export default function EventPage() {
                       city={event.city}
                       registeredCount={event.registered}
                       category={name}
+                      fullEvent={event}
                     />
                   ))
                 ) : (

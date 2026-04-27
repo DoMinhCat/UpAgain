@@ -30,6 +30,7 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { useDisclosure } from "@mantine/hooks";
 import { EventListModal } from "../../../components/event/EventListModal";
 import dayjs from "dayjs";
+import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function UpcomingEventsPage() {
   const navigate = useNavigate();
@@ -111,6 +112,9 @@ export default function UpcomingEventsPage() {
   const handlePrevious = () => {
     setCurrentUpcomingPage((prev) => Math.max(prev - 1, 1));
   };
+  // Add hook to handle stripe redirect
+  useHandleStripeEventRegistration();
+
   const handleNext = () => {
     setCurrentUpcomingPage((prev) => Math.min(prev + 1, totalUpcomingPages));
   };
@@ -216,6 +220,7 @@ export default function UpcomingEventsPage() {
                   price={e.price}
                   city={e.city}
                   registeredCount={e.registered}
+                  fullEvent={e}
                 />
               ))}
             </SimpleGrid>
