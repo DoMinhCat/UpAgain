@@ -262,7 +262,7 @@ export default function UpcomingEventsPage() {
             onTimeSlotClick={(data) => handleSlotClick(data.slotStart)}
             onEventClick={(event) => {
               navigate(
-                `${PATHS.EVENTS.HOME}/${event.payload?.category === "meetups" ? event.payload.category : event.payload.category + "s"}/${event.id}`,
+                `${PATHS.EVENTS.HOME}/${event.payload?.category === "meetups" ? event.payload.category : event.payload?.category + "s"}/${event.id}`,
               );
             }}
           />
@@ -273,7 +273,9 @@ export default function UpcomingEventsPage() {
         opened={openedModal}
         onClose={closeModal}
         events={modalEvents}
-        dateTitle={selectedDate ? dayjs(selectedDate).format("MMMM D, YYYY") : ""}
+        dateTitle={
+          selectedDate ? dayjs(selectedDate).format("MMMM D, YYYY") : ""
+        }
       />
     </Container>
   );
