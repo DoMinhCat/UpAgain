@@ -326,9 +326,9 @@ export default function EventDetailPage() {
                       : event.category === "workshop"
                         ? "blue"
                         : event.category === "conference"
-                          ? "green"
+                          ? "var(--upagain-neutral-green)"
                           : event.category === "meetups"
-                            ? "yellow"
+                            ? "var(--upagain-yellow)"
                             : "red"
                   }
                 >

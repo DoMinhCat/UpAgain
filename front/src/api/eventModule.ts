@@ -170,3 +170,8 @@ export const cancelRegistration = async (
   );
   return response.data;
 };
+
+export const getMyEvents = async (): Promise<AppEvent[]> => {
+  const response = await api.get(ENDPOINTS.EVENTS.MY_EVENTS);
+  return response.data;
+};
