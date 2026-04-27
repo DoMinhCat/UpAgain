@@ -69,11 +69,11 @@
     "months": "mois",
     "year": "an",
     "years": "ans",
-    "just_now": "À l'instant",
-    "minutes_ago": "il y a {{count}}m",
-    "hours_ago": "il y a {{count}}h",
-    "yesterday": "Hier",
-    "days_ago": "il y a {{count}}j"
+    "just_now": "Publié à l'instant",
+    "minutes_ago": "Publié il y a {{count}}m",
+    "hours_ago": "Publié il y a {{count}}h",
+    "yesterday": "Publié hier",
+    "days_ago": "Publié il y a {{count}}j"
   },
   "timeframe": {
     "title": "Période",
