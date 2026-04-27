@@ -15,7 +15,7 @@ import { useState } from "react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
 import { PATHS } from "../../../routes/paths";
-import { Schedule } from "@mantine/schedule";
+import { Schedule, type ScheduleEventData } from "@mantine/schedule";
 import { EventCard } from "../../../components/event/EventCard";
 import {
   IconChevronRight,
@@ -67,15 +67,21 @@ export default function UpcomingEventsPage() {
     openModal();
   };
 
-  const scheduleEvents = myEvents
+  const scheduleEvents: ScheduleEventData[] = myEvents
     ? myEvents.map((e: AppEvent) => {
         const isPast = new Date(e.end_at) < new Date();
         return {
-          id: e.id,
+          id: String(e.id),
           title: e.title,
           start: e.start_at,
           end: e.end_at,
           variant: "filled",
+          style: {
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: "0.8rem",
+            borderRadius: "4px",
+          },
           color: isPast
             ? "gray"
             : e.category === "workshop"
@@ -85,12 +91,6 @@ export default function UpcomingEventsPage() {
                 : e.category === "meetups"
                   ? "var(--upagain-yellow)"
                   : "red",
-          style: {
-            cursor: "pointer",
-            fontWeight: 600,
-            fontSize: "0.8rem",
-            borderRadius: "4px",
-          },
           payload: {
             category: e.category,
           },
