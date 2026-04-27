@@ -93,10 +93,10 @@ create table events
     city         varchar(255)   not null,
     street       varchar(255)   not null,
     location_detail varchar(255),
+    created_by   integer references accounts(id) on delete restrict,
     -- TODO: add lat and lng returned by geocoding
     -- lat NUMERIC(10, 8), 
     -- lng NUMERIC(11, 8)
-    created_by   integer references accounts(id) on delete restrict,
 );
 CREATE INDEX idx_events_status ON events (status);
 CREATE INDEX idx_events_category ON events (category);

@@ -33,7 +33,12 @@ import {
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { EventCard } from "../../../components/event/EventCard";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useAuth } from "../../../context/AuthContext";
@@ -59,7 +64,11 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "../../../components/common/NotificationToast";
-import { useVerifyStripeSession } from "../../../hooks/stripeHooks";
+import {
+  useHandleStripeEventRegistration,
+  useVerifyStripeSession,
+} from "../../../hooks/stripeHooks";
+import { verifyStripeSession } from "../../../api/stripeModule";
 
 export default function EventDetailPage() {
   const { t } = useTranslation(["events", "admin"]);
@@ -71,6 +80,7 @@ export default function EventDetailPage() {
   const isEmployee = role === "employee";
   const isAdmin = role === "admin";
   const theme = useComputedColorScheme("light");
+  const location = useLocation();
 
   const { id } = useParams<{ id: string }>();
   const idEvent = parseInt(id || "0");
@@ -113,48 +123,7 @@ export default function EventDetailPage() {
   };
 
   // VERIFY PAYMENT SESSION
-  const verifyStripeSession = useVerifyStripeSession();
-
-  useEffect(() => {
-    const status = searchParams.get("payment");
-    const sessionId = searchParams.get("sessionid");
-
-    if (status === "success" && sessionId) {
-      verifyStripeSession.mutate(
-        {
-          session_id: sessionId,
-        },
-        {
-          onSuccess: (data) => {
-            if (data.is_paid) {
-              // call again to register with paid = true to bypass payment and save to db
-              registerToEvent.mutate(
-                { id_event: idEvent, paid: true },
-                {
-                  onSuccess: () => {
-                    showSuccessNotification(
-                      "Registration successful",
-                      "You successfully registered to this event",
-                    );
-                  },
-                },
-              );
-            } else {
-              showErrorNotification(
-                "Registration failed",
-                "The payment was not completed",
-              );
-            }
-          },
-        },
-      );
-    } else if (status === "cancelled") {
-      showErrorNotification(
-        "Registration cancelled",
-        "You cancelled the registration to this event",
-      );
-    }
-  }, [searchParams]);
+  const { isVerifying } = useHandleStripeEventRegistration(idEvent);
 
   // GET EVENT
   const { data: event, isLoading: isLoadingEvent } = useGetEventDetails(
@@ -326,9 +295,9 @@ export default function EventDetailPage() {
                       : event.category === "workshop"
                         ? "blue"
                         : event.category === "conference"
-                          ? "green"
+                          ? "var(--upagain-neutral-green)"
                           : event.category === "meetups"
-                            ? "yellow"
+                            ? "var(--upagain-yellow)"
                             : "red"
                   }
                 >
@@ -357,10 +326,22 @@ export default function EventDetailPage() {
                   title: t("events", { defaultValue: "Events" }),
                   href: "/events",
                 },
-                {
-                  title: t(`categories.${event.category}_plural`),
-                  href: `/events/${event.category}s`,
-                },
+                ...(location.state?.from === "upcomingEvents"
+                  ? [
+                      {
+                        title: t("events:my_events.title", {
+                          defaultValue: "My Events",
+                        }),
+                        href: PATHS.EVENTS.PLANNING,
+                      },
+                    ]
+                  : [
+                      {
+                        title: t(`categories.${event.category}_plural`),
+                        href: `/events/${event.category}s`,
+                      },
+                    ]),
+
                 { title: event.title, href: "#" },
               ]}
             />
@@ -546,6 +527,7 @@ export default function EventDetailPage() {
                             price={event.price}
                             city={event.city}
                             registeredCount={event.registered}
+                            fullEvent={event}
                           />
                         ))}
                       </SimpleGrid>
@@ -720,10 +702,7 @@ export default function EventDetailPage() {
                               color="var(--upagain-neutral-green)"
                               rightSection={<IconChevronRight size={18} />}
                               onClick={openRegister}
-                              loading={
-                                registerToEvent.isPending ||
-                                verifyStripeSession.isPending
-                              }
+                              loading={registerToEvent.isPending || isVerifying}
                             >
                               {t("detail.register_now")}
                             </Button>
@@ -845,7 +824,7 @@ export default function EventDetailPage() {
           opened={openedRegister}
           onClose={closeRegister}
           onConfirm={handleRegisterToEvent}
-          loading={registerToEvent.isPending || verifyStripeSession.isPending}
+          loading={registerToEvent.isPending}
           event={event}
         />
 

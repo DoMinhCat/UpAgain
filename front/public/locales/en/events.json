@@ -3,7 +3,8 @@
   "my_events": {
     "title": "My events",
     "description": "Ready for your upcoming events?",
-    "schedule_description": "All your events in one simple schedule"
+    "schedule_description": "All your events in one simple schedule",
+    "events_on": "Events on"
   },
   "hero": {
     "title": "Sustainable Events & Workshops",

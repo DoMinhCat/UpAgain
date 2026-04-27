@@ -28,12 +28,15 @@ import { PATHS } from "../../routes/paths";
 import PostCard from "../../components/post/PostCard";
 import { EventCard } from "../../components/event/EventCard";
 import { DashboardCard } from "../../components/dashboard/DashboardCard";
+import { useHandleStripeEventRegistration } from "../../hooks/stripeHooks";
 
 export default function UserHome() {
   const { t } = useTranslation("home");
   const navigate = useNavigate();
   const scheme = useComputedColorScheme("light");
   const { user } = useAuth();
+
+  useHandleStripeEventRegistration();
 
   // GET ACCOUNT INFO
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =

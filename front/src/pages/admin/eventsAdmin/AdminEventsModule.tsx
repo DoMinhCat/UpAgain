@@ -42,6 +42,7 @@ import ImageDropzone from "../../../components/input/ImageDropzone";
 import dayjs from "dayjs";
 import { useCreateEvent } from "../../../hooks/eventHooks";
 import PaginationFooter from "../../../components/common/PaginationFooter";
+import { CreateEventModal } from "../../../components/event/CreateEventModal";
 
 export default function AdminEventsModule() {
   const { t } = useTranslation("admin");
@@ -132,9 +133,9 @@ export default function AdminEventsModule() {
                   : event.category === "workshop"
                     ? "blue"
                     : event.category === "conference"
-                      ? "green"
+                      ? "var(--upagain-neutral-green)"
                       : event.category === "meetups"
-                        ? "yellow"
+                        ? "var(--upagain-yellow)"
                         : "red"
               }
             >
@@ -159,9 +160,9 @@ export default function AdminEventsModule() {
             <Pill
               variant={
                 event.status === "pending"
-                  ? "yellow"
+                  ? "var(--upagain-yellow)"
                   : event.status === "approved"
-                    ? "green"
+                    ? "var(--upagain-neutral-green)"
                     : event.status === "refused"
                       ? "red"
                       : "gray"
@@ -186,167 +187,6 @@ export default function AdminEventsModule() {
   // create modal
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
-  const [title, setTitle] = useState<string>("");
-  const [capacity, setCapacity] = useState<number>();
-  const [price, setPrice] = useState<number>(0);
-  const [street, setStreet] = useState<string>("");
-  const [city, setCity] = useState<string>("");
-  const [locationDetail, setLocationDetail] = useState<string>("");
-  const [date, setDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
-  const [category, setCategory] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [errorDescription, setErrorDescription] = useState<string>("");
-  const [errorTitle, setErrorTitle] = useState<string>("");
-  const [errorCapacity, setErrorCapacity] = useState<string>("");
-  const [errorPrice, setErrorPrice] = useState<string>("");
-  const [errorStreet, setErrorStreet] = useState<string>("");
-  const [errorCity, setErrorCity] = useState<string>("");
-  const [errorDate, setErrorDate] = useState<string>("");
-  const [errorEndDate, setErrorEndDate] = useState<string>("");
-  const [errorCategory, setErrorCategory] = useState<string>("");
-  const [files, setFiles] = useState<any[]>([]);
-
-  const handleCloseCreate = () => {
-    setTitle("");
-    setCapacity(undefined);
-    setPrice(0);
-    setStreet("");
-    setCity("");
-    setLocationDetail("");
-    setDate(null);
-    setCategory("");
-    setDescription("");
-    setErrorTitle("");
-    setErrorCapacity("");
-    setErrorPrice("");
-    setErrorStreet("");
-    setErrorCity("");
-    setErrorDate("");
-    setErrorEndDate("");
-    setErrorCategory("");
-    setErrorDescription("");
-    setFiles([]);
-    closeCreate();
-  };
-
-  // create validations
-  const validateTitle = () => {
-    if (!title || title.trim() === "") {
-      setErrorTitle(t("events.create_modal.errors.title"));
-      return false;
-    }
-    setErrorTitle("");
-    return true;
-  };
-  const validateCapacity = () => {
-    if (capacity && capacity <= 0) {
-      setErrorCapacity(t("events.create_modal.errors.capacity"));
-      return false;
-    }
-    setErrorCapacity("");
-    return true;
-  };
-  const validatePrice = () => {
-    if (price < 0) {
-      setErrorPrice(t("events.create_modal.errors.price"));
-      return false;
-    }
-    setErrorPrice("");
-    return true;
-  };
-  const validateStreet = () => {
-    if (!street || street.trim() === "") {
-      setErrorStreet(t("events.create_modal.errors.street"));
-      return false;
-    }
-    setErrorStreet("");
-    return true;
-  };
-  const validateCity = () => {
-    if (!city || city.trim() === "") {
-      setErrorCity(t("events.create_modal.errors.city"));
-      return false;
-    }
-    setErrorCity("");
-    return true;
-  };
-  const validateCategory = () => {
-    if (!category || category.trim() === "") {
-      setErrorCategory(t("events.create_modal.errors.category"));
-      return false;
-    }
-    setErrorCategory("");
-    return true;
-  };
-  const validateDescription = () => {
-    if (!description || description.trim() === "") {
-      setErrorDescription(t("events.create_modal.errors.description"));
-      return false;
-    }
-    setErrorDescription("");
-    return true;
-  };
-  const validateStartDate = () => {
-    if (!date || date.trim() === "") {
-      setErrorDate(t("events.create_modal.errors.start_date"));
-      return false;
-    }
-    setErrorDate("");
-    return true;
-  };
-  const validateEndDate = () => {
-    if (!endDate || endDate.trim() === "") {
-      setErrorEndDate(t("events.create_modal.errors.end_date"));
-      return false;
-    }
-    setErrorEndDate("");
-    return true;
-  };
-
-  const createEventMutation = useCreateEvent();
-
-  const handleSubmitCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !validateTitle() ||
-      !validateCapacity() ||
-      !validatePrice() ||
-      !validateStreet() ||
-      !validateCity() ||
-      !validateStartDate() ||
-      !validateEndDate() ||
-      !validateCategory() ||
-      !validateDescription()
-    )
-      return;
-
-    const filesToSend = new FormData();
-    files.forEach((file) => {
-      filesToSend.append("images", file);
-    });
-    createEventMutation.mutate(
-      {
-        title,
-        capacity: capacity ?? undefined,
-        price,
-        street,
-        city,
-        location_detail: locationDetail,
-        start_at: date ? dayjs(date).toISOString() : "",
-        end_at: endDate ? dayjs(endDate).toISOString() : "",
-        category,
-        description,
-        status: "pending",
-        images: filesToSend,
-      },
-      {
-        onSuccess: () => {
-          handleCloseCreate();
-        },
-      },
-    );
-  };
 
   // event stats
   const [chartTime, setChartTime] = useState<string | null>("all");
@@ -501,206 +341,7 @@ export default function AdminEventsModule() {
             >
               {t("events.new_event")}
             </Button>
-            <Modal
-              opened={openedCreate}
-              onClose={handleCloseCreate}
-              title={t("events.create_modal.title")}
-              size="xl"
-            >
-              <Stack>
-                <TextInput
-                  data-autofocus
-                  withAsterisk
-                  placeholder={t("events.create_modal.title_placeholder")}
-                  label={t("events.create_modal.title_label")}
-                  value={title}
-                  onChange={(e) => {
-                    setTitle(e.target.value);
-                  }}
-                  onBlur={() => validateTitle()}
-                  error={errorTitle}
-                  disabled={createEventMutation.isPending}
-                  required
-                />
-                <NumberInput
-                  label={t("events.create_modal.capacity_label")}
-                  placeholder={t("events.create_modal.capacity_placeholder")}
-                  min={0}
-                  disabled={createEventMutation.isPending}
-                  value={capacity}
-                  suffix={t("events.create_modal.capacity_suffix")}
-                  onChange={(value) => {
-                    setCapacity(Number(value));
-                  }}
-                  onBlur={() => validateCapacity()}
-                  error={errorCapacity}
-                  // disabled={isAccountDetailsLoading}
-                />
-                <NumberInput
-                  withAsterisk
-                  label={t("events.create_modal.price_label")}
-                  placeholder={t("events.create_modal.price_placeholder")}
-                  min={0}
-                  prefix="€"
-                  value={price}
-                  disabled={createEventMutation.isPending}
-                  onChange={(value) => {
-                    setPrice(Number(value));
-                  }}
-                  onBlur={() => validatePrice()}
-                  error={errorPrice}
-                  // disabled={isAccountDetailsLoading}
-                  required
-                />
-                <Grid>
-                  <Grid.Col span={{ base: 12, md: 9 }}>
-                    <TextInput
-                      withAsterisk
-                      label={t("events.create_modal.street_label")}
-                      disabled={createEventMutation.isPending}
-                      value={street}
-                      placeholder={t("events.create_modal.street_placeholder")}
-                      onChange={(e) => {
-                        setStreet(e.target.value);
-                      }}
-                      onBlur={() => validateStreet()}
-                      error={errorStreet}
-                      // disabled={isAccountDetailsLoading}
-                      required
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={{ base: 12, md: 3 }}>
-                    <TextInput
-                      withAsterisk
-                      placeholder={t("events.create_modal.city_placeholder")}
-                      label={t("events.create_modal.city_label")}
-                      value={city}
-                      disabled={createEventMutation.isPending}
-                      onChange={(e) => {
-                        setCity(e.target.value);
-                      }}
-                      onBlur={() => validateCity()}
-                      error={errorCity}
-                      // disabled={isAccountDetailsLoading}
-                      required
-                    />
-                  </Grid.Col>
-                </Grid>
-                <TextInput
-                  label={t("events.create_modal.location_detail_label")}
-                  placeholder={t(
-                    "events.create_modal.location_detail_placeholder",
-                  )}
-                  disabled={createEventMutation.isPending}
-                  value={locationDetail}
-                  onChange={(e) => {
-                    setLocationDetail(e.target.value);
-                  }}
-                  // disabled={isAccountDetailsLoading}
-                />
-                <Grid>
-                  <Grid.Col span={{ base: 12, md: 6 }}>
-                    <DateTimePicker
-                      clearable
-                      withAsterisk
-                      label={t("events.create_modal.start_date_label")}
-                      placeholder={t(
-                        "events.create_modal.start_date_placeholder",
-                      )}
-                      value={date ? new Date(date) : null}
-                      disabled={createEventMutation.isPending}
-                      onChange={(val) =>
-                        setDate(val ? dayjs(val).toISOString() : null)
-                      }
-                      required
-                      onBlur={() => validateStartDate()}
-                      error={errorDate}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={{ base: 12, md: 6 }}>
-                    <DateTimePicker
-                      withAsterisk
-                      clearable
-                      label={t("events.create_modal.end_date_label")}
-                      placeholder={t(
-                        "events.create_modal.end_date_placeholder",
-                      )}
-                      onBlur={() => validateEndDate()}
-                      error={errorEndDate}
-                      value={endDate ? new Date(endDate) : null}
-                      disabled={createEventMutation.isPending}
-                      onChange={(val) =>
-                        setEndDate(val ? dayjs(val).toISOString() : null)
-                      }
-                      required
-                    />
-                  </Grid.Col>
-                </Grid>
-                <Select
-                  withAsterisk
-                  clearable
-                  label={t("events.create_modal.category_label")}
-                  value={category}
-                  disabled={createEventMutation.isPending}
-                  placeholder={t("events.create_modal.category_placeholder")}
-                  error={errorCategory}
-                  onBlur={() => validateCategory()}
-                  data={[
-                    {
-                      value: "workshop",
-                      label: t("common:event_categories.workshop"),
-                    },
-                    {
-                      value: "conference",
-                      label: t("common:event_categories.conference"),
-                    },
-                    {
-                      value: "meetups",
-                      label: t("common:event_categories.meetups"),
-                    },
-                    {
-                      value: "exposition",
-                      label: t("common:event_categories.exposition"),
-                    },
-                    {
-                      value: "other",
-                      label: t("common:event_categories.other"),
-                    },
-                  ]}
-                  onChange={(value) => {
-                    setCategory(value as string);
-                  }}
-                />
-                <TextEditor
-                  label={t("events.create_modal.description_label")}
-                  value={description}
-                  placeholder={t("events.create_modal.description_placeholder")}
-                  error={errorDescription}
-                  onChange={(value) => {
-                    setDescription(value);
-                  }}
-                />
-                <ImageDropzone
-                  loading={createEventMutation.isPending}
-                  files={files}
-                  setFiles={setFiles}
-                />
-              </Stack>
-              <Group mt="lg" justify="center">
-                <Button onClick={handleCloseCreate} variant="grey">
-                  {t("users.delete_modal.cancel")}
-                </Button>
-                <Button
-                  onClick={(e) => {
-                    handleSubmitCreate(e);
-                  }}
-                  variant="primary"
-                  loading={createEventMutation.isPending}
-                >
-                  {t("common:confirm", { defaultValue: "Confirm" })}
-                </Button>
-              </Group>
-            </Modal>
+            <CreateEventModal opened={openedCreate} onClose={closeCreate} />
           </Group>
         </Group>
         {/* filter options */}
