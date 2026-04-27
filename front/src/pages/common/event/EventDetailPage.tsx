@@ -17,7 +17,7 @@ import {
   Center,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   IconCalendar,
   IconMapPin,
@@ -33,12 +33,7 @@ import {
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { EventCard } from "../../../components/event/EventCard";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useAuth } from "../../../context/AuthContext";
@@ -60,15 +55,8 @@ import {
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { resolveUrl } from "../../../utils/imageUtils";
 import dayjs from "dayjs";
-import {
-  showErrorNotification,
-  showSuccessNotification,
-} from "../../../components/common/NotificationToast";
-import {
-  useHandleStripeEventRegistration,
-  useVerifyStripeSession,
-} from "../../../hooks/stripeHooks";
-import { verifyStripeSession } from "../../../api/stripeModule";
+import { showSuccessNotification } from "../../../components/common/NotificationToast";
+import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function EventDetailPage() {
   const { t } = useTranslation(["events", "admin"]);
@@ -85,8 +73,6 @@ export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const idEvent = parseInt(id || "0");
   const isValidId = !isNaN(idEvent) && idEvent > 0;
-
-  const [searchParams] = useSearchParams();
 
   // REGISTER TO EVENT
   const registerToEvent = useRegisterToEvent();
