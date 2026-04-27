@@ -69,11 +69,11 @@
     "months": "months",
     "year": "year",
     "years": "years",
-    "just_now": "Just now",
-    "minutes_ago": "{{count}} minutes ago",
-    "hours_ago": "{{count}} hours ago",
-    "yesterday": "Yesterday",
-    "days_ago": "{{count}} days ago"
+    "just_now": "Posted just now",
+    "minutes_ago": "Posted {{count}} minutes ago",
+    "hours_ago": "Posted {{count}} hours ago",
+    "yesterday": "Posted yesterday",
+    "days_ago": "Posted {{count}} days ago"
   },
   "timeframe": {
     "title": "Timeframe",

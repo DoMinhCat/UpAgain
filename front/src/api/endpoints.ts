@@ -114,6 +114,10 @@ export const ENDPOINTS = {
     UPDATE: (id_ads: number) => `/ads/${id_ads}/`,
   },
 
+  EVENTS: {
+    MY_EVENTS: "/events/me/",
+  },
+
   STRIPE: {
     VERIFY: "/payments/verify/",
   },

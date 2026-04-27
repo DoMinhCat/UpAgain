@@ -1044,19 +1044,21 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
 			return
 		}
-		slog.Debug("Origin url", "controller", "RegisterToEventByEventId", "value", payload.OriginUrl)
-		slog.Debug("Frontend origin", "controller", "RegisterToEventByEventId", "value", utils.GetFrontOrigin())
 		frontendOrigin := utils.GetFrontOrigin()
 		if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
 			return
 		}
+		successUrlSeparator := "?"
+		if strings.Contains(payload.OriginUrl, "?") {
+			successUrlSeparator = "&"
+		}
 		checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
 			EventName:    event.Title,
 			PriceInCents: int64(event.Price.Float64 * 100),
 			// return to the origin URL with param, frontend will check for that params to handle next steps
-			SuccessURL: payload.OriginUrl + "?payment=success&sessionid={CHECKOUT_SESSION_ID}",
-			CancelURL:  payload.OriginUrl + "?payment=cancel",
+			SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+			CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
 		})
 		if err != nil {
 			slog.Error("CreateStripeSession() failed", "controller", "RegisterToEventByEventId", "error", err)
@@ -1147,4 +1149,40 @@ func CancelRegistrationByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	deleted := false
+	exist, err := db.CheckAccountExistsById(idRequestor, &deleted)
+	if err != nil {
+		slog.Error("CheckAccountExistsById() failed", "controller", "GetMyEventsByAccountId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Account not found.")
+		return
+	}
+	
+	var events []models.Event
+	if role == "employee" {
+		// TODO:
+		// events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
+		// if err != nil {
+		// 	slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
+		// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+		// 	return
+		// }
+	} else {
+		events, err = db.GetEventRegistrationsByAccountId(idRequestor)
+		if err != nil {
+			slog.Error("GetUpcomingRegisteredEventsByAccountId() failed", "controller", "GetMyEventsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+			return
+		}
+	}
+	utils.RespondWithJSON(w, http.StatusOK, events)
 }

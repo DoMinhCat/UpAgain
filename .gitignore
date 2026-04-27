@@ -9,3 +9,4 @@ back/bin/
 *.exe
 back/images/
 .direnv/
+.agents/*

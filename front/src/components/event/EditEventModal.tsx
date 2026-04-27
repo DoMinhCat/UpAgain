@@ -14,6 +14,16 @@ import dayjs from "dayjs";
 import { useUpdateEvent } from "../../hooks/eventHooks";
 import { TextEditor } from "../input/TextEditor";
 import ImageDropzone from "../input/ImageDropzone";
+import {
+  validateEventTitle,
+  validateEventCapacity,
+  validateEventPrice,
+  validateEventStreet,
+  validateEventCity,
+  validateEventDate,
+  validateEventCategory,
+  validateEventDescription,
+} from "../../utils/eventValidation";
 
 interface EditEventModalProps {
   opened: boolean;
@@ -73,81 +83,80 @@ export function EditEventModal({
   }, [opened, eventDetails]);
 
   // validations
-  const validateTitle = () => {
-    if (!titleEdit || titleEdit.trim() === "") {
+  const handleValidateTitle = () => {
+    if (!validateEventTitle(titleEdit)) {
       setErrorTitle("Title is required");
       return false;
     }
     setErrorTitle("");
     return true;
   };
-  const validateCapacity = () => {
-    if (capacityEdit && capacityEdit <= 0) {
+  const handleValidateCapacity = () => {
+    if (!validateEventCapacity(capacityEdit)) {
       setErrorCapacity("Capacity must be greater than 0");
       return false;
     }
     setErrorCapacity("");
     return true;
   };
-  const validatePrice = () => {
-    if (priceEdit < 0) {
+  const handleValidatePrice = () => {
+    if (!validateEventPrice(priceEdit)) {
       setErrorPrice("Price must be greater than or equal to 0");
       return false;
     }
     setErrorPrice("");
     return true;
   };
-  const validateStreet = () => {
-    if (!streetEdit || streetEdit.trim() === "") {
+  const handleValidateStreet = () => {
+    if (!validateEventStreet(streetEdit)) {
       setErrorStreet("Street is required");
       return false;
     }
     setErrorStreet("");
     return true;
   };
-  const validateCity = () => {
-    if (!cityEdit || cityEdit.trim() === "") {
+  const handleValidateCity = () => {
+    if (!validateEventCity(cityEdit)) {
       setErrorCity("City is required");
       return false;
     }
     setErrorCity("");
     return true;
   };
-  const validateDate = () => {
-    if (!dateEdit || dateEdit.trim() === "") {
+  const handleValidateDate = () => {
+    if (!validateEventDate(dateEdit)) {
       setErrorDate("Start date is required");
       return false;
     }
     setErrorDate("");
     return true;
   };
-  const validateCategory = () => {
-    if (!categoryEdit || categoryEdit.trim() === "") {
+  const handleValidateCategory = () => {
+    if (!validateEventCategory(categoryEdit)) {
       setErrorCategory("Category is required");
       return false;
     }
     setErrorCategory("");
     return true;
   };
-  const validateDescription = () => {
-    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
-    if (!descriptionEdit || stripped === "") {
+  const handleValidateDescription = () => {
+    if (!validateEventDescription(descriptionEdit)) {
       setErrorDescription("A description is required");
       return false;
     }
     setErrorDescription("");
     return true;
   };
-  const validateStartDate = (date: string | null) => {
-    if (!date || date.trim() === "") {
+  const handleValidateStartDate = (date: string | null) => {
+    if (!validateEventDate(date)) {
       setErrorDate("Start date is required");
       return false;
     }
     setErrorDate("");
     return true;
   };
-  const validateEndDate = (date: string | null) => {
-    if (!date || date.trim() === "") {
+  const handleValidateEndDate = (date: string | null) => {
+    if (!validateEventDate(date)) {
       setErrorEndDate("End date is required");
       return false;
     }
@@ -158,16 +167,16 @@ export function EditEventModal({
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (
-      !validateTitle() ||
-      !validateCapacity() ||
-      !validatePrice() ||
-      !validateStreet() ||
-      !validateCity() ||
-      !validateDate() ||
-      !validateCategory() ||
-      !validateDescription() ||
-      !validateStartDate(dateEdit) ||
-      !validateEndDate(endDateEdit)
+      !handleValidateTitle() ||
+      !handleValidateCapacity() ||
+      !handleValidatePrice() ||
+      !handleValidateStreet() ||
+      !handleValidateCity() ||
+      !handleValidateDate() ||
+      !handleValidateCategory() ||
+      !handleValidateDescription() ||
+      !handleValidateStartDate(dateEdit) ||
+      !handleValidateEndDate(endDateEdit)
     )
       return;
     const imagesData = new FormData();
@@ -232,7 +241,7 @@ export function EditEventModal({
           onChange={(e) => {
             setTitleEdit(e.target.value);
           }}
-          onBlur={() => validateTitle()}
+          onBlur={handleValidateTitle}
           error={errorTitle}
           disabled={updateEvent.isPending}
           required
@@ -247,7 +256,7 @@ export function EditEventModal({
           onChange={(value) => {
             setCapacityEdit(Number(value));
           }}
-          onBlur={() => validateCapacity()}
+          onBlur={handleValidateCapacity}
           error={errorCapacity}
         />
         <NumberInput
@@ -261,7 +270,7 @@ export function EditEventModal({
           onChange={(value) => {
             setPriceEdit(Number(value));
           }}
-          onBlur={() => validatePrice()}
+          onBlur={handleValidatePrice}
           error={errorPrice}
           required
         />
@@ -276,7 +285,7 @@ export function EditEventModal({
               onChange={(e) => {
                 setStreetEdit(e.target.value);
               }}
-              onBlur={() => validateStreet()}
+              onBlur={handleValidateStreet}
               error={errorStreet}
               required
             />
@@ -291,7 +300,7 @@ export function EditEventModal({
               onChange={(e) => {
                 setCityEdit(e.target.value);
               }}
-              onBlur={() => validateCity()}
+              onBlur={handleValidateCity}
               error={errorCity}
               required
             />
@@ -319,7 +328,7 @@ export function EditEventModal({
                 setDateEdit(val ? dayjs(val).toISOString() : "")
               }
               required
-              onBlur={() => validateDate()}
+              onBlur={handleValidateDate}
               error={errorDate}
             />
           </Grid.Col>
@@ -329,7 +338,7 @@ export function EditEventModal({
               clearable
               label="End date"
               placeholder="When does it end?"
-              onBlur={() => validateEndDate(endDateEdit)}
+              onBlur={() => handleValidateEndDate(endDateEdit)}
               error={errorEndDate}
               value={endDateEdit ? new Date(endDateEdit) : null}
               disabled={updateEvent.isPending}
@@ -348,7 +357,7 @@ export function EditEventModal({
           disabled={updateEvent.isPending}
           placeholder="Select a category"
           error={errorCategory}
-          onBlur={() => validateCategory()}
+          onBlur={handleValidateCategory}
           data={[
             { value: "workshop", label: "Workshop" },
             { value: "conference", label: "Conference" },

@@ -69,11 +69,11 @@
     "months": "tháng",
     "year": "năm",
     "years": "năm",
-    "just_now": "Mới tinh",
-    "minutes_ago": "{{count}} phút trước",
-    "hours_ago": "{{count}} giờ trước",
-    "yesterday": "Hôm qua",
-    "days_ago": "{{count}} ngày trước"
+    "just_now": "Vừa mới đăng",
+    "minutes_ago": "Đăng {{count}} phút trước",
+    "hours_ago": "Đăng {{count}} giờ trước",
+    "yesterday": "Đăng hôm qua",
+    "days_ago": "Đăng {{count}} ngày trước"
   },
   "timeframe": {
     "title": "Khung thời gian",
