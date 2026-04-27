@@ -30,6 +30,7 @@ import HeroCard from "../../components/hero/HeroCard";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import classes from "../../styles/GlobalStyles.module.css";
+import EnableNotiCheckBox from "../../components/common/EnableNotiCheckBox";
 
 export default function GuestHome() {
   const { t } = useTranslation("home");
@@ -99,9 +100,7 @@ export default function GuestHome() {
             </Button>
 
             {/* TODO: move this to preferences tab in profile page */}
-            <div className="onesignal-customlink-container">
-              <Button variant="primary">Enable Push noti</Button>
-            </div>
+            <EnableNotiCheckBox />
           </Group>
         </Stack>
       </HeroBanner>

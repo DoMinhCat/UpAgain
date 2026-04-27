@@ -60,7 +60,8 @@
     "loading": "Loading...",
     "not_found": "Not found",
     "success": "Success",
-    "error": "Error"
+    "error": "Error",
+    "btn_push_noti": "Enable push notification"
   },
   "stripe": {
     "verification_failed": "Payment verification failed",

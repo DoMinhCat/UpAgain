@@ -14,6 +14,7 @@ import {
   Badge,
   Divider,
   Timeline,
+  Checkbox,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -44,6 +45,13 @@ const UpAgainTheme = createTheme({
       defaultProps: {
         classNames: {
           root: classes.button,
+        },
+      },
+    }),
+    Checkbox: Checkbox.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.checkbox,
         },
       },
     }),
