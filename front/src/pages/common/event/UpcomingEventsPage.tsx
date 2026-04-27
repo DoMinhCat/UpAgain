@@ -201,6 +201,7 @@ export default function UpcomingEventsPage() {
                   onclick={() =>
                     navigate(
                       `${PATHS.EVENTS.HOME}/${e.category === "meetups" ? e.category : e.category + "s"}/${e.id}`,
+                      { state: { from: "upcomingEvents" } },
                     )
                   }
                   key={e.id}
@@ -263,6 +264,7 @@ export default function UpcomingEventsPage() {
             onEventClick={(event) => {
               navigate(
                 `${PATHS.EVENTS.HOME}/${event.payload?.category === "meetups" ? event.payload.category : event.payload?.category + "s"}/${event.id}`,
+                { state: { from: "upcomingEvents" } },
               );
             }}
           />

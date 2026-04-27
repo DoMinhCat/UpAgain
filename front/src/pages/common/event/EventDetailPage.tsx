@@ -33,7 +33,12 @@ import {
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { EventCard } from "../../../components/event/EventCard";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useAuth } from "../../../context/AuthContext";
@@ -71,6 +76,7 @@ export default function EventDetailPage() {
   const isEmployee = role === "employee";
   const isAdmin = role === "admin";
   const theme = useComputedColorScheme("light");
+  const location = useLocation();
 
   const { id } = useParams<{ id: string }>();
   const idEvent = parseInt(id || "0");
@@ -357,10 +363,22 @@ export default function EventDetailPage() {
                   title: t("events", { defaultValue: "Events" }),
                   href: "/events",
                 },
-                {
-                  title: t(`categories.${event.category}_plural`),
-                  href: `/events/${event.category}s`,
-                },
+                ...(location.state?.from === "upcomingEvents"
+                  ? [
+                      {
+                        title: t("events:my_events.title", {
+                          defaultValue: "My Events",
+                        }),
+                        href: PATHS.EVENTS.PLANNING,
+                      },
+                    ]
+                  : [
+                      {
+                        title: t(`categories.${event.category}_plural`),
+                        href: `/events/${event.category}s`,
+                      },
+                    ]),
+
                 { title: event.title, href: "#" },
               ]}
             />
