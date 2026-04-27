@@ -132,9 +132,9 @@ export default function AdminEventsModule() {
                   : event.category === "workshop"
                     ? "blue"
                     : event.category === "conference"
-                      ? "green"
+                      ? "var(--upagain-neutral-green)"
                       : event.category === "meetups"
-                        ? "yellow"
+                        ? "var(--upagain-yellow)"
                         : "red"
               }
             >
@@ -159,9 +159,9 @@ export default function AdminEventsModule() {
             <Pill
               variant={
                 event.status === "pending"
-                  ? "yellow"
+                  ? "var(--upagain-yellow)"
                   : event.status === "approved"
-                    ? "green"
+                    ? "var(--upagain-neutral-green)"
                     : event.status === "refused"
                       ? "red"
                       : "gray"

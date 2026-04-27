@@ -3,7 +3,8 @@
   "my_events": {
     "title": "Mes événements",
     "description": "Prêt pour vos prochains événements ?",
-    "schedule_description": "Tous vos événements dans un planning simple"
+    "schedule_description": "Tous vos événements dans un planning simple",
+    "events_on": "Événements le"
   },
   "hero": {
     "title": "Événements & Ateliers Durables",

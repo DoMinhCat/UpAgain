@@ -11,6 +11,7 @@ import {
   updateEvent,
   registerToEvent,
   cancelRegistration,
+  getMyEvents,
 } from "../api/eventModule";
 import {
   type EventCreationPayload,
@@ -273,6 +274,7 @@ export const useRegisterToEvent = () => {
         queryKey: ["event", payload.id_event],
       });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+      queryClient.invalidateQueries({ queryKey: ["myEvents"] });
     },
     meta: {
       errorTitle: "Event registration failed",
@@ -296,10 +298,23 @@ export const useCancelRegistration = () => {
         queryKey: ["event", payload.id_event],
       });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
+      queryClient.invalidateQueries({ queryKey: ["myEvents"] });
     },
     meta: {
       errorTitle: "Registration cancellation failed",
       errorMessage: "An error occured while cancelling registration to event",
+    },
+  });
+};
+
+export const useGetMyEvents = () => {
+  return useQuery<AppEvent[]>({
+    queryKey: ["myEvents"],
+    queryFn: () => getMyEvents(),
+    staleTime: 60 * 1000,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch account's events.",
     },
   });
 };

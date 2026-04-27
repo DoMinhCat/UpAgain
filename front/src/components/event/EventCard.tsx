@@ -110,9 +110,9 @@ export function EventCard({
                 : category === "workshop"
                   ? "blue"
                   : category === "conference"
-                    ? "green"
+                    ? "var(--upagain-neutral-green)"
                     : category === "meetups"
-                      ? "yellow"
+                      ? "var(--upagain-yellow)"
                       : "red"
             }
             size="sm"

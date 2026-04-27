@@ -205,7 +205,9 @@ function OverviewTab() {
                 </Table.Thead>
                 <Table.Tbody>
                   <Table.Tr>
-                    <Table.Td fw={500}>{t("validations.overview.types.deposit")}</Table.Td>
+                    <Table.Td fw={500}>
+                      {t("validations.overview.types.deposit")}
+                    </Table.Td>
                     <Table.Td ta="center">
                       <Badge color="orange" variant="light">
                         {stats?.pending_deposits ?? 0}
@@ -223,7 +225,9 @@ function OverviewTab() {
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>
-                    <Table.Td fw={500}>{t("validations.overview.types.listing")}</Table.Td>
+                    <Table.Td fw={500}>
+                      {t("validations.overview.types.listing")}
+                    </Table.Td>
                     <Table.Td ta="center">
                       <Badge color="orange" variant="light">
                         {stats?.pending_listings ?? 0}
@@ -241,7 +245,9 @@ function OverviewTab() {
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>
-                    <Table.Td fw={500}>{t("validations.overview.types.event")}</Table.Td>
+                    <Table.Td fw={500}>
+                      {t("validations.overview.types.event")}
+                    </Table.Td>
                     <Table.Td ta="center">
                       <Badge color="orange" variant="light">
                         {stats?.pending_events ?? 0}
@@ -329,8 +335,14 @@ function FilterBar({
             label={t("history.table.module")}
             placeholder={t("history.filters.module_placeholder")}
             data={[
-              { value: "Deposit", label: t("validations.overview.types.deposit") },
-              { value: "Listing", label: t("validations.overview.types.listing") },
+              {
+                value: "Deposit",
+                label: t("validations.overview.types.deposit"),
+              },
+              {
+                value: "Listing",
+                label: t("validations.overview.types.listing"),
+              },
               { value: "Event", label: t("validations.overview.types.event") },
             ]}
             value={filters.typeValue}
@@ -786,15 +798,16 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
                       : ev.category === "workshop"
                         ? "blue"
                         : ev.category === "conference"
-                          ? "green"
+                          ? "var(--upagain-neutral-green)"
                           : ev.category === "meetups"
-                            ? "yellow"
+                            ? "var(--upagain-yellow)"
                             : "red"
                   }
                 >
                   {t(`events:categories.${ev.category}` as any, {
                     defaultValue:
-                      ev.category.charAt(0).toUpperCase() + ev.category.slice(1),
+                      ev.category.charAt(0).toUpperCase() +
+                      ev.category.slice(1),
                   })}
                 </Pill>
               </Table.Td>
@@ -934,7 +947,15 @@ function HistoryTab() {
       />
       <AdminTable
         loading={isLoading}
-        error={isError ? new Error(t("validations.history.error", { defaultValue: "Could not load history." })) : null}
+        error={
+          isError
+            ? new Error(
+                t("validations.history.error", {
+                  defaultValue: "Could not load history.",
+                }),
+              )
+            : null
+        }
         header={[
           t("validations.table.submitted_on"),
           t("users.table.id"),

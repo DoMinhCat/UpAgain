@@ -3,7 +3,8 @@
   "my_events": {
     "title": "Sự kiện của tôi",
     "schedule_description": "Tất cả sự kiện của bạn trong một thời khóa biểu",
-    "description": "Sẵn sàng cho các sự kiện sắp tới của bạn chưa nè?"
+    "description": "Sẵn sàng cho các sự kiện sắp tới của bạn chưa nè?",
+    "events_on": "Sự kiện vào ngày"
   },
   "hero": {
     "title": "Sự kiện & Workshop Tái Chế",

@@ -237,9 +237,9 @@ export default function AdminEventDetails() {
                       : eventDetails?.category === "workshop"
                         ? "blue"
                         : eventDetails?.category === "conference"
-                          ? "green"
+                          ? "var(--upagain-neutral-green)"
                           : eventDetails?.category === "meetups"
-                            ? "yellow"
+                            ? "var(--upagain-yellow)"
                             : "red"
                   }
                 >
@@ -251,9 +251,9 @@ export default function AdminEventDetails() {
                 <Badge
                   variant={
                     eventDetails?.status === "pending"
-                      ? "yellow"
+                      ? "var(--upagain-yellow)"
                       : eventDetails?.status === "approved"
-                        ? "green"
+                        ? "var(--upagain-neutral-green)"
                         : eventDetails?.status === "refused"
                           ? "red"
                           : "gray"
