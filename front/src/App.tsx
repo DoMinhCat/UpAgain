@@ -20,8 +20,10 @@ import { router } from "./routes/routes";
 import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
 import { DateTimePicker, DatePickerInput } from "@mantine/dates";
-import React from "react";
+import React, { useEffect } from "react";
 import FullScreenLoader from "./components/common/FullScreenLoader";
+import OneSignal from "react-onesignal";
+("use client");
 
 const UpAgainTheme = createTheme({
   focusRing: "never",
@@ -148,6 +150,21 @@ const UpAgainTheme = createTheme({
 });
 
 function App() {
+  const OneSignalAppId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+
+  // OnseSignal init
+  useEffect(() => {
+    // Ensure this code runs only on the client side
+    if (typeof window !== "undefined") {
+      OneSignal.init({
+        appId: OneSignalAppId,
+        // You can add other initialization options here
+      }).then(() => {
+        OneSignal.Debug.setLogLevel("warn");
+      });
+    }
+  }, []);
+
   return (
     <MantineProvider
       theme={UpAgainTheme}

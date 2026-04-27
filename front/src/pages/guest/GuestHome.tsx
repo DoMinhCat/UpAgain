@@ -97,6 +97,11 @@ export default function GuestHome() {
             <Button size="lg" variant="secondary">
               {t("guest.cta_articles")}
             </Button>
+
+            {/* TODO: move this to preferences tab in profile page */}
+            <div className="onesignal-customlink-container">
+              <Button variant="primary">Enable Push noti</Button>
+            </div>
           </Group>
         </Stack>
       </HeroBanner>
