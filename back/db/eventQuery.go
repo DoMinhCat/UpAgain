@@ -237,6 +237,14 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 			return nil, 0, fmt.Errorf("GetAllEvents() failed: %v", err.Error())
 		}
 		event.Images = images
+
+		// attendees
+		attendees, err := GetAttendeesByEventId(event.Id)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllEvents() failed: %v", err.Error())
+		}
+		event.Attendees = attendees
+
 		results = append(results, event)
 	}
 

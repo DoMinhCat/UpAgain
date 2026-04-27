@@ -62,6 +62,7 @@ export function EventListModal({
               price={e.price}
               city={e.city}
               registeredCount={e.registered}
+              fullEvent={e}
             />
           ))
         ) : (
