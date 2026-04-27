@@ -12,7 +12,11 @@ import {
   Button,
   Center,
 } from "@mantine/core";
-import { IconCalendar, IconChevronRight, IconCalendarOff } from "@tabler/icons-react";
+import {
+  IconCalendar,
+  IconChevronRight,
+  IconCalendarOff,
+} from "@tabler/icons-react";
 import { useTranslation, Trans } from "react-i18next";
 import { EventCard } from "../../../components/event/EventCard";
 
@@ -35,21 +39,6 @@ export default function EventPage() {
   // Stripe redirect handler
   useHandleStripeEventRegistration();
 
-  // Placeholder data for drafting layout
-  const mockEvent = {
-    title: "Eco-Design Workshop",
-    description: "Learn how to upcycle your old furniture into modern pieces.",
-    authorName: "Julian Thorne",
-    authorAvatar: "",
-    createdAt: new Date().toISOString(),
-    eventDate: new Date().toISOString(),
-    image:
-      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop",
-    price: 15,
-    city: "Paris",
-    postalCode: "75001",
-    registeredCount: 12,
-  };
   // GET EVENTS BY CATE
   const LIMIT = 4;
 

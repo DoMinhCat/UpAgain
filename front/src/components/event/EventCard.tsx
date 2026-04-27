@@ -26,7 +26,6 @@ import { resolveUrl } from "../../utils/imageUtils";
 import { EventRegistrationModal } from "./EventRegistrationModal";
 import type { AppEvent } from "../../api/interfaces/event";
 import { useRegisterToEvent } from "../../hooks/eventHooks";
-import { PATHS } from "../../routes/paths";
 import { showSuccessNotification } from "../common/NotificationToast";
 import { useAuth } from "../../context/AuthContext";
 
