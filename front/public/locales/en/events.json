@@ -78,7 +78,13 @@
     "confirm_registration_msg": "You are about to register for this event. Please review the details below.",
     "event_ended": "This event has already ended.",
     "cancel_registration_title": "Cancel Registration",
-    "cancel_registration_msg": "Are you sure you want to cancel your registration? This action cannot be undone."
+    "cancel_registration_msg": "Are you sure you want to cancel your registration? This action cannot be undone.",
+    "register_success_title": "Registration successful",
+    "register_success_msg": "Payment confirmed",
+    "register_failed_title": "Registration failed",
+    "register_failed_msg": "Payment not completed",
+    "register_cancelled_title": "Registration cancelled",
+    "register_cancelled_msg": "Payment was cancelled"
   },
   "no_event": "No {{event_type}} found",
   "empty_state": {

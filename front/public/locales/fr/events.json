@@ -78,7 +78,13 @@
     "confirm_registration_msg": "Vous êtes sur le point de vous inscrire à cet événement. Veuillez vérifier les détails ci-dessous.",
     "event_ended": "Cet événement est déjà terminé.",
     "cancel_registration_title": "Annuler l'inscription",
-    "cancel_registration_msg": "Êtes-vous sûr de vouloir annuler votre inscription ? Cette action est irréversible."
+    "cancel_registration_msg": "Êtes-vous sûr de vouloir annuler votre inscription ? Cette action est irréversible.",
+    "register_success_title": "Inscription réussie",
+    "register_success_msg": "Paiement confirmé",
+    "register_failed_title": "Échec de l'inscription",
+    "register_failed_msg": "Paiement non complété",
+    "register_cancelled_title": "Inscription annulée",
+    "register_cancelled_msg": "Le paiement a été annulé"
   },
   "no_event": "Aucun {{event_type}} trouvé",
   "empty_state": {
