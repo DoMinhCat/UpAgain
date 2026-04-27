@@ -32,7 +32,7 @@ interface CreateEventModalProps {
 }
 
 export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["admin", "common"]);
   const [title, setTitle] = useState<string>("");
   const [capacity, setCapacity] = useState<number | undefined>();
   const [price, setPrice] = useState<number>(0);
@@ -305,9 +305,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
               placeholder={t("events.create_modal.start_date_placeholder")}
               value={date ? new Date(date) : null}
               disabled={createEventMutation.isPending}
-              onChange={(val) =>
-                setDate(val ? dayjs(val).toISOString() : null)
-              }
+              onChange={(val) => setDate(val ? dayjs(val).toISOString() : null)}
               required
               onBlur={handleValidateStartDate}
               error={errorDate}
@@ -386,6 +384,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
         </Button>
         <Button
           onClick={(e) => {
+            e.stopPropagation();
             handleSubmit(e);
           }}
           variant="primary"

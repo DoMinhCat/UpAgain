@@ -62,6 +62,10 @@
     "success": "Success",
     "error": "Error"
   },
+  "stripe": {
+    "verification_failed": "Payment verification failed",
+    "verification_error": "Could not verify payment session."
+  },
   "time": {
     "day": "day",
     "days": "days",

@@ -78,7 +78,13 @@
     "confirm_registration_msg": "Bạn sắp đăng ký tham gia sự kiện này. Vui lòng xem lại các chi tiết bên dưới.",
     "event_ended": "Sự kiện này đã kết thúc.",
     "cancel_registration_title": "Hủy đăng ký",
-    "cancel_registration_msg": "Bạn có chắc chắn muốn hủy đăng ký không? Hành động này không thể hoàn tác."
+    "cancel_registration_msg": "Bạn có chắc chắn muốn hủy đăng ký không? Hành động này không thể hoàn tác.",
+    "register_success_title": "Đăng ký thành công",
+    "register_success_msg": "Đã xác nhận thanh toán",
+    "register_failed_title": "Đăng ký thất bại",
+    "register_failed_msg": "Thanh toán chưa hoàn tất",
+    "register_cancelled_title": "Đã hủy đăng ký",
+    "register_cancelled_msg": "Giao dịch thanh toán đã bị hủy"
   },
   "no_event": "Chưa có {{event_type}} nào cả",
   "empty_state": {

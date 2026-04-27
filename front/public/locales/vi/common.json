@@ -62,6 +62,10 @@
     "success": "Xong rồi đó!",
     "error": "Lỗi rồi đại vương ơi"
   },
+  "stripe": {
+    "verification_failed": "Xác minh thanh toán thất bại",
+    "verification_error": "Không thể xác minh phiên thanh toán."
+  },
   "time": {
     "day": "ngày",
     "days": "ngày",

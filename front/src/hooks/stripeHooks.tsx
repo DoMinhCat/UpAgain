@@ -11,12 +11,13 @@ import {
 import { useTranslation } from "react-i18next";
 
 export const useVerifyStripeSession = () => {
+  const { t } = useTranslation(["common"]);
   return useMutation({
     mutationFn: (payload: StripePaymentVerificationRequest) =>
       verifyStripeSession(payload),
     meta: {
-      errorTitle: "Payment verification failed",
-      errorMessage: "Could not verify payment session.",
+      errorTitle: t("common:stripe.verification_failed"),
+      errorMessage: t("common:stripe.verification_error"),
     },
   });
 };
@@ -48,19 +49,15 @@ export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
                 {
                   onSuccess: () => {
                     showSuccessNotification(
-                      t("events:detail.register_success_title", {
-                        defaultValue: "Registration successful",
-                      }),
-                      t("events:detail.register_success_msg", {
-                        defaultValue: "Payment confirmed",
-                      })
+                      t("events:detail.register_success_title"),
+                      t("events:detail.register_success_msg"),
                     );
                     searchParams.delete("payment");
                     searchParams.delete("sessionid");
                     searchParams.delete("event_id");
                     setSearchParams(searchParams);
                   },
-                }
+                },
               );
             } else {
               showErrorNotification(
@@ -69,7 +66,7 @@ export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
                 }),
                 t("events:detail.register_failed_msg", {
                   defaultValue: "Payment not completed",
-                })
+                }),
               );
               searchParams.delete("payment");
               searchParams.delete("sessionid");
@@ -77,7 +74,7 @@ export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
               setSearchParams(searchParams);
             }
           },
-        }
+        },
       );
     } else if (status === "cancelled" || status === "cancel") {
       showErrorNotification(
@@ -86,7 +83,7 @@ export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
         }),
         t("events:detail.register_cancelled_msg", {
           defaultValue: "Payment was cancelled",
-        })
+        }),
       );
       searchParams.delete("payment");
       searchParams.delete("sessionid");

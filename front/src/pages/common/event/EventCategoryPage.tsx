@@ -45,19 +45,7 @@ export default function EventCategoryPage() {
   if (event_category === "meetup") {
     event_category = "meetups";
   }
-  if (
-    category != "workshops" &&
-    category != "conferences" &&
-    category != "meetups" &&
-    category != "expositions" &&
-    category != "others"
-  ) {
-    return <NotFoundPage />;
-  }
-
-  const { t } = useTranslation("events");
-
-  // FILTER OPTIONS
+  const LIMIT = 12;
   const [page, setPage] = useState<number>(1);
   const [filters, setFilters] = useState<{
     search: string | null;
@@ -82,8 +70,7 @@ export default function EventCategoryPage() {
     setAppliedFilters(defaultFilters);
     setPage(1);
   };
-  // GET EVENTS BY CATEGORY
-  const LIMIT = 12;
+
   const { data: eventsData, isLoading: isLoadingEvents } = useGetAllEvents(
     -1,
     LIMIT,
@@ -96,30 +83,23 @@ export default function EventCategoryPage() {
     true,
   );
   const events = eventsData?.events || [];
+  const { t } = useTranslation("events");
 
+  if (
+    category != "workshops" &&
+    category != "conferences" &&
+    category != "meetups" &&
+    category != "expositions" &&
+    category != "others"
+  ) {
+    return <NotFoundPage />;
+  }
   const baseCat = category.slice(0, -1); // remove 's'
 
   const categoryTitle = t(`categories.${baseCat}_plural`);
   const categoryDescription = t("categories.explore_description", {
     category: t(`categories.${baseCat}`),
   });
-
-  // Mock data for drafting
-  const mockEvent = {
-    title: "Eco-Design Workshop",
-    description: "Learn how to upcycle your old furniture into modern pieces.",
-    authorName: "Julian Thorne",
-    authorAvatar: "",
-    createdAt: new Date().toISOString(),
-    eventDate: new Date().toISOString(),
-    image:
-      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop",
-    price: 15,
-    city: "Paris",
-    postalCode: "75001",
-    registeredCount: 24,
-  };
-
   if (isLoadingEvents) {
     return <FullScreenLoader />;
   }
