@@ -179,6 +179,21 @@
   }
 }
 
+.checkbox {
+  cursor: pointer;
+
+  /* When the checkbox is checked, fill it with your green */
+  &:checked {
+    background-color: var(--upagain-neutral-green) !important;
+    border-color: var(--upagain-neutral-green) !important;
+  }
+
+  /* Optional: change the border on hover when it's still empty */
+  &:hover {
+    border-color: var(--upagain-neutral-green);
+  }
+}
+
 /* this is for custom mantine text variants */
 .text {
   &[data-variant="primary"] {

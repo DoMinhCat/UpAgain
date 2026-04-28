@@ -60,7 +60,9 @@
     "loading": "Đang tải, đợi xíu nha...",
     "not_found": "Hổng tìm thấy rồi",
     "success": "Xong rồi đó!",
-    "error": "Lỗi rồi đại vương ơi"
+    "error": "Lỗi rồi đại vương ơi",
+    "btn_push_noti": "Bật thông báo đẩy",
+    "blocked_desc": "Thông báo bị chặn. Vui lòng bật lại trong cài đặt trình duyệt."
   },
   "stripe": {
     "verification_failed": "Xác minh thanh toán thất bại",
