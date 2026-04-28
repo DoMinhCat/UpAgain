@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	helpers "backend/utils/helpers"
 	validations "backend/utils/validations"
 	"encoding/csv"
 	"encoding/json"
@@ -858,4 +859,86 @@ func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+	idRequester := r.Context().Value("user").(models.AuthClaims).Id
+
+	id_account, err := strconv.Atoi(r.PathValue("id_account"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid account ID.")
+		return
+	}
+
+	// can only update own avatar
+	if id_account != idRequester {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	deleted := false
+	exist, err := db.CheckAccountExistsById(id_account, &deleted)
+	if err != nil {
+		slog.Error("CheckAccountExistById() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", id_account))
+		return
+	}
+
+	err = r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
+		return
+	}
+
+	newAvatars := r.MultipartForm.File["avatar"]
+	if len(newAvatars) == 0 {
+		utils.RespondWithError(w, http.StatusBadRequest, "No avatar provided.")
+		return
+	}
+	if len(newAvatars) > 1 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Only one avatar can be uploaded.")
+		return
+	}
+	newAvatar := newAvatars[0]
+
+	// delete old avatar if any
+	account, err := db.GetAccountDetailsById(id_account)
+	if err != nil {
+		slog.Error("GetAccountDetailsById() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+	oldAvatar := account.Avatar
+
+	if oldAvatar.Valid && oldAvatar.String != "" {
+		err = helpers.DeleteFileByPath("images/accounts", oldAvatar.String)
+		if err != nil {
+			slog.Error("DeleteFileByPath() failed", "controller", "UpdateAvatar", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+			return
+		}
+	}
+
+	// insert new avatar and update db
+	newAvatarPath, err := helpers.SaveUploadedFile(newAvatar, "images/accounts")
+	if err != nil {
+		slog.Error("SaveUploadedFile() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+
+	err = db.UpdateAvatar(id_account, newAvatarPath)
+	if err != nil {
+		slog.Error("UpdateAvatar() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)	
 }
