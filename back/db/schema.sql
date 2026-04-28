@@ -337,5 +337,6 @@ create table notifications (
   deleted_at timestamptz,
   type noti_setting not null,
   entity_type notification_entity_type not null,
-  entity_id text not null
-)
+  entity_id text not null,
+  id_account int not null references accounts(id) on delete cascade
+);
