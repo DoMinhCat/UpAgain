@@ -61,7 +61,8 @@
     "not_found": "Non trouvé",
     "success": "Succès",
     "error": "Erreur",
-    "btn_push_noti": "Activer la notification push"
+    "btn_push_noti": "Activer la notification push",
+    "blocked_desc": "Les notifications sont bloquées. Veuillez les activer dans les paramètres de votre navigateur."
   },
   "stripe": {
     "verification_failed": "Échec de la vérification du paiement",
