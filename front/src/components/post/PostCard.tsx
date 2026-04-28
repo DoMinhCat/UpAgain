@@ -139,34 +139,50 @@ export default function PostCard({
 
           <Group gap="sm">
             <Group gap={4}>
-              <ActionIcon
-                disabled={currentRole !== "user" && currentRole !== "pro"}
-                className="actionIcon"
-                data-variant="primary"
-                variant="subtle"
-                radius="xl"
-                aria-label="Like post"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onLike?.(e);
-                }}
+              <Tooltip
+                label={
+                  currentRole !== "user" && currentRole !== "pro"
+                    ? "You are not allowed to interact with this post"
+                    : isLiked
+                      ? "Unlike"
+                      : "Like post"
+                }
               >
-                {isLiked ? (
-                  <IconHeartFilled
-                    size={18}
-                    color="var(--mantine-color-red-6)"
-                  />
-                ) : (
-                  <IconHeart size={18} color="var(--mantine-color-red-6)" />
-                )}
-              </ActionIcon>
+                <ActionIcon
+                  disabled={currentRole !== "user" && currentRole !== "pro"}
+                  className="actionIcon"
+                  data-variant="primary"
+                  variant="subtle"
+                  radius="xl"
+                  aria-label="Like post"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLike?.(e);
+                  }}
+                >
+                  {isLiked ? (
+                    <IconHeartFilled
+                      size={18}
+                      color="var(--mantine-color-red-6)"
+                    />
+                  ) : (
+                    <IconHeart size={18} color="var(--mantine-color-red-6)" />
+                  )}
+                </ActionIcon>
+              </Tooltip>
               <Text size="xs" fw={600} c="var(--mantine-color-text)">
                 {likes}
               </Text>
             </Group>
 
             <Tooltip
-              label={isSaved ? "Unsave post" : "Save post"}
+              label={
+                currentRole !== "user" && currentRole !== "pro"
+                  ? "You are not allowed to interact with this post"
+                  : isSaved
+                    ? "Unsave post"
+                    : "Save post"
+              }
               position="top"
               withArrow
             >
