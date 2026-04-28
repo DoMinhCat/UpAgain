@@ -138,7 +138,7 @@ const CATEGORY_COLOR: Record<string, string> = {
   other: "gray",
 };
 
-export default function UserPostDetailPage() {
+export default function PostDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const role: string = user?.role || "";

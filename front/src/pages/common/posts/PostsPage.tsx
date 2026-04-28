@@ -218,7 +218,9 @@ export default function UserPostsPage() {
         <Group justify="space-between" wrap="wrap" gap="md">
           <TextInput
             placeholder="Search articles..."
-            leftSection={<IconSearch size={16} />}
+            leftSection={
+              <IconSearch size={16} color="var(--upagain-neutral-green)" />
+            }
             value={search}
             onChange={(e) => {
               setSearch(e.currentTarget.value);
@@ -270,7 +272,7 @@ export default function UserPostsPage() {
             </Stack>
           </Center>
         ) : (
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
             {posts.map((post) => (
               <PostCard
                 currentRole={role}
