@@ -15,7 +15,7 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
-	const ENV = "dev"
+	const ENV = "dev" // or "prod"
 
 	utils.InitLogger()
 	utils.LoadEnv(ENV)
