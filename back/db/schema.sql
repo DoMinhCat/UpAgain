@@ -328,3 +328,15 @@ CREATE TABLE step_items (
   id_item INTEGER NOT NULL REFERENCES items(id) ON DELETE RESTRICT,
   PRIMARY KEY (id_step, id_item)
 );
+
+CREATE TYPE notification_entity_type AS ENUM ('profile', 'event', 'item');
+create table notifications (
+  id uuid primary key,
+  created_at timestamptz not null default now(),
+  read_at timestamptz,
+  deleted_at timestamptz,
+  type noti_setting not null,
+  entity_type notification_entity_type not null,
+  entity_id text not null,
+  id_account int not null references accounts(id) on delete cascade
+);
