@@ -6,12 +6,15 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function EnableNotiCheckBox() {
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const { t } = useTranslation();
   const { user } = useAuth();
 
   useEffect(() => {
     // Check initial status
-    const status = OneSignal.User.PushSubscription.optedIn;
+    const status =
+      OneSignal.User.PushSubscription.optedIn &&
+      Notification.permission === "granted";
     setIsSubscribed(status || false);
 
     // Listen for changes (optional but recommended)
@@ -20,7 +23,20 @@ export default function EnableNotiCheckBox() {
     });
   }, []);
 
+  useEffect(() => {
+    if (Notification.permission === "denied") {
+      setIsBlocked(true);
+    } else {
+      setIsBlocked(false);
+    }
+  }, []);
+
   const togglePushNotifications = async () => {
+    if (isBlocked) {
+      setIsSubscribed(false);
+      return;
+    }
+
     if (isSubscribed) {
       // Opt Out
       await OneSignal.User.PushSubscription.optOut();
@@ -28,7 +44,11 @@ export default function EnableNotiCheckBox() {
     } else {
       // Opt In (This will trigger the browser prompt if not already accepted)
       await OneSignal.User.PushSubscription.optIn();
-      setIsSubscribed(true);
+      const status =
+        OneSignal.User.PushSubscription.optedIn &&
+        Notification.permission === "granted";
+      setIsSubscribed(status || false);
+      setIsBlocked(Notification.permission === "denied");
     }
   };
 
@@ -41,6 +61,7 @@ export default function EnableNotiCheckBox() {
       size="lg"
       checked={isSubscribed}
       onChange={togglePushNotifications}
+      description={isBlocked ? t("common:notifications.blocked_desc") : ""}
     />
   );
 }
