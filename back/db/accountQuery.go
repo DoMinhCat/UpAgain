@@ -421,3 +421,11 @@ func GetUsernameById(id int) (string, error) {
 	}
 	return username, nil
 }
+
+func UpdateAvatar(id_account int, avatar string) error {
+	_, err := utils.Conn.Exec("UPDATE accounts SET avatar=$1 WHERE id=$2 AND deleted_at IS NULL", avatar, id_account)
+	if err != nil {
+		return fmt.Errorf("UpdateAvatar() failed: %v", err.Error())
+	}
+	return nil
+}

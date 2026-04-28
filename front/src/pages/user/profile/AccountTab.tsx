@@ -18,6 +18,7 @@ import { PATHS } from "../../../routes/paths";
 import {
   useAccountDetails,
   useAccountStats,
+  useUpdateAvatar,
 } from "../../../hooks/accountHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { useState, useEffect } from "react";
@@ -30,6 +31,7 @@ import {
 } from "@tabler/icons-react";
 import ImageDropzone from "../../../components/input/ImageDropzone";
 import { useDisclosure } from "@mantine/hooks";
+import { resolveUrl } from "../../../utils/imageUtils";
 
 export default function AccountTab() {
   const { user } = useAuth();
@@ -37,6 +39,18 @@ export default function AccountTab() {
   // UPDATE AVATAR
   const [openedAvatar, { open: openAvatar, close: closeAvatar }] =
     useDisclosure(false);
+  const [files, setFiles] = useState<any[]>([]);
+  const updateAvatar = useUpdateAvatar(user?.id || 0);
+
+  const handleUpdateAvatar = () => {
+    const newAvatarToSend = new FormData();
+    newAvatarToSend.append("avatar", files[0]);
+    updateAvatar.mutate(newAvatarToSend, {
+      onSuccess: () => {
+        closeAvatar();
+      },
+    });
+  };
 
   // GET ACCOUNT DATA
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
@@ -50,7 +64,6 @@ export default function AccountTab() {
     username: "",
     phone: "",
   });
-  const [files, setFiles] = useState<any[]>([]);
 
   // Sync state with backend data when loaded
   useEffect(() => {
@@ -68,7 +81,6 @@ export default function AccountTab() {
         username: accountDetails.username || "",
         phone: accountDetails.phone || "",
       });
-      setFiles([]);
     }
   };
 
@@ -94,8 +106,8 @@ export default function AccountTab() {
       {/* AVATAR SECTION */}
       <Stack justify="center" align="center">
         <Avatar
-          src={accountDetails?.avatar}
-          name="User's name"
+          src={resolveUrl(accountDetails?.avatar || "")}
+          name={accountDetails?.username}
           color="initials"
           size="100"
         />
@@ -269,10 +281,14 @@ export default function AccountTab() {
           props={{ maxFiles: 1, onDrop: (files) => setFiles(files) }}
         />
         <Group mt="md" justify="center">
-          <Button variant="secondary" onClick={() => closeAvatar()}>
+          <Button variant="secondary" onClick={() => handleUpdateAvatar()}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={() => closeAvatar()}>
+          <Button
+            variant="primary"
+            onClick={() => handleUpdateAvatar()}
+            loading={updateAvatar.isPending}
+          >
             Confirm
           </Button>
         </Group>

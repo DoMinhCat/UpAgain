@@ -121,4 +121,8 @@ export const ENDPOINTS = {
   STRIPE: {
     VERIFY: "/payments/verify/",
   },
+
+  ACCOUNTS: {
+    UPDATE_AVATAR: (id_account: number) => `/accounts/${id_account}/avatar/`,
+  },
 } as const;

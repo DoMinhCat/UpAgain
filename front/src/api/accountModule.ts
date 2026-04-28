@@ -84,3 +84,16 @@ export const getExportAccountsCsv = async () => {
   });
   return response.data;
 };
+
+export const updateAvatar = async (id_account: number, payload: FormData) => {
+  const response = await api.patch(
+    ENDPOINTS.ACCOUNTS.UPDATE_AVATAR(id_account),
+    payload,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+  return response.data;
+};
