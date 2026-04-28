@@ -48,7 +48,7 @@ export const PATHS = {
     REGISTER: "/register",
     ABOUT: "/about",
     PRICING: "/pricing",
-    POSTS: "/posts",
+    POSTS: "/community",
     CONTACT: "/contact",
     FORGOT: "/forgot",
   },
@@ -67,6 +67,6 @@ export const PATHS = {
     PLANNING: "/events/planning",
   },
   POSTS: {
-    HOME: "/posts",
+    HOME: "/community",
   },
 } as const;
