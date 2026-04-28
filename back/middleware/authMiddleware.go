@@ -12,9 +12,9 @@ import (
 func AuthMiddleware(requiredRole []string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodOptions {
-            next.ServeHTTP(w, r)
-            return
-        }
+			next.ServeHTTP(w, r)
+			return
+		}
 
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {

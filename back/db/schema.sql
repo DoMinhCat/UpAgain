@@ -27,7 +27,8 @@ create table accounts
     password   varchar(255) not null,
     role       account_role not null,
     deleted_at timestamptz  null,
-    is_banned  boolean      not null default false
+    is_banned  boolean      not null default false,
+    avatar     varchar(255)
 );
 -- create index on role for faster query
 CREATE INDEX idx_account_role ON account (role);
@@ -92,10 +93,10 @@ create table events
     city         varchar(255)   not null,
     street       varchar(255)   not null,
     location_detail varchar(255),
+    created_by   integer references accounts(id) on delete restrict,
     -- TODO: add lat and lng returned by geocoding
     -- lat NUMERIC(10, 8), 
     -- lng NUMERIC(11, 8)
-    created_by   integer references accounts(id) on delete restrict,
 );
 CREATE INDEX idx_events_status ON events (status);
 CREATE INDEX idx_events_category ON events (category);
@@ -107,7 +108,7 @@ create table event_registrations
     id_event   integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_account),
     created_at timestamptz not null       default now(),
-    status     event_registrations_status default 'registered',
+    status     event_registrations_status not null default 'registered',
     paid_price numeric(10,2) not null -- set at registration, prevent price change after registered
 );
 
@@ -342,4 +343,16 @@ CREATE TABLE step_items (
   id_step INTEGER NOT NULL REFERENCES project_steps(id) ON DELETE CASCADE,
   id_item INTEGER NOT NULL REFERENCES items(id) ON DELETE RESTRICT,
   PRIMARY KEY (id_step, id_item)
+);
+
+CREATE TYPE notification_entity_type AS ENUM ('profile', 'event', 'item');
+create table notifications (
+  id uuid primary key,
+  created_at timestamptz not null default now(),
+  read_at timestamptz,
+  deleted_at timestamptz,
+  type noti_setting not null,
+  entity_type notification_entity_type not null,
+  entity_id text not null,
+  id_account int not null references accounts(id) on delete cascade
 );

@@ -15,6 +15,7 @@ import EventPage from "../pages/common/event/EventPage";
 import EventCategoryPage from "../pages/common/event/EventCategoryPage";
 import { showErrorNotification } from "../components/common/NotificationToast";
 import EventDetailPage from "../pages/common/event/EventDetailPage";
+import EventPlanning from "../pages/common/event/EventPlanning";
 
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -86,6 +87,7 @@ export const userRoutes: RouteObject = {
       path: "events",
       children: [
         { index: true, element: <EventPage /> },
+        { path: "planning", element: <EventPlanning /> },
         {
           path: ":category",
           children: [

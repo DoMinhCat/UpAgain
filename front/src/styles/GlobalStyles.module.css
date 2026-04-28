@@ -42,7 +42,7 @@
     border: none;
     font-weight: 700;
     letter-spacing: 0.5px;
-    padding: 12px 28px;
+    padding: 10px 28px;
 
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     position: relative;
@@ -86,7 +86,7 @@
     border: none;
     font-weight: 700;
     letter-spacing: 0.5px;
-    padding: 12px 28px;
+    padding: 10px 28px;
 
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     position: relative;
@@ -156,6 +156,41 @@
     &:hover {
       transform: translateY(-1px);
     }
+  }
+
+  &[data-variant="subtle"] {
+    background-color: transparent; /* Invisible initially */
+    color: var(--mantine-color-text); /* Standard text color */
+    border-radius: 100px;
+    border: 1px solid rgba(69, 165, 117, 0.2); /* Very subtle brand border */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother brand transition */
+
+    &:hover {
+      background-color: #45a575; /* Fills with brand green */
+      color: #f9f7f2; /* Swaps text to off-white */
+      border-color: #45a575;
+      transform: translateY(-2px); /* Signature UpAgain lift */
+      box-shadow: 0 6px 15px rgba(69, 165, 117, 0.25); /* Elegant brand glow */
+    }
+
+    &:active {
+      transform: translateY(0); /* Tactile feedback */
+    }
+  }
+}
+
+.checkbox {
+  cursor: pointer;
+
+  /* When the checkbox is checked, fill it with your green */
+  &:checked {
+    background-color: var(--upagain-neutral-green) !important;
+    border-color: var(--upagain-neutral-green) !important;
+  }
+
+  /* Optional: change the border on hover when it's still empty */
+  &:hover {
+    border-color: var(--upagain-neutral-green);
   }
 }
 

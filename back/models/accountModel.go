@@ -7,24 +7,25 @@ import (
 )
 
 type CreateAccountRequest struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
-	Phone    string `json:"phone"`
-	IsTrial  *bool  `json:"is_trial,omitempty"`
+	Email     string `json:"email"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Role      string `json:"role"`
+	Phone     string `json:"phone"`
+	IsTrial   *bool  `json:"is_trial,omitempty"`
 	IsPremium *bool  `json:"is_premium,omitempty"`
 }
 
 type Account struct {
-	Id         int       `json:"id"`
-	Email      string    `json:"email"`
-	Username   string    `json:"username"`
-	Role       string    `json:"role"`
-	IsBanned   bool      `json:"is_banned"`
-	CreatedAt  time.Time `json:"created_at"`
-	LastActive null.Time `json:"last_active"`
-	DeletedAt  null.Time `json:"deleted_at"`
+	Id         int         `json:"id"`
+	Email      string      `json:"email"`
+	Username   string      `json:"username"`
+	Role       string      `json:"role"`
+	IsBanned   bool        `json:"is_banned"`
+	CreatedAt  time.Time   `json:"created_at"`
+	LastActive null.Time   `json:"last_active"`
+	DeletedAt  null.Time   `json:"deleted_at"`
+	Avatar     null.String `json:"avatar" swaggertype:"string"`
 }
 
 type AccountsListPagination struct {

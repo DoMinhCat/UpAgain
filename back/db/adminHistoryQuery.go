@@ -22,7 +22,7 @@ func InsertHistory(entityType string, entityId interface{}, action string, admin
 	oldJSON, _ := json.Marshal(oldState)
 	newJSON, _ := json.Marshal(newState)
 
-	if entityType == "admin"{
+	if entityType == "admin" {
 		entityType = "employee"
 	}
 

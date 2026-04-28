@@ -12,6 +12,7 @@ import {
   Button,
   Tooltip,
   ActionIcon,
+  Center,
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
 import {
@@ -19,6 +20,8 @@ import {
   IconFilter,
   IconSortDescending,
   IconRefresh,
+  IconCalendar,
+  IconCalendarOff,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { EventCard } from "../../../components/event/EventCard";
@@ -28,31 +31,59 @@ import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
 import { NotFoundPage } from "../../error/404";
 import { useNavigate } from "react-router-dom";
-// import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import { useAuth } from "../../../context/AuthContext";
+import { useGetAllEvents } from "../../../hooks/eventHooks";
+import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function EventCategoryPage() {
-  const { t } = useTranslation("events");
-  const { category } = useParams<{ category: string }>();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  // FILTER OPTIONS
-  const [page, setPage] = useState<number>(1);
+  useHandleStripeEventRegistration();
+  const { category } = useParams<{ category: string }>();
+  let event_category = category?.substring(0, category.length - 1);
+  if (event_category === "meetup") {
+    event_category = "meetups";
+  }
   const LIMIT = 12;
+  const [page, setPage] = useState<number>(1);
   const [filters, setFilters] = useState<{
     search: string | null;
     city: string | null;
     sort: string | null;
   }>({ search: null, city: null, sort: null });
-
-  const handleApply = () => {
-    // TODO: fetch data with search, filter and sort
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+  const handleSearchClick = () => {
+    setAppliedFilters(filters);
+    setPage(1);
+  };
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      search: null,
+      city: null,
+      sort: null,
+    };
+    setFilters(defaultFilters);
+    setAppliedFilters(defaultFilters);
     setPage(1);
   };
 
-  const handleReset = () => {
-    setFilters({ search: null, city: null, sort: null });
-    setPage(1);
-  };
+  const { data: eventsData, isLoading: isLoadingEvents } = useGetAllEvents(
+    -1,
+    LIMIT,
+    appliedFilters.search || "",
+    "approved",
+    appliedFilters.sort || "",
+    event_category,
+    appliedFilters.city || "",
+    false,
+    true,
+  );
+  const events = eventsData?.events || [];
+  const { t } = useTranslation("events");
 
   if (
     category != "workshops" &&
@@ -63,36 +94,18 @@ export default function EventCategoryPage() {
   ) {
     return <NotFoundPage />;
   }
-
   const baseCat = category.slice(0, -1); // remove 's'
 
-  // Mock data for drafting
   const categoryTitle = t(`categories.${baseCat}_plural`);
   const categoryDescription = t("categories.explore_description", {
     category: t(`categories.${baseCat}`),
   });
-
-  const mockEvent = {
-    title: "Eco-Design Workshop",
-    description: "Learn how to upcycle your old furniture into modern pieces.",
-    authorName: "Julian Thorne",
-    authorAvatar: "",
-    createdAt: new Date().toISOString(),
-    eventDate: new Date().toISOString(),
-    image:
-      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop",
-    price: 15,
-    city: "Paris",
-    postalCode: "75001",
-    registeredCount: 24,
-  };
-
-  // if(isloading){
-  //   return <FullScreenLoader />
-  // }
+  if (isLoadingEvents) {
+    return <FullScreenLoader />;
+  }
   return (
-    <Stack gap={0}>
-      {/* 1. FILTER BAR (Below Navbar) */}
+    <Stack gap={0} mb="xl">
+      {/* 1. FILTER BAR */}
       <Box
         style={{
           borderBottom: "1px solid var(--border-color)",
@@ -112,9 +125,12 @@ export default function EventCategoryPage() {
                 <IconSearch size={18} color="var(--upagain-neutral-green)" />
               }
               value={filters.search || ""}
-              onChange={(e) =>
-                setFilters({ ...filters, search: e.target.value })
-              }
+              onChange={(e) => handleFilterChange("search", e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearchClick();
+                }
+              }}
             />
 
             {/* ACTIONS & FILTERS */}
@@ -124,7 +140,7 @@ export default function EventCategoryPage() {
                 leftSection={<IconFilter size={16} />}
                 data={["Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse"]}
                 value={filters.city}
-                onChange={(value) => setFilters({ ...filters, city: value })}
+                onChange={(value) => handleFilterChange("city", value)}
                 style={{ width: 140 }}
               />
 
@@ -132,13 +148,16 @@ export default function EventCategoryPage() {
                 placeholder={t("filters.sort")}
                 leftSection={<IconSortDescending size={16} />}
                 data={[
-                  { value: "soonest_date", label: t("filters.sort_soonest") },
+                  {
+                    value: "earliest_start_date",
+                    label: t("filters.sort_soonest"),
+                  },
                   { value: "lowest_price", label: t("filters.sort_lowest") },
                   { value: "highest_price", label: t("filters.sort_highest") },
                   { value: "most_popular", label: t("filters.sort_popular") },
                 ]}
                 value={filters.sort}
-                onChange={(value) => setFilters({ ...filters, sort: value })}
+                onChange={(value) => handleFilterChange("sort", value)}
                 style={{ width: 140 }}
               />
 
@@ -147,7 +166,7 @@ export default function EventCategoryPage() {
                   className="button"
                   data-variant="primary"
                   size="sm"
-                  onClick={handleApply}
+                  onClick={handleSearchClick}
                 >
                   {t("filters.apply")}
                 </Button>
@@ -159,7 +178,7 @@ export default function EventCategoryPage() {
                     data-variant="primary"
                     size="lg"
                     radius="xl"
-                    onClick={handleReset}
+                    onClick={handleResetFilters}
                   >
                     <IconRefresh size={18} stroke={1.5} />
                   </ActionIcon>
@@ -177,7 +196,7 @@ export default function EventCategoryPage() {
             <MyBreadcrumbs
               breadcrumbs={[
                 {
-                  title: t("home:home_title", { defaultValue: "Home" }),
+                  title: t("home:title", { defaultValue: "Home" }),
                   href: PATHS.HOME,
                 },
                 {
@@ -190,38 +209,94 @@ export default function EventCategoryPage() {
             <Title order={1} size={42} fw={900}>
               {categoryTitle}
             </Title>
-            <Text c="dimmed" size="lg" maw={800}>
-              {categoryDescription}
-            </Text>
+            <Group justify="space-between" align="end" mb="lg">
+              <Text c="dimmed" size="lg" maw={800}>
+                {categoryDescription}
+              </Text>
+              {user?.role !== "admin" && (
+                <Button
+                  className="button"
+                  data-variant="primary"
+                  onClick={() =>
+                    navigate(PATHS.EVENTS.PLANNING, {
+                      state: { from: "eventCategory", category: category },
+                    })
+                  }
+                  rightSection={<IconCalendar size={16} />}
+                >
+                  {t("my_events.title")}
+                </Button>
+              )}
+            </Group>
           </Stack>
 
           {/* 3. BODY: EVENT LIST */}
           <Paper p={0} radius="lg" style={{ background: "transparent" }}>
-            <SimpleGrid
-              cols={{ base: 1, sm: 2, md: 4 }}
-              spacing="xl"
-              verticalSpacing="50"
-            >
-              {/* Placeholders for dynamic data */}
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <EventCard
-                  onclick={() => navigate(`${i}`)}
-                  key={i}
-                  {...mockEvent}
-                  category={category || "other"}
-                />
-              ))}
-            </SimpleGrid>
+            {events && events.length > 0 ? (
+              <SimpleGrid
+                cols={{ base: 1, sm: 2, md: 4 }}
+                spacing="xl"
+                verticalSpacing="50"
+              >
+                {events.map((event) => (
+                  <EventCard
+                    onclick={() => navigate(`${event.id}`)}
+                    key={event.id}
+                    title={event.title}
+                    description={event.description}
+                    authorName={event.employee_name || "Unknown"}
+                    authorAvatar={event.employee_avatar || ""}
+                    createdAt={event.created_at}
+                    eventDate={event.start_at}
+                    image={event.images?.[0] || ""}
+                    price={event.price}
+                    city={event.city}
+                    registeredCount={event.registered}
+                    category={event.category}
+                    fullEvent={event}
+                  />
+                ))}
+              </SimpleGrid>
+            ) : (
+              <Center h={400} w="100%">
+                <Stack align="center" gap="xs" justify="center">
+                  <IconCalendarOff
+                    size={48}
+                    stroke={1.2}
+                    color="var(--mantine-color-dimmed)"
+                    style={{ opacity: 0.5 }}
+                  />
+
+                  <Stack gap={4} align="center">
+                    <Text fw={700} c="var(--mantine-color-text)" size="lg">
+                      {t("empty_state.no_events")}
+                    </Text>
+                    <Text size="sm" c="dimmed" ta="center">
+                      {t("empty_state.try_adjusting")}
+                    </Text>
+                  </Stack>
+
+                  <Button
+                    variant="secondary"
+                    onClick={handleResetFilters}
+                    mt="sm"
+                  >
+                    {t("empty_state.clear_filters")}
+                  </Button>
+                </Stack>
+              </Center>
+            )}
           </Paper>
 
           {/* 4. PAGINATION FOOTER */}
           <PaginationFooter
             activePage={page}
             setPage={setPage}
-            total_records={999}
-            last_page={6}
+            total_records={eventsData?.total_records || 0}
+            last_page={eventsData?.last_page || 0}
             limit={LIMIT}
-            unit="events"
+            hidden={!events || events.length === 0}
+            unit={t("events").charAt(0).toLowerCase() + t("events").slice(1)}
           />
         </Stack>
       </Container>

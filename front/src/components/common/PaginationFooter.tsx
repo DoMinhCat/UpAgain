@@ -30,7 +30,11 @@ export default function PaginationFooter({
       <Text c="dimmed" size="sm">
         Showing {(activePage - 1) * limit + 1} -{" "}
         {Math.min(activePage * limit, total_records)} of {total_records}{" "}
-        {total_records != 1 ? unit : unit.slice(0, -1)}
+        {total_records != 1
+          ? unit
+          : unit.charAt(unit.length - 1) === "s"
+            ? unit.slice(0, -1)
+            : unit}
       </Text>
       <Pagination
         total={last_page || 1}

@@ -1,3 +1,5 @@
+import type { Account } from "./account";
+
 // uing "AppEvent" because "Event" is reserved
 export interface AppEvent {
   id: number;
@@ -14,7 +16,11 @@ export interface AppEvent {
   street: string;
   location_detail: string;
   employee_name: string | null;
+  employee_avatar: string | null;
+  registered: number;
   images?: string[];
+  attendees?: Account[];
+  organizers?: Account[];
 }
 
 export interface EventsListPagination {
@@ -71,4 +77,14 @@ export interface UpdateEventPayload {
   street: string;
   location_detail?: string;
   images?: FormData;
+}
+
+export interface EventRegistrationPayload {
+  id_event: number;
+  origin_url?: string;
+  paid?: boolean;
+}
+
+export interface EventRegistrationResponse {
+  checkout_url: string;
 }

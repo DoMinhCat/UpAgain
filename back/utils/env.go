@@ -62,3 +62,27 @@ func GetFrontOrigin() string {
 	}
 	return frontOrigin
 }
+
+func GetStripeSecretKey() string {
+	secret := os.Getenv("STRIPE_SECRET_API_KEY")
+	if secret == "" {
+		log.Panic("STRIPE_SECRET_API_KEY not find in .env")
+	}
+	return secret
+}
+
+func GetOnesignalRestApiKey() string {
+	key := os.Getenv("ONESIGNAL_REST_API_KEY")
+	if key == "" {
+		log.Panic("ONESIGNAL_REST_API_KEY not find in .env")
+	}
+	return key
+}
+
+func GetOnesignalAppId() string {
+	id := os.Getenv("ONESIGNAL_APP_ID")
+	if id == "" {
+		log.Panic("ONESIGNAL_APP_ID not find in .env")
+	}
+	return id
+}
