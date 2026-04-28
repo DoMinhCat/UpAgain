@@ -3,15 +3,15 @@ package models
 import "time"
 
 type Container struct {
-	ID         int       `json:"id"`
-	CreatedAt  time.Time `json:"created_at"`
-	CityName   string    `json:"city_name"`
-	PostalCode string    `json:"postal_code"`
-	Street     string    `json:"street"`
-	Status     string    `json:"status"`
-	IsDeleted  bool      `json:"is_deleted"`
-	CurrentDepositId int `json:"current_deposit_id"`
-	CurrentDepositTitle string `json:"current_deposit_title"`
+	ID                  int       `json:"id"`
+	CreatedAt           time.Time `json:"created_at"`
+	CityName            string    `json:"city_name"`
+	PostalCode          string    `json:"postal_code"`
+	Street              string    `json:"street"`
+	Status              string    `json:"status"`
+	IsDeleted           bool      `json:"is_deleted"`
+	CurrentDepositId    int       `json:"current_deposit_id"`
+	CurrentDepositTitle string    `json:"current_deposit_title"`
 }
 
 type ContainerCountStats struct {
@@ -42,13 +42,13 @@ type ContainerListPagination struct {
 }
 
 type ContainerScheduleItem struct {
-	DepositId         int       `json:"deposit_id"`
-	DepositTitle      string    `json:"deposit_title"`
-	ValidFrom  time.Time `json:"valid_from"`
-	ValidTo    time.Time `json:"valid_to"`
+	DepositId    int       `json:"deposit_id"`
+	DepositTitle string    `json:"deposit_title"`
+	ValidFrom    time.Time `json:"valid_from"`
+	ValidTo      time.Time `json:"valid_to"`
 }
 
 type ContainerSchedule struct {
 	UserRange []ContainerScheduleItem `json:"user_range"`
-	ProRange []ContainerScheduleItem `json:"pro_range"`
+	ProRange  []ContainerScheduleItem `json:"pro_range"`
 }

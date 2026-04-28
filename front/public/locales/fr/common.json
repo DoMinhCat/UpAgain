@@ -1,4 +1,7 @@
 {
+  "profile": "Profil",
+  "light_mode": "Mode clair",
+  "dark_mode": "Mode sombre",
   "footer": {
     "description": "Donner une seconde vie aux matériaux grâce au réemploi communautaire et à une logistique intelligente.",
     "explore": "Explorer",
@@ -57,7 +60,13 @@
     "loading": "Chargement...",
     "not_found": "Non trouvé",
     "success": "Succès",
-    "error": "Erreur"
+    "error": "Erreur",
+    "btn_push_noti": "Activer la notification push",
+    "blocked_desc": "Les notifications sont bloquées. Veuillez les activer dans les paramètres de votre navigateur."
+  },
+  "stripe": {
+    "verification_failed": "Échec de la vérification du paiement",
+    "verification_error": "Impossible de vérifier la session de paiement."
   },
   "time": {
     "day": "jour",
@@ -65,7 +74,12 @@
     "month": "mois",
     "months": "mois",
     "year": "an",
-    "years": "ans"
+    "years": "ans",
+    "just_now": "Publié à l'instant",
+    "minutes_ago": "Publié il y a {{count}}m",
+    "hours_ago": "Publié il y a {{count}}h",
+    "yesterday": "Publié hier",
+    "days_ago": "Publié il y a {{count}}j"
   },
   "timeframe": {
     "title": "Période",

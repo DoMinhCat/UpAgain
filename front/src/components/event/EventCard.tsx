@@ -10,7 +10,9 @@ import {
   Box,
   Title,
   Tooltip,
+  useComputedColorScheme,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import {
   IconMapPin,
   IconCalendarEvent,
@@ -18,6 +20,14 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import { getTimeAgo } from "../../utils/timeUtils";
+import { useTranslation } from "react-i18next";
+import DOMPurify from "dompurify";
+import { resolveUrl } from "../../utils/imageUtils";
+import { EventRegistrationModal } from "./EventRegistrationModal";
+import type { AppEvent } from "../../api/interfaces/event";
+import { useRegisterToEvent } from "../../hooks/eventHooks";
+import { showSuccessNotification } from "../common/NotificationToast";
+import { useAuth } from "../../context/AuthContext";
 
 interface EventCardProps {
   orientation?: "vertical" | "horizontal";
@@ -31,9 +41,9 @@ interface EventCardProps {
   image: string;
   price: number | string; // e.g., 0 or "Free"
   city: string;
-  postalCode: string;
   registeredCount: number;
   onclick: () => void;
+  fullEvent?: AppEvent;
 }
 
 export function EventCard({
@@ -49,12 +59,53 @@ export function EventCard({
   image,
   price,
   city,
-  postalCode,
   registeredCount,
+  fullEvent,
 }: EventCardProps) {
+  const { user } = useAuth();
+  const { t } = useTranslation();
+  const theme = useComputedColorScheme("light");
   const isHorizontal = orientation === "horizontal";
   const displayPrice = price === 0 || price === "Free" ? "Free" : `${price}€`;
+  const categoryValue = t(`common:event_categories.${category}` as any, {
+    defaultValue: category.charAt(0).toUpperCase() + category.slice(1),
+  });
 
+  const [
+    openedRegister,
+    { open: openRegisterModal, close: closeRegisterModal },
+  ] = useDisclosure(false);
+  const registerMutation = useRegisterToEvent();
+
+  const isRegistered = fullEvent?.attendees?.some((a) => a.id === user?.id);
+
+  const handleRegister = () => {
+    if (!fullEvent) return;
+
+    registerMutation.mutate(
+      {
+        id_event: fullEvent.id,
+        origin_url:
+          window.location.origin +
+          window.location.pathname +
+          "?event_id=" +
+          fullEvent.id,
+      },
+      {
+        onSuccess: (data) => {
+          if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+          } else {
+            showSuccessNotification(
+              t("events:detail.register_success_title"),
+              t("events:detail.register_success_msg"),
+            );
+            closeRegisterModal();
+          }
+        },
+      },
+    );
+  };
   return (
     <Card
       className="paper"
@@ -84,15 +135,16 @@ export function EventCard({
       <Box
         style={{
           width: isHorizontal ? "40%" : "100%",
-          minHeight: isHorizontal ? "100%" : 180,
+          height: isHorizontal ? "auto" : 200,
           position: "relative",
         }}
       >
         <Image
-          src={image}
+          src={resolveUrl(image)}
           alt={title}
+          fallbackSrc={`/banners/event-banner1-${theme}.png`}
           height="100%"
-          style={{ objectFit: "cover" }}
+          fit="cover"
         />
         <Stack pos="absolute" top={12} left={12} gap={6}>
           <Badge
@@ -103,14 +155,14 @@ export function EventCard({
                 : category === "workshop"
                   ? "blue"
                   : category === "conference"
-                    ? "green"
+                    ? "var(--upagain-neutral-green)"
                     : category === "meetups"
-                      ? "yellow"
+                      ? "var(--upagain-yellow)"
                       : "red"
             }
             size="sm"
           >
-            {category}
+            {categoryValue}
           </Badge>
           <Badge
             variant="default"
@@ -124,7 +176,7 @@ export function EventCard({
             }}
             leftSection={<IconUsers size={12} />}
           >
-            {registeredCount} registered
+            {t("events:detail.registered", { count: registeredCount })}
           </Badge>
         </Stack>
       </Box>
@@ -156,9 +208,15 @@ export function EventCard({
             {title}
           </Title>
 
-          <Text size="sm" c="dimmed" lineClamp={isHorizontal ? 3 : 2} mt={4}>
-            {description}
-          </Text>
+          <Text
+            size="sm"
+            c="dimmed"
+            lineClamp={isHorizontal ? 3 : 2}
+            mt={4}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(description),
+            }}
+          />
         </Box>
 
         <Stack gap="sm">
@@ -167,7 +225,7 @@ export function EventCard({
             <Group gap={4}>
               <IconMapPin size={14} />
               <Text size="xs" fw={600}>
-                {city} ({postalCode})
+                {city}
               </Text>
             </Group>
             <Group gap={4}>
@@ -196,12 +254,27 @@ export function EventCard({
               </Text>
             </Group>
 
-            <Tooltip label="Register for this event">
+            <Tooltip
+              label={
+                isRegistered
+                  ? t("events:detail.already_registered", {
+                      defaultValue: "Already registered",
+                    })
+                  : "Register for this event"
+              }
+            >
               <ActionIcon
                 className="actionIcon"
                 data-variant="primary"
                 radius="xl"
                 size="sm"
+                disabled={isRegistered}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (fullEvent) {
+                    openRegisterModal();
+                  }
+                }}
               >
                 <IconCalendarEvent size={16} />
               </ActionIcon>
@@ -209,6 +282,16 @@ export function EventCard({
           </Group>
         </Stack>
       </Stack>
+
+      <div onClick={(e) => e.stopPropagation()}>
+        <EventRegistrationModal
+          opened={openedRegister}
+          onClose={closeRegisterModal}
+          onConfirm={handleRegister}
+          event={fullEvent || null}
+          loading={registerMutation.isPending}
+        />
+      </div>
     </Card>
   );
 }

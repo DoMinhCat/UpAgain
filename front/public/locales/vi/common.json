@@ -1,4 +1,7 @@
 {
+  "profile": "Hồ sơ",
+  "light_mode": "Chế độ sáng",
+  "dark_mode": "Chế độ tối",
   "footer": {
     "description": "Hô biến đồ cũ thành đồ mới thông qua cộng đồng tái chế và hệ thống vận chuyển thông minh.",
     "explore": "Khám phá",
@@ -57,7 +60,13 @@
     "loading": "Đang tải, đợi xíu nha...",
     "not_found": "Hổng tìm thấy rồi",
     "success": "Xong rồi đó!",
-    "error": "Lỗi rồi đại vương ơi"
+    "error": "Lỗi rồi đại vương ơi",
+    "btn_push_noti": "Bật thông báo đẩy",
+    "blocked_desc": "Thông báo bị chặn. Vui lòng bật lại trong cài đặt trình duyệt."
+  },
+  "stripe": {
+    "verification_failed": "Xác minh thanh toán thất bại",
+    "verification_error": "Không thể xác minh phiên thanh toán."
   },
   "time": {
     "day": "ngày",
@@ -65,7 +74,12 @@
     "month": "tháng",
     "months": "tháng",
     "year": "năm",
-    "years": "năm"
+    "years": "năm",
+    "just_now": "Vừa mới đăng",
+    "minutes_ago": "Đăng {{count}} phút trước",
+    "hours_ago": "Đăng {{count}} giờ trước",
+    "yesterday": "Đăng hôm qua",
+    "days_ago": "Đăng {{count}} ngày trước"
   },
   "timeframe": {
     "title": "Khung thời gian",

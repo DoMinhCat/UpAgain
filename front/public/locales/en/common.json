@@ -1,4 +1,7 @@
 {
+  "profile": "Profile",
+  "light_mode": "Light mode",
+  "dark_mode": "Dark mode",
   "footer": {
     "description": "Giving materials a second life through community-driven reuse and smart logistics.",
     "explore": "Explore",
@@ -57,7 +60,13 @@
     "loading": "Loading...",
     "not_found": "Not found",
     "success": "Success",
-    "error": "Error"
+    "error": "Error",
+    "btn_push_noti": "Enable push notification",
+    "blocked_desc": "Notifications are blocked. Please enable them in your browser settings."
+  },
+  "stripe": {
+    "verification_failed": "Payment verification failed",
+    "verification_error": "Could not verify payment session."
   },
   "time": {
     "day": "day",
@@ -65,7 +74,12 @@
     "month": "month",
     "months": "months",
     "year": "year",
-    "years": "years"
+    "years": "years",
+    "just_now": "Posted just now",
+    "minutes_ago": "Posted {{count}} minutes ago",
+    "hours_ago": "Posted {{count}} hours ago",
+    "yesterday": "Posted yesterday",
+    "days_ago": "Posted {{count}} days ago"
   },
   "timeframe": {
     "title": "Timeframe",

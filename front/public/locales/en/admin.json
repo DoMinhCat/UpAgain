@@ -19,6 +19,7 @@
     }
   },
   "navigation": {
+    "to_front": "Go to front-office",
     "title": "Quick Navigation",
     "user": {
       "title": "User",
@@ -708,6 +709,7 @@
       "timeframe_note": "* Timeframe not applicable for these metrics"
     },
     "filters": {
+      "category_placeholder": "All categories",
       "search_placeholder": "Search by employee's name, event's ID or title...",
       "sort_placeholder": "Pick one sort method",
       "sort_options": {
