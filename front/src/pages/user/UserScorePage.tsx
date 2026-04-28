@@ -21,9 +21,12 @@ import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
 import { ScoreRing } from "../../components/score/ScoreRing.tsx";
 import PaginationFooter from "../../components/common/PaginationFooter.tsx";
 import { UserImpactObjectCard } from "../../components/object/UserImpactObjectCard.tsx";
+import MyBreadcrumbs from "../../components/nav/MyBreadcrumbs.tsx";
+import { useTranslation } from "react-i18next";
 export default function UserScorePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const role = user?.role;
 
   // USER DATA
@@ -74,8 +77,20 @@ export default function UserScorePage() {
   }
 
   return (
-    <Container px="md" py={50} size="xl">
-      <Title ta="center" mb="xl">
+    <Container px="md" py={50} size="xl" mt="lg" mb="xl">
+      <MyBreadcrumbs
+        breadcrumbs={[
+          {
+            title: t("home.title"),
+            href: PATHS.HOME,
+          },
+          {
+            title: t("admin:users.score.title"),
+            href: "#",
+          },
+        ]}
+      />
+      <Title ta="center" mt="xl" mb="xl">
         Thank you for your effort, {accountDetails?.username || "Eco-warrior"}!
       </Title>
 
