@@ -664,6 +664,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// deos account exist?
 	exist, err := db.CheckAccountExistsById(id_account, nil)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
