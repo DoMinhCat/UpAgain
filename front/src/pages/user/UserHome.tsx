@@ -308,38 +308,44 @@ export default function UserHome() {
                 </Text>
               </Stack>
 
-              <Group align="flex-start" grow>
-                <Stack gap="md">
-                  <Title
-                    order={4}
-                    size="sm"
-                    c={
-                      scheme === "light"
-                        ? "var(--upagain-dark-green)"
-                        : "var(--upagain-light-green)"
-                    }
-                    tt="uppercase"
-                    lts={1}
-                  >
-                    {t("user.manage.listings_title")}
-                  </Title>
-                  <Text size="sm">
-                    <Trans
-                      i18nKey="user.manage.listings_status"
-                      ns="home"
-                      values={{ count: 3 }}
-                      components={{
-                        1: <Anchor href={PATHS.MARKETPLACE.LISTINGS} />,
-                        b: <b />,
-                      }}
+              <Group align="stretch" grow>
+                {" "}
+                {/* 1. Change align to stretch */}
+                {/* COLUMN 1 */}
+                <Stack gap="md" style={{ flex: 1 }}>
+                  <Box style={{ flex: 1 }}>
+                    {" "}
+                    {/* 2. Wrap content in a flex-grow box */}
+                    <Title
+                      order={4}
+                      size="sm"
+                      c={
+                        scheme === "light"
+                          ? "var(--upagain-dark-green)"
+                          : "var(--upagain-light-green)"
+                      }
+                      tt="uppercase"
+                      lts={1}
                     >
-                      You have <b>3 active</b> items in the{" "}
-                      <Anchor href={PATHS.MARKETPLACE.LISTINGS}>
-                        Marketplace
-                      </Anchor>
-                      .
-                    </Trans>
-                  </Text>
+                      {t("user.manage.listings_title")}
+                    </Title>
+                    <Text size="sm" mt="xs">
+                      <Trans
+                        i18nKey="user.manage.listings_status"
+                        ns="home"
+                        values={{ count: 3 }}
+                        components={{
+                          1: <Anchor href={PATHS.MARKETPLACE.LISTINGS} />,
+                          b: <b />,
+                        }}
+                      >
+                        You have <b>3 active</b> items in the{" "}
+                        <Anchor>Marketplace</Anchor>.
+                      </Trans>
+                    </Text>
+                  </Box>
+
+                  {/* This link will now always sit at the bottom */}
                   <Text
                     className="text"
                     data-variant="primary"
@@ -350,24 +356,30 @@ export default function UserHome() {
                     {t("user.manage.manage_listings")}
                   </Text>
                 </Stack>
+                {/* COLUMN 2 */}
+                <Stack gap="md" style={{ flex: 1 }}>
+                  <Box style={{ flex: 1 }}>
+                    {" "}
+                    {/* 2. Wrap content in a flex-grow box */}
+                    <Title
+                      order={4}
+                      size="sm"
+                      c={
+                        scheme === "light"
+                          ? "var(--upagain-dark-green)"
+                          : "var(--upagain-light-green)"
+                      }
+                      tt="uppercase"
+                      lts={1}
+                    >
+                      {t("user.manage.deposits_title")}
+                    </Title>
+                    <Text size="sm" mt="xs">
+                      {t("user.manage.deposits_status", { count: 1 })}
+                    </Text>
+                  </Box>
 
-                <Stack gap="md">
-                  <Title
-                    order={4}
-                    size="sm"
-                    c={
-                      scheme === "light"
-                        ? "var(--upagain-dark-green)"
-                        : "var(--upagain-light-green)"
-                    }
-                    tt="uppercase"
-                    lts={1}
-                  >
-                    {t("user.manage.deposits_title")}
-                  </Title>
-                  <Text size="sm">
-                    {t("user.manage.deposits_status", { count: 1 })}
-                  </Text>
+                  {/* This link will align horizontally with the one in Column 1 */}
                   <Text
                     className="text"
                     data-variant="primary"
