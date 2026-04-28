@@ -10,12 +10,14 @@ import {
   showInfoNotification,
   showSuccessNotification,
 } from "../components/common/NotificationToast";
+import OneSignal from "react-onesignal";
 
 interface User {
   token: string;
   id: number;
   role: string;
   email: string;
+  username?: string;
 }
 
 interface AuthContextType {
@@ -37,13 +39,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (token) {
       try {
         const decoded = jwtDecode<any>(token);
-
-        setUser({
+        const userData = {
           token: token,
           id: decoded.id_account,
           role: decoded.role,
           email: decoded.email,
-        });
+          username: decoded.username,
+        };
+        setUser(userData);
       } catch (err) {
         localStorage.removeItem("token");
         setUser(null);
@@ -57,6 +60,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.addEventListener("auth:logout", handleAuthLogout);
     return () => window.removeEventListener("auth:logout", handleAuthLogout);
   }, []);
+
+  // OneSignal synchronization
+  useEffect(() => {
+    if (isInitializing) return;
+
+    if (user) {
+      OneSignal.login(user.id.toString());
+    } else {
+      OneSignal.logout();
+    }
+  }, [user, isInitializing]);
 
   const login = (token: string) => {
     localStorage.setItem("token", token);
@@ -72,6 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     setUser(userData);
+
     showSuccessNotification(
       "Logged In successfully",
       `Welcome back, ${userData.username}.`,
@@ -82,6 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
+
     showInfoNotification(
       "Logged Out Successfully",
       "You have been logged out successfully.",
