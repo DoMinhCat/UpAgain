@@ -18,6 +18,7 @@ import { PATHS } from "../../../routes/paths";
 import {
   useAccountDetails,
   useAccountStats,
+  useUpdateAccount,
   useUpdateAvatar,
 } from "../../../hooks/accountHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
@@ -32,10 +33,20 @@ import {
 import ImageDropzone from "../../../components/input/ImageDropzone";
 import { useDisclosure } from "@mantine/hooks";
 import { resolveUrl } from "../../../utils/imageUtils";
+import {
+  validatePhone,
+  validateUsername,
+} from "../../../utils/accountValidation";
+import { useTranslation } from "react-i18next";
+import ConfirmAccountUpdateModal from "../../../components/common/ConfirmAccountUpdateModal";
 
 export default function AccountTab() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation("admin");
+  const [openedConfirm, { open: openConfirm, close: closeConfirm }] =
+    useDisclosure(false);
+
   // UPDATE AVATAR
   const [openedAvatar, { open: openAvatar, close: closeAvatar }] =
     useDisclosure(false);
@@ -84,9 +95,48 @@ export default function AccountTab() {
     }
   };
 
-  const handleSave = () => {
-    // BACKEND INTEGRATION: call update hook (multipart if avatar changed)
-    console.log("Saving changes:", { ...formData, avatar: files[0] });
+  const updateAccount = useUpdateAccount();
+
+  const [errorPhone, setErrorPhone] = useState<string | null>(null);
+  const [errorUsername, setErrorUsername] = useState<string | null>(null);
+
+  const handleValidatePhone = (val: string) => {
+    const phoneError = validatePhone(val, t);
+    setErrorPhone(phoneError);
+    return phoneError === null;
+  };
+
+  const handleValidateUsername = (val: string) => {
+    const usernameError = validateUsername(val, t);
+    setErrorUsername(usernameError);
+    return usernameError === null;
+  };
+
+  const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    // validate username and phone if phone is provided
+    let phoneCorrect = true;
+    if (formData.phone) {
+      phoneCorrect = handleValidatePhone(formData.phone);
+    }
+    if (!phoneCorrect || !handleValidateUsername(formData.username)) return;
+    openConfirm();
+  };
+
+  const handleConfirmSave = () => {
+    updateAccount.mutate(
+      {
+        id_account: user?.id || 0,
+        username: formData.username || "",
+        email: accountDetails?.email || "",
+        phone: formData.phone || "",
+      },
+      {
+        onSuccess: () => {
+          closeConfirm();
+        },
+      },
+    );
   };
 
   if (isLoadingAccountDetails || !accountDetails) return <FullScreenLoader />;
@@ -166,7 +216,9 @@ export default function AccountTab() {
             onChange={(e) =>
               setFormData({ ...formData, username: e.target.value })
             }
+            onBlur={(e) => handleValidateUsername(e.target.value)}
             size="md"
+            error={errorUsername}
           />
 
           <TextInput
@@ -175,8 +227,10 @@ export default function AccountTab() {
             onChange={(e) =>
               setFormData({ ...formData, phone: e.target.value })
             }
+            onBlur={(e) => handleValidatePhone(e.target.value)}
             size="md"
             description={!formData.phone ? "N/A" : null}
+            error={errorPhone}
           />
 
           <Stack gap={5}>
@@ -260,7 +314,7 @@ export default function AccountTab() {
           data-variant="cta"
           size="lg"
           px={40}
-          onClick={handleSave}
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleSave(e)}
         >
           Save changes
         </Button>
@@ -293,6 +347,13 @@ export default function AccountTab() {
           </Button>
         </Group>
       </Modal>
+
+      <ConfirmAccountUpdateModal
+        opened={openedConfirm}
+        onClose={closeConfirm}
+        onConfirm={handleConfirmSave}
+        loading={updateAccount.isPending}
+      />
     </Stack>
   );
 }

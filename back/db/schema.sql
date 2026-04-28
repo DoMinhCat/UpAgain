@@ -114,7 +114,7 @@ create table event_registrations
 
 create table event_employee
 (
-		assigned_at timestamptz not null       default now(),
+	assigned_at timestamptz not null       default now(),
     id_employee integer references employees (id_account) on delete restrict,
     id_event    integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_employee)

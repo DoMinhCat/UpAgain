@@ -9,7 +9,7 @@ export const ENDPOINTS = {
       BAN: (id_account: number) => `/accounts/${id_account}/ban/`,
       RECOVER: (id_account: number) => `/accounts/${id_account}/recover/`,
       STATS: (id_account: number) => `/accounts/${id_account}/stats/`,
-      UPDATE: (id_account: number) => `/accounts/${id_account}/`,
+      UPDATE: (id_account: number) => `/accounts/${id_account}/update/`,
       SCORE_STATS: "/users/score/",
       EXPORT_CSV: "/accounts/export/",
     },
