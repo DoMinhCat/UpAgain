@@ -65,11 +65,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (isInitializing) return;
 
-    if (user) {
-      OneSignal.login(user.id.toString());
-    } else {
-      OneSignal.logout();
-    }
+    const syncOneSignal = async () => {
+      // Small delay to ensure OneSignal has time to init from App.tsx
+      // if it hasn't yet, or wait until initialized.
+      let attempts = 0;
+      while (!OneSignal.initialized && attempts < 10) {
+        await new Promise((res) => setTimeout(res, 500));
+        attempts++;
+      }
+
+      if (OneSignal.initialized) {
+        try {
+          if (user) {
+            await OneSignal.login(user.id.toString());
+          } else {
+            await OneSignal.logout();
+          }
+        } catch (error) {
+          console.error("OneSignal sync error:", error);
+        }
+      }
+    };
+
+    syncOneSignal();
   }, [user, isInitializing]);
 
   const login = (token: string) => {

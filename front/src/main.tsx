@@ -46,11 +46,12 @@ const queryClient = new QueryClient({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </QueryClientProvider>
-  </StrictMode>,
+  // TODO: uncomment when on production
+  // <StrictMode>
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </QueryClientProvider>,
+  // </StrictMode>,
 );
