@@ -471,3 +471,58 @@ func UpdatePostById(id_post int, payload models.CreatePostRequest) error {
 	}
 	return nil
 }
+
+func GetPostsByAccountId(id_account int, page int, limit int) (models.PostListPagination, error) {
+	var result models.PostListPagination
+	if page <= 0 {
+		page = 1
+	}
+	if limit <= 0 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+
+	query := `
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
+		from posts p 
+		join accounts a on p.id_account=a.id 
+		left join ads ad on p.id=ad.id_post and ad.status = 'active'
+		WHERE p.is_deleted = false AND p.id_account = $1
+		ORDER BY p.created_at DESC
+		LIMIT $2 OFFSET $3;
+	`
+	rows, err := utils.Conn.Query(query, id_account, limit, offset)
+	if err != nil {
+		return result, fmt.Errorf("GetPostsByAccountId() query failed: '%v'", err)
+	}
+	defer rows.Close()
+	var posts []models.Post
+	for rows.Next() {
+		var post models.Post
+		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.AdsId)
+		if err != nil {
+			return result, fmt.Errorf("GetPostsByAccountId() scan failed: '%v'", err)
+		}
+		photos, err := GetPhotosPathsByObjectId(post.Id, "post")
+		if err != nil {
+			return result, fmt.Errorf("GetPostsByAccountId() failed: '%v'", err)
+		}
+		post.Photos = photos
+		posts = append(posts, post)
+	}
+
+	queryCount := `select count(*) from posts where id_account = $1 and is_deleted = false;`
+	err = utils.Conn.QueryRow(queryCount, id_account).Scan(&result.TotalRecords)
+	if err != nil {
+		return result, fmt.Errorf("GetPostsByAccountId() count query failed: '%v'", err)
+	}
+
+	result.Posts = posts
+	result.CurrentPage = page
+	result.Limit = limit
+	result.LastPage = result.TotalRecords / limit
+	if result.TotalRecords%limit != 0 {
+		result.LastPage++
+	}
+	return result, nil
+}
