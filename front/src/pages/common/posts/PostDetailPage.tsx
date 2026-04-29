@@ -15,8 +15,6 @@ import {
   Loader,
   Paper,
   Box,
-  useComputedColorScheme,
-  Modal,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Carousel } from "@mantine/carousel";
@@ -172,8 +170,12 @@ export default function PostDetailPage() {
     setLocalSaved(next);
     savePost();
     showSuccessNotification(
-      next ? t("post:actions.save_success_title") : t("post:actions.unsave_success_title"),
-      next ? t("post:actions.save_success_msg") : t("post:actions.unsave_success_msg"),
+      next
+        ? t("post:actions.save_success_title")
+        : t("post:actions.unsave_success_title"),
+      next
+        ? t("post:actions.save_success_msg")
+        : t("post:actions.unsave_success_msg"),
     );
   };
 
@@ -349,7 +351,7 @@ export default function PostDetailPage() {
 
             <Stack gap={40}>
               {/* AUTHOR & ACTIONS SECTION */}
-              <Paper variant="primary" p="lg" radius="xl" withBorder>
+              <Paper variant="primary" p="lg" radius="lg" withBorder>
                 <Group justify="space-between" align="center">
                   <Group gap="sm">
                     <Avatar
@@ -377,7 +379,9 @@ export default function PostDetailPage() {
                     <Group gap={4} c="dimmed">
                       <IconEye size={18} stroke={1.5} />
                       <Text size="sm" fw={600}>
-                        {t("post:details.view_count", { count: post.view_count })}
+                        {t("post:details.view_count", {
+                          count: post.view_count,
+                        })}
                       </Text>
                     </Group>
 
@@ -410,7 +414,11 @@ export default function PostDetailPage() {
                     </Group>
 
                     <Tooltip
-                      label={isSaved ? t("post:details.unsave_label") : t("post:details.save_label")}
+                      label={
+                        isSaved
+                          ? t("post:details.unsave_label")
+                          : t("post:details.save_label")
+                      }
                       withArrow
                     >
                       <ActionIcon
@@ -445,7 +453,7 @@ export default function PostDetailPage() {
                 className="paper"
                 data-variant="primary"
                 p="xl"
-                radius="md"
+                radius="lg"
                 dangerouslySetInnerHTML={{ __html: post.content }}
                 style={{
                   lineHeight: 1.8,
@@ -463,9 +471,7 @@ export default function PostDetailPage() {
                         color="var(--upagain-neutral-green)"
                         size={32}
                       />
-                      <Title order={3}>
-                        {t("post:details.project_steps")}
-                      </Title>
+                      <Title order={3}>{t("post:details.project_steps")}</Title>
                     </Group>
 
                     {isLoadingProjectSteps ? (
@@ -503,6 +509,7 @@ export default function PostDetailPage() {
                     disabled={role !== "user" && role !== "pro"}
                     placeholder={t("post:comments.placeholder")}
                     value={commentText}
+                    radius="lg"
                     onChange={(e) => setCommentText(e.currentTarget.value)}
                     minRows={3}
                     autosize
