@@ -282,7 +282,10 @@ export default function UserPostsPage() {
                 key={post.id}
                 title={post.title}
                 description={post.content}
-                image={post.photos?.[0] ?? "/banners/user-banner1-light.png"}
+                image={
+                  post.photos?.[0] ??
+                  "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c"
+                }
                 category={post.category}
                 authorName={post.creator}
                 authorAvatar=""

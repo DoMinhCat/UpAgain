@@ -15,7 +15,10 @@ import {
   Center,
   Loader,
   Paper,
+  Box,
+  useComputedColorScheme,
 } from "@mantine/core";
+import { Carousel } from "@mantine/carousel";
 import {
   IconHeartFilled,
   IconHeart,
@@ -23,7 +26,7 @@ import {
   IconBookmark,
   IconEye,
   IconMessageCircle,
-  IconArrowLeft,
+  IconRouteSquare,
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -36,7 +39,10 @@ import {
   useIncrementPostView,
   useAddComment,
   useLikeComment,
+  useGetProjectStepsByPostId,
 } from "../../../hooks/postHooks";
+import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimeline";
+import type { Step } from "../../../api/interfaces/step";
 import PostCommentCard from "../../../components/post/PostCommentCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import {
@@ -50,6 +56,8 @@ import { NotFoundPage } from "../../error/404";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
+import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
+import { resolveUrl } from "../../../utils/imageUtils";
 
 const USE_FAKE_DATA = true;
 
@@ -155,6 +163,11 @@ export default function PostDetailPage() {
   const [commentText, setCommentText] = useState("");
   const [likedComments, setLikedComments] = useState<Set<number>>(new Set());
 
+  // PHOTO CAROUSEL MODAL
+  const [lightboxOpened, setLightboxOpened] = useState(false);
+  const [lightboxSlide, setLightboxSlide] = useState(0);
+
+  const theme = useComputedColorScheme("light");
   const viewTimerFired = useRef(false);
 
   const { data: postData, isLoading: isLoadingPost } = useGetUserPostDetails(
@@ -168,6 +181,9 @@ export default function PostDetailPage() {
       commentPage,
       10,
     );
+
+  const { data: projectSteps, isLoading: isLoadingProjectSteps } =
+    useGetProjectStepsByPostId(postId, isValidId && !USE_FAKE_DATA);
 
   const { mutate: likePost, isPending: isLiking } = useLikePost(postId);
   const { mutate: savePost, isPending: isSaving } = useSavePost(postId);
@@ -279,237 +295,352 @@ export default function PostDetailPage() {
   }
 
   return (
-    <Container size="xl" py={40} w="100%" mt="md">
-      <Stack gap="xl">
-        {/* Breadcrumb */}
-        <MyBreadcrumbs
-          breadcrumbs={[
-            { title: t("home:title"), href: PATHS.HOME },
-            ...(location.state?.from === "communityIndex"
-              ? [
-                  {
-                    title: t("community:community"),
-                    href: PATHS.USER.POSTS.ALL,
-                  },
-                ]
-              : []),
-            { title: post.title, href: "#" },
-          ]}
-        />
-
-        {/* Hero image */}
-        {post.photos && post.photos.length > 0 && (
-          <Image
-            src={post.photos[0]}
-            alt={post.title}
-            height={360}
-            fit="cover"
-            radius="lg"
-          />
-        )}
-
-        {/* Header */}
-        <Stack gap="sm">
-          <Group justify="space-between" wrap="wrap">
-            <Badge variant={CATEGORY_COLOR[post.category] ?? "gray"} size="lg">
-              {post.category}
-            </Badge>
-            {post.ads_id && (
-              <Badge variant="yellow" size="sm">
-                Sponsored
-              </Badge>
-            )}
-          </Group>
-
-          <Title order={1} size={32}>
-            {post.title}
-          </Title>
-
-          {/* Author row */}
-          <Group justify="space-between" wrap="wrap">
-            <Group gap="sm">
-              <Avatar
-                radius="xl"
-                name={post.creator}
-                color="initials"
-                size="md"
-              />
-              <Stack gap={0}>
-                <Text fw={600} size="sm">
-                  {post.creator}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  {getTimeAgo(post.created_at)}
-                </Text>
-              </Stack>
-            </Group>
-
-            {/* Actions */}
-            <Group gap="sm">
-              <Group gap={4} c="dimmed">
-                <IconEye size={18} stroke={1.5} />
-                <Text size="sm">{post.view_count}</Text>
-              </Group>
-
-              <Group gap={4}>
-                <ActionIcon
-                  className="actionIcon"
-                  disabled={role !== "user" && role !== "pro"}
-                  data-variant="primary"
-                  variant="subtle"
-                  radius="xl"
-                  aria-label="Like post"
-                  onClick={handleLike}
-                  loading={isLiking && !USE_FAKE_DATA}
-                >
-                  {isLiked ? (
-                    <IconHeartFilled
-                      size={20}
-                      color="var(--mantine-color-red-6)"
+    <>
+      <Stack gap={0} mb={120}>
+        {/* 1. HERO SECTION */}
+        <Box pos="relative">
+          {post.photos && post.photos.length > 0 ? (
+            <Carousel
+              withIndicators
+              emblaOptions={{
+                loop: true,
+                dragFree: false,
+                align: "center",
+              }}
+              height={500}
+              styles={{
+                indicator: {
+                  width: 12,
+                  height: 4,
+                  transition: "width 250ms ease",
+                  "&[dataActive]": { width: 40 },
+                },
+              }}
+            >
+              {post.photos.map((url, index) => (
+                <Carousel.Slide key={index}>
+                  <Box
+                    h="100%"
+                    style={{
+                      backgroundImage: `url("${resolveUrl(url)}")`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      cursor: "zoom-in",
+                    }}
+                    onClick={() => {
+                      setLightboxSlide(index);
+                      setLightboxOpened(true);
+                    }}
+                  >
+                    <Box
+                      pos="absolute"
+                      inset={0}
+                      style={{
+                        background:
+                          "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.5) 100%)",
+                        pointerEvents: "none",
+                      }}
                     />
-                  ) : (
-                    <IconHeart size={20} color="var(--mantine-color-red-6)" />
-                  )}
-                </ActionIcon>
-                <Text size="sm" fw={600}>
-                  {likeCount}
-                </Text>
-              </Group>
-
-              <Tooltip label={isSaved ? "Unsave" : "Save for later"} withArrow>
-                <ActionIcon
-                  disabled={role !== "user" && role !== "pro"}
-                  className="actionIcon"
-                  data-variant="primary"
-                  variant="subtle"
-                  radius="xl"
-                  aria-label="Save post"
-                  onClick={handleSave}
-                  loading={isSaving && !USE_FAKE_DATA}
-                >
-                  {isSaved ? (
-                    <IconBookmarkFilled
-                      size={20}
-                      color="var(--upagain-yellow)"
-                    />
-                  ) : (
-                    <IconBookmark size={20} color="var(--upagain-yellow)" />
-                  )}
-                </ActionIcon>
-              </Tooltip>
-            </Group>
-          </Group>
-        </Stack>
-
-        <Divider />
-
-        {/* Content */}
-        <Paper
-          className="paper"
-          data-variant="primary"
-          p="xl"
-          radius="md"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-          style={{
-            lineHeight: 1.8,
-            fontSize: "var(--mantine-font-size-md)",
-          }}
-        />
-
-        {/* Additional images */}
-        {post.photos && post.photos.length > 1 && (
-          <Stack gap="md">
-            <Title order={4}>Photos</Title>
-            <Group gap="md">
-              {post.photos.slice(1).map((photo, i) => (
-                <Image
-                  key={i}
-                  src={photo}
-                  alt={`Photo ${i + 2}`}
-                  height={200}
-                  width={200}
-                  fit="cover"
-                  radius="md"
-                />
+                  </Box>
+                </Carousel.Slide>
               ))}
-            </Group>
-          </Stack>
-        )}
-
-        <Divider />
-
-        {/* Comments section */}
-        <Stack gap="lg">
-          <Group gap="xs">
-            <IconMessageCircle size={22} stroke={1.5} />
-            <Title order={3}>
-              {totalComments} comment{totalComments !== 1 ? "s" : ""}
-            </Title>
-          </Group>
-
-          {/* Add comment */}
-          <Stack gap="sm">
-            <Textarea
-              disabled={role !== "user" && role !== "pro"}
-              placeholder="Share your thoughts..."
-              value={commentText}
-              onChange={(e) => setCommentText(e.currentTarget.value)}
-              minRows={3}
-              autosize
-            />
-            <Group justify="flex-end">
-              <Button
-                className="button"
-                data-variant="primary"
-                onClick={handleAddComment}
-                loading={isPosting}
-                disabled={
-                  !commentText.trim() || (role !== "user" && role !== "pro")
-                }
-              >
-                Post comment
-              </Button>
-            </Group>
-          </Stack>
-
-          {/* Comments list */}
-          {!USE_FAKE_DATA && isLoadingComments ? (
-            <Center py={40}>
-              <Loader color="var(--upagain-neutral-green)" size="sm" />
-            </Center>
-          ) : comments.length === 0 ? (
-            <Text c="dimmed" ta="center" py="xl">
-              No comments yet. Be the first to share your thoughts!
-            </Text>
+            </Carousel>
           ) : (
-            <Stack gap="md">
-              {comments.map((comment) => (
-                <PostCommentCard
-                  role={role}
-                  key={comment.id}
-                  comment={{
-                    ...comment,
-                    like_count:
-                      comment.like_count +
-                      (likedComments.has(comment.id) ? 1 : 0),
-                  }}
-                  onLike={handleLikeComment}
-                />
-              ))}
-            </Stack>
+            <Box
+              h={500}
+              style={{
+                backgroundImage: "/banners/user-banner1-dark.png",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              <Box
+                pos="absolute"
+                inset={0}
+                style={{
+                  background:
+                    "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.5) 100%)",
+                  pointerEvents: "none",
+                }}
+              />
+            </Box>
           )}
 
-          <PaginationFooter
-            activePage={commentPage}
-            setPage={setCommentPage}
-            total_records={totalComments}
-            last_page={lastPage}
-            limit={10}
-            unit="comments"
-            hidden={USE_FAKE_DATA}
-          />
-        </Stack>
+          <Container
+            size="xl"
+            pos="absolute"
+            bottom={0}
+            left={0}
+            right={0}
+            pb={40}
+            style={{ zIndex: 10, pointerEvents: "none" }}
+          >
+            <Stack gap="md" style={{ pointerEvents: "auto" }}>
+              <Group gap="xs">
+                <Badge
+                  variant={CATEGORY_COLOR[post.category] ?? "gray"}
+                  size="lg"
+                >
+                  {post.category.toUpperCase()}
+                </Badge>
+                {post.ads_id && (
+                  <Badge variant="yellow" size="sm">
+                    Sponsored
+                  </Badge>
+                )}
+              </Group>
+              <Title order={1} size={48} c="white" fw={900}>
+                {post.title}
+              </Title>
+            </Stack>
+          </Container>
+        </Box>
+
+        {/* MAIN CONTENT AREA */}
+        <Container size="lg" pb={40} pt={24} w="100%">
+          <Stack gap="lg">
+            <MyBreadcrumbs
+              mb="xl"
+              mt="md"
+              breadcrumbs={[
+                { title: t("home:title"), href: PATHS.HOME },
+                ...(location.state?.from === "communityIndex"
+                  ? [
+                      {
+                        title: t("community:community"),
+                        href: PATHS.USER.POSTS.ALL,
+                      },
+                    ]
+                  : []),
+                { title: post.title, href: "#" },
+              ]}
+            />
+
+            <Stack gap={40}>
+              {/* AUTHOR & ACTIONS SECTION */}
+              <Paper variant="primary" p="lg" radius="xl" withBorder>
+                <Group justify="space-between" align="center">
+                  <Group gap="sm">
+                    <Avatar
+                      radius="xl"
+                      src={
+                        post.photos?.[0]
+                          ? resolveUrl(post.photos[0])
+                          : undefined
+                      }
+                      name={post.creator}
+                      color="initials"
+                      size="md"
+                    />
+                    <Stack gap={0}>
+                      <Text fw={700} size="sm">
+                        {post.creator}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {getTimeAgo(post.created_at)}
+                      </Text>
+                    </Stack>
+                  </Group>
+
+                  <Group gap="md">
+                    <Group gap={4} c="dimmed">
+                      <IconEye size={18} stroke={1.5} />
+                      <Text size="sm" fw={600}>
+                        {post.view_count}
+                      </Text>
+                    </Group>
+
+                    <Group gap={4}>
+                      <ActionIcon
+                        className="actionIcon"
+                        disabled={role !== "user" && role !== "pro"}
+                        data-variant="primary"
+                        variant="subtle"
+                        radius="xl"
+                        aria-label="Like post"
+                        onClick={handleLike}
+                        loading={isLiking && !USE_FAKE_DATA}
+                      >
+                        {isLiked ? (
+                          <IconHeartFilled
+                            size={20}
+                            color="var(--mantine-color-red-6)"
+                          />
+                        ) : (
+                          <IconHeart
+                            size={20}
+                            color="var(--mantine-color-red-6)"
+                          />
+                        )}
+                      </ActionIcon>
+                      <Text size="sm" fw={600}>
+                        {likeCount}
+                      </Text>
+                    </Group>
+
+                    <Tooltip
+                      label={isSaved ? "Unsave" : "Save for later"}
+                      withArrow
+                    >
+                      <ActionIcon
+                        disabled={role !== "user" && role !== "pro"}
+                        className="actionIcon"
+                        data-variant="primary"
+                        variant="subtle"
+                        radius="xl"
+                        aria-label="Save post"
+                        onClick={handleSave}
+                        loading={isSaving && !USE_FAKE_DATA}
+                      >
+                        {isSaved ? (
+                          <IconBookmarkFilled
+                            size={20}
+                            color="var(--upagain-yellow)"
+                          />
+                        ) : (
+                          <IconBookmark
+                            size={20}
+                            color="var(--upagain-yellow)"
+                          />
+                        )}
+                      </ActionIcon>
+                    </Tooltip>
+                  </Group>
+                </Group>
+              </Paper>
+
+              {/* CONTENT */}
+              <Paper
+                className="paper"
+                data-variant="primary"
+                p="xl"
+                radius="md"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+                style={{
+                  lineHeight: 1.8,
+                  fontSize: "var(--mantine-font-size-md)",
+                }}
+              />
+
+              {/* Project Steps Section */}
+              {post.category === "project" && (
+                <>
+                  <Divider my="md" />
+                  <Stack gap="xl">
+                    <Group gap="sm">
+                      <IconRouteSquare
+                        color="var(--upagain-neutral-green)"
+                        size={32}
+                      />
+                      <Title order={3}>
+                        {t("admin:posts.details.project_steps")}
+                      </Title>
+                    </Group>
+
+                    {isLoadingProjectSteps ? (
+                      <Center mt="xl">
+                        <Loader color="var(--upagain-neutral-green)" />
+                      </Center>
+                    ) : (
+                      <ProjectStepTimeline
+                        role={role === "admin" ? "admin" : "user"}
+                        enableDeleteStep={
+                          user?.role === "admin" || user?.role === "employee"
+                        }
+                        projectSteps={projectSteps as Step[]}
+                        postId={post.id}
+                      />
+                    )}
+                  </Stack>
+                </>
+              )}
+
+              <Divider />
+
+              {/* COMMENTS SECTION */}
+              <Stack gap="lg">
+                <Group gap="xs">
+                  <IconMessageCircle size={22} stroke={1.5} />
+                  <Title order={3}>
+                    {totalComments} comment{totalComments !== 1 ? "s" : ""}
+                  </Title>
+                </Group>
+
+                {/* Add comment */}
+                <Stack gap="sm" mb="md">
+                  <Textarea
+                    disabled={role !== "user" && role !== "pro"}
+                    placeholder="Share your thoughts..."
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.currentTarget.value)}
+                    minRows={3}
+                    autosize
+                  />
+                  <Group justify="flex-end">
+                    <Button
+                      className="button"
+                      data-variant="primary"
+                      onClick={handleAddComment}
+                      loading={isPosting}
+                      disabled={
+                        !commentText.trim() ||
+                        (role !== "user" && role !== "pro")
+                      }
+                    >
+                      Post comment
+                    </Button>
+                  </Group>
+                </Stack>
+
+                {/* Comments list */}
+                {!USE_FAKE_DATA && isLoadingComments ? (
+                  // TODO: replace with skeleton loading
+                  <Center py={40}>
+                    <Loader color="var(--upagain-neutral-green)" size="sm" />
+                  </Center>
+                ) : comments.length === 0 ? (
+                  <Text c="dimmed" ta="center" py="xl">
+                    No comments yet. Be the first to share your thoughts!
+                  </Text>
+                ) : (
+                  <Stack gap="md">
+                    {comments.map((comment) => (
+                      <PostCommentCard
+                        role={role}
+                        key={comment.id}
+                        comment={{
+                          ...comment,
+                          like_count:
+                            comment.like_count +
+                            (likedComments.has(comment.id) ? 1 : 0),
+                        }}
+                        onLike={handleLikeComment}
+                      />
+                    ))}
+                  </Stack>
+                )}
+
+                <PaginationFooter
+                  activePage={commentPage}
+                  setPage={setCommentPage}
+                  total_records={totalComments}
+                  last_page={lastPage}
+                  limit={10}
+                  unit="comments"
+                  hidden={USE_FAKE_DATA}
+                />
+              </Stack>
+            </Stack>
+          </Stack>
+        </Container>
       </Stack>
-    </Container>
+
+      <PhotosCarousel
+        photos={post.photos || []}
+        opened={lightboxOpened}
+        onClose={() => setLightboxOpened(false)}
+        defaultActiveSlide={lightboxSlide}
+      />
+    </>
   );
 }
