@@ -26,6 +26,8 @@ import {
   IconEye,
   IconMessageCircle,
   IconRouteSquare,
+  IconCrown,
+  IconCrownFilled,
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -150,7 +152,6 @@ const CATEGORY_COLOR: Record<string, string> = {
 export default function PostDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state as { from?: string };
   const { t } = useTranslation();
   const { user } = useAuth();
   const role: string = user?.role || "";
@@ -166,7 +167,6 @@ export default function PostDetailPage() {
   const [lightboxOpened, setLightboxOpened] = useState(false);
   const [lightboxSlide, setLightboxSlide] = useState(0);
 
-  const theme = useComputedColorScheme("light");
   const viewTimerFired = useRef(false);
 
   const { data: postData, isLoading: isLoadingPost } = useGetUserPostDetails(
@@ -383,9 +383,13 @@ export default function PostDetailPage() {
                   {post.category.toUpperCase()}
                 </Badge>
                 {post.ads_id && (
-                  <Badge variant="yellow" size="sm">
-                    Sponsored
-                  </Badge>
+                  <Tooltip
+                    label="This post is sponsored"
+                    position="top"
+                    withArrow
+                  >
+                    <IconCrownFilled size={24} color="var(--upagain-yellow)" />
+                  </Tooltip>
                 )}
               </Group>
               <Title order={1} size={48} c="white" fw={900}>
