@@ -851,3 +851,59 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusOK, nil)
 }
+
+// func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
+// 	idAccount, err := strconv.Atoi(r.PathValue("account_id"))
+// 	if err != nil {
+// 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid account ID")
+// 		return
+// 	}
+
+// 	exists, err := db.CheckAccountExistsById(idAccount)
+// 	if err != nil {
+// 		slog.Error("db.CheckAccountExistsById() failed", "controller", "GetPostsByAccountId", "error", err)
+// 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+// 		return
+// 	}
+// 	if !exists {
+// 		utils.RespondWithError(w, http.StatusBadRequest, "Account ID "+strconv.Itoa(idAccount)+" not found")
+// 		return
+// 	}
+
+// 	posts, err := db.GetPostsByAccountId(idAccount)
+// 	if err != nil {
+// 		slog.Error("db.GetPostsByAccountId() failed", "controller", "GetPostsByAccountId", "error", err)
+// 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+// 		return
+// 	}
+
+// 	utils.RespondWithJSON(w, http.StatusOK, posts)
+// }
+
+// func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
+// 	idAccount, err := strconv.Atoi(r.PathValue("account_id"))
+// 	if err != nil {
+// 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid account ID")
+// 		return
+// 	}
+
+// 	exists, err := db.CheckAccountExistsById(idAccount)
+// 	if err != nil {
+// 		slog.Error("db.CheckAccountExistsById() failed", "controller", "GetSavedPosts", "error", err)
+// 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get saved posts")
+// 		return
+// 	}
+// 	if !exists {
+// 		utils.RespondWithError(w, http.StatusBadRequest, "Account ID "+strconv.Itoa(idAccount)+" not found")
+// 		return
+// 	}
+
+// 	posts, err := db.GetSavedPosts(idAccount)
+// 	if err != nil {
+// 		slog.Error("db.GetSavedPosts() failed", "controller", "GetSavedPosts", "error", err)
+// 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get saved posts")
+// 		return
+// 	}
+
+// 	utils.RespondWithJSON(w, http.StatusOK, posts)
+// }
