@@ -1,6 +1,8 @@
 {
   "project": {
-    "no_step": "Aucune étape n'a été trouvée"
+    "no_step": "Aucune étape n'a été trouvée",
+    "delete_step_tooltip": "Supprimer cette étape",
+    "items_used": "Articles utilisés dans cette étape"
   },
   "delete_comment_modal_title": "Supprimer le commentaire",
   "delete_comment_modal_text": "Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action est irréversible.",
