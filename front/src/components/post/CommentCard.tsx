@@ -33,7 +33,7 @@ export default function CommentCard({
   role,
   isLiked,
 }: CommentCardProps) {
-  const { t } = useTranslation(["post", "admin"]);
+  const { t } = useTranslation(["post", "admin", "common"]);
 
   return (
     <Paper

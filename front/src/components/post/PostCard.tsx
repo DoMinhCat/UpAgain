@@ -65,7 +65,7 @@ export default function PostCard({
   onLike,
   onSave,
 }: PostCardProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["post", "common"]);
   return (
     <Card
       className="paper"
