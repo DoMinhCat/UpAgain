@@ -7,12 +7,14 @@ import {
   ActionIcon,
   Box,
   Anchor,
+  Center,
 } from "@mantine/core";
 import { IconTrash, IconLink } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../photo/PhotosCarousel";
 import { useNavigate } from "react-router-dom";
 import type { Step } from "../../api/interfaces/step";
+import { useTranslation } from "react-i18next";
 
 interface ProjectStepTimelineProps {
   role: "admin" | "user";
@@ -30,9 +32,16 @@ export const ProjectStepTimeline = ({
   postId,
 }: ProjectStepTimelineProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation("post");
 
   if (!projectSteps || projectSteps.length === 0) {
-    return null;
+    return (
+      <Center w="100%" h="20vh">
+        <Stack>
+          <Text ta="center">{t("project.no_step")}</Text>
+        </Stack>
+      </Center>
+    );
   }
 
   return (
