@@ -1,0 +1,32 @@
+name: Deploy UpAgain
+
+on:
+  push:
+    branches:
+      - arnaud/ci
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Backend
+        working-directory: back
+        run: |
+          /usr/local/go/bin/go build -o api-upagain main.go
+          sudo cp api-upagain /mnt/truenas-web/back/
+          sudo chmod +x /mnt/truenas-web/back/api-upagain
+
+      - name: Build Frontend
+        working-directory: front
+        run: |
+          npm install
+          npm run build
+          sudo cp -r dist/* /mnt/truenas-web/front/
+
+      - name: Restart Containers
+        run: |
+          sudo docker-compose down
+          sudo docker-compose up -d
