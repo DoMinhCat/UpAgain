@@ -9,7 +9,6 @@ import {
   ActionIcon,
   Tooltip,
   Divider,
-  Image,
   Textarea,
   Button,
   Center,
@@ -43,7 +42,7 @@ import {
 } from "../../../hooks/postHooks";
 import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimeline";
 import type { Step } from "../../../api/interfaces/step";
-import PostCommentCard from "../../../components/post/PostCommentCard";
+import CommentCard from "../../../components/post/CommentCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import {
   showErrorNotification,
@@ -605,7 +604,7 @@ export default function PostDetailPage() {
                 ) : (
                   <Stack gap="md">
                     {comments.map((comment) => (
-                      <PostCommentCard
+                      <CommentCard
                         role={role}
                         key={comment.id}
                         comment={{
@@ -615,6 +614,12 @@ export default function PostDetailPage() {
                             (likedComments.has(comment.id) ? 1 : 0),
                         }}
                         onLike={handleLikeComment}
+                        isLiked={likedComments.has(comment.id)}
+                        enableDelete={
+                          user?.id === comment.id_account ||
+                          role === "admin" ||
+                          role === "employee"
+                        }
                       />
                     ))}
                   </Stack>
