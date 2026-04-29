@@ -136,9 +136,19 @@ export default function EventCategoryPage() {
             {/* ACTIONS & FILTERS */}
             <Group justify="flex-end" gap="xs" wrap="nowrap">
               <Select
+                // TODO: fetch available cities from the backend
                 placeholder={t("filters.city")}
+                searchable
+                clearable
                 leftSection={<IconFilter size={16} />}
-                data={["Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse"]}
+                data={[
+                  "Paris",
+                  "Lyon",
+                  "Marseille",
+                  "Bordeaux",
+                  "Toulouse",
+                  "FAKE",
+                ]}
                 value={filters.city}
                 onChange={(value) => handleFilterChange("city", value)}
                 style={{ width: 140 }}
@@ -146,6 +156,7 @@ export default function EventCategoryPage() {
 
               <Select
                 placeholder={t("filters.sort")}
+                clearable
                 leftSection={<IconSortDescending size={16} />}
                 data={[
                   {

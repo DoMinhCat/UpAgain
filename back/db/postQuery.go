@@ -278,6 +278,13 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllPosts() scan failed: %v", err.Error())
 		}
+
+		// get photos too
+		photos, err := GetPhotosPathsByObjectId(event.Id, "post")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllPosts() photos failed: %v", err.Error())
+		}
+		event.Photos = photos
 		results = append(results, event)
 	}
 
