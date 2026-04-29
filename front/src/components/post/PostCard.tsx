@@ -130,16 +130,19 @@ export default function PostCard({
       {/* Footer with Actions */}
       <Card.Section inheritPadding py="sm" mt="md" withBorder>
         <Group justify="space-between">
-          <Group gap={6} c="dimmed">
-            <IconEye size={18} stroke={1.5} />
-            <Text size="xs" fw={500}>
-              {views}
-            </Text>
-          </Group>
+          <Tooltip label="Views" withArrow>
+            <Group gap={6} c="dimmed">
+              <IconEye size={18} stroke={1.5} />
+              <Text size="xs" fw={500}>
+                {views}
+              </Text>
+            </Group>
+          </Tooltip>
 
           <Group gap="sm">
             <Group gap={4}>
               <Tooltip
+                withArrow
                 label={
                   currentRole !== "user" && currentRole !== "pro"
                     ? "You are not allowed to interact with this post"
