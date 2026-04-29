@@ -68,5 +68,7 @@ export const PATHS = {
   },
   POSTS: {
     HOME: "/community",
+    MY_POSTS: "/community/me",
+    SAVED_POSTS: "/community/saved",
   },
 } as const;
