@@ -1,29 +1,32 @@
 import {
+  Center,
   Container,
-  Title,
-  Text,
-  Stack,
-  SimpleGrid,
   Group,
   SegmentedControl,
-  TextInput,
-  Select,
-  Center,
-  Loader,
-  Button,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
 } from "@mantine/core";
-import { IconSearch, IconLeaf, IconArticle } from "@tabler/icons-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import PostCard from "../../../components/post/PostCard";
-import PaginationFooter from "../../../components/common/PaginationFooter";
-import { PATHS } from "../../../routes/paths";
-import { useGetUserPosts } from "../../../hooks/postHooks";
-import type { Post } from "../../../api/interfaces/post";
-import { useAuth } from "../../../context/AuthContext";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
+import { PATHS } from "../../../routes/paths";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import PostCard from "../../../components/post/PostCard";
+import { IconLeaf } from "@tabler/icons-react";
+import type { Post } from "../../../api/interfaces/post";
+import PaginationFooter from "../../../components/common/PaginationFooter";
+
+const CATEGORIES = [
+  { value: "", label: "All" },
+  { value: "tutorial", label: "Tutorial" },
+  { value: "tips", label: "Tips" },
+  { value: "news", label: "News" },
+  { value: "case_study", label: "Case Study" },
+  { value: "project", label: "Project" },
+];
 
 const FAKE_POSTS: Post[] = [
   {
@@ -154,109 +157,52 @@ const FAKE_POSTS: Post[] = [
   },
 ];
 
-const CATEGORIES = [
-  { value: "", label: "All" },
-  { value: "tutorial", label: "Tutorial" },
-  { value: "tips", label: "Tips" },
-  { value: "news", label: "News" },
-  { value: "case_study", label: "Case Study" },
-  { value: "project", label: "Project" },
-];
-
-const SORT_OPTIONS = [
-  { value: "most_recent_creation", label: "Most recent" },
-  { value: "highest_like", label: "Most popular" },
-  { value: "highest_view", label: "Most viewed" },
-];
-
-const USE_FAKE_DATA = true;
-
-export default function UserPostsPage() {
-  const navigate = useNavigate();
+export default function MyPosts() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const role: string = user?.role || "";
-  const [page, setPage] = useState(1);
+  const location = useLocation();
+  const navigate = useNavigate();
   const [category, setCategory] = useState("");
-  const [sort, setSort] = useState("most_recent_creation");
-  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useGetUserPosts(
-    page,
-    12,
-    category || undefined,
-    sort,
-  );
+  const totalRecords = FAKE_POSTS.length;
+  const LIMIT = 8;
+  const lastPage = Math.ceil(totalRecords / LIMIT);
 
-  const posts: Post[] = USE_FAKE_DATA
-    ? FAKE_POSTS.filter((p) => {
-        const matchCategory = !category || p.category === category;
-        const matchSearch =
-          !search ||
-          p.title.toLowerCase().includes(search.toLowerCase()) ||
-          p.content.toLowerCase().includes(search.toLowerCase());
-        return matchCategory && matchSearch;
-      })
-    : (data?.posts ?? []);
-
-  const totalRecords = USE_FAKE_DATA
-    ? posts.length
-    : (data?.total_records ?? 0);
-  const lastPage = USE_FAKE_DATA ? 1 : (data?.last_page ?? 1);
-  const limit = USE_FAKE_DATA ? posts.length : (data?.limit ?? 12);
-
-  // if (isLoading) return <FullScreenLoader/>
   return (
-    <Container px="md" py={50} size="xl">
-      <Stack gap="xl" mb="xl">
-        {/* Header */}
-        <Stack gap={4}>
+    <Container size="xl" pb={40} my="xl" pt={24} w="100%">
+      <Stack gap="lg">
+        {/* HEADER */}
+        <Stack gap={4} mb="xl">
           <MyBreadcrumbs
             mb="md"
             breadcrumbs={[
               { title: t("home:title"), href: PATHS.HOME },
-              { title: t("community:community"), href: PATHS.USER.POSTS.ALL },
+              ...(location.state?.from === "profile"
+                ? [
+                    {
+                      title: t("profile:my_profile"),
+                      href: PATHS.USER.PROFILE,
+                    },
+                  ]
+                : location.state?.from === "communityIndex"
+                  ? [
+                      {
+                        title: t("community:community"),
+                        href: PATHS.USER.POSTS.ALL,
+                      },
+                    ]
+                  : []),
+              { title: "My posts", href: "#" },
             ]}
           />
           <Title order={1} size={36}>
-            {t("community:community")}
+            My posts
           </Title>
-          <Group justify="space-between" wrap="wrap" gap="md">
+          <Group justify="space-between">
             <Text c="dimmed" size="md">
-              Discover guides, projects, and tips shared by our community of
-              upcyclers.
+              Manage all your posts in one place.
             </Text>
-            {(user?.role === "employee" || user?.role === "pro") && (
-              <Button
-                leftSection={<IconArticle stroke={2} />}
-                variant="primary"
-                onClick={() => {
-                  navigate(PATHS.POSTS.MY_POSTS, {
-                    state: { from: "communityIndex" },
-                  });
-                }}
-              >
-                My posts
-              </Button>
-            )}
-          </Group>
-        </Stack>
-
-        {/* Filters */}
-        <Group justify="space-between" wrap="wrap" gap="md" my="lg">
-          <TextInput
-            placeholder="Search articles..."
-            leftSection={
-              <IconSearch size={16} color="var(--upagain-neutral-green)" />
-            }
-            value={search}
-            onChange={(e) => {
-              setSearch(e.currentTarget.value);
-              setPage(1);
-            }}
-            w={{ base: "100%", sm: 280 }}
-          />
-          <Group gap="md">
             <SegmentedControl
               value={category}
               onChange={(v) => {
@@ -265,23 +211,11 @@ export default function UserPostsPage() {
               }}
               data={CATEGORIES}
               size="sm"
-            />
-            <Select
-              data={SORT_OPTIONS}
-              value={sort}
-              onChange={(v) => {
-                setSort(v ?? "recent");
-                setPage(1);
-              }}
-              w={160}
-              size="sm"
-              allowDeselect={false}
-            />
+            />{" "}
           </Group>
-        </Group>
+        </Stack>
 
-        {/* Grid */}
-        {posts.length === 0 ? (
+        {FAKE_POSTS.length === 0 ? (
           <Center py={80}>
             <Stack align="center" gap="xs">
               <IconLeaf
@@ -290,16 +224,15 @@ export default function UserPostsPage() {
                 stroke={1.5}
               />
               <Text c="dimmed" ta="center" maw={300}>
-                No articles match your search. Try a different category or
-                keyword.
+                You haven't posted anything of this category yet
               </Text>
             </Stack>
           </Center>
         ) : (
           <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
-            {posts.map((post) => (
+            {FAKE_POSTS.map((post) => (
               <PostCard
-                currentRole={role}
+                currentRole={user?.role || ""}
                 key={post.id}
                 title={post.title}
                 description={post.content}
@@ -330,22 +263,11 @@ export default function UserPostsPage() {
           setPage={setPage}
           total_records={totalRecords}
           last_page={lastPage}
-          limit={limit}
+          limit={LIMIT}
           unit="articles"
-          loading={isLoading}
-          hidden={USE_FAKE_DATA}
+          loading={false}
         />
       </Stack>
-
-      <PaginationFooter
-        activePage={page}
-        setPage={setPage}
-        total_records={totalRecords}
-        last_page={lastPage}
-        limit={limit}
-        unit="articles"
-        loading={isLoading}
-      />
     </Container>
   );
 }
