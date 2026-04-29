@@ -20,6 +20,7 @@ import { PATHS } from "../../../routes/paths";
 import { useGetUserPosts } from "../../../hooks/postHooks";
 import type { Post } from "../../../api/interfaces/post";
 import { useAuth } from "../../../context/AuthContext";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
 
 const FAKE_POSTS: Post[] = [
   {
@@ -200,9 +201,11 @@ export default function UserPostsPage() {
   const lastPage = USE_FAKE_DATA ? 1 : (data?.last_page ?? 1);
   const limit = USE_FAKE_DATA ? posts.length : (data?.limit ?? 12);
 
+  // if (isLoading) return <FullScreenLoader/>
+
   return (
     <Container px="md" py={50} size="xl">
-      <Stack gap="xl">
+      <Stack gap="xl" mb="xl">
         {/* Header */}
         <Stack gap={4}>
           <Title order={1} size={36}>
@@ -215,7 +218,7 @@ export default function UserPostsPage() {
         </Stack>
 
         {/* Filters */}
-        <Group justify="space-between" wrap="wrap" gap="md">
+        <Group justify="space-between" wrap="wrap" gap="md" my="lg">
           <TextInput
             placeholder="Search articles..."
             leftSection={
@@ -305,6 +308,16 @@ export default function UserPostsPage() {
           hidden={USE_FAKE_DATA}
         />
       </Stack>
+
+      <PaginationFooter
+        activePage={page}
+        setPage={setPage}
+        total_records={totalRecords}
+        last_page={lastPage}
+        limit={limit}
+        unit="articles"
+        loading={isLoading}
+      />
     </Container>
   );
 }
