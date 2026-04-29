@@ -188,7 +188,7 @@ export function EventCard({
             <Group gap={4} c="dimmed">
               <IconClock size={14} />
               <Text size="xs" fw={500}>
-                {getTimeAgo(createdAt)}
+                {getTimeAgo(createdAt, t)}
               </Text>
             </Group>
             <Text

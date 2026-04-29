@@ -1,5 +1,7 @@
 {
   "project": {
     "no_step": "Chưa có bước nào cho dự án này"
-  }
+  },
+  "delete_comment_modal_title": "Xóa bình luận",
+  "delete_comment_modal_text": "Bạn có chắc chắn muốn xóa bình luận này không? Hành động này không thể hoàn tác."
 }

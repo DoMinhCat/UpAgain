@@ -1,8 +1,6 @@
-import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-// 1. Time computation helper
-export function getTimeAgo(dateString: string) {
-  const { t } = useTranslation("common");
+export function getTimeAgo(dateString: string, t: TFunction) {
   const now = new Date();
   const past = new Date(dateString);
   const diffInMs = now.getTime() - past.getTime();

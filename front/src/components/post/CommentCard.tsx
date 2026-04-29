@@ -62,7 +62,7 @@ export default function CommentCard({
                     })}
               </Text>
               <Text size="xs" c="dimmed">
-                • {getTimeAgo(comment.created_at)}
+                • {getTimeAgo(comment.created_at, t)}
               </Text>
             </Group>
 
