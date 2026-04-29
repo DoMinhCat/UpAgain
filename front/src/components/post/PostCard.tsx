@@ -9,6 +9,7 @@ import {
   Avatar,
   ActionIcon,
   Tooltip,
+  useComputedColorScheme,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
@@ -20,6 +21,7 @@ import {
   IconBookmark,
 } from "@tabler/icons-react";
 import { getTimeAgo } from "../../utils/timeUtils";
+import { resolveUrl } from "../../utils/imageUtils";
 
 interface PostCardProps {
   currentRole: string;
@@ -67,6 +69,7 @@ export default function PostCard({
   onSave,
 }: PostCardProps) {
   const { t } = useTranslation(["post", "common"]);
+  const theme = useComputedColorScheme("light");
   return (
     <Card
       className="paper"
@@ -88,7 +91,13 @@ export default function PostCard({
     >
       {/* Image with Overlay Badge */}
       <Card.Section pos="relative">
-        <Image src={image} alt={title} height={200} fit="cover" />
+        <Image
+          src={resolveUrl(image)}
+          alt={title}
+          fallbackSrc={`/banners/guest-banner1-${theme}.png`}
+          height={200}
+          fit="cover"
+        />
         <Badge
           className="badge"
           variant={CATEGORY_COLOR[category] ?? "gray"}
