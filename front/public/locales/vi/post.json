@@ -3,5 +3,29 @@
     "no_step": "Chưa có bước nào cho dự án này"
   },
   "delete_comment_modal_title": "Xóa bình luận",
-  "delete_comment_modal_text": "Bạn có chắc chắn muốn xóa bình luận này không? Hành động này không thể hoàn tác."
+  "delete_comment_modal_text": "Bạn có chắc chắn muốn xóa bình luận này không? Hành động này không thể hoàn tác.",
+  "details": {
+    "sponsored": "Bài viết này được tài trợ",
+    "view_count": "{{count}} lượt xem",
+    "view_count_plural": "{{count}} lượt xem",
+    "save_label": "Lưu để xem sau",
+    "unsave_label": "Bỏ lưu",
+    "project_steps": "Các bước dự án"
+  },
+  "comments": {
+    "title": "Bình luận",
+    "title_plural": "Bình luận",
+    "placeholder": "Chia sẻ suy nghĩ của bạn...",
+    "submit": "Gửi bình luận",
+    "empty": "Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ suy nghĩ của bạn!",
+    "post_success_title": "Đã gửi bình luận",
+    "post_success_msg": "Bình luận của bạn đã được thêm vào.",
+    "post_error_title": "Không thể gửi bình luận"
+  },
+  "actions": {
+    "save_success_title": "Đã lưu bài viết",
+    "save_success_msg": "Đã thêm vào nội dung đã lưu của bạn.",
+    "unsave_success_title": "Đã bỏ lưu bài viết",
+    "unsave_success_msg": "Đã xóa khỏi nội dung đã lưu của bạn."
+  }
 }

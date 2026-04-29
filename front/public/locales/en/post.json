@@ -3,5 +3,29 @@
     "no_step": "No steps found"
   },
   "delete_comment_modal_title": "Delete comment",
-  "delete_comment_modal_text": "Are you sure you want to delete this comment? This action cannot be undone."
+  "delete_comment_modal_text": "Are you sure you want to delete this comment? This action cannot be undone.",
+  "details": {
+    "sponsored": "This post is sponsored",
+    "view_count": "{{count}} view",
+    "view_count_plural": "{{count}} views",
+    "save_label": "Save for later",
+    "unsave_label": "Unsave",
+    "project_steps": "Project Steps"
+  },
+  "comments": {
+    "title": "Comment",
+    "title_plural": "Comments",
+    "placeholder": "Share your thoughts...",
+    "submit": "Post comment",
+    "empty": "No comments yet. Be the first to share your thoughts!",
+    "post_success_title": "Comment posted",
+    "post_success_msg": "Your comment was added.",
+    "post_error_title": "Failed to post comment"
+  },
+  "actions": {
+    "save_success_title": "Post saved",
+    "save_success_msg": "Added to your saved content.",
+    "unsave_success_title": "Post unsaved",
+    "unsave_success_msg": "Removed from your saved content."
+  }
 }

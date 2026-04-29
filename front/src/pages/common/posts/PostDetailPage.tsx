@@ -74,7 +74,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 export default function PostDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["post", "common", "admin"]);
   const { user } = useAuth();
   const role: string = user?.role || "";
   const { id } = useParams<{ id: string }>();
@@ -171,10 +171,8 @@ export default function PostDetailPage() {
     setLocalSaved(next);
     savePost();
     showSuccessNotification(
-      next ? "Post saved" : "Post unsaved",
-      next
-        ? "Added to your saved content."
-        : "Removed from your saved content.",
+      next ? t("post:actions.save_success_title") : t("post:actions.unsave_success_title"),
+      next ? t("post:actions.save_success_msg") : t("post:actions.unsave_success_msg"),
     );
   };
 
@@ -186,15 +184,15 @@ export default function PostDetailPage() {
         {
           onSuccess: () => {
             showSuccessNotification(
-              "Comment posted",
-              "Your comment was added.",
+              t("post:comments.post_success_title"),
+              t("post:comments.post_success_msg"),
             );
             setCommentText("");
           },
         },
       );
     } catch (error: any) {
-      showErrorNotification("Failed to post comment", error);
+      showErrorNotification(t("post:comments.post_error_title"), error);
     }
   };
 
@@ -313,7 +311,7 @@ export default function PostDetailPage() {
                 </Badge>
                 {post.ads_id && (
                   <Tooltip
-                    label="This post is sponsored"
+                    label={t("post:details.sponsored")}
                     position="top"
                     withArrow
                   >
@@ -378,7 +376,7 @@ export default function PostDetailPage() {
                     <Group gap={4} c="dimmed">
                       <IconEye size={18} stroke={1.5} />
                       <Text size="sm" fw={600}>
-                        {post.view_count}
+                        {t("post:details.view_count", { count: post.view_count })}
                       </Text>
                     </Group>
 
@@ -411,7 +409,7 @@ export default function PostDetailPage() {
                     </Group>
 
                     <Tooltip
-                      label={isSaved ? "Unsave" : "Save for later"}
+                      label={isSaved ? t("post:details.unsave_label") : t("post:details.save_label")}
                       withArrow
                     >
                       <ActionIcon
@@ -465,7 +463,7 @@ export default function PostDetailPage() {
                         size={32}
                       />
                       <Title order={3}>
-                        {t("admin:posts.details.project_steps")}
+                        {t("post:details.project_steps")}
                       </Title>
                     </Group>
 
@@ -494,7 +492,7 @@ export default function PostDetailPage() {
                 <Group gap="xs">
                   <IconMessageCircle size={22} stroke={1.5} />
                   <Title order={3}>
-                    {totalComments} comment{totalComments !== 1 ? "s" : ""}
+                    {t("post:comments.title", { count: totalComments })}
                   </Title>
                 </Group>
 
@@ -502,7 +500,7 @@ export default function PostDetailPage() {
                 <Stack gap="sm" mb="md">
                   <Textarea
                     disabled={role !== "user" && role !== "pro"}
-                    placeholder="Share your thoughts..."
+                    placeholder={t("post:comments.placeholder")}
                     value={commentText}
                     onChange={(e) => setCommentText(e.currentTarget.value)}
                     minRows={3}
@@ -519,7 +517,7 @@ export default function PostDetailPage() {
                         (role !== "user" && role !== "pro")
                       }
                     >
-                      Post comment
+                      {t("post:comments.submit")}
                     </Button>
                   </Group>
                 </Stack>
@@ -532,7 +530,7 @@ export default function PostDetailPage() {
                   </Center>
                 ) : comments.length === 0 ? (
                   <Text c="dimmed" ta="center" py="xl">
-                    No comments yet. Be the first to share your thoughts!
+                    {t("post:comments.empty")}
                   </Text>
                 ) : (
                   <Stack gap="md">
