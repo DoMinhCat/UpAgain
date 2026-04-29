@@ -19,7 +19,7 @@ import {
   SimpleGrid,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-
+import DOMPurify from "dompurify";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import "@mantine/carousel/styles.css";
 import { PATHS } from "../../../routes/paths";
@@ -277,7 +277,7 @@ export default function AdminEventDetails() {
               </Text>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: eventDetails?.description ?? "",
+                  __html: DOMPurify.sanitize(eventDetails?.description ?? ""),
                 }}
               />
             </Stack>

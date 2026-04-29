@@ -1,3 +1,23 @@
 {
-  "community": "Cộng đồng"
+  "community": "Cộng đồng",
+  "subtitle": "Khám phá các hướng dẫn, dự án và lời khuyên được chia sẻ bởi cộng đồng của chúng mình.",
+  "search_placeholder": "Tìm kiếm bài viết...",
+  "filters": {
+    "all": "Tất cả",
+    "tutorial": "Hướng dẫn",
+    "tips": "Mẹo nhỏ",
+    "news": "Tin tức",
+    "case_study": "Nghiên cứu",
+    "project": "Dự án"
+  },
+  "sort": {
+    "most_recent": "Mới nhất",
+    "most_popular": "Phổ biến nhất",
+    "most_viewed": "Xem nhiều nhất"
+  },
+  "empty": {
+    "title": "Không có bài viết nào khớp với tìm kiếm của bạn.",
+    "subtitle": "Hãy thử một danh mục hoặc từ khóa khác."
+  },
+  "my_posts": "Bài viết của tôi"
 }

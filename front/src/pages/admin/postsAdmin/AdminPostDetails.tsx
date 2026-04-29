@@ -17,6 +17,7 @@ import {
   Center,
   NumberInput,
 } from "@mantine/core";
+import DOMPurify from "dompurify";
 import { useLocation, useNavigate } from "react-router-dom";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useDisclosure } from "@mantine/hooks";
@@ -387,7 +388,7 @@ export const AdminPostDetails = () => {
               </Text>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: postDetails?.content ?? "",
+                  __html: DOMPurify.sanitize(postDetails?.content ?? ""),
                 }}
               />
 

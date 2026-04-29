@@ -60,6 +60,7 @@ import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal"
 import { useTranslation } from "react-i18next";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { resolveUrl } from "../../../utils/imageUtils";
+import DOMPurify from "dompurify";
 
 const CATEGORY_COLOR: Record<string, string> = {
   tutorial: "blue",
@@ -71,7 +72,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 };
 
 export default function PostDetailPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation(["post", "common", "admin"]);
   const { user } = useAuth();
@@ -454,7 +455,9 @@ export default function PostDetailPage() {
                 data-variant="primary"
                 p="xl"
                 radius="lg"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(post.content),
+                }}
                 style={{
                   lineHeight: 1.8,
                   fontSize: "var(--mantine-font-size-md)",
