@@ -58,6 +58,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { NotFoundPage } from "../../error/404";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
+import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
 import { useTranslation } from "react-i18next";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { resolveUrl } from "../../../utils/imageUtils";
@@ -582,28 +583,12 @@ export default function PostDetailPage() {
         defaultActiveSlide={lightboxSlide}
       />
 
-      <Modal
+      <DeleteCommentModal
         opened={deleteModalOpened}
         onClose={closeDeleteModal}
-        title={t("post:delete_comment_modal_title")}
-        centered
-      >
-        <Stack>
-          <Text size="sm">{t("post:delete_comment_modal_text")}</Text>
-          <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={closeDeleteModal}>
-              {t("common:actions.cancel")}
-            </Button>
-            <Button
-              color="red"
-              onClick={confirmDelete}
-              loading={deleteComment.isPending}
-            >
-              {t("common:actions.confirm")}
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        onConfirm={confirmDelete}
+        loading={deleteComment.isPending}
+      />
     </>
   );
 }
