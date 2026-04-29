@@ -40,7 +40,7 @@ export default function CommentCard({
       className="paper"
       data-variant="primary"
       p="md"
-      radius="md"
+      radius="lg"
       withBorder
     >
       <Group align="flex-start" gap="sm" wrap="nowrap">
@@ -81,7 +81,11 @@ export default function CommentCard({
             )}
           </Group>
 
-          <Text size="sm" c="var(--mantine-color-text)" style={{ lineHeight: 1.5 }}>
+          <Text
+            size="sm"
+            c="var(--mantine-color-text)"
+            style={{ lineHeight: 1.5 }}
+          >
             {comment.content}
           </Text>
 
@@ -99,7 +103,10 @@ export default function CommentCard({
                 loading={isLiking}
               >
                 {isLiked ? (
-                  <IconHeartFilled size={14} color="var(--mantine-color-red-6)" />
+                  <IconHeartFilled
+                    size={14}
+                    color="var(--mantine-color-red-6)"
+                  />
                 ) : (
                   <IconHeart size={14} color="var(--mantine-color-red-6)" />
                 )}
