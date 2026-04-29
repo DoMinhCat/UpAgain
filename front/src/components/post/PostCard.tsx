@@ -10,6 +10,7 @@ import {
   ActionIcon,
   Tooltip,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import {
   IconHeartFilled,
   IconBookmarkFilled,
@@ -64,6 +65,7 @@ export default function PostCard({
   onLike,
   onSave,
 }: PostCardProps) {
+  const { t } = useTranslation();
   return (
     <Card
       className="paper"
@@ -122,7 +124,7 @@ export default function PostCard({
             {authorName}
           </Text>
           <Text size="xs" c="dimmed">
-            {getTimeAgo(postedTime)}
+            {getTimeAgo(postedTime, t)}
           </Text>
         </div>
       </Group>

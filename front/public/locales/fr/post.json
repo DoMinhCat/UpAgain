@@ -1,5 +1,7 @@
 {
   "project": {
     "no_step": "Aucune étape n'a été trouvée"
-  }
+  },
+  "delete_comment_modal_title": "Supprimer le commentaire",
+  "delete_comment_modal_text": "Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action est irréversible."
 }
