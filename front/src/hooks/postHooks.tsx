@@ -6,10 +6,12 @@ import {
   DeletePost,
   DeleteProjectStep,
   GetAllPosts,
+  GetMyPosts,
   GetPostComments,
   GetPostDetails,
   GetPostsStats,
   GetProjectStepsByPostId,
+  GetSavedPosts,
   GetUserPostComments,
   GetUserPostDetails,
   GetUserPosts,
@@ -321,6 +323,30 @@ export const useLikeComment = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userPostComments"] });
+    },
+  });
+};
+
+export const useGetSavedPosts = (page?: number, limit?: number) => {
+  return useQuery({
+    queryKey: ["savedPosts", page, limit],
+    queryFn: () => GetSavedPosts(page, limit),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch saved posts.",
+    },
+  });
+};
+
+export const useGetMyPosts = (page?: number, limit?: number) => {
+  return useQuery({
+    queryKey: ["myPosts", page, limit],
+    queryFn: () => GetMyPosts(page, limit),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch my posts.",
     },
   });
 };

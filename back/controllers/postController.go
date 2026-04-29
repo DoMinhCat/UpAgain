@@ -852,58 +852,97 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, nil)
 }
 
-// func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
-// 	idAccount, err := strconv.Atoi(r.PathValue("account_id"))
-// 	if err != nil {
-// 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid account ID")
-// 		return
-// 	}
+// Get posts posted by an account
+func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
-// 	exists, err := db.CheckAccountExistsById(idAccount)
-// 	if err != nil {
-// 		slog.Error("db.CheckAccountExistsById() failed", "controller", "GetPostsByAccountId", "error", err)
-// 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
-// 		return
-// 	}
-// 	if !exists {
-// 		utils.RespondWithError(w, http.StatusBadRequest, "Account ID "+strconv.Itoa(idAccount)+" not found")
-// 		return
-// 	}
+	deleted := false
+	exists, err := db.CheckAccountExistsById(idRequestor, &deleted)
+	if err != nil {
+		slog.Error("db.CheckAccountExistsById() failed", "controller", "GetPostsByAccountId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Account ID "+strconv.Itoa(idRequestor)+" not found")
+		return
+	}
 
-// 	posts, err := db.GetPostsByAccountId(idAccount)
-// 	if err != nil {
-// 		slog.Error("db.GetPostsByAccountId() failed", "controller", "GetPostsByAccountId", "error", err)
-// 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
-// 		return
-// 	}
+	page, limit := -1, 10
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetPostsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid page.")
+			return
+		}
+	}
 
-// 	utils.RespondWithJSON(w, http.StatusOK, posts)
-// }
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetPostsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid limit.")
+			return
+		}
+	}
 
-// func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
-// 	idAccount, err := strconv.Atoi(r.PathValue("account_id"))
-// 	if err != nil {
-// 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid account ID")
-// 		return
-// 	}
+	posts, err := db.GetPostsByAccountId(idRequestor, page, limit)
+	if err != nil {
+		slog.Error("db.GetPostsByAccountId() failed", "controller", "GetPostsByAccountId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+		return
+	}
 
-// 	exists, err := db.CheckAccountExistsById(idAccount)
-// 	if err != nil {
-// 		slog.Error("db.CheckAccountExistsById() failed", "controller", "GetSavedPosts", "error", err)
-// 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get saved posts")
-// 		return
-// 	}
-// 	if !exists {
-// 		utils.RespondWithError(w, http.StatusBadRequest, "Account ID "+strconv.Itoa(idAccount)+" not found")
-// 		return
-// 	}
+	utils.RespondWithJSON(w, http.StatusOK, posts)
+}
 
-// 	posts, err := db.GetSavedPosts(idAccount)
-// 	if err != nil {
-// 		slog.Error("db.GetSavedPosts() failed", "controller", "GetSavedPosts", "error", err)
-// 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get saved posts")
-// 		return
-// 	}
+func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
-// 	utils.RespondWithJSON(w, http.StatusOK, posts)
-// }
+	deleted := false
+	exists, err := db.CheckAccountExistsById(idRequestor, &deleted)
+	if err != nil {
+		slog.Error("db.CheckAccountExistsById() failed", "controller", "GetPostsByAccountId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Account ID "+strconv.Itoa(idRequestor)+" not found")
+		return
+	}
+
+	page, limit := -1, 10
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetSavedPosts", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid page.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetSavedPosts", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid limit.")
+			return
+		}
+	}
+
+	posts, err := db.GetSavedPosts(idRequestor, page, limit)
+	if err != nil {
+		slog.Error("db.GetSavedPosts() failed", "controller", "GetSavedPosts", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get saved posts")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, posts)
+}

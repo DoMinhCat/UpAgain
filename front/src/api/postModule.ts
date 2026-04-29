@@ -144,3 +144,23 @@ export const LikeComment = async (id_comment: number) => {
   );
   return response.data;
 };
+
+export const GetSavedPosts = async (
+  page?: number,
+  limit?: number,
+): Promise<PostsListPagination> => {
+  const response = await api.get(ENDPOINTS.USER.POSTS.SAVED, {
+    params: { page, limit },
+  });
+  return response.data;
+};
+
+export const GetMyPosts = async (
+  page?: number,
+  limit?: number,
+): Promise<PostsListPagination> => {
+  const response = await api.get(ENDPOINTS.USER.POSTS.MY_POSTS, {
+    params: { page, limit },
+  });
+  return response.data;
+};

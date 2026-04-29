@@ -124,6 +124,8 @@ export const ENDPOINTS = {
       SAVE: (id_post: number) => `/posts/${id_post}/save/`,
       VIEW: (id_post: number) => `/posts/${id_post}/view/`,
       LIKE_COMMENT: (id_comment: number) => `/comments/${id_comment}/like/`,
+      SAVED: "/posts/saved/",
+      MY_POSTS: "/posts/me/",
     },
   },
   EVENTS: {
