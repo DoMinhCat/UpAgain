@@ -14,8 +14,6 @@ import {
   Button,
   Center,
   Loader,
-  Breadcrumbs,
-  Anchor,
   Paper,
 } from "@mantine/core";
 import {
@@ -28,7 +26,7 @@ import {
   IconArrowLeft,
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "../../../routes/paths";
 import {
   useGetUserPostDetails,
@@ -48,6 +46,10 @@ import {
 import type { Post, PostComment } from "../../../api/interfaces/post";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import { useAuth } from "../../../context/AuthContext";
+import { NotFoundPage } from "../../error/404";
+import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
+import { useTranslation } from "react-i18next";
 
 const USE_FAKE_DATA = true;
 
@@ -140,6 +142,9 @@ const CATEGORY_COLOR: Record<string, string> = {
 
 export default function PostDetailPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { from?: string };
+  const { t } = useTranslation();
   const { user } = useAuth();
   const role: string = user?.role || "";
   const { id } = useParams<{ id: string }>();
@@ -170,6 +175,7 @@ export default function PostDetailPage() {
   const { mutate: addComment, isPending: isPosting } = useAddComment(postId);
   const { mutate: likeComment } = useLikeComment();
 
+  // TODO: getpost detail
   const post: Post | undefined = USE_FAKE_DATA ? FAKE_POST : postData;
   const comments: PostComment[] = USE_FAKE_DATA
     ? FAKE_COMMENTS
@@ -266,51 +272,30 @@ export default function PostDetailPage() {
   }
 
   if (!post) {
-    return (
-      <Center py={120}>
-        <Text c="dimmed">Post not found.</Text>
-      </Center>
-    );
+    return <NotFoundPage />;
+  }
+  if (isLoadingPost) {
+    return <FullScreenLoader />;
   }
 
   return (
-    <Container px="md" py={40} size="md">
+    <Container size="xl" py={40} w="100%" mt="md">
       <Stack gap="xl">
         {/* Breadcrumb */}
-        <Breadcrumbs>
-          <Anchor
-            size="sm"
-            c="dimmed"
-            onClick={() => navigate(PATHS.USER.POSTS.ALL)}
-            style={{ cursor: "pointer" }}
-          >
-            Community
-          </Anchor>
-          <Text size="sm" c="dimmed" lineClamp={1} maw={300}>
-            {post.title}
-          </Text>
-        </Breadcrumbs>
-
-        {/* Back button */}
-        <Group gap="xs">
-          <ActionIcon
-            variant="subtle"
-            className="actionIcon"
-            data-variant="primary"
-            onClick={() => navigate(PATHS.USER.POSTS.ALL)}
-            aria-label="Back to community"
-          >
-            <IconArrowLeft size={18} />
-          </ActionIcon>
-          <Text
-            size="sm"
-            c="dimmed"
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate(PATHS.USER.POSTS.ALL)}
-          >
-            Back to Community
-          </Text>
-        </Group>
+        <MyBreadcrumbs
+          breadcrumbs={[
+            { title: t("home:title"), href: PATHS.HOME },
+            ...(location.state?.from === "communityIndex"
+              ? [
+                  {
+                    title: t("community:community"),
+                    href: PATHS.USER.POSTS.ALL,
+                  },
+                ]
+              : []),
+            { title: post.title, href: "#" },
+          ]}
+        />
 
         {/* Hero image */}
         {post.photos && post.photos.length > 0 && (
