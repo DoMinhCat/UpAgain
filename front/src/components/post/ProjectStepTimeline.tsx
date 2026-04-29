@@ -61,7 +61,7 @@ export const ProjectStepTimeline = ({
               </Stack>
 
               {enableDeleteStep && onDeleteStep && (
-                <Tooltip label="Delete this step" position="left">
+                <Tooltip label={t("project.delete_step_tooltip")} position="left">
                   <ActionIcon
                     variant="subtle"
                     color="red"
@@ -95,7 +95,7 @@ export const ProjectStepTimeline = ({
           {step.items && step.items.length > 0 && (
             <Stack gap="xs" mt="xl" p="sm">
               <Text size="sm" fw={700} c="dimmed" tt="uppercase">
-                Items used in this step
+                {t("project.items_used")}
               </Text>
               <Group gap="sm">
                 <IconLink size={14} color="var(--mantine-color-dimmed)" />
