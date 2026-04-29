@@ -291,7 +291,11 @@ export default function UserPostsPage() {
                 likes={post.like_count}
                 isLiked={post.is_liked}
                 isSaved={post.is_saved}
-                onClick={() => navigate(PATHS.USER.POSTS.DETAILS_FN(post.id))}
+                onClick={() =>
+                  navigate(PATHS.USER.POSTS.DETAILS_FN(post.id), {
+                    state: { from: "communityIndex" },
+                  })
+                }
               />
             ))}
           </SimpleGrid>
