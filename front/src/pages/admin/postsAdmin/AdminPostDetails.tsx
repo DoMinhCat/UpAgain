@@ -41,6 +41,7 @@ import {
 } from "../../../hooks/postHooks";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
+import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { EditPostModal } from "../../../components/post/EditPostModal";
@@ -115,8 +116,7 @@ export const AdminPostDetails = () => {
     openDeleteComment();
   };
   const deleteComment = useDeleteComment();
-  const handleDeleteComment = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDeleteComment = () => {
     if (idCommentToDelete) {
       deleteComment.mutate(idCommentToDelete, {
         onSuccess: () => {
@@ -618,31 +618,12 @@ export const AdminPostDetails = () => {
                 </Group>
               </Modal>
 
-              <Modal
-                title={t("posts.delete_comment_modal.title")}
+              <DeleteCommentModal
                 opened={openedDeleteComment}
                 onClose={closeDeleteComment}
-                centered
-                size="md"
-              >
-                <Stack>
-                  <Text>{t("posts.delete_comment_modal.text")}</Text>
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={closeDeleteComment} variant="grey">
-                    {t("common:actions.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleDeleteComment(e);
-                    }}
-                    variant="delete"
-                    loading={deleteComment.isPending}
-                  >
-                    {t("common:actions.confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+                onConfirm={handleDeleteComment}
+                loading={deleteComment.isPending}
+              />
 
               {/* Add sponsor status modal */}
               <Modal
