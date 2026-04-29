@@ -15,6 +15,7 @@ import {
   Divider,
   Timeline,
   Checkbox,
+  SegmentedControl,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -152,6 +153,19 @@ const UpAgainTheme = createTheme({
           itemBullet: classes.timelineBullet,
           itemTitle: classes.timelineTitle,
         },
+      },
+    }),
+    SegmentedControl: SegmentedControl.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.segmentedControl,
+          label: classes.segmentedControlLabel,
+          indicator: classes.segmentedControlIndicator,
+        },
+        // Ensure it always uses the pill shape
+        radius: "xl",
+        // Set a smooth transition duration
+        transitionDuration: 300,
       },
     }),
   },

@@ -9,13 +9,9 @@ import {
   Button,
   Box,
   Modal,
-  Paper,
-  Tooltip,
   Divider,
   Card,
   SimpleGrid,
-  Avatar,
-  ActionIcon,
   Anchor,
   Loader,
   Center,
@@ -32,8 +28,6 @@ import {
   IconBookmark,
   IconMessageCircle,
   IconUser,
-  IconTrash,
-  IconHeartFilled,
   IconRouteSquare,
   IconCrownFilled,
 } from "@tabler/icons-react";
@@ -52,6 +46,7 @@ import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { EditPostModal } from "../../../components/post/EditPostModal";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimeline";
+import CommentCard from "../../../components/post/CommentCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
 import {
@@ -472,81 +467,14 @@ export const AdminPostDetails = () => {
                 <Text>{t("posts.details.no_comments")}</Text>
               ) : (
                 comments?.comments.map((comment) => (
-                  <Stack gap="sm" key={comment.id}>
-                    <Paper
-                      withBorder
-                      p="md"
-                      radius="md"
-                      shadow="xs"
-                      variant="primary"
-                    >
-                      <Group align="flex-start" wrap="nowrap">
-                        <Avatar
-                          src={
-                            comment.id_account != 0
-                              ? `${import.meta.env.VITE_API_BASE_URL}/${comment.user_avatar}`
-                              : null
-                          }
-                          alt={
-                            comment.id_account != 0
-                              ? comment.user_name
-                              : t("posts.details.anonymous")
-                          }
-                          radius="xl"
-                          size="lg"
-                        />
-
-                        <Stack gap="xs" style={{ flex: 1 }}>
-                          <Group justify="space-between">
-                            <Box>
-                              <Text size="sm" fw={700}>
-                                {comment.id_account != 0
-                                  ? comment.user_name
-                                  : t("posts.details.anonymous")}
-                              </Text>
-                              <Text size="xs" c="dimmed">
-                                {dayjs(comment.created_at).format("DD/MM/YYYY")}{" "}
-                                • {dayjs(comment.created_at).format("HH:mm A")}
-                              </Text>
-                            </Box>
-                          </Group>
-
-                          <Text size="sm">{comment.content}</Text>
-                        </Stack>
-
-                        <Divider orientation="vertical" />
-
-                        {/* Admin Stats & Actions Column */}
-                        <Stack align="center" gap="sm">
-                          <Tooltip
-                            label={t("posts.details.delete_comment_tooltip")}
-                            position="left"
-                          >
-                            <ActionIcon
-                              variant="subtle"
-                              color="red"
-                              onClick={() =>
-                                handleOpenDeleteComment(comment.id)
-                              }
-                              size="lg"
-                            >
-                              <IconTrash size={20} stroke={1.5} />
-                            </ActionIcon>
-                          </Tooltip>
-
-                          <Stack gap={2} align="center">
-                            <IconHeartFilled
-                              size={18}
-                              color="var(--mantine-color-red-6)"
-                            />
-                            <Text size="xs" fw={700} c="dimmed">
-                              {comment.like_count}
-                            </Text>
-                          </Stack>
-                        </Stack>
-                      </Group>
-                    </Paper>
-                  </Stack>
+                  <CommentCard
+                    key={comment.id}
+                    comment={comment}
+                    onDelete={handleOpenDeleteComment}
+                    enableDelete={true}
+                    role="admin"
+                    isDeleting={deleteComment.isPending}
+                  />
                 ))
               )}
             </Stack>
