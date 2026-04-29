@@ -9,6 +9,7 @@ import {
   Anchor,
   Center,
 } from "@mantine/core";
+import DOMPurify from "dompurify";
 import { IconTrash, IconLink } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../photo/PhotosCarousel";
@@ -61,7 +62,10 @@ export const ProjectStepTimeline = ({
               </Stack>
 
               {enableDeleteStep && onDeleteStep && (
-                <Tooltip label={t("project.delete_step_tooltip")} position="left">
+                <Tooltip
+                  label={t("project.delete_step_tooltip")}
+                  position="left"
+                >
                   <ActionIcon
                     variant="subtle"
                     color="red"
@@ -77,7 +81,11 @@ export const ProjectStepTimeline = ({
         >
           {/* Body Content */}
           <Box mt="md">
-            <div dangerouslySetInnerHTML={{ __html: step.description }} />
+            <div
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(step.description),
+              }}
+            />
           </Box>
 
           {/* Media Section */}

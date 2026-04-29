@@ -1,3 +1,23 @@
 {
-  "community": "Community"
+  "community": "Community",
+  "subtitle": "Discover guides, projects, and tips shared by our community of upcyclers.",
+  "search_placeholder": "Search articles...",
+  "filters": {
+    "all": "All",
+    "tutorial": "Tutorial",
+    "tips": "Tips",
+    "news": "News",
+    "case_study": "Case Study",
+    "project": "Project"
+  },
+  "sort": {
+    "most_recent": "Most recent",
+    "most_popular": "Most popular",
+    "most_viewed": "Most viewed"
+  },
+  "empty": {
+    "title": "No articles match your search.",
+    "subtitle": "Try a different category or keyword."
+  },
+  "my_posts": "My posts"
 }

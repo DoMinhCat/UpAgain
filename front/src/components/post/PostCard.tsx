@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import DOMPurify from "dompurify";
 import {
   IconHeartFilled,
   IconBookmarkFilled,
@@ -95,19 +96,25 @@ export default function PostCard({
           top={12}
           right={12}
         >
-          {category}
+          {t(`community:filters.${category}`)}
         </Badge>
       </Card.Section>
 
       {/* Main Content */}
       <Stack mt="lg" gap="xs">
-        <Title order={4} className="text" lineClamp={2}>
+        <Title order={4} className="text" lineClamp={2} h={24}>
           {title}
         </Title>
 
-        <Text size="sm" c="dimmed" lineClamp={2}>
-          {description}
-        </Text>
+        <Text
+          size="sm"
+          c="dimmed"
+          lineClamp={2}
+          h={42}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(description),
+          }}
+        />
       </Stack>
 
       {/* Author & Time */}

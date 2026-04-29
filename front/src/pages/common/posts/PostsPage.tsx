@@ -21,191 +21,47 @@ import { PATHS } from "../../../routes/paths";
 import { useGetUserPosts } from "../../../hooks/postHooks";
 import type { Post } from "../../../api/interfaces/post";
 import { useAuth } from "../../../context/AuthContext";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
-
-const FAKE_POSTS: Post[] = [
-  {
-    id: 1,
-    title: "How to upcycle wooden pallets into a garden planter",
-    content:
-      "In this step-by-step guide we transform discarded industrial pallets into a beautiful vertical garden planter. We cover sanding, sealing, and plant selection.",
-    category: "tutorial",
-    view_count: 1240,
-    save_count: 45,
-    comment_count: 18,
-    like_count: 85,
-    id_account: 2,
-    creator: "Marcus Wood",
-    creator_id: 2,
-    created_at: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-    photos: ["/banners/user-banner1-light.png"],
-    ads_id: null,
-    ads_from: null,
-    ads_to: null,
-    is_liked: false,
-    is_saved: true,
-  },
-  {
-    id: 2,
-    title: "5 tips to repair textile instead of throwing it away",
-    content:
-      "Visible mending and embroidery techniques that give your torn clothes a second life — and make them look even better than before.",
-    category: "tips",
-    view_count: 890,
-    save_count: 30,
-    comment_count: 9,
-    like_count: 156,
-    id_account: 3,
-    creator: "Elena Stitch",
-    creator_id: 3,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    photos: ["/banners/user-banner1-dark.png"],
-    ads_id: null,
-    ads_from: null,
-    ads_to: null,
-    is_liked: true,
-    is_saved: false,
-  },
-  {
-    id: 3,
-    title: "Case study: turning plastic waste into furniture",
-    content:
-      "How a small workshop in Lyon transformed 200 kg of plastic waste into a full set of outdoor furniture — profit included.",
-    category: "case_study",
-    view_count: 3200,
-    save_count: 120,
-    comment_count: 34,
-    like_count: 412,
-    id_account: 4,
-    creator: "Studio Recyclé",
-    creator_id: 4,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-    photos: ["/banners/user-banner1-light.png"],
-    ads_id: null,
-    ads_from: null,
-    ads_to: null,
-    is_liked: false,
-    is_saved: false,
-  },
-  {
-    id: 4,
-    title: "UpAgain now accepts glass — here's what you need to know",
-    content:
-      "Starting next month, all containers will accept glass objects. Here is a quick FAQ on what types of glass are accepted and how to prepare them.",
-    category: "news",
-    view_count: 560,
-    save_count: 15,
-    comment_count: 4,
-    like_count: 31,
-    id_account: 1,
-    creator: "UpAgain Team",
-    creator_id: 1,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    photos: ["/banners/user-banner1-dark.png"],
-    ads_id: null,
-    ads_from: null,
-    ads_to: null,
-    is_liked: false,
-    is_saved: false,
-  },
-  {
-    id: 5,
-    title: "My metal lamp restoration project — before & after",
-    content:
-      "Follow my full restoration journey of a 1970s floor lamp: stripping old paint, rewiring, and refinishing with heat-resistant powder coat.",
-    category: "project",
-    view_count: 2100,
-    save_count: 88,
-    comment_count: 27,
-    like_count: 320,
-    id_account: 5,
-    creator: "Jean-Paul Forge",
-    creator_id: 5,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    photos: ["/banners/user-banner1-light.png"],
-    ads_id: 1,
-    ads_from: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
-    ads_to: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toISOString(),
-    is_liked: true,
-    is_saved: true,
-  },
-  {
-    id: 6,
-    title: "Zero-waste cooking: root-to-leaf techniques",
-    content:
-      "Master the art of using every part of vegetables and drastically reduce your organic waste. Recipes included.",
-    category: "tips",
-    view_count: 1100,
-    save_count: 60,
-    comment_count: 12,
-    like_count: 210,
-    id_account: 6,
-    creator: "Chef Julian",
-    creator_id: 6,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
-    photos: ["/banners/user-banner1-dark.png"],
-    ads_id: null,
-    ads_from: null,
-    ads_to: null,
-    is_liked: false,
-    is_saved: false,
-  },
-];
-
-const CATEGORIES = [
-  { value: "", label: "All" },
-  { value: "tutorial", label: "Tutorial" },
-  { value: "tips", label: "Tips" },
-  { value: "news", label: "News" },
-  { value: "case_study", label: "Case Study" },
-  { value: "project", label: "Project" },
-];
-
-const SORT_OPTIONS = [
-  { value: "most_recent_creation", label: "Most recent" },
-  { value: "highest_like", label: "Most popular" },
-  { value: "highest_view", label: "Most viewed" },
-];
-
-const USE_FAKE_DATA = true;
 
 export default function UserPostsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["post", "common", "community", "home"]);
   const role: string = user?.role || "";
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("most_recent_creation");
   const [search, setSearch] = useState("");
 
+  const CATEGORIES = [
+    { value: "", label: t("community:filters.all") },
+    { value: "tutorial", label: t("community:filters.tutorial") },
+    { value: "tips", label: t("community:filters.tips") },
+    { value: "news", label: t("community:filters.news") },
+    { value: "case_study", label: t("community:filters.case_study") },
+    { value: "project", label: t("community:filters.project") },
+  ];
+
+  const SORT_OPTIONS = [
+    { value: "most_recent_creation", label: t("community:sort.most_recent") },
+    { value: "highest_like", label: t("community:sort.most_popular") },
+    { value: "highest_view", label: t("community:sort.most_viewed") },
+  ];
+
   const { data, isLoading } = useGetUserPosts(
     page,
     12,
     category || undefined,
     sort,
+    search || undefined,
   );
 
-  const posts: Post[] = USE_FAKE_DATA
-    ? FAKE_POSTS.filter((p) => {
-        const matchCategory = !category || p.category === category;
-        const matchSearch =
-          !search ||
-          p.title.toLowerCase().includes(search.toLowerCase()) ||
-          p.content.toLowerCase().includes(search.toLowerCase());
-        return matchCategory && matchSearch;
-      })
-    : (data?.posts ?? []);
+  const posts: Post[] = data?.posts ?? [];
+  const totalRecords = data?.total_records ?? 0;
+  const lastPage = data?.last_page ?? 1;
+  const limit = data?.limit ?? 12;
 
-  const totalRecords = USE_FAKE_DATA
-    ? posts.length
-    : (data?.total_records ?? 0);
-  const lastPage = USE_FAKE_DATA ? 1 : (data?.last_page ?? 1);
-  const limit = USE_FAKE_DATA ? posts.length : (data?.limit ?? 12);
-
-  // if (isLoading) return <FullScreenLoader/>
   return (
     <Container px="md" py={50} size="xl">
       <Stack gap="xl" mb="xl">
@@ -223,8 +79,7 @@ export default function UserPostsPage() {
           </Title>
           <Group justify="space-between" wrap="wrap" gap="md">
             <Text c="dimmed" size="md">
-              Discover guides, projects, and tips shared by our community of
-              upcyclers.
+              {t("community:subtitle")}
             </Text>
             {(user?.role === "employee" || user?.role === "pro") && (
               <Button
@@ -236,7 +91,7 @@ export default function UserPostsPage() {
                   });
                 }}
               >
-                My posts
+                {t("community:my_posts")}
               </Button>
             )}
           </Group>
@@ -245,7 +100,7 @@ export default function UserPostsPage() {
         {/* Filters */}
         <Group justify="space-between" wrap="wrap" gap="md" my="lg">
           <TextInput
-            placeholder="Search articles..."
+            placeholder={t("community:search_placeholder")}
             leftSection={
               <IconSearch size={16} color="var(--upagain-neutral-green)" />
             }
@@ -270,7 +125,7 @@ export default function UserPostsPage() {
               data={SORT_OPTIONS}
               value={sort}
               onChange={(v) => {
-                setSort(v ?? "recent");
+                setSort(v ?? "most_recent_creation");
                 setPage(1);
               }}
               w={160}
@@ -281,7 +136,11 @@ export default function UserPostsPage() {
         </Group>
 
         {/* Grid */}
-        {posts.length === 0 ? (
+        {isLoading ? (
+          <Center py={80}>
+            <Loader color="var(--upagain-neutral-green)" />
+          </Center>
+        ) : posts.length === 0 ? (
           <Center py={80}>
             <Stack align="center" gap="xs">
               <IconLeaf
@@ -290,8 +149,7 @@ export default function UserPostsPage() {
                 stroke={1.5}
               />
               <Text c="dimmed" ta="center" maw={300}>
-                No articles match your search. Try a different category or
-                keyword.
+                {t("community:empty.title")} {t("community:empty.subtitle")}
               </Text>
             </Stack>
           </Center>
@@ -303,10 +161,7 @@ export default function UserPostsPage() {
                 key={post.id}
                 title={post.title}
                 description={post.content}
-                image={
-                  post.photos?.[0] ??
-                  "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c"
-                }
+                image={post.photos?.[0] ?? ""}
                 category={post.category}
                 authorName={post.creator}
                 authorAvatar=""
@@ -333,19 +188,8 @@ export default function UserPostsPage() {
           limit={limit}
           unit="articles"
           loading={isLoading}
-          hidden={USE_FAKE_DATA}
         />
       </Stack>
-
-      <PaginationFooter
-        activePage={page}
-        setPage={setPage}
-        total_records={totalRecords}
-        last_page={lastPage}
-        limit={limit}
-        unit="articles"
-        loading={isLoading}
-      />
     </Container>
   );
 }

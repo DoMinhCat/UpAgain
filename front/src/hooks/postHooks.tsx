@@ -210,10 +210,11 @@ export const useGetUserPosts = (
   limit?: number,
   category?: string,
   sort?: string,
+  search?: string,
 ) => {
   return useQuery<PostsListPagination>({
-    queryKey: ["userPosts", page, limit, category, sort],
-    queryFn: () => GetUserPosts(page, limit, category, sort),
+    queryKey: ["userPosts", page, limit, category, sort, search],
+    queryFn: () => GetUserPosts(page, limit, category, sort, search),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Error",

@@ -88,9 +88,10 @@ export const GetUserPosts = async (
   limit?: number,
   category?: string,
   sort?: string,
+  search?: string,
 ): Promise<PostsListPagination> => {
   const response = await api.get(ENDPOINTS.USER.POSTS.ALL, {
-    params: { page, limit, category, sort },
+    params: { page, limit, category, sort, search },
   });
   return response.data;
 };
