@@ -8,7 +8,8 @@
     "tips": "Conseils",
     "news": "Actualités",
     "case_study": "Étude de cas",
-    "project": "Projet"
+    "project": "Projet",
+    "other": "Autre"
   },
   "sort": {
     "most_recent": "Plus récent",
@@ -19,5 +20,7 @@
     "title": "Aucun article ne correspond à votre recherche.",
     "subtitle": "Essayez une autre catégorie ou un autre mot-clé."
   },
-  "my_posts": "Mes posts"
+  "my_posts": "Mes posts",
+  "manage_posts_subtitle": "Gérez tous vos posts au même endroit.",
+  "empty_my_posts": "Vous n'avez encore rien posté dans cette catégorie"
 }

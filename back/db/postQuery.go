@@ -472,7 +472,12 @@ func UpdatePostById(id_post int, payload models.CreatePostRequest) error {
 	return nil
 }
 
-func GetPostsByAccountId(id_account int, page int, limit int) (models.PostListPagination, error) {
+// default page: 1
+//
+// default limit: 10
+//
+// query by all category by passing "" in category
+func GetPostsByAccountId(id_account int, page int, limit int, category string) (models.PostListPagination, error) {
 	var result models.PostListPagination
 	if page <= 0 {
 		page = 1
@@ -482,16 +487,32 @@ func GetPostsByAccountId(id_account int, page int, limit int) (models.PostListPa
 	}
 	offset := (page - 1) * limit
 
-	query := `
+	var params []interface{}
+	params = append(params, id_account)
+	categoryWhereClause := ""
+	if category != "" {
+		categoryWhereClause = " AND p.category = $2"
+		params = append(params, category)
+	}
+	params = append(params, limit)
+	params = append(params, offset)
+
+	paramIndex := []int{2,3}
+	if category != "" {
+		paramIndex = []int{3,4}
+	}
+
+	query := fmt.Sprintf(`
 		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
 		from posts p 
 		join accounts a on p.id_account=a.id 
 		left join ads ad on p.id=ad.id_post and ad.status = 'active'
-		WHERE p.is_deleted = false AND p.id_account = $1
+		WHERE p.is_deleted = false AND p.id_account = $1 %v
 		ORDER BY p.created_at DESC
-		LIMIT $2 OFFSET $3;
-	`
-	rows, err := utils.Conn.Query(query, id_account, limit, offset)
+		LIMIT $%v OFFSET $%v
+	`, categoryWhereClause, paramIndex[0], paramIndex[1])
+	fmt.Println(params)
+	rows, err := utils.Conn.Query(query, params...)
 	if err != nil {
 		return result, fmt.Errorf("GetPostsByAccountId() query failed: '%v'", err)
 	}
@@ -511,8 +532,14 @@ func GetPostsByAccountId(id_account int, page int, limit int) (models.PostListPa
 		posts = append(posts, post)
 	}
 
-	queryCount := `select count(*) from posts where id_account = $1 and is_deleted = false;`
-	err = utils.Conn.QueryRow(queryCount, id_account).Scan(&result.TotalRecords)
+	countParams := []interface{}{
+		id_account,
+	}
+	if category != "" {
+		countParams = append(countParams, category)
+	}
+	queryCount := fmt.Sprintf(`select count(*) from posts p where p.id_account = $1 and p.is_deleted = false %v;`, categoryWhereClause)
+	err = utils.Conn.QueryRow(queryCount, countParams...).Scan(&result.TotalRecords)
 	if err != nil {
 		return result, fmt.Errorf("GetPostsByAccountId() count query failed: '%v'", err)
 	}
