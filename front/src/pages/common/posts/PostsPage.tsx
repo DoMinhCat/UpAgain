@@ -12,7 +12,12 @@ import {
   Loader,
   Button,
 } from "@mantine/core";
-import { IconSearch, IconLeaf, IconArticle } from "@tabler/icons-react";
+import {
+  IconSearch,
+  IconLeaf,
+  IconArticle,
+  IconBookmarkFilled,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../../../components/post/PostCard";
@@ -93,6 +98,20 @@ export default function UserPostsPage() {
                 }}
               >
                 {t("community:my_posts")}
+              </Button>
+            )}
+
+            {(user?.role === "user" || user?.role === "pro") && (
+              <Button
+                leftSection={<IconBookmarkFilled stroke={2} />}
+                variant="primary"
+                onClick={() => {
+                  navigate(PATHS.POSTS.SAVED_POSTS, {
+                    state: { from: "communityIndex" },
+                  });
+                }}
+              >
+                {t("community:saved_posts")}
               </Button>
             )}
           </Group>

@@ -22,5 +22,8 @@
   },
   "my_posts": "Bài viết của tôi",
   "manage_posts_subtitle": "Quản lý tất cả các bài viết của bạn tại một nơi.",
-  "empty_my_posts": "Bạn chưa đăng bài viết nào trong danh mục này"
+  "saved_posts": "Bài viết đã lưu",
+  "manage_saved_posts_subtitle": "Bài viết bạn yêu thích",
+  "empty_my_posts": "Bạn chưa đăng bài viết nào trong danh mục này",
+  "empty_saved_posts": "Bạn chưa lưu bài viết nào"
 }

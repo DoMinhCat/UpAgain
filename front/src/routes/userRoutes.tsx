@@ -17,6 +17,7 @@ import EventDetailPage from "../pages/common/event/EventDetailPage";
 import EventPlanning from "../pages/common/event/EventPlanning";
 import PostsPage from "../pages/common/posts/PostsPage";
 import MyPosts from "../pages/common/posts/MyPosts";
+import SavedPosts from "../pages/common/posts/SavedPosts";
 
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -88,6 +89,10 @@ export const userRoutes: RouteObject = {
         {
           path: "me",
           element: <MyPosts />,
+        },
+        {
+          path: "saved",
+          element: <SavedPosts />,
         },
         { path: ":id", element: <PostDetailPage /> },
       ],
