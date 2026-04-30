@@ -22,7 +22,7 @@ jobs:
 
       - name: Stop Containers
         run: |
-          docker-compose down
+          docker-compose down --remove-orphans
 
       - name: Build Backend
         working-directory: back
@@ -41,6 +41,8 @@ jobs:
           cp -r dist/* /mnt/truenas-web/front/
 
       - name: Start Containers
+        env:
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
-          docker-compose up -d
+          docker-compose up -d --remove-orphans
 
