@@ -12,6 +12,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify NAS Access
+        run: |
+          echo "Checking NAS access with sudo..."
+          sudo ls -ld /mnt/truenas-web/back/
+          sudo ls -ld /mnt/truenas-web/front/
+          sudo touch /mnt/truenas-web/back/ci_test && sudo rm /mnt/truenas-web/back/ci_test
+          echo "NAS access verified."
+
       - name: Build Backend
         working-directory: back
         run: |
