@@ -21,6 +21,9 @@
     "subtitle": "Essayez une autre catégorie ou un autre mot-clé."
   },
   "my_posts": "Mes posts",
+  "saved_posts": "Posts sauvegardés",
   "manage_posts_subtitle": "Gérez tous vos posts au même endroit.",
-  "empty_my_posts": "Vous n'avez encore rien posté dans cette catégorie"
+  "manage_saved_posts_subtitle": "Tous vos posts favoris au même endroit.",
+  "empty_my_posts": "Vous n'avez encore rien posté dans cette catégorie",
+  "empty_saved_posts": "Vous n'avez encore sauvegardé aucun post"
 }

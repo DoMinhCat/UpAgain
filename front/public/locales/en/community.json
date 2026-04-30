@@ -21,6 +21,9 @@
     "subtitle": "Try a different category or keyword."
   },
   "my_posts": "My posts",
+  "saved_posts": "Saved posts",
   "manage_posts_subtitle": "Manage all your posts in one place.",
-  "empty_my_posts": "You haven't posted anything of this category yet"
+  "manage_saved_posts_subtitle": "All your favorite posts in one place.",
+  "empty_my_posts": "You haven't posted anything of this category yet",
+  "empty_saved_posts": "You haven't saved any posts yet"
 }
