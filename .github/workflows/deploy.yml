@@ -14,27 +14,27 @@ jobs:
 
       - name: Verify NAS Access
         run: |
-          echo "Checking NAS access with sudo..."
-          sudo ls -ld /mnt/truenas-web/back/
-          sudo ls -ld /mnt/truenas-web/front/
-          sudo touch /mnt/truenas-web/back/ci_test && sudo rm /mnt/truenas-web/back/ci_test
+          echo "Checking NAS access..."
+          ls -ld /mnt/truenas-web/back/
+          ls -ld /mnt/truenas-web/front/
+          touch /mnt/truenas-web/back/ci_test && rm /mnt/truenas-web/back/ci_test
           echo "NAS access verified."
 
       - name: Build Backend
         working-directory: back
         run: |
           /usr/local/go/bin/go build -o api-upagain main.go
-          sudo cp api-upagain /mnt/truenas-web/back/
-          sudo chmod +x /mnt/truenas-web/back/api-upagain
+          cp api-upagain /mnt/truenas-web/back/
+          chmod +x /mnt/truenas-web/back/api-upagain
 
       - name: Build Frontend
         working-directory: front
         run: |
           npm install
           npm run build
-          sudo cp -r dist/* /mnt/truenas-web/front/
+          cp -r dist/* /mnt/truenas-web/front/
 
       - name: Restart Containers
         run: |
-          sudo docker-compose down
-          sudo docker-compose up -d
+          docker-compose down
+          docker-compose up -d
