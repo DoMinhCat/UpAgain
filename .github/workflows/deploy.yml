@@ -28,7 +28,7 @@ jobs:
         working-directory: back
         run: |
           /usr/local/go/bin/go clean -modcache -cache
-          /usr/local/go/bin/go build -o api-upagain main.go
+          CGO_ENABLED=0 GOOS=linux /usr/local/go/bin/go build -o api-upagain main.go
           rm -f /mnt/truenas-web/back/api-upagain
           cp api-upagain /mnt/truenas-web/back/
           chmod +x /mnt/truenas-web/back/api-upagain
