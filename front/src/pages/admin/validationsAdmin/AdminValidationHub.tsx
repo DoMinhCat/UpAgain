@@ -16,7 +16,6 @@ import {
   Stack,
   Paper,
   SimpleGrid,
-  Divider,
   Loader,
   Pill,
 } from "@mantine/core";
