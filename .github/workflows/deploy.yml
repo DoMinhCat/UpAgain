@@ -20,6 +20,10 @@ jobs:
           touch /mnt/truenas-web/back/ci_test && rm /mnt/truenas-web/back/ci_test
           echo "NAS access verified."
 
+      - name: Stop Containers
+        run: |
+          docker-compose down
+
       - name: Build Backend
         working-directory: back
         run: |
@@ -34,7 +38,7 @@ jobs:
           npm run build
           cp -r dist/* /mnt/truenas-web/front/
 
-      - name: Restart Containers
+      - name: Start Containers
         run: |
-          docker-compose down
           docker-compose up -d
+
