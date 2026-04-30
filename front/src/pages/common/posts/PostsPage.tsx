@@ -41,6 +41,7 @@ export default function UserPostsPage() {
     { value: "news", label: t("community:filters.news") },
     { value: "case_study", label: t("community:filters.case_study") },
     { value: "project", label: t("community:filters.project") },
+    { value: "other", label: t("community:filters.other") },
   ];
 
   const SORT_OPTIONS = [

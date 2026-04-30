@@ -8,7 +8,8 @@
     "tips": "Mẹo nhỏ",
     "news": "Tin tức",
     "case_study": "Nghiên cứu",
-    "project": "Dự án"
+    "project": "Dự án",
+    "other": "Khác"
   },
   "sort": {
     "most_recent": "Mới nhất",
@@ -19,5 +20,7 @@
     "title": "Không có bài viết nào khớp với tìm kiếm của bạn.",
     "subtitle": "Hãy thử một danh mục hoặc từ khóa khác."
   },
-  "my_posts": "Bài viết của tôi"
+  "my_posts": "Bài viết của tôi",
+  "manage_posts_subtitle": "Quản lý tất cả các bài viết của bạn tại một nơi.",
+  "empty_my_posts": "Bạn chưa đăng bài viết nào trong danh mục này"
 }

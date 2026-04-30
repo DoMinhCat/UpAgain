@@ -890,7 +890,9 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	posts, err := db.GetPostsByAccountId(idRequestor, page, limit)
+	category := query.Get("category")
+
+	posts, err := db.GetPostsByAccountId(idRequestor, page, limit, category)
 	if err != nil {
 		slog.Error("db.GetPostsByAccountId() failed", "controller", "GetPostsByAccountId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")

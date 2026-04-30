@@ -53,6 +53,7 @@ export const useCreatePost = () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["myPosts"] });
     },
   });
 };
@@ -87,6 +88,7 @@ export const useDeletePost = () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["myPosts"] });
       showSuccessNotification(
         "Post deleted",
         "The post has been deleted successfully.",
@@ -282,6 +284,7 @@ export const useSavePost = (id_post: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
       queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
     },
   });
 };
@@ -339,10 +342,14 @@ export const useGetSavedPosts = (page?: number, limit?: number) => {
   });
 };
 
-export const useGetMyPosts = (page?: number, limit?: number) => {
+export const useGetMyPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+) => {
   return useQuery({
-    queryKey: ["myPosts", page, limit],
-    queryFn: () => GetMyPosts(page, limit),
+    queryKey: ["myPosts", page, limit, category],
+    queryFn: () => GetMyPosts(page, limit, category),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Error",
