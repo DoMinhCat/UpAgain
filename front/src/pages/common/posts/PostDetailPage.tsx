@@ -345,7 +345,18 @@ export default function PostDetailPage() {
                         href: PATHS.USER.POSTS.ALL,
                       },
                     ]
-                  : []),
+                  : location.state?.from === "myPosts"
+                    ? [
+                        {
+                          title: t("community:community"),
+                          href: PATHS.USER.POSTS.ALL,
+                        },
+                        {
+                          title: t("community:my_posts"),
+                          href: PATHS.POSTS.MY_POSTS,
+                        },
+                      ]
+                    : []),
                 { title: post.title, href: "#" },
               ]}
             />
