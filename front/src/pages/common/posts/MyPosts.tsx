@@ -130,7 +130,7 @@ export default function MyPosts() {
                 isSaved={post.is_saved}
                 onClick={() =>
                   navigate(PATHS.USER.POSTS.DETAILS_FN(post.id), {
-                    state: { from: "communityIndex" },
+                    state: { from: "myPosts" },
                   })
                 }
               />
