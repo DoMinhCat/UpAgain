@@ -5,7 +5,8 @@ services:
     restart: always
     volumes:
       - /mnt/truenas-web/back/api-upagain:/usr/local/bin/api-upagain
-      - /mnt/truenas-web/back/.env.production:/root/.env
+      - /mnt/truenas-web/back/.env.production:/root/.env.production
+      - ./.env:/root/.env
     working_dir: /root
     command: ["/usr/local/bin/api-upagain"]
 
