@@ -25,6 +25,7 @@ services:
     depends_on:
       - upcycle-back
 
+  # Cloudflare Tunnel service using GitHub Secrets for the token
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: cloudflare-tunnel
