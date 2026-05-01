@@ -9,8 +9,10 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Fix git safe directory
-        run: git config --global --add safe.directory /app/UpAgain
+      - name: Debug and Fix Git
+        run: |
+          whoami
+          git config --global --add safe.directory '*'
 
       - name: Checkout code
         uses: actions/checkout@v4
