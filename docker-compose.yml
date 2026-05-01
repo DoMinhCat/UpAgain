@@ -3,10 +3,13 @@ services:
     image: alpine:3.21
     container_name: upcycle-back
     restart: always
+    environment:
+      - APP_ENV=production
     volumes:
       - /mnt/truenas-web/back/api-upagain:/usr/local/bin/api-upagain
       - /mnt/truenas-web/back/.env.production:/root/.env.production
       - ./.env:/root/.env
+      - /mnt/truenas-web/back/.env.production:/root/.env.development
     working_dir: /root
     command: ["/usr/local/bin/api-upagain"]
 
