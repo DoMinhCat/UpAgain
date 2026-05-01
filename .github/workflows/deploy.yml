@@ -9,22 +9,20 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Debug and Fix Git
+      - name: Fix Git for Runner Path
         run: |
-          echo "Current user: $(whoami)"
-          echo "Current directory: $(pwd)"
-          git config --global --add safe.directory $(pwd)
+          git config --global --add safe.directory /home/alternext/actions-runner/_work/UpAgain/UpAgain
           git config --global --add safe.directory /app/UpAgain
-          git config --global --list
-          ls -la .git || echo "No .git found"
-          git status || echo "Git status failed, showing why:"
+          git config --global --add safe.directory '*'
 
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          path: /app/UpAgain
           clean: false
 
       - name: Verify NAS Access
+        working-directory: /app/UpAgain
         run: |
           echo "Checking NAS access..."
           ls -ld /mnt/truenas-web/back/
@@ -33,11 +31,12 @@ jobs:
           echo "NAS access verified."
 
       - name: Stop Containers
+        working-directory: /app/UpAgain
         run: |
           docker-compose down --remove-orphans
 
       - name: Build Backend
-        working-directory: back
+        working-directory: /app/UpAgain/back
         run: |
           /usr/local/go/bin/go clean -modcache -cache
           CGO_ENABLED=0 GOOS=linux /usr/local/go/bin/go build -o api-upagain main.go
@@ -46,13 +45,14 @@ jobs:
           chmod +x /mnt/truenas-web/back/api-upagain
 
       - name: Build Frontend
-        working-directory: front
+        working-directory: /app/UpAgain/front
         run: |
           npm install
           npm run build
           cp -r dist/* /mnt/truenas-web/front/
 
       - name: Start Containers
+        working-directory: /app/UpAgain
         env:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
