@@ -9,17 +9,13 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Fix Git for Runner Path
+      - name: Sync Code Manually
         run: |
-          git config --global --add safe.directory /home/alternext/actions-runner/_work/UpAgain/UpAgain
+          cd /app/UpAgain
           git config --global --add safe.directory /app/UpAgain
-          git config --global --add safe.directory '*'
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          path: /app/UpAgain
-          clean: false
+          git fetch origin arnaud/ci
+          git reset --hard origin/arnaud/ci
+          git clean -fd
 
       - name: Verify NAS Access
         working-directory: /app/UpAgain
@@ -57,4 +53,3 @@ jobs:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
           docker-compose up -d --remove-orphans
-
