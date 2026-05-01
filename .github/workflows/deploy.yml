@@ -11,8 +11,13 @@ jobs:
     steps:
       - name: Debug and Fix Git
         run: |
-          whoami
-          git config --global --add safe.directory '*'
+          echo "Current user: $(whoami)"
+          echo "Current directory: $(pwd)"
+          git config --global --add safe.directory $(pwd)
+          git config --global --add safe.directory /app/UpAgain
+          git config --global --list
+          ls -la .git || echo "No .git found"
+          git status || echo "Git status failed, showing why:"
 
       - name: Checkout code
         uses: actions/checkout@v4
