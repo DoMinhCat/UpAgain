@@ -3,7 +3,7 @@ import { getNewAccessToken } from "./auth";
 import { ENDPOINTS } from "./endpoints";
 import { router } from "../routes/routes";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+const baseURL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export const api = axios.create({
   baseURL: baseURL,
