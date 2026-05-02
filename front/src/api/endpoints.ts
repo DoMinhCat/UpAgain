@@ -80,7 +80,7 @@ export const ENDPOINTS = {
   },
 
   AUTH: {
-    LOGIN: "/login/",
+    LOGIN: "/login",
     REFRESH: "/refresh/",
     REGISTER: "/register/",
   },

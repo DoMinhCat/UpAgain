@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/rs/cors"
 )
@@ -15,10 +16,13 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
-	const ENV = "dev"
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "dev"
+	}
 
 	utils.InitLogger()
-	utils.LoadEnv(ENV)
+	utils.LoadEnv(env)
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)
