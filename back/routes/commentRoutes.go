@@ -7,5 +7,5 @@ import (
 )
 
 func GetCommentRoutes(mux *http.ServeMux) {
-	mux.Handle("DELETE /comments/{id_comment}/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.DeleteCommentById))))
+	mux.Handle("DELETE /comments/{id_comment}", middleware.AuthMiddleware([]string{"admin", "pro", "employee", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.DeleteCommentById))))
 }
