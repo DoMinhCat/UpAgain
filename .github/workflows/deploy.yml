@@ -16,6 +16,9 @@ jobs:
           git fetch origin arnaud/ci
           git reset --hard origin/arnaud/ci
           git clean -fd
+          echo "Token length check: ${#CLOUDFLARE_TUNNEL_TOKEN}"
+        env:
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
 
       - name: Verify NAS Access
         working-directory: /app/UpAgain
