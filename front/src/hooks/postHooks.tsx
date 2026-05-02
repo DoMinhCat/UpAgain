@@ -330,10 +330,14 @@ export const useLikeComment = () => {
   });
 };
 
-export const useGetSavedPosts = (page?: number, limit?: number) => {
+export const useGetSavedPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+) => {
   return useQuery({
-    queryKey: ["savedPosts", page, limit],
-    queryFn: () => GetSavedPosts(page, limit),
+    queryKey: ["savedPosts", page, limit, category],
+    queryFn: () => GetSavedPosts(page, limit, category),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "Error",

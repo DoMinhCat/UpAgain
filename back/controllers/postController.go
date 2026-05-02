@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strconv"
 	"time"
 )
@@ -891,6 +892,9 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	category := query.Get("category")
+	if category != "" && !slices.Contains(db.PostCategories, category){
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid category")
+	}
 
 	posts, err := db.GetPostsByAccountId(idRequestor, page, limit, category)
 	if err != nil {
@@ -938,8 +942,13 @@ func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	category := query.Get("category")
+	if category != "" && !slices.Contains(db.PostCategories, category){
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid category")
+	}
 
-	posts, err := db.GetSavedPosts(idRequestor, page, limit)
+
+	posts, err := db.GetSavedPosts(idRequestor, page, limit, category)
 	if err != nil {
 		slog.Error("db.GetSavedPosts() failed", "controller", "GetSavedPosts", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get saved posts")

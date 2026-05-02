@@ -5,8 +5,11 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"slices"
 	"time"
 )
+
+var PostCategories = []string{"tutorial", "tips", "news", "case_study", "other", "project"}
 
 // if param category is nil => get all kind of category
 func GetTotalPostsByIdAccountByCategory(id int, category *string) (int, error) {
@@ -464,6 +467,9 @@ func ToggleSavePost(id_post int, id_account int) (bool, error) {
 }
 
 func UpdatePostById(id_post int, payload models.CreatePostRequest) error {
+	if !slices.Contains(PostCategories, payload.Category) {
+		return fmt.Errorf("UpdatePostById() failed: invalid post category '%v'", payload.Category)
+	}
 	query := `update posts set title = $1, content = $2, category = $3 where id = $4 and is_deleted = false;`
 	_, err := utils.Conn.Exec(query, payload.Title, payload.Content, payload.Category, id_post)
 	if err != nil {
@@ -479,6 +485,9 @@ func UpdatePostById(id_post int, payload models.CreatePostRequest) error {
 // query by all category by passing "" in category
 func GetPostsByAccountId(id_account int, page int, limit int, category string) (models.PostListPagination, error) {
 	var result models.PostListPagination
+	if category != "" && !slices.Contains(PostCategories, category) {
+		return result, fmt.Errorf("GetPostsByAccountId() failed: invalid post category '%v'", category)
+	}
 	if page <= 0 {
 		page = 1
 	}
