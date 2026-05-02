@@ -8,11 +8,11 @@ import (
 )
 
 func LoadEnv(env string) {
-	if env != "dev" && env != "prod" {
-		log.Panicf("Invalid env: %s. Must be 'dev' or 'prod'", env)
+	if env != "dev" && env != "prod" && env != "production" && env != "development" {
+		log.Panicf("Invalid env: %s. Must be 'dev', 'prod', 'production' or 'development'", env)
 	}
 	var envFile string
-	if env == "dev" {
+	if env == "dev" || env == "development" {
 		envFile = ".env.development"
 	} else {
 		envFile = ".env.production"
