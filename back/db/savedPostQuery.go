@@ -9,7 +9,7 @@ import (
 
 func GetSavedPosts(idAccount int, page int, limit int, category string) (models.PostListPagination, error) {
 	result := models.PostListPagination{}
-	if !slices.Contains(PostCategories, category){
+	if !slices.Contains(PostCategories, category) && category != ""{
 		return result, fmt.Errorf("GetSavedPosts() failed: invalid category '%v'", category)
 	}
 	var posts []models.Post
@@ -29,7 +29,7 @@ func GetSavedPosts(idAccount int, page int, limit int, category string) (models.
 		JOIN posts p ON sp.id_post = p.id
 		JOIN accounts a ON p.id_account=a.id 
 		%v
-		ORDER BY sp.created_at DESC
+		ORDER BY p.created_at DESC
 	`, whereClause)
 	rows, err := utils.Conn.Query(query, params...)
 	if err != nil {
