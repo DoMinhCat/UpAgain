@@ -177,12 +177,14 @@ create table saved_posts
     saved_at   timestamptz not null default now(),
     PRIMARY KEY (id_account, id_post)
 );
+
+-- allow multiple views from same account 
 create table viewed_posts
 (
+    id         serial      primary key,
     id_account integer     not null references accounts (id) on delete restrict,
     id_post    integer     not null references posts (id) on delete restrict,
-    viewed_at  timestamptz not null default now(),
-    PRIMARY KEY (id_account, id_post)
+    viewed_at  timestamptz not null default now()
 );
 
 create table liked_posts
