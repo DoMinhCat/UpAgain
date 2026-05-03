@@ -101,8 +101,8 @@ export default function PostDetailPage() {
   const { data: projectSteps, isLoading: isLoadingProjectSteps } =
     useGetProjectStepsByPostId(postId, isValidId);
 
-  const { mutate: likePost, isPending: isLiking } = useLikePost(postId);
-  const { mutate: savePost, isPending: isSaving } = useSavePost(postId);
+  const { mutate: likePost, isPending: isLiking } = useLikePost();
+  const { mutate: savePost, isPending: isSaving } = useSavePost();
   const { mutate: incrementView } = useIncrementPostView();
   const { mutate: addComment, isPending: isPosting } = useAddComment(postId);
   const { mutate: likeComment } = useLikeComment();
@@ -163,13 +163,13 @@ export default function PostDetailPage() {
     const next = !isLiked;
     setLocalLiked(next);
     setLocalLikeCount(likeCount + (next ? 1 : -1));
-    likePost();
+    likePost(postId);
   };
 
   const handleSave = () => {
     const next = !isSaved;
     setLocalSaved(next);
-    savePost();
+    savePost(postId);
     showSuccessNotification(
       next
         ? t("post:actions.save_success_title")

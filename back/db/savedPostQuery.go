@@ -47,6 +47,8 @@ func GetSavedPosts(idAccount int, page int, limit int, category string) (models.
 			return result, fmt.Errorf("GetSavedPosts() failed: '%v'", err)
 		}
 		post.Photos = photos
+		post.IsSaved = true
+		post.IsLiked, _ = IsPostLikedByUser(post.Id, idAccount)
 		posts = append(posts, post)
 	}
 

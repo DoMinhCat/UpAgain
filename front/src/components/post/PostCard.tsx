@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Stack,
   Text,
@@ -37,8 +38,8 @@ interface PostCardProps {
   isLiked?: boolean;
   isSaved?: boolean;
   onClick?: () => void;
-  onLike?: (e: React.MouseEvent) => void;
-  onSave?: (e: React.MouseEvent) => void;
+  onLike?: (e: React.MouseEvent) => Promise<any> | void;
+  onSave?: (e: React.MouseEvent) => Promise<any> | void;
 }
 
 const CATEGORY_COLOR: Record<string, string> = {
@@ -70,6 +71,52 @@ export default function PostCard({
 }: PostCardProps) {
   const { t } = useTranslation(["post", "common"]);
   const theme = useComputedColorScheme("light");
+
+  const [localLiked, setLocalLiked] = useState<boolean | undefined>(undefined);
+  const [localSaved, setLocalSaved] = useState<boolean | undefined>(undefined);
+  const [localLikeCount, setLocalLikeCount] = useState<number | undefined>(undefined);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setLocalLiked(undefined);
+    setLocalLikeCount(undefined);
+  }, [isLiked, likes]);
+
+  useEffect(() => {
+    setLocalSaved(undefined);
+  }, [isSaved]);
+
+  const displayLiked = localLiked !== undefined ? localLiked : isLiked;
+  const displaySaved = localSaved !== undefined ? localSaved : isSaved;
+  const displayLikes = localLikeCount !== undefined ? localLikeCount : likes;
+
+  const handleLikeClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onLike) {
+      setIsLiking(true);
+      try {
+        await onLike(e);
+        setLocalLiked(!displayLiked);
+        setLocalLikeCount(displayLikes + (displayLiked ? -1 : 1));
+      } finally {
+        setIsLiking(false);
+      }
+    }
+  };
+
+  const handleSaveClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onSave) {
+      setIsSaving(true);
+      try {
+        await onSave(e);
+        setLocalSaved(!displaySaved);
+      } finally {
+        setIsSaving(false);
+      }
+    }
+  };
   return (
     <Card
       className="paper"
@@ -164,7 +211,7 @@ export default function PostCard({
                 label={
                   currentRole !== "user" && currentRole !== "pro"
                     ? "You are not allowed to interact with this post"
-                    : isLiked
+                    : displayLiked
                       ? "Unlike"
                       : "Like post"
                 }
@@ -176,12 +223,10 @@ export default function PostCard({
                   variant="subtle"
                   radius="xl"
                   aria-label="Like post"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onLike?.(e);
-                  }}
+                  loading={isLiking}
+                  onClick={handleLikeClick}
                 >
-                  {isLiked ? (
+                  {displayLiked ? (
                     <IconHeartFilled
                       size={18}
                       color="var(--mantine-color-red-6)"
@@ -192,7 +237,7 @@ export default function PostCard({
                 </ActionIcon>
               </Tooltip>
               <Text size="xs" fw={600} c="var(--mantine-color-text)">
-                {likes}
+                {displayLikes}
               </Text>
             </Group>
 
@@ -200,7 +245,7 @@ export default function PostCard({
               label={
                 currentRole !== "user" && currentRole !== "pro"
                   ? "You are not allowed to interact with this post"
-                  : isSaved
+                  : displaySaved
                     ? "Unsave post"
                     : "Save post"
               }
@@ -214,12 +259,10 @@ export default function PostCard({
                 variant="subtle"
                 radius="xl"
                 aria-label="Save post"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSave?.(e);
-                }}
+                loading={isSaving}
+                onClick={handleSaveClick}
               >
-                {isSaved ? (
+                {displaySaved ? (
                   <IconBookmarkFilled size={18} color="var(--upagain-yellow)" />
                 ) : (
                   <IconBookmark size={18} color="var(--upagain-yellow)" />

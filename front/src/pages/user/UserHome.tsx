@@ -20,6 +20,7 @@ import {
 import { useTranslation, Trans } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAccountDetails } from "../../hooks/accountHooks";
+import { useLikePost, useSavePost } from "../../hooks/postHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { useAuth } from "../../context/AuthContext";
 import { ScoreRing } from "../../components/score/ScoreRing";
@@ -41,6 +42,9 @@ export default function UserHome() {
   // GET ACCOUNT INFO
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);
+
+  const { mutateAsync: likePostAsync } = useLikePost();
+  const { mutateAsync: savePostAsync } = useSavePost();
   // const magicNumberWater = 4500;
   // const magicNumberElectricity = 820;
   // const calculatedWater = ((accountDetails?.totalWaterSaved || 0) / (accountDetails?.totalWaterSaved ?? 1 + magicNumberWater)) * 100;
@@ -502,6 +506,10 @@ export default function UserHome() {
                           postedTime={post.postedTime}
                           views={post.views}
                           likes={post.likes}
+                          isLiked={false}
+                          isSaved={false}
+                          onLike={() => likePostAsync(Number(post.id) || 0)}
+                          onSave={() => savePostAsync(Number(post.id) || 0)}
                         />
                       ))}
                     </SimpleGrid>

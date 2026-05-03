@@ -258,30 +258,30 @@ export const useGetUserPostComments = (
   });
 };
 
-export const useLikePost = (id_post: number) => {
+export const useLikePost = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => LikePost(id_post),
+    mutationFn: (id_post: number) => LikePost(id_post),
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to like post.",
     },
-    onSuccess: () => {
+    onSuccess: (_, id_post) => {
       queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
       queryClient.invalidateQueries({ queryKey: ["userPosts"] });
     },
   });
 };
 
-export const useSavePost = (id_post: number) => {
+export const useSavePost = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => SavePost(id_post),
+    mutationFn: (id_post: number) => SavePost(id_post),
     meta: {
       errorTitle: "Error",
       errorMessage: "Failed to save post.",
     },
-    onSuccess: () => {
+    onSuccess: (_, id_post) => {
       queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
       queryClient.invalidateQueries({ queryKey: ["userPosts"] });
       queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
