@@ -379,17 +379,9 @@ func GetPostDetailsById(id int, id_account ...int) (models.Post, error) {
 	return post, nil
 }
 
-// returns true if view was counted, false if already viewed
+// returns true if view was counted, once account can increase view count many times
 func IncrementPostView(id_post int, id_account int) (bool, error) {
-	var alreadyViewed bool
-	err := utils.Conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM viewed_posts WHERE id_post = $1 AND id_account = $2);`, id_post, id_account).Scan(&alreadyViewed)
-	if err != nil {
-		return false, fmt.Errorf("IncrementPostView() check failed: '%v'", err)
-	}
-	if alreadyViewed {
-		return false, nil
-	}
-	_, err = utils.Conn.Exec(`INSERT INTO viewed_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
+	_, err := utils.Conn.Exec(`INSERT INTO viewed_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
 	if err != nil {
 		return false, fmt.Errorf("IncrementPostView() insert failed: '%v'", err)
 	}

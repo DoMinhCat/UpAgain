@@ -403,6 +403,11 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Router /posts/{id_post}/view [post]
 func ViewPost(w http.ResponseWriter, r *http.Request) {
 	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "user" && role != "pro" && role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action")
+		return
+	}
 
 	id, err := strconv.Atoi(r.PathValue("id_post"))
 	if err != nil {
