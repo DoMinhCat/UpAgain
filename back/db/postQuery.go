@@ -201,7 +201,7 @@ func CreatePost(payload models.CreatePostRequest) (int, error) {
 }
 
 // get only posts that are not deleted
-func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post, int, error) {
+func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int) ([]models.Post, int, error) {
 	var results []models.Post
 	var params []interface{}
 	var countParams []interface{}
@@ -288,6 +288,12 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 			return nil, 0, fmt.Errorf("GetAllPosts() photos failed: %v", err.Error())
 		}
 		event.Photos = photos
+
+		if idAccount != 0 {
+			event.IsLiked, _ = IsPostLikedByUser(event.Id, idAccount)
+			event.IsSaved, _ = IsPostSavedByUser(event.Id, idAccount)
+		}
+
 		results = append(results, event)
 	}
 
@@ -530,6 +536,10 @@ func GetPostsByAccountId(id_account int, page int, limit int, category string) (
 			return result, fmt.Errorf("GetPostsByAccountId() failed: '%v'", err)
 		}
 		post.Photos = photos
+		if id_account != 0 {
+			post.IsLiked, _ = IsPostLikedByUser(post.Id, id_account)
+			post.IsSaved, _ = IsPostSavedByUser(post.Id, id_account)
+		}
 		posts = append(posts, post)
 	}
 

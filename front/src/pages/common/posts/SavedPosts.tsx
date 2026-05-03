@@ -13,7 +13,11 @@ import { useTranslation } from "react-i18next";
 import { PATHS } from "../../../routes/paths";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useGetSavedPosts } from "../../../hooks/postHooks";
+import {
+  useGetSavedPosts,
+  useLikePost,
+  useSavePost,
+} from "../../../hooks/postHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { IconLeaf } from "@tabler/icons-react";
@@ -46,6 +50,9 @@ export default function SavedPosts() {
     { value: "other", label: t("community:filters.other") },
   ];
 
+  const { mutateAsync: likePostAsync } = useLikePost();
+  const { mutateAsync: savePostAsync } = useSavePost();
+
   if (isLoadingSavedPosts) {
     return <FullScreenLoader />;
   }
@@ -73,15 +80,15 @@ export default function SavedPosts() {
                       },
                     ]
                   : []),
-              { title: t("community:my_posts"), href: "#" },
+              { title: t("community:saved_posts"), href: "#" },
             ]}
           />
           <Title order={1} size={36}>
-            {t("community:my_posts")}
+            {t("community:saved_posts")}
           </Title>
           <Group justify="space-between">
             <Text c="dimmed" size="md">
-              {t("community:manage_posts_subtitle")}
+              {t("community:manage_saved_posts_subtitle")}
             </Text>
             <SegmentedControl
               value={category}
@@ -129,6 +136,8 @@ export default function SavedPosts() {
                 likes={post.like_count}
                 isLiked={post.is_liked}
                 isSaved={post.is_saved}
+                onLike={() => likePostAsync(post.id)}
+                onSave={() => savePostAsync(post.id)}
                 onClick={() =>
                   navigate(PATHS.USER.POSTS.DETAILS_FN(post.id), {
                     state: { from: "savedPosts" },

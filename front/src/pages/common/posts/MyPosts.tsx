@@ -17,7 +17,11 @@ import { useAuth } from "../../../context/AuthContext";
 import PostCard from "../../../components/post/PostCard";
 import { IconLeaf } from "@tabler/icons-react";
 import PaginationFooter from "../../../components/common/PaginationFooter";
-import { useGetMyPosts } from "../../../hooks/postHooks";
+import {
+  useGetMyPosts,
+  useLikePost,
+  useSavePost,
+} from "../../../hooks/postHooks";
 
 export default function MyPosts() {
   const { user } = useAuth();
@@ -48,6 +52,9 @@ export default function MyPosts() {
   const totalRecords = myPostsData?.total_records || 0;
   const myPosts = myPostsData?.posts || [];
   const lastPage = Math.ceil(totalRecords / LIMIT);
+
+  const { mutateAsync: likePostAsync } = useLikePost();
+  const { mutateAsync: savePostAsync } = useSavePost();
 
   return (
     <Container size="xl" pb={40} my="xl" pt={24} w="100%">
@@ -128,6 +135,8 @@ export default function MyPosts() {
                 likes={post.like_count}
                 isLiked={post.is_liked}
                 isSaved={post.is_saved}
+                onLike={() => likePostAsync(post.id)}
+                onSave={() => savePostAsync(post.id)}
                 onClick={() =>
                   navigate(PATHS.USER.POSTS.DETAILS_FN(post.id), {
                     state: { from: "myPosts" },

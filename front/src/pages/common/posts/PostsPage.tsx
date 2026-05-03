@@ -23,7 +23,11 @@ import { useNavigate } from "react-router-dom";
 import PostCard from "../../../components/post/PostCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { PATHS } from "../../../routes/paths";
-import { useGetUserPosts } from "../../../hooks/postHooks";
+import {
+  useGetUserPosts,
+  useLikePost,
+  useSavePost,
+} from "../../../hooks/postHooks";
 import type { Post } from "../../../api/interfaces/post";
 import { useAuth } from "../../../context/AuthContext";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
@@ -67,6 +71,9 @@ export default function UserPostsPage() {
   const totalRecords = data?.total_records ?? 0;
   const lastPage = data?.last_page ?? 1;
   const limit = data?.limit ?? 12;
+
+  const { mutateAsync: likePostAsync } = useLikePost();
+  const { mutateAsync: savePostAsync } = useSavePost();
 
   return (
     <Container px="md" py={50} size="xl">
@@ -190,6 +197,8 @@ export default function UserPostsPage() {
                 likes={post.like_count}
                 isLiked={post.is_liked}
                 isSaved={post.is_saved}
+                onLike={() => likePostAsync(post.id)}
+                onSave={() => savePostAsync(post.id)}
                 onClick={() =>
                   navigate(PATHS.USER.POSTS.DETAILS_FN(post.id), {
                     state: { from: "communityIndex" },

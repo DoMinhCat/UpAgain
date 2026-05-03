@@ -244,7 +244,14 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		Category: query.Get("category"),
 	}
 
-	posts, total, err := db.GetAllPosts(page, limit, filters)
+	idAccount := 0
+	if userCtx := r.Context().Value("user"); userCtx != nil {
+		if claims, ok := userCtx.(models.AuthClaims); ok {
+			idAccount = claims.Id
+		}
+	}
+
+	posts, total, err := db.GetAllPosts(page, limit, filters, idAccount)
 	if err != nil {
 		slog.Error("GetAllPosts() failed", "controller", "GetAllPosts", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching posts.")
