@@ -9,7 +9,7 @@ export const ENDPOINTS = {
       BAN: (id_account: number) => `/accounts/${id_account}/ban/`,
       RECOVER: (id_account: number) => `/accounts/${id_account}/recover/`,
       STATS: (id_account: number) => `/accounts/${id_account}/stats/`,
-      UPDATE: (id_account: number) => `/accounts/${id_account}/`,
+      UPDATE: (id_account: number) => `/accounts/${id_account}/update/`,
       SCORE_STATS: "/users/score/",
       EXPORT_CSV: "/accounts/export/",
     },
@@ -114,6 +114,20 @@ export const ENDPOINTS = {
     UPDATE: (id_ads: number) => `/ads/${id_ads}/`,
   },
 
+  USER: {
+    POSTS: {
+      ALL: "/posts/",
+      DETAILS: (id_post: number) => `/posts/${id_post}/`,
+      COMMENTS: (id_post: number) => `/posts/${id_post}/comments/`,
+      ADD_COMMENT: (id_post: number) => `/posts/${id_post}/comments/`,
+      LIKE: (id_post: number) => `/posts/${id_post}/like/`,
+      SAVE: (id_post: number) => `/posts/${id_post}/save/`,
+      VIEW: (id_post: number) => `/posts/${id_post}/view/`,
+      LIKE_COMMENT: (id_comment: number) => `/comments/${id_comment}/like/`,
+      SAVED: "/posts/saved/",
+      MY_POSTS: "/posts/me/",
+    },
+  },
   EVENTS: {
     MY_EVENTS: "/events/me/",
   },

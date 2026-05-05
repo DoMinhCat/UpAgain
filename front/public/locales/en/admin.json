@@ -174,7 +174,10 @@
     "edit_modal": {
       "title": "Edit account",
       "submit": "Update",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "username": "Username",
+      "email": "Email",
+      "phone": "Phone number"
     },
     "errors": {
       "username_required": "Username is required",

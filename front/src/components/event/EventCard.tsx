@@ -63,7 +63,7 @@ export function EventCard({
   fullEvent,
 }: EventCardProps) {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["events", "common"]);
   const theme = useComputedColorScheme("light");
   const isHorizontal = orientation === "horizontal";
   const displayPrice = price === 0 || price === "Free" ? "Free" : `${price}€`;
@@ -188,7 +188,7 @@ export function EventCard({
             <Group gap={4} c="dimmed">
               <IconClock size={14} />
               <Text size="xs" fw={500}>
-                {getTimeAgo(createdAt)}
+                {getTimeAgo(createdAt, t)}
               </Text>
             </Group>
             <Text

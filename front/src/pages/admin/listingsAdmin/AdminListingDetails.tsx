@@ -27,6 +27,7 @@ import {
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import DOMPurify from "dompurify";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import {
@@ -117,10 +118,17 @@ export default function AdminListingDetails() {
     updateItemStatus.mutate(status, {
       onSuccess: () => {
         status === "deleted"
-          ? showSuccessNotification(t("listings.details.status_modal.delete"), t("common:notifications.success", { defaultValue: "Item deleted successfully" }))
+          ? showSuccessNotification(
+              t("listings.details.status_modal.delete"),
+              t("common:notifications.success", {
+                defaultValue: "Item deleted successfully",
+              }),
+            )
           : showSuccessNotification(
               t("listings.details.status_modal.approve"),
-              t("common:notifications.success", { defaultValue: "Item status updated successfully" }),
+              t("common:notifications.success", {
+                defaultValue: "Item status updated successfully",
+              }),
             );
         navigate(PATHS.ADMIN.LISTINGS);
       },
@@ -504,7 +512,9 @@ export default function AdminListingDetails() {
                           : "gray"
                   }
                 >
-                  {t(`status.${itemDetails?.status}` as any, { defaultValue: itemDetails?.status })}
+                  {t(`status.${itemDetails?.status}` as any, {
+                    defaultValue: itemDetails?.status,
+                  })}
                 </Badge>
               </Group>
 
@@ -512,11 +522,15 @@ export default function AdminListingDetails() {
                 {itemDetails?.title}
               </Title>
               <Text c="dimmed" size="xs" mb="xl">
-                {t("listings.details.submitted_on", { date: dayjs(itemDetails?.created_at).format("DD/MM/YYYY HH:mm A") })}
+                {t("listings.details.submitted_on", {
+                  date: dayjs(itemDetails?.created_at).format(
+                    "DD/MM/YYYY HH:mm A",
+                  ),
+                })}
               </Text>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: itemDetails?.description ?? "",
+                  __html: DOMPurify.sanitize(itemDetails?.description ?? ""),
                 }}
               />
             </Stack>
@@ -591,7 +605,15 @@ export default function AdminListingDetails() {
                             <CopyButton value={userCode?.code} timeout={3000}>
                               {({ copied, copy }) => (
                                 <Tooltip
-                                  label={copied ? t("common:actions.copied", { defaultValue: "Copied" }) : t("common:actions.copy", { defaultValue: "Copy code" })}
+                                  label={
+                                    copied
+                                      ? t("common:actions.copied", {
+                                          defaultValue: "Copied",
+                                        })
+                                      : t("common:actions.copy", {
+                                          defaultValue: "Copy code",
+                                        })
+                                  }
                                   withArrow
                                   position="right"
                                 >
@@ -675,7 +697,15 @@ export default function AdminListingDetails() {
                             <CopyButton value={proCode?.code} timeout={3000}>
                               {({ copied, copy }) => (
                                 <Tooltip
-                                  label={copied ? t("common:actions.copied", { defaultValue: "Copied" }) : t("common:actions.copy", { defaultValue: "Copy code" })}
+                                  label={
+                                    copied
+                                      ? t("common:actions.copied", {
+                                          defaultValue: "Copied",
+                                        })
+                                      : t("common:actions.copy", {
+                                          defaultValue: "Copy code",
+                                        })
+                                  }
                                   withArrow
                                   position="right"
                                 >
@@ -772,7 +802,9 @@ export default function AdminListingDetails() {
                       c={!itemDetails?.price ? "green" : "inherit"}
                       fw={!itemDetails?.price ? 700 : 600}
                     >
-                      {itemDetails?.price ? `${itemDetails.price} €` : t("common:free", { defaultValue: "Free" })}
+                      {itemDetails?.price
+                        ? `${itemDetails.price} €`
+                        : t("common:free", { defaultValue: "Free" })}
                     </Text>
                   }
                 />
@@ -804,13 +836,11 @@ export default function AdminListingDetails() {
                   }
                   label={t("listings.filters.material")}
                   color="brown"
-                  value={
-                    t(`common:materials.${itemDetails?.material}` as any, {
-                      defaultValue:
-                        itemDetails?.material.charAt(0).toUpperCase() +
-                        (itemDetails?.material.slice(1) ?? ""),
-                    })
-                  }
+                  value={t(`common:materials.${itemDetails?.material}` as any, {
+                    defaultValue:
+                      itemDetails?.material.charAt(0).toUpperCase() +
+                      (itemDetails?.material.slice(1) ?? ""),
+                  })}
                 />
 
                 <CardStatsItem
@@ -825,13 +855,11 @@ export default function AdminListingDetails() {
                           ? "orange"
                           : "red"
                   }
-                  value={
-                    t(`common:states.${itemDetails?.state}` as any, {
-                      defaultValue:
-                        itemDetails?.state.charAt(0).toUpperCase() +
-                        (itemDetails?.state.slice(1).replace(/_/g, " ") ?? ""),
-                    })
-                  }
+                  value={t(`common:states.${itemDetails?.state}` as any, {
+                    defaultValue:
+                      itemDetails?.state.charAt(0).toUpperCase() +
+                      (itemDetails?.state.slice(1).replace(/_/g, " ") ?? ""),
+                  })}
                 />
 
                 {itemDetails?.category === "listing" ? (
@@ -862,7 +890,8 @@ export default function AdminListingDetails() {
                         style={{ cursor: "pointer" }}
                         c="var(--component-color-primary)"
                       >
-                        {t("common:container", { defaultValue: "Container" })} #{depositDetails?.container_id}
+                        {t("common:container", { defaultValue: "Container" })} #
+                        {depositDetails?.container_id}
                       </Anchor>
                     }
                   />
@@ -1008,9 +1037,15 @@ export default function AdminListingDetails() {
                     data={[
                       { value: "wood", label: t("common:materials.wood") },
                       { value: "glass", label: t("common:materials.glass") },
-                      { value: "plastic", label: t("common:materials.plastic") },
+                      {
+                        value: "plastic",
+                        label: t("common:materials.plastic"),
+                      },
                       { value: "metal", label: t("common:materials.metal") },
-                      { value: "textile", label: t("common:materials.textile") },
+                      {
+                        value: "textile",
+                        label: t("common:materials.textile"),
+                      },
                       { value: "mixed", label: t("common:materials.mixed") },
                       { value: "other", label: t("common:materials.other") },
                     ]}
@@ -1030,9 +1065,15 @@ export default function AdminListingDetails() {
                     }
                     data={[
                       { value: "new", label: t("common:states.new") },
-                      { value: "very_good", label: t("common:states.very_good") },
+                      {
+                        value: "very_good",
+                        label: t("common:states.very_good"),
+                      },
                       { value: "good", label: t("common:states.good") },
-                      { value: "need_repair", label: t("common:states.need_repair") },
+                      {
+                        value: "need_repair",
+                        label: t("common:states.need_repair"),
+                      },
                     ]}
                     onChange={(value) => {
                       setStateEdit(value as string);
@@ -1165,7 +1206,11 @@ export default function AdminListingDetails() {
                             : "blue"
                     }
                   >
-                    {t(`status.${transaction?.action}` as any, { defaultValue: transaction?.action.charAt(0).toUpperCase() + transaction?.action.slice(1) })}
+                    {t(`status.${transaction?.action}` as any, {
+                      defaultValue:
+                        transaction?.action.charAt(0).toUpperCase() +
+                        transaction?.action.slice(1),
+                    })}
                   </Badge>
                 </Table.Td>
                 <Table.Td ta="center">
@@ -1256,7 +1301,9 @@ export default function AdminListingDetails() {
         size="lg"
       >
         <Text>
-          {t("listings.details.transactions.cancel_confirm", { id: cancelTransactionId?.id_transaction })}
+          {t("listings.details.transactions.cancel_confirm", {
+            id: cancelTransactionId?.id_transaction,
+          })}
         </Text>
         <Group mt="lg" justify="end">
           <Button onClick={closeCancelModal} variant="grey">

@@ -200,18 +200,16 @@ export const useUpdateAccount = () => {
       errorTitle: "Account update failed",
       errorMessage: "Could not update the account",
     },
-    onSuccess: (response, variables) => {
-      if (response?.status === 204) {
-        showSuccessNotification(
-          "Account updated",
-          "Account updated successfully.",
-        );
-        queryClient.invalidateQueries({
-          queryKey: ["accountDetails", variables.id_account],
-        });
-        queryClient.invalidateQueries({ queryKey: ["histories"] });
-        queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      }
+    onSuccess: (_, variables) => {
+      showSuccessNotification(
+        "Account updated",
+        "Account updated successfully.",
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["accountDetails", variables.id_account],
+      });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
   });
 };
