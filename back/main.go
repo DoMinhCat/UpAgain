@@ -16,20 +16,22 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
+	utils.InitLogger()
+	slog.Info("backend process starting...")
+
 	env := os.Getenv("APP_ENV")
 	if env == "" {
 		env = "dev"
 	}
 
-	utils.InitLogger()
 	utils.LoadEnv(env)
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)
 	} else {
 		slog.Info("connected to database successfully")
+		defer utils.Conn.Close()
 	}
-	defer utils.Conn.Close()
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration

@@ -34,25 +34,9 @@ jobs:
         run: |
           docker-compose down --remove-orphans
 
-      - name: Build Backend
-        working-directory: /app/UpAgain/back
-        run: |
-          /usr/local/go/bin/go clean -modcache -cache
-          CGO_ENABLED=0 GOOS=linux /usr/local/go/bin/go build -o api-upagain main.go
-          rm -f /mnt/truenas-web/back/api-upagain
-          cp api-upagain /mnt/truenas-web/back/
-          chmod +x /mnt/truenas-web/back/api-upagain
-
-      - name: Build Frontend
-        working-directory: /app/UpAgain/front
-        run: |
-          npm install
-          npm run build
-          cp -r dist/* /mnt/truenas-web/front/
-
       - name: Start Containers
         working-directory: /app/UpAgain
         env:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
-          docker-compose up -d --remove-orphans
+          docker-compose up -d --build --remove-orphans
