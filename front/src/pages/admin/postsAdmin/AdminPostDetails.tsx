@@ -34,7 +34,6 @@ import {
 } from "@tabler/icons-react";
 import {
   useDeleteComment,
-  useDeletePost,
   useDeleteProjectStep,
   useGetPostComments,
   useGetPostDetails,
@@ -46,6 +45,7 @@ import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal"
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { EditPostModal } from "../../../components/post/EditPostModal";
+import { DeletePostModal } from "../../../components/post/DeletePostModal";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimeline";
 import CommentCard from "../../../components/post/CommentCard";
@@ -88,21 +88,8 @@ export const AdminPostDetails = () => {
     useDisclosure(false);
 
   // DELETE POST
-  const deletePostMutate = useDeletePost();
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure(false);
-
-  const handleDelete = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (postDetails) {
-      deletePostMutate.mutate(postDetails.id, {
-        onSuccess: () => {
-          closeDelete();
-          navigate("/admin/posts");
-        },
-      });
-    }
-  };
 
   // DELETE COMMENT
   const [idCommentToDelete, setIdCommentToDelete] = useState<number | null>(
@@ -593,31 +580,12 @@ export const AdminPostDetails = () => {
                 postId={postId}
               />
 
-              <Modal
-                title={t("posts.delete_post_modal.title")}
+              <DeletePostModal
                 opened={openedDelete}
                 onClose={closeDelete}
-                centered
-                size="md"
-              >
-                <Stack>
-                  <Text>{t("posts.delete_post_modal.text")}</Text>
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={closeDelete} variant="grey">
-                    {t("common:actions.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleDelete(e);
-                    }}
-                    variant="delete"
-                    loading={deletePostMutate.isPending || isLoadingPostDetails}
-                  >
-                    {t("common:actions.confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+                postId={postId}
+                onSuccess={() => navigate("/admin/posts")}
+              />
 
               <DeleteCommentModal
                 opened={openedDeleteComment}

@@ -133,8 +133,6 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request) {
 		timeParam = &t
 	}
 
-	slog.Debug("debug", "timeParam", timeParam)
-
 	// total active items
 	status := "approved"
 	activeItems, err := db.GetItemsCountByStatus(&status)
@@ -284,8 +282,6 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 
 	if len(transaction) != 0 {
 		latestTransaction := transaction[0]
-		slog.Debug("latestTransaction", "controller", "DeleteItemById", "latestTransaction", latestTransaction)
-
 		if status == "completed" || latestTransaction.Action == "reserved" || latestTransaction.Action == "purchased" {
 			utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
 			return

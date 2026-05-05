@@ -133,6 +133,7 @@ export const EditPostModal = ({
           value={categoryEdit}
           error={errorCategory}
           onBlur={() => validateCategoryEdit()}
+          disabled={updatePostMutate.isPending}
           data={[
             { value: "tutorial", label: "Tutorial" },
             { value: "project", label: "Project" },

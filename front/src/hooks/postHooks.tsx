@@ -122,6 +122,8 @@ export const useUpdatePost = (id_post: number) => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
         "Post updated",

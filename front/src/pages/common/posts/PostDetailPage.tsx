@@ -61,6 +61,8 @@ import { useTranslation } from "react-i18next";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { resolveUrl } from "../../../utils/imageUtils";
 import DOMPurify from "dompurify";
+import { EditPostModal } from "../../../components/post/EditPostModal";
+import { DeletePostModal } from "../../../components/post/DeletePostModal";
 
 const CATEGORY_COLOR: Record<string, string> = {
   tutorial: "blue",
@@ -72,7 +74,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 };
 
 export default function PostDetailPage() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation(["post", "common", "admin"]);
   const { user } = useAuth();
@@ -114,6 +116,12 @@ export default function PostDetailPage() {
     deleteModalOpened,
     { open: openDeleteModal, close: closeDeleteModal },
   ] = useDisclosure(false);
+
+  // EDIT/DELETE POST MODAL STATE
+  const [openedEdit, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
+  const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
 
   const handleOpenDelete = (id: number) => {
     setCommentToDelete(id);
@@ -333,33 +341,46 @@ export default function PostDetailPage() {
         {/* MAIN CONTENT AREA */}
         <Container size="lg" pb={40} pt={24} w="100%">
           <Stack gap="lg">
-            <MyBreadcrumbs
-              mb="xl"
-              mt="md"
-              breadcrumbs={[
-                { title: t("home:title"), href: PATHS.HOME },
-                ...(location.state?.from === "communityIndex"
-                  ? [
-                      {
-                        title: t("community:community"),
-                        href: PATHS.USER.POSTS.ALL,
-                      },
-                    ]
-                  : location.state?.from === "myPosts"
+            <Group justify="space-between">
+              <MyBreadcrumbs
+                mb="xl"
+                mt="md"
+                breadcrumbs={[
+                  { title: t("home:title"), href: PATHS.HOME },
+                  ...(location.state?.from === "communityIndex"
                     ? [
                         {
                           title: t("community:community"),
                           href: PATHS.USER.POSTS.ALL,
                         },
-                        {
-                          title: t("community:my_posts"),
-                          href: PATHS.POSTS.MY_POSTS,
-                        },
                       ]
-                    : []),
-                { title: post.title, href: "#" },
-              ]}
-            />
+                    : location.state?.from === "myPosts"
+                      ? [
+                          {
+                            title: t("community:community"),
+                            href: PATHS.USER.POSTS.ALL,
+                          },
+                          {
+                            title: t("community:my_posts"),
+                            href: PATHS.POSTS.MY_POSTS,
+                          },
+                        ]
+                      : []),
+                  { title: post.title, href: "#" },
+                ]}
+              />
+              {(user?.role === "admin" || user?.role === "employee") &&
+                user?.id === post?.creator_id && (
+                  <Group gap={"xs"}>
+                    <Button variant="edit" onClick={openEdit}>
+                      {t("admin:posts.details.edit_post")}
+                    </Button>
+                    <Button variant="delete" onClick={openDelete}>
+                      {t("admin:posts.details.delete_post")}
+                    </Button>
+                  </Group>
+                )}
+            </Group>
 
             <Stack gap={40}>
               {/* AUTHOR & ACTIONS SECTION */}
@@ -609,6 +630,42 @@ export default function PostDetailPage() {
         onClose={closeDeleteModal}
         onConfirm={confirmDelete}
         loading={deleteComment.isPending}
+      />
+      {post && (
+        <EditPostModal
+          opened={openedEdit}
+          onClose={closeEdit}
+          postDetails={post}
+          postId={postId}
+        />
+      )}
+
+      <PhotosCarousel
+        photos={post.photos || []}
+        opened={lightboxOpened}
+        onClose={() => setLightboxOpened(false)}
+        defaultActiveSlide={lightboxSlide}
+      />
+
+      <DeleteCommentModal
+        opened={deleteModalOpened}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        loading={deleteComment.isPending}
+      />
+      {post && (
+        <EditPostModal
+          opened={openedEdit}
+          onClose={closeEdit}
+          postDetails={post}
+          postId={postId}
+        />
+      )}
+      <DeletePostModal
+        opened={openedDelete}
+        onClose={closeDelete}
+        postId={postId}
+        onSuccess={() => navigate(PATHS.POSTS.MY_POSTS)}
       />
     </>
   );
