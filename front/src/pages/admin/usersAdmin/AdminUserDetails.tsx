@@ -173,6 +173,7 @@ export default function AdminUserDetails() {
       setPhoneEditError(null);
       return true;
     }
+    return true;
   };
 
   // Fetch account info to display
