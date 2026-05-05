@@ -4,7 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	"backend/utils/helper"
+	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
 )
@@ -41,7 +41,7 @@ func GetTotalScore(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching total weight.")
 			return
 		}
-		co2, err := helper.CalculateCO2(material, weight)
+		co2, err := helpers.CalculateCO2(material, weight)
 		if err != nil {
 			slog.Error("CalculateCO2() failed", "controller", "GetTotalScore", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while calculating CO2.")

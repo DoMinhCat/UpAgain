@@ -4,7 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	"backend/utils/helper"
+	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
 	"regexp"
@@ -255,7 +255,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	finalPhotos, delErrs, err := helper.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
+	finalPhotos, delErrs, err := helpers.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateListing", "error", delErr)
 	}
@@ -307,7 +307,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 // @Failure      500     {object}  nil                     "Internal server error"
 // @Router       /admin/validations/listings/ [get]
 func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
-	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
+	page, limit, filters, err := helpers.ParsePaginationAndFilters(r)
 	if err != nil {
 		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingListingsAdmin", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
@@ -321,7 +321,7 @@ func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := helper.BuildPaginatedResult(page, limit, total)
+	result := helpers.BuildPaginatedResult(page, limit, total)
 	result["listings"] = listings
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }

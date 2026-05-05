@@ -1,3 +1,29 @@
 {
-  "community": "Cộng đồng"
+  "community": "Cộng đồng",
+  "subtitle": "Khám phá các hướng dẫn, dự án và lời khuyên được chia sẻ bởi cộng đồng của chúng mình.",
+  "search_placeholder": "Tìm kiếm bài viết...",
+  "filters": {
+    "all": "Tất cả",
+    "tutorial": "Hướng dẫn",
+    "tips": "Mẹo nhỏ",
+    "news": "Tin tức",
+    "case_study": "Nghiên cứu",
+    "project": "Dự án",
+    "other": "Khác"
+  },
+  "sort": {
+    "most_recent": "Mới nhất",
+    "most_popular": "Phổ biến nhất",
+    "most_viewed": "Xem nhiều nhất"
+  },
+  "empty": {
+    "title": "Không có bài viết nào khớp với tìm kiếm của bạn.",
+    "subtitle": "Hãy thử một danh mục hoặc từ khóa khác."
+  },
+  "my_posts": "Bài viết của tôi",
+  "manage_posts_subtitle": "Quản lý tất cả các bài viết của bạn tại một nơi.",
+  "saved_posts": "Bài viết đã lưu",
+  "manage_saved_posts_subtitle": "Bài viết bạn yêu thích",
+  "empty_my_posts": "Bạn chưa đăng bài viết nào trong danh mục này",
+  "empty_saved_posts": "Bạn chưa lưu bài viết nào"
 }

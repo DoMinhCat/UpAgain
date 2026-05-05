@@ -46,6 +46,7 @@ const queryClient = new QueryClient({
 });
 
 createRoot(document.getElementById("root")!).render(
+  // TODO: uncomment when on production
   // <StrictMode>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>

@@ -4,6 +4,10 @@ import (
 	"time"
 )
 
+type CreateCommentRequest struct {
+	Content string `json:"content"`
+}
+
 type Comment struct {
 	Id        int       `json:"id"`
 	Content   string    `json:"content"`

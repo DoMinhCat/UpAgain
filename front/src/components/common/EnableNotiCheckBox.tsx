@@ -11,16 +11,20 @@ export default function EnableNotiCheckBox() {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Check initial status
-    const status =
-      OneSignal.User.PushSubscription.optedIn &&
-      Notification.permission === "granted";
-    setIsSubscribed(status || false);
+    const checkStatus = async () => {
+      // Check initial status
+      const status =
+        OneSignal.User.PushSubscription.optedIn &&
+        Notification.permission === "granted";
+      setIsSubscribed(status || false);
 
-    // Listen for changes (optional but recommended)
-    OneSignal.User.PushSubscription.addEventListener("change", (event) => {
-      setIsSubscribed(event.current.optedIn);
-    });
+      // Listen for changes (optional but recommended)
+      OneSignal.User.PushSubscription.addEventListener("change", (event) => {
+        setIsSubscribed(event.current.optedIn);
+      });
+    };
+
+    checkStatus();
   }, []);
 
   useEffect(() => {

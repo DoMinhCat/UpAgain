@@ -1,3 +1,29 @@
 {
-  "community": "Communauté"
+  "community": "Communauté",
+  "subtitle": "Découvrez des guides, des projets et des conseils partagés par notre communauté d'upcycleurs.",
+  "search_placeholder": "Rechercher des articles...",
+  "filters": {
+    "all": "Tout",
+    "tutorial": "Tutoriel",
+    "tips": "Conseils",
+    "news": "Actualités",
+    "case_study": "Étude de cas",
+    "project": "Projet",
+    "other": "Autre"
+  },
+  "sort": {
+    "most_recent": "Plus récent",
+    "most_popular": "Plus populaire",
+    "most_viewed": "Plus vu"
+  },
+  "empty": {
+    "title": "Aucun article ne correspond à votre recherche.",
+    "subtitle": "Essayez une autre catégorie ou un autre mot-clé."
+  },
+  "my_posts": "Mes posts",
+  "saved_posts": "Posts sauvegardés",
+  "manage_posts_subtitle": "Gérez tous vos posts au même endroit.",
+  "manage_saved_posts_subtitle": "Tous vos posts favoris au même endroit.",
+  "empty_my_posts": "Vous n'avez encore rien posté dans cette catégorie",
+  "empty_saved_posts": "Vous n'avez encore sauvegardé aucun post"
 }

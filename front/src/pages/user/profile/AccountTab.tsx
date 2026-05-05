@@ -114,7 +114,6 @@ export default function AccountTab() {
 
   const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    // validate username and phone if phone is provided
     let phoneCorrect = true;
     if (formData.phone) {
       phoneCorrect = handleValidatePhone(formData.phone);
@@ -126,7 +125,7 @@ export default function AccountTab() {
   const handleConfirmSave = () => {
     updateAccount.mutate(
       {
-        id_account: user?.id || 0,
+        id: user?.id ?? 0,
         username: formData.username || "",
         email: accountDetails?.email || "",
         phone: formData.phone || "",

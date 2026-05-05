@@ -12,6 +12,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -700,27 +701,14 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("NewDecoder() failed", "controller", "UpdateAccount", "error", err)
 		return
 	}
+	// sanitize input
+	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
+	payload.Username = strings.TrimSpace(payload.Username)
+	payload.Phone = strings.TrimSpace(payload.Phone)
 
-	// check if email already exists
-	id, err := db.GetAccountIdByEmail(payload.Email)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountIdByEmail() failed", "controller", "UpdateAccount", "error", err)
-		return
-	}
-	if id != 0 && id != id_account {
-		utils.RespondWithError(w, http.StatusConflict, "Email already exists.")
-		return
-	}
-
-	username_id, err := db.GetAccountIdByUsername(payload.Username)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountIdByUsername() failed", "controller", "UpdateAccount", "error", err)
-		return
-	}
-	if username_id != 0 && username_id != id_account {
-		utils.RespondWithError(w, http.StatusConflict, "Username already exists.")
+	validationResult := validations.ValidateAccountUpdate(payload)
+	if !validationResult.Success {
+		utils.RespondWithError(w, http.StatusBadRequest, validationResult.Message.Error())
 		return
 	}
 

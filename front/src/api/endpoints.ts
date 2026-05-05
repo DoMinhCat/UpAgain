@@ -114,6 +114,20 @@ export const ENDPOINTS = {
     UPDATE: (id_ads: number) => `/ads/${id_ads}/`,
   },
 
+  USER: {
+    POSTS: {
+      ALL: "/posts/",
+      DETAILS: (id_post: number) => `/posts/${id_post}/`,
+      COMMENTS: (id_post: number) => `/posts/${id_post}/comments/`,
+      ADD_COMMENT: (id_post: number) => `/posts/${id_post}/comments/`,
+      LIKE: (id_post: number) => `/posts/${id_post}/like/`,
+      SAVE: (id_post: number) => `/posts/${id_post}/save/`,
+      VIEW: (id_post: number) => `/posts/${id_post}/view/`,
+      LIKE_COMMENT: (id_comment: number) => `/comments/${id_comment}/like/`,
+      SAVED: "/posts/saved/",
+      MY_POSTS: "/posts/me/",
+    },
+  },
   EVENTS: {
     MY_EVENTS: "/events/me/",
   },

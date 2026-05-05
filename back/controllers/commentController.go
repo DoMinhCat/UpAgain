@@ -4,10 +4,64 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
 )
+
+// CreateComment godoc
+// @Summary      Add a comment to a post
+// @Description  Create a new comment on a post.
+// @Tags         comment
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        id_post  path      int                   true  "Post ID"
+// @Param        body     body      models.CreateCommentRequest  true  "Comment content"
+// @Success      201      {object}  models.Comment
+// @Failure      400      {string}  string  "Bad Request"
+// @Failure      500      {string}  string  "Internal Server Error"
+// @Router       /posts/{id_post}/comments [post]
+func CreateComment(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
+	idPost, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID.")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(idPost)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "CreateComment", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create comment.")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found.")
+		return
+	}
+
+	var payload models.CreateCommentRequest
+	if err = json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
+		return
+	}
+	if len([]rune(payload.Content)) == 0 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Content is required.")
+		return
+	}
+
+	comment, err := db.CreateComment(idPost, idAccount, payload.Content)
+	if err != nil {
+		slog.Error("db.CreateComment() failed", "controller", "CreateComment", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create comment.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusCreated, comment)
+}
 
 // DeleteCommentById godoc
 // @Summary      Delete a comment
