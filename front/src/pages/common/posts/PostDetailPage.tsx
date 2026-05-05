@@ -146,7 +146,13 @@ export default function PostDetailPage() {
 
   // Fire view increment once after 10 seconds after opened
   useEffect(() => {
-    if (!isValidId || viewTimerFired.current) return;
+    if (
+      !isValidId ||
+      viewTimerFired.current ||
+      role === "admin" ||
+      role === "employee"
+    )
+      return;
     const timer = setTimeout(() => {
       incrementView(postId);
       viewTimerFired.current = true;
@@ -645,7 +651,9 @@ export default function PostDetailPage() {
         opened={openedDelete}
         onClose={closeDelete}
         postId={postId}
-        onSuccess={() => navigate(PATHS.POSTS.MY_POSTS)}
+        onSuccess={() =>
+          navigate(PATHS.POSTS.MY_POSTS, { state: { from: "communityIndex" } })
+        }
       />
     </>
   );
