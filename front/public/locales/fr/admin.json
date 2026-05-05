@@ -79,7 +79,7 @@
       "category": "Catégorie",
       "action": "Action",
       "action_placeholder": "Toutes les actions",
-      "apply": "Appliquer les filtres",
+      "apply": "Appliquer",
       "reset": "Réinitialiser"
     },
     "details": {
@@ -174,7 +174,10 @@
     "edit_modal": {
       "title": "Modifier le compte",
       "submit": "Mettre à jour",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "username": "Nom d'utilisateur",
+      "email": "Email",
+      "phone": "Téléphone"
     },
     "errors": {
       "username_required": "Le nom d'utilisateur est requis",

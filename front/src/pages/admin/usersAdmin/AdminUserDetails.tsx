@@ -292,7 +292,7 @@ export default function AdminUserDetails() {
   };
 
   const editMutation = useUpdateAccount();
-  const handleEditAccount = async (e: React.FormEvent) => {
+  const handleEditAccount = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (
       !validateUsernameEdit(usernameEdit) ||
@@ -309,10 +309,8 @@ export default function AdminUserDetails() {
           phone: phoneEdit,
         },
         {
-          onSuccess: (response: any) => {
-            if (response?.status === 204) {
-              closeEdit();
-            }
+          onSuccess: () => {
+            closeEdit();
           },
         },
       );
@@ -1023,7 +1021,7 @@ export default function AdminUserDetails() {
         </Group>
       </Modal>
 
-      {/* // edit modal */}
+      {/* edit modal */}
       <Modal
         title={t("users.edit_modal.title")}
         opened={openedEdit}
