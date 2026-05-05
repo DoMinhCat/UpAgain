@@ -15,6 +15,7 @@ import {
   Divider,
   Timeline,
   Checkbox,
+  SegmentedControl,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -154,6 +155,19 @@ const UpAgainTheme = createTheme({
         },
       },
     }),
+    SegmentedControl: SegmentedControl.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.segmentedControl,
+          label: classes.segmentedControlLabel,
+          indicator: classes.segmentedControlIndicator,
+        },
+        // Ensure it always uses the pill shape
+        radius: "xl",
+        // Set a smooth transition duration
+        transitionDuration: 300,
+      },
+    }),
   },
 });
 
@@ -164,12 +178,17 @@ function App() {
   useEffect(() => {
     // Ensure this code runs only on the client side
     if (typeof window !== "undefined") {
-      OneSignal.init({
-        appId: OneSignalAppId,
-        // You can add other initialization options here
-      }).then(() => {
-        OneSignal.Debug.setLogLevel("warn");
-      });
+      const initOneSignal = async () => {
+        try {
+          await OneSignal.init({
+            appId: OneSignalAppId,
+          });
+          OneSignal.Debug.setLogLevel("warn");
+        } catch (error) {
+          console.error("OneSignal init error:", error);
+        }
+      };
+      initOneSignal();
     }
   }, []);
 

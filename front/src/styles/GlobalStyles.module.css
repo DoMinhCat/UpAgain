@@ -451,3 +451,30 @@
     opacity: var(--pulse-opacity-start, 0.1);
   }
 }
+
+.segmented-control {
+  background-color: var(--mantine-color-body); /* Darker background */
+  border: 1px solid var(--border-color);
+  border-radius: 100px; /* Force the pill shape */
+  padding: 4px;
+
+  /* The floating active indicator */
+  & .mantine-SegmentedControl-indicator {
+    background-color: var(--upagain-neutral-green);
+    border-radius: 100px;
+    box-shadow: 0 4px 12px rgba(69, 165, 117, 0.2); /* Soft brand glow */
+  }
+
+  /* The text labels */
+  & .mantine-SegmentedControl-label {
+    font-weight: 600;
+    font-size: var(--mantine-font-size-sm);
+    transition: color 0.2s ease;
+    cursor: pointer;
+  }
+
+  /* Remove default Mantine separator lines for a cleaner look */
+  &::before {
+    display: none;
+  }
+}

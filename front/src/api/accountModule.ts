@@ -66,7 +66,8 @@ export const getAccountStats = async (
 };
 
 export const updateAccount = async (payload: updateAccountPayload) => {
-  return await api.patch(ENDPOINTS.ADMIN.USERS.UPDATE(payload.id_account), {
+  return await api.patch(ENDPOINTS.ADMIN.USERS.UPDATE(payload.id), {
+    id: payload.id,
     username: payload.username,
     email: payload.email,
     phone: payload.phone,

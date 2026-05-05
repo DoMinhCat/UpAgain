@@ -241,6 +241,7 @@ export default function AdminUsersModule() {
     const emailErr = handleValidateEmailEdit(emailEdit);
     const phoneErr = handleValidatePhoneEdit(phoneEdit);
     if (!userErr || !emailErr || !phoneErr) {
+      console.log(userErr, emailErr, phoneErr);
       return;
     }
     if (selectedEditAcc?.id) {
