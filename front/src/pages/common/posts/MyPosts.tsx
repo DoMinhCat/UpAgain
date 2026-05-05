@@ -171,7 +171,11 @@ export default function MyPosts() {
           loading={isLoadingMyPosts}
         />
       </Stack>
-      <CreatePostModal opened={openedCreate} onClose={closeCreate} />
+      <CreatePostModal
+        role={user?.role || ""}
+        opened={openedCreate}
+        onClose={closeCreate}
+      />
     </Container>
   );
 }

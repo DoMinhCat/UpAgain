@@ -634,28 +634,7 @@ export default function PostDetailPage() {
       />
       {post && (
         <EditPostModal
-          opened={openedEdit}
-          onClose={closeEdit}
-          postDetails={post}
-          postId={postId}
-        />
-      )}
-
-      <PhotosCarousel
-        photos={post.photos || []}
-        opened={lightboxOpened}
-        onClose={() => setLightboxOpened(false)}
-        defaultActiveSlide={lightboxSlide}
-      />
-
-      <DeleteCommentModal
-        opened={deleteModalOpened}
-        onClose={closeDeleteModal}
-        onConfirm={confirmDelete}
-        loading={deleteComment.isPending}
-      />
-      {post && (
-        <EditPostModal
+          role={role}
           opened={openedEdit}
           onClose={closeEdit}
           postDetails={post}

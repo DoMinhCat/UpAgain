@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Modal,
-  Stack,
-  TextInput,
-  Select,
-  Group,
-  Button,
-} from "@mantine/core";
+import { Modal, Stack, TextInput, Select, Group, Button } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useCreatePost } from "../../hooks/postHooks";
 import { showSuccessNotification } from "../common/NotificationToast";
@@ -16,9 +9,14 @@ import { TextEditor } from "../input/TextEditor";
 interface CreatePostModalProps {
   opened: boolean;
   onClose: () => void;
+  role: string;
 }
 
-export function CreatePostModal({ opened, onClose }: CreatePostModalProps) {
+export function CreatePostModal({
+  opened,
+  onClose,
+  role,
+}: CreatePostModalProps) {
   const { t } = useTranslation(["admin", "common"]);
   const [files, setFiles] = useState<any[]>([]);
   const [title, setTitle] = useState<string>("");
@@ -77,7 +75,7 @@ export function CreatePostModal({ opened, onClose }: CreatePostModalProps) {
     const isTitleValid = validateTitle();
     const isCategoryValid = validateCategory();
     const isDescValid = validateDescription();
-    
+
     if (!isTitleValid || !isCategoryValid || !isDescValid) {
       return;
     }
@@ -133,21 +131,26 @@ export function CreatePostModal({ opened, onClose }: CreatePostModalProps) {
           onBlur={() => validateCategory()}
           data={[
             {
-              value: "tutorial",
-              label: t("admin:posts.categories.tutorial"),
-            },
-            { value: "tips", label: t("admin:posts.categories.tips") },
-            { value: "news", label: t("admin:posts.categories.news") },
-            {
-              value: "case_study",
-              label: t("admin:posts.categories.case_study"),
-            },
-            {
               value: "project",
               label: t("admin:posts.categories.project"),
-              disabled: true,
+              disabled: role !== "pro",
             },
-            { value: "other", label: t("admin:posts.categories.other") },
+            ...(role !== "pro"
+              ? [
+                  {
+                    value: "project",
+                    label: t("admin:posts.categories.project"),
+                    disabled: role !== "pro",
+                  },
+                  { value: "tips", label: t("admin:posts.categories.tips") },
+                  { value: "news", label: t("admin:posts.categories.news") },
+                  {
+                    value: "case_study",
+                    label: t("admin:posts.categories.case_study"),
+                  },
+                  { value: "other", label: t("admin:posts.categories.other") },
+                ]
+              : []),
           ]}
           onChange={(value) => {
             setCategory(value as string);
