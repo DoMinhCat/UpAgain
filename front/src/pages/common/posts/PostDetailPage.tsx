@@ -136,7 +136,7 @@ export default function PostDetailPage() {
   const totalComments = commentsData?.total_comments ?? 0;
   const lastPage = commentsData?.last_page ?? 1;
 
-  // Fire view increment once after 10 seconds
+  // Fire view increment once after 10 seconds after opened
   useEffect(() => {
     if (!isValidId || viewTimerFired.current) return;
     const timer = setTimeout(() => {

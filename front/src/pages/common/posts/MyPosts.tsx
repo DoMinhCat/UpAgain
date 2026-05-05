@@ -1,4 +1,5 @@
 import {
+  Button,
   Center,
   Container,
   Group,
@@ -22,6 +23,8 @@ import {
   useLikePost,
   useSavePost,
 } from "../../../hooks/postHooks";
+import { CreatePostModal } from "../../../components/post/CreatePostModal";
+import { useDisclosure } from "@mantine/hooks";
 
 export default function MyPosts() {
   const { user } = useAuth();
@@ -30,6 +33,8 @@ export default function MyPosts() {
   const navigate = useNavigate();
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
+  const [openedCreate, { open: openCreate, close: closeCreate }] =
+    useDisclosure(false);
 
   const CATEGORIES = [
     { value: "", label: t("community:filters.all") },
@@ -90,15 +95,22 @@ export default function MyPosts() {
             <Text c="dimmed" size="md">
               {t("community:manage_posts_subtitle")}
             </Text>
-            <SegmentedControl
-              value={category}
-              onChange={(v) => {
-                setCategory(v);
-                setPage(1);
-              }}
-              data={CATEGORIES}
-              size="sm"
-            />{" "}
+            <Group gap="sm">
+              <SegmentedControl
+                value={category}
+                onChange={(v) => {
+                  setCategory(v);
+                  setPage(1);
+                }}
+                data={CATEGORIES}
+                size="sm"
+              />
+              {(user?.role === "employee" || user?.role === "admin") && (
+                <Button onClick={openCreate} variant="cta-reverse">
+                  {t("admin:posts.new_post")}
+                </Button>
+              )}
+            </Group>
           </Group>
         </Stack>
 
@@ -113,6 +125,11 @@ export default function MyPosts() {
               <Text c="dimmed" ta="center" maw={300}>
                 {t("community:empty_my_posts")}
               </Text>
+              {(user?.role === "employee" || user?.role === "admin") && (
+                <Button onClick={openCreate} mt="lg" variant="cta-reverse">
+                  {t("admin:posts.new_post")}
+                </Button>
+              )}
             </Stack>
           </Center>
         ) : (
@@ -123,10 +140,7 @@ export default function MyPosts() {
                 key={post.id}
                 title={post.title}
                 description={post.content}
-                image={
-                  post.photos?.[0] ??
-                  "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c"
-                }
+                image={post.photos?.[0] ?? ""}
                 category={post.category}
                 authorName={post.creator}
                 authorAvatar=""
@@ -157,6 +171,7 @@ export default function MyPosts() {
           loading={isLoadingMyPosts}
         />
       </Stack>
+      <CreatePostModal opened={openedCreate} onClose={closeCreate} />
     </Container>
   );
 }
