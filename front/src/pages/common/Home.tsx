@@ -1,5 +1,4 @@
 import { useAuth } from "../../context/AuthContext";
-import AdminHome from "../admin/AdminHome";
 import GuestHome from "../guest/GuestHome";
 import UserHome from "../user/UserHome";
 
@@ -20,7 +19,7 @@ const Home = () => {
       case "user":
         return <UserHome />;
       case "admin":
-        return <AdminHome />;
+        return <GuestHome />;
       default:
         return <GuestHome />;
     }
