@@ -369,17 +369,18 @@ export default function PostDetailPage() {
                   { title: post.title, href: "#" },
                 ]}
               />
-              {(user?.role === "admin" || user?.role === "employee") &&
-                user?.id === post?.creator_id && (
-                  <Group gap={"xs"}>
-                    <Button variant="edit" onClick={openEdit}>
-                      {t("admin:posts.details.edit_post")}
-                    </Button>
-                    <Button variant="delete" onClick={openDelete}>
-                      {t("admin:posts.details.delete_post")}
-                    </Button>
-                  </Group>
-                )}
+              {user?.role === "admin" ||
+                ((user?.role === "employee" || user?.role === "pro") &&
+                  user?.id === post?.creator_id && (
+                    <Group gap={"xs"}>
+                      <Button variant="edit" onClick={openEdit}>
+                        {t("admin:posts.details.edit_post")}
+                      </Button>
+                      <Button variant="delete" onClick={openDelete}>
+                        {t("admin:posts.details.delete_post")}
+                      </Button>
+                    </Group>
+                  ))}
             </Group>
 
             <Stack gap={40}>
