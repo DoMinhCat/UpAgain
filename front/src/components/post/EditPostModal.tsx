@@ -9,6 +9,7 @@ interface EditPostModalProps {
   onClose: () => void;
   postDetails: any;
   postId: number;
+  role: string;
 }
 
 export const EditPostModal = ({
@@ -16,6 +17,7 @@ export const EditPostModal = ({
   onClose,
   postDetails,
   postId,
+  role,
 }: EditPostModalProps) => {
   const [fileEdit, setFileEdit] = useState<any[]>([]);
   const [titleEdit, setTitleEdit] = useState<string>("");
@@ -135,11 +137,15 @@ export const EditPostModal = ({
           onBlur={() => validateCategoryEdit()}
           disabled={updatePostMutate.isPending}
           data={[
-            { value: "tutorial", label: "Tutorial" },
-            { value: "project", label: "Project" },
-            { value: "tips", label: "Tips" },
-            { value: "news", label: "News" },
-            { value: "case_study", label: "Case Study" },
+            { value: "project", label: "Project", disabled: role !== "pro" },
+            ...(role !== "pro"
+              ? [
+                  { value: "tutorial", label: "Tutorial" },
+                  { value: "tips", label: "Tips" },
+                  { value: "news", label: "News" },
+                  { value: "case_study", label: "Case Study" },
+                ]
+              : []),
             { value: "other", label: "Other" },
           ]}
           onChange={(value) => {

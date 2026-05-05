@@ -518,7 +518,6 @@ func GetPostsByAccountId(id_account int, page int, limit int, category string) (
 		ORDER BY p.created_at DESC
 		LIMIT $%v OFFSET $%v
 	`, categoryWhereClause, paramIndex[0], paramIndex[1])
-	fmt.Println(params)
 	rows, err := utils.Conn.Query(query, params...)
 	if err != nil {
 		return result, fmt.Errorf("GetPostsByAccountId() query failed: '%v'", err)

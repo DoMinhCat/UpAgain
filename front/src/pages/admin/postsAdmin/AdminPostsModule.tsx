@@ -38,8 +38,10 @@ import { DeletePostModal } from "../../../components/post/DeletePostModal";
 import { PATHS } from "../../../routes/paths";
 import type { Post } from "../../../api/interfaces/post";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../../context/AuthContext";
 
 export const AdminPostsModule = () => {
+  const { user } = useAuth();
   const { t } = useTranslation("admin");
   const navigate = useNavigate();
 
@@ -260,7 +262,11 @@ export const AdminPostsModule = () => {
             </Button>
 
             {/* create modal */}
-            <CreatePostModal opened={openedCreate} onClose={closeCreate} />
+            <CreatePostModal
+              role={user?.role || ""}
+              opened={openedCreate}
+              onClose={closeCreate}
+            />
           </Group>
         </Group>
         {/* filter options */}
