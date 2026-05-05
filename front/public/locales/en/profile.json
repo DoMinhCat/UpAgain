@@ -1,0 +1,83 @@
+{
+  "account": {
+    "title": "Account Settings",
+    "subtitle": "Manage your profile information",
+    "update_avatar": "Update avatar",
+    "personal_details": "Personal Details",
+    "joined_on": "Joined on",
+    "username": "Username",
+    "phone": "Phone",
+    "email": "Email",
+    "statistics": "Statistics",
+    "upcycling_points": "Upcycling points",
+    "deposits_posted": "Container deposits posted",
+    "deposit_posted": "container deposit posted",
+    "deposits_posted_plural": "container deposits posted",
+    "listings_posted": "Listings posted",
+    "listing_posted": "listing posted",
+    "listings_posted_plural": "listings posted",
+    "discard_changes": "Discard changes",
+    "save_changes": "Save changes",
+    "modal_avatar_title": "Update avatar",
+    "modal_avatar_confirm": "Confirm",
+    "modal_avatar_cancel": "Cancel"
+  },
+  "security": {
+    "title": "Security Settings",
+    "subtitle": "Manage your email and password to secure your account",
+    "sensitive_info": "Sensitive Information",
+    "email_address": "Email Address",
+    "email_description": "Updating your email address will change how you log in.",
+    "change_password": "Change Password",
+    "password_description": "Ensure your account is using a long, random password to stay secure.",
+    "new_password": "New Password",
+    "confirm_password": "Confirm Password",
+    "update_password": "Update Password"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "subtitle": "Manage your notification settings and display preferences",
+    "push_notifications": "Push Notifications",
+    "push_notifications_desc": "Enable push notifications to receive real-time updates on your device.",
+    "notification_types": "Notification Types",
+    "notification_types_desc": "Choose which events you want to be notified about.",
+    "display_settings": "Display Settings",
+    "display_settings_desc": "Customize the look and feel of your application.",
+    "theme": "Theme",
+    "language": "Language",
+    "dark_mode": "Dark Mode",
+    "light_mode": "Light Mode"
+  },
+  "notifications": {
+    "user_object_status": "Object Status Update",
+    "user_validation_status": "Validation Status Update",
+    "user_object_retrieved": "Object Retrieved",
+    "user_event_updated": "Event Updated",
+    "user_code_expiring": "Code Expiring (24h)",
+    "pro_material_available": "New Material Available",
+    "pro_object_deposited": "Object Deposited",
+    "pro_subscription_end": "Subscription Ending Soon",
+    "pro_code_expiring": "Retrieve Code Expiring",
+    "emp_event_updated": "Assigned Event Updated",
+    "emp_event_assigned": "New Event Assigned"
+  },
+  "users": {
+    "errors": {
+      "username_required": "Username is required",
+      "username_min": "Username must be at least 4 characters long",
+      "username_max": "Username must be at most 20 characters long",
+      "email_required": "Email is required",
+      "email_invalid": "Invalid email format",
+      "password_required": "Password is required",
+      "password_min": "Password must be at least 12 characters long",
+      "password_max": "Password must be at most 60 characters long",
+      "password_complexity": "Password must contain at least one number, one uppercase letter, and one special character",
+      "confirm_required": "Confirm password is required",
+      "confirm_mismatch": "Passwords do not match",
+      "phone_numbers_only": "Phone number must contain only numbers",
+      "phone_min": "Phone must be at least 10 characters long",
+      "phone_max": "Phone must be at most 15 characters long",
+      "role_required": "Role is required"
+    }
+  }
+}

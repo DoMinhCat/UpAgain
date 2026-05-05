@@ -865,7 +865,19 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, nil)
 }
 
-// Get posts posted by an account
+// GetPostsByAccountId godoc
+// @Summary Get posts by account ID
+// @Description Get a paginated list of posts created by the authenticated account.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param category query string false "Filter by category"
+// @Success 200 {array} models.Post
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /accounts/posts [get]
 func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
@@ -918,6 +930,19 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, posts)
 }
 
+// GetSavedPosts godoc
+// @Summary Get saved posts
+// @Description Get a paginated list of posts saved by the authenticated account.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param category query string false "Filter by category"
+// @Success 200 {array} models.Post
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /accounts/saved-posts [get]
 func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 

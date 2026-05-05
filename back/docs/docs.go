@@ -144,6 +144,126 @@ const docTemplate = `{
                 }
             }
         },
+        "/accounts/posts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a paginated list of posts created by the authenticated account.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get posts by account ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Post"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/saved-posts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a paginated list of posts saved by the authenticated account.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get saved posts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Post"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/accounts/{id_account}/": {
             "get": {
                 "description": "Get details of a specific account",
@@ -224,6 +344,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/accounts/{id_account}/avatar/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Upload and update the avatar image for the authenticated account.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Update avatar",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Avatar image file",
+                        "name": "avatar",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Account not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/accounts/{id_account}/ban/": {
             "patch": {
                 "description": "Ban or unban an account",
@@ -273,6 +458,132 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/accounts/{id_account}/notifications": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns a list of notification settings for a specific account.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Get notification settings",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NotiSetting"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Updates a specific notification setting for an account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Update notification setting",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateNotiSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
@@ -2174,7 +2485,7 @@ const docTemplate = `{
         },
         "/events/register/": {
             "post": {
-                "description": "Register to an event by event ID.",
+                "description": "Register to an event by event ID. If the event is paid, it returns a Stripe checkout URL unless already paid.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2197,8 +2508,17 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "Stripe checkout URL returned",
+                        "schema": {
+                            "$ref": "#/definitions/models.EventRegistrationResponse"
+                        }
+                    },
                     "201": {
-                        "description": "Registered successfully"
+                        "description": "Registered successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.EventRegistrationResponse"
+                        }
                     },
                     "400": {
                         "description": "Invalid request payload or event conditions not met"
@@ -3254,6 +3574,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/payments/verify/": {
+            "post": {
+                "description": "Verify if a Stripe checkout session has been paid.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Verify Stripe payment session",
+                "parameters": [
+                    {
+                        "description": "Stripe session ID",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.VerifyPaymentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment verification result",
+                        "schema": {
+                            "$ref": "#/definitions/models.VerifyPaymentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payload or session"
+                    }
+                }
+            }
+        },
         "/posts": {
             "get": {
                 "security": [
@@ -3665,6 +4022,62 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new comment on a post.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comment"
+                ],
+                "summary": "Add a comment to a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Comment content",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateCommentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/posts/{id_post}/delete": {
@@ -3703,6 +4116,104 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/like": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Like or unlike a post. Returns the new like state.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Toggle like on a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/save": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Save or unsave a post. Returns the new save state.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Toggle save on a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "string"
                         }
@@ -3808,6 +4319,49 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/view": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Increments the view counter of a post by 1.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Increment post view count",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "string"
                         }
@@ -4567,6 +5121,14 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateCommentRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
         "models.DepositDetails": {
             "type": "object",
             "properties": {
@@ -4601,6 +5163,9 @@ const docTemplate = `{
                 },
                 "employee_avatar": {
                     "type": "string"
+                },
+                "employee_id": {
+                    "type": "integer"
                 },
                 "employee_name": {
                     "description": "creator",
@@ -4660,6 +5225,20 @@ const docTemplate = `{
             "properties": {
                 "id_event": {
                     "type": "integer"
+                },
+                "origin_url": {
+                    "type": "string"
+                },
+                "paid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.EventRegistrationResponse": {
+            "type": "object",
+            "properties": {
+                "checkout_url": {
+                    "type": "string"
                 }
             }
         },
@@ -4968,6 +5547,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.NotiSetting": {
+            "type": "object",
+            "properties": {
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "noti_type": {
+                    "type": "string"
+                }
+            }
+        },
         "models.PaginatedHistoryResponse": {
             "type": "object",
             "properties": {
@@ -5026,6 +5616,12 @@ const docTemplate = `{
                 },
                 "id_account": {
                     "type": "integer"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "is_saved": {
+                    "type": "boolean"
                 },
                 "like_count": {
                     "type": "integer"
@@ -5437,6 +6033,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateNotiSettingRequest": {
+            "type": "object",
+            "properties": {
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "noti_type": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UpdatePasswordRequest": {
             "type": "object",
             "properties": {
@@ -5592,6 +6199,22 @@ const docTemplate = `{
                 },
                 "refused_listings": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.VerifyPaymentRequest": {
+            "type": "object",
+            "properties": {
+                "session_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.VerifyPaymentResponse": {
+            "type": "object",
+            "properties": {
+                "is_paid": {
+                    "type": "boolean"
                 }
             }
         }

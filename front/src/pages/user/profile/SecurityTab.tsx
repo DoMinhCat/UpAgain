@@ -27,7 +27,7 @@ import { useTranslation } from "react-i18next";
 
 export default function SecurityTab() {
   const { user } = useAuth();
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation("profile");
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);
 
@@ -97,13 +97,10 @@ export default function SecurityTab() {
     <Stack gap={40}>
       <Stack gap={5}>
         <Title order={1} size={42} fw={800}>
-          {t("security.title", "Security Settings")}
+          {t("security.title")}
         </Title>
         <Text c="dimmed" size="lg">
-          {t(
-            "security.subtitle",
-            "Manage your email and password to secure your account",
-          )}
+          {t("security.subtitle")}
         </Text>
       </Stack>
 
@@ -112,7 +109,7 @@ export default function SecurityTab() {
           <Group gap="sm">
             <IconShield size={24} color="var(--upagain-neutral-green)" />
             <Title order={3} size={22}>
-              {t("security.sensitive_info", "Sensitive Information")}
+              {t("security.sensitive_info")}
             </Title>
           </Group>
 
@@ -123,14 +120,11 @@ export default function SecurityTab() {
             <Group gap="sm">
               <IconMail size={20} style={{ opacity: 0.7 }} />
               <Text fw={600} size="lg">
-                {t("security.email_address", "Email Address")}
+                {t("security.email_address")}
               </Text>
             </Group>
             <Text size="sm" c="dimmed">
-              {t(
-                "security.email_description",
-                "Updating your email address will change how you log in.",
-              )}
+              {t("security.email_description")}
             </Text>
             <Group align="flex-start" grow wrap="nowrap">
               <TextInput
@@ -152,7 +146,7 @@ export default function SecurityTab() {
                 disabled={email === accountDetails.email}
                 style={{ flex: 0, minWidth: 120 }}
               >
-                {t("common.update", "Update")}
+                {t("common:actions.update")}
               </Button>
             </Group>
           </Stack>
@@ -164,19 +158,16 @@ export default function SecurityTab() {
             <Group gap="sm">
               <IconLock size={20} style={{ opacity: 0.7 }} />
               <Text fw={600} size="lg">
-                {t("security.change_password", "Change Password")}
+                {t("security.change_password")}
               </Text>
             </Group>
             <Text size="sm" c="dimmed">
-              {t(
-                "security.password_description",
-                "Ensure your account is using a long, random password to stay secure.",
-              )}
+              {t("security.password_description")}
             </Text>
 
             <Stack gap="md" style={{ maxWidth: 500 }}>
               <PasswordInput
-                label={t("security.new_password", "New Password")}
+                label={t("security.new_password")}
                 placeholder="********"
                 value={password}
                 onChange={(e) => {
@@ -186,7 +177,7 @@ export default function SecurityTab() {
                 error={passwordError}
               />
               <PasswordInput
-                label={t("security.confirm_password", "Confirm Password")}
+                label={t("security.confirm_password")}
                 placeholder="********"
                 value={confirmPassword}
                 onChange={(e) => {
@@ -203,7 +194,7 @@ export default function SecurityTab() {
                   loading={updatePasswordMutation.isPending}
                   disabled={!password || !confirmPassword}
                 >
-                  {t("security.update_password", "Update Password")}
+                  {t("security.update_password")}
                 </Button>
               </Group>
             </Stack>

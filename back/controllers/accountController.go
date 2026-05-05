@@ -856,6 +856,21 @@ func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdateAvatar godoc
+// @Summary      Update avatar
+// @Description  Upload and update the avatar image for the authenticated account.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        id_account path int true "Account ID"
+// @Param        avatar formData file true "Avatar image file"
+// @Success      204 {object} nil "No Content"
+// @Failure      400 {string} string "Bad Request"
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      404 {string} string "Account not found"
+// @Failure      500 {string} string "Internal Server Error"
+// @Router       /accounts/{id_account}/avatar/ [post]
 func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	idRequester := r.Context().Value("user").(models.AuthClaims).Id
 
