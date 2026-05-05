@@ -254,7 +254,9 @@ export default function AccountTab() {
             </Title>
           </Group>
           <Anchor
-            onClick={() => navigate(PATHS.USER.SCORE)}
+            onClick={() =>
+              navigate(PATHS.USER.SCORE, { state: { from: "profile" } })
+            }
             underline="hover"
             c="var(--upagain-neutral-green)"
             fw={800}

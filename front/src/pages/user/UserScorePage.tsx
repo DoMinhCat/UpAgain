@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext.tsx";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths.ts";
 import {
   Container,
@@ -24,6 +24,7 @@ import { UserImpactObjectCard } from "../../components/object/UserImpactObjectCa
 import MyBreadcrumbs from "../../components/nav/MyBreadcrumbs.tsx";
 import { useTranslation } from "react-i18next";
 export default function UserScorePage() {
+  const location = useLocation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -84,6 +85,14 @@ export default function UserScorePage() {
             title: t("home.title"),
             href: PATHS.HOME,
           },
+          ...(location.state?.from === "profile"
+            ? [
+                {
+                  title: t("profile.title"),
+                  href: PATHS.USER.PROFILE,
+                },
+              ]
+            : []),
           {
             title: t("admin:users.score.title"),
             href: "#",
