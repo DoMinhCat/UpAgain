@@ -15,7 +15,6 @@ RUN apk add --no-cache ca-certificates libc6-compat
 WORKDIR /root/
 
 COPY --from=builder /app/upcycle-back .
-COPY .env . 
 
 EXPOSE 8080
 CMD ["./upcycle-back"]
