@@ -10,10 +10,23 @@ import (
 	"strconv"
 )
 
+// GetNotiSettings godoc
+// @Summary      Get notification settings
+// @Description  Returns a list of notification settings for a specific account.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_account path int true "Account ID"
+// @Success      200 {array} models.NotiSetting
+// @Failure      400 {string} string "Bad Request"
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      403 {string} string "Forbidden"
+// @Failure      500 {string} string "Internal Server Error"
+// @Router       /accounts/{id_account}/notifications [get]
 func GetNotiSettings(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
 
@@ -33,17 +46,32 @@ func GetNotiSettings(w http.ResponseWriter, r *http.Request) {
 	settings, err := db.GetNotiSettingsByAccountId(id_account)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get notification settings")
-		slog.Error("GetNotiSettingsByAccountId() failed", "error", err)
+		slog.Error("GetNotiSettingsByAccountId() failed", "controller", "GetNotiSettings", "error", err)
 		return
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, settings)
 }
 
+// UpdateNotiSetting godoc
+// @Summary      Update notification setting
+// @Description  Updates a specific notification setting for an account.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        id_account path int true "Account ID"
+// @Param        payload body models.UpdateNotiSettingRequest true "Update payload"
+// @Success      204 {object} nil "No Content"
+// @Failure      400 {string} string "Bad Request"
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      403 {string} string "Forbidden"
+// @Failure      500 {string} string "Internal Server Error"
+// @Router       /accounts/{id_account}/notifications [patch]
 func UpdateNotiSetting(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
 
@@ -69,7 +97,7 @@ func UpdateNotiSetting(w http.ResponseWriter, r *http.Request) {
 	err = db.UpdateNotiSetting(id_account, payload.NotiType, payload.IsEnabled)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update notification setting")
-		slog.Error("UpdateNotiSetting() failed", "error", err)
+		slog.Error("UpdateNotiSetting() failed", "controller", "UpdateNotiSetting", "error", err)
 		return
 	}
 

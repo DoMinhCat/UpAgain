@@ -243,6 +243,11 @@ definitions:
       id_post:
         type: integer
     type: object
+  models.CreateCommentRequest:
+    properties:
+      content:
+        type: string
+    type: object
   models.DepositDetails:
     properties:
       container_id:
@@ -266,6 +271,8 @@ definitions:
         type: string
       employee_avatar:
         type: string
+      employee_id:
+        type: integer
       employee_name:
         description: creator
         type: string
@@ -305,6 +312,15 @@ definitions:
     properties:
       id_event:
         type: integer
+      origin_url:
+        type: string
+      paid:
+        type: boolean
+    type: object
+  models.EventRegistrationResponse:
+    properties:
+      checkout_url:
+        type: string
     type: object
   models.EventStats:
     properties:
@@ -506,6 +522,13 @@ definitions:
       password:
         type: string
     type: object
+  models.NotiSetting:
+    properties:
+      is_enabled:
+        type: boolean
+      noti_type:
+        type: string
+    type: object
   models.PaginatedHistoryResponse:
     properties:
       current_page:
@@ -545,6 +568,10 @@ definitions:
         type: integer
       id_account:
         type: integer
+      is_liked:
+        type: boolean
+      is_saved:
+        type: boolean
       like_count:
         type: integer
       photos:
@@ -811,6 +838,13 @@ definitions:
       street:
         type: string
     type: object
+  models.UpdateNotiSettingRequest:
+    properties:
+      is_enabled:
+        type: boolean
+      noti_type:
+        type: string
+    type: object
   models.UpdatePasswordRequest:
     properties:
       password:
@@ -915,6 +949,16 @@ definitions:
         type: integer
       refused_listings:
         type: integer
+    type: object
+  models.VerifyPaymentRequest:
+    properties:
+      session_id:
+        type: string
+    type: object
+  models.VerifyPaymentResponse:
+    properties:
+      is_paid:
+        type: boolean
     type: object
 host: localhost:8080
 info:
@@ -1026,6 +1070,48 @@ paths:
       summary: Get account details
       tags:
       - account
+  /accounts/{id_account}/avatar/:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload and update the avatar image for the authenticated account.
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      - description: Avatar image file
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Account not found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Update avatar
+      tags:
+      - account
   /accounts/{id_account}/ban/:
     patch:
       consumes:
@@ -1059,6 +1145,87 @@ paths:
         "500":
           description: Internal server error
       summary: Toggle ban status
+      tags:
+      - account
+  /accounts/{id_account}/notifications:
+    get:
+      description: Returns a list of notification settings for a specific account.
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NotiSetting'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get notification settings
+      tags:
+      - account
+    patch:
+      consumes:
+      - application/json
+      description: Updates a specific notification setting for an account.
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      - description: Update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateNotiSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Update notification setting
       tags:
       - account
   /accounts/{id_account}/password/:
@@ -1215,6 +1382,82 @@ paths:
       summary: Export accounts to CSV
       tags:
       - account
+  /accounts/posts:
+    get:
+      description: Get a paginated list of posts created by the authenticated account.
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Post'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get posts by account ID
+      tags:
+      - Posts
+  /accounts/saved-posts:
+    get:
+      description: Get a paginated list of posts saved by the authenticated account.
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Post'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get saved posts
+      tags:
+      - Posts
   /admin/items/:
     get:
       description: Get a paginated list of all items with optional filters for search,
@@ -2572,7 +2815,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Register to an event by event ID.
+      description: Register to an event by event ID. If the event is paid, it returns
+        a Stripe checkout URL unless already paid.
       parameters:
       - description: Event registration payload
         in: body
@@ -2583,8 +2827,14 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: Stripe checkout URL returned
+          schema:
+            $ref: '#/definitions/models.EventRegistrationResponse'
         "201":
           description: Registered successfully
+          schema:
+            $ref: '#/definitions/models.EventRegistrationResponse'
         "400":
           description: Invalid request payload or event conditions not met
         "401":
@@ -3087,6 +3337,30 @@ paths:
       summary: Login
       tags:
       - auth
+  /payments/verify/:
+    post:
+      consumes:
+      - application/json
+      description: Verify if a Stripe checkout session has been paid.
+      parameters:
+      - description: Stripe session ID
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.VerifyPaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment verification result
+          schema:
+            $ref: '#/definitions/models.VerifyPaymentResponse'
+        "400":
+          description: Invalid payload or session
+      summary: Verify Stripe payment session
+      tags:
+      - payment
   /posts:
     get:
       description: Get a paginated list of all posts with filters for search, category,
@@ -3305,6 +3579,42 @@ paths:
       summary: Get post comments
       tags:
       - Posts
+    post:
+      consumes:
+      - application/json
+      description: Create a new comment on a post.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      - description: Comment content
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Add a comment to a post
+      tags:
+      - comment
   /posts/{id_post}/delete:
     patch:
       description: Delete a post by ID. Users can only delete their own posts unless
@@ -3335,6 +3645,68 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete a post
+      tags:
+      - Posts
+  /posts/{id_post}/like:
+    post:
+      description: Like or unlike a post. Returns the new like state.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Toggle like on a post
+      tags:
+      - Posts
+  /posts/{id_post}/save:
+    post:
+      description: Save or unsave a post. Returns the new save state.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Toggle save on a post
       tags:
       - Posts
   /posts/{id_post}/steps:
@@ -3402,6 +3774,33 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete a project step
+      tags:
+      - Posts
+  /posts/{id_post}/view:
+    post:
+      description: Increments the view counter of a post by 1.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Increment post view count
       tags:
       - Posts
   /posts/comments/{id_comment}/:
