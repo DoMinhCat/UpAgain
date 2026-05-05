@@ -313,7 +313,7 @@ export default function AccountTab() {
         </Button>
         <Button
           className="button"
-          data-variant="cta"
+          data-variant="primary"
           loading={updateAccount.isPending}
           size="lg"
           px={40}
