@@ -1,39 +1,14 @@
 import { Checkbox } from "@mantine/core";
-import { useState, useEffect } from "react";
+import { usePushNotificationStatus } from "../../hooks/notificationHooks";
 import { useTranslation } from "react-i18next";
 import OneSignal from "react-onesignal";
 import { useAuth } from "../../context/AuthContext";
 
 export default function EnableNotiCheckBox() {
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isBlocked, setIsBlocked] = useState(false);
+  const { isSubscribed, isBlocked, setIsBlocked, setIsSubscribed } =
+    usePushNotificationStatus();
   const { t } = useTranslation();
   const { user } = useAuth();
-
-  useEffect(() => {
-    const checkStatus = async () => {
-      // Check initial status
-      const status =
-        OneSignal.User.PushSubscription.optedIn &&
-        Notification.permission === "granted";
-      setIsSubscribed(status || false);
-
-      // Listen for changes (optional but recommended)
-      OneSignal.User.PushSubscription.addEventListener("change", (event) => {
-        setIsSubscribed(event.current.optedIn);
-      });
-    };
-
-    checkStatus();
-  }, []);
-
-  useEffect(() => {
-    if (Notification.permission === "denied") {
-      setIsBlocked(true);
-    } else {
-      setIsBlocked(false);
-    }
-  }, []);
 
   const togglePushNotifications = async () => {
     if (isBlocked) {

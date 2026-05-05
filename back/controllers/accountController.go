@@ -70,6 +70,12 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if role == "admin" {
 		roleToInsert = "employee"
 	}
+
+	err = db.InsertDefaultNotiSetting(id_inserted)
+	if err != nil {
+		slog.Error("InsertDefaultNotiSetting() failed", "controller", "CreateAccount", "error", err)
+	}
+
 	err = db.InsertHistory(roleToInsert, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
 	if err != nil {
 		slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
