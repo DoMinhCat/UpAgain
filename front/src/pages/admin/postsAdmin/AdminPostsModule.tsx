@@ -2,7 +2,6 @@ import {
   Container,
   Title,
   Button,
-  Modal,
   Group,
   Stack,
   TextInput,
@@ -15,7 +14,6 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { BarChart } from "@mantine/charts";
-import ImageDropzone from "../../../components/input/ImageDropzone";
 import {
   IconCalendarEventFilled,
   IconCalendarTime,
@@ -30,19 +28,13 @@ import {
 } from "../../../components/dashboard/AdminCardInfo";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { TextEditor } from "../../../components/input/TextEditor";
-import {
-  useCreatePost,
-  useDeletePost,
-  useGetAllPosts,
-  useGetPostsStats,
-} from "../../../hooks/postHooks";
+import { useGetAllPosts, useGetPostsStats } from "../../../hooks/postHooks";
 import { useState, useMemo } from "react";
-import { showSuccessNotification } from "../../../components/common/NotificationToast";
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import dayjs from "dayjs";
 import { CreatePostModal } from "../../../components/post/CreatePostModal";
+import { DeletePostModal } from "../../../components/post/DeletePostModal";
 import { PATHS } from "../../../routes/paths";
 import type { Post } from "../../../api/interfaces/post";
 import { useTranslation } from "react-i18next";
@@ -147,7 +139,6 @@ export const AdminPostsModule = () => {
   // DELETE POST
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure();
-  const deletePostMutation = useDeletePost();
   const [selectedDeletePost, setSelectedDeletePost] = useState<Post | null>(
     null,
   );
@@ -157,20 +148,6 @@ export const AdminPostsModule = () => {
     openDelete();
   };
 
-  const handleDeletePost = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedDeletePost?.id) {
-      deletePostMutation.mutate(selectedDeletePost.id, {
-        onSuccess: () => {
-          closeDelete();
-          showSuccessNotification(
-            t("posts.notifications.deleted_title"),
-            t("posts.notifications.deleted_msg"),
-          );
-        },
-      });
-    }
-  };
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
@@ -496,27 +473,11 @@ export const AdminPostsModule = () => {
           </Table.Tr>
         )}
       </AdminTable>
-      <Modal
-        title={t("posts.delete_modal.title")}
+      <DeletePostModal
         opened={openedDelete}
         onClose={closeDelete}
-      >
-        {t("posts.delete_modal.text")}
-        <Group mt="lg" justify="flex-end">
-          <Button onClick={closeDelete} variant="grey">
-            {t("posts.delete_modal.cancel")}
-          </Button>
-          <Button
-            onClick={(e) => {
-              handleDeletePost(e);
-            }}
-            variant="delete"
-            loading={deletePostMutation.isPending}
-          >
-            {t("posts.delete_modal.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+        postId={selectedDeletePost?.id ?? null}
+      />
     </Container>
   );
 };
