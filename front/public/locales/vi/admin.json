@@ -174,7 +174,10 @@
     "edit_modal": {
       "title": "Chỉnh sửa tài khoản",
       "submit": "Cập nhật",
-      "cancel": "Hủy bỏ"
+      "cancel": "Hủy bỏ",
+      "username": "Tên người dùng",
+      "email": "Email",
+      "phone": "Số điện thoại"
     },
     "errors": {
       "username_required": "Tên người dùng là bắt buộc nha",
