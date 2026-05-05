@@ -303,6 +303,7 @@ export default function AccountTab() {
         <Button
           size="lg"
           fw={700}
+          disabled={updateAccount.isPending}
           c="dimmed"
           variant="secondary"
           onClick={handleDiscard}
@@ -312,6 +313,7 @@ export default function AccountTab() {
         <Button
           className="button"
           data-variant="cta"
+          loading={updateAccount.isPending}
           size="lg"
           px={40}
           onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleSave(e)}
