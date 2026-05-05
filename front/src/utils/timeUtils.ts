@@ -1,8 +1,6 @@
-import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-// 1. Time computation helper
-export function getTimeAgo(dateString: string) {
-  const { t } = useTranslation("common");
+export function getTimeAgo(dateString: string, t: TFunction) {
   const now = new Date();
   const past = new Date(dateString);
   const diffInMs = now.getTime() - past.getTime();
@@ -11,9 +9,9 @@ export function getTimeAgo(dateString: string) {
   const diffInHours = Math.floor(diffInMins / 60);
   const diffInDays = Math.floor(diffInHours / 24);
 
-  if (diffInMins < 1) return t("time.just_now");
-  if (diffInMins < 60) return t("time.minutes_ago", { count: diffInMins });
-  if (diffInHours < 24) return t("time.hours_ago", { count: diffInHours });
-  if (diffInDays === 1) return t("time.yesterday");
-  return t("time.days_ago", { count: diffInDays });
+  if (diffInMins < 1) return t("common:time.just_now");
+  if (diffInMins < 60) return t("common:time.minutes_ago", { count: diffInMins });
+  if (diffInHours < 24) return t("common:time.hours_ago", { count: diffInHours });
+  if (diffInDays === 1) return t("common:time.yesterday");
+  return t("common:time.days_ago", { count: diffInDays });
 }

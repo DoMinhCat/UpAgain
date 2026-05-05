@@ -16,6 +16,7 @@ import {
   useComputedColorScheme,
   Center,
 } from "@mantine/core";
+import DOMPurify from "dompurify";
 import { Carousel } from "@mantine/carousel";
 import { useState } from "react";
 import {
@@ -430,7 +431,7 @@ export default function EventDetailPage() {
                     <div
                       style={{ lineHeight: 1.6, fontSize: "1.05rem" }}
                       dangerouslySetInnerHTML={{
-                        __html: event.description,
+                        __html: DOMPurify.sanitize(event.description),
                       }}
                     />
                   </Stack>

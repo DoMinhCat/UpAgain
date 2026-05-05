@@ -1,5 +1,6 @@
-import { Center, Loader, Table, Text } from "@mantine/core";
+import { Center, Loader, ScrollArea, Table, Text } from "@mantine/core";
 import type React from "react";
+import { useState } from "react";
 
 export interface AdminTableProps {
   header: string[];
@@ -16,16 +17,28 @@ export default function AdminTable({
   loading,
   error,
 }: AdminTableProps) {
+  const [scrolled, setScrolled] = useState(false);
   return (
-    <Table.ScrollContainer minWidth={600} mx="0" maxHeight={600}>
+    <ScrollArea
+      h={"70vh"}
+      onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
+    >
       <Table
+        stickyHeader
         verticalSpacing="sm"
         striped
         highlightOnHover
         style={{ width: "100%", maxWidth: "none" }}
         onLoad={loading ? () => {} : undefined}
       >
-        <Table.Thead>
+        <Table.Thead
+          style={{
+            backgroundColor: "var(--mantine-color-body)",
+            zIndex: 1,
+            boxShadow: scrolled ? "var(--mantine-shadow-sm)" : "none",
+            transition: "box-shadow 150ms ease",
+          }}
+        >
           <Table.Tr>
             {header.map((title, index) => (
               <Table.Th ta="center" key={index}>
@@ -59,6 +72,6 @@ export default function AdminTable({
 
         {footer && <Table.Caption mt="md">{footer}</Table.Caption>}
       </Table>
-    </Table.ScrollContainer>
+    </ScrollArea>
   );
 }

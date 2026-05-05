@@ -1,17 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  AddComment,
   CreatePost,
   DeleteComment,
   DeletePost,
   DeleteProjectStep,
   GetAllPosts,
+  GetMyPosts,
   GetPostComments,
   GetPostDetails,
   GetPostsStats,
   GetProjectStepsByPostId,
+  GetSavedPosts,
+  GetUserPostComments,
+  GetUserPostDetails,
+  GetUserPosts,
+  IncrementPostView,
+  LikeComment,
+  LikePost,
+  SavePost,
   UpdatePost,
 } from "../api/postModule";
-import type { PostsListPagination } from "../api/interfaces/post";
+import type {
+  AddCommentPayload,
+  PostsListPagination,
+} from "../api/interfaces/post";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
@@ -40,6 +53,7 @@ export const useCreatePost = () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["myPosts"] });
     },
   });
 };
@@ -74,6 +88,7 @@ export const useDeletePost = () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["myPosts"] });
       showSuccessNotification(
         "Post deleted",
         "The post has been deleted successfully.",
@@ -107,6 +122,8 @@ export const useUpdatePost = (id_post: number) => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
         "Post updated",
@@ -144,7 +161,9 @@ export const useDeleteComment = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postComments"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostComments"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
         "Comment deleted",
@@ -186,6 +205,161 @@ export const useDeleteProjectStep = () => {
         "Project step deleted",
         "The project step has been deleted successfully.",
       );
+    },
+  });
+};
+
+// --- User-facing hooks ---
+
+export const useGetUserPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+  sort?: string,
+  search?: string,
+) => {
+  return useQuery<PostsListPagination>({
+    queryKey: ["userPosts", page, limit, category, sort, search],
+    queryFn: () => GetUserPosts(page, limit, category, sort, search),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch posts.",
+    },
+  });
+};
+
+export const useGetUserPostDetails = (id_post: number, enabled: boolean) => {
+  return useQuery({
+    queryKey: ["userPostDetails", id_post],
+    queryFn: () => GetUserPostDetails(id_post),
+    staleTime: STALE_TIME,
+    enabled,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch post.",
+    },
+  });
+};
+
+export const useGetUserPostComments = (
+  id_post: number,
+  enabled: boolean,
+  page?: number,
+  limit?: number,
+) => {
+  return useQuery({
+    queryKey: ["userPostComments", id_post, page, limit],
+    queryFn: () => GetUserPostComments(id_post, page, limit),
+    staleTime: STALE_TIME,
+    enabled,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch comments.",
+    },
+  });
+};
+
+export const useLikePost = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_post: number) => LikePost(id_post),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to like post.",
+    },
+    onSuccess: (_, id_post) => {
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+    },
+  });
+};
+
+export const useSavePost = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_post: number) => SavePost(id_post),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to save post.",
+    },
+    onSuccess: (_, id_post) => {
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
+    },
+  });
+};
+
+export const useIncrementPostView = () => {
+  return useMutation({
+    mutationFn: (id_post: number) => IncrementPostView(id_post),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to track view.",
+    },
+  });
+};
+
+export const useAddComment = (id_post: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: AddCommentPayload) => AddComment(id_post, payload),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to post comment.",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["userPostComments", id_post],
+      });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+    },
+  });
+};
+
+export const useLikeComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_comment: number) => LikeComment(id_comment),
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to like comment.",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userPostComments"] });
+    },
+  });
+};
+
+export const useGetSavedPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+) => {
+  return useQuery({
+    queryKey: ["savedPosts", page, limit, category],
+    queryFn: () => GetSavedPosts(page, limit, category),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch saved posts.",
+    },
+  });
+};
+
+export const useGetMyPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+) => {
+  return useQuery({
+    queryKey: ["myPosts", page, limit, category],
+    queryFn: () => GetMyPosts(page, limit, category),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "Error",
+      errorMessage: "Failed to fetch my posts.",
     },
   });
 };

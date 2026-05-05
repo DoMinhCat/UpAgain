@@ -211,6 +211,7 @@ export default function AdminUsersModule() {
       setPhoneEditError(null);
       return true;
     }
+    return true;
   };
 
   const validateRoleNew = (val: string) => {
@@ -328,6 +329,7 @@ export default function AdminUsersModule() {
     const emailErr = validateEmailEdit(emailEdit);
     const phoneErr = validatePhoneEdit(phoneEdit);
     if (!userErr || !emailErr || !phoneErr) {
+      console.log(userErr, emailErr, phoneErr);
       return;
     }
     if (selectedEditAcc?.id) {
@@ -595,7 +597,10 @@ export default function AdminUsersModule() {
                   value: "most_recent_registration",
                   label: t("users.sort.recent_reg"),
                 },
-                { value: "oldest_registration", label: t("users.sort.oldest_reg") },
+                {
+                  value: "oldest_registration",
+                  label: t("users.sort.oldest_reg"),
+                },
                 {
                   value: "most_recent_last_active",
                   label: t("users.sort.recent_active"),

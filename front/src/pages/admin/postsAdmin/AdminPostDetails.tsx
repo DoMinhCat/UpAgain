@@ -6,24 +6,18 @@ import {
   Text,
   Badge,
   Group,
-  TextInput,
   Button,
   Box,
   Modal,
-  Paper,
-  Tooltip,
   Divider,
-  Select,
   Card,
   SimpleGrid,
-  Avatar,
-  ActionIcon,
   Anchor,
-  Timeline,
   Loader,
   Center,
   NumberInput,
 } from "@mantine/core";
+import DOMPurify from "dompurify";
 import { useLocation, useNavigate } from "react-router-dom";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useDisclosure } from "@mantine/hooks";
@@ -35,28 +29,26 @@ import {
   IconBookmark,
   IconMessageCircle,
   IconUser,
-  IconTrash,
-  IconHeartFilled,
   IconRouteSquare,
-  IconLink,
   IconCrownFilled,
 } from "@tabler/icons-react";
-import { TextEditor } from "../../../components/input/TextEditor";
-import ImageDropzone from "../../../components/input/ImageDropzone";
 import {
   useDeleteComment,
-  useDeletePost,
   useDeleteProjectStep,
   useGetPostComments,
   useGetPostDetails,
   useGetProjectStepsByPostId,
-  useUpdatePost,
 } from "../../../hooks/postHooks";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
+import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
+import { EditPostModal } from "../../../components/post/EditPostModal";
+import { DeletePostModal } from "../../../components/post/DeletePostModal";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
+import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimeline";
+import CommentCard from "../../../components/post/CommentCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
 import {
@@ -64,6 +56,7 @@ import {
   useDeleteAds,
   useUpdateAds,
 } from "../../../hooks/adsHooks";
+import type { Step } from "../../../api/interfaces/step";
 import { useTranslation } from "react-i18next";
 
 export const AdminPostDetails = () => {
@@ -93,110 +86,10 @@ export const AdminPostDetails = () => {
   // EDIT
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
-  const [fileEdit, setFileEdit] = useState<any[]>([]);
-  const [titleEdit, setTitleEdit] = useState<string>("");
-  const [categoryEdit, setCategoryEdit] = useState<string>("");
-  const [descriptionEdit, setDescriptionEdit] = useState<string>("");
-  const [errorTitle, setErrorTitle] = useState<string>("");
-  const [errorCategory, setErrorCategory] = useState<string>("");
-  const [errorDescription, setErrorDescription] = useState<string>("");
-
-  const validateTitleEdit = () => {
-    if (!titleEdit || titleEdit.trim() === "") {
-      setErrorTitle(t("posts.edit_modal.errors.title"));
-      return false;
-    }
-    setErrorTitle("");
-    return true;
-  };
-
-  const validateCategoryEdit = () => {
-    if (!categoryEdit || categoryEdit.trim() === "") {
-      setErrorCategory(t("posts.edit_modal.errors.category"));
-      return false;
-    }
-    setErrorCategory("");
-    return true;
-  };
-
-  const validateDescriptionEdit = () => {
-    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
-    if (!descriptionEdit || stripped === "") {
-      setErrorDescription(t("posts.edit_modal.errors.description"));
-      return false;
-    }
-    setErrorDescription("");
-    return true;
-  };
-
-  const handleOpenEdit = () => {
-    if (postDetails) {
-      setTitleEdit(postDetails.title || "");
-      setCategoryEdit(postDetails.category || "");
-      setDescriptionEdit(postDetails.content || "");
-      const files = postDetails.photos?.map((path) => {
-        return {
-          path: path,
-        };
-      });
-      setFileEdit(files || []);
-    }
-    openEdit();
-  };
-
-  const handleCloseEdit = () => {
-    setErrorTitle("");
-    setErrorCategory("");
-    setErrorDescription("");
-    closeEdit();
-  };
-
-  const updatePostMutate = useUpdatePost(postId);
-
-  const handleEdit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (postDetails) {
-      const isValidTitle = validateTitleEdit();
-      const isValidCategory = validateCategoryEdit();
-      const isValidDescription = validateDescriptionEdit();
-      if (!isValidTitle || !isValidCategory || !isValidDescription) {
-        return;
-      }
-      const formData = new FormData();
-      formData.append("title", titleEdit);
-      formData.append("category", categoryEdit);
-      formData.append("content", descriptionEdit);
-      fileEdit.forEach((obj) => {
-        if (obj instanceof File) {
-          formData.append("new_images", obj);
-        } else if (obj.path) {
-          formData.append("existing_images", obj.path);
-        }
-      });
-      updatePostMutate.mutate(formData, {
-        onSuccess: () => {
-          closeEdit();
-        },
-      });
-    }
-  };
 
   // DELETE POST
-  const deletePostMutate = useDeletePost();
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure(false);
-
-  const handleDelete = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (postDetails) {
-      deletePostMutate.mutate(postDetails.id, {
-        onSuccess: () => {
-          closeDelete();
-          navigate("/admin/posts");
-        },
-      });
-    }
-  };
 
   // DELETE COMMENT
   const [idCommentToDelete, setIdCommentToDelete] = useState<number | null>(
@@ -211,8 +104,7 @@ export const AdminPostDetails = () => {
     openDeleteComment();
   };
   const deleteComment = useDeleteComment();
-  const handleDeleteComment = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDeleteComment = () => {
     if (idCommentToDelete) {
       deleteComment.mutate(idCommentToDelete, {
         onSuccess: () => {
@@ -483,7 +375,7 @@ export const AdminPostDetails = () => {
               </Text>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: postDetails?.content ?? "",
+                  __html: DOMPurify.sanitize(postDetails?.content ?? ""),
                 }}
               />
 
@@ -520,100 +412,13 @@ export const AdminPostDetails = () => {
                       <Loader />
                     </Center>
                   ) : (
-                    <Timeline mt="xl" lineWidth={4} active={1} bulletSize={24}>
-                      {projectSteps?.map((step, index) => (
-                        <Timeline.Item
-                          key={step.id}
-                          title={
-                            <Group
-                              justify="space-between"
-                              align="flex-start"
-                              wrap="nowrap"
-                            >
-                              <Stack gap={2}>
-                                <Text fw={700} size="lg">
-                                  {index + 1}. {step.title}
-                                </Text>
-                                <Text c="dimmed" size="xs">
-                                  {dayjs(step.created_at).format(
-                                    "DD/MM/YYYY HH:mm A",
-                                  )}
-                                </Text>
-                              </Stack>
-
-                              <Tooltip
-                                label={t("posts.details.delete_step_tooltip")}
-                                position="left"
-                              >
-                                <ActionIcon
-                                  variant="subtle"
-                                  color="red"
-                                  onClick={() => {
-                                    handleOpenDeleteStep(step.id);
-                                  }}
-                                  size="lg"
-                                >
-                                  <IconTrash size={20} stroke={1.5} />
-                                </ActionIcon>
-                              </Tooltip>
-                            </Group>
-                          }
-                        >
-                          {/* Body Content */}
-                          <Box mt="md">
-                            <div
-                              dangerouslySetInnerHTML={{
-                                __html: step.description,
-                              }}
-                            />
-                          </Box>
-
-                          {/* Media Section */}
-                          <Box mt="lg">
-                            <PhotosCarousel
-                              photos={step.photos}
-                              initialSlide={0}
-                              slidesToScroll={
-                                (step.photos?.length ?? 0) > 1 ? 3 : 1
-                              }
-                            />
-                          </Box>
-
-                          {/* Metadata/Assets Section */}
-                          <Stack gap="xs" mt="xl" p="sm">
-                            <Text size="sm" fw={700} c="dimmed" tt="uppercase">
-                              {t("posts.details.items_used")}
-                            </Text>
-                            <Group gap="sm">
-                              <IconLink
-                                size={14}
-                                color="var(--mantine-color-dimmed)"
-                              />
-                              {step.items.map((item) => (
-                                <Anchor
-                                  key={item.id}
-                                  size="sm"
-                                  fw={500}
-                                  style={{
-                                    color: "var(--component-color-primary)",
-                                  }}
-                                  onClick={() =>
-                                    navigate(`/admin/listings/${item.id}`, {
-                                      state: {
-                                        from: "postDetails",
-                                        id_post: postDetails?.id,
-                                      },
-                                    })
-                                  }
-                                >
-                                  {item.title}
-                                </Anchor>
-                              ))}
-                            </Group>
-                          </Stack>
-                        </Timeline.Item>
-                      ))}
-                    </Timeline>
+                    <ProjectStepTimeline
+                      role="admin"
+                      enableDeleteStep={true}
+                      projectSteps={projectSteps as Step[]}
+                      onDeleteStep={handleOpenDeleteStep}
+                      postId={postDetails?.id}
+                    />
                   )}
                 </>
               )}
@@ -650,81 +455,14 @@ export const AdminPostDetails = () => {
                 <Text>{t("posts.details.no_comments")}</Text>
               ) : (
                 comments?.comments.map((comment) => (
-                  <Stack gap="sm" key={comment.id}>
-                    <Paper
-                      withBorder
-                      p="md"
-                      radius="md"
-                      shadow="xs"
-                      variant="primary"
-                    >
-                      <Group align="flex-start" wrap="nowrap">
-                        <Avatar
-                          src={
-                            comment.id_account != 0
-                              ? `${import.meta.env.VITE_API_BASE_URL}/${comment.user_avatar}`
-                              : null
-                          }
-                          alt={
-                            comment.id_account != 0
-                              ? comment.user_name
-                              : t("posts.details.anonymous")
-                          }
-                          radius="xl"
-                          size="lg"
-                        />
-
-                        <Stack gap="xs" style={{ flex: 1 }}>
-                          <Group justify="space-between">
-                            <Box>
-                              <Text size="sm" fw={700}>
-                                {comment.id_account != 0
-                                  ? comment.user_name
-                                  : t("posts.details.anonymous")}
-                              </Text>
-                              <Text size="xs" c="dimmed">
-                                {dayjs(comment.created_at).format("DD/MM/YYYY")}{" "}
-                                • {dayjs(comment.created_at).format("HH:mm A")}
-                              </Text>
-                            </Box>
-                          </Group>
-
-                          <Text size="sm">{comment.content}</Text>
-                        </Stack>
-
-                        <Divider orientation="vertical" />
-
-                        {/* Admin Stats & Actions Column */}
-                        <Stack align="center" gap="sm">
-                          <Tooltip
-                            label={t("posts.details.delete_comment_tooltip")}
-                            position="left"
-                          >
-                            <ActionIcon
-                              variant="subtle"
-                              color="red"
-                              onClick={() =>
-                                handleOpenDeleteComment(comment.id)
-                              }
-                              size="lg"
-                            >
-                              <IconTrash size={20} stroke={1.5} />
-                            </ActionIcon>
-                          </Tooltip>
-
-                          <Stack gap={2} align="center">
-                            <IconHeartFilled
-                              size={18}
-                              color="var(--mantine-color-red-6)"
-                            />
-                            <Text size="xs" fw={700} c="dimmed">
-                              {comment.like_count}
-                            </Text>
-                          </Stack>
-                        </Stack>
-                      </Group>
-                    </Paper>
-                  </Stack>
+                  <CommentCard
+                    key={comment.id}
+                    comment={comment}
+                    onDelete={handleOpenDeleteComment}
+                    enableDelete={true}
+                    role="admin"
+                    isDeleting={deleteComment.isPending}
+                  />
                 ))
               )}
             </Stack>
@@ -809,7 +547,7 @@ export const AdminPostDetails = () => {
 
               {/* Footer Actions */}
               <Group mt="xl" grow>
-                <Button variant="edit" onClick={handleOpenEdit}>
+                <Button variant="edit" onClick={openEdit}>
                   {t("posts.details.edit_post")}
                 </Button>
                 <Button variant="delete" onClick={openDelete}>
@@ -835,136 +573,26 @@ export const AdminPostDetails = () => {
                 ) : null}
               </Group>
 
-              <Modal
-                title={t("posts.edit_modal.title")}
+              <EditPostModal
                 opened={openedEdit}
                 onClose={closeEdit}
-                centered
-                size="xl"
-              >
-                <Stack>
-                  <TextInput
-                    data-autofocus
-                    withAsterisk
-                    label={t("posts.edit_modal.title_label")}
-                    value={titleEdit}
-                    onChange={(e) => {
-                      setTitleEdit(e.target.value);
-                    }}
-                    error={errorTitle}
-                    onBlur={() => validateTitleEdit()}
-                    disabled={updatePostMutate.isPending}
-                    required
-                  />
-                  <Select
-                    withAsterisk
-                    clearable
-                    label={t("posts.edit_modal.category_label")}
-                    value={categoryEdit}
-                    error={errorCategory}
-                    onBlur={() => validateCategoryEdit()}
-                    data={[
-                      {
-                        value: "tutorial",
-                        label: t("posts.categories.tutorial"),
-                      },
-                      {
-                        value: "project",
-                        label: t("posts.categories.project"),
-                      },
-                      { value: "tips", label: t("posts.categories.tips") },
-                      { value: "news", label: t("posts.categories.news") },
-                      {
-                        value: "case_study",
-                        label: t("posts.categories.case_study"),
-                      },
-                      { value: "other", label: t("posts.categories.other") },
-                    ]}
-                    onChange={(value) => {
-                      setCategoryEdit(value as string);
-                    }}
-                  />
-                  <TextEditor
-                    label={t("posts.edit_modal.description_label")}
-                    value={descriptionEdit}
-                    onChange={(value) => {
-                      setDescriptionEdit(value);
-                    }}
-                    error={errorDescription ?? ""}
-                  />
-                  <ImageDropzone
-                    loading={updatePostMutate.isPending}
-                    files={fileEdit}
-                    setFiles={setFileEdit}
-                  />
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={handleCloseEdit} variant="grey">
-                    {t("common:actions.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleEdit(e);
-                    }}
-                    variant="primary"
-                    loading={updatePostMutate.isPending || isLoadingPostDetails}
-                  >
-                    {t("common:actions.confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+                postDetails={postDetails}
+                postId={postId}
+              />
 
-              <Modal
-                title={t("posts.delete_post_modal.title")}
+              <DeletePostModal
                 opened={openedDelete}
                 onClose={closeDelete}
-                centered
-                size="md"
-              >
-                <Stack>
-                  <Text>{t("posts.delete_post_modal.text")}</Text>
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={closeDelete} variant="grey">
-                    {t("common:actions.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleDelete(e);
-                    }}
-                    variant="delete"
-                    loading={deletePostMutate.isPending || isLoadingPostDetails}
-                  >
-                    {t("common:actions.confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+                postId={postId}
+                onSuccess={() => navigate("/admin/posts")}
+              />
 
-              <Modal
-                title={t("posts.delete_comment_modal.title")}
+              <DeleteCommentModal
                 opened={openedDeleteComment}
                 onClose={closeDeleteComment}
-                centered
-                size="md"
-              >
-                <Stack>
-                  <Text>{t("posts.delete_comment_modal.text")}</Text>
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={closeDeleteComment} variant="grey">
-                    {t("common:actions.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleDeleteComment(e);
-                    }}
-                    variant="delete"
-                    loading={deleteComment.isPending}
-                  >
-                    {t("common:actions.confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+                onConfirm={handleDeleteComment}
+                loading={deleteComment.isPending}
+              />
 
               {/* Add sponsor status modal */}
               <Modal
@@ -1088,7 +716,6 @@ export const AdminPostDetails = () => {
         title={t("posts.delete_step_modal.title")}
         opened={openedDeleteStep}
         onClose={closeDeleteStep}
-        centered
         size="md"
       >
         <Stack>

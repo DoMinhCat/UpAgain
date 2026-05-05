@@ -20,6 +20,7 @@ import {
 import { useTranslation, Trans } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAccountDetails } from "../../hooks/accountHooks";
+import { useLikePost, useSavePost } from "../../hooks/postHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { useAuth } from "../../context/AuthContext";
 import { ScoreRing } from "../../components/score/ScoreRing";
@@ -41,6 +42,9 @@ export default function UserHome() {
   // GET ACCOUNT INFO
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);
+
+  const { mutateAsync: likePostAsync } = useLikePost();
+  const { mutateAsync: savePostAsync } = useSavePost();
   // const magicNumberWater = 4500;
   // const magicNumberElectricity = 820;
   // const calculatedWater = ((accountDetails?.totalWaterSaved || 0) / (accountDetails?.totalWaterSaved ?? 1 + magicNumberWater)) * 100;
@@ -429,7 +433,7 @@ export default function UserHome() {
                     className="button"
                     data-variant="secondary"
                     size="sm"
-                    onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+                    onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                   >
                     {t("user.manage.guides_projects")}
                   </Button>
@@ -437,7 +441,7 @@ export default function UserHome() {
                     className="button"
                     data-variant="secondary"
                     size="sm"
-                    onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+                    onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                   >
                     {t("user.manage.workshops_events")}
                   </Button>
@@ -491,6 +495,7 @@ export default function UserHome() {
                       {/* We display max 2 posts to keep the layout clean */}
                       {POST_MOCK.slice(0, 2).map((post) => (
                         <PostCard
+                          currentRole={user?.role || ""}
                           key={post.id}
                           title={post.title}
                           description={post.description}
@@ -501,6 +506,10 @@ export default function UserHome() {
                           postedTime={post.postedTime}
                           views={post.views}
                           likes={post.likes}
+                          isLiked={false}
+                          isSaved={false}
+                          onLike={() => likePostAsync(Number(post.id) || 0)}
+                          onSave={() => savePostAsync(Number(post.id) || 0)}
                         />
                       ))}
                     </SimpleGrid>
@@ -525,7 +534,7 @@ export default function UserHome() {
                 variant="secondary"
                 className="button"
                 data-variant="secondary"
-                onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+                onClick={() => navigate(PATHS.USER.POSTS.ALL)}
                 fullWidth
               >
                 {t("user.community.discover_topics")}

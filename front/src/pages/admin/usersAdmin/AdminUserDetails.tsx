@@ -173,6 +173,7 @@ export default function AdminUserDetails() {
       setPhoneEditError(null);
       return true;
     }
+    return true;
   };
 
   // Fetch account info to display
@@ -292,7 +293,7 @@ export default function AdminUserDetails() {
   };
 
   const editMutation = useUpdateAccount();
-  const handleEditAccount = async (e: React.FormEvent) => {
+  const handleEditAccount = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (
       !validateUsernameEdit(usernameEdit) ||
@@ -309,10 +310,8 @@ export default function AdminUserDetails() {
           phone: phoneEdit,
         },
         {
-          onSuccess: (response: any) => {
-            if (response?.status === 204) {
-              closeEdit();
-            }
+          onSuccess: () => {
+            closeEdit();
           },
         },
       );
@@ -362,7 +361,9 @@ export default function AdminUserDetails() {
                         href: PATHS.ADMIN.POSTS,
                       },
                       {
-                        title: t("posts.details.title", { defaultValue: "Post's Details" }),
+                        title: t("posts.details.title", {
+                          defaultValue: "Post's Details",
+                        }),
                         href: PATHS.ADMIN.POSTS + "/" + origin?.id_post,
                       },
                     ]
@@ -389,11 +390,15 @@ export default function AdminUserDetails() {
                       : origin?.from === "SubscriptionDetails"
                         ? [
                             {
-                              title: t("subscription.title", { defaultValue: "Subscription Management" }),
+                              title: t("subscription.title", {
+                                defaultValue: "Subscription Management",
+                              }),
                               href: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
                             },
                             {
-                              title: t("subscription.details.title", { defaultValue: "Subscription's Details" }),
+                              title: t("subscription.details.title", {
+                                defaultValue: "Subscription's Details",
+                              }),
                               href:
                                 PATHS.ADMIN.SUBSCRIPTIONS.ALL +
                                 "/" +
@@ -516,7 +521,9 @@ export default function AdminUserDetails() {
           </InfoField>
           <InfoField label={t("users.details.fields.phone")}>
             <Text ps="sm" mt="xs" mb="xl">
-              {accountDetails?.phone ? accountDetails?.phone : t("users.details.fields.n_a")}
+              {accountDetails?.phone
+                ? accountDetails?.phone
+                : t("users.details.fields.n_a")}
             </Text>
           </InfoField>
         </Paper>
@@ -538,7 +545,10 @@ export default function AdminUserDetails() {
               </InfoField>
               {role == "user" && (
                 <>
-                  <InfoField label={t("users.details.fields.total_deposits")} mt="xl">
+                  <InfoField
+                    label={t("users.details.fields.total_deposits")}
+                    mt="xl"
+                  >
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
@@ -588,7 +598,10 @@ export default function AdminUserDetails() {
 
               {role == "employee" && (
                 <>
-                  <InfoField label={t("users.details.fields.total_events")} mt="xl">
+                  <InfoField
+                    label={t("users.details.fields.total_events")}
+                    mt="xl"
+                  >
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
@@ -638,7 +651,10 @@ export default function AdminUserDetails() {
               )}
               {role == "pro" && (
                 <>
-                  <InfoField label={t("users.details.fields.total_listings_purchased")} mt="xl">
+                  <InfoField
+                    label={t("users.details.fields.total_listings_purchased")}
+                    mt="xl"
+                  >
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
@@ -655,7 +671,9 @@ export default function AdminUserDetails() {
                       </Text>
                     )}
                   </InfoField>
-                  <InfoField label={t("users.details.fields.total_deposits_purchased")}>
+                  <InfoField
+                    label={t("users.details.fields.total_deposits_purchased")}
+                  >
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
@@ -737,7 +755,10 @@ export default function AdminUserDetails() {
                 <Box ps="sm" mb="xl">
                   <Group gap="xs">
                     <Text c="dimmed" my="xs">
-                      {t("users.edit_modal.title", { defaultValue: "Modify account's username, contact information, etc." })}
+                      {t("users.edit_modal.title", {
+                        defaultValue:
+                          "Modify account's username, contact information, etc.",
+                      })}
                     </Text>
                     {role === "admin" && accountId != user?.id && (
                       <Tooltip
@@ -779,7 +800,9 @@ export default function AdminUserDetails() {
                     <PasswordStrengthInput
                       w="50%"
                       variant="body-color"
-                      placeholder={t("users.details.modals.password_placeholder")}
+                      placeholder={t(
+                        "users.details.modals.password_placeholder",
+                      )}
                       value={password}
                       disabled={
                         isPendingPasswordUpdate ||
@@ -800,7 +823,9 @@ export default function AdminUserDetails() {
                       w="50%"
                       mt="xs"
                       value={confirmPassword}
-                      placeholder={t("users.details.modals.password_confirm_placeholder")}
+                      placeholder={t(
+                        "users.details.modals.password_confirm_placeholder",
+                      )}
                       onChange={(event) => {
                         const value = event.currentTarget.value;
                         setConfirmPassword(value);
@@ -814,6 +839,7 @@ export default function AdminUserDetails() {
                       required
                     />
                     <Button
+                      variant="edit"
                       mt="xs"
                       onClick={openChangePassword}
                       disabled={
@@ -832,10 +858,15 @@ export default function AdminUserDetails() {
                       onClose={closeChangePassword}
                       title={t("users.details.modals.password_title")}
                     >
-                      {t("users.details.modals.password_text", { defaultValue: "Are you sure you change password for this account? The old password will be replaced by the new one." })}
+                      {t("users.details.modals.password_text", {
+                        defaultValue:
+                          "Are you sure you change password for this account? The old password will be replaced by the new one.",
+                      })}
                       <Group mt="lg" justify="flex-end">
                         <Button onClick={closeChangePassword} variant="grey">
-                          {t("common:actions.cancel", { defaultValue: "Cancel" })}
+                          {t("common:actions.cancel", {
+                            defaultValue: "Cancel",
+                          })}
                         </Button>
                         <Button
                           onClick={handleChangePassword}
@@ -849,7 +880,13 @@ export default function AdminUserDetails() {
                   </form>
                 </Box>
               </InfoField>
-              <InfoField label={is_banned ? t("users.details.actions.unban") : t("users.details.actions.ban")}>
+              <InfoField
+                label={
+                  is_banned
+                    ? t("users.details.actions.unban")
+                    : t("users.details.actions.ban")
+                }
+              >
                 <Box ps="sm" mb="xl">
                   <Group gap="xs">
                     <Text c="dimmed" my="xs">
@@ -861,7 +898,9 @@ export default function AdminUserDetails() {
                       accountId != user?.id &&
                       !is_banned && (
                         <Tooltip
-                          label={t("users.details.tooltips.ban_admin", { defaultValue: "Cannot ban an admin" })}
+                          label={t("users.details.tooltips.ban_admin", {
+                            defaultValue: "Cannot ban an admin",
+                          })}
                           closeDelay={200}
                           transitionProps={{ transition: "pop", duration: 300 }}
                         >
@@ -874,7 +913,9 @@ export default function AdminUserDetails() {
                     onClick={openBan}
                     disabled={role === "admin" || isPendingToggleBan}
                   >
-                    {!is_banned ? t("users.details.actions.ban") : t("users.details.actions.unban")}
+                    {!is_banned
+                      ? t("users.details.actions.ban")
+                      : t("users.details.actions.unban")}
                   </Button>
                 </Box>
               </InfoField>
@@ -909,7 +950,11 @@ export default function AdminUserDetails() {
         </Paper>
       </Container>
       {/* // modal delete */}
-      <Modal opened={openedDelete} onClose={closeDelete} title={t("users.details.modals.delete_title")}>
+      <Modal
+        opened={openedDelete}
+        onClose={closeDelete}
+        title={t("users.details.modals.delete_title")}
+      >
         {t("users.details.modals.delete_text")}
         <Group mt="lg" justify="flex-end">
           <Button onClick={closeDelete} variant="grey">
@@ -931,7 +976,11 @@ export default function AdminUserDetails() {
       <Modal
         opened={openedBan}
         onClose={closeBan}
-        title={!is_banned ? t("users.details.modals.ban_title") : t("users.details.modals.unban_title")}
+        title={
+          !is_banned
+            ? t("users.details.modals.ban_title")
+            : t("users.details.modals.unban_title")
+        }
       >
         {!is_banned
           ? t("users.details.modals.ban_text")
@@ -945,7 +994,9 @@ export default function AdminUserDetails() {
             variant={!is_banned ? "delete" : "primary"}
             loading={isPendingToggleBan}
           >
-            {!is_banned ? t("users.details.actions.ban") : t("users.details.actions.unban")}
+            {!is_banned
+              ? t("users.details.actions.ban")
+              : t("users.details.actions.unban")}
           </Button>
         </Group>
       </Modal>
@@ -971,7 +1022,7 @@ export default function AdminUserDetails() {
         </Group>
       </Modal>
 
-      {/* // edit modal */}
+      {/* edit modal */}
       <Modal
         title={t("users.edit_modal.title")}
         opened={openedEdit}
@@ -1040,7 +1091,10 @@ export default function AdminUserDetails() {
         size="lg"
         title={
           <Text fw={700}>
-            {t("users.details.modals.calendar_title", { username: accountDetails?.username, defaultValue: `${accountDetails?.username}'s work schedule` })}
+            {t("users.details.modals.calendar_title", {
+              username: accountDetails?.username,
+              defaultValue: `${accountDetails?.username}'s work schedule`,
+            })}
           </Text>
         }
         opened={openedCalendar}
