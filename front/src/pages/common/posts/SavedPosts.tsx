@@ -124,10 +124,7 @@ export default function SavedPosts() {
                 key={post.id}
                 title={post.title}
                 description={post.content}
-                image={
-                  post.photos?.[0] ??
-                  "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c"
-                }
+                image={post.photos?.[0] ?? ""}
                 category={post.category}
                 authorName={post.creator}
                 authorAvatar=""

@@ -42,6 +42,7 @@ import { showSuccessNotification } from "../../../components/common/Notification
 import AdminTable from "../../../components/admin/AdminTable";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import dayjs from "dayjs";
+import { CreatePostModal } from "../../../components/post/CreatePostModal";
 import { PATHS } from "../../../routes/paths";
 import type { Post } from "../../../api/interfaces/post";
 import { useTranslation } from "react-i18next";
@@ -96,84 +97,6 @@ export const AdminPostsModule = () => {
   // CREATE MODAL
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
-  const [files, setFiles] = useState<any[]>([]);
-  const [title, setTitle] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [errorTitle, setErrorTitle] = useState<string>("");
-  const [errorCategory, setErrorCategory] = useState<string>("");
-  const [errorDescription, setErrorDescription] = useState<string>("");
-
-  const validateTitle = () => {
-    if (!title) {
-      setErrorTitle(t("posts.create_modal.errors.title"));
-      return false;
-    } else {
-      setErrorTitle("");
-      return true;
-    }
-  };
-  const validateCategory = () => {
-    if (!category) {
-      setErrorCategory(t("posts.create_modal.errors.category"));
-      return false;
-    } else if (category === "project") {
-      setErrorCategory(t("posts.create_modal.errors.category_project"));
-      return false;
-    } else {
-      setErrorCategory("");
-      return true;
-    }
-  };
-  const validateDescription = () => {
-    const stripped = description.replace(/<[^>]*>/g, "").trim();
-    if (!description || stripped === "") {
-      setErrorDescription(t("posts.create_modal.errors.description"));
-      return false;
-    } else {
-      setErrorDescription("");
-      return true;
-    }
-  };
-
-  const handleCloseCreate = () => {
-    setErrorTitle("");
-    setErrorCategory("");
-    setErrorDescription("");
-    setFiles([]);
-    setTitle("");
-    setCategory("");
-    setDescription("");
-    closeCreate();
-  };
-
-  const createPostMutation = useCreatePost();
-  const handleCreatePost = (e: React.FormEvent) => {
-    e.preventDefault();
-    validateTitle();
-    validateCategory();
-    validateDescription();
-    if (errorTitle || errorCategory || errorDescription) {
-      return;
-    }
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("category", category);
-    formData.append("content", description);
-    files.forEach((file) => {
-      formData.append("images", file);
-    });
-    createPostMutation.mutate(formData, {
-      onSuccess: () => {
-        showSuccessNotification(
-          t("posts.notifications.created_title"),
-          t("posts.notifications.created_msg"),
-        );
-        handleCloseCreate();
-      },
-    });
-  };
-
   // GET ALL POSTS
   const [filters, setFilters] = useState<{
     searchValue: string | undefined;
@@ -360,92 +283,7 @@ export const AdminPostsModule = () => {
             </Button>
 
             {/* create modal */}
-            <Modal
-              opened={openedCreate}
-              onClose={handleCloseCreate}
-              title={t("posts.create_modal.title")}
-              size="xl"
-            >
-              <Stack mb="md">
-                <TextInput
-                  data-autofocus
-                  withAsterisk
-                  placeholder={t("posts.create_modal.title_placeholder")}
-                  label={t("posts.create_modal.title_label")}
-                  value={title}
-                  onChange={(e) => {
-                    setTitle(e.target.value);
-                  }}
-                  onBlur={() => validateTitle()}
-                  error={errorTitle}
-                  disabled={createPostMutation.isPending}
-                  required
-                />
-                <Grid>
-                  <Grid.Col span={{ base: 12, md: 6 }}></Grid.Col>
-                  <Grid.Col span={{ base: 12, md: 6 }}></Grid.Col>
-                </Grid>
-                <Select
-                  withAsterisk
-                  clearable
-                  label={t("posts.create_modal.category_label")}
-                  value={category}
-                  disabled={createPostMutation.isPending}
-                  placeholder={t("posts.create_modal.category_placeholder")}
-                  error={errorCategory}
-                  onBlur={() => validateCategory()}
-                  data={[
-                    {
-                      value: "tutorial",
-                      label: t("posts.categories.tutorial"),
-                    },
-                    { value: "tips", label: t("posts.categories.tips") },
-                    { value: "news", label: t("posts.categories.news") },
-                    {
-                      value: "case_study",
-                      label: t("posts.categories.case_study"),
-                    },
-                    {
-                      value: "project",
-                      label: t("posts.categories.project"),
-                      disabled: true,
-                    },
-                    { value: "other", label: t("posts.categories.other") },
-                  ]}
-                  onChange={(value) => {
-                    setCategory(value as string);
-                  }}
-                />
-                <TextEditor
-                  label={t("posts.create_modal.content_label")}
-                  value={description}
-                  placeholder={t("posts.create_modal.content_placeholder")}
-                  error={errorDescription}
-                  onChange={(value) => {
-                    setDescription(value);
-                  }}
-                />
-              </Stack>
-              <ImageDropzone
-                loading={createPostMutation.isPending}
-                files={files}
-                setFiles={setFiles}
-              />
-              <Group mt="lg" justify="center">
-                <Button variant="grey" onClick={handleCloseCreate}>
-                  {t("posts.create_modal.cancel", { defaultValue: "Cancel" })}
-                </Button>
-                <Button
-                  onClick={(e) => {
-                    handleCreatePost(e);
-                  }}
-                  loading={createPostMutation.isPending}
-                  variant="primary"
-                >
-                  {t("common:actions.confirm")}
-                </Button>
-              </Group>
-            </Modal>
+            <CreatePostModal opened={openedCreate} onClose={closeCreate} />
           </Group>
         </Group>
         {/* filter options */}
