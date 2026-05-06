@@ -61,6 +61,20 @@
     "emp_event_updated": "Assigned Event Updated",
     "emp_event_assigned": "New Event Assigned"
   },
+  "billings": {
+    "title": "Billing & Subscriptions",
+    "subtitle": "Manage your payment methods and invoices",
+    "table": {
+      "date": "Date",
+      "type": "Type",
+      "description": "Description",
+      "details": "Details",
+      "amount": "Amount",
+      "actions": "Actions",
+      "no_invoices": "No invoices found"
+    },
+    "download_tooltip": "Download Invoice"
+  },
   "users": {
     "errors": {
       "username_required": "Username is required",

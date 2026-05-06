@@ -12,12 +12,12 @@ const Profile = () => {
     // Render component based on role
     switch (user.role) {
       // TODO:
-      // case "pro":
-      //   return <ProProfilePage />;
       // case "admin":
       //   return <AdminProfilePage />;
       // case "employee":
       //   return <EmployeeProfilePage />;
+      case "pro":
+        return <UserProfilePage />;
       case "user":
         return <UserProfilePage />;
       default:
