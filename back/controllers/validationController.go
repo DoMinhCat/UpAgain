@@ -4,7 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	helper "backend/utils/helper"
+	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -72,7 +72,7 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 
 	employeeID := claims.Id
 
-	payload, newStatus, err := helper.ParseValidationPayload(r)
+	payload, newStatus, err := helpers.ParseValidationPayload(r)
 	if err != nil {
 		slog.Error("ParseValidationPayload failed", "controller", "ProcessListingValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
@@ -144,7 +144,7 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, newStatus, err := helper.ParseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal
+	_, newStatus, err := helpers.ParseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal
 	if err != nil {
 		slog.Error("ParseValidationPayload failed", "controller", "ProcessDepositValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
@@ -223,7 +223,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, newStatus, err := helper.ParseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
+	_, newStatus, err := helpers.ParseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
 	if err != nil {
 		slog.Error("ParseValidationPayload failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
@@ -278,7 +278,7 @@ func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
+	page, limit, filters, err := helpers.ParsePaginationAndFilters(r)
 	if err != nil {
 		slog.Error("ParsePaginationAndFilters failed", "controller", "GetItemsHistory", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
@@ -292,7 +292,7 @@ func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := helper.BuildPaginatedResult(page, limit, total)
+	result := helpers.BuildPaginatedResult(page, limit, total)
 	result["items"] = items
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }

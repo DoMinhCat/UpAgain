@@ -300,6 +300,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
               <Menu.Divider />
               <Menu.Item
                 leftSection={<IconLogout size={14} />}
+                color="red"
                 onClick={() => {
                   handleLogout();
                   if (onLinkClick) onLinkClick();

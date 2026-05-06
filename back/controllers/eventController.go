@@ -4,7 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	"backend/utils/helper"
+	helpers "backend/utils/helpers"
 	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
 	"encoding/json"
@@ -275,7 +275,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	// Handle files
 	files := r.MultipartForm.File["images"]
 	for _, file := range files {
-		path, err := helper.SaveUploadedFile(file, "images/events")
+		path, err := helpers.SaveUploadedFile(file, "images/events")
 		if err != nil {
 			slog.Error("SaveUploadedFile() failed", "controller", "CreateEvent", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
@@ -909,7 +909,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// db.UpdateEventByEventId handles the database side; here we only manage physical files + build final list to insert into db
-	finalImages, delErrs, err := helper.ProcessPhotoUpdate("images/events", currentImages, keepImages, newImg)
+	finalImages, delErrs, err := helpers.ProcessPhotoUpdate("images/events", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateEventByEventId", "error", delErr)
 	}

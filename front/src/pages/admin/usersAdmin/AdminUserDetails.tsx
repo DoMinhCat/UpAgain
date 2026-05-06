@@ -45,12 +45,17 @@ import {
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
-import PasswordStrengthInput, {
-  requirements,
-} from "../../../components/input/PasswordStrengthInput";
+import PasswordStrengthInput from "../../../components/input/PasswordStrengthInput";
 import { IconLock, IconInfoCircleFilled } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuth } from "../../../context/AuthContext";
+import {
+  validateConfirmPassword,
+  validateEmail,
+  validatePassword,
+  validatePhone,
+  validateUsername,
+} from "../../../utils/accountValidation";
 
 export default function AdminUserDetails() {
   const { t } = useTranslation("admin");
@@ -92,88 +97,34 @@ export default function AdminUserDetails() {
   const [disablePhoneEdit, setDisablePhoneEdit] = useState<boolean>(false);
 
   //validations
-  const validatePassword = (val: string) => {
-    if (!val) {
-      setPasswordError(t("users.errors.password_required"));
-      return false;
-    }
-    if (val.length < 12) {
-      setPasswordError(t("users.errors.password_min"));
-      return false;
-    }
-    if (val.length > 60) {
-      setPasswordError(t("users.errors.password_max"));
-      return false;
-    }
-    if (!requirements.every((requirement) => requirement.re.test(val))) {
-      setPasswordError(t("users.errors.password_complexity"));
-      return false;
-    }
-    setPasswordError(null);
-    return true;
+  const handleValidatePassword = (val: string) => {
+    const error = validatePassword(val, t);
+    setPasswordError(error);
+    return error === null;
   };
 
-  const validateConfirmPassword = (val: string) => {
-    if (!val) {
-      setConfirmPasswordError(t("users.errors.confirm_required"));
-      return false;
-    } else if (val !== password) {
-      setConfirmPasswordError(t("users.errors.confirm_mismatch"));
-      return false;
-    }
-    setConfirmPasswordError(null);
-    return true;
+  const handleValidateConfirmPassword = (val: string) => {
+    const error = validateConfirmPassword(val, password, t);
+    setConfirmPasswordError(error);
+    return error === null;
   };
 
-  const validateUsernameEdit = (val: string) => {
-    if (!val) {
-      setUsernameEditError(t("users.errors.username_required"));
-      return false;
-    }
-    if (val.length < 4) {
-      setUsernameEditError(t("users.errors.username_min"));
-      return false;
-    }
-    if (val.length > 20) {
-      setUsernameEditError(t("users.errors.username_max"));
-      return false;
-    }
-    setUsernameEditError(null);
-    return true;
+  const handleValidateUsernameEdit = (val: string) => {
+    const error = validateUsername(val, t);
+    setUsernameEditError(error);
+    return error === null;
   };
 
-  const validateEmailEdit = (val: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!val) {
-      setEmailEditError(t("users.errors.email_required"));
-      return false;
-    }
-    if (!regex.test(val)) {
-      setEmailEditError(t("users.errors.email_invalid"));
-      return false;
-    }
-    setEmailEditError(null);
-    return true;
+  const handleValidateEmailEdit = (val: string) => {
+    const error = validateEmail(val, t);
+    setEmailEditError(error);
+    return error === null;
   };
 
-  const validatePhoneEdit = (val: string) => {
-    if (val.length !== 0) {
-      if (!val.match(/^[0-9]+$/)) {
-        setPhoneEditError(t("users.errors.phone_numbers_only"));
-        return false;
-      }
-      if (val.length < 10) {
-        setPhoneEditError(t("users.errors.phone_min"));
-        return false;
-      }
-      if (val.length > 15) {
-        setPhoneEditError(t("users.errors.phone_max"));
-        return false;
-      }
-      setPhoneEditError(null);
-      return true;
-    }
-    return true;
+  const handleValidatePhoneEdit = (val: string) => {
+    const error = validatePhone(val, t);
+    setPhoneEditError(error);
+    return error === null;
   };
 
   // Fetch account info to display
@@ -236,11 +187,13 @@ export default function AdminUserDetails() {
   const { mutate: mutatePasswordUpdate, isPending: isPendingPasswordUpdate } =
     useUpdatePassword();
 
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = (
+    e: React.MouseEvent<HTMLButtonElement> | React.SubmitEvent,
+  ) => {
     e.preventDefault();
     if (
-      !validatePassword(password) ||
-      !validateConfirmPassword(confirmPassword)
+      !handleValidatePassword(password) ||
+      !handleValidateConfirmPassword(confirmPassword)
     )
       return;
 
@@ -296,9 +249,9 @@ export default function AdminUserDetails() {
   const handleEditAccount = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (
-      !validateUsernameEdit(usernameEdit) ||
-      !validateEmailEdit(emailEdit) ||
-      !validatePhoneEdit(phoneEdit)
+      !handleValidateUsernameEdit(usernameEdit) ||
+      !handleValidateEmailEdit(emailEdit) ||
+      !handleValidatePhoneEdit(phoneEdit)
     )
       return;
     if (accountId) {
@@ -796,7 +749,9 @@ export default function AdminUserDetails() {
                       </Tooltip>
                     )}
                   </Group>
-                  <form onSubmit={handleChangePassword}>
+                  <form
+                    onSubmit={(e: React.SubmitEvent) => handleChangePassword(e)}
+                  >
                     <PasswordStrengthInput
                       w="50%"
                       variant="body-color"
@@ -812,7 +767,7 @@ export default function AdminUserDetails() {
                       onChange={(event) => {
                         const value = event.currentTarget.value;
                         setPassword(value);
-                        validatePassword(value);
+                        handleValidatePassword(value);
                       }}
                       error={passwordError}
                       required
@@ -829,7 +784,7 @@ export default function AdminUserDetails() {
                       onChange={(event) => {
                         const value = event.currentTarget.value;
                         setConfirmPassword(value);
-                        validateConfirmPassword(value);
+                        handleValidateConfirmPassword(value);
                       }}
                       disabled={
                         isPendingPasswordUpdate ||
@@ -869,7 +824,9 @@ export default function AdminUserDetails() {
                           })}
                         </Button>
                         <Button
-                          onClick={handleChangePassword}
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                            handleChangePassword(e)
+                          }
                           variant="edit"
                           loading={isPendingPasswordUpdate}
                         >
@@ -1038,9 +995,9 @@ export default function AdminUserDetails() {
             placeholder={t("users.edit_modal.username")}
             onChange={(e) => {
               setUsernameEdit(e.target.value);
-              validateUsernameEdit(e.target.value);
+              handleValidateUsernameEdit(e.target.value);
             }}
-            onBlur={() => validateUsernameEdit(usernameEdit)}
+            onBlur={() => handleValidateUsernameEdit(usernameEdit)}
             error={usernameEditError}
             required
           />
@@ -1051,9 +1008,9 @@ export default function AdminUserDetails() {
             placeholder={t("users.edit_modal.email")}
             onChange={(e) => {
               setEmailEdit(e.target.value);
-              validateEmailEdit(e.target.value);
+              handleValidateEmailEdit(e.target.value);
             }}
-            onBlur={() => validateEmailEdit(emailEdit)}
+            onBlur={() => handleValidateEmailEdit(emailEdit)}
             error={emailEditError}
             required
           />
@@ -1063,9 +1020,9 @@ export default function AdminUserDetails() {
             placeholder={t("users.edit_modal.phone")}
             onChange={(e) => {
               setPhoneEdit(e.target.value);
-              validatePhoneEdit(e.target.value);
+              handleValidatePhoneEdit(e.target.value);
             }}
-            onBlur={() => validatePhoneEdit(phoneEdit)}
+            onBlur={() => handleValidatePhoneEdit(phoneEdit)}
             error={phoneEditError}
             disabled={disablePhoneEdit}
           />

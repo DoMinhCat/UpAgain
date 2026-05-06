@@ -7,6 +7,7 @@ import { useRegisterToEvent } from "./eventHooks";
 import {
   showSuccessNotification,
   showErrorNotification,
+  showInfoNotification,
 } from "../components/common/NotificationToast";
 import { useTranslation } from "react-i18next";
 
@@ -77,13 +78,11 @@ export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
         },
       );
     } else if (status === "cancelled" || status === "cancel") {
-      showErrorNotification(
+      showInfoNotification(
         t("events:detail.register_cancelled_title", {
           defaultValue: "Registration cancelled",
         }),
-        t("events:detail.register_cancelled_msg", {
-          defaultValue: "Payment was cancelled",
-        }),
+        t("events:detail.register_cancelled_msg"),
       );
       searchParams.delete("payment");
       searchParams.delete("sessionid");
