@@ -18,6 +18,7 @@ import EventPlanning from "../pages/common/event/EventPlanning";
 import PostsPage from "../pages/common/posts/PostsPage";
 import MyPosts from "../pages/common/posts/MyPosts";
 import SavedPosts from "../pages/common/posts/SavedPosts";
+import MartketPage from "../pages/common/market/MarketPage";
 
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -98,6 +99,10 @@ export const userRoutes: RouteObject = {
       ],
     },
     { path: "profile", element: <Profile /> },
+    {
+      path: "marketplace",
+      children: [{ index: true, element: <MartketPage /> }],
+    },
     {
       path: "events",
       children: [
