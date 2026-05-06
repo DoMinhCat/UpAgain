@@ -61,6 +61,20 @@
     "emp_event_updated": "Sự kiện được giao đã cập nhật",
     "emp_event_assigned": "Sự kiện mới được giao"
   },
+  "billings": {
+    "title": "Thanh toán & Đăng ký",
+    "subtitle": "Quản lý phương thức thanh toán và hóa đơn của bạn",
+    "table": {
+      "date": "Ngày",
+      "type": "Loại",
+      "description": "Mô tả",
+      "details": "Chi tiết",
+      "amount": "Số tiền",
+      "actions": "Hành động",
+      "no_invoices": "Không tìm thấy hóa đơn"
+    },
+    "download_tooltip": "Tải hóa đơn"
+  },
   "users": {
     "errors": {
       "username_required": "Tên người dùng là bắt buộc",

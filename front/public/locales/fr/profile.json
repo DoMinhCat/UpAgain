@@ -61,6 +61,20 @@
     "emp_event_updated": "Événement assigné mis à jour",
     "emp_event_assigned": "Nouvel événement assigné"
   },
+  "billings": {
+    "title": "Facturation & Abonnements",
+    "subtitle": "Gérez vos modes de paiement et vos factures",
+    "table": {
+      "date": "Date",
+      "type": "Type",
+      "description": "Description",
+      "details": "Détails",
+      "amount": "Montant",
+      "actions": "Actions",
+      "no_invoices": "Aucune facture trouvée"
+    },
+    "download_tooltip": "Télécharger la facture"
+  },
   "users": {
     "errors": {
       "username_required": "Le nom d'utilisateur est requis",
