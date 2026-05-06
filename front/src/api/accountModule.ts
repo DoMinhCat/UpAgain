@@ -66,7 +66,8 @@ export const getAccountStats = async (
 };
 
 export const updateAccount = async (payload: updateAccountPayload) => {
-  return await api.patch(ENDPOINTS.ADMIN.USERS.UPDATE(payload.id_account), {
+  return await api.patch(ENDPOINTS.ADMIN.USERS.UPDATE(payload.id), {
+    id: payload.id,
     username: payload.username,
     email: payload.email,
     phone: payload.phone,
@@ -82,5 +83,18 @@ export const getExportAccountsCsv = async () => {
   const response = await api.get(ENDPOINTS.ADMIN.USERS.EXPORT_CSV, {
     responseType: "blob",
   });
+  return response.data;
+};
+
+export const updateAvatar = async (id_account: number, payload: FormData) => {
+  const response = await api.patch(
+    ENDPOINTS.ACCOUNTS.UPDATE_AVATAR(id_account),
+    payload,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
   return response.data;
 };

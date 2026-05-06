@@ -10,6 +10,7 @@ import {
   getAccountStats,
   updateAccount,
   getAccountCountStats,
+  updateAvatar,
 } from "../api/accountModule";
 import {
   type Account,
@@ -206,7 +207,7 @@ export const useUpdateAccount = () => {
         "Account updated successfully.",
       );
       queryClient.invalidateQueries({
-        queryKey: ["accountDetails", variables.id_account],
+        queryKey: ["accountDetails", variables.id],
       });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
@@ -223,5 +224,25 @@ export const useAccountCountStats = () => {
       errorMessage: "Could not load account count stats",
     },
     staleTime: 1000 * 60, // refresh data every 1m
+  });
+};
+
+export const useUpdateAvatar = (account_id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: FormData) => updateAvatar(account_id, payload),
+    meta: {
+      errorTitle: "Avatar update failed",
+      errorMessage: "Could not update the avatar",
+    },
+    onSuccess: () => {
+      showSuccessNotification(
+        "Avatar updated",
+        "Your avatar has been updated successfully.",
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["accountDetails", account_id],
+      });
+    },
   });
 };

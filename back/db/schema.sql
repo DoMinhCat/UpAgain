@@ -35,13 +35,18 @@ CREATE INDEX idx_account_role ON account (role);
 
 -- syntax: [account type]_[entity]_[action/event]
 CREATE TYPE noti_setting AS ENUM (
-    'user_object_status', -- deposit/listing posted by user is bough/reserved/cancelled reservation by pro
+    -- for users:
+    'user_object_status', -- deposit/listing posted by user is bought/reserved/cancelled reservation by pro
     'user_validation_status', --deposit/posting posted by user is validated by admin
     'user_object_retrieved', -- object in container retrieved by pro
-    'user_event_updated', -- my event is updated by admin
+    'user_event_updated', -- my event is updated
+    'user_code_expiring', -- my code to deposit is expiring in 24h
+    -- for pros:
     'pro_material_available', --custom alert for new deposit/listing matching chosen material(s)
     'pro_object_deposited', -- object put in container by user
     'pro_subscription_end', -- premium subscription ending in 1 week
+    'pro_code_expiring', -- my code to retrieve object is expiring in 24h
+    -- for employees:
     'emp_event_updated', -- my event is updated by admin
     'emp_event_assigned' -- new event assigned to me by admin
     );
@@ -114,7 +119,7 @@ create table event_registrations
 
 create table event_employee
 (
-		assigned_at timestamptz not null       default now(),
+	assigned_at timestamptz not null       default now(),
     id_employee integer references employees (id_account) on delete restrict,
     id_event    integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_employee)

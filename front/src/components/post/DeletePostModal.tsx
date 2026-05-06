@@ -1,7 +1,6 @@
 import { Modal, Group, Button, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useDeletePost } from "../../hooks/postHooks";
-import { showSuccessNotification } from "../common/NotificationToast";
 
 interface DeletePostModalProps {
   opened: boolean;

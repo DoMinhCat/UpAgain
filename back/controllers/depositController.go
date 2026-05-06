@@ -4,7 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	"backend/utils/helper"
+	helpers "backend/utils/helpers"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -237,7 +237,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	finalPhotos, delErrs, err := helper.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
+	finalPhotos, delErrs, err := helpers.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateDepositByDepositId", "error", delErr)
 	}
@@ -291,7 +291,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 // @Failure      500     {object}  nil                     "Internal server error"
 // @Router       /admin/validations/deposits/ [get]
 func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
-	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
+	page, limit, filters, err := helpers.ParsePaginationAndFilters(r)
 	if err != nil {
 		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingDepositsAdmin", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
@@ -305,7 +305,7 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := helper.BuildPaginatedResult(page, limit, total)
+	result := helpers.BuildPaginatedResult(page, limit, total)
 	result["deposits"] = deposits
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }

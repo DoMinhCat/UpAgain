@@ -1,0 +1,97 @@
+{
+  "account": {
+    "title": "Paramètres du compte",
+    "subtitle": "Gérez vos informations de profil",
+    "update_avatar": "Mettre à jour l'avatar",
+    "personal_details": "Informations personnelles",
+    "joined_on": "Inscrit le",
+    "username": "Nom d'utilisateur",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "statistics": "Statistiques",
+    "upcycling_points": "Points d'upcycling",
+    "deposits_posted": "Dépôts en conteneur postés",
+    "deposit_posted": "dépôt en conteneur posté",
+    "deposits_posted_plural": "dépôts en conteneur postés",
+    "listings_posted": "Annonces postées",
+    "listing_posted": "annonce postée",
+    "listings_posted_plural": "annonces postées",
+    "discard_changes": "Annuler les modifications",
+    "save_changes": "Enregistrer les modifications",
+    "modal_avatar_title": "Mettre à jour l'avatar",
+    "modal_avatar_confirm": "Confirmer",
+    "modal_avatar_cancel": "Annuler"
+  },
+  "security": {
+    "title": "Paramètres de sécurité",
+    "subtitle": "Gérez votre e-mail et votre mot de passe pour sécuriser votre compte",
+    "sensitive_info": "Informations sensibles",
+    "email_address": "Adresse e-mail",
+    "email_description": "La mise à jour de votre adresse e-mail modifiera votre façon de vous connecter.",
+    "change_password": "Changer le mot de passe",
+    "password_description": "Assurez-vous que votre compte utilise un mot de passe long et aléatoire pour rester en sécurité.",
+    "new_password": "Nouveau mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "update_password": "Mettre à jour le mot de passe"
+  },
+  "preferences": {
+    "title": "Préférences",
+    "subtitle": "Gérez vos paramètres de notification et vos préférences d'affichage",
+    "push_notifications": "Notifications Push",
+    "push_notifications_desc": "Activez les notifications push pour recevoir des mises à jour en temps réel sur votre appareil.",
+    "notification_types": "Types de notifications",
+    "notification_types_desc": "Choisissez les événements pour lesquels vous souhaitez être notifié.",
+    "display_settings": "Paramètres d'affichage",
+    "display_settings_desc": "Personnalisez l'apparence de votre application.",
+    "theme": "Thème",
+    "language": "Langue",
+    "dark_mode": "Mode sombre",
+    "light_mode": "Mode clair"
+  },
+  "notifications": {
+    "user_object_status": "Mise à jour du statut de l'objet",
+    "user_validation_status": "Mise à jour du statut de validation",
+    "user_object_retrieved": "Objet récupéré",
+    "user_event_updated": "Événement mis à jour",
+    "user_code_expiring": "Code expirant (24h)",
+    "pro_material_available": "Nouveau matériau disponible",
+    "pro_object_deposited": "Objet déposé",
+    "pro_subscription_end": "Fin d'abonnement proche",
+    "pro_code_expiring": "Code de récupération expirant",
+    "emp_event_updated": "Événement assigné mis à jour",
+    "emp_event_assigned": "Nouvel événement assigné"
+  },
+  "billings": {
+    "title": "Facturation & Abonnements",
+    "subtitle": "Gérez vos modes de paiement et vos factures",
+    "table": {
+      "date": "Date",
+      "type": "Type",
+      "description": "Description",
+      "details": "Détails",
+      "amount": "Montant",
+      "actions": "Actions",
+      "no_invoices": "Aucune facture trouvée"
+    },
+    "download_tooltip": "Télécharger la facture"
+  },
+  "users": {
+    "errors": {
+      "username_required": "Le nom d'utilisateur est requis",
+      "username_min": "Le nom d'utilisateur doit comporter au moins 4 caractères",
+      "username_max": "Le nom d'utilisateur doit comporter au maximum 20 caractères",
+      "email_required": "L'e-mail est requis",
+      "email_invalid": "Format d'e-mail invalide",
+      "password_required": "Le mot de passe est requis",
+      "password_min": "Le mot de passe doit comporter au moins 12 caractères",
+      "password_max": "Le mot de passe doit comporter au maximum 60 caractères",
+      "password_complexity": "Le mot de passe doit contenir au moins un chiffre, une lettre majuscule et un caractère spécial",
+      "confirm_required": "La confirmation du mot de passe est requise",
+      "confirm_mismatch": "Les mots de passe ne correspondent pas",
+      "phone_numbers_only": "Le numéro de téléphone ne doit contenir que des chiffres",
+      "phone_min": "Le téléphone doit comporter au moins 10 caractères",
+      "phone_max": "Le téléphone doit comporter au maximum 15 caractères",
+      "role_required": "Le rôle est requis"
+    }
+  }
+}
