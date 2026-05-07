@@ -391,6 +391,10 @@
     color: var(--mantine-color-violet-1);
     background-color: var(--mantine-color-violet-6);
   }
+  &[data-variant="cyan"] {
+    color: var(--mantine-color-cyan-1);
+    background-color: var(--mantine-color-cyan-6);
+  }
   &[data-variant="gradient"] {
     background: linear-gradient(45deg, #45a575, #e3b23c);
     color: #fff;
