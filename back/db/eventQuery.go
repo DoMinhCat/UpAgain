@@ -9,10 +9,10 @@ import (
 )
 
 // get total money user spent on events
-func GetTotalEventSpendingsById(id int) (int, error) {
-	var total int
+func GetTotalEventSpendingsById(id int) (float64, error) {
+	var total float64
 	query := `
-		select COALESCE(SUM(e.price),0) as total_spent from events e
+		select COALESCE(SUM(e.price),0)::float8 from events e
 		join event_registrations er on e.id = er.id_event
 		join users u on er.id_account = u.id_account
 		where e.price is not null and er.status!='cancelled' and u.id_account=$1;
@@ -21,7 +21,7 @@ func GetTotalEventSpendingsById(id int) (int, error) {
 	row := utils.Conn.QueryRow(query, id)
 	err := row.Scan(&total)
 	if err != nil {
-		return 0, fmt.Errorf("GetTotalEventSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetTotalEventSpendingsById() failed: %v", err.Error())
 	}
 
 	return total, nil
