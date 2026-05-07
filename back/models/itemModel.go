@@ -24,6 +24,7 @@ type Item struct {
 	Price       float64   `json:"price"`
 	Status      string    `json:"status"`
 	Photos      []string  `json:"images"`
+	Score       int       `json:"score"`
 }
 
 type ItemListPagination struct {

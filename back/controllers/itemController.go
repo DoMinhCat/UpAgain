@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	helpers "backend/utils/helpers"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -385,6 +386,15 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	item.Username = username
+
+	// calculate item score
+	score, err := helpers.CalculateScore(item.Material, item.Weight)
+	if err != nil {
+		slog.Error("CalculateScore() failed", "controller", "GetItemDetails", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
+		return
+	}
+	item.Score = score
 
 	utils.RespondWithJSON(w, http.StatusOK, item)
 }

@@ -4,8 +4,11 @@ import (
 	"backend/models"
 	"backend/utils"
 	"fmt"
+	"slices"
 	"time"
 )
+
+var MATERIALS = []string{"wood", "metal", "textile", "glass", "plastic", "mixed", "other"}
 
 func GetAllItemsHistory(page, limit int, filters models.ValidationFilters) ([]models.AllItemResponse, int, error) {
 	var params []interface{}
@@ -161,11 +164,11 @@ func GetValidationStats() (models.ValidationStats, error) {
 }
 
 func GetTotalWeightByMaterialByStatus(material string, status string) (float64, error) {
-	if material != "wood" && material != "metal" && material != "textile" && material != "glass" && material != "plastic" && material != "mixed" && material != "all" {
-		return 0, fmt.Errorf("invalid material")
-	}
 	if status != "pending" && status != "approved" && status != "refused" && status != "all" {
 		return 0, fmt.Errorf("invalid status")
+	}
+	if !slices.Contains(MATERIALS, material) && material != "all" {
+		return 0, fmt.Errorf("invalid material")
 	}
 	var totalWeight float64
 	var err error
@@ -317,11 +320,12 @@ func GetTotalItemsSince(date time.Time) (int, error) {
 }
 
 func GetTotalItemsByMaterialSince(material string, since *time.Time) (int, error) {
-	if material != "wood" && material != "metal" && material != "textile" && material != "glass" && material != "plastic" && material != "mixed" && material != "other" {
+	if !slices.Contains(MATERIALS, material) {
 		return 0, fmt.Errorf("invalid material")
 	}
 	var count int
 	var err error
+	
 	if since == nil {
 		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE material = $1 AND is_deleted = false", material).Scan(&count)
 	} else {
