@@ -105,7 +105,9 @@ export default function MyPosts() {
                 data={CATEGORIES}
                 size="sm"
               />
-              {(user?.role === "employee" || user?.role === "admin") && (
+              {(user?.role === "employee" ||
+                user?.role === "admin" ||
+                user?.role === "pro") && (
                 <Button onClick={openCreate} variant="cta-reverse">
                   {t("admin:posts.new_post")}
                 </Button>
