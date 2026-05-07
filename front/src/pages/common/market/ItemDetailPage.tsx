@@ -22,6 +22,7 @@ import {
   IconClock,
   IconCircleCheck,
   IconInfoCircle,
+  IconLeaf,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
@@ -43,7 +44,8 @@ import { NotFoundPage } from "../../error/404";
 export default function ItemDetailPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
   const theme = useComputedColorScheme("light");
-  const user = useAuth().user;
+  const { user } = useAuth();
+  const role = user?.role;
   const location = useLocation();
   const params = useParams();
   const id = params.id;
@@ -235,7 +237,7 @@ export default function ItemDetailPage() {
                 <Stack gap="md" mt={20}>
                   <Title order={3}>{t("marketplace:detail.key_info")}</Title>
                   <Grid>
-                    <Grid.Col span={{ base: 6, sm: 4 }}>
+                    <Grid.Col span={{ base: 6, sm: 3 }}>
                       <Paper
                         p="md"
                         radius="lg"
@@ -261,7 +263,7 @@ export default function ItemDetailPage() {
                         </Group>
                       </Paper>
                     </Grid.Col>
-                    <Grid.Col span={{ base: 6, sm: 4 }}>
+                    <Grid.Col span={{ base: 6, sm: 3 }}>
                       <Paper
                         p="md"
                         radius="lg"
@@ -289,7 +291,7 @@ export default function ItemDetailPage() {
                         </Group>
                       </Paper>
                     </Grid.Col>
-                    <Grid.Col span={{ base: 12, sm: 4 }}>
+                    <Grid.Col span={{ base: 6, sm: 3 }}>
                       <Paper
                         p="md"
                         radius="lg"
@@ -315,6 +317,32 @@ export default function ItemDetailPage() {
                                 ? t("marketplace:detail.retrieval.listing")
                                 : t("marketplace:detail.retrieval.deposit")}
                             </Text>
+                          </Stack>
+                        </Group>
+                      </Paper>
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 6, sm: 3 }}>
+                      <Paper
+                        p="md"
+                        radius="lg"
+                        withBorder
+                        variant="primary"
+                        h="100%"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Group gap="sm" wrap="nowrap" align="center">
+                          <IconLeaf
+                            size={24}
+                            color="var(--upagain-neutral-green)"
+                          />
+                          <Stack gap={0}>
+                            <Text size="xs" c="dimmed">
+                              Upcycling Score
+                            </Text>
+                            <Text fw={700}>{item.score}</Text>
                           </Stack>
                         </Group>
                       </Paper>
@@ -449,41 +477,70 @@ export default function ItemDetailPage() {
                     </Stack>
 
                     <Stack gap="sm">
-                      <Button
-                        size="lg"
-                        radius="md"
-                        variant="cta-reverse"
-                        fullWidth
-                        color="var(--upagain-neutral-green)"
-                        rightSection={<IconChevronRight size={18} />}
-                        onClick={handleAction}
-                      >
-                        {item.category === "listing"
-                          ? t("marketplace:detail.buy")
-                          : t("marketplace:detail.reserve")}
-                      </Button>
+                      {/* Buy and reserve for pro */}
+                      {role === "pro" && (
+                        <>
+                          <Button
+                            size="lg"
+                            variant="secondary"
+                            fullWidth
+                            color="var(--upagain-neutral-green)"
+                            onClick={handleAction}
+                            rightSection={<IconChevronRight size={18} />}
+                          >
+                            {t("marketplace:detail.reserve_now", {
+                              defaultValue: "Reserve now",
+                            })}
+                          </Button>
+                          <Button
+                            size="lg"
+                            radius="md"
+                            variant="cta-reverse"
+                            fullWidth
+                            color="var(--upagain-neutral-green)"
+                            rightSection={<IconChevronRight size={18} />}
+                            onClick={handleAction}
+                          >
+                            {t("marketplace:detail.buy")}
+                          </Button>
+                        </>
+                      )}
 
-                      {isListing && (
-                        <Button
-                          size="lg"
-                          variant="secondary"
-                          fullWidth
-                          color="var(--upagain-neutral-green)"
-                          onClick={handleAction}
-                        >
-                          {t("marketplace:detail.reserve_now", {
-                            defaultValue: "Reserve now",
-                          })}
-                        </Button>
+                      {/* Edit and delete for user */}
+                      {user?.id === item?.id_user && (
+                        <>
+                          <Button
+                            size="lg"
+                            variant="secondary"
+                            fullWidth
+                            color="var(--upagain-neutral-green)"
+                            onClick={handleAction}
+                          >
+                            {t("marketplace:detail.edit")}
+                          </Button>
+                          <Button
+                            size="lg"
+                            radius="md"
+                            variant="cta-reverse"
+                            fullWidth
+                            color="var(--upagain-neutral-green)"
+                            rightSection={<IconChevronRight size={18} />}
+                            onClick={handleAction}
+                          >
+                            {t("marketplace:detail.delete")}
+                          </Button>
+                        </>
                       )}
                     </Stack>
 
-                    <Text size="xs" c="dimmed" ta="center">
-                      {t("marketplace:detail.secure_transaction_note", {
-                        defaultValue:
-                          "Secure transaction guaranteed by UpAgain",
-                      })}
-                    </Text>
+                    {role === "pro" && (
+                      <Text size="xs" c="dimmed" ta="center">
+                        {t("marketplace:detail.secure_transaction_note", {
+                          defaultValue:
+                            "Secure transaction guaranteed by UpAgain",
+                        })}
+                      </Text>
+                    )}
                   </Stack>
                 </Paper>
               </Box>

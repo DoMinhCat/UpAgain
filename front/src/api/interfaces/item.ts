@@ -12,6 +12,7 @@ export interface Item {
   price: number;
   status: string;
   images?: string[];
+  score: number;
 }
 
 export interface ItemsListPagination {
