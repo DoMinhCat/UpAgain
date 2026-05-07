@@ -61,6 +61,7 @@ export const PATHS = {
     HOME: "/marketplace",
     LISTINGS: "/marketplace/listings",
     DEPOSITS: "/marketplace/deposits",
+    ME: "/marketplace/me",
   },
   EVENTS: {
     HOME: "/events",

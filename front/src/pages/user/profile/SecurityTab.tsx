@@ -144,7 +144,7 @@ export default function SecurityTab() {
                 onClick={handleUpdateEmail}
                 loading={updateAccountMutation.isPending}
                 disabled={email === accountDetails.email}
-                style={{ flex: 0, minWidth: 120 }}
+                style={{ flex: 0, minWidth: 150 }}
               >
                 {t("common:actions.update")}
               </Button>
