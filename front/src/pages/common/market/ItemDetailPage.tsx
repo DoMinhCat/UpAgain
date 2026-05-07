@@ -38,6 +38,7 @@ import DOMPurify from "dompurify";
 import { useGetListingDetails } from "../../../hooks/listingHooks";
 import { useGetDepositDetails } from "../../../hooks/depositHooks";
 import { showInfoNotification } from "../../../components/common/NotificationToast";
+import { NotFoundPage } from "../../error/404";
 
 export default function ItemDetailPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
@@ -83,11 +84,7 @@ export default function ItemDetailPage() {
   }
 
   if (!item) {
-    return (
-      <Container size="lg" py={120}>
-        <Text ta="center">{t("marketplace:empty.title")}</Text>
-      </Container>
-    );
+    return <NotFoundPage />;
   }
 
   return (
