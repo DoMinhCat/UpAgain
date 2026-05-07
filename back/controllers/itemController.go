@@ -5,10 +5,12 @@ import (
 	"backend/models"
 	"backend/utils"
 	helpers "backend/utils/helpers"
+	validations "backend/utils/validations"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -516,4 +518,64 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item status updated successfully."})
+}
+
+func CreateItem(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "pro" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	var payload models.ItemCreateRequest
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		slog.Error("Decode() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid JSON payload.")
+		return
+	}
+	payload.IdUser = idRequestor
+
+	// sanitize payload
+	payload.Title = strings.TrimSpace(payload.Title)
+	payload.Description = strings.TrimSpace(payload.Description)
+	payload.Category = strings.ToLower(strings.TrimSpace(payload.Category))
+	payload.Material = strings.ToLower(strings.TrimSpace(payload.Material))
+	payload.State = strings.ToLower(strings.TrimSpace(payload.State))
+
+	// validate payload
+	validation := validations.ValidateItemCreation(payload)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+		return
+	}
+
+	// call to db to insert into items
+	id_item, err := db.CreateItem(payload)
+	if err != nil {
+		slog.Error("CreateItem() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+		return
+	}
+
+	// insert into deposit or listing based on category
+	if payload.Category == "deposit" {
+		payload.DepositInfo.IdItem = id_item
+		err = db.CreateDeposit(payload.DepositInfo)
+		if err != nil {
+			slog.Error("CreateDeposit() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+	} else {
+		payload.ListingInfo.IdItem = id_item
+		err = db.CreateListing(payload.ListingInfo)
+		if err != nil {
+			slog.Error("CreateListing() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item created successfully."})
 }

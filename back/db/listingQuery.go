@@ -211,3 +211,11 @@ func UpdateListingById(listingID int, listing models.UpdateListingRequest) error
 	}
 	return nil
 }
+
+func CreateListing(listing models.CreateListingRequest) error {
+	_, err := utils.Conn.Exec("INSERT INTO listings (id_item, city_name, postal_code) VALUES ($1, $2, $3)", listing.IdItem, listing.CityName, listing.PostalCode)
+	if err != nil {
+		return err
+	}
+	return nil
+}

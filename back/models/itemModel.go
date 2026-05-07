@@ -27,6 +27,20 @@ type Item struct {
 	Score       int       `json:"score"`
 }
 
+type ItemCreateRequest struct {
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Price       float64   `json:"price"`
+	Weight      float64  `json:"weight"`
+	Material    string   `json:"material"`
+	State       string   `json:"state"`
+	Category    string   `json:"category"` // listing or deposit
+	Photos      []string  `json:"images"`
+	IdUser      int      `json:"id_user"`
+	ListingInfo CreateListingRequest `json:"listing_info"`
+	DepositInfo CreateDepositRequest `json:"deposit_info"`
+}
+
 type ItemListPagination struct {
 	Items        []Item `json:"items"`
 	CurrentPage  int    `json:"current_page"`
