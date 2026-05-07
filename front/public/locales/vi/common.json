@@ -118,10 +118,14 @@
     "deleted": "Đã xóa"
   },
   "event_categories": {
-    "workshop": "Hội thảo",
-    "conference": "Hội nghị",
-    "meetups": "Gặp gỡ",
     "exposition": "Triển lãm",
     "other": "Khác"
-  }
+  },
+  "states": {
+    "new": "Mới",
+    "very_good": "Rất tốt",
+    "good": "Tốt",
+    "need_repair": "Cần sửa chữa"
+  },
+  "free": "Miễn phí"
 }

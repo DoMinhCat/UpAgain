@@ -118,10 +118,14 @@
     "deleted": "Supprimé"
   },
   "event_categories": {
-    "workshop": "Atelier",
-    "conference": "Conférence",
-    "meetups": "Rencontres",
     "exposition": "Exposition",
     "other": "Autre"
-  }
+  },
+  "states": {
+    "new": "Neuf",
+    "very_good": "Très bon état",
+    "good": "Bon état",
+    "need_repair": "À réparer"
+  },
+  "free": "Gratuit"
 }

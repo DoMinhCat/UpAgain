@@ -13,5 +13,29 @@
     "oldest": "Oldest",
     "lowest_price": "Lowest Price",
     "highest_price": "Highest Price"
+  },
+  "detail": {
+    "price": "Price",
+    "weight": "Weight",
+    "state": "State",
+    "material": "Material",
+    "posted_by": "Posted by",
+    "published_on": "Published on",
+    "retrieval": {
+      "title": "Retrieval Method",
+      "listing": "Retrieve directly from the poster",
+      "deposit": "Retrieve from a container"
+    },
+    "description": "Description",
+    "location": "Location",
+    "reserve": "Reserve",
+    "buy": "Buy now",
+    "map_placeholder": "Map view will be available soon",
+    "map_api_note": "Integrating Google Maps API",
+    "about": "About this item",
+    "key_info": "Key Information",
+    "secure_transaction_note": "Secure transaction guaranteed by UpAgain",
+    "verified_poster": "Verified User",
+    "reserve_now": "Reserve now"
   }
 }

@@ -13,5 +13,29 @@
     "oldest": "Cũ nhất",
     "lowest_price": "Giá thấp nhất",
     "highest_price": "Giá cao nhất"
+  },
+  "detail": {
+    "price": "Giá",
+    "weight": "Trọng lượng",
+    "state": "Tình trạng",
+    "material": "Chất liệu",
+    "posted_by": "Đăng bởi",
+    "published_on": "Ngày đăng",
+    "retrieval": {
+      "title": "Phương thức nhận hàng",
+      "listing": "Nhận trực tiếp từ người đăng",
+      "deposit": "Nhận từ thùng chứa"
+    },
+    "description": "Mô tả",
+    "location": "Vị trí",
+    "reserve": "Đặt chỗ",
+    "buy": "Mua ngay",
+    "map_placeholder": "Bản đồ sẽ sớm ra mắt",
+    "map_api_note": "Đang tích hợp Google Maps API",
+    "about": "Về sản phẩm này",
+    "key_info": "Thông tin chính",
+    "secure_transaction_note": "Giao dịch an toàn được đảm bảo bởi UpAgain",
+    "verified_poster": "Người dùng đã xác minh",
+    "reserve_now": "Đặt trước ngay"
   }
 }
