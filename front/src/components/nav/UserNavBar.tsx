@@ -76,7 +76,7 @@ export function UserNavBar() {
         {/* 2. Navigation Section */}
         <Group h="100%" gap="sm" visibleFrom="sm">
           <HeaderLink
-            label={t("marketplace:marketplace")}
+            label={t("marketplace:market")}
             path={PATHS.MARKETPLACE.HOME}
           />
           <HeaderLink
@@ -287,7 +287,7 @@ export function UserNavBar() {
         <Stack gap="lg">
           <Stack gap="md">
             <HeaderLink
-              label={t("marketplace:marketplace")}
+              label={t("marketplace:market")}
               path={PATHS.MARKETPLACE.HOME}
               onClick={closeDrawer}
             />

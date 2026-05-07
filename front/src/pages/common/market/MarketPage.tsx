@@ -8,6 +8,9 @@ import {
   Text,
   TextInput,
   Select,
+  SimpleGrid,
+  Center,
+  Loader,
 } from "@mantine/core";
 import { useAuth } from "../../../context/AuthContext";
 import { NotFoundPage } from "../../error/404";
@@ -17,38 +20,66 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { IconBox, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
+import { useGetAllItems } from "../../../hooks/itemHooks";
+import { useDebouncedValue } from "@mantine/hooks";
+import ItemCard from "../../../components/market/ItemCard";
+import PaginationFooter from "../../../components/common/PaginationFooter";
 
-export default function MartketPage() {
+export default function MarketPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["marketplace", "common", "community", "home"]);
   const { user } = useAuth();
   const role: string = user?.role || "";
 
   const [material, setMaterial] = useState("");
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState("most_recent_creation");
   const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebouncedValue(search, 500);
   const [page, setPage] = useState(1);
-  const LIMIT = 8;
+  const LIMIT = 12;
 
   const MATERIALS = [
-    { value: "", label: t("community:filters.all") },
-    { value: "wood", label: t("community:filters.wood") },
-    { value: "metal", label: t("community:filters.metal") },
-    { value: "textile", label: t("community:filters.textile") },
-    { value: "glass", label: t("community:filters.glass") },
-    { value: "plastic", label: t("community:filters.plastic") },
-    { value: "mixed", label: t("community:filters.mixed") },
-    { value: "other", label: t("community:filters.other") },
+    { value: "", label: t("common:materials.all") },
+    { value: "wood", label: t("common:materials.wood") },
+    { value: "metal", label: t("common:materials.metal") },
+    { value: "textile", label: t("common:materials.textile") },
+    { value: "glass", label: t("common:materials.glass") },
+    { value: "plastic", label: t("common:materials.plastic") },
+    { value: "mixed", label: t("common:materials.mixed") },
+    { value: "other", label: t("common:materials.other") },
   ];
+
   const SORT_OPTIONS = [
-    { value: "newest", label: t("community:filters.newest") },
-    { value: "oldest", label: t("community:filters.oldest") },
-    { value: "lowest_price", label: t("community:filters.lowest_price") },
+    {
+      value: "most_recent_creation",
+      label: t("marketplace:sort.most_recent"),
+    },
+    {
+      value: "oldest_creation",
+      label: t("marketplace:sort.oldest"),
+    },
+    { value: "lowest_price", label: t("marketplace:sort.lowest_price") },
+    { value: "highest_price", label: t("marketplace:sort.highest_price") },
   ];
+
+  const { data, isLoading } = useGetAllItems(
+    page,
+    LIMIT,
+    debouncedSearch || undefined,
+    sort,
+    "approved",
+    material || undefined,
+  );
+
+  const items = data?.items ?? [];
+  const totalRecords = data?.total_records ?? 0;
+  const lastPage = data?.last_page ?? 1;
+  const limit = data?.limit ?? LIMIT;
 
   if (role !== "pro" && role !== "user") {
     return <NotFoundPage />;
   }
+
   return (
     <Container px="md" py={50} size="xl">
       <Stack gap="xl" mb="xl">
@@ -70,7 +101,7 @@ export default function MartketPage() {
             </Text>
 
             <Group justify="flex-end" wrap="wrap">
-              {(role == "pro" || role == "user") && (
+              {(role === "pro" || role === "user") && (
                 <Button
                   leftSection={<IconBox stroke={2} />}
                   variant="primary"
@@ -99,7 +130,7 @@ export default function MartketPage() {
         {/* Filters */}
         <Group justify="space-between" wrap="wrap" gap="md" my="lg">
           <TextInput
-            placeholder={t("community:search_placeholder")}
+            placeholder={t("marketplace:search_placeholder")}
             leftSection={
               <IconSearch size={16} color="var(--upagain-neutral-green)" />
             }
@@ -127,12 +158,48 @@ export default function MartketPage() {
                 setSort(v ?? "most_recent_creation");
                 setPage(1);
               }}
-              w={160}
+              w={180}
               size="sm"
               allowDeselect={false}
             />
           </Group>
         </Group>
+
+        {/* Grid */}
+        {isLoading ? (
+          <Center py={80}>
+            <Loader color="var(--upagain-neutral-green)" />
+          </Center>
+        ) : items.length === 0 ? (
+          <Center py={80}>
+            <Stack align="center" gap="xs">
+              <IconBox
+                size={48}
+                color="var(--upagain-neutral-green)"
+                stroke={1.5}
+              />
+              <Text c="dimmed" ta="center" maw={300}>
+                {t("marketplace:empty.title")} {t("marketplace:empty.subtitle")}
+              </Text>
+            </Stack>
+          </Center>
+        ) : (
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+            {items.map((item) => (
+              <ItemCard key={item.id} item={item} />
+            ))}
+          </SimpleGrid>
+        )}
+
+        <PaginationFooter
+          activePage={page}
+          setPage={setPage}
+          total_records={totalRecords}
+          last_page={lastPage}
+          limit={limit}
+          unit="items"
+          loading={isLoading}
+        />
       </Stack>
     </Container>
   );

@@ -1,3 +1,17 @@
 {
-  "marketplace": "Marketplace"
+  "market": "Marketplace",
+  "subtitle": "Discover upcycled items and materials available for purchase.",
+  "my_listings": "My Listings",
+  "create_listing": "Create Listing",
+  "search_placeholder": "Search items...",
+  "empty": {
+    "title": "No items match your search.",
+    "subtitle": "Try a different category or material."
+  },
+  "sort": {
+    "most_recent": "Most Recent",
+    "oldest": "Oldest",
+    "lowest_price": "Lowest Price",
+    "highest_price": "Highest Price"
+  }
 }
