@@ -9,6 +9,7 @@ import (
 )
 
 var MATERIALS = []string{"wood", "metal", "textile", "glass", "plastic", "mixed", "other"}
+var STATES = []string{"new", "very_good", "good", "need_repair"}
 
 func GetAllItemsHistory(page, limit int, filters models.ValidationFilters) ([]models.AllItemResponse, int, error) {
 	var params []interface{}
@@ -418,4 +419,34 @@ func CheckItemBelongsToUser(idItem int, userId int) (bool, error) {
 		return false, fmt.Errorf("CheckItemBelongsToUser() failed: %v", err)
 	}
 	return belongsToUser, nil
+}
+
+func CreateItem(item models.ItemCreateRequest) (int, error) {
+	var id_item int
+	query := `
+		INSERT INTO items (title, description, price, weight, material, state, id_user) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
+	`
+	err := utils.Conn.QueryRow(query, item.Title, item.Description, item.Price, item.Weight, item.Material, item.State, item.IdUser).Scan(&id_item)
+	if err != nil {
+		return 0, fmt.Errorf("CreateItem() failed: %v", err)
+	}
+
+	// insert photos
+	for i, photo := range item.Photos {
+		is_primary := false
+		if i == 0 {
+			is_primary = true
+		}
+		err = InsertImage(models.PhotoInsertRequest{
+			Path:       photo,
+			IsPrimary:  is_primary,
+			ObjectType: "item",
+			FkId:       id_item,
+		})
+		if err != nil {
+			return 0, fmt.Errorf("CreateItem() insert photos failed: %v", err)
+		}
+	}
+	return id_item, nil
 }

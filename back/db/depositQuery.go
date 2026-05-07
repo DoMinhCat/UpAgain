@@ -209,3 +209,11 @@ func GetCurrentDepositByContainerId(id int) (int, string, error) {
 	}
 	return depositID, title, err
 }
+
+func CreateDeposit(deposit models.CreateDepositRequest) error {
+	_, err := utils.Conn.Exec("INSERT INTO deposits (id_item, id_container) VALUES ($1, $2)", deposit.IdItem, deposit.IdContainer)
+	if err != nil {
+		return err
+	}
+	return nil
+}
