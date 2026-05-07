@@ -4,9 +4,11 @@ import {
   Text,
   Group,
   Badge,
+  Box,
   Stack,
   useComputedColorScheme,
 } from "@mantine/core";
+import { IconChevronRight } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import type { Item } from "../../api/interfaces/item";
@@ -27,15 +29,18 @@ export default function ItemCard({ item }: ItemCardProps) {
     <Card
       shadow="sm"
       padding="md"
-      radius="md"
+      radius="lg" // Upgraded to 'lg' to match your breadcrumbs/buttons
       withBorder
+      className="item-card"
       style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%", // Ensures all cards in a grid row are equal height
         cursor: "pointer",
         transition: "transform 0.2s ease, box-shadow 0.2s ease",
       }}
-      className="item-card"
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.transform = "translateY(-5px)";
         e.currentTarget.style.boxShadow = "var(--mantine-shadow-md)";
       }}
       onMouseLeave={(e) => {
@@ -43,7 +48,7 @@ export default function ItemCard({ item }: ItemCardProps) {
         e.currentTarget.style.boxShadow = "var(--mantine-shadow-sm)";
       }}
       onClick={() =>
-        navigate(PATHS.MARKETPLACE.HOME + "/" + item.id.toString(), {
+        navigate(`${PATHS.MARKETPLACE.HOME}/${item.id}`, {
           state: { from: "marketplace" },
         })
       }
@@ -51,58 +56,81 @@ export default function ItemCard({ item }: ItemCardProps) {
       <Card.Section>
         <Image
           src={resolveUrl(item.images?.[0] || "")}
-          height={180}
+          height={200} // Slightly taller for better product visibility
           alt={item.title}
           fallbackSrc={`/banners/user-banner1-${theme}.png`}
+          style={{ objectFit: "cover" }}
         />
       </Card.Section>
 
-      <Stack gap="xs" mt="md">
-        <Group justify="space-between" align="flex-start">
-          <Text fw={700} size="lg" lineClamp={1} style={{ flex: 1 }}>
-            {item.title}
-          </Text>
-          <Badge color="var(--upagain-neutral-green)" variant="light" size="lg">
-            {item.price}€
-          </Badge>
-        </Group>
-
-        <Group gap={6}>
-          <Badge
-            variant={
-              item.material === "wood"
-                ? "blue"
-                : item.material === "metal"
-                  ? "green"
-                  : item.material === "textile"
-                    ? "yellow"
-                    : item.material === "glass"
-                      ? "red"
-                      : item.material === "plastic"
-                        ? "violet"
-                        : item.material === "other"
-                          ? "gray"
-                          : "cyan"
-            }
-            size="sm"
+      {/* flex: 1 here pushes the card footer/content to fill space */}
+      <Stack
+        gap="xs"
+        mt="md"
+        style={{ flex: 1, justifyContent: "space-between" }}
+      >
+        <Box>
+          <Group
+            justify="space-between"
+            align="flex-start"
+            wrap="nowrap"
+            mb={4}
           >
-            {t(`common:materials.${item.material}`, {
-              defaultValue: item.material,
-            })}
-          </Badge>
-          <Badge color="var(--upagain-neutral-green)" variant="light" size="sm">
-            {item.state}
-          </Badge>
-        </Group>
+            <Text fw={800} size="lg" lineClamp={1} style={{ flex: 1 }}>
+              {item.title}
+            </Text>
+            <Text
+              fw={800}
+              size="xl"
+              c="var(--upagain-neutral-green)"
+              style={{ whiteSpace: "nowrap" }}
+            >
+              {item.price}€
+            </Text>
+          </Group>
 
-        <Text
-          size="sm"
-          c="dimmed"
-          lineClamp={2}
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(item.description),
-          }}
-        />
+          <Group gap={6} mb="sm">
+            <Badge
+              variant={
+                item.material === "wood"
+                  ? "blue"
+                  : item.material === "metal"
+                    ? "green"
+                    : item.material === "textile"
+                      ? "yellow"
+                      : item.material === "glass"
+                        ? "red"
+                        : item.material === "plastic"
+                          ? "violet"
+                          : item.material === "other"
+                            ? "gray"
+                            : "cyan"
+              }
+              size="xs"
+            >
+              {t(`common:materials.${item.material}`, {
+                defaultValue: item.material,
+              })}
+            </Badge>
+            <Badge
+              color="var(--upagain-neutral-green)"
+              variant="light"
+              size="xs"
+            >
+              {item.state}
+            </Badge>
+          </Group>
+
+          <Text
+            size="sm"
+            c="dimmed"
+            lineClamp={2} // Keeps vertical rhythm consistent
+            component="div"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(item.description),
+            }}
+          />
+        </Box>
       </Stack>
     </Card>
   );
