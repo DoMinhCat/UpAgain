@@ -74,7 +74,9 @@ export default function PostCard({
 
   const [localLiked, setLocalLiked] = useState<boolean | undefined>(undefined);
   const [localSaved, setLocalSaved] = useState<boolean | undefined>(undefined);
-  const [localLikeCount, setLocalLikeCount] = useState<number | undefined>(undefined);
+  const [localLikeCount, setLocalLikeCount] = useState<number | undefined>(
+    undefined,
+  );
   const [isLiking, setIsLiking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -162,15 +164,12 @@ export default function PostCard({
           {title}
         </Title>
 
-        <Text
-          size="sm"
-          c="dimmed"
-          lineClamp={2}
-          h={42}
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(description),
-          }}
-        />
+        <Text size="sm" c="dimmed" lineClamp={2} h={42}>
+          {description
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()}
+        </Text>
       </Stack>
 
       {/* Author & Time */}

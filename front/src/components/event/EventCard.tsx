@@ -208,15 +208,12 @@ export function EventCard({
             {title}
           </Title>
 
-          <Text
-            size="sm"
-            c="dimmed"
-            lineClamp={isHorizontal ? 3 : 2}
-            mt={4}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(description),
-            }}
-          />
+          <Text size="sm" c="dimmed" lineClamp={isHorizontal ? 3 : 2} mt={4}>
+            {description
+              .replace(/<[^>]*>/g, " ")
+              .replace(/\s+/g, " ")
+              .trim()}
+          </Text>
         </Box>
 
         <Stack gap="sm">

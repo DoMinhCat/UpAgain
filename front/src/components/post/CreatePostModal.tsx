@@ -39,7 +39,8 @@ export function CreatePostModal({
     if (!category) {
       setErrorCategory(t("admin:posts.create_modal.errors.category"));
       return false;
-    } else if (category === "project") {
+    } else if (category === "project" && role !== "pro") {
+      console.log(role);
       setErrorCategory(t("admin:posts.create_modal.errors.category_project"));
       return false;
     } else {
