@@ -339,7 +339,7 @@ export default function UserHome() {
                         ns="home"
                         values={{ count: 3 }}
                         components={{
-                          1: <Anchor href={PATHS.MARKETPLACE.LISTINGS} />,
+                          1: <Anchor href={PATHS.MARKETPLACE.HOME} />,
                           b: <b />,
                         }}
                       >
@@ -355,7 +355,7 @@ export default function UserHome() {
                     data-variant="primary"
                     size="sm"
                     fw={700}
-                    onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+                    onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
                   >
                     {t("user.manage.manage_listings")}
                   </Text>
@@ -389,7 +389,7 @@ export default function UserHome() {
                     data-variant="primary"
                     size="sm"
                     fw={700}
-                    onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+                    onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
                   >
                     {t("user.manage.track_deposits")}
                   </Text>
@@ -410,7 +410,7 @@ export default function UserHome() {
                   className="button"
                   data-variant="cta-reverse"
                   size="lg"
-                  onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
+                  onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
                 >
                   {t("user.manage.create_listing")}
                 </Button>
@@ -418,7 +418,7 @@ export default function UserHome() {
                   className="button"
                   data-variant="cta" // Golden shine for creating deposits
                   size="lg"
-                  onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
+                  onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
                 >
                   {t("user.manage.create_deposit")}
                 </Button>
@@ -627,7 +627,7 @@ export default function UserHome() {
                         data-variant="cta"
                         size="md"
                         fullWidth
-                        onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)} // Assuming event exploration is there
+                        onClick={() => navigate(PATHS.MARKETPLACE.HOME)} // Assuming event exploration is there
                       >
                         {t("user.agenda.explore_workshops")}
                       </Button>

@@ -1,4 +1,12 @@
-import { Card, Image, Text, Group, Badge, Stack } from "@mantine/core";
+import {
+  Card,
+  Image,
+  Text,
+  Group,
+  Badge,
+  Stack,
+  useComputedColorScheme,
+} from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import type { Item } from "../../api/interfaces/item";
@@ -12,6 +20,7 @@ interface ItemCardProps {
 
 export default function ItemCard({ item }: ItemCardProps) {
   const navigate = useNavigate();
+  const theme = useComputedColorScheme("light");
   const { t } = useTranslation(["common", "marketplace"]);
 
   return (
@@ -41,10 +50,10 @@ export default function ItemCard({ item }: ItemCardProps) {
     >
       <Card.Section>
         <Image
-          src={resolveUrl(item.images?.[0] || "/placeholder-item.png")}
+          src={resolveUrl(item.images?.[0] || "")}
           height={180}
           alt={item.title}
-          fallbackSrc="https://placehold.co/600x400?text=No+Image"
+          fallbackSrc={`/banners/user-banner1-${theme}.png`}
         />
       </Card.Section>
 

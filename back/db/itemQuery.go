@@ -276,6 +276,13 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 		} else {
 			item.Category = "deposit"
 		}
+
+		// get photos
+		photos, err := GetPhotosPathsByObjectId(item.Id, "item")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllItems() get photos failed: %v", err.Error())
+		}
+		item.Photos = photos
 		results = append(results, item)
 	}
 
