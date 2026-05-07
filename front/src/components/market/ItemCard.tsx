@@ -33,7 +33,11 @@ export default function ItemCard({ item }: ItemCardProps) {
         e.currentTarget.style.transform = "translateY(0)";
         e.currentTarget.style.boxShadow = "var(--mantine-shadow-sm)";
       }}
-      // onClick={() => navigate(`${PATHS.MARKETPLACE.HOME}/${item.id}`)}
+      onClick={() =>
+        navigate(PATHS.MARKETPLACE.HOME + "/" + item.id.toString(), {
+          state: { from: "marketplace" },
+        })
+      }
     >
       <Card.Section>
         <Image
@@ -55,12 +59,29 @@ export default function ItemCard({ item }: ItemCardProps) {
         </Group>
 
         <Group gap={6}>
-          <Badge color="gray" variant="outline" size="sm">
+          <Badge
+            variant={
+              item.material === "wood"
+                ? "blue"
+                : item.material === "metal"
+                  ? "green"
+                  : item.material === "textile"
+                    ? "yellow"
+                    : item.material === "glass"
+                      ? "red"
+                      : item.material === "plastic"
+                        ? "violet"
+                        : item.material === "other"
+                          ? "gray"
+                          : "cyan"
+            }
+            size="sm"
+          >
             {t(`common:materials.${item.material}`, {
               defaultValue: item.material,
             })}
           </Badge>
-          <Badge color="blue" variant="light" size="sm">
+          <Badge color="var(--upagain-neutral-green)" variant="light" size="sm">
             {item.state}
           </Badge>
         </Group>
