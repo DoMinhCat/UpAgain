@@ -5,21 +5,27 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 )
 
-func GetTotalSubscriptionSpendingsById(id_account int) (int, error) {
-	var total int
+func GetTotalSubscriptionSpendingsById(id_account int) (float64, error) {
+	var total_str string
 
 	// Uses snapshot price stored in subscriptions table at purchase time
 	query := `
-	select COALESCE(sum(price), 0) from subscriptions
+	select COALESCE(sum(price), 0.0)::text from subscriptions
 	where id_pro = $1 and is_trial=false;
 	`
-	err := utils.Conn.QueryRow(query, id_account).Scan(&total)
+	err := utils.Conn.QueryRow(query, id_account).Scan(&total_str)
 	if err != nil {
-		return 0, fmt.Errorf("GetTotalSubscriptionSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetTotalSubscriptionSpendingsById() failed: %v", err.Error())
 	}
+	total, err := strconv.ParseFloat(total_str, 64)
+    if err != nil {
+        return 0.0, fmt.Errorf("conversion failed: %w", err)
+    }
+	
 	return total, nil
 }
 
