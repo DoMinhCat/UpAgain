@@ -118,10 +118,14 @@
     "deleted": "Deleted"
   },
   "event_categories": {
-    "workshop": "Workshop",
-    "conference": "Conference",
-    "meetups": "Meetups",
     "exposition": "Exposition",
     "other": "Other"
-  }
+  },
+  "states": {
+    "new": "New",
+    "very_good": "Very Good",
+    "good": "Good",
+    "need_repair": "Needs Repair"
+  },
+  "free": "Free"
 }

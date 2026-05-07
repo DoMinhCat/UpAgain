@@ -7,7 +7,7 @@ export interface Item {
   state: string;
   id_user: number;
   username: string;
-  category: string;
+  category: string; // listing or deposit
   material: string;
   price: number;
   status: string;

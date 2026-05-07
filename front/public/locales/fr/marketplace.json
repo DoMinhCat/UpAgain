@@ -13,5 +13,29 @@
     "oldest": "Plus ancien",
     "lowest_price": "Prix croissant",
     "highest_price": "Prix décroissant"
+  },
+  "detail": {
+    "price": "Prix",
+    "weight": "Poids",
+    "state": "État",
+    "material": "Matériau",
+    "posted_by": "Posté par",
+    "published_on": "Publié le",
+    "retrieval": {
+      "title": "Méthode de récupération",
+      "listing": "Récupérer directement auprès de l'annonceur",
+      "deposit": "Récupérer dans un conteneur"
+    },
+    "description": "Description",
+    "location": "Localisation",
+    "reserve": "Réserver",
+    "buy": "Acheter maintenant",
+    "map_placeholder": "La vue carte sera bientôt disponible",
+    "map_api_note": "Intégration de l'API Google Maps",
+    "about": "À propos de cet objet",
+    "key_info": "Informations clés",
+    "secure_transaction_note": "Transaction sécurisée garantie par UpAgain",
+    "verified_poster": "Utilisateur vérifié",
+    "reserve_now": "Réserver maintenant"
   }
 }
