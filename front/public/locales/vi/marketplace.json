@@ -1,3 +1,17 @@
 {
-  "marketplace": "Cửa hàng"
+  "market": "Cửa hàng",
+  "subtitle": "Khám phá các sản phẩm và vật liệu tái chế có sẵn để mua.",
+  "my_listings": "Danh sách của tôi",
+  "create_listing": "Tạo danh sách",
+  "search_placeholder": "Tìm kiếm sản phẩm...",
+  "empty": {
+    "title": "Không tìm thấy sản phẩm nào phù hợp.",
+    "subtitle": "Thử tìm kiếm với danh mục hoặc vật liệu khác."
+  },
+  "sort": {
+    "most_recent": "Mới nhất",
+    "oldest": "Cũ nhất",
+    "lowest_price": "Giá thấp nhất",
+    "highest_price": "Giá cao nhất"
+  }
 }

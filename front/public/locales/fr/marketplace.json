@@ -1,3 +1,17 @@
 {
-  "marketplace": "Boutique"
+  "market": "Boutique",
+  "subtitle": "Découvrez des objets et matériaux upcyclés disponibles à l'achat.",
+  "my_listings": "Mes annonces",
+  "create_listing": "Créer une annonce",
+  "search_placeholder": "Rechercher des objets...",
+  "empty": {
+    "title": "Aucun objet ne correspond à votre recherche.",
+    "subtitle": "Essayez une autre catégorie ou un autre matériau."
+  },
+  "sort": {
+    "most_recent": "Plus récent",
+    "oldest": "Plus ancien",
+    "lowest_price": "Prix croissant",
+    "highest_price": "Prix décroissant"
+  }
 }
