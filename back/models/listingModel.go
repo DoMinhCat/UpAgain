@@ -33,6 +33,7 @@ type UpdateListingRequest struct {
 
 type CreateListingRequest struct {
 	IdItem      int    `json:"id_item"`
+	Street      string `json:"street"`
 	CityName    string `json:"city_name"`
 	PostalCode  string `json:"postal_code"`
 }
