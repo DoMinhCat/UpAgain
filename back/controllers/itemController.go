@@ -577,5 +577,21 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item created successfully."})
 }
+
+
+	// add score only when completed
+	// score, err := helpers.CalculateScore(payload.Material, payload.Weight)
+	// if err != nil {
+	// 	slog.Error("CalculateScore() failed", "controller", "CreateItem", "error", err)
+	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+	// 	return
+	// }
+	// err = db.UpdateUpcyclingScore(idRequestor, score)
+	// if err != nil {
+	// 	slog.Error("UpdateUpcyclingScore() failed", "controller", "CreateItem", "error", err)
+	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+	// 	return
+	// }
