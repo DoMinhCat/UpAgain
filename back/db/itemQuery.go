@@ -246,7 +246,7 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	}
 
 	query := `
-		SELECT i.created_at, i.id, i.title, i.description, i.weight, i.state, i.id_user, a.username, i.material, i.price, i.status
+		SELECT i.created_at, i.id, i.title, i.description, i.weight, i.state, i.id_user, a.username, i.material, i.price, i.status, a.avatar
 		FROM items i
 		JOIN accounts a ON i.id_user=a.id 
 		` + whereClause + " " + orderBy
@@ -267,7 +267,7 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 
 	for rows.Next() {
 		var item models.Item
-		err := rows.Scan(&item.CreatedAt, &item.Id, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Username, &item.Material, &item.Price, &item.Status)
+		err := rows.Scan(&item.CreatedAt, &item.Id, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Username, &item.Material, &item.Price, &item.Status, &item.CreatorAvatar)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllItems() scan failed: %v", err.Error())
 		}

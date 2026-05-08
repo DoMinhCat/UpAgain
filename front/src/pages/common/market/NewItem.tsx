@@ -717,7 +717,21 @@ export default function NewItem() {
                           {t("fields.material")}
                         </Text>
                         <Badge
-                          variant="light"
+                          variant={
+                            material === "wood"
+                              ? "blue"
+                              : material === "metal"
+                                ? "green"
+                                : material === "textile"
+                                  ? "yellow"
+                                  : material === "glass"
+                                    ? "red"
+                                    : material === "plastic"
+                                      ? "violet"
+                                      : material === "other"
+                                        ? "gray"
+                                        : "cyan"
+                          }
                           color="var(--upagain-neutral-green)"
                         >
                           {material

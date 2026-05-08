@@ -63,7 +63,6 @@ export default function ItemCard({ item }: ItemCardProps) {
         />
       </Card.Section>
 
-      {/* flex: 1 here pushes the card footer/content to fill space */}
       <Stack
         gap="xs"
         mt="md"
@@ -81,11 +80,14 @@ export default function ItemCard({ item }: ItemCardProps) {
             </Text>
             <Text
               fw={800}
-              size="xl"
-              c="var(--upagain-neutral-green)"
+              c={
+                item.price == 0
+                  ? "var(--upagain-neutral-green)"
+                  : "var(--upagain-yellow)"
+              }
               style={{ whiteSpace: "nowrap" }}
             >
-              {item.price}€
+              {item.price === 0 ? t("common:free") : item.price + "€"}
             </Text>
           </Group>
 

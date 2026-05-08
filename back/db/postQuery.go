@@ -257,7 +257,7 @@ func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int)
 	}
 
 	query := `
-		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id, a.avatar
 		` + fromJoinClause + `
 		 ` + whereClause + " " + orderBy
 
@@ -276,25 +276,24 @@ func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int)
 	defer rows.Close()
 
 	for rows.Next() {
-		var event models.Post
-		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Content, &event.Category, &event.ViewCount, &event.LikeCount, &event.IdAccount, &event.Creator, &event.AdsId)
+		var post models.Post
+		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.AdsId, &post.CreatorAvatar)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllPosts() scan failed: %v", err.Error())
 		}
 
-		// get photos too
-		photos, err := GetPhotosPathsByObjectId(event.Id, "post")
+		// get photos of post
+		photos, err := GetPhotosPathsByObjectId(post.Id, "post")
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllPosts() photos failed: %v", err.Error())
 		}
-		event.Photos = photos
+		post.Photos = photos
 
 		if idAccount != 0 {
-			event.IsLiked, _ = IsPostLikedByUser(event.Id, idAccount)
-			event.IsSaved, _ = IsPostSavedByUser(event.Id, idAccount)
+			post.IsLiked, _ = IsPostLikedByUser(post.Id, idAccount)
+			post.IsSaved, _ = IsPostSavedByUser(post.Id, idAccount)
 		}
-
-		results = append(results, event)
+		results = append(results, post)
 	}
 
 	return results, totalRecords, nil

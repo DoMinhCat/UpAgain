@@ -245,6 +245,15 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 		}
 		event.Attendees = attendees
 
+		// author avatar
+		authorAvatar, err := GetPhotosPathsByObjectId(event.EmployeeId, "avatar")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllEvents() failed: %v", err.Error())
+		}
+		if len(authorAvatar) > 0 {
+			event.EmployeeAvatar.String = authorAvatar[0]
+		}
+
 		results = append(results, event)
 	}
 
