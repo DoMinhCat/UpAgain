@@ -61,8 +61,20 @@
     "not_found": "Non trouvé",
     "success": "Succès",
     "error": "Erreur",
+    "update_success": "Mise à jour réussie",
+    "delete_success": "Suppression réussie",
+    "create_success": "Création réussie",
+    "save_success": "Enregistré avec succès",
+    "fetch_error": "Échec de la récupération des données.",
     "btn_push_noti": "Activer la notification push",
-    "blocked_desc": "Les notifications sont bloquées. Veuillez les activer dans les paramètres de votre navigateur."
+    "blocked_desc": "Les notifications sont bloquées. Veuillez les activer dans les paramètres de votre navigateur.",
+    "location": {
+      "denied_title": "Accès à la position refusé",
+      "denied_message": "Vous avez refusé l'accès à votre position.",
+      "failed_title": "Échec de la demande de position",
+      "failed_message": "Une erreur est survenue lors de la récupération de votre position.",
+      "not_supported_message": "La géolocalisation n'est pas prise en charge par ce navigateur."
+    }
   },
   "stripe": {
     "verification_failed": "Échec de la vérification du paiement",

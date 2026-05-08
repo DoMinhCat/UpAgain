@@ -37,5 +37,24 @@
     "secure_transaction_note": "Secure transaction guaranteed by UpAgain",
     "verified_poster": "Verified User",
     "reserve_now": "Reserve now"
+  },
+  "notifications": {
+    "delete_success_title": "Item deleted",
+    "delete_success_message": "Item deleted successfully",
+    "post_success_title": "Item posted",
+    "post_success_message": "Item posted successfully",
+    "update_success_title": "Listing updated",
+    "update_success_message": "Listing updated successfully",
+    "cancel_transaction_success_title": "Transaction cancelled",
+    "cancel_transaction_success_message": "Transaction cancelled successfully",
+    "fetch_detail_error": "Failed to fetch item details",
+    "update_error": "Failed to update listing",
+    "delete_error": "Failed to delete item",
+    "post_error": "Failed to post new item",
+    "fetch_items_error": "Failed to fetch items",
+    "fetch_stats_error": "Failed to fetch item stats",
+    "update_status_error": "Failed to update item status",
+    "fetch_transactions_error": "Failed to fetch item's transactions",
+    "cancel_transaction_error": "Failed to cancel transaction"
   }
 }

@@ -15,6 +15,7 @@ import { type PaginatedDepositsResponse } from "../api/interfaces/deposit";
 import { type PaginatedListingsResponse } from "../api/interfaces/listing";
 import { type EventsListPagination } from "../api/interfaces/event";
 import { type PaginatedHistoryResponse } from "../api/interfaces/item";
+import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 1000 * 60; // 1min
 
@@ -30,8 +31,8 @@ export const usePendingDeposits = (
     queryFn: () => fetchPendingDeposits(page, limit, filters),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load pending deposits",
+      errorTitle: "admin:validations.notifications.error_loading_deposits",
+      errorMessage: "admin:validations.notifications.error_loading_deposits",
     },
   });
 };
@@ -46,8 +47,8 @@ export const usePendingListings = (
     queryFn: () => fetchPendingListings(page, limit, filters),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load pending listings",
+      errorTitle: "admin:validations.notifications.error_loading_listings",
+      errorMessage: "admin:validations.notifications.error_loading_listings",
     },
   });
 };
@@ -62,8 +63,8 @@ export const usePendingEvents = (
     queryFn: () => fetchPendingEvents(page, limit, filters),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load pending events",
+      errorTitle: "admin:validations.notifications.error_loading_events",
+      errorMessage: "admin:validations.notifications.error_loading_events",
     },
   });
 };
@@ -76,8 +77,8 @@ export const useValidationStats = () => {
     queryFn: fetchValidationStats,
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load validation statistics",
+      errorTitle: "admin:validations.notifications.error_loading_stats",
+      errorMessage: "admin:validations.notifications.error_loading_stats",
     },
   });
 };
@@ -102,8 +103,8 @@ export const useAllItemsHistory = (
     queryFn: () => fetchAllItemsHistory(page, limit, filters),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load items history",
+      errorTitle: "admin:validations.notifications.error_loading_history",
+      errorMessage: "admin:validations.notifications.error_loading_history",
     },
   });
 };
@@ -123,7 +124,15 @@ export const useProcessValidation = () => {
   return useMutation({
     mutationFn: ({ entityType, id, action, reason }: ProcessValidationParams) =>
       processValidationAction(entityType, id, action, reason),
-    onSuccess: () => {
+    onSuccess: (_data, { action }) => {
+      showSuccessNotification(
+        action === "approve"
+          ? "admin:validations.notifications.approve_success_title"
+          : "admin:validations.notifications.refuse_success_title",
+        action === "approve"
+          ? "admin:validations.notifications.approve_success_message"
+          : "admin:validations.notifications.refuse_success_message",
+      );
       queryClient.invalidateQueries({ queryKey: ["pendingDeposits"] });
       queryClient.invalidateQueries({ queryKey: ["pendingListings"] });
       queryClient.invalidateQueries({ queryKey: ["events"] });
@@ -132,8 +141,8 @@ export const useProcessValidation = () => {
       queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
-      errorTitle: "Validation Failed",
-      errorMessage: "Could not process the validation action",
+      errorTitle: "admin:validations.notifications.error_processing",
+      errorMessage: "admin:validations.notifications.error_processing",
     },
   });
 };

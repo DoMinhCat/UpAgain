@@ -43,6 +43,7 @@
   "validation": {
     "required": "Ce champ est obligatoire",
     "min_weight": "Le poids doit être au moins de 0.1 kg",
-    "select_container": "Veuillez sélectionner un conteneur"
+    "select_container": "Veuillez sélectionner un conteneur",
+    "invalid_postal_code": "Code postal invalide"
   }
 }

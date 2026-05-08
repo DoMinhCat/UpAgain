@@ -83,7 +83,7 @@ import PhotoModal from "../../../components/photo/PhotoModal";
 import { useGetAvailableContainers } from "../../../hooks/containerHooks";
 
 export default function AdminListingDetails() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "create_item", "common"]);
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -211,7 +211,7 @@ export default function AdminListingDetails() {
 
   const validateTitle = () => {
     if (!titleEdit) {
-      setErrorTitle("Title is required");
+      setErrorTitle(t("create_item:validation.required"));
       return false;
     } else {
       setErrorTitle("");
@@ -222,7 +222,7 @@ export default function AdminListingDetails() {
   const validateDescription = () => {
     const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
     if (!descriptionEdit || stripped === "") {
-      setErrorDescription("Post's content is required");
+      setErrorDescription(t("create_item:validation.required"));
       return false;
     }
     setErrorDescription("");
@@ -231,7 +231,7 @@ export default function AdminListingDetails() {
 
   const validateMaterial = () => {
     if (!materialEdit) {
-      setErrorMaterial("Material is required");
+      setErrorMaterial(t("create_item:validation.required"));
       return false;
     } else {
       setErrorMaterial("");
@@ -241,7 +241,7 @@ export default function AdminListingDetails() {
 
   const validateState = () => {
     if (!stateEdit) {
-      setErrorState("State is required");
+      setErrorState(t("create_item:validation.required"));
       return false;
     } else {
       setErrorState("");
@@ -251,7 +251,7 @@ export default function AdminListingDetails() {
 
   const validateWeight = () => {
     if (!weightEdit) {
-      setErrorWeight("Weight is required");
+      setErrorWeight(t("create_item:validation.required"));
       return false;
     } else {
       setErrorWeight("");
@@ -261,7 +261,7 @@ export default function AdminListingDetails() {
 
   const validateCity = () => {
     if (!cityEdit) {
-      setErrorCity("City is required");
+      setErrorCity(t("create_item:validation.required"));
       return false;
     } else {
       setErrorCity("");
@@ -271,7 +271,7 @@ export default function AdminListingDetails() {
 
   const validateStreet = () => {
     if (!streetEdit) {
-      setErrorStreet("Street is required");
+      setErrorStreet(t("create_item:validation.required"));
       return false;
     } else {
       setErrorStreet("");
@@ -281,11 +281,11 @@ export default function AdminListingDetails() {
 
   const validatePostalCode = () => {
     if (!postalCodeEdit) {
-      setErrorPostalCode("Postal code is required");
+      setErrorPostalCode(t("create_item:validation.required"));
       return false;
     }
     if (!/^\d{5,9}$/.test(postalCodeEdit)) {
-      setErrorPostalCode("Invalid postal code");
+      setErrorPostalCode(t("create_item:validation.invalid_postal_code", { defaultValue: "Invalid postal code" }));
       return false;
     }
     setErrorPostalCode("");
@@ -294,7 +294,7 @@ export default function AdminListingDetails() {
 
   const validatePrice = () => {
     if (!priceEdit && priceEdit !== 0) {
-      setErrorPrice("Price is required");
+      setErrorPrice(t("create_item:validation.required"));
       return false;
     } else {
       setErrorPrice("");
@@ -1100,7 +1100,7 @@ export default function AdminListingDetails() {
                     <>
                       <TextInput
                         withAsterisk
-                        label={t("containers.create_modal.address")}
+                        label={t("containers.create_modal.street")}
                         value={streetEdit}
                         error={errorStreet}
                         onBlur={() => validateStreet()}
