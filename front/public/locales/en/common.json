@@ -61,8 +61,20 @@
     "not_found": "Not found",
     "success": "Success",
     "error": "Error",
+    "update_success": "Update successful",
+    "delete_success": "Deletion successful",
+    "create_success": "Creation successful",
+    "save_success": "Saved successfully",
+    "fetch_error": "Failed to fetch data.",
     "btn_push_noti": "Enable push notification",
-    "blocked_desc": "Notifications are blocked. Please enable them in your browser settings."
+    "blocked_desc": "Notifications are blocked. Please enable them in your browser settings.",
+    "location": {
+      "denied_title": "Location request denied",
+      "denied_message": "You denied location access.",
+      "failed_title": "Location request failed",
+      "failed_message": "An error occurred while fetching your location.",
+      "not_supported_message": "Geolocation is not supported by this browser."
+    }
   },
   "stripe": {
     "verification_failed": "Payment verification failed",

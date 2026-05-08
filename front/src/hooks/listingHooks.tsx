@@ -11,8 +11,8 @@ export const useGetListingDetails = (id: number, isValid: boolean) => {
     enabled: isValid,
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error fetching listing details",
-      errorMessage: "Failed to fetch listing details",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.fetch_detail_error",
     },
   });
 };
@@ -25,13 +25,13 @@ export const useUpdateListing = (id: number) => {
       queryClient.invalidateQueries({ queryKey: ["listingDetails", id] });
       queryClient.invalidateQueries({ queryKey: ["item-details", id] });
       showSuccessNotification(
-        "Listing updated",
-        "Listing updated successfully",
+        "marketplace:notifications.update_success_title",
+        "marketplace:notifications.update_success_message",
       );
     },
     meta: {
-      errorTitle: "Error updating listing",
-      errorMessage: "Failed to update listing",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.update_error",
     },
   });
 };

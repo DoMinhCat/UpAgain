@@ -43,6 +43,7 @@
   "validation": {
     "required": "This field is required",
     "min_weight": "Weight must be at least 0.1 kg",
-    "select_container": "Please select a container"
+    "select_container": "Please select a container",
+    "invalid_postal_code": "Invalid postal code"
   }
 }

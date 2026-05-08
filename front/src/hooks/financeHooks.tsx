@@ -22,8 +22,8 @@ export const useGetFinanceRevenue = (year: number) => {
     queryFn: () => getFinanceRevenue(year),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch revenue data.",
+      errorTitle: "admin:finance.notifications.error_loading_revenue",
+      errorMessage: "admin:finance.notifications.error_loading_revenue",
     },
   });
 };
@@ -34,8 +34,8 @@ export const useGetFinanceSettings = () => {
     queryFn: getFinanceSettings,
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch finance settings.",
+      errorTitle: "admin:finance.notifications.error_loading_settings",
+      errorMessage: "admin:finance.notifications.error_loading_settings",
     },
   });
 };
@@ -62,8 +62,8 @@ export const useGetInvoiceUsers = (
     queryFn: () => getInvoiceUsers(page, limit, search, sort),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch users.",
+      errorTitle: "admin:finance.notifications.error_loading_users",
+      errorMessage: "admin:finance.notifications.error_loading_users",
     },
   });
 };
@@ -75,8 +75,8 @@ export const useGetUserInvoices = (userId: number, enabled: boolean) => {
     enabled,
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch user's invoices.",
+      errorTitle: "admin:finance.notifications.error_loading_invoices",
+      errorMessage: "admin:finance.notifications.error_loading_invoices",
     },
   });
 };
@@ -87,8 +87,8 @@ export const useGetFinanceSettingByKey = (key: string) => {
     queryFn: () => getFinanceSettingByKey(key),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch finance setting.",
+      errorTitle: "admin:finance.notifications.error_loading_setting",
+      errorMessage: "admin:finance.notifications.error_loading_setting",
     },
   });
 };

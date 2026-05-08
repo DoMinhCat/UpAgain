@@ -28,8 +28,8 @@ export const useGetAllContainers = (
     queryFn: () => getAllContainers(page, limit, search, status),
     staleTime: 60 * 1000,
     meta: {
-      errorTitle: "Inventory Error",
-      errorMessage: "Unable to load containers from European hubs.",
+      errorTitle: "admin:containers.notifications.error_loading_containers",
+      errorMessage: "admin:containers.notifications.error_loading_containers",
     },
   });
 };
@@ -39,11 +39,14 @@ export const useCreateContainer = () => {
   return useMutation({
     mutationFn: createContainer,
     meta: {
-      errorTitle: "Deployment Failed",
-      errorMessage: "Could not create the new container. Please check network.",
+      errorTitle: "admin:containers.notifications.error_creating",
+      errorMessage: "admin:containers.notifications.error_creating",
     },
     onSuccess: () => {
-      showSuccessNotification("Success", "New container deployed");
+      showSuccessNotification(
+        "admin:containers.notifications.create_success_title",
+        "admin:containers.notifications.create_success_message",
+      );
       queryClient.invalidateQueries({ queryKey: ["containers"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({ queryKey: ["availableContainers"] });
@@ -59,7 +62,10 @@ export const useUpdateStatus = () => {
       updateContainerStatus(id, status),
 
     onSuccess: (_data, variables) => {
-      showSuccessNotification("Updated", "Container status modified");
+      showSuccessNotification(
+        "admin:containers.notifications.update_status_success_title",
+        "admin:containers.notifications.update_status_success_message",
+      );
 
       queryClient.invalidateQueries({ queryKey: ["containers"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
@@ -69,8 +75,8 @@ export const useUpdateStatus = () => {
       });
     },
     meta: {
-      errorTitle: "Status Update Failed",
-      errorMessage: "Failed to update container state.",
+      errorTitle: "admin:containers.notifications.error_updating_status",
+      errorMessage: "admin:containers.notifications.error_updating_status",
     },
   });
 };
@@ -80,11 +86,14 @@ export const useDeleteContainer = () => {
   return useMutation({
     mutationFn: deleteContainer,
     meta: {
-      errorTitle: "Deletion Error",
-      errorMessage: "Could not remove container from inventory.",
+      errorTitle: "admin:containers.notifications.error_deleting",
+      errorMessage: "admin:containers.notifications.error_deleting",
     },
     onSuccess: () => {
-      showSuccessNotification("Deleted", "Container archived successfully");
+      showSuccessNotification(
+        "admin:containers.notifications.delete_success_title",
+        "admin:containers.notifications.delete_success_message",
+      );
       queryClient.invalidateQueries({ queryKey: ["containers"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
@@ -96,8 +105,8 @@ export const useContainerDetails = (id: number) => {
     queryFn: () => getContainerDetails(id),
     enabled: !!id,
     meta: {
-      errorTitle: "Details Error",
-      errorMessage: `Could not load information for container #${id}`,
+      errorTitle: "admin:containers.notifications.error_loading_details",
+      errorMessage: "admin:containers.notifications.error_loading_details",
     },
     staleTime: 1000 * 60 * 2, // refresh data every 2m
   });
@@ -108,8 +117,8 @@ export const useGetContainerStats = () => {
     queryKey: ["containerCountStats"],
     queryFn: getContainerCountStats,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load container count stats",
+      errorTitle: "admin:containers.notifications.error_loading_stats",
+      errorMessage: "admin:containers.notifications.error_loading_stats",
     },
     staleTime: 1000 * 60, // refresh data every 1m
   });
@@ -120,8 +129,8 @@ export const useGetAvailableContainers = () => {
     queryKey: ["availableContainers"],
     queryFn: getAvailableContainers,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load available containers",
+      errorTitle: "admin:containers.notifications.error_loading_available",
+      errorMessage: "admin:containers.notifications.error_loading_available",
     },
     staleTime: 1000 * 60, // refresh data every 1m
   });
@@ -140,15 +149,18 @@ export const useUpdateLocation = () => {
       street: string;
     }) => updateContainerLocation(id, city_name, street),
     onSuccess: (_data, variables) => {
-      showSuccessNotification("Updated", "Container location modified");
+      showSuccessNotification(
+        "admin:containers.notifications.update_location_success_title",
+        "admin:containers.notifications.update_location_success_message",
+      );
       queryClient.invalidateQueries({ queryKey: ["containers"] });
       queryClient.invalidateQueries({
         queryKey: ["containerDetails", variables.id],
       });
     },
     meta: {
-      errorTitle: "Location Update Failed",
-      errorMessage: "Failed to update container location.",
+      errorTitle: "admin:containers.notifications.error_updating_location",
+      errorMessage: "admin:containers.notifications.error_updating_location",
     },
   });
 };
@@ -159,8 +171,8 @@ export const useGetContainerSchedule = (id: number) => {
     queryFn: () => getContainerSchedule(id),
     enabled: !!id,
     meta: {
-      errorTitle: "Error",
-      errorMessage: `Failed to load schedule for container #${id}`,
+      errorTitle: "admin:containers.notifications.error_loading_schedule",
+      errorMessage: "admin:containers.notifications.error_loading_schedule",
     },
     staleTime: 1000 * 60 * 2, // refresh data every 2m
   });

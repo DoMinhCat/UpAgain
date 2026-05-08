@@ -100,6 +100,10 @@
       "ref_comment": "Bình luận #",
       "ref_listing": "Tin đăng #",
       "ref_deposit": "Ký gửi #"
+    },
+    "notifications": {
+      "error_loading_history": "Lấy lịch sử admin hổng xong rồi.",
+      "error_loading_details": "Hổng lấy được chi tiết lịch sử rồi nè."
     }
   },
   "modules": {
@@ -276,6 +280,35 @@
         "deleted_at": "Ngày xóa",
         "no_users": "Hổng tìm thấy ai hết trơn"
       }
+    },
+    "notifications": {
+      "recover_success_title": "Đã khôi phục",
+      "recover_success_message": "Tài khoản đã được khôi phục thành công rồi.",
+      "delete_success_title": "Đã xóa",
+      "delete_success_message": "Tài khoản đã bị xóa rồi nha.",
+      "password_update_success_title": "Đã đổi mật khẩu",
+      "password_update_success_message": "Đổi mật khẩu thành công rồi đó.",
+      "ban_success_title": "Đã khóa",
+      "ban_success_message": "Tài khoản này đã bị khóa rồi.",
+      "unban_success_title": "Đã mở khóa",
+      "unban_success_message": "Tài khoản này đã được mở khóa rồi nha.",
+      "create_success_title": "Tạo thành công",
+      "create_success_message": "Tạo tài khoản mới xong xuôi rồi.",
+      "update_success_title": "Đã cập nhật",
+      "update_success_message": "Thông tin tài khoản đã được cập nhật rồi.",
+      "avatar_update_success_title": "Đã đổi ảnh",
+      "avatar_update_success_message": "Ảnh đại diện đã được đổi thành công rồi nè.",
+      "error_recovering": "Khôi phục tài khoản hổng được rồi.",
+      "error_deleting": "Xóa tài khoản thất bại rồi nè.",
+      "error_loading_details": "Hổng lấy được chi tiết tài khoản rồi.",
+      "error_loading_accounts": "Lấy danh sách tài khoản hổng xong rồi.",
+      "error_updating_password": "Đổi mật khẩu thất bại rồi đó.",
+      "error_updating_status": "Cập nhật trạng thái khóa hổng được rồi.",
+      "error_creating": "Tạo tài khoản mới thất bại rồi nè.",
+      "error_loading_stats": "Lấy thống kê tài khoản hổng xong rồi.",
+      "error_updating": "Cập nhật tài khoản thất bại rồi.",
+      "error_loading_count_stats": "Lấy thống kê số lượng hổng được rồi.",
+      "error_updating_avatar": "Đổi ảnh đại diện thất bại rồi nè."
     }
   },
   "validations": {
@@ -336,6 +369,18 @@
       "placeholder": "Viết vài dòng giải thích tại sao từ chối nè...",
       "confirm": "Từ chối ngay",
       "cancel": "Thôi quay lại"
+    },
+    "notifications": {
+      "error_loading_deposits": "Hổng lấy được danh sách ký gửi đang chờ rồi.",
+      "error_loading_listings": "Hổng lấy được danh sách tin đăng đang chờ rồi.",
+      "error_loading_events": "Hổng lấy được danh sách sự kiện đang chờ rồi.",
+      "error_loading_stats": "Lấy thống kê phê duyệt hổng xong rồi.",
+      "error_loading_history": "Lấy lịch sử món đồ thất bại rồi.",
+      "error_processing": "Xử lý phê duyệt hổng được rồi nè.",
+      "approve_success_title": "Đã duyệt",
+      "approve_success_message": "Đã duyệt món này thành công rồi nha",
+      "refuse_success_title": "Đã từ chối",
+      "refuse_success_message": "Đã từ chối món này xong xuôi rồi"
     },
     "details": {
       "title": "Chi Tiết Phê Duyệt",
@@ -429,6 +474,25 @@
       "schedule_title": "Lịch trình thùng #{{id}}",
       "drop_off": "[Gửi đồ] ",
       "pick_up": "[Nhận đồ] "
+    },
+    "notifications": {
+      "create_success_title": "Xong rồi đó",
+      "create_success_message": "Thùng chứa mới đã được triển khai thành công rồi.",
+      "update_status_success_title": "Đã cập nhật",
+      "update_status_success_message": "Trạng thái thùng chứa đã thay đổi rồi nha.",
+      "delete_success_title": "Đã xóa",
+      "delete_success_message": "Đã đưa thùng chứa vào kho lưu trữ xong rồi.",
+      "update_location_success_title": "Đã cập nhật",
+      "update_location_success_message": "Vị trí thùng chứa đã được thay đổi rồi.",
+      "error_loading_containers": "Hổng lấy được danh sách thùng chứa rồi.",
+      "error_creating": "Triển khai thùng chứa mới hổng xong rồi.",
+      "error_updating_status": "Cập nhật trạng thái thùng thất bại rồi nè.",
+      "error_deleting": "Hổng gỡ thùng chứa ra khỏi danh sách được rồi.",
+      "error_loading_details": "Lấy thông tin thùng chứa này hổng xong rồi.",
+      "error_loading_stats": "Lấy thống kê số lượng thùng hổng được rồi.",
+      "error_loading_available": "Hổng lấy được danh sách thùng trống rồi.",
+      "error_updating_location": "Cập nhật vị trí thùng thất bại rồi đó.",
+      "error_loading_schedule": "Lấy lịch trình thùng này hổng xong rồi."
     }
   },
   "listings": {
@@ -514,6 +578,13 @@
         "no_transactions": "Hổng có giao dịch nào hết",
         "cancel_modal_title": "Hủy giao dịch",
         "cancel_confirm": "Bạn có chắc muốn hủy giao dịch #{{id}} không? Hủy là hổng có quay lại được đâu đó."
+      },
+      "notifications": {
+        "transfer_success_title": "Đã chuyển thùng chứa",
+        "transfer_success_message": "Đã chuyển món đồ sang thùng chứa mới thành công",
+        "transfer_error": "Chuyển thùng chứa thất bại rồi",
+        "fetch_deposit_codes_error": "Lấy mã ký gửi hổng được rồi",
+        "fetch_deposit_details_error": "Lấy chi tiết ký gửi thất bại rồi nè"
       }
     }
   },
@@ -655,7 +726,16 @@
       "created_title": "Bài viết được tạo",
       "created_msg": "Bài viết mới được tạo thành công rồi!",
       "deleted_title": "Bài viết được xóa",
-      "deleted_msg": "Bài viết được xóa thành công rồi!"
+      "deleted_msg": "Bài viết được xóa thành công rồi!",
+      "ads_created_title": "Đã tạo quảng cáo",
+      "ads_created_msg": "Đã tạo quảng cáo thành công rồi",
+      "ads_deleted_title": "Đã xóa quảng cáo",
+      "ads_deleted_msg": "Đã xóa quảng cáo xong rồi nè",
+      "ads_updated_title": "Đã cập nhật quảng cáo",
+      "ads_updated_msg": "Đã cập nhật thông tin quảng cáo rồi",
+      "error_creating_ads": "Tạo quảng cáo thất bại rồi nè",
+      "error_deleting_ads": "Xóa quảng cáo hổng xong rồi",
+      "error_updating_ads": "Cập nhật quảng cáo hổng được rồi"
     }
   },
   "events": {
@@ -754,7 +834,9 @@
         "no_assigned": "Chưa có nhân viên nào được phân công hết.",
         "table": {
           "assigned_on": "Đã phân công lúc"
-        }
+        },
+        "error_fetching_available": "Hổng lấy được danh sách nhân viên rồi.",
+        "error_fetching_schedule": "Lấy lịch làm việc của nhân viên hổng xong rồi."
       },
       "cancel_modal": {
         "reopen_title": "Mở Lại Sự Kiện",
@@ -830,6 +912,22 @@
         "reason_placeholder": "Ghi lý do vô đây (hổng bắt buộc)...",
         "confirm": "Hủy luôn cho rồi"
       }
+    },
+    "notifications": {
+      "revoke_success_title": "Đã hủy",
+      "revoke_success_message": "Đã hủy gói hội viên thành công rồi",
+      "update_price_success_title": "Đã cập nhật",
+      "update_price_success_message": "Giá gói hội viên đã được cập nhật rồi đó",
+      "update_trial_success_title": "Đã cập nhật",
+      "update_trial_success_message": "Thời gian dùng thử đã được cập nhật rồi",
+      "error_loading_subscriptions": "Hổng lấy được danh sách gói hội viên rồi.",
+      "error_loading_details": "Lấy chi tiết gói hội viên hổng xong rồi.",
+      "error_revoking": "Hủy gói hội viên thất bại rồi nè.",
+      "error_loading_price": "Lấy giá gói hội viên hổng được rồi.",
+      "error_updating_price": "Cập nhật giá gói hội viên thất bại rồi.",
+      "error_loading_trial": "Lấy thời gian dùng thử hổng được rồi.",
+      "error_updating_trial": "Cập nhật thời gian dùng thử thất bại rồi.",
+      "error_loading_stats": "Lấy thống kê gói hội viên hổng xong rồi."
     }
   },
   "finance": {
@@ -897,6 +995,13 @@
       "success_title": "Cập nhật xong rồi nha",
       "success_msg": "Đã sửa xong mục {{setting}} rồi nè.",
       "error_title": "Cập nhật thất bại rồi"
+    },
+    "notifications": {
+      "error_loading_revenue": "Lấy dữ liệu doanh thu hổng xong rồi.",
+      "error_loading_settings": "Lấy cài đặt tài chính thất bại rồi nè.",
+      "error_loading_users": "Lấy danh sách người dùng hổng được rồi.",
+      "error_loading_invoices": "Lấy hóa đơn của người dùng hổng xong rồi.",
+      "error_loading_setting": "Lấy cài đặt tài chính hổng được rồi nè."
     }
   },
   "status": {

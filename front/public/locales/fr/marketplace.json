@@ -37,5 +37,24 @@
     "secure_transaction_note": "Transaction sécurisée garantie par UpAgain",
     "verified_poster": "Utilisateur vérifié",
     "reserve_now": "Réserver maintenant"
+  },
+  "notifications": {
+    "delete_success_title": "Objet supprimé",
+    "delete_success_message": "L'objet a été supprimé avec succès",
+    "post_success_title": "Objet publié",
+    "post_success_message": "L'objet a été publié avec succès",
+    "update_success_title": "Annonce mise à jour",
+    "update_success_message": "L'annonce a été mise à jour avec succès",
+    "cancel_transaction_success_title": "Transaction annulée",
+    "cancel_transaction_success_message": "La transaction a été annulée avec succès",
+    "fetch_detail_error": "Échec de la récupération des détails de l'objet",
+    "update_error": "Échec de la mise à jour de l'annonce",
+    "delete_error": "Échec de la suppression de l'objet",
+    "post_error": "Échec de la publication du nouvel objet",
+    "fetch_items_error": "Échec de la récupération des objets",
+    "fetch_stats_error": "Échec de la récupération des statistiques des objets",
+    "update_status_error": "Échec de la mise à jour du statut de l'objet",
+    "fetch_transactions_error": "Échec de la récupération des transactions de l'objet",
+    "cancel_transaction_error": "Échec de l'annulation de la transaction"
   }
 }

@@ -1,4 +1,5 @@
 import { showErrorNotification } from "../components/common/NotificationToast";
+import i18n from "i18next";
 
 export interface LocationCoordinates {
   latitude: number;
@@ -15,13 +16,13 @@ export const getCurrentLocation = () => {
       (error) => {
         if (error.code === error.PERMISSION_DENIED) {
           showErrorNotification(
-            "Location request denied",
-            "You denied location access.",
+            i18n.t("common:notifications.location.denied_title"),
+            i18n.t("common:notifications.location.denied_message"),
           );
         } else {
           showErrorNotification(
-            "Location request failed",
-            "An error occurred while fetching your location.",
+            i18n.t("common:notifications.location.failed_title"),
+            i18n.t("common:notifications.location.failed_message"),
           );
         }
         return null;
@@ -29,8 +30,8 @@ export const getCurrentLocation = () => {
     );
   } else {
     showErrorNotification(
-      "Location request failed",
-      "Geolocation is not supported by this browser.",
+      i18n.t("common:notifications.location.failed_title"),
+      i18n.t("common:notifications.location.not_supported_message"),
     );
     return null;
   }
