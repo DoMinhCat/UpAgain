@@ -98,6 +98,10 @@ export const ENDPOINTS = {
     REGISTER: "/register/",
   },
 
+  ITEMS: {
+    NEW: "/items/",
+  },
+
   LISTINGS: {
     DETAILS: (id_listing: number) => `/listings/${id_listing}/`,
   },
@@ -138,6 +142,7 @@ export const ENDPOINTS = {
 
   ACCOUNTS: {
     UPDATE_AVATAR: (id_account: number) => `/accounts/${id_account}/avatar/`,
-    NOTIFICATIONS: (id_account: number) => `/accounts/${id_account}/notifications/`,
+    NOTIFICATIONS: (id_account: number) =>
+      `/accounts/${id_account}/notifications/`,
   },
 } as const;

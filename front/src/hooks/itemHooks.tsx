@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   cancelTransaction,
+  createItem,
   deleteItem,
   getAllItems,
   getItemDetails,
@@ -9,6 +10,7 @@ import {
   updateItemStatus,
 } from "../api/itemModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
+import type { CreateItemRequest } from "../api/interfaces/item";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -123,6 +125,21 @@ export const useCancelTransaction = (id_item: number) => {
         "Transaction cancelled",
         "Transaction cancelled successfully",
       );
+    },
+  });
+};
+
+export const useCreateItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateItemRequest) => createItem(payload),
+    meta: {
+      errorTitle: "Posting item failed",
+      errorMessage: "Failed to post new item",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      showSuccessNotification("Item posted", "Item posted successfully");
     },
   });
 };
