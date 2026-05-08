@@ -75,6 +75,7 @@ func GetListingDetails(w http.ResponseWriter, r *http.Request) {
 // @Param        state            formData  string  true   "Item state (new, good, very_good, need_repair)"
 // @Param        material         formData  string  true   "Item material (wood, metal, textile, glass, plastic, other, mixed)"
 // @Param        price            formData  number  true   "Item price"
+// @Param        street           formData  string  true   "Street address"
 // @Param        city             formData  string  true   "City"
 // @Param        postal_code      formData  string  true   "Postal code (5-9 digits)"
 // @Param        existing_images  formData  string  false  "Paths of existing images to keep (multiple allowed)"
@@ -182,6 +183,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		Material:    itemDetails.Material,
 		Price:       itemDetails.Price,
 		Status:      itemDetails.Status,
+		Street:      listingDetails.Street,
 		City:        listingDetails.City,
 		PostalCode:  listingDetails.PostalCode,
 		Photos:      old_photos,
@@ -230,6 +232,11 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	}
 	if payload.Price < 0 {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid price.")
+		return
+	}
+	payload.Street = r.FormValue("street")
+	if strings.TrimSpace(payload.Street) == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Street is required.")
 		return
 	}
 	payload.City = r.FormValue("city")

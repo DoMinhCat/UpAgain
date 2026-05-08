@@ -361,7 +361,7 @@ export default function NewItem() {
                       </Box>
                       <Title order={3}>{t("sections.attributes")}</Title>
                     </Group>
-                    <SimpleGrid cols={{ base: 1, sm: 2 }} align="flex-start">
+                    <SimpleGrid cols={{ base: 1, sm: 2 }}>
                       <Stack gap={0}>
                         <NumberInput
                           label={t("fields.price")}
@@ -546,6 +546,7 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
+                            // onClick={() => getClosestContainer()}
                           >
                             {t("methods.deposit.closest")}
                           </Button>
@@ -651,6 +652,7 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
+                            // onClick={}
                           >
                             {t("methods.listing.current_location")}
                           </Button>
@@ -767,7 +769,7 @@ export default function NewItem() {
                           {estimatedScore}
                         </Title>
                         <Text size="xs" c="dimmed" ta="center">
-                          Points earned for your eco-contribution
+                          {t("upcycling_score_note")}
                         </Text>
                       </Stack>
                     </Paper>

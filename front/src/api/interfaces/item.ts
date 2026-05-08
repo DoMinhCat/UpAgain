@@ -12,6 +12,7 @@ export interface Item {
   price: number;
   status: string;
   images?: string[];
+  street?: string;
   score: number;
 }
 
@@ -70,6 +71,7 @@ export interface CreateDepositRequest {
 
 export interface CreateListingRequest {
   id_item: number;
+  street: string;
   city_name: string;
   postal_code: string;
 }

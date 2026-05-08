@@ -23,6 +23,7 @@ export interface PaginatedListingsResponse {
 }
 
 export interface ListingDetails {
+  street: string;
   city: string;
   postal_code: string;
 }

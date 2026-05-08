@@ -22,7 +22,7 @@ import {
   validateConfirmPassword,
   validateEmail,
   validatePassword,
-} from "../../../utils/accountValidation";
+} from "../../../utils/validations/accountValidation";
 import { useTranslation } from "react-i18next";
 
 export default function SecurityTab() {

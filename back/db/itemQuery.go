@@ -4,6 +4,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"fmt"
+	"log/slog"
 	"slices"
 	"time"
 )
@@ -369,6 +370,11 @@ func GetItemDetailsByItemId(id int) (models.Item, error) {
 	}
 	if isListing {
 		item.Category = "listing"
+		// Fetch street
+		err = utils.Conn.QueryRow("SELECT street FROM listings WHERE id_item = $1", id).Scan(&item.Street)
+		if err != nil {
+			slog.Error("GetItemDetailsByItemId() fetch street failed", "error", err)
+		}
 	} else {
 		item.Category = "deposit"
 	}

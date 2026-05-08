@@ -309,6 +309,7 @@
       "container": "Conteneur",
       "material": "Matériau",
       "city": "Ville",
+      "location": "Localisation",
       "price": "Prix",
       "category": "Catégorie",
       "start_date": "Date de début",
