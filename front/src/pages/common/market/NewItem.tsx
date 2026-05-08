@@ -769,7 +769,7 @@ export default function NewItem() {
                           {estimatedScore}
                         </Title>
                         <Text size="xs" c="dimmed" ta="center">
-                          {t("upcycling_score_note")}
+                          {t("create_item:fields.upcycling_score_note")}
                         </Text>
                       </Stack>
                     </Paper>
