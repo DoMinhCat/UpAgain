@@ -87,7 +87,7 @@ export default function NewItem() {
 
   // VALIDATION FUNCTIONS
   const validateTitle = (val: string) => {
-    if (val.length < 3) {
+    if (val.trim().length < 1) {
       setErrorTitle(t("validation.required"));
       return false;
     }
@@ -96,7 +96,7 @@ export default function NewItem() {
   };
 
   const validateDescription = (val: string) => {
-    if (val.length < 10) {
+    if (val.trim().length < 1) {
       setErrorDescription(t("validation.required"));
       return false;
     }
@@ -148,6 +148,9 @@ export default function NewItem() {
       }
       if (!postalCode) {
         setErrorPostalCode(t("validation.required"));
+        valid = false;
+      } else if (!/^[A-Z0-9]{5}$/i.test(postalCode)) {
+        setErrorPostalCode(t("validation.invalid_postal_code"));
         valid = false;
       } else {
         setErrorPostalCode("");
@@ -579,7 +582,7 @@ export default function NewItem() {
                                         : undefined,
                                     backgroundColor:
                                       containerId === container.id
-                                        ? "var(--mantine-color-green-0)"
+                                        ? "var(--upagain-neutral-green)"
                                         : undefined,
                                     transition: "transform 0.1s ease",
                                   }}
