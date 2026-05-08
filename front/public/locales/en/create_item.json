@@ -1,0 +1,47 @@
+{
+  "title": "Post an Object",
+  "subtitle": "Give your materials a second life. Choose how you want to part with your item.",
+  "sections": {
+    "basic_info": "Basic Information",
+    "attributes": "Item Details",
+    "retrieval": "Retrieval Method"
+  },
+  "fields": {
+    "title": "Item Title",
+    "title_placeholder": "e.g., Solid Oak Planks, Metal Scraps...",
+    "description": "Description",
+    "description_placeholder": "Describe the item's dimensions, history, or specificities...",
+    "price": "Price (€)",
+    "price_free": "Set to 0 if it's free",
+    "weight": "Weight (kg)",
+    "material": "Material",
+    "state": "State",
+    "upcycling_score": "Estimated upcycling score"
+  },
+  "methods": {
+    "deposit": {
+      "title": "Smart Container Drop-off",
+      "description": "Drop your item in one of our secure containers. A professional will retrieve it later.",
+      "select_container": "Select a Container",
+      "closest": "Find Closest to Me",
+      "view_map": "View on Map",
+      "map_placeholder": "Map View (Interactive map will be integrated here)"
+    },
+    "listing": {
+      "title": "In-Person Collection",
+      "description": "List your item and coordinate directly with the buyer for pick-up at your location.",
+      "address_info": "Collection Address",
+      "current_location": "Use My Current Location",
+      "street": "Street",
+      "city": "City",
+      "postal_code": "Postal Code"
+    }
+  },
+  "submit": "Publish Listing",
+  "success": "Your item has been posted successfully!",
+  "validation": {
+    "required": "This field is required",
+    "min_weight": "Weight must be at least 0.1 kg",
+    "select_container": "Please select a container"
+  }
+}

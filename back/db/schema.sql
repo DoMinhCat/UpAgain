@@ -262,6 +262,7 @@ CREATE INDEX idx_items_material ON items (material);
 create table listings
 (
     id_item     integer primary key references items (id) on delete cascade,
+    street      text             not null,
     city_name   varchar(255) not null,
     postal_code varchar(10)  not null
 );
