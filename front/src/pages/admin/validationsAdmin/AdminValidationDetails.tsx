@@ -183,7 +183,7 @@ export default function AdminValidationDetails() {
 
               <InfoField label={t("validations.details.fields.location")}>
                 <Text ps="sm" mt="xs">
-                  <strong>{item.username}</strong> - {item.city_name} (
+                  <strong>{item.username}</strong> - {item.street && `${item.street}, `}{item.city_name} (
                   {item.postal_code})
                 </Text>
               </InfoField>

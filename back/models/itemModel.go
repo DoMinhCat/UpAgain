@@ -24,6 +24,7 @@ type Item struct {
 	Price       float64   `json:"price"`
 	Status      string    `json:"status"`
 	Photos      []string  `json:"images"`
+	Street      string    `json:"street"`
 	Score       int       `json:"score"`
 }
 

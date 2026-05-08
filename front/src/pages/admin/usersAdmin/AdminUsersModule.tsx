@@ -41,7 +41,7 @@ import {
   validatePhone,
   validateUsername,
   validateRole,
-} from "../../../utils/accountValidation";
+} from "../../../utils/validations/accountValidation";
 
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";

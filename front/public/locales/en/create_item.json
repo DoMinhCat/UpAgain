@@ -16,7 +16,8 @@
     "weight": "Weight (kg)",
     "material": "Material",
     "state": "State",
-    "upcycling_score": "Estimated upcycling score"
+    "upcycling_score": "Estimated upcycling score",
+    "upcycling_score_note": "Points earned for your eco-contribution"
   },
   "methods": {
     "deposit": {

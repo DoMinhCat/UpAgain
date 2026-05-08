@@ -24,7 +24,7 @@ import {
   validateEventDate,
   validateEventCategory,
   validateEventDescription,
-} from "../../utils/eventValidation";
+} from "../../utils/validations/eventValidation";
 
 interface CreateEventModalProps {
   opened: boolean;

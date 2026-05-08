@@ -55,7 +55,7 @@ import {
   validatePassword,
   validatePhone,
   validateUsername,
-} from "../../../utils/accountValidation";
+} from "../../../utils/validations/accountValidation";
 
 export default function AdminUserDetails() {
   const { t } = useTranslation("admin");

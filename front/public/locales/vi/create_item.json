@@ -16,7 +16,8 @@
     "weight": "Trọng lượng (kg)",
     "material": "Vật liệu",
     "state": "Tình trạng",
-    "upcycling_score": "Điểm tái chế ước tính"
+    "upcycling_score": "Điểm tái chế ước tính",
+    "upcycling_score_note": "Điểm thưởng cho đóng góp sinh thái của bạn"
   },
   "methods": {
     "deposit": {

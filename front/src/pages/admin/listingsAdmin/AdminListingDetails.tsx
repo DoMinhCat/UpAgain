@@ -151,6 +151,9 @@ export default function AdminListingDetails() {
   );
   const [priceEdit, setPriceEdit] = useState<number>(itemDetails?.price || 0);
   const [cityEdit, setCityEdit] = useState<string>(listingDetails?.city || "");
+  const [streetEdit, setStreetEdit] = useState<string>(
+    listingDetails?.street || "",
+  );
   const [postalCodeEdit, setPostalCodeEdit] = useState<string>(
     listingDetails?.postal_code || "",
   );
@@ -162,6 +165,7 @@ export default function AdminListingDetails() {
   const [errorState, setErrorState] = useState("");
   const [errorWeight, setErrorWeight] = useState("");
   const [errorCity, setErrorCity] = useState("");
+  const [errorStreet, setErrorStreet] = useState("");
   const [errorPostalCode, setErrorPostalCode] = useState("");
   const [errorPrice, setErrorPrice] = useState("");
 
@@ -181,6 +185,7 @@ export default function AdminListingDetails() {
       setFileEdit(files || []);
       if (isListing) {
         setCityEdit(listingDetails?.city || "");
+        setStreetEdit(listingDetails?.street || "");
         setPostalCodeEdit(listingDetails?.postal_code || "");
       }
     }
@@ -198,6 +203,7 @@ export default function AdminListingDetails() {
 
     if (isListing) {
       setCityEdit(listingDetails?.city || "");
+      setStreetEdit(listingDetails?.street || "");
       setPostalCodeEdit(listingDetails?.postal_code || "");
     }
     closeEdit();
@@ -263,6 +269,16 @@ export default function AdminListingDetails() {
     }
   };
 
+  const validateStreet = () => {
+    if (!streetEdit) {
+      setErrorStreet("Street is required");
+      return false;
+    } else {
+      setErrorStreet("");
+      return true;
+    }
+  };
+
   const validatePostalCode = () => {
     if (!postalCodeEdit) {
       setErrorPostalCode("Postal code is required");
@@ -304,7 +320,7 @@ export default function AdminListingDetails() {
     }
 
     if (itemDetails?.category === "listing") {
-      if (!validateCity() || !validatePostalCode()) {
+      if (!validateCity() || !validateStreet() || !validatePostalCode()) {
         return;
       }
     }
@@ -317,6 +333,7 @@ export default function AdminListingDetails() {
     formData.append("weight", weightEdit.toString());
     formData.append("price", priceEdit.toString());
     if (isListing) {
+      formData.append("street", streetEdit);
       formData.append("city", cityEdit);
       formData.append("postal_code", postalCodeEdit);
     }
@@ -867,7 +884,7 @@ export default function AdminListingDetails() {
                     icon={<IconMapPin size={18} />}
                     label={t("containers.details.location")}
                     color="white"
-                    value={`${listingDetails?.city} ${listingDetails?.postal_code}`}
+                    value={`${listingDetails?.street}, ${listingDetails?.city} ${listingDetails?.postal_code}`}
                   />
                 ) : (
                   <CardStatsItem
@@ -1080,15 +1097,15 @@ export default function AdminListingDetails() {
                     }}
                   />
                   {itemDetails?.category === "listing" && (
-                    <SimpleGrid cols={2}>
+                    <>
                       <TextInput
                         withAsterisk
-                        label={t("containers.create_modal.city")}
-                        value={cityEdit}
-                        error={errorCity}
-                        onBlur={() => validateCity()}
+                        label={t("containers.create_modal.address")}
+                        value={streetEdit}
+                        error={errorStreet}
+                        onBlur={() => validateStreet()}
                         onChange={(e) => {
-                          setCityEdit(e.target.value);
+                          setStreetEdit(e.target.value);
                         }}
                         disabled={
                           updateDepositMutation.isPending ||
@@ -1096,22 +1113,39 @@ export default function AdminListingDetails() {
                         }
                         required
                       />
-                      <TextInput
-                        withAsterisk
-                        label={t("containers.create_modal.postal_code")}
-                        value={postalCodeEdit}
-                        error={errorPostalCode}
-                        onBlur={() => validatePostalCode()}
-                        onChange={(e) => {
-                          setPostalCodeEdit(e.target.value);
-                        }}
-                        disabled={
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending
-                        }
-                        required
-                      />
-                    </SimpleGrid>
+                      <SimpleGrid cols={2}>
+                        <TextInput
+                          withAsterisk
+                          label={t("containers.create_modal.city")}
+                          value={cityEdit}
+                          error={errorCity}
+                          onBlur={() => validateCity()}
+                          onChange={(e) => {
+                            setCityEdit(e.target.value);
+                          }}
+                          disabled={
+                            updateDepositMutation.isPending ||
+                            updateListingMutation.isPending
+                          }
+                          required
+                        />
+                        <TextInput
+                          withAsterisk
+                          label={t("containers.create_modal.postal_code")}
+                          value={postalCodeEdit}
+                          error={errorPostalCode}
+                          onBlur={() => validatePostalCode()}
+                          onChange={(e) => {
+                            setPostalCodeEdit(e.target.value);
+                          }}
+                          disabled={
+                            updateDepositMutation.isPending ||
+                            updateListingMutation.isPending
+                          }
+                          required
+                        />
+                      </SimpleGrid>
+                    </>
                   )}
 
                   <TextEditor
