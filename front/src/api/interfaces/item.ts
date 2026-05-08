@@ -48,3 +48,28 @@ export interface PaginatedHistoryResponse {
   limit: number;
   total_records: number;
 }
+
+export interface CreateItemRequest {
+  title: string;
+  description: string;
+  price: number;
+  weight: number;
+  material: string;
+  state: string;
+  category: string; // listing or deposit
+  images: string[];
+  id_user: number;
+  listing_info?: CreateListingRequest;
+  deposit_info?: CreateDepositRequest;
+}
+
+export interface CreateDepositRequest {
+  id_item: number;
+  id_container: number;
+}
+
+export interface CreateListingRequest {
+  id_item: number;
+  city_name: string;
+  postal_code: string;
+}

@@ -1,6 +1,7 @@
 import { api } from "./axios";
 import { ENDPOINTS } from "./endpoints";
 import type {
+  CreateItemRequest,
   Item,
   ItemAdminStats,
   ItemsListPagination,
@@ -58,4 +59,9 @@ export const cancelTransaction = async (
   transactionUuid: string,
 ) => {
   await api.post(ENDPOINTS.ADMIN.ITEMS.CANCEL_TRANSACTION(id, transactionUuid));
+};
+
+export const createItem = async (payload: CreateItemRequest) => {
+  const response = await api.post(ENDPOINTS.ITEMS.NEW, payload);
+  return response.data;
 };
