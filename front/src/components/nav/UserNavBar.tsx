@@ -33,6 +33,7 @@ import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "../../utils/langUtils";
+import { resolveUrl } from "../../utils/imageUtils";
 
 export function UserNavBar() {
   const navigate = useNavigate();
@@ -163,7 +164,7 @@ export function UserNavBar() {
                 >
                   {accountDetails?.avatar ? (
                     <Avatar
-                      src={accountDetails?.avatar}
+                      src={resolveUrl(accountDetails?.avatar)}
                       name={accountDetails?.username}
                       color="initials"
                       size={40}

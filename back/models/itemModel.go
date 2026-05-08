@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/guregu/null"
+)
 
 type ItemFilters struct {
 	Search   string `json:"search"`
@@ -11,19 +15,20 @@ type ItemFilters struct {
 }
 
 type Item struct {
-	CreatedAt   time.Time `json:"created_at"`
-	Id          int       `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Weight      float64   `json:"weight"`
-	State       string    `json:"state"`
-	IdUser      int       `json:"id_user"`
-	Username    string    `json:"username"`
-	Category    string    `json:"category"` // listing or deposit
-	Material    string    `json:"material"`
-	Price       float64   `json:"price"`
-	Status      string    `json:"status"`
-	Photos      []string  `json:"images"`
+	CreatedAt       time.Time `json:"created_at"`
+	Id              int       `json:"id"`
+	Title           string    `json:"title"`
+	Description     string    `json:"description"`
+	Weight          float64   `json:"weight"`
+	State           string    `json:"state"`
+	IdUser          int       `json:"id_user"`
+	Username        string    `json:"username"`
+	CreatorAvatar   null.String `json:"creator_avatar"`
+	Category        string    `json:"category"` // listing or deposit
+	Material        string    `json:"material"`
+	Price           float64   `json:"price"`
+	Status          string    `json:"status"`
+	Photos          []string  `json:"images"`
 	Street      string    `json:"street"`
 	Score       int       `json:"score"`
 }

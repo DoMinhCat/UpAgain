@@ -20,6 +20,7 @@ export interface Post {
   creator: string;
   creator_id: number;
   photos?: string[];
+  creator_avatar?: string;
   ads_id: number | null;
   ads_from: string | null;
   ads_to: string | null;
