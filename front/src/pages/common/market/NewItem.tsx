@@ -36,7 +36,7 @@ import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import { useCreateItem } from "../../../hooks/itemHooks";
 import { useAuth } from "../../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { CreateItemRequest } from "../../../api/interfaces/item";
 
 // Emission factors based on backend/utils/helpers/scoreHelper.go
@@ -67,6 +67,7 @@ export default function NewItem() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [images, setImages] = useState<any[]>([]);
+  const origin = useLocation().state as { from?: string };
 
   // FORM STATES
   const [title, setTitle] = useState("");
@@ -265,7 +266,9 @@ export default function NewItem() {
 
       createItemMutation(payload, {
         onSuccess: () => {
-          navigate(PATHS.MARKETPLACE.HOME);
+          origin?.from === "myItems"
+            ? navigate(PATHS.MARKETPLACE.ME)
+            : navigate(PATHS.MARKETPLACE.HOME);
         },
       });
     }
@@ -286,6 +289,16 @@ export default function NewItem() {
                   }),
                   href: PATHS.MARKETPLACE.HOME,
                 },
+                ...(origin?.from === "myItems"
+                  ? [
+                      {
+                        title: t("marketplace:my_listings", {
+                          defaultValue: "My Items",
+                        }),
+                        href: PATHS.MARKETPLACE.ME,
+                      },
+                    ]
+                  : []),
                 { title: t("title"), href: "#" },
               ]}
             />
