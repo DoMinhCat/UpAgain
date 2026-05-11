@@ -116,9 +116,7 @@ export default function MarketPage() {
                 <Button
                   leftSection={<IconPlus stroke={2} />}
                   variant="primary"
-                  onClick={() => {
-                    // open modal to post an object
-                  }}
+                  onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
                 >
                   {t("marketplace:create_listing")}
                 </Button>

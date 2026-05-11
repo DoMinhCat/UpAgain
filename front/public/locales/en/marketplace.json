@@ -2,6 +2,8 @@
   "market": "Marketplace",
   "subtitle": "Discover upcycled items and materials available for purchase.",
   "my_listings": "My Objects",
+  "my_objects_description": "Manage and track the items you've listed or deposited.",
+  "new_item": "New item",
   "create_listing": "Create Listing",
   "search_placeholder": "Search items...",
   "empty": {
@@ -42,7 +44,7 @@
     "delete_success_title": "Item deleted",
     "delete_success_message": "Item deleted successfully",
     "post_success_title": "Item posted",
-    "post_success_message": "Item posted successfully",
+    "post_success_message": "Please wait for admin approval",
     "update_success_title": "Listing updated",
     "update_success_message": "Listing updated successfully",
     "cancel_transaction_success_title": "Transaction cancelled",

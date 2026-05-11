@@ -153,7 +153,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     const isTitleValid = handleValidateTitle();
     const isCapacityValid = handleValidateCapacity();

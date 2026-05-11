@@ -61,7 +61,45 @@ export const cancelTransaction = async (
   await api.post(ENDPOINTS.ADMIN.ITEMS.CANCEL_TRANSACTION(id, transactionUuid));
 };
 
-export const createItem = async (payload: CreateItemRequest) => {
-  const response = await api.post(ENDPOINTS.ITEMS.NEW, payload);
+export const createItem = async (payload: CreateItemRequest): Promise<void> => {
+  const formData = new FormData();
+
+  // Append root level fields
+  Object.entries(payload).forEach(([key, value]) => {
+    if (key !== "images" && key !== "listing_info" && key !== "deposit_info" && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
+
+  // Flatten listing_info
+  if (payload.listing_info) {
+    Object.entries(payload.listing_info).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+  }
+
+  // Flatten deposit_info
+  if (payload.deposit_info) {
+    Object.entries(payload.deposit_info).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+  }
+
+  // Append images
+  if (payload.images && payload.images.length > 0) {
+    payload.images.forEach((file) => {
+      formData.append("images", file);
+    });
+  }
+
+  const response = await api.post(ENDPOINTS.ITEMS.NEW, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };

@@ -521,19 +521,34 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateItem(w http.ResponseWriter, r *http.Request) {
-	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "pro" {
-		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
-		return
-	}
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
 	var payload models.ItemCreateRequest
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		slog.Error("Decode() failed", "controller", "CreateItem", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid JSON payload.")
+	err := r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
 		return
 	}
+	payload.Title = r.FormValue("title")
+	payload.Description = r.FormValue("description")
+	payload.Category = r.FormValue("category")
+	payload.Material = r.FormValue("material")
+	payload.State = r.FormValue("state")
+	price, err := strconv.Atoi(r.FormValue("price"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid price.")
+		return
+	}
+	payload.Price = float64(price)
+	weight, err := strconv.Atoi(r.FormValue("weight"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid weight.")
+		return
+	}
+	payload.Weight = float64(weight)
 	payload.IdUser = idRequestor
 
 	// sanitize payload
@@ -550,6 +565,13 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// at least one photo
+	files := r.MultipartForm.File["images"]
+	if len(files) == 0 {
+		utils.RespondWithError(w, http.StatusBadRequest, "At least one photo is required.")
+		return
+	}
+
 	// call to db to insert into items
 	id_item, err := db.CreateItem(payload)
 	if err != nil {
@@ -558,9 +580,63 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// upload and insert images
+	for _, file := range files {
+		path, err := helpers.SaveUploadedFile(file, "images/items")
+		if err != nil {
+			slog.Error("SaveUploadedFile() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
+			return
+		}
+		payload.Photos = append(payload.Photos, path)
+	}
+	for i, imgPath := range payload.Photos {
+		imagePayload := models.PhotoInsertRequest{
+			Path:       imgPath,
+			IsPrimary:  i == 0,
+			ObjectType: "item",
+			FkId:       id_item,
+		}
+		err = db.InsertImage(imagePayload)
+		if err != nil {
+			slog.Error("db.InsertImage() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the item.")
+			return
+		}
+	}
+
 	// insert into deposit or listing based on category
 	if payload.Category == "deposit" {
+		idContainer, err := strconv.Atoi(r.FormValue("id_container"))
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid container ID.")
+			return
+		}
+		payload.DepositInfo.IdContainer = idContainer
 		payload.DepositInfo.IdItem = id_item
+
+		// check container
+		exist, err := db.CheckContainerExistById(idContainer)
+		if err != nil {
+			slog.Error("CheckContainerExistById() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		if !exist {
+			utils.RespondWithError(w, http.StatusBadRequest, "Container with ID "+strconv.Itoa(idContainer)+" does not exist.")
+			return
+		}
+		status, err := db.GetContainerStatusById(idContainer)
+		if err != nil {
+			slog.Error("GetContainerStatusById() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		if status == "maintenance" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Container with ID "+strconv.Itoa(idContainer)+" is currently under maintenance. Please try again later.")
+			return
+		}
 		err = db.CreateDeposit(payload.DepositInfo)
 		if err != nil {
 			slog.Error("CreateDeposit() failed", "controller", "CreateItem", "error", err)
@@ -568,7 +644,12 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
+		payload.ListingInfo.Street = r.FormValue("street")
+		payload.ListingInfo.CityName = r.FormValue("city_name")
+		payload.ListingInfo.PostalCode = r.FormValue("postal_code")
 		payload.ListingInfo.IdItem = id_item
+
+		// TODO: insert lat and lng into db once db structure is updated
 		err = db.CreateListing(payload.ListingInfo)
 		if err != nil {
 			slog.Error("CreateListing() failed", "controller", "CreateItem", "error", err)
@@ -576,7 +657,6 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
 	
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item created successfully."})
 }

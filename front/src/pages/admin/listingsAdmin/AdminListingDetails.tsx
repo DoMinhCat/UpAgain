@@ -285,7 +285,11 @@ export default function AdminListingDetails() {
       return false;
     }
     if (!/^\d{5,9}$/.test(postalCodeEdit)) {
-      setErrorPostalCode(t("create_item:validation.invalid_postal_code", { defaultValue: "Invalid postal code" }));
+      setErrorPostalCode(
+        t("create_item:validation.invalid_postal_code", {
+          defaultValue: "Invalid postal code",
+        }),
+      );
       return false;
     }
     setErrorPostalCode("");
@@ -469,6 +473,8 @@ export default function AdminListingDetails() {
         {t("listings.details.title")}
       </Title>
       <MyBreadcrumbs
+        mt="md"
+        mb="md"
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [

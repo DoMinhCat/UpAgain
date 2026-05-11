@@ -58,7 +58,7 @@ export interface CreateItemRequest {
   material: string;
   state: string;
   category: string; // listing or deposit
-  images: string[];
+  images: File[];
   id_user: number;
   listing_info?: CreateListingRequest;
   deposit_info?: CreateDepositRequest;

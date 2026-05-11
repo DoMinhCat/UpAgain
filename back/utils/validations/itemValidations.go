@@ -83,15 +83,6 @@ func ValidateItemCreation(newItem models.ItemCreateRequest) models.ValidationRes
 		return response
 	}
 
-	if len(newItem.Photos) == 0 {
-		response = models.ValidationResponse{
-			Success: false,
-			Message: fmt.Errorf("At least one photo is required."),
-			Error:   http.StatusBadRequest,
-		}
-		return response
-	}
-
 	return models.ValidationResponse{
 		Success: true,
 		Message: nil,

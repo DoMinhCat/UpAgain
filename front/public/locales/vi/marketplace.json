@@ -2,6 +2,8 @@
   "market": "Cửa hàng",
   "subtitle": "Khám phá các sản phẩm và vật liệu tái chế có sẵn để mua.",
   "my_listings": "Danh sách của tôi",
+  "my_objects_description": "Quản lý và theo dõi các mặt hàng bạn đã đăng bán hoặc ký gửi.",
+  "new_item": "Mặt hàng mới",
   "create_listing": "Tạo danh sách",
   "search_placeholder": "Tìm kiếm sản phẩm...",
   "empty": {
@@ -42,7 +44,7 @@
     "delete_success_title": "Đã xóa món đồ",
     "delete_success_message": "Món đồ đã được xóa thành công rồi nha",
     "post_success_title": "Đã đăng món đồ",
-    "post_success_message": "Món đồ của bạn đã được đăng thành công!",
+    "post_success_message": "Vui lòng chờ admin phê duyệt",
     "update_success_title": "Đã cập nhật tin đăng",
     "update_success_message": "Tin đăng của bạn đã được cập nhật thành công",
     "cancel_transaction_success_title": "Đã hủy giao dịch",

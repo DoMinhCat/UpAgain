@@ -639,7 +639,7 @@ export function AdminListingModule() {
               <Table.Td ta="center">{item.price}</Table.Td>
               <Table.Td ta="center">
                 {item.status === "pending" ? (
-                  <Badge variant="blue">{t("status.pending")}</Badge>
+                  <Badge variant="yellow">{t("status.pending")}</Badge>
                 ) : item.status === "approved" ? (
                   <Badge variant="green">{t("status.approved")}</Badge>
                 ) : item.status === "refused" ? (
