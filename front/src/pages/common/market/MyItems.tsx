@@ -26,7 +26,8 @@ const MOCK_ITEMS: Item[] = [
   {
     id: 1,
     title: "Vintage Wooden Table",
-    description: "A beautifully aged oak table, perfect for a rustic dining room.",
+    description:
+      "A beautifully aged oak table, perfect for a rustic dining room.",
     price: 45,
     weight: 12,
     state: "Very Good",
@@ -35,7 +36,9 @@ const MOCK_ITEMS: Item[] = [
     category: "listing",
     material: "wood",
     status: "approved",
-    images: ["https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=400"],
+    images: [
+      "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=400",
+    ],
     created_at: new Date().toISOString(),
     score: 15,
   },
@@ -51,7 +54,9 @@ const MOCK_ITEMS: Item[] = [
     category: "deposit",
     material: "metal",
     status: "approved",
-    images: ["https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&q=80&w=400"],
+    images: [
+      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&q=80&w=400",
+    ],
     created_at: new Date().toISOString(),
     score: 10,
   },
@@ -67,7 +72,9 @@ const MOCK_ITEMS: Item[] = [
     category: "listing",
     material: "textile",
     status: "approved",
-    images: ["https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=400"],
+    images: [
+      "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=400",
+    ],
     created_at: new Date().toISOString(),
     score: 5,
   },
@@ -83,7 +90,9 @@ const MOCK_ITEMS: Item[] = [
     category: "listing",
     material: "glass",
     status: "approved",
-    images: ["https://images.unsplash.com/photo-1536939459926-301728717817?auto=format&fit=crop&q=80&w=400"],
+    images: [
+      "https://images.unsplash.com/photo-1536939459926-301728717817?auto=format&fit=crop&q=80&w=400",
+    ],
     created_at: new Date().toISOString(),
     score: 8,
   },
@@ -111,7 +120,9 @@ export default function MyItems() {
 
   // Simple filtering for mockup
   const filteredItems = MOCK_ITEMS.filter((item) => {
-    const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = item.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
     const matchesMaterial = material === "all" || item.material === material;
     return matchesSearch && matchesMaterial;
   });
@@ -147,7 +158,9 @@ export default function MyItems() {
           <Button
             leftSection={<IconPlus size={20} />}
             variant="primary"
-            onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
+            onClick={() =>
+              navigate(PATHS.MARKETPLACE.NEW, { state: { from: "myItems" } })
+            }
             size="md"
           >
             {t("marketplace:new_item")}
@@ -158,7 +171,9 @@ export default function MyItems() {
         <Group justify="space-between" wrap="wrap" gap="md" mt="md">
           <TextInput
             placeholder={t("marketplace:search_placeholder")}
-            leftSection={<IconSearch size={16} color="var(--upagain-neutral-green)" />}
+            leftSection={
+              <IconSearch size={16} color="var(--upagain-neutral-green)" />
+            }
             value={search}
             onChange={(e) => {
               setSearch(e.currentTarget.value);
@@ -180,7 +195,11 @@ export default function MyItems() {
         </Group>
 
         {/* List of Items */}
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg" mt="md">
+        <SimpleGrid
+          cols={{ base: 1, sm: 2, md: 3, lg: 4 }}
+          spacing="lg"
+          mt="md"
+        >
           {paginatedItems.map((item) => (
             <ItemCard key={item.id} item={item} />
           ))}
