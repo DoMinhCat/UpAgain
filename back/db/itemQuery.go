@@ -152,10 +152,11 @@ func GetValidationStats() (models.ValidationStats, error) {
 
 	eventQuery := `
 		SELECT
-			COUNT(*) FILTER (WHERE status = 'pending')  AS pending_events,
-			COUNT(*) FILTER (WHERE status = 'approved') AS approved_events,
-			COUNT(*) FILTER (WHERE status = 'refused')  AS refused_events
-		FROM events
+			COUNT(*) FILTER (WHERE e.status = 'pending' AND e.start_at > now())  AS pending_events,
+			COUNT(*) FILTER (WHERE e.status = 'approved' AND e.start_at > now()) AS approved_events,
+			COUNT(*) FILTER (WHERE e.status = 'refused'  AND e.start_at > now())  AS refused_events
+		FROM events e
+		WHERE e.status != 'cancelled'
 	`
 	if err := utils.Conn.QueryRow(eventQuery).Scan(
 		&stats.PendingEvents, &stats.ApprovedEvents, &stats.RefusedEvents,

@@ -64,7 +64,7 @@ func GetPendingDeposits(page, limit int, filters models.ValidationFilters) ([]mo
 	countQuery := `
 		SELECT COUNT(DISTINCT i.id)
 		FROM items i
-		LEFT JOIN deposits d ON i.id = d.id_item
+		JOIN deposits d ON i.id = d.id_item
 		LEFT JOIN containers c ON d.id_container = c.id
 		LEFT JOIN accounts a ON i.id_user = a.id
 		` + whereClause

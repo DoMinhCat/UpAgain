@@ -113,7 +113,7 @@ func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]mo
 	countQuery := `
 		SELECT COUNT(DISTINCT i.id)
 		FROM items i
-		LEFT JOIN listings l ON l.id_item = i.id
+		JOIN listings l ON l.id_item = i.id
 		LEFT JOIN accounts a ON a.id = i.id_user
 		` + whereClause
 
