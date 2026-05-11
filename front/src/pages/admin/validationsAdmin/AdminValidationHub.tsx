@@ -486,7 +486,9 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               <Table.Td ta="center">
                 {d.city_name} ({d.postal_code})
               </Table.Td>
-              <Table.Td ta="center">{d.material}</Table.Td>
+              <Table.Td ta="center">
+                {d.material.charAt(0).toUpperCase() + d.material.slice(1)}
+              </Table.Td>
               <Table.Td ta="center">
                 <Group
                   gap="xs"

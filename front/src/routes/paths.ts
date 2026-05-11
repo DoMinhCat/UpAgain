@@ -60,6 +60,7 @@ export const PATHS = {
   MARKETPLACE: {
     HOME: "/marketplace",
     ME: "/marketplace/me",
+    NEW: "/marketplace/new",
   },
   EVENTS: {
     HOME: "/events",

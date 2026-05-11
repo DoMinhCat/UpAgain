@@ -34,7 +34,10 @@ import {
 import ImageDropzone from "../../../components/input/ImageDropzone";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
-import { showSuccessNotification } from "../../../components/common/NotificationToast";
+import { useCreateItem } from "../../../hooks/itemHooks";
+import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import type { CreateItemRequest } from "../../../api/interfaces/item";
 
 // Emission factors based on backend/utils/helpers/scoreHelper.go
 const EMISSION_FACTORS: Record<
@@ -60,6 +63,9 @@ export default function NewItem() {
   const [retrievalMethod, setRetrievalMethod] = useState<"deposit" | "listing">(
     "deposit",
   );
+  const { mutate: createItemMutation, isPending } = useCreateItem();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [images, setImages] = useState<any[]>([]);
 
   // FORM STATES
@@ -219,7 +225,7 @@ export default function NewItem() {
     { value: "need_repair", label: t("common:states.need_repair") },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const v1 = validateTitle(title);
     const v2 = validateDescription(description);
@@ -229,21 +235,39 @@ export default function NewItem() {
     const v6 = validateAddress();
 
     if (v1 && v2 && v3 && v4 && v5 && v6) {
-      console.log("Submitting:", {
+      const payload: CreateItemRequest = {
         title,
         description,
-        price,
-        weight,
-        material,
-        state,
-        retrievalMethod,
-        street,
-        city,
-        postalCode,
-        containerId,
-        images,
+        price: Number(price),
+        weight: Number(weight),
+        material: material || "other",
+        state: state || "good",
+        category: retrievalMethod,
+        images: images,
+        id_user: user?.id || 0,
+        listing_info:
+          retrievalMethod === "listing"
+            ? {
+                id_item: 0,
+                street,
+                city_name: city,
+                postal_code: postalCode,
+              }
+            : undefined,
+        deposit_info:
+          retrievalMethod === "deposit"
+            ? {
+                id_item: 0,
+                id_container: containerId || 0,
+              }
+            : undefined,
+      };
+
+      createItemMutation(payload, {
+        onSuccess: () => {
+          navigate(PATHS.MARKETPLACE.HOME);
+        },
       });
-      showSuccessNotification(t("success"), "");
     }
   };
 
@@ -301,7 +325,11 @@ export default function NewItem() {
                       </Box>
                       <Title order={3}>{t("sections.basic_info")}</Title>
                     </Group>
-                    <ImageDropzone files={images} setFiles={setImages} />
+                    <ImageDropzone
+                      files={images}
+                      setFiles={setImages}
+                      disabled={isPending}
+                    />
                     <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
                       <TextInput
                         label={t("fields.title")}
@@ -549,7 +577,10 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
-                            // onClick={() => getClosestContainer()}
+                            onClick={() => {
+                              // TODO: Implement find nearest container
+                              console.log("TODO: Find nearest container");
+                            }}
                           >
                             {t("methods.deposit.closest")}
                           </Button>
@@ -655,7 +686,10 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
-                            // onClick={}
+                            onClick={() => {
+                              // TODO: Implement get current location
+                              console.log("TODO: Get current location");
+                            }}
                           >
                             {t("methods.listing.current_location")}
                           </Button>
@@ -797,6 +831,7 @@ export default function NewItem() {
                       fullWidth
                       radius="md"
                       color="var(--upagain-neutral-green)"
+                      loading={isPending}
                       leftSection={<IconCheck size={20} />}
                       style={{
                         transition: "transform 0.2s ease",
