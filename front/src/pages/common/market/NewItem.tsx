@@ -3,7 +3,6 @@ import {
   Paper,
   Stack,
   TextInput,
-  Textarea,
   NumberInput,
   Select,
   Title,
@@ -32,6 +31,7 @@ import {
   IconLeaf,
 } from "@tabler/icons-react";
 import ImageDropzone from "../../../components/input/ImageDropzone";
+import { TextEditor } from "../../../components/input/TextEditor";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import { useCreateItem } from "../../../hooks/itemHooks";
@@ -94,8 +94,13 @@ export default function NewItem() {
 
   // VALIDATION FUNCTIONS
   const validateTitle = (val: string) => {
-    if (val.trim().length < 1) {
-      setErrorTitle(t("validation.required"));
+    const trimmed = val.trim();
+    if (trimmed.length < 3) {
+      setErrorTitle(t("validation.min_length", { count: 3 }));
+      return false;
+    }
+    if (trimmed.length > 50) {
+      setErrorTitle(t("validation.max_length", { count: 50 }));
       return false;
     }
     setErrorTitle("");
@@ -103,7 +108,8 @@ export default function NewItem() {
   };
 
   const validateDescription = (val: string) => {
-    if (val.trim().length < 1) {
+    const plainText = val.replace(/<[^>]*>/g, "").trim();
+    if (plainText.length < 1) {
       setErrorDescription(t("validation.required"));
       return false;
     }
@@ -367,15 +373,14 @@ export default function NewItem() {
                         error={errorMaterial}
                       />
                     </SimpleGrid>
-                    <Textarea
+                    <TextEditor
                       label={t("fields.description")}
                       placeholder={t("fields.description_placeholder")}
-                      required
-                      minRows={4}
-                      size="md"
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      onBlur={() => validateDescription(description)}
+                      onChange={(val) => {
+                        setDescription(val);
+                        validateDescription(val);
+                      }}
                       error={errorDescription}
                     />
                   </Stack>
