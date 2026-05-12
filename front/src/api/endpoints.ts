@@ -1,5 +1,3 @@
-import type { Address, Coordinates } from "./interfaces/location";
-
 export const ENDPOINTS = {
   // admin endpoints
   ADMIN: {

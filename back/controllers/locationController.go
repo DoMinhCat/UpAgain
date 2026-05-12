@@ -9,7 +9,7 @@ import (
 )
 
 func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
-	// get params
+	// get params: lat, lng
 
 	var coordinates models.Coordinates
 	// bind params to coordinates
@@ -23,7 +23,7 @@ func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCoorFromAddress(w http.ResponseWriter, r *http.Request) {
-	// get params
+	// get params: street, postal_code, city
 	var address models.Address
 	// bind params to address
 
