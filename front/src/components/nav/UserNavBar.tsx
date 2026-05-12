@@ -76,10 +76,12 @@ export function UserNavBar() {
 
         {/* 2. Navigation Section */}
         <Group h="100%" gap="sm" visibleFrom="sm">
-          <HeaderLink
-            label={t("marketplace:market")}
-            path={PATHS.MARKETPLACE.HOME}
-          />
+          {user?.role !== "employee" && (
+            <HeaderLink
+              label={t("marketplace:market")}
+              path={PATHS.MARKETPLACE.HOME}
+            />
+          )}
           <HeaderLink
             label={t("community:community")}
             path={PATHS.GUEST.POSTS}
@@ -287,11 +289,13 @@ export function UserNavBar() {
       >
         <Stack gap="lg">
           <Stack gap="md">
-            <HeaderLink
-              label={t("marketplace:market")}
-              path={PATHS.MARKETPLACE.HOME}
-              onClick={closeDrawer}
-            />
+            {user?.role !== "employee" && (
+              <HeaderLink
+                label={t("marketplace:market")}
+                path={PATHS.MARKETPLACE.HOME}
+                onClick={closeDrawer}
+              />
+            )}
             <HeaderLink
               label={t("community:community")}
               path={PATHS.GUEST.POSTS}
