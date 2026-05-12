@@ -470,7 +470,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 navigate(
                   `${PATHS.ADMIN.VALIDATIONS.ALL}/deposits/${d.id_item}`,
                   {
-                    state: { item: d },
+                    state: { item: d, type: "deposit" },
                   },
                 )
               }
@@ -609,7 +609,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 navigate(
                   `${PATHS.ADMIN.VALIDATIONS.ALL}/listings/${l.id_item}`,
                   {
-                    state: { item: l },
+                    state: { item: l, type: "listing" },
                   },
                 )
               }

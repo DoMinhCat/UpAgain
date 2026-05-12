@@ -137,7 +137,13 @@ func GetTotalDeposits(since *time.Time) (int, error) {
 func GetDepositDetailsById(id int) (models.DepositDetails, error) {
 	var deposit models.DepositDetails
 	err := utils.Conn.QueryRow("SELECT id_container FROM deposits WHERE id_item = $1", id).Scan(&deposit.ContainerId)
-	return deposit, err
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return deposit, nil
+		}
+		return deposit, fmt.Errorf("GetDepositDetailsById() failed: %v", err.Error())
+	}
+	return deposit, nil
 }
 
 func UpdateDepositById(depositID int, deposit models.UpdateDepositRequest) error {
