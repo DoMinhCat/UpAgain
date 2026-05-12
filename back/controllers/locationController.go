@@ -9,11 +9,10 @@ import (
 )
 
 func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
+	// get params
+
 	var coordinates models.Coordinates
-	if err := json.NewDecoder(r.Body).Decode(&coordinates); err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid coordinates.")
-		return
-	}
+	// bind params to coordinates
 
 	// Call to utils 
 	address, err := location.CoorToAddress(coordinates)
@@ -24,11 +23,11 @@ func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCoorFromAddress(w http.ResponseWriter, r *http.Request) {
+	// get params
 	var address models.Address
-	if err := json.NewDecoder(r.Body).Decode(&address); err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid address.")
-		return
-	}
+	// bind params to address
+
+
 
 	// Call to utils 
 	coordinates, err := location.AddressToCoor(address)
