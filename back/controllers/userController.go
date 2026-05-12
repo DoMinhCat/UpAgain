@@ -7,6 +7,7 @@ import (
 	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
+	"strconv"
 )
 
 // GetTotalScore godoc
@@ -56,4 +57,90 @@ func GetTotalScore(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, stats)
+}
+
+// GetUserImpact godoc
+// @Summary      Get user's personal environmental impact
+// @Description  Returns the total CO2, water, and electricity saved by the authenticated user based on their completed items.
+// @Tags         user
+// @Produce      json
+// @Success      200  {object}  models.UserImpactStats  "Successfully retrieved impact stats"
+// @Failure      401  {object}  nil                     "Unauthorized"
+// @Failure      500  {object}  nil                     "Internal server error"
+// @Router       /users/impact/ [get]
+func GetUserImpact(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("user").(models.AuthClaims)
+	if claims.Role != "user" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	stats, err := db.GetUserImpactStats(claims.Id)
+	if err != nil {
+		slog.Error("GetUserImpactStats() failed", "controller", "GetUserImpact", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching your impact stats.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, stats)
+}
+
+// GetUserImpactItems godoc
+// @Summary      Get user's completed items with impact
+// @Description  Returns a paginated list of the authenticated user's completed items with per-item CO2, water, and electricity impact.
+// @Tags         user
+// @Produce      json
+// @Param        page   query     int  false  "Page number"
+// @Param        limit  query     int  false  "Items per page"
+// @Success      200    {object}  models.UserImpactItemsPagination  "Successfully retrieved items"
+// @Failure      401    {object}  nil                               "Unauthorized"
+// @Failure      400    {object}  nil                               "Invalid query parameters"
+// @Failure      500    {object}  nil                               "Internal server error"
+// @Router       /users/items/ [get]
+func GetUserImpactItems(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("user").(models.AuthClaims)
+	if claims.Role != "user" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	page := 1
+	limit := 10
+	var err error
+
+	query := r.URL.Query()
+	if pageStr := query.Get("page"); pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil || page < 1 {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid page parameter.")
+			return
+		}
+	}
+	if limitStr := query.Get("limit"); limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil || limit < 1 {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid limit parameter.")
+			return
+		}
+	}
+
+	items, total, err := db.GetUserImpactItems(claims.Id, page, limit)
+	if err != nil {
+		slog.Error("GetUserImpactItems() failed", "controller", "GetUserImpactItems", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching your items.")
+		return
+	}
+
+	lastPage := 1
+	if total > 0 {
+		lastPage = (total + limit - 1) / limit
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, models.UserImpactItemsPagination{
+		Items:        items,
+		CurrentPage:  page,
+		LastPage:     lastPage,
+		Limit:        limit,
+		TotalRecords: total,
+	})
 }
