@@ -3,6 +3,7 @@ package main
 import (
 	"backend/routes"
 	"backend/utils"
+	"backend/config"
 	"log/slog"
 	"net/http"
 
@@ -19,6 +20,8 @@ func main() {
 
 	utils.InitLogger()
 	utils.LoadEnv(ENV)
+
+	config.GeoCodeAPIKey = utils.GetGeoCodeApiKey()
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)
