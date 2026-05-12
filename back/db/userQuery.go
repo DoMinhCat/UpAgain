@@ -152,7 +152,7 @@ func GetUserImpactItems(idAccount, page, limit int) ([]models.UserImpactItem, in
 	}
 	defer rows.Close()
 
-	var items []models.UserImpactItem
+	items := make([]models.UserImpactItem, 0)
 	for rows.Next() {
 		var item models.UserImpactItem
 		var soldDate string
