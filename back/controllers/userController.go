@@ -118,7 +118,7 @@ func GetUserImpactItems(w http.ResponseWriter, r *http.Request) {
 	}
 	if limitStr := query.Get("limit"); limitStr != "" {
 		limit, err = strconv.Atoi(limitStr)
-		if err != nil || limit < 1 {
+		if err != nil || limit < 1 || limit > 100 {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid limit parameter.")
 			return
 		}
