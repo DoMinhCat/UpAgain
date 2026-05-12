@@ -9,9 +9,6 @@ import (
 	"time"
 )
 
-var MATERIALS = []string{"wood", "metal", "textile", "glass", "plastic", "mixed", "other"}
-var STATES = []string{"new", "very_good", "good", "need_repair"}
-
 func GetAllItemsHistory(page, limit int, filters models.ValidationFilters) ([]models.AllItemResponse, int, error) {
 	var params []interface{}
 	paramIndex := 1
