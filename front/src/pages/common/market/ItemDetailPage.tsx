@@ -23,16 +23,17 @@ import {
   IconCircleCheck,
   IconInfoCircle,
   IconLeaf,
+  IconTrash,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
 import { resolveUrl } from "../../../utils/imageUtils";
-import { useGetItemDetails } from "../../../hooks/itemHooks";
+import { useGetItemDetails, useDeleteItem } from "../../../hooks/itemHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import DOMPurify from "dompurify";
@@ -40,13 +41,17 @@ import { useGetListingDetails } from "../../../hooks/listingHooks";
 import { useGetDepositDetails } from "../../../hooks/depositHooks";
 import { showInfoNotification } from "../../../components/common/NotificationToast";
 import { NotFoundPage } from "../../error/404";
+import { useDisclosure } from "@mantine/hooks";
+import { EditItemModal } from "../../../components/marketplace/EditItemModal";
+import { useNavigate } from "react-router-dom";
+import { Modal } from "@mantine/core";
 
 export default function ItemDetailPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
   const theme = useComputedColorScheme("light");
   const { user } = useAuth();
   const role = user?.role;
-  const location = useLocation();
+  const navigate = useNavigate();
   const params = useParams();
   const id = params.id;
   const id_item = Number(id);
@@ -69,6 +74,21 @@ export default function ItemDetailPage() {
     useGetListingDetails(id_item, isValidId && isListing);
   const { data: depositDetails, isLoading: isDepositDetailsLoading } =
     useGetDepositDetails(id_item, isValidId && isDeposit);
+
+  const [openedEdit, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
+  const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
+
+  const deleteItemMutation = useDeleteItem();
+
+  const handleDelete = () => {
+    deleteItemMutation.mutate(id_item, {
+      onSuccess: () => {
+        navigate(PATHS.MARKETPLACE.HOME);
+      },
+    });
+  };
 
   const handleAction = () => {
     showInfoNotification(
@@ -514,18 +534,18 @@ export default function ItemDetailPage() {
                             variant="secondary"
                             fullWidth
                             color="var(--upagain-neutral-green)"
-                            onClick={handleAction}
+                            onClick={openEdit}
                           >
                             {t("marketplace:detail.edit")}
                           </Button>
                           <Button
                             size="lg"
                             radius="md"
-                            variant="cta-reverse"
+                            variant="delete"
                             fullWidth
                             color="var(--upagain-neutral-green)"
-                            rightSection={<IconChevronRight size={18} />}
-                            onClick={handleAction}
+                            rightSection={<IconTrash size={18} />}
+                            onClick={openDelete}
                           >
                             {t("marketplace:detail.delete")}
                           </Button>
@@ -555,6 +575,45 @@ export default function ItemDetailPage() {
         onClose={() => setLightboxOpened(false)}
         defaultActiveSlide={lightboxSlide}
       />
+
+      {item && (
+        <EditItemModal
+          opened={openedEdit}
+          onClose={closeEdit}
+          item={item}
+          listingDetails={listingDetails}
+        />
+      )}
+
+      <Modal
+        opened={openedDelete}
+        onClose={closeDelete}
+        title={t("marketplace:detail.delete_confirm_title", {
+          defaultValue: "Confirm Delete",
+        })}
+        centered
+      >
+        <Stack>
+          <Text>
+            {t("marketplace:detail.delete_confirm_msg", {
+              defaultValue:
+                "Are you sure you want to delete this item? This action is irreversible.",
+            })}
+          </Text>
+          <Group justify="center" mt="md">
+            <Button variant="grey" onClick={closeDelete}>
+              {t("common:actions.cancel")}
+            </Button>
+            <Button
+              variant="delete"
+              onClick={handleDelete}
+              loading={deleteItemMutation.isPending}
+            >
+              {t("common:actions.confirm")}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </>
   );
 }
