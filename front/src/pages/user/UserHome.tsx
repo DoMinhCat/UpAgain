@@ -19,8 +19,10 @@ import {
 } from "@mantine/core";
 import { useTranslation, Trans } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useAccountDetails } from "../../hooks/accountHooks";
-import { useLikePost, useSavePost } from "../../hooks/postHooks";
+import { useAccountDetails, useAccountStats } from "../../hooks/accountHooks";
+import { useLikePost, useSavePost, useGetAllPosts } from "../../hooks/postHooks";
+import { useGetUserImpact } from "../../hooks/userHooks";
+import { useGetMyEvents } from "../../hooks/eventHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { useAuth } from "../../context/AuthContext";
 import { ScoreRing } from "../../components/score/ScoreRing";
@@ -45,69 +47,12 @@ export default function UserHome() {
 
   const { mutateAsync: likePostAsync } = useLikePost();
   const { mutateAsync: savePostAsync } = useSavePost();
-  // const magicNumberWater = 4500;
-  // const magicNumberElectricity = 820;
-  // const calculatedWater = ((accountDetails?.totalWaterSaved || 0) / (accountDetails?.totalWaterSaved ?? 1 + magicNumberWater)) * 100;
-  // const calculatedElectricity = ((accountDetails?.totalElectricitySaved || 0) / (accountDetails?.totalElectricitySaved ?? 1 + magicNumberElectricity)) * 100;
 
-  // SAMPLES
-  // const SAMPLE_POSTS = {
-  //   title: "How to upcycle old wooden pallets into a vertical garden",
-  //   description:
-  //     "In this guide, we explore the step-by-step process of transforming industrial waste into a beautiful, functional green wall for your balcony.",
-  //   image: "/banners/user-banner1-light.png",
-  //   category: "Workshop",
-  //   authorName: "Arnaud Petit",
-  //   authorAvatar:
-  //     "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
-  //   postedTime: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 minutes ago
-  //   views: 1240,
-  //   likes: 85,
-  // };
-  const POST_MOCK = [
-    {
-      id: "evt-1",
-      title: "Community Woodworking Workshop",
-      description:
-        "Learn how to build modular shelving units from salvaged pine. Tools and safety gear provided by UpAgain.",
-      image: "/banners/user-banner1-light.png",
-      category: "Workshop",
-      authorName: "Marcus Wood",
-      authorAvatar:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-9.png",
-      postedTime: new Date(Date.now() - 1000 * 60 * 120).toISOString(), // 2 hours ago
-      views: 450,
-      likes: 32,
-    },
-    {
-      id: "evt-2",
-      title: "Textile Repair & Embroidery Café",
-      description:
-        "Don't throw away those torn jeans! Join us for a session on visible mending and creative embroidery techniques.",
-      image: "/banners/user-banner1-dark.png",
-      category: "Meetup",
-      authorName: "Elena Stitch",
-      authorAvatar:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
-      postedTime: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-      views: 890,
-      likes: 156,
-    },
-    {
-      id: "evt-3",
-      title: "Zero Waste Cooking Class",
-      description:
-        "Master the art of root-to-leaf cooking and reduce your weekly organic waste significantly.",
-      image: "/banners/user-banner1-light.png",
-      category: "Education",
-      authorName: "Chef Julian",
-      authorAvatar:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png",
-      postedTime: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
-      views: 1100,
-      likes: 210,
-    },
-  ];
+  const { data: impactData } = useGetUserImpact();
+  const { data: accountStats } = useAccountStats(user?.id || 0, !!user?.id);
+  const { data: myEvents } = useGetMyEvents();
+  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like");
+  const posts = postsData?.posts ?? [];
   if (isLoadingAccountDetails) {
     return <FullScreenLoader />;
   }
@@ -165,7 +110,7 @@ export default function UserHome() {
             >
               <Stack gap={0} align="center">
                 <Text size="32px" fw={900} style={{ lineHeight: 1 }}>
-                  1,240{" "}
+                  {impactData?.co2.toFixed(1) ?? "0"}{" "}
                   <Text span size="xl" fw={500}>
                     kg
                   </Text>
@@ -209,7 +154,7 @@ export default function UserHome() {
                     {t("user.impact.water")}
                   </Text>
                   <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
-                    4,500 L
+                    {impactData?.water.toFixed(0) ?? "0"} L
                   </Text>
                 </Group>
                 <Progress
@@ -224,7 +169,7 @@ export default function UserHome() {
                     {t("user.impact.electricity")}
                   </Text>
                   <Text size="sm" fw={700} c="var(--upagain-yellow)">
-                    820 kWh
+                    {impactData?.electricity.toFixed(1) ?? "0"} kWh
                   </Text>
                 </Group>
                 <Progress
@@ -337,7 +282,7 @@ export default function UserHome() {
                       <Trans
                         i18nKey="user.manage.listings_status"
                         ns="home"
-                        values={{ count: 3 }}
+                        values={{ count: accountStats?.total_listings ?? 0 }}
                         components={{
                           1: <Anchor href={PATHS.MARKETPLACE.HOME} />,
                           b: <b />,
@@ -379,7 +324,7 @@ export default function UserHome() {
                       {t("user.manage.deposits_title")}
                     </Title>
                     <Text size="sm" mt="xs">
-                      {t("user.manage.deposits_status", { count: 1 })}
+                      {t("user.manage.deposits_status", { count: accountStats?.total_deposits ?? 0 })}
                     </Text>
                   </Box>
 
@@ -489,27 +434,26 @@ export default function UserHome() {
                   The backend should ideally provide a 'featured' or 'community_selection' list.
                   If the user has specific interests, this could be filtered by tags.
                 */}
-                {POST_MOCK && POST_MOCK.length > 0 ? (
+                {posts.length > 0 ? (
                   <Stack gap="md">
                     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                      {/* We display max 2 posts to keep the layout clean */}
-                      {POST_MOCK.slice(0, 2).map((post) => (
+                      {posts.map((post) => (
                         <PostCard
                           currentRole={user?.role || ""}
                           key={post.id}
                           title={post.title}
-                          description={post.description}
-                          image={post.image}
+                          description={post.content}
+                          image={post.photos?.[0] ?? "/banners/user-banner1-light.png"}
                           category={post.category}
-                          authorName={post.authorName}
-                          authorAvatar={post.authorAvatar}
-                          postedTime={post.postedTime}
-                          views={post.views}
-                          likes={post.likes}
-                          isLiked={false}
-                          isSaved={false}
-                          onLike={() => likePostAsync(Number(post.id) || 0)}
-                          onSave={() => savePostAsync(Number(post.id) || 0)}
+                          authorName={post.creator}
+                          authorAvatar={post.creator_avatar ?? ""}
+                          postedTime={post.created_at}
+                          views={post.view_count}
+                          likes={post.like_count}
+                          isLiked={post.is_liked ?? false}
+                          isSaved={post.is_saved ?? false}
+                          onLike={() => likePostAsync(post.id)}
+                          onSave={() => savePostAsync(post.id)}
                         />
                       ))}
                     </SimpleGrid>
@@ -576,34 +520,34 @@ export default function UserHome() {
                   Render event cards if 'accountDetails.registeredEvents' (or similar) is not empty.
                   Else, render the CTA below to encourage participation.
                 */}
-                {/* PLACEHOLDER: Assuming accountDetails has an 'events' array in the future */}
-                {accountDetails?.id && false ? ( // Replace 'false' with 'accountDetails.events.length > 0'
+                {myEvents && myEvents.length > 0 ? (
                   <Stack gap="md">
-                    <EventCard
-                      onclick={() => navigate("/events/workshops/1")}
-                      orientation="horizontal"
-                      category="Workshop"
-                      title="Restoring Mid-Century Furniture"
-                      description="Learn sanding, staining, and finishing techniques."
-                      image="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
-                      authorName="Thomas L."
-                      authorAvatar="..."
-                      createdAt={new Date().toISOString()}
-                      eventDate="2026-05-12T10:00:00Z"
-                      price={15}
-                      registeredCount={99}
-                      city="Paris"
-                      // TODO: implement fullEvent
-                    />
-                    {/* Add more cards selectively if returned by backend */}
+                    {myEvents?.slice(0, 2).map((event) => (
+                      <EventCard
+                        key={event.id}
+                        onclick={() => navigate(`/events/${event.id}`)}
+                        orientation="horizontal"
+                        category={event.category}
+                        title={event.title}
+                        description={event.description ?? ""}
+                        image={event.images?.[0] ?? "/banners/user-banner1-light.png"}
+                        authorName={event.employee_name ?? "UpAgain"}
+                        authorAvatar={event.employee_avatar ?? ""}
+                        createdAt={event.created_at}
+                        eventDate={event.start_at}
+                        price={event.price ?? 0}
+                        registeredCount={event.registered ?? 0}
+                        city={event.city}
+                      />
+                    ))}
                     <Text
                       className="text"
                       data-variant="primary"
                       size="sm"
                       fw={700}
-                      onClick={() => navigate("#")}
+                      onClick={() => navigate(PATHS.EVENTS.HOME)}
                     >
-                      View all my events →
+                      {t("user.agenda.view_all")} →
                     </Text>
                   </Stack>
                 ) : (
