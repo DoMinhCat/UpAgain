@@ -38,7 +38,11 @@
     "key_info": "Thông tin chính",
     "secure_transaction_note": "Giao dịch an toàn được đảm bảo bởi UpAgain",
     "verified_poster": "Người dùng đã xác minh",
-    "reserve_now": "Đặt trước ngay"
+    "reserve_now": "Đặt trước ngay",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "delete_confirm_title": "Xác nhận xóa",
+    "delete_confirm_msg": "Bạn có chắc chắn muốn xóa món đồ này không? Hành động này không thể hoàn tác."
   },
   "notifications": {
     "delete_success_title": "Đã xóa món đồ",
