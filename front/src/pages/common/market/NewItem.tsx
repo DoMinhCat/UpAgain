@@ -38,6 +38,11 @@ import { useCreateItem } from "../../../hooks/itemHooks";
 import { useAuth } from "../../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { CreateItemRequest } from "../../../api/interfaces/item";
+import {
+  getCurrentLocation,
+  type LocationCoordinates,
+} from "../../../utils/locationUtils";
+import { showInfoNotification } from "../../../components/common/NotificationToast";
 
 // Emission factors based on backend/utils/helpers/scoreHelper.go
 const EMISSION_FACTORS: Record<
@@ -595,8 +600,14 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
+                            // loading={backend returning nearest container}
                             onClick={() => {
                               // TODO: Implement find nearest container
+                              // 1. Get current lat lng
+                              const currentLocation = getCurrentLocation();
+                              console.log(currentLocation);
+                              // 2. Send to backend to get nearest container
+                              // 3. Set container in frontend based on backend response
                               console.log("TODO: Find nearest container");
                             }}
                           >
@@ -706,6 +717,15 @@ export default function NewItem() {
                             color="var(--upagain-neutral-green)"
                             onClick={() => {
                               // TODO: Implement get current location
+                              // 1. Get current lat lng
+                              const currentLocation = getCurrentLocation();
+                              console.log(currentLocation);
+                              // 2. Send to backend to geocode and get readable address
+                              // 3. Set address received to input fields
+                              showInfoNotification(
+                                "Is this the correct addresse?",
+                                "Please verify again, the retrieved addresse might be inaccurate.",
+                              );
                               console.log("TODO: Get current location");
                             }}
                           >

@@ -7,11 +7,19 @@ export interface LocationCoordinates {
 }
 
 export const getCurrentLocation = () => {
-  if (navigator.geolocation) {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      showErrorNotification(
+        i18n.t("common:notifications.location.failed_title"),
+        i18n.t("common:notifications.location.not_supported_message"),
+      );
+      return resolve(null); // Resolve with null so the app keeps running
+    }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        return { latitude, longitude };
+        resolve({ latitude, longitude }); // Success!
       },
       (error) => {
         if (error.code === error.PERMISSION_DENIED) {
@@ -25,15 +33,8 @@ export const getCurrentLocation = () => {
             i18n.t("common:notifications.location.failed_message"),
           );
         }
-        return null;
+        resolve(null); // Handle error but resolve so the 'await' finishes
       },
     );
-  } else {
-    showErrorNotification(
-      i18n.t("common:notifications.location.failed_title"),
-      i18n.t("common:notifications.location.not_supported_message"),
-    );
-    return null;
-  }
-  return null;
+  });
 };
