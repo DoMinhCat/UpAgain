@@ -49,6 +49,7 @@ import {
   IconKey,
   IconUserShield,
   IconBasketCheck,
+  IconX,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
@@ -77,6 +78,8 @@ import ImageDropzone from "../../../components/input/ImageDropzone";
 import { TextEditor } from "../../../components/input/TextEditor";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import PaginationFooter from "../../../components/common/PaginationFooter";
+import { useProcessValidation } from "../../../hooks/validationHooks";
+import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
 import type { Transaction } from "../../../api/interfaces/transaction";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
@@ -113,6 +116,29 @@ export default function AdminListingDetails() {
   ] = useDisclosure(false);
 
   const updateItemStatus = useUpdateItemStatus(id_item);
+  const processMutation = useProcessValidation();
+  const [openedRefuse, { open: openRefuse, close: closeRefuse }] =
+    useDisclosure(false);
+
+  const handleConfirmRefuse = (reason: string) => {
+    const category = itemDetails?.category;
+    if (!category) return;
+    const entityType = (category + "s") as "listings" | "deposits";
+    processMutation.mutate(
+      {
+        entityType,
+        id: id_item,
+        action: "refuse",
+        reason,
+      },
+      {
+        onSuccess: () => {
+          closeRefuse();
+          navigate(PATHS.ADMIN.LISTINGS);
+        },
+      },
+    );
+  };
 
   const handleUpdateItemStatus = (status: string) => {
     updateItemStatus.mutate(status, {
@@ -505,7 +531,33 @@ export default function AdminListingDetails() {
                       href: PATHS.ADMIN.CONTAINERS + "/" + origin.idContainer,
                     },
                   ]
-                : [{ title: t("listings.title"), href: PATHS.ADMIN.LISTINGS }]),
+                : origin?.from === "validationDetail"
+                  ? [
+                      {
+                        title: t("validations.title"),
+                        href: PATHS.ADMIN.VALIDATIONS.ALL,
+                      },
+                      {
+                        title:
+                          t("validations.details.title") +
+                          " #" +
+                          origin.item.id_item,
+                        href:
+                          "/" +
+                          PATHS.ADMIN.VALIDATIONS.ALL +
+                          "/" +
+                          origin.type +
+                          "/" +
+                          origin.item.id_item,
+                        state: { item: origin.item, type: origin.type },
+                      },
+                    ]
+                  : [
+                      {
+                        title: t("listings.title"),
+                        href: PATHS.ADMIN.LISTINGS,
+                      },
+                    ]),
           {
             title: t("listings.details.title"),
             href: PATHS.ADMIN.LISTINGS + "/" + id,
@@ -971,6 +1023,22 @@ export default function AdminListingDetails() {
                             ? t("listings.details.approve_item")
                             : t("listings.details.delete_item")}
                       </Button>
+                      {itemDetails?.status === "pending" && (
+                        <Button
+                          fullWidth
+                          variant="delete"
+                          leftSection={<IconX size={16} />}
+                          onClick={openRefuse}
+                          loading={
+                            processMutation.isPending &&
+                            processMutation.variables?.action === "refuse"
+                          }
+                        >
+                          {t("admin:validations.details.actions.refuse", {
+                            defaultValue: "Refuse",
+                          })}
+                        </Button>
+                      )}
                     </Group>
                     {itemDetails?.category === "deposit" && (
                       <Button
@@ -1407,6 +1475,16 @@ export default function AdminListingDetails() {
           </Button>
         </Group>
       </Modal>
+
+      <RefuseItemModal
+        opened={openedRefuse}
+        onClose={closeRefuse}
+        onConfirm={handleConfirmRefuse}
+        loading={
+          processMutation.isPending &&
+          processMutation.variables?.action === "refuse"
+        }
+      />
     </Container>
   );
 }
