@@ -38,10 +38,7 @@ import { useCreateItem } from "../../../hooks/itemHooks";
 import { useAuth } from "../../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { CreateItemRequest } from "../../../api/interfaces/item";
-import {
-  getCurrentLocation,
-  type LocationCoordinates,
-} from "../../../utils/locationUtils";
+import { getCurrentLocation } from "../../../utils/locationUtils";
 import { showInfoNotification } from "../../../components/common/NotificationToast";
 
 // Emission factors based on backend/utils/helpers/scoreHelper.go
