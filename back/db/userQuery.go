@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"backend/utils/helpers"
 	"database/sql"
 	"fmt"
 )
@@ -79,4 +80,45 @@ func GetTotalScore() (models.TotalScoreStats, error) {
 	}
 
 	return totalScoreStats, nil
+}
+
+func GetUserImpactStats(idAccount int) (models.UserImpactStats, error) {
+	rows, err := utils.Conn.Query(`
+		SELECT material::text, SUM(weight)
+		FROM items
+		WHERE id_user = $1 AND status = 'completed' AND is_deleted = false
+		GROUP BY material
+	`, idAccount)
+	if err != nil {
+		return models.UserImpactStats{}, fmt.Errorf("GetUserImpactStats() query failed: %w", err)
+	}
+	defer rows.Close()
+
+	var stats models.UserImpactStats
+	for rows.Next() {
+		var material string
+		var totalWeight float64
+		if err := rows.Scan(&material, &totalWeight); err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetUserImpactStats() scan failed: %w", err)
+		}
+		co2, err := helpers.CalculateCO2(material, totalWeight)
+		if err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetUserImpactStats() CalculateCO2 failed: %w", err)
+		}
+		water, err := helpers.CalculateWaterSaved(material, totalWeight)
+		if err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetUserImpactStats() CalculateWaterSaved failed: %w", err)
+		}
+		electricity, err := helpers.CalculateElectricitySaved(material, totalWeight)
+		if err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetUserImpactStats() CalculateElectricitySaved failed: %w", err)
+		}
+		stats.CO2 += co2
+		stats.Water += water
+		stats.Electricity += electricity
+	}
+	if err := rows.Err(); err != nil {
+		return models.UserImpactStats{}, fmt.Errorf("GetUserImpactStats() rows error: %w", err)
+	}
+	return stats, nil
 }
