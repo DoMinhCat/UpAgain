@@ -5,6 +5,8 @@ import (
 	"backend/utils"
 	"log/slog"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/rs/cors"
 )
@@ -14,18 +16,47 @@ import (
 // @description     Backend API written in Golang that handles requests from the frontend.
 // @host      localhost:8080
 // @BasePath  /
-func main() {
-	const ENV = "dev" // or "prod"
 
+func CleanPathMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		
+		// 1. Strip /api prefix
+		if strings.HasPrefix(path, "/api/") {
+			path = strings.TrimPrefix(path, "/api")
+		} else if path == "/api" {
+			path = "/"
+		}
+
+		// 2. Strip trailing slash
+		if path != "/" && strings.HasSuffix(path, "/") && 
+		   !strings.Contains(path, "/swagger/") && 
+		   !strings.Contains(path, "/images/") {
+			path = strings.TrimSuffix(path, "/")
+		}
+		
+		r.URL.Path = path
+		next.ServeHTTP(w, r)
+	})
+}
+
+func main() {
 	utils.InitLogger()
-	utils.LoadEnv(ENV)
+	slog.Info("backend process starting...")
+
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "dev"
+	}
+
+	utils.LoadEnv(env)
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)
 	} else {
 		slog.Info("connected to database successfully")
+		defer utils.Conn.Close()
 	}
-	defer utils.Conn.Close()
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration
@@ -38,15 +69,13 @@ func main() {
 		AllowCredentials: true,
 	})
 
-	handler := corsHandler.Handler(mux)
+	handler := corsHandler.Handler(CleanPathMiddleware(mux))
 
 	port := utils.GetPort()
 	slog.Info("backend started", "port", port)
-	slog.Info("swagger docs available at /swagger/")
+	slog.Info("swagger docs at /swagger/")
 	err := http.ListenAndServe(":"+port, handler)
 	if err != nil {
 		slog.Error("server failed to start", "error", err)
 	}
 }
-
-// useless comments to test CI workflow
