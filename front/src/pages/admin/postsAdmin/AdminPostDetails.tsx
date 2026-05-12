@@ -574,6 +574,8 @@ export const AdminPostDetails = () => {
               </Group>
 
               <EditPostModal
+                role="admin"
+                role="admin"
                 opened={openedEdit}
                 onClose={closeEdit}
                 postDetails={postDetails}
