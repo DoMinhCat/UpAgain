@@ -129,7 +129,12 @@ export default function ItemCard({ item }: ItemCardProps) {
             lineClamp={2} // Keeps vertical rhythm consistent
             component="div"
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(item.description),
+              __html: DOMPurify.sanitize(
+                item.description
+                  .replace(/<[^>]*>/g, " ")
+                  .replace(/\s+/g, " ")
+                  .trim(),
+              ),
             }}
           />
         </Box>

@@ -214,7 +214,12 @@ export function EventCard({
             lineClamp={isHorizontal ? 3 : 2}
             mt={4}
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(description),
+              __html: DOMPurify.sanitize(
+                description
+                  .replace(/<[^>]*>/g, " ")
+                  .replace(/\s+/g, " ")
+                  .trim(),
+              ),
             }}
           />
         </Box>

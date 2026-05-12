@@ -170,7 +170,12 @@ export default function PostCard({
           lineClamp={2}
           h={42}
           dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(description),
+            __html: DOMPurify.sanitize(
+              description
+                .replace(/<[^>]*>/g, " ")
+                .replace(/\s+/g, " ")
+                .trim(),
+            ),
           }}
         />
       </Stack>
