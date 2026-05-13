@@ -1,11 +1,9 @@
-package
+package controllers
 
 import (
-	"log/slog"
-	"net/http"
 	"backend/models"
 	"backend/utils/location"
-	"encoding/json"
+	"net/http"
 )
 
 func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
