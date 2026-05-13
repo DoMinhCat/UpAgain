@@ -43,6 +43,7 @@
     "delete": "Delete",
     "delete_confirm_title": "Confirm Delete",
     "delete_confirm_msg": "Are you sure you want to delete this item? This action is irreversible.",
+    "see_back_office": "See in back office",
     "transfer_container": "Transfer container",
     "transfer_modal": {
       "title": "Transfer to another container",

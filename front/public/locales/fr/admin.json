@@ -449,6 +449,7 @@
       "street": "Rue",
       "city": "Ville",
       "zip": "Code Postal",
+      "postal_code": "Code Postal",
       "submit": "Déployer"
     },
     "delete_modal": {

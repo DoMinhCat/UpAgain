@@ -25,6 +25,7 @@ export const PATHS = {
       DETAILS: "/admin/history/:id",
     },
     LISTINGS: "/admin/listings",
+    LISTINGS_DETAILS: (id: number) => `/admin/listings/${id}`,
     SUBSCRIPTIONS: {
       ALL: "/admin/subscriptions",
       DETAILS: "/admin/subscriptions/:id",
