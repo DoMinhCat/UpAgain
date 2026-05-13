@@ -136,13 +136,19 @@ export const ENDPOINTS = {
     MY_EVENTS: "/events/me/",
   },
 
-  STRIPE: {
-    VERIFY: "/payments/verify/",
-  },
-
   ACCOUNTS: {
     UPDATE_AVATAR: (id_account: number) => `/accounts/${id_account}/avatar/`,
     NOTIFICATIONS: (id_account: number) =>
       `/accounts/${id_account}/notifications/`,
+  },
+
+  // external providers
+  STRIPE: {
+    VERIFY: "/payments/verify/",
+  },
+
+  LOCATION: {
+    GET_COOR: "/location/coordinates/",
+    GET_ADDRESS: "/location/address/",
   },
 } as const;
