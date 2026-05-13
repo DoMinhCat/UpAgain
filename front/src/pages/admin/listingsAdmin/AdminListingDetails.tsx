@@ -3,8 +3,6 @@ import {
   Title,
   Group,
   Grid,
-  TextInput,
-  Select,
   Table,
   Badge,
   Button,
@@ -18,7 +16,6 @@ import {
   Tooltip,
   ActionIcon,
   Anchor,
-  NumberInput,
   ThemeIcon,
   Paper,
   SimpleGrid,
@@ -78,7 +75,6 @@ import { TransferContainerModal } from "../../../components/market/TransferConta
 import type { Transaction } from "../../../api/interfaces/transaction";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
-import { useGetAvailableContainers } from "../../../hooks/containerHooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 
 export default function AdminListingDetails() {
@@ -224,13 +220,6 @@ export default function AdminListingDetails() {
     setChosenCode(path);
     openCodeCarousel();
   };
-
-  // TRANSFER CONTAINER
-  const {
-    data: availableContainersData,
-    isLoading: isLoadingAvailableContainers,
-  } = useGetAvailableContainers();
-  const availableContainers = availableContainersData || [];
   const [
     openedTransferContainerModal,
     { open: openTransferContainerModal, close: closeTransferContainerModal },
@@ -808,11 +797,6 @@ export default function AdminListingDetails() {
                       <Button
                         fullWidth
                         variant="secondary"
-                        disabled={
-                          // updateDepositMutation.isPending ||
-                          // updateListingMutation.isPending ||
-                          isLoadingAvailableContainers
-                        }
                         onClick={openTransferContainerModal}
                       >
                         {t("listings.details.transfer_container")}
