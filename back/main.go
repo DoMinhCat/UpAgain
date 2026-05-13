@@ -20,7 +20,7 @@ import (
 func CleanPathMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		
+
 		// 1. Strip /api prefix
 		if strings.HasPrefix(path, "/api/") {
 			path = strings.TrimPrefix(path, "/api")
@@ -29,13 +29,17 @@ func CleanPathMiddleware(next http.Handler) http.Handler {
 		}
 
 		// 2. Strip trailing slash
-		if path != "/" && strings.HasSuffix(path, "/") && 
-		   !strings.Contains(path, "/swagger/") && 
-		   !strings.Contains(path, "/images/") {
+		if path != "/" && strings.HasSuffix(path, "/") &&
+			!strings.Contains(path, "/swagger/") &&
+			!strings.Contains(path, "/images/") {
 			path = strings.TrimSuffix(path, "/")
 		}
-		
+
 		r.URL.Path = path
+		
+		// 3. Log the final path for debugging
+		slog.Debug("CleanPath", "method", r.Method, "original", r.URL.RequestURI(), "cleaned", path)
+		
 		next.ServeHTTP(w, r)
 	})
 }
@@ -67,6 +71,7 @@ func main() {
 		AllowedHeaders:   []string{"Content-Type", "Authorization", "Accept-Encoding"},
 		ExposedHeaders:   []string{"Content-Type", "Authorization", "Accept-Encoding"},
 		AllowCredentials: true,
+		Debug:            true,
 	})
 
 	handler := corsHandler.Handler(CleanPathMiddleware(mux))
