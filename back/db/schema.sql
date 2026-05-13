@@ -247,8 +247,8 @@ create table items
     created_at  timestamptz  not null default now(),
     title       varchar(255) not null,
     description text,
-    price       numeric(2)   not null default 0,
-    weight      numeric(2)   not null,                   -- in kg
+    price       numeric(8,2)   not null default 0,
+    weight      numeric(8,2)   not null,                   -- in kg
     material    material     not null default 'other',
     status      item_status  not null default 'pending', -- workflow status
     state       item_state   not null,                   -- new or needs to be repaired

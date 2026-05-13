@@ -124,7 +124,7 @@ export default function ItemDetailPage() {
     return <FullScreenLoader />;
   }
 
-  if (!item) {
+  if (!item || item.status !== "approved") {
     return <NotFoundPage />;
   }
 

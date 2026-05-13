@@ -17,6 +17,7 @@ import type { Item } from "../../api/interfaces/item";
 import { useUpdateListing } from "../../hooks/listingHooks";
 import { useUpdateDeposit } from "../../hooks/depositHooks";
 import { IconInfoCircle } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 
 interface EditItemModalProps {
   opened: boolean;
@@ -35,6 +36,7 @@ export function EditItemModal({
   item,
   listingDetails,
 }: EditItemModalProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation(["admin", "create_item", "common"]);
 
   const [title, setTitle] = useState(item.title);
@@ -136,9 +138,19 @@ export function EditItemModal({
     });
 
     if (isListing) {
-      updateListingMutation.mutate(formData, { onSuccess: onClose });
+      updateListingMutation.mutate(formData, {
+        onSuccess: () => {
+          onClose();
+          navigate(-1);
+        },
+      });
     } else {
-      updateDepositMutation.mutate(formData, { onSuccess: onClose });
+      updateDepositMutation.mutate(formData, {
+        onSuccess: () => {
+          onClose();
+          navigate(-1);
+        },
+      });
     }
   };
 
