@@ -7,6 +7,7 @@ export interface Item {
   state: string;
   id_user: number;
   username: string;
+  creator_avatar?: string;
   category: string; // listing or deposit
   material: string;
   price: number;

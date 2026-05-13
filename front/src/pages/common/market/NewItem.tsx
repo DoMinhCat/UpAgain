@@ -652,24 +652,28 @@ export default function NewItem() {
                                       "scale(1)")
                                   }
                                 >
-                                  <Group justify="space-between" wrap="nowrap">
-                                    <Stack gap={2}>
+                                  <Stack gap={2}>
+                                    <Group
+                                      justify="space-between"
+                                      wrap="nowrap"
+                                    >
                                       <Text fw={700} size="sm">
                                         Container #{container.id}
                                       </Text>
-                                      <Text size="xs" c="dimmed">
-                                        {container.street},{" "}
-                                        {container.postal_code} {container.city}
-                                      </Text>
-                                    </Stack>
-                                    <Button
-                                      variant="subtle"
-                                      size="compact-xs"
-                                      leftSection={<IconMap size={14} />}
-                                    >
-                                      {t("methods.deposit.view_map")}
-                                    </Button>
-                                  </Group>
+                                      <Button
+                                        variant="subtle"
+                                        size="compact-xs"
+                                        leftSection={<IconMap size={14} />}
+                                      >
+                                        {t("methods.deposit.view_map")}
+                                      </Button>
+                                    </Group>
+
+                                    <Text size="xs" c="dimmed" mt="xs">
+                                      {container.street},{" "}
+                                      {container.postal_code} {container.city}
+                                    </Text>
+                                  </Stack>
                                 </Paper>
                               ))}
                             </Stack>
