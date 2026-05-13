@@ -575,7 +575,6 @@ export const AdminPostDetails = () => {
 
               <EditPostModal
                 role="admin"
-                role="admin"
                 opened={openedEdit}
                 onClose={closeEdit}
                 postDetails={postDetails}
