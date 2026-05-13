@@ -262,6 +262,26 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check for any changes
+	hasChanges := false
+	if listingFullDetails.Title != payload.Title ||
+		listingFullDetails.Description != payload.Description ||
+		listingFullDetails.Weight != payload.Weight ||
+		listingFullDetails.State != payload.State ||
+		listingFullDetails.Material != payload.Material ||
+		listingFullDetails.Price != payload.Price ||
+		listingFullDetails.Street != payload.Street ||
+		listingFullDetails.City != payload.City ||
+		listingFullDetails.PostalCode != payload.PostalCode ||
+		len(keepImages) != len(currentImages) ||
+		newImg != nil {
+		hasChanges = true
+	}
+	if !hasChanges {
+		utils.RespondWithJSON(w, http.StatusNoContent, nil)
+		return
+	}
+
 	finalPhotos, delErrs, err := helpers.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateListing", "error", delErr)
@@ -274,21 +294,10 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	payload.Photos = finalPhotos
 
 	needValidation := false
-	if role == "user" && listingFullDetails.Status == "approved" && (
-		listingFullDetails.Title != payload.Title ||
-		listingFullDetails.Description != payload.Description ||
-		listingFullDetails.Weight != payload.Weight ||
-		listingFullDetails.State != payload.State ||
-		listingFullDetails.Material != payload.Material ||
-		listingFullDetails.Price != payload.Price ||
-		listingFullDetails.Street != payload.Street ||
-		listingFullDetails.City != payload.City ||
-		listingFullDetails.PostalCode != payload.PostalCode ||
-		len(listingFullDetails.Photos) != len(payload.Photos)) {
+	if role == "user" && listingFullDetails.Status == "approved" {
 		needValidation = true
 	}
-
-	// if is user and changed principle fields then require validation from admin again
+	// if is user then require validation from admin again
 	if needValidation {
 		err = db.UpdateItemStatusById(id, "pending")
 		if err != nil {
