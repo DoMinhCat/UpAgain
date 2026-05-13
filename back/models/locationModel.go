@@ -1,8 +1,8 @@
 package models
 
 type Coordinates struct {
-	Lat string `json:"latitude"`
-	Lng string `json:"longitude"`
+	Lat float64 `json:"latitude"`
+	Lng float64 `json:"longitude"`
 }
 
 // This one is what we return to fronend / what we will insert into db
