@@ -1,7 +1,7 @@
-package notifications
+package onesignal
 
 import (
-	"backend/utils"
+	"backend/config"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -29,9 +29,8 @@ func SendNotification(payload NotificationRequest) error {
 	}
 
 	// Set Headers
-	apiKey := utils.GetOnesignalRestApiKey()
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Key " + apiKey)
+	req.Header.Set("Authorization", "Key " + config.OnesignalAPIKEY)
 
 	// Execute Request
 	resp, err := http.DefaultClient.Do(req)
