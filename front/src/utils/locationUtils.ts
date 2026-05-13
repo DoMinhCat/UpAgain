@@ -1,10 +1,6 @@
+import type { GeocodeResult } from "../api/interfaces/location";
 import { showErrorNotification } from "../components/common/NotificationToast";
 import i18n from "i18next";
-
-export interface LocationCoordinates {
-  latitude: number;
-  longitude: number;
-}
 
 export const getCurrentLocation = () => {
   return new Promise((resolve) => {
@@ -37,4 +33,21 @@ export const getCurrentLocation = () => {
       },
     );
   });
+};
+
+export const parseGeocodeResponse = (result: GeocodeResult) => {
+  const getComponent = (type: string) =>
+    result.address_components.find((c) => c.types.includes(type))?.long_name ||
+    "";
+
+  return {
+    streetNumber: getComponent("street_number"), // 21
+    route: getComponent("route"), // rue erard
+    city: getComponent("locality"), // Paris
+    postalCode: getComponent("postal_code"), // 75012
+    state: getComponent("administrative_area_level_1"), // Île-de-France
+    country: getComponent("country"), // France
+    lat: result.geometry.location.lat, // 48.8461183
+    lng: result.geometry.location.lng, // 2.3856301
+  };
 };
