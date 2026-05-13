@@ -19,16 +19,17 @@ import (
 
 func CleanPathMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
+		oldPath := r.URL.Path
+		path := oldPath
 
-		// 1. Strip /api prefix
+		// 1. Strip /api prefix correctly
 		if strings.HasPrefix(path, "/api/") {
 			path = strings.TrimPrefix(path, "/api")
 		} else if path == "/api" {
 			path = "/"
 		}
 
-		// 2. Strip trailing slash
+		// 2. Strip trailing slash except for root
 		if path != "/" && strings.HasSuffix(path, "/") &&
 			!strings.Contains(path, "/swagger/") &&
 			!strings.Contains(path, "/images/") {
@@ -37,8 +38,7 @@ func CleanPathMiddleware(next http.Handler) http.Handler {
 
 		r.URL.Path = path
 		
-		// 3. Log the final path for debugging
-		slog.Debug("CleanPath", "method", r.Method, "original", r.URL.RequestURI(), "cleaned", path)
+		slog.Info("Path Cleaning", "method", r.Method, "from", oldPath, "to", path)
 		
 		next.ServeHTTP(w, r)
 	})
