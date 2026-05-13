@@ -545,6 +545,24 @@ export default function ItemDetailPage() {
                         </>
                       )}
 
+                      {/* Admin see in back office */}
+                      {role === "admin" && (
+                        <Button
+                          size="lg"
+                          radius="md"
+                          variant="secondary"
+                          fullWidth
+                          color="var(--upagain-neutral-green)"
+                          onClick={() =>
+                            navigate(PATHS.ADMIN.LISTINGS_DETAILS(id_item))
+                          }
+                        >
+                          {t("marketplace:detail.see_back_office", {
+                            defaultValue: "See in back office",
+                          })}
+                        </Button>
+                      )}
+
                       {/* Edit and delete for user */}
                       {user?.id === item?.id_user && (
                         <>

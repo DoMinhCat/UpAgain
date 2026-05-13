@@ -76,7 +76,7 @@ export default function MarketPage() {
   const lastPage = data?.last_page ?? 1;
   const limit = data?.limit ?? LIMIT;
 
-  if (role !== "pro" && role !== "user") {
+  if (role !== "pro" && role !== "user" && role !== "admin") {
     return <NotFoundPage />;
   }
 
