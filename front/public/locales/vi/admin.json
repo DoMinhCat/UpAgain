@@ -562,7 +562,8 @@
       "transfer_container": "Chuyển sang thùng khác",
       "edit_modal": {
         "title": "Sửa Thông Tin Món Đồ",
-        "description_label": "Mô tả"
+        "description_label": "Mô tả",
+        "validation_notice": "Lưu ý: Mọi thay đổi sẽ cần được quản trị viên phê duyệt lại trước khi hiển thị trên thị trường."
       },
       "transfer_modal": {
         "title": "Chuyển Sang Thùng Khác",
