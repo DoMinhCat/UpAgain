@@ -237,6 +237,23 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if no change then we stop here
+	hasChanges := false
+	if len(keepImages) != len(currentImages) ||
+		newImg != nil ||
+		depositFullDetails.Title != payload.Title ||
+		depositFullDetails.Description != payload.Description ||
+		depositFullDetails.Weight != payload.Weight ||
+		depositFullDetails.State != payload.State ||
+		depositFullDetails.Material != payload.Material ||
+		depositFullDetails.Price != payload.Price {
+		hasChanges = true
+	}
+	if !hasChanges {
+		utils.RespondWithJSON(w, http.StatusNoContent, nil)
+		return
+	}
+
 	finalPhotos, delErrs, err := helpers.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateDepositByDepositId", "error", delErr)
@@ -249,17 +266,10 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	payload.Photos = finalPhotos
 
 	needValidation := false
-	if role == "user" && depositFullDetails.Status == "approved" && (
-		depositFullDetails.Title != payload.Title ||
-		depositFullDetails.Description != payload.Description ||
-		depositFullDetails.Weight != payload.Weight ||
-		depositFullDetails.State != payload.State ||
-		depositFullDetails.Material != payload.Material ||
-		depositFullDetails.Price != payload.Price ||
-		len(depositFullDetails.Photos) != len(payload.Photos)) {
+	if role == "user" && depositFullDetails.Status == "approved" {
 		needValidation = true
 	}
-	// if is user and has change then require validation from admin again and invalidate barcode
+	// if is user then require validation from admin again and invalidate barcode
 	if role == "user" && needValidation {
 		err = db.UpdateItemStatusById(id, "pending")
 		if err != nil {
