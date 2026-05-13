@@ -273,8 +273,23 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.Photos = finalPhotos
 
-	// if is user then require validation from admin again
-	if role == "user" {
+	needValidation := false
+	if role == "user" && listingFullDetails.Status == "approved" && (
+		listingFullDetails.Title != payload.Title ||
+		listingFullDetails.Description != payload.Description ||
+		listingFullDetails.Weight != payload.Weight ||
+		listingFullDetails.State != payload.State ||
+		listingFullDetails.Material != payload.Material ||
+		listingFullDetails.Price != payload.Price ||
+		listingFullDetails.Street != payload.Street ||
+		listingFullDetails.City != payload.City ||
+		listingFullDetails.PostalCode != payload.PostalCode ||
+		len(listingFullDetails.Photos) != len(payload.Photos)) {
+		needValidation = true
+	}
+
+	// if is user and changed principle fields then require validation from admin again
+	if needValidation {
 		err = db.UpdateItemStatusById(id, "pending")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateListing", "error", err)

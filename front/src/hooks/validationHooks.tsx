@@ -124,7 +124,7 @@ export const useProcessValidation = () => {
   return useMutation({
     mutationFn: ({ entityType, id, action, reason }: ProcessValidationParams) =>
       processValidationAction(entityType, id, action, reason),
-    onSuccess: (_data, { action }) => {
+    onSuccess: (_data, { action, id }) => {
       showSuccessNotification(
         action === "approve"
           ? "admin:validations.notifications.approve_success_title"
@@ -139,6 +139,8 @@ export const useProcessValidation = () => {
       queryClient.invalidateQueries({ queryKey: ["validationStats"] });
       queryClient.invalidateQueries({ queryKey: ["allItemsHistory"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
     },
     meta: {
       errorTitle: "admin:validations.notifications.error_processing",

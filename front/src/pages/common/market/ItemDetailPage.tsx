@@ -45,6 +45,8 @@ import { useDisclosure } from "@mantine/hooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { useNavigate } from "react-router-dom";
 import { Modal } from "@mantine/core";
+import { useTransferDepositContainer } from "../../../hooks/depositHooks";
+import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 
 export default function ItemDetailPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
@@ -79,8 +81,25 @@ export default function ItemDetailPage() {
     useDisclosure(false);
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure(false);
+  const [openedTransfer, { open: openTransfer, close: closeTransfer }] =
+    useDisclosure(false);
 
   const deleteItemMutation = useDeleteItem();
+  const transferMutation = useTransferDepositContainer(id_item);
+
+  const handleTransfer = (id_new_container: number) => {
+    transferMutation.mutate(
+      {
+        id_new_container,
+        id_current_container: depositDetails?.container_id || 0,
+      },
+      {
+        onSuccess: () => {
+          closeTransfer();
+        },
+      },
+    );
+  };
 
   const handleDelete = () => {
     deleteItemMutation.mutate(id_item, {
@@ -538,6 +557,19 @@ export default function ItemDetailPage() {
                           >
                             {t("marketplace:detail.edit")}
                           </Button>
+                          {item.category === "deposit" && (
+                            <Button
+                              size="lg"
+                              variant="secondary"
+                              fullWidth
+                              color="var(--upagain-neutral-green)"
+                              onClick={openTransfer}
+                            >
+                              {t("marketplace:detail.transfer_container", {
+                                defaultValue: "Transfer container",
+                              })}
+                            </Button>
+                          )}
                           <Button
                             size="lg"
                             radius="md"
@@ -614,6 +646,14 @@ export default function ItemDetailPage() {
           </Group>
         </Stack>
       </Modal>
+
+      <TransferContainerModal
+        opened={openedTransfer}
+        onClose={closeTransfer}
+        onConfirm={handleTransfer}
+        isLoading={transferMutation.isPending}
+        currentContainerId={depositDetails?.container_id}
+      />
     </>
   );
 }

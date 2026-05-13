@@ -166,7 +166,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the deposit.")
 		return
 	}
-	// mapping for history insertion
+	// mapping for history insertion and comparison
 	depositFullDetails := models.DepositFullDetails{
 		Title:       itemDetails.Title,
 		Description: itemDetails.Description,
@@ -248,8 +248,19 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.Photos = finalPhotos
 
-	// if is user then require validation from admin again and invalidate barcode
-	if role == "user" {
+	needValidation := false
+	if role == "user" && depositFullDetails.Status == "approved" && (
+		depositFullDetails.Title != payload.Title ||
+		depositFullDetails.Description != payload.Description ||
+		depositFullDetails.Weight != payload.Weight ||
+		depositFullDetails.State != payload.State ||
+		depositFullDetails.Material != payload.Material ||
+		depositFullDetails.Price != payload.Price ||
+		len(depositFullDetails.Photos) != len(payload.Photos)) {
+		needValidation = true
+	}
+	// if is user and has change then require validation from admin again and invalidate barcode
+	if role == "user" && needValidation {
 		err = db.UpdateItemStatusById(id, "pending")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateDepositByDepositId", "error", err)
@@ -358,7 +369,7 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 // @Router       /deposits/{deposit_id}/transfer/ [patch]
 func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" {
+	if role != "admin" && role != "user" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
 		return
 	}
@@ -433,7 +444,7 @@ func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 	err = db.UpdateContainerByDepositId(depositId, idNewContainer)
 	if err != nil {
 		slog.Error("db.UpdateContainerByDepositId() failed", "controller", "TransferContainerByDepositId", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transfering container")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transferring container")
 		return
 	}
 

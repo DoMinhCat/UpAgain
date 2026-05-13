@@ -341,7 +341,7 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 // @Router       /containers/available/ [get]
 func GetAvailableContainers(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" {
+	if role != "admin" && role != "user" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}

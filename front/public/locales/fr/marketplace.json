@@ -3,7 +3,7 @@
   "subtitle": "Découvrez des objets et matériaux upcyclés disponibles à l'achat.",
   "my_listings": "Mes objets",
   "my_objects_description": "Gérez et suivez les objets que vous avez mis en vente ou déposés.",
-  "new_item": "Nouvel objet",
+  "new_item": "Créer une annonce",
   "create_listing": "Créer une annonce",
   "search_placeholder": "Rechercher des objets...",
   "empty": {
@@ -42,7 +42,13 @@
     "edit": "Modifier",
     "delete": "Supprimer",
     "delete_confirm_title": "Confirmer la suppression",
-    "delete_confirm_msg": "Êtes-vous sûr de vouloir supprimer cet objet ? Cette action est irréversible."
+    "delete_confirm_msg": "Êtes-vous sûr de vouloir supprimer cet objet ? Cette action est irréversible.",
+    "transfer_container": "Transférer le conteneur",
+    "transfer_modal": {
+      "title": "Transférer vers un autre conteneur",
+      "choose": "Choisissez un nouveau conteneur pour ce dépôt",
+      "confirm": "Transférer"
+    }
   },
   "notifications": {
     "delete_success_title": "Objet supprimé",
