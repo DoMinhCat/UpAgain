@@ -10,3 +10,4 @@ back/bin/
 back/images/
 .direnv/
 .agents/*
+.env
