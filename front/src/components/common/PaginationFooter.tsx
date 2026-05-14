@@ -1,4 +1,5 @@
 import { Text, Pagination, Group } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 interface PaginationFooterProps {
   activePage: number;
@@ -21,6 +22,8 @@ export default function PaginationFooter({
   loading = false,
   hidden = false,
 }: PaginationFooterProps) {
+  const { t } = useTranslation("common");
+
   if (hidden || total_records <= 0) {
     return null;
   }
@@ -28,13 +31,9 @@ export default function PaginationFooter({
   return (
     <Group justify="space-between" mt="md">
       <Text c="dimmed" size="sm">
-        Showing {(activePage - 1) * limit + 1} -{" "}
-        {Math.min(activePage * limit, total_records)} of {total_records}{" "}
-        {total_records != 1
-          ? unit
-          : unit.charAt(unit.length - 1) === "s"
-            ? unit.slice(0, -1)
-            : unit}
+        {t("pagination.showing")} {(activePage - 1) * limit + 1} -{" "}
+        {Math.min(activePage * limit, total_records)} {t("pagination.of")}{" "}
+        {total_records} {t(`pagination.${unit}` as any)}
       </Text>
       <Pagination
         total={last_page || 1}

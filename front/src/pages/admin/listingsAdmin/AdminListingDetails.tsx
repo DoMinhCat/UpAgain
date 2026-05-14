@@ -3,8 +3,6 @@ import {
   Title,
   Group,
   Grid,
-  TextInput,
-  Select,
   Table,
   Badge,
   Button,
@@ -18,7 +16,6 @@ import {
   Tooltip,
   ActionIcon,
   Anchor,
-  NumberInput,
   ThemeIcon,
   Paper,
   SimpleGrid,
@@ -70,16 +67,14 @@ import {
   useGetDepositDetails,
   useTransferDepositContainer,
 } from "../../../hooks/depositHooks";
-import ImageDropzone from "../../../components/input/ImageDropzone";
-import { TextEditor } from "../../../components/input/TextEditor";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useProcessValidation } from "../../../hooks/validationHooks";
 import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
+import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import type { Transaction } from "../../../api/interfaces/transaction";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
-import { useGetAvailableContainers } from "../../../hooks/containerHooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 
 export default function AdminListingDetails() {
@@ -225,31 +220,16 @@ export default function AdminListingDetails() {
     setChosenCode(path);
     openCodeCarousel();
   };
-
-  // TRANSFER CONTAINER
-  const {
-    data: availableContainersData,
-    isLoading: isLoadingAvailableContainers,
-  } = useGetAvailableContainers();
-  const availableContainers = availableContainersData || [];
   const [
     openedTransferContainerModal,
     { open: openTransferContainerModal, close: closeTransferContainerModal },
   ] = useDisclosure(false);
-  const [transferContainer, setTransferContainer] = useState<string>(
-    depositDetails?.container_id.toString() || "",
-  );
   const transferContainerMutation = useTransferDepositContainer(id_item);
 
-  const handleOpenTransferContainerModal = () => {
-    setTransferContainer(depositDetails?.container_id.toString() || "");
-    openTransferContainerModal();
-  };
-
-  const handleTransferContainer = () => {
+  const handleTransferContainer = (id_new_container: number) => {
     transferContainerMutation.mutate(
       {
-        id_new_container: parseInt(transferContainer),
+        id_new_container,
         id_current_container: depositDetails?.container_id || 0,
       },
       {
@@ -817,12 +797,7 @@ export default function AdminListingDetails() {
                       <Button
                         fullWidth
                         variant="secondary"
-                        disabled={
-                          // updateDepositMutation.isPending ||
-                          // updateListingMutation.isPending ||
-                          isLoadingAvailableContainers
-                        }
-                        onClick={handleOpenTransferContainerModal}
+                        onClick={openTransferContainerModal}
                       >
                         {t("listings.details.transfer_container")}
                       </Button>
@@ -1019,42 +994,13 @@ export default function AdminListingDetails() {
         activeSlide={0}
       />
 
-      <Modal
+      <TransferContainerModal
         opened={openedTransferContainerModal}
         onClose={closeTransferContainerModal}
-        title={t("listings.details.transfer_modal.title")}
-        size="lg"
-      >
-        <Text mb="sm">{t("listings.details.transfer_modal.choose")}</Text>
-        <Select
-          withAsterisk
-          value={transferContainer}
-          disabled={
-            transferContainerMutation.isPending || isLoadingAvailableContainers
-          }
-          data={availableContainers.map((container) => ({
-            value: container.id.toString(),
-            label: `${t("common:container", { defaultValue: "Container" })} #${container.id}`,
-          }))}
-          onChange={(value) => {
-            setTransferContainer(value as string);
-          }}
-        />
-        <Group mt="lg" justify="center">
-          <Button onClick={closeTransferContainerModal} variant="grey">
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            onClick={() => {
-              handleTransferContainer();
-            }}
-            variant="primary"
-            loading={transferContainerMutation.isPending}
-          >
-            {t("common:actions.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+        onConfirm={handleTransferContainer}
+        isLoading={transferContainerMutation.isPending}
+        currentContainerId={depositDetails?.container_id}
+      />
 
       <RefuseItemModal
         opened={openedRefuse}

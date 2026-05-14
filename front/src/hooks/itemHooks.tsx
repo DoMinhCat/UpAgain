@@ -7,6 +7,7 @@ import {
   getItemDetails,
   getItemStats,
   getItemTransactions,
+  getMyItems,
   updateItemStatus,
 } from "../api/itemModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
@@ -25,6 +26,36 @@ export const useGetAllItems = (
     queryKey: ["items", page, limit, search, sort, status, material, category],
     queryFn: () =>
       getAllItems(page, limit, search, sort, status, material, category),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.fetch_items_error",
+    },
+  });
+};
+
+export const useGetMyItems = (
+  page?: number,
+  limit?: number,
+  search?: string,
+  sort?: string,
+  status?: string,
+  material?: string,
+  category?: string,
+) => {
+  return useQuery({
+    queryKey: [
+      "my-items",
+      page,
+      limit,
+      search,
+      sort,
+      status,
+      material,
+      category,
+    ],
+    queryFn: () =>
+      getMyItems(page, limit, search, sort, status, material, category),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "common:notifications.error",
@@ -142,6 +173,7 @@ export const useCreateItem = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["my-items"] });
       showSuccessNotification(
         "marketplace:notifications.post_success_title",
         "marketplace:notifications.post_success_message",

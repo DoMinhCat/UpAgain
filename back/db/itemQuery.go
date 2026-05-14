@@ -356,8 +356,14 @@ func DeleteItemById(id int) error {
 
 func GetItemDetailsByItemId(id int) (models.Item, error) {
 	var item models.Item
-	row := utils.Conn.QueryRow("SELECT id, created_at, title, description, weight, state, id_user, material, price, status FROM items WHERE id = $1 AND is_deleted = false", id)
-	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status)
+	row := utils.Conn.QueryRow(`
+		SELECT 
+			i.id, i.created_at, i.title, i.description, i.weight, i.state, i.id_user, i.material, i.price, i.status, a.avatar
+		FROM items i
+		JOIN accounts a ON i.id_user=a.id
+		WHERE i.id = $1 AND i.is_deleted = false
+	`, id)
+	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status, &item.CreatorAvatar)
 	if err != nil {
 		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() failed: %v", err)
 	}
@@ -453,4 +459,279 @@ func CreateItem(item models.ItemCreateRequest) (int, error) {
 		}
 	}
 	return id_item, nil
+}
+
+func GetUserItemsPaginated(idUser int, page int, limit int, filters models.ItemFilters) ([]models.Item, int, error) {
+	var results []models.Item
+	var params []interface{}
+	paramIndex := 1
+
+	whereClause := fmt.Sprintf("WHERE i.id_user = $%d AND i.is_deleted = false", paramIndex)
+	fromClause := "FROM items i JOIN accounts a ON i.id_user = a.id"
+	params = append(params, idUser)
+	paramIndex++
+
+	// Multi select filters
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(" AND (i.title ILIKE $%d OR a.username ILIKE $%d OR CAST(i.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		params = append(params, searchParam)
+		paramIndex++
+	}
+
+	if filters.Status != "" {
+		if filters.Status == "reserved" {
+			// Special logic for reserved: latest transaction has action 'reserved'
+			whereClause += ` AND EXISTS (
+				SELECT 1 FROM (
+					SELECT action FROM transactions 
+					WHERE id_item = i.id 
+					ORDER BY created_at DESC LIMIT 1
+				) lt WHERE lt.action = 'reserved'
+			)`
+		} else if filters.Status == "sold" {
+			// Special logic for sold: latest transaction has action 'purchased'
+			whereClause += ` AND EXISTS (
+				SELECT 1 FROM (
+					SELECT action FROM transactions 
+					WHERE id_item = i.id 
+					ORDER BY created_at DESC LIMIT 1
+				) lt WHERE lt.action = 'purchased'
+			)`
+		} else if filters.Status == "to_drop_off" {
+			// To be dropped off: active barcode for user
+			whereClause += ` AND EXISTS (
+				SELECT 1 FROM barcodes b 
+				JOIN deposits d ON b.id_deposit = d.id_item 
+				WHERE d.id_item = i.id 
+				AND b.user_type = 'user' 
+				AND b.status = 'active' 
+				AND now() BETWEEN b.valid_from AND b.valid_to
+			)`
+		} else if filters.Status == "completed" {
+			// Completed is removed for users, replaced by sold
+			return []models.Item{}, 0, nil
+		} else {
+			// Normal item_status filter (pending, approved, refused)
+			whereClause += fmt.Sprintf(" AND i.status = $%d", paramIndex)
+			params = append(params, filters.Status)
+			paramIndex++
+		}
+	}
+
+	if filters.Material != "" {
+		whereClause += fmt.Sprintf(" AND i.material = $%d", paramIndex)
+		params = append(params, filters.Material)
+		paramIndex++
+	}
+
+	if filters.Category != "" {
+		if filters.Category == "listing" {
+			whereClause += " AND EXISTS (SELECT 1 FROM listings l WHERE l.id_item = i.id)"
+		} else if filters.Category == "deposit" {
+			whereClause += " AND EXISTS (SELECT 1 FROM deposits d WHERE d.id_item = i.id)"
+		}
+	}
+
+	var totalRecords int
+	countQuery := "SELECT COUNT(*) " + fromClause + " " + whereClause
+	err := utils.Conn.QueryRow(countQuery, params...).Scan(&totalRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetUserItemsPaginated() count failed: %v", err)
+	}
+
+	orderBy := "ORDER BY i.id ASC" // Default sorting
+	if filters.Sort != "" {
+		switch filters.Sort {
+		case "most_recent_creation":
+			orderBy = "ORDER BY i.created_at DESC"
+		case "oldest_creation":
+			orderBy = "ORDER BY i.created_at ASC"
+		case "highest_price":
+			orderBy = "ORDER BY i.price DESC"
+		case "lowest_price":
+			orderBy = "ORDER BY i.price ASC"
+		default:
+			orderBy = "ORDER BY i.id ASC"
+		}
+	}
+
+	query := fmt.Sprintf(`
+		SELECT i.created_at, i.id, i.title, i.description, i.weight, i.state, i.id_user, a.username, i.material, i.price, i.status, a.avatar
+		%s %s %s`, fromClause, whereClause, orderBy)
+
+	// pagination
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
+	}
+
+	rows, err := utils.Conn.Query(query, params...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetUserItemsPaginated() query failed: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.Item
+		err := rows.Scan(&item.CreatedAt, &item.Id, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Username, &item.Material, &item.Price, &item.Status, &item.CreatorAvatar)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetUserItemsPaginated() scan failed: %v", err)
+		}
+
+		// get category
+		isListing, err := CheckListingOrDepositByItemId(item.Id)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetUserItemsPaginated() check listing or deposit failed: %v", err)
+		}
+		if isListing {
+			item.Category = "listing"
+		} else {
+			item.Category = "deposit"
+		}
+
+		// get photos
+		photos, err := GetPhotosPathsByObjectId(item.Id, "item")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetUserItemsPaginated() get photos failed: %v", err)
+		}
+		item.Photos = photos
+		results = append(results, item)
+	}
+
+	if results == nil {
+		results = []models.Item{}
+	}
+
+	return results, totalRecords, nil
+}
+
+func GetProItemsPaginated(idPro int, page int, limit int, filters models.ItemFilters) ([]models.Item, int, error) {
+	var results []models.Item
+	var params []interface{}
+	paramIndex := 1
+
+	// Pros see items they have reserved or purchased (latest transaction must belong to them)
+	fromClause := "FROM items i JOIN accounts a ON i.id_user = a.id JOIN (SELECT DISTINCT ON (id_item) id_item, action, id_pro FROM transactions ORDER BY id_item, created_at DESC) t ON i.id = t.id_item"
+	whereClause := fmt.Sprintf("WHERE t.id_pro = $%d AND i.is_deleted = false", paramIndex)
+	params = append(params, idPro)
+	paramIndex++
+
+	// Multi select filters
+	if filters.Search != "" {
+		searchParam := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(" AND (i.title ILIKE $%d OR a.username ILIKE $%d OR CAST(i.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
+		params = append(params, searchParam)
+		paramIndex++
+	}
+
+	if filters.Status != "" {
+		if filters.Status == "reserved" {
+			whereClause += " AND t.action = 'reserved'"
+		} else if filters.Status == "bought" {
+			whereClause += " AND t.action = 'purchased'"
+		} else if filters.Status == "to_retrieve" {
+			// To be retrieved: active barcode for pro
+			whereClause += ` AND EXISTS (
+				SELECT 1 FROM barcodes b 
+				JOIN deposits d ON b.id_deposit = d.id_item 
+				WHERE d.id_item = i.id 
+				AND b.user_type = 'pro' 
+				AND b.status = 'active' 
+				AND now() BETWEEN b.valid_from AND b.valid_to
+			)`
+		} else {
+			// Pro doesn't see other statuses (pending, approved, refused, completed)
+			// Return empty if other status requested
+			return []models.Item{}, 0, nil
+		}
+	}
+
+	if filters.Material != "" {
+		whereClause += fmt.Sprintf(" AND i.material = $%d", paramIndex)
+		params = append(params, filters.Material)
+		paramIndex++
+	}
+
+	if filters.Category != "" {
+		if filters.Category == "listing" {
+			whereClause += " AND EXISTS (SELECT 1 FROM listings l WHERE l.id_item = i.id)"
+		} else if filters.Category == "deposit" {
+			whereClause += " AND EXISTS (SELECT 1 FROM deposits d WHERE d.id_item = i.id)"
+		}
+	}
+
+	var totalRecords int
+	countQuery := "SELECT COUNT(*) " + fromClause + " " + whereClause
+	err := utils.Conn.QueryRow(countQuery, params...).Scan(&totalRecords)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetProItemsPaginated() count failed: %v", err)
+	}
+
+	orderBy := "ORDER BY i.id ASC" // Default sorting
+	if filters.Sort != "" {
+		switch filters.Sort {
+		case "most_recent_creation":
+			orderBy = "ORDER BY i.created_at DESC"
+		case "oldest_creation":
+			orderBy = "ORDER BY i.created_at ASC"
+		case "highest_price":
+			orderBy = "ORDER BY i.price DESC"
+		case "lowest_price":
+			orderBy = "ORDER BY i.price ASC"
+		default:
+			orderBy = "ORDER BY i.id ASC"
+		}
+	}
+
+	query := fmt.Sprintf(`
+		SELECT i.created_at, i.id, i.title, i.description, i.weight, i.state, i.id_user, a.username, i.material, i.price, i.status, a.avatar
+		%s %s %s`, fromClause, whereClause, orderBy)
+
+	// pagination
+	if limit != -1 && page != -1 {
+		offset := (page - 1) * limit
+		query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+		params = append(params, limit, offset)
+	}
+
+	rows, err := utils.Conn.Query(query, params...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetProItemsPaginated() query failed: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.Item
+		err := rows.Scan(&item.CreatedAt, &item.Id, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Username, &item.Material, &item.Price, &item.Status, &item.CreatorAvatar)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetProItemsPaginated() scan failed: %v", err)
+		}
+
+		// get category
+		isListing, err := CheckListingOrDepositByItemId(item.Id)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetProItemsPaginated() check listing or deposit failed: %v", err)
+		}
+		if isListing {
+			item.Category = "listing"
+		} else {
+			item.Category = "deposit"
+		}
+
+		// get photos
+		photos, err := GetPhotosPathsByObjectId(item.Id, "item")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetProItemsPaginated() get photos failed: %v", err)
+		}
+		item.Photos = photos
+		results = append(results, item)
+	}
+
+	if results == nil {
+		results = []models.Item{}
+	}
+
+	return results, totalRecords, nil
 }
