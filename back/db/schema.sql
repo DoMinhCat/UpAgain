@@ -265,7 +265,14 @@ create table listings
     id_item     integer primary key references items (id) on delete cascade,
     street      text             not null,
     city_name   varchar(255) not null,
-    postal_code varchar(10)  not null
+    postal_code varchar(10)  not null,
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+    
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 
 CREATE TYPE container_status AS ENUM ('ready', 'waiting', 'occupied', 'maintenance');

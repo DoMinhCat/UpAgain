@@ -213,7 +213,7 @@ func UpdateListingById(listingID int, listing models.UpdateListingRequest) error
 }
 
 func CreateListing(listing models.CreateListingRequest) error {
-	_, err := utils.Conn.Exec("INSERT INTO listings (id_item, street, city_name, postal_code) VALUES ($1, $2, $3, $4)", listing.IdItem, listing.Street, listing.CityName, listing.PostalCode)
+	_, err := utils.Conn.Exec("INSERT INTO listings (id_item, street, city_name, postal_code, lat, lng) VALUES ($1, $2, $3, $4, $5, $6)", listing.IdItem, listing.Street, listing.CityName, listing.PostalCode, listing.Lat, listing.Lng)
 	if err != nil {
 		return err
 	}

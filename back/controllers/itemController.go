@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
 	validations "backend/utils/validations"
 	"encoding/json"
@@ -649,7 +650,20 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 		payload.ListingInfo.PostalCode = r.FormValue("postal_code")
 		payload.ListingInfo.IdItem = id_item
 
-		// TODO: insert lat and lng into db once db structure is updated
+		// resolve coordinates
+		addressToResolve := models.Address{
+			Street:     payload.ListingInfo.Street,
+			PostalCode: payload.ListingInfo.PostalCode,
+			City:       payload.ListingInfo.CityName,
+		}
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			slog.Error("AddressToCoor() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		payload.ListingInfo.Lat = coordinates.Lat
+		payload.ListingInfo.Lng = coordinates.Lng
 		err = db.CreateListing(payload.ListingInfo)
 		if err != nil {
 			slog.Error("CreateListing() failed", "controller", "CreateItem", "error", err)
