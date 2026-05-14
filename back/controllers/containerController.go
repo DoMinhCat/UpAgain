@@ -312,6 +312,34 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Street is required")
 		return
 	}
+	if c.CityName == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "City is required")
+		return
+	}
+	if c.PostalCode == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Postal code is required")
+		return
+	}
+
+	// resolve lat/lng
+	var addressToResolve = models.Address{
+		Street:     c.Street,
+		City:       c.CityName,
+		PostalCode: c.PostalCode,
+	}
+
+	coordinates, err := geocode.AddressToCoor(addressToResolve)
+	if err != nil {
+		if err.Error() == "ZERO_RESULTS" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+			return
+		}
+		slog.Error("AddressToCoor() failed", "controller", "CreateContainerHandler", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to resolve coordinates")
+		return
+	}
+	c.Lat = coordinates.Lat
+	c.Lng = coordinates.Lng
 
 	id, err := db.InsertContainer(c)
 	if err != nil {
@@ -328,9 +356,7 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c.ID = id
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(c)
+	utils.RespondWithJSON(w, http.StatusCreated, c)
 }
 
 // GetAvailableContainers godoc
