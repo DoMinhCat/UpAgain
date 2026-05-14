@@ -359,8 +359,14 @@ func DeleteItemById(id int) error {
 
 func GetItemDetailsByItemId(id int) (models.Item, error) {
 	var item models.Item
-	row := utils.Conn.QueryRow("SELECT id, created_at, title, description, weight, state, id_user, material, price, status FROM items WHERE id = $1 AND is_deleted = false", id)
-	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status)
+	row := utils.Conn.QueryRow(`
+		SELECT 
+			i.id, i.created_at, i.title, i.description, i.weight, i.state, i.id_user, i.material, i.price, i.status, a.avatar
+		FROM items i
+		JOIN accounts a ON i.id_user=a.id
+		WHERE i.id = $1 AND i.is_deleted = false
+	`, id)
+	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status, &item.CreatorAvatar)
 	if err != nil {
 		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() failed: %v", err)
 	}

@@ -486,6 +486,7 @@ export default function ItemDetailPage() {
                       <Group gap="sm">
                         <Avatar
                           radius="xl"
+                          src={resolveUrl(item.creator_avatar || "")}
                           name={item.username}
                           color="initials"
                           size="md"
