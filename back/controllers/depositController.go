@@ -348,20 +348,25 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 	}
 
 	var codes []models.CodeForAdmin
-	if role == "admin" {
-		codes, err = db.GetCodesOfLatestTransactionByDepositId(depositId)
-	} else {
-		// TODO: get only code for the user
-		utils.RespondWithError(w, http.StatusNotImplemented, "This feature is not implemented yet.")
-		return
-	}
+	codes, err = db.GetCodesOfLatestTransactionByDepositId(depositId)
 	if err != nil {
 		slog.Error("db.GetCodesOfLatestTransactionByDepositId() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, codes)
+	if role == "admin" {
+		utils.RespondWithJSON(w, http.StatusOK, codes)
+		return
+	} else {
+		for _, code := range codes {
+			if code.UserType == role {
+				utils.RespondWithJSON(w, http.StatusOK, []models.CodeForAdmin{code})
+				return
+			}
+		}
+	}
+
 }
 
 // TransferContainerByDepositId godoc

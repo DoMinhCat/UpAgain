@@ -355,8 +355,8 @@ export default function MyItemDetail() {
   const latestTx = transactions[0]; // most recent transaction
 
   // deposit code helpers
-  const userDepositCode = depositCodes?.find((c) => c.user_type === "user");
-  const proDepositCode = depositCodes?.find((c) => c.user_type === "pro");
+  const userDepositCode = depositCodes?.[0];
+  const proDepositCode = depositCodes?.[0];
   // For pro, their code is the "pro" code; for user, it's the "user" code
   const myDepositCode: CodeForAdmin | undefined =
     role === "pro" ? proDepositCode : userDepositCode;
