@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	"fmt"
+	"log/slog"
 	"net/http"
 )
 
@@ -44,6 +45,7 @@ func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
 
 	address, err := geocode.CoorToAddress(params)
 	if err != nil {
+		slog.Error("CoorToAddress() failed", "controller", "GetAddressFromCoor", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve address from given coordinates")
 		return
 	}
@@ -70,6 +72,7 @@ func GetCoorFromAddress(w http.ResponseWriter, r *http.Request) {
 
 	coordinates, err := geocode.AddressToCoor(params)
 	if err != nil{
+		slog.Error("AddressToCoor() failed", "controller", "GetCoorFromAddress", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve coordinates from given address")
 		return
 	}
