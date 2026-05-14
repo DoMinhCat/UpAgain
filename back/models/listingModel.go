@@ -1,6 +1,7 @@
 package models
 
 type Listing struct {
+	Street     string `json:"street"`
 	City       string `json:"city"`
 	PostalCode string `json:"postal_code"`
 }
@@ -15,6 +16,7 @@ type ListingFullDetails struct {
 	Price       float64  `json:"price"`
 	Status      string   `json:"status"`
 	Photos      []string `json:"photos"`
+	Street      string   `json:"street"`
 	City        string   `json:"city"`
 	PostalCode  string   `json:"postal_code"`
 }
@@ -26,7 +28,15 @@ type UpdateListingRequest struct {
 	State       string   `json:"state"`
 	Material    string   `json:"material"`
 	Price       float64  `json:"price"`
+	Street      string   `json:"street"`
 	City        string   `json:"city"`
 	PostalCode  string   `json:"postal_code"`
 	Photos      []string `json:"photos"`
+}
+
+type CreateListingRequest struct {
+	IdItem      int    `json:"id_item"`
+	Street      string `json:"street"`
+	CityName    string `json:"city_name"`
+	PostalCode  string `json:"postal_code"`
 }

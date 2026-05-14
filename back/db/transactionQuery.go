@@ -80,17 +80,17 @@ func GetProTotalDepositsByIdByAction(id int, action_type *string) (int, error) {
 	return total, nil
 }
 
-func GetProTotalItemsSpendingsById(id int) (int, error) {
-	var total int
+func GetProTotalItemsSpendingsById(id int) (float64, error) {
+	var total float64
 	// Uses snapshot total_price (item_price + commission) stored in transactions
 	query := `
-		select COALESCE(sum(t.total_price), 0) from transactions t
+		select COALESCE(sum(t.total_price), 0)::float8 from transactions t
 		where t.id_pro = $1 and t.action = 'purchased' and t.total_price is not null;
 	`
 	row := utils.Conn.QueryRow(query, id)
 	err := row.Scan(&total)
 	if err != nil {
-		return 0, fmt.Errorf("GetProTotalItemsSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetProTotalItemsSpendingsById() failed: %v", err.Error())
 	}
 
 	return total, nil

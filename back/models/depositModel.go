@@ -32,3 +32,8 @@ type TransferContainerRequest struct {
 	CurrentContainerId int `json:"current_container_id"`
 	NewContainerId     int `json:"new_container_id"`
 }
+
+type CreateDepositRequest struct {
+	IdItem      int `json:"id_item"`
+	IdContainer int `json:"id_container"`
+}

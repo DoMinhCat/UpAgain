@@ -3,8 +3,6 @@ import {
   Title,
   Group,
   Grid,
-  TextInput,
-  Select,
   Table,
   Badge,
   Button,
@@ -18,7 +16,6 @@ import {
   Tooltip,
   ActionIcon,
   Anchor,
-  NumberInput,
   ThemeIcon,
   Paper,
   SimpleGrid,
@@ -49,6 +46,7 @@ import {
   IconKey,
   IconUserShield,
   IconBasketCheck,
+  IconX,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
@@ -63,27 +61,24 @@ import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
-import {
-  useGetListingDetails,
-  useUpdateListing,
-} from "../../../hooks/listingHooks";
+import { useGetListingDetails } from "../../../hooks/listingHooks";
 import {
   useGetDepositCodesOfLatestTransaction,
   useGetDepositDetails,
   useTransferDepositContainer,
-  useUpdateDeposit,
 } from "../../../hooks/depositHooks";
-import ImageDropzone from "../../../components/input/ImageDropzone";
-import { TextEditor } from "../../../components/input/TextEditor";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import PaginationFooter from "../../../components/common/PaginationFooter";
+import { useProcessValidation } from "../../../hooks/validationHooks";
+import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
+import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import type { Transaction } from "../../../api/interfaces/transaction";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
-import { useGetAvailableContainers } from "../../../hooks/containerHooks";
+import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 
 export default function AdminListingDetails() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "create_item", "common"]);
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -113,6 +108,29 @@ export default function AdminListingDetails() {
   ] = useDisclosure(false);
 
   const updateItemStatus = useUpdateItemStatus(id_item);
+  const processMutation = useProcessValidation();
+  const [openedRefuse, { open: openRefuse, close: closeRefuse }] =
+    useDisclosure(false);
+
+  const handleConfirmRefuse = (reason: string) => {
+    const category = itemDetails?.category;
+    if (!category) return;
+    const entityType = (category + "s") as "listings" | "deposits";
+    processMutation.mutate(
+      {
+        entityType,
+        id: id_item,
+        action: "refuse",
+        reason,
+      },
+      {
+        onSuccess: () => {
+          closeRefuse();
+          navigate(PATHS.ADMIN.LISTINGS);
+        },
+      },
+    );
+  };
 
   const handleUpdateItemStatus = (status: string) => {
     updateItemStatus.mutate(status, {
@@ -138,209 +156,6 @@ export default function AdminListingDetails() {
   // EDIT MODAL
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
-  const [titleEdit, setTitleEdit] = useState<string>(itemDetails?.title || "");
-  const [descriptionEdit, setDescriptionEdit] = useState<string>(
-    itemDetails?.description || "",
-  );
-  const [materialEdit, setMaterialEdit] = useState<string>(
-    itemDetails?.material || "",
-  );
-  const [stateEdit, setStateEdit] = useState<string>(itemDetails?.state || "");
-  const [weightEdit, setWeightEdit] = useState<number>(
-    itemDetails?.weight || 0,
-  );
-  const [priceEdit, setPriceEdit] = useState<number>(itemDetails?.price || 0);
-  const [cityEdit, setCityEdit] = useState<string>(listingDetails?.city || "");
-  const [postalCodeEdit, setPostalCodeEdit] = useState<string>(
-    listingDetails?.postal_code || "",
-  );
-  const [fileEdit, setFileEdit] = useState<any[]>([]);
-
-  const [errorTitle, setErrorTitle] = useState("");
-  const [errorDescription, setErrorDescription] = useState("");
-  const [errorMaterial, setErrorMaterial] = useState("");
-  const [errorState, setErrorState] = useState("");
-  const [errorWeight, setErrorWeight] = useState("");
-  const [errorCity, setErrorCity] = useState("");
-  const [errorPostalCode, setErrorPostalCode] = useState("");
-  const [errorPrice, setErrorPrice] = useState("");
-
-  const handleOpenEdit = () => {
-    if (itemDetails) {
-      setTitleEdit(itemDetails?.title || "");
-      setDescriptionEdit(itemDetails?.description || "");
-      setMaterialEdit(itemDetails?.material || "");
-      setStateEdit(itemDetails?.state || "");
-      setWeightEdit(itemDetails?.weight || 0);
-      setPriceEdit(itemDetails?.price || 0);
-      const files = itemDetails?.images?.map((image) => {
-        return {
-          path: image,
-        };
-      });
-      setFileEdit(files || []);
-      if (isListing) {
-        setCityEdit(listingDetails?.city || "");
-        setPostalCodeEdit(listingDetails?.postal_code || "");
-      }
-    }
-    openEdit();
-  };
-
-  const handleCloseEdit = () => {
-    setErrorTitle("");
-    setErrorDescription("");
-    setErrorMaterial("");
-    setErrorState("");
-    setErrorWeight("");
-    setErrorCity("");
-    setErrorPostalCode("");
-
-    if (isListing) {
-      setCityEdit(listingDetails?.city || "");
-      setPostalCodeEdit(listingDetails?.postal_code || "");
-    }
-    closeEdit();
-  };
-
-  const validateTitle = () => {
-    if (!titleEdit) {
-      setErrorTitle("Title is required");
-      return false;
-    } else {
-      setErrorTitle("");
-      return true;
-    }
-  };
-
-  const validateDescription = () => {
-    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
-    if (!descriptionEdit || stripped === "") {
-      setErrorDescription("Post's content is required");
-      return false;
-    }
-    setErrorDescription("");
-    return true;
-  };
-
-  const validateMaterial = () => {
-    if (!materialEdit) {
-      setErrorMaterial("Material is required");
-      return false;
-    } else {
-      setErrorMaterial("");
-      return true;
-    }
-  };
-
-  const validateState = () => {
-    if (!stateEdit) {
-      setErrorState("State is required");
-      return false;
-    } else {
-      setErrorState("");
-      return true;
-    }
-  };
-
-  const validateWeight = () => {
-    if (!weightEdit) {
-      setErrorWeight("Weight is required");
-      return false;
-    } else {
-      setErrorWeight("");
-      return true;
-    }
-  };
-
-  const validateCity = () => {
-    if (!cityEdit) {
-      setErrorCity("City is required");
-      return false;
-    } else {
-      setErrorCity("");
-      return true;
-    }
-  };
-
-  const validatePostalCode = () => {
-    if (!postalCodeEdit) {
-      setErrorPostalCode("Postal code is required");
-      return false;
-    }
-    if (!/^\d{5,9}$/.test(postalCodeEdit)) {
-      setErrorPostalCode("Invalid postal code");
-      return false;
-    }
-    setErrorPostalCode("");
-    return true;
-  };
-
-  const validatePrice = () => {
-    if (!priceEdit && priceEdit !== 0) {
-      setErrorPrice("Price is required");
-      return false;
-    } else {
-      setErrorPrice("");
-      return true;
-    }
-  };
-
-  // EDIT HANDLING
-  const updateListingMutation = useUpdateListing(id_item);
-  const updateDepositMutation = useUpdateDeposit(id_item);
-
-  const handleEdit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !validateTitle() ||
-      !validateDescription() ||
-      !validateMaterial() ||
-      !validateState() ||
-      !validateWeight() ||
-      !validatePrice()
-    ) {
-      return;
-    }
-
-    if (itemDetails?.category === "listing") {
-      if (!validateCity() || !validatePostalCode()) {
-        return;
-      }
-    }
-
-    const formData = new FormData();
-    formData.append("title", titleEdit);
-    formData.append("description", descriptionEdit);
-    formData.append("material", materialEdit);
-    formData.append("state", stateEdit);
-    formData.append("weight", weightEdit.toString());
-    formData.append("price", priceEdit.toString());
-    if (isListing) {
-      formData.append("city", cityEdit);
-      formData.append("postal_code", postalCodeEdit);
-    }
-    fileEdit.forEach((obj) => {
-      if (obj instanceof File) {
-        formData.append("new_images", obj);
-      } else if (obj.path) {
-        formData.append("existing_images", obj.path);
-      }
-    });
-    if (isListing) {
-      updateListingMutation.mutate(formData, {
-        onSuccess: () => {
-          closeEdit();
-        },
-      });
-    } else {
-      updateDepositMutation.mutate(formData, {
-        onSuccess: () => {
-          closeEdit();
-        },
-      });
-    }
-  };
 
   // TRANSACTIONS
   const [activePage, setPage] = useState(1);
@@ -405,31 +220,16 @@ export default function AdminListingDetails() {
     setChosenCode(path);
     openCodeCarousel();
   };
-
-  // TRANSFER CONTAINER
-  const {
-    data: availableContainersData,
-    isLoading: isLoadingAvailableContainers,
-  } = useGetAvailableContainers();
-  const availableContainers = availableContainersData || [];
   const [
     openedTransferContainerModal,
     { open: openTransferContainerModal, close: closeTransferContainerModal },
   ] = useDisclosure(false);
-  const [transferContainer, setTransferContainer] = useState<string>(
-    depositDetails?.container_id.toString() || "",
-  );
   const transferContainerMutation = useTransferDepositContainer(id_item);
 
-  const handleOpenTransferContainerModal = () => {
-    setTransferContainer(depositDetails?.container_id.toString() || "");
-    openTransferContainerModal();
-  };
-
-  const handleTransferContainer = () => {
+  const handleTransferContainer = (id_new_container: number) => {
     transferContainerMutation.mutate(
       {
-        id_new_container: parseInt(transferContainer),
+        id_new_container,
         id_current_container: depositDetails?.container_id || 0,
       },
       {
@@ -452,6 +252,8 @@ export default function AdminListingDetails() {
         {t("listings.details.title")}
       </Title>
       <MyBreadcrumbs
+        mt="md"
+        mb="md"
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [
@@ -482,7 +284,33 @@ export default function AdminListingDetails() {
                       href: PATHS.ADMIN.CONTAINERS + "/" + origin.idContainer,
                     },
                   ]
-                : [{ title: t("listings.title"), href: PATHS.ADMIN.LISTINGS }]),
+                : origin?.from === "validationDetail"
+                  ? [
+                      {
+                        title: t("validations.title"),
+                        href: PATHS.ADMIN.VALIDATIONS.ALL,
+                      },
+                      {
+                        title:
+                          t("validations.details.title") +
+                          " #" +
+                          origin.item.id_item,
+                        href:
+                          "/" +
+                          PATHS.ADMIN.VALIDATIONS.ALL +
+                          "/" +
+                          origin.type +
+                          "/" +
+                          origin.item.id_item,
+                        state: { item: origin.item, type: origin.type },
+                      },
+                    ]
+                  : [
+                      {
+                        title: t("listings.title"),
+                        href: PATHS.ADMIN.LISTINGS,
+                      },
+                    ]),
           {
             title: t("listings.details.title"),
             href: PATHS.ADMIN.LISTINGS + "/" + id,
@@ -867,7 +695,7 @@ export default function AdminListingDetails() {
                     icon={<IconMapPin size={18} />}
                     label={t("containers.details.location")}
                     color="white"
-                    value={`${listingDetails?.city} ${listingDetails?.postal_code}`}
+                    value={`${listingDetails?.street}, ${listingDetails?.city} ${listingDetails?.postal_code}`}
                   />
                 ) : (
                   <CardStatsItem
@@ -905,12 +733,12 @@ export default function AdminListingDetails() {
                     <Group grow>
                       <Button
                         variant="edit"
-                        onClick={handleOpenEdit}
+                        onClick={openEdit}
                         loading={
-                          isItemDetailsLoading ||
-                          updateItemStatus.isPending ||
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending
+                          isItemDetailsLoading || updateItemStatus.isPending
+                          // ||
+                          // updateDepositMutation.isPending ||
+                          // updateListingMutation.isPending
                         }
                         disabled={
                           itemDetails?.status == "completed" ||
@@ -948,17 +776,28 @@ export default function AdminListingDetails() {
                             ? t("listings.details.approve_item")
                             : t("listings.details.delete_item")}
                       </Button>
+                      {itemDetails?.status === "pending" && (
+                        <Button
+                          fullWidth
+                          variant="delete"
+                          leftSection={<IconX size={16} />}
+                          onClick={openRefuse}
+                          loading={
+                            processMutation.isPending &&
+                            processMutation.variables?.action === "refuse"
+                          }
+                        >
+                          {t("admin:validations.details.actions.refuse", {
+                            defaultValue: "Refuse",
+                          })}
+                        </Button>
+                      )}
                     </Group>
                     {itemDetails?.category === "deposit" && (
                       <Button
                         fullWidth
                         variant="secondary"
-                        disabled={
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending ||
-                          isLoadingAvailableContainers
-                        }
-                        onClick={handleOpenTransferContainerModal}
+                        onClick={openTransferContainerModal}
                       >
                         {t("listings.details.transfer_container")}
                       </Button>
@@ -967,188 +806,14 @@ export default function AdminListingDetails() {
                 </>
               )}
 
-              {/* Edit Modal */}
-              <Modal
-                opened={openedEdit}
-                onClose={handleCloseEdit}
-                title={t("listings.details.edit_modal.title")}
-                centered
-                size="xl"
-              >
-                <Stack>
-                  <TextInput
-                    data-autofocus
-                    withAsterisk
-                    label={t("validations.table.title")}
-                    value={titleEdit}
-                    onChange={(e) => {
-                      setTitleEdit(e.target.value);
-                    }}
-                    onBlur={() => validateTitle()}
-                    error={errorTitle}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    required
-                  />
-                  <NumberInput
-                    min={0}
-                    withAsterisk
-                    label={t("validations.table.price")}
-                    value={priceEdit}
-                    onChange={(value) => {
-                      setPriceEdit(Number(value));
-                    }}
-                    onBlur={() => validatePrice()}
-                    error={errorPrice}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    required
-                  />
-                  <NumberInput
-                    min={0}
-                    withAsterisk
-                    label={t("listings.filters.weight")}
-                    value={weightEdit}
-                    onChange={(value) => {
-                      setWeightEdit(Number(value));
-                    }}
-                    onBlur={() => validateWeight()}
-                    error={errorWeight}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    required
-                  />
-                  <Select
-                    withAsterisk
-                    label={t("listings.filters.material")}
-                    value={materialEdit}
-                    error={errorMaterial}
-                    onBlur={() => validateMaterial()}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    data={[
-                      { value: "wood", label: t("common:materials.wood") },
-                      { value: "glass", label: t("common:materials.glass") },
-                      {
-                        value: "plastic",
-                        label: t("common:materials.plastic"),
-                      },
-                      { value: "metal", label: t("common:materials.metal") },
-                      {
-                        value: "textile",
-                        label: t("common:materials.textile"),
-                      },
-                      { value: "mixed", label: t("common:materials.mixed") },
-                      { value: "other", label: t("common:materials.other") },
-                    ]}
-                    onChange={(value) => {
-                      setMaterialEdit(value as string);
-                    }}
-                  />
-                  <Select
-                    withAsterisk
-                    label={t("listings.filters.state")}
-                    value={stateEdit}
-                    error={errorState}
-                    onBlur={() => validateState()}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    data={[
-                      { value: "new", label: t("common:states.new") },
-                      {
-                        value: "very_good",
-                        label: t("common:states.very_good"),
-                      },
-                      { value: "good", label: t("common:states.good") },
-                      {
-                        value: "need_repair",
-                        label: t("common:states.need_repair"),
-                      },
-                    ]}
-                    onChange={(value) => {
-                      setStateEdit(value as string);
-                    }}
-                  />
-                  {itemDetails?.category === "listing" && (
-                    <SimpleGrid cols={2}>
-                      <TextInput
-                        withAsterisk
-                        label={t("containers.create_modal.city")}
-                        value={cityEdit}
-                        error={errorCity}
-                        onBlur={() => validateCity()}
-                        onChange={(e) => {
-                          setCityEdit(e.target.value);
-                        }}
-                        disabled={
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending
-                        }
-                        required
-                      />
-                      <TextInput
-                        withAsterisk
-                        label={t("containers.create_modal.postal_code")}
-                        value={postalCodeEdit}
-                        error={errorPostalCode}
-                        onBlur={() => validatePostalCode()}
-                        onChange={(e) => {
-                          setPostalCodeEdit(e.target.value);
-                        }}
-                        disabled={
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending
-                        }
-                        required
-                      />
-                    </SimpleGrid>
-                  )}
-
-                  <TextEditor
-                    label={t("listings.details.edit_modal.description_label")}
-                    value={descriptionEdit}
-                    error={errorDescription ?? ""}
-                    onChange={(value) => {
-                      setDescriptionEdit(value);
-                    }}
-                  />
-                  <ImageDropzone
-                    loading={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    files={fileEdit}
-                    setFiles={setFileEdit}
-                  />
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={handleCloseEdit} variant="grey">
-                    {t("common:actions.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e) => {
-                      handleEdit(e);
-                    }}
-                    loading={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    variant="primary"
-                  >
-                    {t("common:actions.confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+              {itemDetails && (
+                <EditItemModal
+                  opened={openedEdit}
+                  onClose={closeEdit}
+                  item={itemDetails}
+                  listingDetails={listingDetails}
+                />
+              )}
             </Card>
           </Grid.Col>
         </Grid>
@@ -1329,44 +994,23 @@ export default function AdminListingDetails() {
         activeSlide={0}
       />
 
-      <Modal
+      <TransferContainerModal
         opened={openedTransferContainerModal}
         onClose={closeTransferContainerModal}
-        title={t("listings.details.transfer_modal.title")}
-        size="lg"
-      >
-        <Text mb="sm">{t("listings.details.transfer_modal.choose")}</Text>
-        <Select
-          withAsterisk
-          value={transferContainer}
-          disabled={
-            updateDepositMutation.isPending ||
-            updateListingMutation.isPending ||
-            isLoadingAvailableContainers
-          }
-          data={availableContainers.map((container) => ({
-            value: container.id.toString(),
-            label: `${t("common:container", { defaultValue: "Container" })} #${container.id}`,
-          }))}
-          onChange={(value) => {
-            setTransferContainer(value as string);
-          }}
-        />
-        <Group mt="lg" justify="center">
-          <Button onClick={closeTransferContainerModal} variant="grey">
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            onClick={() => {
-              handleTransferContainer();
-            }}
-            variant="primary"
-            loading={transferContainerMutation.isPending}
-          >
-            {t("common:actions.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+        onConfirm={handleTransferContainer}
+        isLoading={transferContainerMutation.isPending}
+        currentContainerId={depositDetails?.container_id}
+      />
+
+      <RefuseItemModal
+        opened={openedRefuse}
+        onClose={closeRefuse}
+        onConfirm={handleConfirmRefuse}
+        loading={
+          processMutation.isPending &&
+          processMutation.variables?.action === "refuse"
+        }
+      />
     </Container>
   );
 }

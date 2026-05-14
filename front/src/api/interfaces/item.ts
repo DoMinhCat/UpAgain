@@ -7,11 +7,14 @@ export interface Item {
   state: string;
   id_user: number;
   username: string;
-  category: string;
+  creator_avatar?: string;
+  category: string; // listing or deposit
   material: string;
   price: number;
   status: string;
   images?: string[];
+  street?: string;
+  score: number;
 }
 
 export interface ItemsListPagination {
@@ -46,4 +49,30 @@ export interface PaginatedHistoryResponse {
   last_page: number;
   limit: number;
   total_records: number;
+}
+
+export interface CreateItemRequest {
+  title: string;
+  description: string;
+  price: number;
+  weight: number;
+  material: string;
+  state: string;
+  category: string; // listing or deposit
+  images: File[];
+  id_user: number;
+  listing_info?: CreateListingRequest;
+  deposit_info?: CreateDepositRequest;
+}
+
+export interface CreateDepositRequest {
+  id_item: number;
+  id_container: number;
+}
+
+export interface CreateListingRequest {
+  id_item: number;
+  street: string;
+  city_name: string;
+  postal_code: string;
 }

@@ -247,8 +247,8 @@ create table items
     created_at  timestamptz  not null default now(),
     title       varchar(255) not null,
     description text,
-    price       numeric(2)   not null default 0,
-    weight      numeric(2)   not null,                   -- in kg
+    price       numeric(8,2)   not null default 0,
+    weight      numeric(8,2)   not null,                   -- in kg
     material    material     not null default 'other',
     status      item_status  not null default 'pending', -- workflow status
     state       item_state   not null,                   -- new or needs to be repaired
@@ -262,6 +262,7 @@ CREATE INDEX idx_items_material ON items (material);
 create table listings
 (
     id_item     integer primary key references items (id) on delete cascade,
+    street      text             not null,
     city_name   varchar(255) not null,
     postal_code varchar(10)  not null
 );

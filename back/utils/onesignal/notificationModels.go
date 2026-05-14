@@ -1,4 +1,4 @@
-package notifications
+package onesignal
 
 type NotificationContent struct {
 	En string `json:"en"`

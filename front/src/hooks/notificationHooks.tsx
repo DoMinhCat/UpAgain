@@ -21,8 +21,8 @@ export const useUpdateNotiSetting = (id_account: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notiSettings", id_account] });
       showSuccessNotification(
-        "Setting updated",
-        "Your notification preference has been updated.",
+        "profile:notifications.update_success_title",
+        "profile:notifications.update_success_message",
       );
     },
   });

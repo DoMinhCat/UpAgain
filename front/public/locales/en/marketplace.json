@@ -1,3 +1,63 @@
 {
-  "marketplace": "Marketplace"
+  "market": "Marketplace",
+  "subtitle": "Discover and exchange upcycled items",
+  "my_listings": "My Items",
+  "create_listing": "Create Listing",
+  "new_item": "New Item",
+  "my_objects_description": "Manage your listings and deposits",
+  "search_placeholder": "Search items...",
+  "sort": {
+    "most_recent": "Most Recent",
+    "most_recent_creation": "Most Recent",
+    "oldest": "Oldest",
+    "oldest_creation": "Oldest",
+    "highest_price": "Highest Price",
+    "lowest_price": "Lowest Price"
+  },
+  "empty": {
+    "title": "No items found.",
+    "subtitle": "Try adjusting your filters or search."
+  },
+  "detail": {
+    "key_info": "Key Information",
+    "weight": "Weight",
+    "state": "State",
+    "retrieval": {
+      "title": "Retrieval Method",
+      "listing": "Direct Exchange",
+      "deposit": "Container Deposit"
+    },
+    "about": "About this item",
+    "location": "Location",
+    "map_placeholder": "Map view not available",
+    "map_api_note": "Requires Map API key",
+    "price": "Price",
+    "posted_by": "Posted by",
+    "reserve_now": "Reserve Now",
+    "buy": "Buy",
+    "see_back_office": "View in Back Office",
+    "edit": "Edit",
+    "delete": "Delete",
+    "transfer_container": "Transfer Container",
+    "delete_confirm_title": "Confirm Delete",
+    "delete_confirm_msg": "Are you sure you want to delete this item?",
+    "not_implemented_title": "Not Implemented",
+    "not_implemented_msg": "This feature is coming soon."
+  },
+  "notifications": {
+    "fetch_items_error": "Error fetching items",
+    "fetch_stats_error": "Error fetching statistics",
+    "fetch_detail_error": "Error fetching item details",
+    "fetch_transactions_error": "Error fetching transactions",
+    "delete_error": "Error deleting item",
+    "delete_success_title": "Item Deleted",
+    "delete_success_message": "The item has been successfully removed.",
+    "update_status_error": "Error updating status",
+    "post_error": "Error posting item",
+    "post_success_title": "Item Posted",
+    "post_success_message": "Please wait for admin approval",
+    "cancel_transaction_error": "Error cancelling transaction",
+    "cancel_transaction_success_title": "Transaction Cancelled",
+    "cancel_transaction_success_message": "The transaction has been cancelled."
+  }
 }

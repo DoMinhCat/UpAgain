@@ -1,14 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   cancelTransaction,
+  createItem,
   deleteItem,
   getAllItems,
   getItemDetails,
   getItemStats,
   getItemTransactions,
+  getMyItems,
   updateItemStatus,
 } from "../api/itemModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
+import type { CreateItemRequest } from "../api/interfaces/item";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -25,8 +28,38 @@ export const useGetAllItems = (
       getAllItems(page, limit, search, sort, status, material, category),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch items",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.fetch_items_error",
+    },
+  });
+};
+
+export const useGetMyItems = (
+  page?: number,
+  limit?: number,
+  search?: string,
+  sort?: string,
+  status?: string,
+  material?: string,
+  category?: string,
+) => {
+  return useQuery({
+    queryKey: [
+      "my-items",
+      page,
+      limit,
+      search,
+      sort,
+      status,
+      material,
+      category,
+    ],
+    queryFn: () =>
+      getMyItems(page, limit, search, sort, status, material, category),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.fetch_items_error",
     },
   });
 };
@@ -37,8 +70,8 @@ export const useGetItemStats = (time?: string) => {
     queryFn: () => getItemStats(time),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch item stats",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.fetch_stats_error",
     },
   });
 };
@@ -48,13 +81,16 @@ export const useDeleteItem = () => {
   return useMutation({
     mutationFn: (id: number) => deleteItem(id),
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to delete item",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.delete_error",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
       queryClient.invalidateQueries({ queryKey: ["item-stats"] });
-      showSuccessNotification("Item deleted", "Item deleted successfully");
+      showSuccessNotification(
+        "marketplace:notifications.delete_success_title",
+        "marketplace:notifications.delete_success_message",
+      );
     },
   });
 };
@@ -66,8 +102,8 @@ export const useGetItemDetails = (id: number, isValidId: boolean) => {
     staleTime: STALE_TIME,
     enabled: isValidId,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch item details",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.fetch_detail_error",
     },
   });
 };
@@ -77,8 +113,8 @@ export const useUpdateItemStatus = (id: number) => {
   return useMutation({
     mutationFn: (status: string) => updateItemStatus(id, status),
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to update item status",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.update_status_error",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
@@ -100,8 +136,8 @@ export const useGetItemTransactions = (
     staleTime: STALE_TIME,
     enabled: isValidId,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch item's transactions",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.fetch_transactions_error",
     },
   });
 };
@@ -112,16 +148,35 @@ export const useCancelTransaction = (id_item: number) => {
     mutationFn: (transactionUuid: string) =>
       cancelTransaction(id_item, transactionUuid),
     meta: {
-      errorTitle: "Failed to cancel transaction",
-      errorMessage: "Failed to cancel transaction",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.cancel_transaction_error",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["item-transactions", id_item],
       });
       showSuccessNotification(
-        "Transaction cancelled",
-        "Transaction cancelled successfully",
+        "marketplace:notifications.cancel_transaction_success_title",
+        "marketplace:notifications.cancel_transaction_success_message",
+      );
+    },
+  });
+};
+
+export const useCreateItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateItemRequest) => createItem(payload),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.post_error",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["my-items"] });
+      showSuccessNotification(
+        "marketplace:notifications.post_success_title",
+        "marketplace:notifications.post_success_message",
       );
     },
   });

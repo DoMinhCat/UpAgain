@@ -59,7 +59,9 @@
     "pro_subscription_end": "Subscription Ending Soon",
     "pro_code_expiring": "Retrieve Code Expiring",
     "emp_event_updated": "Assigned Event Updated",
-    "emp_event_assigned": "New Event Assigned"
+    "emp_event_assigned": "New Event Assigned",
+    "update_success_title": "Setting updated",
+    "update_success_message": "Your notification preference has been updated."
   },
   "billings": {
     "title": "Billing & Subscriptions",

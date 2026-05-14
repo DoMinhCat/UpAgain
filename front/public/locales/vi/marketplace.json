@@ -1,3 +1,63 @@
 {
-  "marketplace": "Cửa hàng"
+  "market": "Cửa hàng",
+  "subtitle": "Khám phá và trao đổi đồ tái chế",
+  "my_listings": "Món đồ của tôi",
+  "create_listing": "Tạo tin đăng",
+  "new_item": "Món đồ mới",
+  "my_objects_description": "Quản lý tin đăng và đồ ký gửi của bạn",
+  "search_placeholder": "Tìm kiếm món đồ...",
+  "sort": {
+    "most_recent": "Mới nhất",
+    "most_recent_creation": "Mới nhất",
+    "oldest": "Cũ nhất",
+    "oldest_creation": "Cũ nhất",
+    "highest_price": "Giá cao nhất",
+    "lowest_price": "Giá thấp nhất"
+  },
+  "empty": {
+    "title": "Không tìm thấy món đồ nào.",
+    "subtitle": "Hãy thử điều chỉnh bộ lọc hoặc tìm kiếm nhé."
+  },
+  "detail": {
+    "key_info": "Thông tin chính",
+    "weight": "Khối lượng",
+    "state": "Tình trạng",
+    "retrieval": {
+      "title": "Phương thức nhận hàng",
+      "listing": "Trao đổi trực tiếp",
+      "deposit": "Ký gửi tại thùng chứa"
+    },
+    "about": "Về món đồ này",
+    "location": "Vị trí",
+    "map_placeholder": "Bản đồ không khả dụng",
+    "map_api_note": "Cần có khóa API Bản đồ",
+    "price": "Giá",
+    "posted_by": "Đăng bởi",
+    "reserve_now": "Đặt chỗ ngay",
+    "buy": "Mua",
+    "see_back_office": "Xem trong trang quản trị",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "transfer_container": "Chuyển thùng chứa",
+    "delete_confirm_title": "Xác nhận xóa",
+    "delete_confirm_msg": "Bạn có chắc chắn muốn xóa món đồ này không?",
+    "not_implemented_title": "Chưa phát triển",
+    "not_implemented_msg": "Tính năng này sẽ sớm ra mắt."
+  },
+  "notifications": {
+    "fetch_items_error": "Lỗi khi lấy danh sách món đồ",
+    "fetch_stats_error": "Lỗi khi lấy thống kê",
+    "fetch_detail_error": "Lỗi khi lấy chi tiết món đồ",
+    "fetch_transactions_error": "Lỗi khi lấy giao dịch",
+    "delete_error": "Lỗi khi xóa món đồ",
+    "delete_success_title": "Đã xóa món đồ",
+    "delete_success_message": "Món đồ đã được gỡ bỏ thành công.",
+    "update_status_error": "Lỗi khi cập nhật trạng thái",
+    "post_error": "Lỗi khi đăng món đồ",
+    "post_success_title": "Đã đăng món đồ",
+    "post_success_message": "Vui lòng đợi quản trị viên phê duyệt",
+    "cancel_transaction_error": "Lỗi khi hủy giao dịch",
+    "cancel_transaction_success_title": "Đã hủy giao dịch",
+    "cancel_transaction_success_message": "Giao dịch đã được hủy thành công."
+  }
 }

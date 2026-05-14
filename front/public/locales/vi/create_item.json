@@ -1,0 +1,51 @@
+{
+  "title": "Đăng tin sản phẩm",
+  "subtitle": "Tái sinh vật liệu của bạn. Chọn cách bạn muốn chuyển nhượng món đồ.",
+  "sections": {
+    "basic_info": "Thông tin cơ bản",
+    "attributes": "Chi tiết sản phẩm",
+    "retrieval": "Phương thức bàn giao"
+  },
+  "fields": {
+    "title": "Tiêu đề",
+    "title_placeholder": "Ví dụ: Ván gỗ sồi, sắt vụn...",
+    "description": "Mô tả",
+    "description_placeholder": "Mô tả kích thước, lịch sử hoặc đặc tính riêng của món đồ...",
+    "price": "Giá (€)",
+    "price_free": "Đặt là 0 nếu miễn phí",
+    "weight": "Trọng lượng (kg)",
+    "material": "Vật liệu",
+    "state": "Tình trạng",
+    "upcycling_score": "Điểm tái chế ước tính",
+    "upcycling_score_note": "Điểm thưởng cho đóng góp sinh thái của bạn"
+  },
+  "methods": {
+    "deposit": {
+      "title": "Ký gửi tại Thùng chứa Thông minh",
+      "description": "Để lại món đồ tại một trong những thùng chứa an toàn của chúng tôi. Chuyên gia sẽ đến lấy sau.",
+      "select_container": "Chọn một Thùng chứa",
+      "closest": "Tìm nơi gần tôi nhất",
+      "view_map": "Xem trên bản đồ",
+      "map_placeholder": "Xem Bản đồ (Bản đồ tương tác sẽ được tích hợp tại đây)"
+    },
+    "listing": {
+      "title": "Giao dịch trực tiếp",
+      "description": "Đăng tin và trực tiếp thỏa thuận với người mua để họ đến lấy hàng tại địa chỉ của bạn.",
+      "address_info": "Địa chỉ lấy hàng",
+      "current_location": "Sử dụng vị trí hiện tại",
+      "street": "Tên đường",
+      "city": "Thành phố",
+      "postal_code": "Mã bưu điện"
+    }
+  },
+  "submit": "Đăng tin ngay",
+  "success": "Sản phẩm của bạn đã được đăng thành công!",
+  "validation": {
+    "required": "Trường này là bắt buộc",
+    "min_weight": "Trọng lượng tối thiểu là 0.1 kg",
+    "min_length": "Phải có ít nhất {{count}} ký tự",
+    "max_length": "Không được vượt quá {{count}} ký tự",
+    "select_container": "Vui lòng chọn một thùng chứa",
+    "invalid_postal_code": "Mã bưu điện không hợp lệ"
+  }
+}

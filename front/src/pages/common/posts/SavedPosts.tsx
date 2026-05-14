@@ -127,7 +127,7 @@ export default function SavedPosts() {
                 image={post.photos?.[0] ?? ""}
                 category={post.category}
                 authorName={post.creator}
-                authorAvatar=""
+                authorAvatar={post.creator_avatar ?? ""}
                 postedTime={post.created_at}
                 views={post.view_count}
                 likes={post.like_count}

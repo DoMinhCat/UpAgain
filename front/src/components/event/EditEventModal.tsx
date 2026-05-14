@@ -23,7 +23,7 @@ import {
   validateEventDate,
   validateEventCategory,
   validateEventDescription,
-} from "../../utils/eventValidation";
+} from "../../utils/validations/eventValidation";
 
 interface EditEventModalProps {
   opened: boolean;
