@@ -129,16 +129,18 @@ export default function MyItems() {
               {t("marketplace:my_objects_description")}
             </Text>
           </Box>
-          <Button
-            leftSection={<IconPlus size={20} />}
-            variant="primary"
-            onClick={() =>
-              navigate(PATHS.MARKETPLACE.NEW, { state: { from: "myItems" } })
-            }
-            size="md"
-          >
-            {t("marketplace:new_item")}
-          </Button>
+          {role === "user" && (
+            <Button
+              leftSection={<IconPlus size={20} />}
+              variant="primary"
+              onClick={() =>
+                navigate(PATHS.MARKETPLACE.NEW, { state: { from: "myItems" } })
+              }
+              size="md"
+            >
+              {t("marketplace:new_item")}
+            </Button>
+          )}
         </Group>
 
         {/* Filters */}

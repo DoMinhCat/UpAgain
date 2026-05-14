@@ -1,0 +1,64 @@
+{
+  "actions": {
+    "update": "Cập nhật",
+    "summary": "Tóm tắt",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận"
+  },
+  "materials": {
+    "all": "Tất cả vật liệu",
+    "wood": "Gỗ",
+    "metal": "Kim loại",
+    "textile": "Vải",
+    "glass": "Thủy tinh",
+    "plastic": "Nhựa",
+    "mixed": "Hỗn hợp",
+    "other": "Khác"
+  },
+  "states": {
+    "new": "Mới",
+    "very_good": "Rất tốt",
+    "good": "Tốt",
+    "need_repair": "Cần sửa chữa"
+  },
+  "status": {
+    "all": "Tất cả trạng thái",
+    "pending": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "refused": "Từ chối",
+    "reserved": "Đã đặt",
+    "sold": "Đã bán",
+    "to_drop_off": "Chờ gửi hàng",
+    "bought": "Đã mua",
+    "to_retrieve": "Chờ nhận hàng"
+  },
+  "categories": {
+    "all": "Tất cả danh mục",
+    "listing": "Tin đăng",
+    "deposit": "Ký gửi"
+  },
+  "units": {
+    "kg": "kg"
+  },
+  "notifications": {
+    "error": "Lỗi",
+    "success": "Thành công"
+  },
+  "free": "Miễn phí",
+  "not_set": "Chưa đặt",
+  "sort_by": "Sắp xếp theo",
+  "type": "Loại",
+  "pagination": {
+    "showing": "Đang hiển thị",
+    "of": "trong tổng số",
+    "results": "kết quả",
+    "items": "món đồ"
+  },
+  "time": {
+    "just_now": "Vừa xong",
+    "minutes_ago": "{{count}} phút trước",
+    "hours_ago": "{{count}} giờ trước",
+    "yesterday": "Hôm qua",
+    "days_ago": "{{count}} ngày trước"
+  }
+}

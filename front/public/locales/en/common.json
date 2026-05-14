@@ -47,5 +47,21 @@
   "free": "Free",
   "not_set": "Not set",
   "sort_by": "Sort by",
-  "type": "Type"
+  "type": "Type",
+  "pagination": {
+    "showing": "Showing",
+    "of": "of",
+    "results": "results",
+    "items": "items"
+  },
+  "time": {
+    "just_now": "Just now",
+    "minutes_ago_one": "1 minute ago",
+    "minutes_ago_other": "{{count}} minutes ago",
+    "hours_ago_one": "1 hour ago",
+    "hours_ago_other": "{{count}} hours ago",
+    "yesterday": "Yesterday",
+    "days_ago_one": "1 day ago",
+    "days_ago_other": "{{count}} days ago"
+  }
 }
