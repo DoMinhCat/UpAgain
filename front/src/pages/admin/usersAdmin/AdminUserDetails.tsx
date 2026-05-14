@@ -257,7 +257,7 @@ export default function AdminUserDetails() {
     if (accountId) {
       editMutation.mutate(
         {
-          id_account: accountId,
+          id: accountId,
           username: usernameEdit,
           email: emailEdit,
           phone: phoneEdit,
@@ -589,8 +589,6 @@ export default function AdminUserDetails() {
                     )}
                   </InfoField>
                   <InfoField label={t("users.details.fields.current_tasks")}>
-                    {/* TODO: Open modal showing calendar with filled occupied dates and
-                      link to the event's details */}
                     <Button
                       mt="xs"
                       variant="primary"
