@@ -44,6 +44,9 @@ func CoorToAddress(coor models.Coordinates) (models.Address, error) {
 	}
 
 	if geoResponse.Status != "OK" {
+		if geoResponse.Status == "ZERO_RESULTS" {
+			return models.Address{}, fmt.Errorf("ZERO_RESULTS")
+		}
 		return models.Address{}, fmt.Errorf("geocode api error: %s", geoResponse.Status)
 	}
 
@@ -89,6 +92,9 @@ func AddressToCoor(address models.Address) (models.Coordinates, error) {
 	}
 
 	if geoResponse.Status != "OK" {
+		if geoResponse.Status == "ZERO_RESULTS" {
+			return  models.Coordinates{}, fmt.Errorf("ZERO_RESULTS")
+		}
 		return  models.Coordinates{}, fmt.Errorf("geocode api error: %s", geoResponse.Status)
 	}
 

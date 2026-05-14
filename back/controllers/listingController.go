@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
@@ -280,6 +281,32 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	if !hasChanges {
 		utils.RespondWithJSON(w, http.StatusNoContent, nil)
 		return
+	}
+
+	hasLocationChange := false
+	if listingFullDetails.Street != payload.Street ||
+		listingFullDetails.City != payload.City ||
+		listingFullDetails.PostalCode != payload.PostalCode {
+		hasLocationChange = true
+	}
+	if hasLocationChange {
+		addressToResolve := models.Address{
+			Street:     payload.Street,
+			PostalCode: payload.PostalCode,
+			City:       payload.City,
+		}
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "UpdateListing", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
+			return
+		}
+		payload.Lat = &coordinates.Lat
+		payload.Lng = &coordinates.Lng
 	}
 
 	finalPhotos, delErrs, err := helpers.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)

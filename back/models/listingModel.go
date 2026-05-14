@@ -32,6 +32,8 @@ type UpdateListingRequest struct {
 	City        string   `json:"city"`
 	PostalCode  string   `json:"postal_code"`
 	Photos      []string `json:"photos"`
+	Lat         *float64 `json:"lat"`
+	Lng         *float64 `json:"lng"`
 }
 
 type CreateListingRequest struct {
