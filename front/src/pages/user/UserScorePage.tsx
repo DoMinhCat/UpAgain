@@ -281,34 +281,17 @@ export default function UserScorePage() {
         ) : (
           <Stack align="center" py={40} gap="xl">
             <Text c="dimmed" ta="center">
-              You haven't redirected any objects yet. Every recycled item
-              counts!
+              You haven't posted any objects yet. Every recycled item counts!
             </Text>
-            <SimpleGrid
-              cols={{ base: 1, sm: 2 }}
-              spacing="md"
-              w="100%"
-              maw={600}
+            <Button
+              variant="cta"
+              className="button"
+              data-variant="primary"
+              size="lg"
+              onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
             >
-              <Button
-                variant="primary"
-                className="button"
-                data-variant="primary"
-                size="lg"
-                onClick={() => navigate(PATHS.MARKETPLACE.LISTINGS)}
-              >
-                Create a listing
-              </Button>
-              <Button
-                variant="primary"
-                className="button"
-                data-variant="primary"
-                size="lg"
-                onClick={() => navigate(PATHS.MARKETPLACE.DEPOSITS)}
-              >
-                Make a deposit
-              </Button>
-            </SimpleGrid>
+              Upcycle your first object
+            </Button>
           </Stack>
         )}
       </Stack>
