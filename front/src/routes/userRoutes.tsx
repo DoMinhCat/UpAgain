@@ -22,6 +22,7 @@ import MarketPage from "../pages/common/market/MarketPage";
 import MyItems from "../pages/common/market/MyItems";
 import ItemDetailPage from "../pages/common/market/ItemDetailPage";
 import NewItem from "../pages/common/market/NewItem";
+import MyItemDetail from "../pages/common/market/MyItemDetail";
 
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -106,7 +107,13 @@ export const userRoutes: RouteObject = {
       path: "marketplace",
       children: [
         { index: true, element: <MarketPage /> },
-        { path: "me", element: <MyItems /> },
+        {
+          path: "me",
+          children: [
+            { index: true, element: <MyItems /> },
+            { path: ":id", element: <MyItemDetail /> },
+          ],
+        },
         { path: "new", element: <NewItem /> },
         { path: ":id", element: <ItemDetailPage /> },
       ],

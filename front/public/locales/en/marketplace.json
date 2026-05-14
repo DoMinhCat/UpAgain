@@ -2,6 +2,7 @@
   "market": "Marketplace",
   "subtitle": "Discover and exchange upcycled items",
   "my_listings": "My Items",
+  "my_items": "My Items",
   "create_listing": "Create Listing",
   "new_item": "New Item",
   "my_objects_description": "Manage your listings and deposits",
@@ -19,6 +20,9 @@
     "subtitle": "Try adjusting your filters or search."
   },
   "detail": {
+    "submitted_on": "Submitted on {{date}}",
+    "buyer": "Buyer",
+    "category": "Category",
     "key_info": "Key Information",
     "weight": "Weight",
     "state": "State",

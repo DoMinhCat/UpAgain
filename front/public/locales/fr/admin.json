@@ -550,6 +550,7 @@
       "no_access_code": "Aucun code d'accès généré pour ce dépôt pour le moment.",
       "owner": "Code Propriétaire",
       "buyer": "Code Acheteur",
+      "buyer_username": "Acheteur",
       "six_digits_code": "CODE À 6 CHIFFRES",
       "valid_from": "Valide à partir du : ",
       "valid_to": "Valide jusqu'au : ",

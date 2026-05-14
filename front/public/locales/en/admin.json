@@ -550,6 +550,7 @@
       "no_access_code": "No access code generated for this deposit yet.",
       "owner": "Owner's Code",
       "buyer": "Buyer's Code",
+      "buyer_username": "Buyer",
       "six_digits_code": "6-DIGITS CODE",
       "valid_from": "Valid from: ",
       "valid_to": "Valid to: ",
