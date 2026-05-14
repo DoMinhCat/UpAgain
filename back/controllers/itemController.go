@@ -296,32 +296,32 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// err = db.DeleteItemById(id_item)
-	// if err != nil {
-	// 	slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
+	err = db.DeleteItemById(id_item)
+	if err != nil {
+		slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
 
-	// var entityType string
-	// isListing, err := db.CheckListingOrDepositByItemId(id_item)
-	// if err != nil {
-	// 	slog.Error("CheckListingOrDepositByItemId() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
-	// if isListing {
-	// 	entityType = "listing"
-	// } else {
-	// 	entityType = "deposit"
-	// }
+	var entityType string
+	isListing, err := db.CheckListingOrDepositByItemId(id_item)
+	if err != nil {
+		slog.Error("CheckListingOrDepositByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+	if isListing {
+		entityType = "listing"
+	} else {
+		entityType = "deposit"
+	}
 
-	// err = db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
-	// if err != nil {
-	// 	slog.Error("InsertHistory() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
+	if role == "admin" {
+		err = db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "DeleteItemById", "error", err)
+		}
+	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }

@@ -41,6 +41,7 @@ import type { Item } from "../../../api/interfaces/item";
 import { useDisclosure } from "@mantine/hooks";
 import { ChartLegend } from "../../../components/chart/ChartLegend";
 import { useTranslation } from "react-i18next";
+import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 
 export function AdminListingModule() {
   const { t } = useTranslation("admin");
@@ -672,27 +673,14 @@ export function AdminListingModule() {
           </Table.Tr>
         )}
       </AdminTable>
-      <Modal
-        title={t("listings.delete_modal.title")}
+      <DeleteItemModal
         opened={openedDelete}
         onClose={closeDelete}
-      >
-        {t("listings.delete_modal.text")}
-        <Group mt="lg" justify="flex-end">
-          <Button onClick={closeDelete} variant="grey">
-            {t("users.delete_modal.cancel")}
-          </Button>
-          <Button
-            onClick={(e) => {
-              handleDeleteItem(e);
-            }}
-            variant="delete"
-            loading={deleteItemMutation.isPending}
-          >
-            {t("actions.delete")}
-          </Button>
-        </Group>
-      </Modal>
+        onConfirm={(e: any) => handleDeleteItem(e)}
+        loading={deleteItemMutation.isPending}
+        title={t("listings.delete_modal.title")}
+        text={t("listings.delete_modal.text")}
+      />
     </Container>
   );
 }
