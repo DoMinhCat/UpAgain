@@ -10,6 +10,7 @@ import {
   getAvailableContainers,
   getContainerSchedule,
   getContainerEarliestAvailability,
+  getNearestContainer,
 } from "../api/containerModule";
 import {
   type ContainerCountStats,
@@ -18,6 +19,7 @@ import {
   type ContainerEarliestAvailability,
 } from "../api/interfaces/container";
 import { showSuccessNotification } from "../components/common/NotificationToast";
+import type { Coordinates } from "../api/interfaces/location";
 
 export const useGetAllContainers = (
   page: number = -1,
@@ -179,7 +181,10 @@ export const useGetContainerSchedule = (id: number) => {
     staleTime: 1000 * 60 * 2, // refresh data every 2m
   });
 };
-export const useGetContainerEarliestAvailability = (id: number, enabled: boolean = true) => {
+export const useGetContainerEarliestAvailability = (
+  id: number,
+  enabled: boolean = true,
+) => {
   return useQuery<ContainerEarliestAvailability>({
     queryKey: ["containerEarliestAvailability", id],
     queryFn: () => getContainerEarliestAvailability(id),
@@ -189,5 +194,25 @@ export const useGetContainerEarliestAvailability = (id: number, enabled: boolean
       errorMessage: "marketplace:notifications.fetch_earliest_error",
     },
     staleTime: 1000 * 60 * 2, // refresh data every 2m
+  });
+};
+
+export const useGetNearestContainer = (
+  coordinates: Coordinates | null,
+  enabled: boolean = false,
+) => {
+  return useQuery<Container>({
+    queryKey: [
+      "nearestContainer",
+      coordinates?.latitude,
+      coordinates?.longitude,
+    ],
+    queryFn: () => getNearestContainer(coordinates!),
+    enabled: !!coordinates?.latitude && !!coordinates?.longitude && enabled,
+    meta: {
+      errorTitle: "marketplace:notifications.fetch_nearest_error",
+      errorMessage: "marketplace:notifications.fetch_nearest_error",
+    },
+    staleTime: 1000 * 60 * 5, // refresh data every 5m
   });
 };

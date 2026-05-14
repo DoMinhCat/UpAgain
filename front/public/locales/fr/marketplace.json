@@ -49,6 +49,7 @@
     "fetch_stats_error": "Erreur lors de la récupération des statistiques",
     "fetch_detail_error": "Erreur lors de la récupération des détails de l'objet",
     "fetch_transactions_error": "Erreur lors de la récupération des transactions",
+    "fetch_nearest_error": "Erreur lors de la récupération du conteneur le plus proche",
     "delete_error": "Erreur lors de la suppression de l'objet",
     "delete_success_title": "Objet Supprimé",
     "delete_success_message": "L'objet a été supprimé avec succès.",

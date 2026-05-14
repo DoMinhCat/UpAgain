@@ -26,7 +26,9 @@
       "select_container": "Select a Container",
       "closest": "Find Closest to Me",
       "view_map": "View on Map",
-      "map_placeholder": "Map View (Interactive map will be integrated here)"
+      "map_placeholder": "Map View (Interactive map will be integrated here)",
+      "closest_retrieved_title": "Closest container found!",
+      "closest_retrieved_message": "We've selected Container #{{id}} for you."
     },
     "listing": {
       "title": "In-Person Collection",
@@ -35,7 +37,9 @@
       "current_location": "Use My Current Location",
       "street": "Street",
       "city": "City",
-      "postal_code": "Postal Code"
+      "postal_code": "Postal Code",
+      "address_retrieved_title": "Is this the correct address?",
+      "address_retrieved_message": "Please verify again, the retrieved address might be inaccurate."
     }
   },
   "submit": "Publish Listing",

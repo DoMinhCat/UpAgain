@@ -7,6 +7,7 @@ import {
   type ContainerSchedule,
   type ContainerEarliestAvailability,
 } from "./interfaces/container";
+import type { Coordinates } from "./interfaces/location";
 
 export const getAllContainers = async (
   page: number = -1,
@@ -83,5 +84,14 @@ export const getContainerEarliestAvailability = async (
   id: number,
 ): Promise<ContainerEarliestAvailability> => {
   const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.EARLIEST(id)}`);
+  return response.data;
+};
+
+export const getNearestContainer = async (
+  coordinates: Coordinates,
+): Promise<Container> => {
+  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.NEAREST, {
+    params: { lat: coordinates.latitude, lng: coordinates.longitude },
+  });
   return response.data;
 };
