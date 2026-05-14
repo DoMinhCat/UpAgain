@@ -82,6 +82,7 @@ func GetDepositDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Failure      500              {object}  nil     "Internal server error"
 // @Router       /deposits/{deposit_id}/ [put]
 func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
+	slog.Debug("UpdateDepositByDepositId() called", "controller", "UpdateDepositByDepositId")
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" || role == "pro" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
@@ -265,23 +266,19 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.Photos = finalPhotos
 
-	needValidation := false
-	if role == "user" && depositFullDetails.Status == "approved" {
-		needValidation = true
-	}
 	// if is user then require validation from admin again and invalidate barcode
-	if role == "user" && needValidation {
+	if role == "user" {
+		slog.Debug("need validation again")
 		err = db.UpdateItemStatusById(id, "pending", "")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateDepositByDepositId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
 			return
 		}
-
-		// TODO: invalidate barcode of this deposit
 	}
 
 	// update
+	slog.Debug("updating")
 	err = db.UpdateDepositById(id, payload)
 	if err != nil {
 		slog.Error("db.UpdateDepositById() failed", "controller", "UpdateDepositByDepositId", "error", err)
