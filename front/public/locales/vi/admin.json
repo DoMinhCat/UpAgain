@@ -550,6 +550,7 @@
       "no_access_code": "Món này chưa có mã ra vào đâu nha.",
       "owner": "Mã của chủ đồ",
       "buyer": "Mã của người mua",
+      "buyer_username": "Người mua",
       "six_digits_code": "MÃ 6 CHỮ SỐ NHA",
       "valid_from": "Có hiệu lực từ: ",
       "valid_to": "Hết hạn lúc: ",

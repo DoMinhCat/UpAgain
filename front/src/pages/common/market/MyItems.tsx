@@ -220,7 +220,7 @@ export default function MyItems() {
             mt="md"
           >
             {items.map((item) => (
-              <ItemCard key={item.id} item={item} />
+              <ItemCard key={item.id} item={item} isMyItem={true} />
             ))}
           </SimpleGrid>
         ) : (

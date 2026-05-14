@@ -343,10 +343,6 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Router       /deposits/{deposit_id}/codes/ [get]
 func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" {
-		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
-		return
-	}
 	depositId, err := strconv.Atoi(r.PathValue("deposit_id"))
 	if err != nil {
 		slog.Error("strconv.Atoi() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
@@ -354,7 +350,14 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 		return
 	}
 
-	codes, err := db.GetCodesOfLatestTransactionByDepositId(depositId)
+	var codes []models.CodeForAdmin
+	if role == "admin" {
+		codes, err = db.GetCodesOfLatestTransactionByDepositId(depositId)
+	} else {
+		// TODO: get only code for the user
+		utils.RespondWithError(w, http.StatusNotImplemented, "This feature is not implemented yet.")
+		return
+	}
 	if err != nil {
 		slog.Error("db.GetCodesOfLatestTransactionByDepositId() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")

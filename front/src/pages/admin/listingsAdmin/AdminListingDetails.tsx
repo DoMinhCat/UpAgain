@@ -830,7 +830,7 @@ export default function AdminListingDetails() {
           header={[
             t("validations.table.executed_on"),
             t("history.table.transaction_id"),
-            t("listings.details.buyer"),
+            t("listings.details.buyer_username"),
             t("users.details.fields.status"),
             t("common:actions.title", { defaultValue: "Actions" }),
           ]}
