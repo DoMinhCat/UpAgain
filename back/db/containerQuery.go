@@ -124,10 +124,10 @@ func GetContainerCountByStatus(status *string) (int, error) {
 
 func InsertContainer(c models.Container) (int, error) {
 	var newId int
-	query := `INSERT INTO containers (city_name, postal_code, street, status, is_deleted, created_at)
-              VALUES ($1, $2, $3, $4, false, NOW()) RETURNING id`
+	query := `INSERT INTO containers (city_name, postal_code, street, status, is_deleted, created_at, lat, lng)
+              VALUES ($1, $2, $3, $4, false, NOW(), $5, $6) RETURNING id`
 
-	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, c.Street, "ready").Scan(&newId)
+	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, c.Street, "ready", c.Lat, c.Lng).Scan(&newId)
 
 	if err != nil {
 		slog.Error("CRITICAL SQL ERROR", "msg", err.Error())
