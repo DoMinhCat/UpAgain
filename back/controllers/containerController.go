@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // GetAllContainersHandler godoc
@@ -457,4 +458,62 @@ func GetContainerSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, deposits)
+}
+
+// GetContainerEarliestAvailability godoc
+// @Summary      Get earliest availability for a container
+// @Description  Calculates the earliest date and time the container will be available by looking at planned schedules (user and pro barcode ranges).
+// @Tags         container
+// @Produce      json
+// @Param        id   path      int  true  "Container ID"
+// @Success      200  {object}  map[string]time.Time "Earliest availability"
+// @Failure      400  {object}  nil  "Invalid ID"
+// @Failure      404  {object}  nil  "Container not found"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /containers/{id}/earliest/ [get]
+func GetContainerEarliestAvailability(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	exist, err := db.CheckContainerExistById(id)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "GetContainerEarliestAvailability", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container not found")
+		return
+	}
+
+	// get list of items and their dates planned for a container (bar code valid date range)
+	schedule, err := db.GetContainerScheduleByContainerId(id)
+	if err != nil {
+		slog.Error("GetContainerScheduleByContainerId() failed", "controller", "GetContainerEarliestAvailability", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container schedule.")
+		return
+	}
+
+	// Loop through UserRange and ProRange to find the latest occupied date 
+	// and return the next earliest date (start date of next available slot after latest occupied date)
+	earliest := time.Now()
+
+	for _, item := range schedule.UserRange {
+		if item.ValidTo.After(earliest) {
+			earliest = item.ValidTo
+		}
+	}
+
+	for _, item := range schedule.ProRange {
+		if item.ValidTo.After(earliest) {
+			earliest = item.ValidTo
+		}
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]time.Time{
+		"earliest_availability": earliest,
+	})
 }
