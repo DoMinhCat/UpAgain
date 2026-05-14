@@ -42,6 +42,9 @@ import { getCurrentLocation } from "../../../utils/locationUtils";
 import { showInfoNotification } from "../../../components/common/NotificationToast";
 import { useGetAvailableContainers } from "../../../hooks/containerHooks";
 import { Loader, Center } from "@mantine/core";
+import { useGetAddressFromCoordinates } from "../../../hooks/locationHooks";
+import type { Coordinates } from "../../../api/interfaces/location";
+import { useEffect } from "react";
 
 // Emission factors based on backend/utils/helpers/scoreHelper.go
 const EMISSION_FACTORS: Record<
@@ -197,6 +200,41 @@ export default function NewItem() {
   // Real containers from API
   const { data: availableContainers, isLoading: isLoadingContainersList } =
     useGetAvailableContainers();
+
+  // Location logic
+  const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(
+    null,
+  );
+  const {
+    data: currentAddress,
+    refetch: fetchCurrentAddress,
+    isFetching: isLoadingAddress,
+  } = useGetAddressFromCoordinates(currentLocation as Coordinates);
+
+  // Auto-fill address when fetched
+  useEffect(() => {
+    if (currentAddress) {
+      setStreet(currentAddress.street || "");
+      setCity(currentAddress.city || "");
+      setPostalCode(currentAddress.postal_code || "");
+      showInfoNotification(
+        t("methods.listing.address_retrieved_title", {
+          defaultValue: "Is this the correct address?",
+        }),
+        t("methods.listing.address_retrieved_message", {
+          defaultValue:
+            "Please verify again, the retrieved address might be inaccurate.",
+        }),
+      );
+    }
+  }, [currentAddress, t]);
+
+  // Trigger address fetch when location is set
+  useEffect(() => {
+    if (currentLocation) {
+      fetchCurrentAddress();
+    }
+  }, [currentLocation, fetchCurrentAddress]);
 
   const MATERIALS = [
     { value: "wood", label: t("common:materials.wood") },
@@ -732,18 +770,13 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
-                            onClick={() => {
-                              // TODO: Implement get current location
-                              // 1. Get current lat lng
-                              const currentLocation = getCurrentLocation();
-                              console.log(currentLocation);
-                              // 2. Send to backend to geocode and get readable address
-                              // 3. Set address received to input fields
-                              showInfoNotification(
-                                "Is this the correct address?",
-                                "Please verify again, the retrieved address might be inaccurate.",
-                              );
+                            onClick={async () => {
+                              const coords = await getCurrentLocation();
+                              if (coords) {
+                                setCurrentLocation(coords);
+                              }
                             }}
+                            loading={isLoadingAddress}
                           >
                             {t("methods.listing.current_location")}
                           </Button>
