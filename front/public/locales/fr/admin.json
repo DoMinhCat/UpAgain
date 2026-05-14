@@ -449,6 +449,7 @@
       "street": "Rue",
       "city": "Ville",
       "zip": "Code Postal",
+      "postal_code": "Code Postal",
       "submit": "Déployer"
     },
     "delete_modal": {
@@ -561,7 +562,8 @@
       "transfer_container": "Transférer vers un autre conteneur",
       "edit_modal": {
         "title": "Modifier les détails de l'objet",
-        "description_label": "Description"
+        "description_label": "Description",
+        "validation_notice": "Note : Toute modification effectuée nécessitera une nouvelle validation par un administrateur avant d'apparaître sur le marché."
       },
       "transfer_modal": {
         "title": "Transférer vers un autre conteneur",

@@ -1,7 +1,7 @@
 package db
 
 import (
-	"backend/notifications"
+	"backend/utils/onesignal"
 	"fmt"
 	"slices"
 )
@@ -24,7 +24,7 @@ var allowedNotificationEntityTypes = []string{
 }
 
 // Insert a notification record into database after sending notification using OneSignal API
-func InsertNotification(payload notifications.NotificationInsert) error {
+func InsertNotification(payload onesignal.NotificationInsert) error {
 	if !slices.Contains(allowedNotificationTypes, payload.NotificationType) {
 		return fmt.Errorf("invalid notification type: %v", payload.NotificationType)
 	}

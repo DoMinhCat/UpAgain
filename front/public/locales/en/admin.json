@@ -449,6 +449,7 @@
       "street": "Street",
       "city": "City Name",
       "zip": "Postal Code",
+      "postal_code": "Postal Code",
       "submit": "Deploy"
     },
     "delete_modal": {
@@ -561,7 +562,8 @@
       "transfer_container": "Transfer to another container",
       "edit_modal": {
         "title": "Edit Object's Details",
-        "description_label": "Description"
+        "description_label": "Description",
+        "validation_notice": "Note: Any changes made will require re-validation by an administrator before appearing on the marketplace."
       },
       "transfer_modal": {
         "title": "Transfer to another container",

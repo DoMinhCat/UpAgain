@@ -7,6 +7,7 @@ import {
   SimpleGrid,
   Group,
   Button,
+  Text,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
@@ -15,6 +16,8 @@ import ImageDropzone from "../input/ImageDropzone";
 import type { Item } from "../../api/interfaces/item";
 import { useUpdateListing } from "../../hooks/listingHooks";
 import { useUpdateDeposit } from "../../hooks/depositHooks";
+import { IconInfoCircle } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 
 interface EditItemModalProps {
   opened: boolean;
@@ -33,18 +36,21 @@ export function EditItemModal({
   item,
   listingDetails,
 }: EditItemModalProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation(["admin", "create_item", "common"]);
-  
+
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description);
   const [material, setMaterial] = useState(item.material);
   const [state, setState] = useState(item.state);
   const [weight, setWeight] = useState(item.weight);
   const [price, setPrice] = useState(item.price);
-  
+
   const [city, setCity] = useState(listingDetails?.city || "");
   const [street, setStreet] = useState(listingDetails?.street || "");
-  const [postalCode, setPostalCode] = useState(listingDetails?.postal_code || "");
+  const [postalCode, setPostalCode] = useState(
+    listingDetails?.postal_code || "",
+  );
   const [files, setFiles] = useState<any[]>([]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -54,7 +60,8 @@ export function EditItemModal({
   const updateListingMutation = useUpdateListing(item.id);
   const updateDepositMutation = useUpdateDeposit(item.id);
 
-  const isPending = updateListingMutation.isPending || updateDepositMutation.isPending;
+  const isPending =
+    updateListingMutation.isPending || updateDepositMutation.isPending;
 
   useEffect(() => {
     if (opened) {
@@ -64,8 +71,8 @@ export function EditItemModal({
       setState(item.state);
       setWeight(item.weight);
       setPrice(item.price);
-      setFiles(item.images?.map(img => ({ path: img })) || []);
-      
+      setFiles(item.images?.map((img) => ({ path: img })) || []);
+
       if (isListing) {
         setCity(listingDetails?.city || "");
         setStreet(listingDetails?.street || "");
@@ -78,14 +85,17 @@ export function EditItemModal({
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!title) newErrors.title = t("create_item:validation.required");
-    
+
     const stripped = description.replace(/<[^>]*>/g, "").trim();
-    if (!description || stripped === "") newErrors.description = t("create_item:validation.required");
-    
+    if (!description || stripped === "")
+      newErrors.description = t("create_item:validation.required");
+
     if (!material) newErrors.material = t("create_item:validation.required");
     if (!state) newErrors.state = t("create_item:validation.required");
-    if (weight === undefined || weight === null) newErrors.weight = t("create_item:validation.required");
-    if (price === undefined || price === null) newErrors.price = t("create_item:validation.required");
+    if (weight === undefined || weight === null)
+      newErrors.weight = t("create_item:validation.required");
+    if (price === undefined || price === null)
+      newErrors.price = t("create_item:validation.required");
 
     if (isListing) {
       if (!city) newErrors.city = t("create_item:validation.required");
@@ -128,9 +138,19 @@ export function EditItemModal({
     });
 
     if (isListing) {
-      updateListingMutation.mutate(formData, { onSuccess: onClose });
+      updateListingMutation.mutate(formData, {
+        onSuccess: () => {
+          onClose();
+          navigate(-1);
+        },
+      });
     } else {
-      updateDepositMutation.mutate(formData, { onSuccess: onClose });
+      updateDepositMutation.mutate(formData, {
+        onSuccess: () => {
+          onClose();
+          navigate(-1);
+        },
+      });
     }
   };
 
@@ -244,21 +264,19 @@ export function EditItemModal({
           error={errors.description}
           onChange={setDescription}
         />
-        <ImageDropzone
-          loading={isPending}
-          files={files}
-          setFiles={setFiles}
-        />
+        <ImageDropzone loading={isPending} files={files} setFiles={setFiles} />
+        <Group justify="center" mt="sm" gap="xs">
+          <IconInfoCircle size={16} color="var(--upagain-yellow)" />
+          <Text size="xs" c="var(--upagain-yellow)" ta="center">
+            {t("listings.details.edit_modal.validation_notice")}
+          </Text>
+        </Group>
       </Stack>
       <Group mt="lg" justify="center">
         <Button onClick={onClose} variant="grey">
           {t("common:actions.cancel")}
         </Button>
-        <Button
-          onClick={handleConfirm}
-          loading={isPending}
-          variant="primary"
-        >
+        <Button onClick={handleConfirm} loading={isPending} variant="primary">
           {t("common:actions.confirm")}
         </Button>
       </Group>

@@ -1,143 +1,67 @@
 {
-  "profile": "Profile",
-  "light_mode": "Light mode",
-  "dark_mode": "Dark mode",
-  "footer": {
-    "description": "Giving materials a second life through community-driven reuse and smart logistics.",
-    "explore": "Explore",
-    "browse_objects": "Browse Objects",
-    "smart_deposits": "Smart Deposits",
-    "community_articles": "Community Articles",
-    "contact": "Contact",
-    "legal": "Legal",
-    "terms_conditions": "Terms & Conditions",
-    "privacy_policy": "Privacy Policy",
-    "rights_reserved": "© {{year}} UpAgain. All rights reserved.",
-    "address": "21 Rue Erard, 75012 Paris, France"
-  },
-  "about_us": "About us",
-  "pricing": "Pricing",
-  "contact": "Contact",
-  "search": "Search",
-  "sort_by": "Sort by",
-  "confirm": "Confirm",
-  "all_status": "All status",
-  "not_assigned": "Not assigned",
-  "not_set": "Not set",
-  "roles": {
-    "user": "User",
-    "pro": "Pro",
-    "employee": "Employee",
-    "admin": "Admin"
-  },
-  "months": {
-    "jan": "Jan",
-    "feb": "Feb",
-    "mar": "Mar",
-    "apr": "Apr",
-    "may": "May",
-    "jun": "Jun",
-    "jul": "Jul",
-    "aug": "Aug",
-    "sep": "Sep",
-    "oct": "Oct",
-    "nov": "Nov",
-    "dec": "Dec"
-  },
   "actions": {
-    "cancel": "Cancel",
-    "save": "Save",
-    "edit": "Edit",
-    "delete": "Delete",
-    "confirm": "Confirm",
     "update": "Update",
-    "create": "Create",
-    "type": "Type",
-    "apply_filters": "Apply filters",
-    "reset": "Reset"
-  },
-  "notifications": {
-    "loading": "Loading...",
-    "not_found": "Not found",
-    "success": "Success",
-    "error": "Error",
-    "update_success": "Update successful",
-    "delete_success": "Deletion successful",
-    "create_success": "Creation successful",
-    "save_success": "Saved successfully",
-    "fetch_error": "Failed to fetch data.",
-    "btn_push_noti": "Enable push notification",
-    "blocked_desc": "Notifications are blocked. Please enable them in your browser settings.",
-    "location": {
-      "denied_title": "Location request denied",
-      "denied_message": "You denied location access.",
-      "failed_title": "Location request failed",
-      "failed_message": "An error occurred while fetching your location.",
-      "not_supported_message": "Geolocation is not supported by this browser."
-    }
-  },
-  "stripe": {
-    "verification_failed": "Payment verification failed",
-    "verification_error": "Could not verify payment session."
-  },
-  "time": {
-    "day": "day",
-    "days": "days",
-    "month": "month",
-    "months": "months",
-    "year": "year",
-    "years": "years",
-    "just_now": "Posted just now",
-    "minutes_ago": "Posted {{count}} minutes ago",
-    "hours_ago": "Posted {{count}} hours ago",
-    "yesterday": "Posted yesterday",
-    "days_ago": "Posted {{count}} days ago"
-  },
-  "timeframe": {
-    "title": "Timeframe",
-    "all": "All time",
-    "today": "Today",
-    "last_3_days": "Last 3 days",
-    "last_week": "Last 7 days",
-    "last_month": "Last 30 days",
-    "last_year": "Last 365 days"
-  },
-  "timeframe_options": {
-    "today": "Today",
-    "last_3_days": "Last 3 days",
-    "last_week": "Last 7 days",
-    "last_month": "Last 30 days",
-    "last_year": "Last 365 days"
+    "summary": "Summary",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "materials": {
-    "all": "All materials",
+    "all": "All Materials",
     "wood": "Wood",
     "metal": "Metal",
     "textile": "Textile",
     "glass": "Glass",
     "plastic": "Plastic",
-    "other": "Other",
-    "mixed": "Mixed"
-  },
-  "status": {
-    "pending": "Pending",
-    "approved": "Approved",
-    "refused": "Refused",
-    "completed": "Completed",
-    "active": "Active",
-    "inactive": "Inactive",
-    "banned": "Banned",
-    "deleted": "Deleted"
-  },
-  "event_categories": {
-    "exposition": "Exposition",
+    "mixed": "Mixed",
     "other": "Other"
   },
   "states": {
     "new": "New",
     "very_good": "Very Good",
     "good": "Good",
-    "need_repair": "Needs Repair"
+    "need_repair": "Need Repair"
   },
-  "free": "Free"
+  "status": {
+    "all": "All Statuses",
+    "pending": "Pending",
+    "approved": "Approved",
+    "refused": "Refused",
+    "reserved": "Reserved",
+    "sold": "Sold",
+    "to_drop_off": "To Drop Off",
+    "bought": "Bought",
+    "to_retrieve": "To Retrieve"
+  },
+  "categories": {
+    "all": "All Categories",
+    "listing": "Listing",
+    "deposit": "Deposit"
+  },
+  "units": {
+    "kg": "kg"
+  },
+  "notifications": {
+    "error": "Error",
+    "success": "Success"
+  },
+  "free": "Free",
+  "not_set": "Not set",
+  "sort_by": "Sort by",
+  "type": "Type",
+  "pagination": {
+    "showing": "Showing",
+    "of": "of",
+    "results": "results",
+    "items": "items"
+  },
+  "time": {
+    "just_now": "Just now",
+    "minutes_ago_one": "1 minute ago",
+    "minutes_ago_other": "{{count}} minutes ago",
+    "hours_ago_one": "1 hour ago",
+    "hours_ago_other": "{{count}} hours ago",
+    "yesterday": "Yesterday",
+    "days_ago_one": "1 day ago",
+    "days_ago_other": "{{count}} days ago"
+  }
 }
