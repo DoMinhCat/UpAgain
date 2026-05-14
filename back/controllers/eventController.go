@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
 	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
@@ -292,6 +293,24 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	addressToResolve := models.Address{
+		City:       event.City,
+		Street:     event.Street,
+		PostalCode: event.PostalCode,
+	}
+
+	coords, err := geocode.AddressToCoor(addressToResolve)
+	if err != nil {
+		if err.Error() == "ZERO_RESULTS" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid address.")
+			return
+		}
+		slog.Error("AddressToCoor() failed", "controller", "CreateEvent", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while resolving the address.")
+		return
+	}
+	event.Lat = coords.Lat
+	event.Lng = coords.Lng
 	eventId, err := db.CreateEvent(event, r.Context().Value("user").(models.AuthClaims).Id, role)
 	if err != nil {
 		slog.Error("CreateEvent() failed", "controller", "CreateEvent", "error", err)
