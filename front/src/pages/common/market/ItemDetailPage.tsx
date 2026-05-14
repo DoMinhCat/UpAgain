@@ -50,6 +50,8 @@ import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 import { useNavigate } from "react-router-dom";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
+import dayjs from "dayjs";
+import { useGetContainerEarliestAvailability } from "../../../hooks/containerHooks";
 
 export default function ItemDetailPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
@@ -79,6 +81,11 @@ export default function ItemDetailPage() {
     useGetListingDetails(id_item, isValidId && isListing);
   const { data: depositDetails, isLoading: isDepositDetailsLoading } =
     useGetDepositDetails(id_item, isValidId && isDeposit);
+
+  const { data: earliestAvailability } = useGetContainerEarliestAvailability(
+    depositDetails?.container_id || 0,
+    isValidId && isDeposit && !!depositDetails?.container_id,
+  );
 
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
@@ -518,6 +525,23 @@ export default function ItemDetailPage() {
                           ? t("marketplace:detail.retrieval.listing")
                           : t("marketplace:detail.retrieval.deposit")}
                       </Text>
+                      {isDeposit && earliestAvailability && (
+                        <Text
+                          size="xs"
+                          c="var(--upagain-neutral-green)"
+                          fw={700}
+                          mt={4}
+                        >
+                          {t("marketplace:my_item_detail.earliest_retrieval")}:{" "}
+                          {dayjs(
+                            earliestAvailability.earliest_availability,
+                          ).format("DD/MM/YYYY")}{" "}
+                          -{" "}
+                          {dayjs(earliestAvailability.earliest_availability)
+                            .add(5, "day")
+                            .format("DD/MM/YYYY")}
+                        </Text>
+                      )}
                     </Stack>
 
                     <Stack gap="sm">

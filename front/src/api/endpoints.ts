@@ -20,6 +20,7 @@ export const ENDPOINTS = {
       AVAILABLE: "/containers/available/",
       SCHEDULE: (id_container: number) =>
         `/containers/${id_container}/schedule/`,
+      EARLIEST: (id: number) => `/containers/${id}/earliest/`,
     },
 
     FINANCE: {

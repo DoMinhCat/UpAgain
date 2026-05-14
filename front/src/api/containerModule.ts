@@ -5,6 +5,7 @@ import {
   type ContainerCountStats,
   type ContainerListPagination,
   type ContainerSchedule,
+  type ContainerEarliestAvailability,
 } from "./interfaces/container";
 
 export const getAllContainers = async (
@@ -75,5 +76,12 @@ export const getContainerSchedule = async (
   id: number,
 ): Promise<ContainerSchedule> => {
   const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.SCHEDULE(id)}`);
+  return response.data;
+};
+
+export const getContainerEarliestAvailability = async (
+  id: number,
+): Promise<ContainerEarliestAvailability> => {
+  const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.EARLIEST(id)}`);
   return response.data;
 };

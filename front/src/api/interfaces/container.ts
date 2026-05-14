@@ -34,3 +34,7 @@ export interface ContainerListPagination {
   limit: number;
   total_records: number;
 }
+
+export interface ContainerEarliestAvailability {
+  earliest_availability: string;
+}

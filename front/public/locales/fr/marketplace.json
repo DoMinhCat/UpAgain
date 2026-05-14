@@ -75,6 +75,7 @@
     "reserved_by": "Réservé par",
     "expiry_todo": "Date d'expiration bientôt disponible",
     "retrieval_location": "Lieu de récupération",
+    "earliest_retrieval": "Créneau de retrait",
     "meet_at": "Rencontrez le vendeur à :",
     "container_id": "ID du conteneur",
     "container_address_todo": "Adresse du conteneur (TODO : à récupérer depuis l'API)",

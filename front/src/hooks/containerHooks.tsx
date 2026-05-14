@@ -9,11 +9,13 @@ import {
   getContainerCountStats,
   getAvailableContainers,
   getContainerSchedule,
+  getContainerEarliestAvailability,
 } from "../api/containerModule";
 import {
   type ContainerCountStats,
   type Container,
   type ContainerSchedule,
+  type ContainerEarliestAvailability,
 } from "../api/interfaces/container";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
@@ -173,6 +175,18 @@ export const useGetContainerSchedule = (id: number) => {
     meta: {
       errorTitle: "admin:containers.notifications.error_loading_schedule",
       errorMessage: "admin:containers.notifications.error_loading_schedule",
+    },
+    staleTime: 1000 * 60 * 2, // refresh data every 2m
+  });
+};
+export const useGetContainerEarliestAvailability = (id: number, enabled: boolean = true) => {
+  return useQuery<ContainerEarliestAvailability>({
+    queryKey: ["containerEarliestAvailability", id],
+    queryFn: () => getContainerEarliestAvailability(id),
+    enabled: !!id && enabled,
+    meta: {
+      errorTitle: "marketplace:notifications.fetch_earliest_error",
+      errorMessage: "marketplace:notifications.fetch_earliest_error",
     },
     staleTime: 1000 * 60 * 2, // refresh data every 2m
   });

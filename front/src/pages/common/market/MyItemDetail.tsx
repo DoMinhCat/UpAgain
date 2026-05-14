@@ -981,6 +981,30 @@ export default function MyItemDetail() {
               </Paper>
 
               {/* Role-specific panels */}
+              {isDeposit && (
+                <Paper
+                  p="xl"
+                  radius="lg"
+                  withBorder
+                  shadow="sm"
+                  variant="primary"
+                >
+                  <Stack gap="sm">
+                    <Group gap="sm">
+                      <IconInfoCircle
+                        size={18}
+                        color="var(--upagain-neutral-green)"
+                      />
+                      <Text size="sm" fw={600}>
+                        {t("marketplace:detail.retrieval.title")}
+                      </Text>
+                    </Group>
+                    <Text size="sm" c="dimmed">
+                      {t("marketplace:detail.retrieval.deposit")}
+                    </Text>
+                  </Stack>
+                </Paper>
+              )}
               {role === "pro" ? <ProRightPanel /> : <UserRightPanel />}
             </Stack>
           </Grid.Col>
