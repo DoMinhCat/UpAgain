@@ -53,6 +53,7 @@
     "fetch_stats_error": "Error fetching statistics",
     "fetch_detail_error": "Error fetching item details",
     "fetch_earliest_error": "Error fetching earliest availability",
+    "fetch_nearest_error": "Error fetching nearest container",
     "fetch_transactions_error": "Error fetching transactions",
     "delete_error": "Error deleting item",
     "delete_success_title": "Item Deleted",

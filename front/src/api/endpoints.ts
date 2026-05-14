@@ -21,6 +21,7 @@ export const ENDPOINTS = {
       SCHEDULE: (id_container: number) =>
         `/containers/${id_container}/schedule/`,
       EARLIEST: (id: number) => `/containers/${id}/earliest/`,
+      NEAREST: "/containers/nearest/",
     },
 
     FINANCE: {

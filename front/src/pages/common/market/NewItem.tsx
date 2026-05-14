@@ -39,8 +39,14 @@ import { useAuth } from "../../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { CreateItemRequest } from "../../../api/interfaces/item";
 import { getCurrentLocation } from "../../../utils/locationUtils";
-import { showInfoNotification } from "../../../components/common/NotificationToast";
-import { useGetAvailableContainers } from "../../../hooks/containerHooks";
+import {
+  showInfoNotification,
+  showSuccessNotification,
+} from "../../../components/common/NotificationToast";
+import {
+  useGetAvailableContainers,
+  useGetNearestContainer,
+} from "../../../hooks/containerHooks";
 import { Loader, Center } from "@mantine/core";
 import { useGetAddressFromCoordinates } from "../../../hooks/locationHooks";
 import type { Coordinates } from "../../../api/interfaces/location";
@@ -209,7 +215,7 @@ export default function NewItem() {
     data: currentAddress,
     refetch: fetchCurrentAddress,
     isFetching: isLoadingAddress,
-  } = useGetAddressFromCoordinates(currentLocation as Coordinates);
+  } = useGetAddressFromCoordinates(currentLocation);
 
   // Auto-fill address when fetched
   useEffect(() => {
@@ -231,10 +237,39 @@ export default function NewItem() {
 
   // Trigger address fetch when location is set
   useEffect(() => {
-    if (currentLocation) {
+    if (currentLocation && retrievalMethod === "listing") {
       fetchCurrentAddress();
     }
-  }, [currentLocation, fetchCurrentAddress]);
+  }, [currentLocation, fetchCurrentAddress, retrievalMethod]);
+
+  const {
+    data: nearestContainer,
+    refetch: fetchNearestContainer,
+    isFetching: isLoadingNearest,
+  } = useGetNearestContainer(currentLocation, false);
+
+  // Auto-select nearest container when fetched
+  useEffect(() => {
+    if (nearestContainer && retrievalMethod === "deposit") {
+      setContainerId(nearestContainer.id);
+      showSuccessNotification(
+        t("methods.deposit.closest_retrieved_title", {
+          defaultValue: "Closest container found!",
+        }),
+        t("methods.deposit.closest_retrieved_message", {
+          id: nearestContainer.id,
+          defaultValue: `We've selected Container #${nearestContainer.id} for you.`,
+        }),
+      );
+    }
+  }, [nearestContainer, retrievalMethod, t]);
+
+  // Trigger nearest container fetch when location is set
+  useEffect(() => {
+    if (currentLocation && retrievalMethod === "deposit") {
+      fetchNearestContainer();
+    }
+  }, [currentLocation, fetchNearestContainer, retrievalMethod]);
 
   const MATERIALS = [
     { value: "wood", label: t("common:materials.wood") },
@@ -616,15 +651,12 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
-                            // loading={backend returning nearest container}
-                            onClick={() => {
-                              // TODO: Implement find nearest container
-                              // 1. Get current lat lng
-                              const currentLocation = getCurrentLocation();
-                              console.log(currentLocation);
-                              // 2. Send to backend to get nearest container
-                              // 3. Set container in frontend based on backend response
-                              console.log("TODO: Find nearest container");
+                            loading={isLoadingNearest}
+                            onClick={async () => {
+                              const coords = await getCurrentLocation();
+                              if (coords) {
+                                setCurrentLocation(coords);
+                              }
                             }}
                           >
                             {t("methods.deposit.closest")}
