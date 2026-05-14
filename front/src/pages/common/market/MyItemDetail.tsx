@@ -66,6 +66,8 @@ import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import dayjs from "dayjs";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
+import { NotFoundPage } from "../../error/404";
+import { useContainerDetails } from "../../../hooks/containerHooks";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -290,6 +292,8 @@ export default function MyItemDetail() {
     useGetListingDetails(id_item, isValidId && isListing);
   const { data: depositDetails, isLoading: isDepositDetailsLoading } =
     useGetDepositDetails(id_item, isValidId && isDeposit);
+  const { data: containerDetails, isLoading: isContainerDetailsLoading } =
+    useContainerDetails(id_item, isValidId && isDeposit);
 
   // Only users see transaction history (pro role removed by backend)
   const { data: transactionsData, isLoading: isLoadingTransactions } =
@@ -302,14 +306,8 @@ export default function MyItemDetail() {
   if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading)
     return <FullScreenLoader />;
 
-  if (!item) {
-    return (
-      <Container size="xl" pt={100}>
-        <Alert icon={<IconAlertCircle size={16} />} color="red">
-          {t("marketplace:my_item_detail.not_found")}
-        </Alert>
-      </Container>
-    );
+  if (!item && !isLoadingItem) {
+    return <NotFoundPage />;
   }
 
   const transactions = transactionsData?.transactions || [];
@@ -323,10 +321,10 @@ export default function MyItemDetail() {
     role === "pro" ? proDepositCode : userDepositCode;
 
   // ── derived state flags ───────────────────────────────────────────────────
-  const isPending = item.status === "pending";
-  const isRefused = item.status === "refused";
-  const isApproved = item.status === "approved";
-  const isCompleted = item.status === "completed";
+  const isPending = item?.status === "pending";
+  const isRefused = item?.status === "refused";
+  const isApproved = item?.status === "approved";
+  const isCompleted = item?.status === "completed";
 
   const isReserved = latestTx?.action === "reserved";
   const isPurchased = latestTx?.action === "purchased" && !isCompleted; // bought but not completed
@@ -433,12 +431,12 @@ export default function MyItemDetail() {
               {isDeposit && depositDetails && (
                 <Stack gap={4}>
                   <Text size="sm" c="dimmed">
-                    {t("marketplace:my_item_detail.container_id")}:{" "}
+                    {t("marketplace:my_item_detail.container_id")}
                     <strong>#{depositDetails.container_id}</strong>
                   </Text>
                   {/* TODO: fetch container city/address from container details endpoint */}
                   <Text size="xs" c="dimmed">
-                    {t("marketplace:my_item_detail.container_address_todo")}
+                    {`${containerDetails?.street}, ${containerDetails?.postal_code} ${containerDetails?.city_name}`}
                   </Text>
                 </Stack>
               )}
@@ -726,7 +724,7 @@ export default function MyItemDetail() {
             { title: t("home:title"), href: PATHS.HOME },
             { title: t("marketplace:market"), href: PATHS.MARKETPLACE.HOME },
             { title: t("marketplace:my_listings"), href: PATHS.MARKETPLACE.ME },
-            { title: item.title, href: "#" },
+            { title: item?.title || "Item details", href: "#" },
           ]}
         />
 
@@ -736,18 +734,18 @@ export default function MyItemDetail() {
             <Stack gap="xl">
               {/* Status row */}
               <Group justify="flex-start" align="center" wrap="wrap">
-                <StatusBadge status={item.status} />
+                <StatusBadge status={item?.status || ""} />
                 <Text size="sm" c="dimmed">
                   {t("marketplace:my_item_detail.posted_on", {
-                    date: dayjs(item.created_at).format("DD/MM/YYYY"),
+                    date: dayjs(item?.created_at).format("DD/MM/YYYY"),
                   })}
                 </Text>
               </Group>
 
               {/* Photo carousel */}
-              {item.images && item.images.length > 0 ? (
+              {item?.images && item?.images.length > 0 ? (
                 <Box>
-                  <PhotosCarousel photos={item.images} initialSlide={0} />
+                  <PhotosCarousel photos={item?.images} initialSlide={0} />
                 </Box>
               ) : (
                 <Box
@@ -766,7 +764,7 @@ export default function MyItemDetail() {
                 </Box>
               )}
 
-              <Title order={2}>{item.title}</Title>
+              <Title order={2}>{item?.title}</Title>
 
               {/* Key info grid */}
               <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
@@ -779,7 +777,7 @@ export default function MyItemDetail() {
                       />
                     ),
                     label: t("marketplace:detail.weight"),
-                    value: `${item.weight} kg`,
+                    value: `${item?.weight || ""} kg`,
                   },
                   {
                     icon: (
@@ -789,15 +787,15 @@ export default function MyItemDetail() {
                       />
                     ),
                     label: "Score",
-                    value: item.score,
+                    value: item?.score,
                   },
                   {
                     icon: (
                       <IconBox size={20} color="var(--upagain-neutral-green)" />
                     ),
                     label: t("marketplace:detail.state"),
-                    value: t(`common:states.${item.state}`, {
-                      defaultValue: item.state,
+                    value: t(`common:states.${item?.state || ""}`, {
+                      defaultValue: item?.state,
                     }),
                   },
                   {
@@ -809,7 +807,7 @@ export default function MyItemDetail() {
                     ),
                     label: t("marketplace:detail.retrieval.title"),
                     value:
-                      item.category === "listing"
+                      item?.category === "listing"
                         ? t("marketplace:detail.retrieval.listing")
                         : t("marketplace:detail.retrieval.deposit"),
                   },
@@ -843,7 +841,7 @@ export default function MyItemDetail() {
                   size="sm"
                   style={{ lineHeight: 1.6 }}
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(item.description || ""),
+                    __html: DOMPurify.sanitize(item?.description || ""),
                   }}
                 />
               </Stack>
@@ -914,7 +912,9 @@ export default function MyItemDetail() {
                     {t("marketplace:detail.price")}
                   </Text>
                   <Title order={1} c="var(--upagain-neutral-green)">
-                    {item.price > 0 ? `${item.price}€` : t("common:free")}
+                    {item?.price && item.price > 0
+                      ? `${item.price}€`
+                      : t("common:free")}
                   </Title>
                 </Stack>
               </Paper>
@@ -928,7 +928,7 @@ export default function MyItemDetail() {
 
       {/* Lightbox — externally controlled */}
       <PhotosCarousel
-        photos={item.images || []}
+        photos={item?.images || []}
         opened={lightboxOpened}
         onClose={() => setLightboxOpened(false)}
         defaultActiveSlide={lightboxSlide}
