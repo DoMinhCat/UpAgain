@@ -661,17 +661,107 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item created successfully."})
 }
 
+// GetMyItems godoc
+// @Summary      Get my items
+// @Description  Get a paginated list of items belonging to the current user (or items interacted with if pro).
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        page      query     int     false  "Page number"
+// @Param        limit     query     int     false  "Items per page"
+// @Param        search    query     string  false  "Search by title"
+// @Param        sort      query     string  false  "Sort order"
+// @Param        status    query     string  false  "Filter by status (user: pending/approved/refused/reserved/sold/to_drop_off | pro: reserved/bought/to_retrieve)"
+// @Param        material  query     string  false  "Filter by material"
+// @Param        category  query     string  false  "Filter by category (listing or deposit)"
+// @Success      200       {object}  models.ItemListPagination
+// @Failure      400       {object}  nil  "Invalid query parameters"
+// @Failure      401       {object}  nil  "Unauthorized"
+// @Failure      500       {object}  nil  "Internal server error"
+// @Router       /items/me/ [get]
+func GetMyItems(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	var err error
+	// default pagination
+	page := -1
+	limit := -1
 
-	// add score only when completed
-	// score, err := helpers.CalculateScore(payload.Material, payload.Weight)
-	// if err != nil {
-	// 	slog.Error("CalculateScore() failed", "controller", "CreateItem", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
-	// 	return
-	// }
-	// err = db.UpdateUpcyclingScore(idRequestor, score)
-	// if err != nil {
-	// 	slog.Error("UpdateUpcyclingScore() failed", "controller", "CreateItem", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
-	// 	return
-	// }
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetMyItems", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching items.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetMyItems", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching items.")
+			return
+		}
+	}
+
+	filters := models.ItemFilters{
+		Search:   query.Get("search"),
+		Status:   query.Get("status"),
+		Material: query.Get("material"),
+		Category: query.Get("category"),
+		Sort:     query.Get("sort"),
+	}
+
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	var items []models.Item
+	var total int
+	if role == "pro" {
+		items, total, err = db.GetProItemsPaginated(idRequestor, page, limit, filters)
+	} else {
+		items, total, err = db.GetUserItemsPaginated(idRequestor, page, limit, filters)
+	}
+
+	if err != nil {
+		slog.Error("GetMyItemsPaginated() failed", "controller", "GetMyItems", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+
+	result := models.ItemListPagination{
+		Items:        items,
+		CurrentPage:  page,
+		LastPage:     lastPage,
+		Limit:        limit,
+		TotalRecords: total,
+	}
+	if page == -1 || limit == -1 {
+		result.CurrentPage = 1
+		result.LastPage = 1
+	}
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}
+
+// add score only when item status == completed
+// score, err := helpers.CalculateScore(payload.Material, payload.Weight)
+// if err != nil {
+// 	slog.Error("CalculateScore() failed", "controller", "CreateItem", "error", err)
+// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+// 	return
+// }
+// err = db.UpdateUpcyclingScore(idRequestor, score)
+// if err != nil {
+// 	slog.Error("UpdateUpcyclingScore() failed", "controller", "CreateItem", "error", err)
+// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+// 	return
+// }

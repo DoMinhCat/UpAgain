@@ -66,7 +66,12 @@ export const createItem = async (payload: CreateItemRequest): Promise<void> => {
 
   // Append root level fields
   Object.entries(payload).forEach(([key, value]) => {
-    if (key !== "images" && key !== "listing_info" && key !== "deposit_info" && value !== undefined) {
+    if (
+      key !== "images" &&
+      key !== "listing_info" &&
+      key !== "deposit_info" &&
+      value !== undefined
+    ) {
       formData.append(key, String(value));
     }
   });
@@ -100,6 +105,21 @@ export const createItem = async (payload: CreateItemRequest): Promise<void> => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+  });
+  return response.data;
+};
+
+export const getMyItems = async (
+  page?: number,
+  limit?: number,
+  search?: string,
+  sort?: string,
+  status?: string,
+  material?: string,
+  category?: string,
+): Promise<ItemsListPagination> => {
+  const response = await api.get(ENDPOINTS.ITEMS.ME, {
+    params: { page, limit, search, sort, status, material, category },
   });
   return response.data;
 };

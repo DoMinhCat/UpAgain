@@ -100,6 +100,7 @@ export const ENDPOINTS = {
 
   ITEMS: {
     NEW: "/items/",
+    ME: "/items/me/",
   },
 
   LISTINGS: {
