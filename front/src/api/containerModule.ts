@@ -62,12 +62,14 @@ export const updateContainerLocation = async (
   id: number,
   city_name: string,
   street: string,
+  postal_code: string,
 ) => {
   const response = await api.put(
     `${ENDPOINTS.ADMIN.CONTAINERS.ALL}${id}/location/`,
     {
       city_name,
       street,
+      postal_code,
     },
   );
   return response.data;

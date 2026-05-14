@@ -147,11 +147,13 @@ export const useUpdateLocation = () => {
       id,
       city_name,
       street,
+      postal_code,
     }: {
       id: number;
       city_name: string;
       street: string;
-    }) => updateContainerLocation(id, city_name, street),
+      postal_code: string;
+    }) => updateContainerLocation(id, city_name, street, postal_code),
     onSuccess: (_data, variables) => {
       showSuccessNotification(
         "admin:containers.notifications.update_location_success_title",

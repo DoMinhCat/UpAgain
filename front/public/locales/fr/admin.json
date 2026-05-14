@@ -450,7 +450,11 @@
       "city": "Ville",
       "zip": "Code Postal",
       "postal_code": "Code Postal",
-      "submit": "Déployer"
+      "submit": "Déployer",
+      "errors": {
+        "postal_code": "Le code postal est requis",
+        "postal_code_invalid": "Le code postal doit contenir 5 chiffres"
+      }
     },
     "delete_modal": {
       "title": "Confirmer l'archivage",

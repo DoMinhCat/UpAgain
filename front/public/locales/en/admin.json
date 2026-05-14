@@ -450,7 +450,11 @@
       "city": "City Name",
       "zip": "Postal Code",
       "postal_code": "Postal Code",
-      "submit": "Deploy"
+      "submit": "Deploy",
+      "errors": {
+        "postal_code": "Postal code is required",
+        "postal_code_invalid": "Postal code must be 5 digits"
+      }
     },
     "delete_modal": {
       "title": "Confirm Archiving",

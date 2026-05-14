@@ -26,8 +26,11 @@ type UpdateStatusRequest struct {
 }
 
 type UpdateLocationRequest struct {
-	CityName string `json:"city_name"`
-	Street   string `json:"street"`
+	PostalCode string   `json:"postal_code"`
+	CityName   string   `json:"city_name"`
+	Street     string   `json:"street"`
+	Lat        *float64 `json:"lat"`
+	Lng        *float64 `json:"lng"`
 }
 
 type ContainerFilters struct {
