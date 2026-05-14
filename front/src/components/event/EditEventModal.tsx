@@ -23,6 +23,7 @@ import {
   validateEventDate,
   validateEventCategory,
   validateEventDescription,
+  validateEventPostalCode,
 } from "../../utils/validations/eventValidation";
 
 interface EditEventModalProps {
@@ -43,6 +44,7 @@ export function EditEventModal({
   const [priceEdit, setPriceEdit] = useState<number>(0);
   const [streetEdit, setStreetEdit] = useState<string>("");
   const [cityEdit, setCityEdit] = useState<string>("");
+  const [postalCodeEdit, setPostalCodeEdit] = useState<string>("");
   const [locationDetailEdit, setLocationDetailEdit] = useState<string>("");
   const [dateEdit, setDateEdit] = useState<string>("");
   const [endDateEdit, setEndDateEdit] = useState<string>("");
@@ -53,6 +55,7 @@ export function EditEventModal({
   const [errorPrice, setErrorPrice] = useState<string | null>(null);
   const [errorStreet, setErrorStreet] = useState<string | null>(null);
   const [errorCity, setErrorCity] = useState<string | null>(null);
+  const [errorPostalCode, setErrorPostalCode] = useState<string | null>(null);
   const [errorDate, setErrorDate] = useState<string | null>(null);
   const [errorEndDate, setErrorEndDate] = useState<string | null>(null);
   const [errorCategory, setErrorCategory] = useState<string | null>(null);
@@ -68,6 +71,7 @@ export function EditEventModal({
       setPriceEdit(eventDetails.price || 0);
       setStreetEdit(eventDetails.street || "");
       setCityEdit(eventDetails.city || "");
+      setPostalCodeEdit(eventDetails.postal_code || "");
       setLocationDetailEdit(eventDetails.location_detail || "");
       setDateEdit(eventDetails.start_at || "");
       setEndDateEdit(eventDetails.end_at || "");
@@ -123,6 +127,14 @@ export function EditEventModal({
     setErrorCity("");
     return true;
   };
+  const handleValidatePostalCode = () => {
+    if (!validateEventPostalCode(postalCodeEdit)) {
+      setErrorPostalCode("Postal code is required");
+      return false;
+    }
+    setErrorPostalCode("");
+    return true;
+  };
   const handleValidateDate = () => {
     if (!validateEventDate(dateEdit)) {
       setErrorDate("Start date is required");
@@ -172,6 +184,7 @@ export function EditEventModal({
       !handleValidatePrice() ||
       !handleValidateStreet() ||
       !handleValidateCity() ||
+      !handleValidatePostalCode() ||
       !handleValidateDate() ||
       !handleValidateCategory() ||
       !handleValidateDescription() ||
@@ -195,6 +208,7 @@ export function EditEventModal({
         price: priceEdit,
         street: streetEdit,
         city: cityEdit,
+        postal_code: postalCodeEdit,
         location_detail: locationDetailEdit,
         start_at: dateEdit,
         end_at: endDateEdit,
@@ -216,6 +230,7 @@ export function EditEventModal({
     setErrorPrice("");
     setErrorStreet("");
     setErrorCity("");
+    setErrorPostalCode("");
     setErrorDate("");
     setErrorEndDate("");
     setErrorCategory("");
@@ -275,7 +290,7 @@ export function EditEventModal({
           required
         />
         <Grid>
-          <Grid.Col span={{ base: 12, md: 9 }}>
+          <Grid.Col span={{ base: 12, md: 7 }}>
             <TextInput
               withAsterisk
               label="Street"
@@ -287,6 +302,21 @@ export function EditEventModal({
               }}
               onBlur={handleValidateStreet}
               error={errorStreet}
+              required
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, md: 2 }}>
+            <TextInput
+              withAsterisk
+              label="Postal Code"
+              disabled={updateEvent.isPending}
+              value={postalCodeEdit}
+              placeholder="75001"
+              onChange={(e) => {
+                setPostalCodeEdit(e.target.value);
+              }}
+              onBlur={handleValidatePostalCode}
+              error={errorPostalCode}
               required
             />
           </Grid.Col>

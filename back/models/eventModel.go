@@ -37,6 +37,7 @@ type Event struct {
 	Status         string      `json:"status"`
 	City           string      `json:"city"`
 	Street         string      `json:"street"`
+	PostalCode     string      `json:"postal_code"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
 	EmployeeName   null.String `json:"employee_name" swaggertype:"string"` // creator
 	EmployeeAvatar null.String `json:"employee_avatar" swaggertype:"string"`
@@ -66,6 +67,7 @@ type CreateEventRequest struct {
 	Status         string      `json:"status"`
 	City           string      `json:"city"`
 	Street         string      `json:"street"`
+	PostalCode     string      `json:"postal_code"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
 	Images         []string    `json:"images"`
 }
@@ -94,6 +96,7 @@ type UpdateEventRequest struct {
 	Capacity       null.Int    `json:"capacity" swaggertype:"integer"`
 	City           string      `json:"city"`
 	Street         string      `json:"street"`
+	PostalCode     string      `json:"postal_code"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
 	Images         []string    `json:"images"`
 }
