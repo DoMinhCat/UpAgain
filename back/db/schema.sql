@@ -284,7 +284,14 @@ create table containers
     postal_code varchar(10)      not null,
     street      text             not null,
     status      container_status not null default 'ready',
-    is_deleted  boolean          not null default false
+    is_deleted  boolean          not null default false,
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 CREATE INDEX idx_containers_status ON containers (status);
 CREATE INDEX idx_containers_postal_code ON containers (postal_code);
