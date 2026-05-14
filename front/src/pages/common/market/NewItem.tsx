@@ -40,6 +40,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type { CreateItemRequest } from "../../../api/interfaces/item";
 import { getCurrentLocation } from "../../../utils/locationUtils";
 import { showInfoNotification } from "../../../components/common/NotificationToast";
+import { useGetAvailableContainers } from "../../../hooks/containerHooks";
+import { Loader, Center } from "@mantine/core";
 
 // Emission factors based on backend/utils/helpers/scoreHelper.go
 const EMISSION_FACTORS: Record<
@@ -192,30 +194,9 @@ export default function NewItem() {
     return Math.round(co2 * 10 + water * 0.002 + electricity * 2);
   }, [material, weight]);
 
-  // Mock containers for UI demo
-  const MOCK_CONTAINERS = [
-    {
-      id: 1,
-      city: "Paris",
-      postal_code: "75012",
-      street: "21 Rue Erard",
-      status: "ready",
-    },
-    {
-      id: 2,
-      city: "Paris",
-      postal_code: "75011",
-      street: "10 Boulevard Voltaire",
-      status: "ready",
-    },
-    {
-      id: 3,
-      city: "Paris",
-      postal_code: "75020",
-      street: "55 Rue de Bagnolet",
-      status: "ready",
-    },
-  ];
+  // Real containers from API
+  const { data: availableContainers, isLoading: isLoadingContainersList } =
+    useGetAvailableContainers();
 
   const MATERIALS = [
     { value: "wood", label: t("common:materials.wood") },
@@ -621,61 +602,96 @@ export default function NewItem() {
                         <Grid gap="md">
                           <Grid.Col span={{ base: 12, md: 5 }}>
                             <Stack gap="sm">
-                              {MOCK_CONTAINERS.map((container) => (
-                                <Paper
-                                  key={container.id}
-                                  withBorder
-                                  p="md"
-                                  radius="md"
-                                  onClick={() => {
-                                    setContainerId(container.id);
-                                    setErrorContainer("");
-                                  }}
-                                  style={{
-                                    cursor: "pointer",
-                                    borderColor:
-                                      containerId === container.id
-                                        ? "var(--upagain-neutral-green)"
-                                        : undefined,
-                                    backgroundColor:
-                                      containerId === container.id
-                                        ? "var(--upagain-neutral-green)"
-                                        : undefined,
-                                    transition: "transform 0.1s ease",
-                                  }}
-                                  onMouseEnter={(e) =>
-                                    (e.currentTarget.style.transform =
-                                      "scale(1.02)")
-                                  }
-                                  onMouseLeave={(e) =>
-                                    (e.currentTarget.style.transform =
-                                      "scale(1)")
-                                  }
-                                >
-                                  <Stack gap={2}>
-                                    <Group
-                                      justify="space-between"
-                                      wrap="nowrap"
-                                    >
-                                      <Text fw={700} size="sm">
-                                        Container #{container.id}
-                                      </Text>
-                                      <Button
-                                        variant="subtle"
-                                        size="compact-xs"
-                                        leftSection={<IconMap size={14} />}
+                              {isLoadingContainersList ? (
+                                <Center py="xl">
+                                  <Loader size="sm" />
+                                </Center>
+                              ) : availableContainers &&
+                                availableContainers.length > 0 ? (
+                                availableContainers.map((container) => (
+                                  <Paper
+                                    key={container.id}
+                                    withBorder
+                                    p="md"
+                                    radius="md"
+                                    onClick={() => {
+                                      setContainerId(container.id);
+                                      setErrorContainer("");
+                                    }}
+                                    style={{
+                                      cursor: "pointer",
+                                      borderColor:
+                                        containerId === container.id
+                                          ? "var(--upagain-neutral-green)"
+                                          : undefined,
+                                      backgroundColor:
+                                        containerId === container.id
+                                          ? "var(--upagain-neutral-green)"
+                                          : undefined,
+                                      transition: "transform 0.1s ease",
+                                    }}
+                                    onMouseEnter={(e) =>
+                                      (e.currentTarget.style.transform =
+                                        "scale(1.02)")
+                                    }
+                                    onMouseLeave={(e) =>
+                                      (e.currentTarget.style.transform =
+                                        "scale(1)")
+                                    }
+                                  >
+                                    <Stack gap={2}>
+                                      <Group
+                                        justify="space-between"
+                                        wrap="nowrap"
                                       >
-                                        {t("methods.deposit.view_map")}
-                                      </Button>
-                                    </Group>
+                                        <Text
+                                          fw={700}
+                                          size="sm"
+                                          c={
+                                            containerId === container.id
+                                              ? "white"
+                                              : undefined
+                                          }
+                                        >
+                                          Container #{container.id}
+                                        </Text>
+                                        <Button
+                                          variant="subtle"
+                                          size="compact-xs"
+                                          leftSection={<IconMap size={14} />}
+                                          color={
+                                            containerId === container.id
+                                              ? "white"
+                                              : undefined
+                                          }
+                                        >
+                                          {t("methods.deposit.view_map")}
+                                        </Button>
+                                      </Group>
 
-                                    <Text size="xs" c="dimmed" mt="xs">
-                                      {container.street},{" "}
-                                      {container.postal_code} {container.city}
-                                    </Text>
-                                  </Stack>
-                                </Paper>
-                              ))}
+                                      <Text
+                                        size="xs"
+                                        c={
+                                          containerId === container.id
+                                            ? "white"
+                                            : "dimmed"
+                                        }
+                                        mt="xs"
+                                      >
+                                        {container.street},{" "}
+                                        {container.postal_code}{" "}
+                                        {container.city_name}
+                                      </Text>
+                                    </Stack>
+                                  </Paper>
+                                ))
+                              ) : (
+                                <Text size="sm" c="dimmed" ta="center">
+                                  {t("methods.deposit.no_containers", {
+                                    defaultValue: "No containers available",
+                                  })}
+                                </Text>
+                              )}
                             </Stack>
                           </Grid.Col>
                           <Grid.Col span={{ base: 12, md: 7 }}>
@@ -724,10 +740,9 @@ export default function NewItem() {
                               // 2. Send to backend to geocode and get readable address
                               // 3. Set address received to input fields
                               showInfoNotification(
-                                "Is this the correct addresse?",
-                                "Please verify again, the retrieved addresse might be inaccurate.",
+                                "Is this the correct address?",
+                                "Please verify again, the retrieved address might be inaccurate.",
                               );
-                              console.log("TODO: Get current location");
                             }}
                           >
                             {t("methods.listing.current_location")}

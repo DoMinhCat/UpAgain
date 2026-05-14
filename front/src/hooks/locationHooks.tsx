@@ -9,9 +9,10 @@ export const useGetCoordinatesFromAddress = (payload: Address) => {
   return useQuery({
     queryKey: ["coordinates", payload],
     queryFn: () => getCoordinatesFromAddress(payload),
+    enabled: false,
     meta: {
       errorTitle: "Location retrieval failed",
-      errorMessage: "An unexpected error occured, please try again later",
+      errorMessage: "An unexpected error occurred, please try again later",
     },
   });
 };
@@ -20,9 +21,10 @@ export const useGetAddressFromCoordinates = (payload: Coordinates) => {
   return useQuery({
     queryKey: ["address", payload],
     queryFn: () => getAddressFromCoordinates(payload),
+    enabled: false,
     meta: {
       errorTitle: "Address retrieval failed",
-      errorMessage: "An unexpected error occured, please try again later",
+      errorMessage: "An unexpected error occurred, please try again later",
     },
   });
 };
