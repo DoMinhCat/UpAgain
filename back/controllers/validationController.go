@@ -144,15 +144,16 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, newStatus, err := helpers.ParseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal
+	payload, newStatus, err := helpers.ParseValidationPayload(r)
 	if err != nil {
 		slog.Error("ParseValidationPayload failed", "controller", "ProcessDepositValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	reason := payload.Reason
 
 	oldStatus, _ := db.GetItemStatusByItemId(itemID)
-	err = db.UpdateItemStatusById(itemID, newStatus)
+	err = db.UpdateItemStatusById(itemID, newStatus, reason)
 	if err != nil {
 		slog.Error("UpdateItemStatusById() failed", "controller", "ProcessDepositValidation", "itemId", itemID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during deposit validation")

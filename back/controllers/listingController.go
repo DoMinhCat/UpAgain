@@ -299,7 +299,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	}
 	// if is user then require validation from admin again
 	if needValidation {
-		err = db.UpdateItemStatusById(id, "pending")
+		err = db.UpdateItemStatusById(id, "pending", "")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateListing", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
