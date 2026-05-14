@@ -24,6 +24,7 @@ import PaginationFooter from "../../components/common/PaginationFooter.tsx";
 import { UserImpactObjectCard } from "../../components/object/UserImpactObjectCard.tsx";
 import MyBreadcrumbs from "../../components/nav/MyBreadcrumbs.tsx";
 import { useTranslation } from "react-i18next";
+import { resolveUrl } from "../../utils/imageUtils.ts";
 export default function UserScorePage() {
   const location = useLocation();
   const { user } = useAuth();
@@ -193,7 +194,7 @@ export default function UserScorePage() {
         </Title>
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg" w="100%">
           <Button
-            variant="cta"
+            variant="cta-reverse"
             size="lg"
             radius="xl"
             onClick={() => navigate(PATHS.EVENTS.HOME)}
@@ -201,10 +202,10 @@ export default function UserScorePage() {
             Take part in our events
           </Button>
           <Button
-            variant="cta-reverse"
+            variant="cta"
             size="lg"
             radius="xl"
-            onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
+            onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
           >
             Post a new item
           </Button>
@@ -230,7 +231,10 @@ export default function UserScorePage() {
               <UserImpactObjectCard
                 key={obj.id}
                 title={obj.title}
-                image={obj.images?.[0] ?? "/banners/user-banner1-light.png"}
+                image={
+                  resolveUrl(obj.images?.[0]) ??
+                  "/banners/user-banner1-light.png"
+                }
                 price={obj.price}
                 material={obj.material}
                 buyerName={obj.buyer_name}
@@ -259,7 +263,7 @@ export default function UserScorePage() {
         ) : (
           <Stack align="center" py={40} gap="xl">
             <Text c="dimmed" ta="center">
-              You haven't posted any objects yet. Every recycled item counts!
+              You haven't sold any objects yet. Every upcycled object counts!
             </Text>
             <Button
               variant="cta"
@@ -268,7 +272,7 @@ export default function UserScorePage() {
               size="lg"
               onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
             >
-              Upcycle your first object
+              Post a new object
             </Button>
           </Stack>
         )}
