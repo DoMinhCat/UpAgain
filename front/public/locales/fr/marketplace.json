@@ -1,3 +1,63 @@
 {
-  "marketplace": "Boutique"
+  "market": "Boutique",
+  "subtitle": "Découvrez et échangez des objets upcyclés",
+  "my_listings": "Mes Objets",
+  "create_listing": "Créer une Annonce",
+  "new_item": "Nouvel Objet",
+  "my_objects_description": "Gérez vos annonces et vos dépôts",
+  "search_placeholder": "Rechercher des objets...",
+  "sort": {
+    "most_recent": "Le plus récent",
+    "most_recent_creation": "Le plus récent",
+    "oldest": "Le plus ancien",
+    "oldest_creation": "Le plus ancien",
+    "highest_price": "Prix le plus élevé",
+    "lowest_price": "Prix le plus bas"
+  },
+  "empty": {
+    "title": "Aucun objet trouvé.",
+    "subtitle": "Essayez d'ajuster vos filtres ou votre recherche."
+  },
+  "detail": {
+    "key_info": "Informations clés",
+    "weight": "Poids",
+    "state": "État",
+    "retrieval": {
+      "title": "Méthode de récupération",
+      "listing": "Échange direct",
+      "deposit": "Dépôt en conteneur"
+    },
+    "about": "À propos de cet objet",
+    "location": "Localisation",
+    "map_placeholder": "Vue carte non disponible",
+    "map_api_note": "Nécessite une clé API Map",
+    "price": "Prix",
+    "posted_by": "Posté par",
+    "reserve_now": "Réserver maintenant",
+    "buy": "Acheter",
+    "see_back_office": "Voir dans le Back Office",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "transfer_container": "Transférer le conteneur",
+    "delete_confirm_title": "Confirmer la suppression",
+    "delete_confirm_msg": "Êtes-vous sûr de vouloir supprimer cet objet ?",
+    "not_implemented_title": "Non implémenté",
+    "not_implemented_msg": "Cette fonctionnalité sera bientôt disponible."
+  },
+  "notifications": {
+    "fetch_items_error": "Erreur lors de la récupération des objets",
+    "fetch_stats_error": "Erreur lors de la récupération des statistiques",
+    "fetch_detail_error": "Erreur lors de la récupération des détails de l'objet",
+    "fetch_transactions_error": "Erreur lors de la récupération des transactions",
+    "delete_error": "Erreur lors de la suppression de l'objet",
+    "delete_success_title": "Objet Supprimé",
+    "delete_success_message": "L'objet a été supprimé avec succès.",
+    "update_status_error": "Erreur lors de la mise à jour du statut",
+    "post_error": "Erreur lors de la publication de l'objet",
+    "post_success_title": "Objet Publié",
+    "post_success_message": "Veuillez attendre la validation d'un administrateur",
+    "cancel_transaction_error": "Erreur lors de l'annulation de la transaction",
+    "cancel_transaction_success_title": "Transaction Annulée",
+    "cancel_transaction_success_message": "La transaction a été annulée."
+  }
 }

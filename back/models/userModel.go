@@ -8,9 +8,9 @@ type UserDetails struct {
 }
 
 type UserStats struct {
-	TotalDeposits int `json:"total_deposits"`
-	TotalListings int `json:"total_listings"`
-	TotalSpent    int `json:"total_spendings"`
+	TotalDeposits int     `json:"total_deposits"`
+	TotalListings int     `json:"total_listings"`
+	TotalSpent    float64 `json:"total_spendings"`
 }
 
 type TotalScoreStats struct {

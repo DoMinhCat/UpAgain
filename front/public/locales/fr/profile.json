@@ -59,7 +59,9 @@
     "pro_subscription_end": "Fin d'abonnement proche",
     "pro_code_expiring": "Code de récupération expirant",
     "emp_event_updated": "Événement assigné mis à jour",
-    "emp_event_assigned": "Nouvel événement assigné"
+    "emp_event_assigned": "Nouvel événement assigné",
+    "update_success_title": "Paramètre mis à jour",
+    "update_success_message": "Votre préférence de notification a été mise à jour."
   },
   "billings": {
     "title": "Facturation & Abonnements",

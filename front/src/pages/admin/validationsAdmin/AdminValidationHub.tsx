@@ -470,7 +470,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 navigate(
                   `${PATHS.ADMIN.VALIDATIONS.ALL}/deposits/${d.id_item}`,
                   {
-                    state: { item: d },
+                    state: { item: d, type: "deposit" },
                   },
                 )
               }
@@ -486,7 +486,9 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               <Table.Td ta="center">
                 {d.city_name} ({d.postal_code})
               </Table.Td>
-              <Table.Td ta="center">{d.material}</Table.Td>
+              <Table.Td ta="center">
+                {d.material.charAt(0).toUpperCase() + d.material.slice(1)}
+              </Table.Td>
               <Table.Td ta="center">
                 <Group
                   gap="xs"
@@ -569,8 +571,8 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           t("validations.table.submitted_on"),
           t("users.table.id"),
           t("validations.table.title"),
-          t("validations.table.user"),
-          t("validations.table.city"),
+          t("validations.table.creator"),
+          t("validations.table.location"),
           t("validations.table.price"),
           t("users.table.actions"),
         ]}
@@ -607,7 +609,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 navigate(
                   `${PATHS.ADMIN.VALIDATIONS.ALL}/listings/${l.id_item}`,
                   {
-                    state: { item: l },
+                    state: { item: l, type: "listing" },
                   },
                 )
               }
@@ -621,7 +623,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               <Table.Td ta="center">{l.title}</Table.Td>
               <Table.Td ta="center">{l.username}</Table.Td>
               <Table.Td ta="center">
-                {l.city_name} ({l.postal_code})
+                {l.street}, {l.city_name} ({l.postal_code})
               </Table.Td>
               <Table.Td ta="center">
                 {l.price != null ? `${l.price} €` : "—"}

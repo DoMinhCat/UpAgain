@@ -145,7 +145,7 @@ func GetContainerStatusById(id int) (string, error) {
 
 func GetAvailableContainers() ([]models.Container, error) {
 	var containers []models.Container
-	query := `SELECT id FROM containers WHERE status != 'maintenance' AND is_deleted = false`
+	query := `SELECT id, city_name, postal_code, street FROM containers WHERE status != 'maintenance' AND is_deleted = false`
 	rows, err := utils.Conn.Query(query)
 	if err != nil {
 		return nil, err
@@ -153,7 +153,7 @@ func GetAvailableContainers() ([]models.Container, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var c models.Container
-		if err := rows.Scan(&c.ID); err != nil {
+		if err := rows.Scan(&c.ID, &c.CityName, &c.PostalCode, &c.Street); err != nil {
 			return nil, err
 		}
 		containers = append(containers, c)

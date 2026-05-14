@@ -7,6 +7,7 @@ export interface Listing {
   weight: number;
   price: number | null;
   created_at: string;
+  street: string;
   city_name: string;
   postal_code: string;
   id_user: number;
@@ -22,6 +23,7 @@ export interface PaginatedListingsResponse {
 }
 
 export interface ListingDetails {
+  street: string;
   city: string;
   postal_code: string;
 }

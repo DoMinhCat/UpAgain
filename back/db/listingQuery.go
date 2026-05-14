@@ -113,7 +113,7 @@ func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]mo
 	countQuery := `
 		SELECT COUNT(DISTINCT i.id)
 		FROM items i
-		LEFT JOIN listings l ON l.id_item = i.id
+		JOIN listings l ON l.id_item = i.id
 		LEFT JOIN accounts a ON a.id = i.id_user
 		` + whereClause
 
@@ -125,7 +125,7 @@ func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]mo
 	query := `
 		SELECT
 			i.id, i.title, i.description, i.material, i.state, i.weight, i.price, i.created_at,
-			l.city_name, l.postal_code,
+			l.street, l.city_name, l.postal_code,
 			i.id_user, a.username
 		FROM items i
 		JOIN listings l ON l.id_item = i.id
@@ -149,7 +149,7 @@ func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]mo
 		var listing models.PendingListingResponse
 		if err := rows.Scan(
 			&listing.ItemID, &listing.Title, &listing.Description, &listing.Material, &listing.State, &listing.Weight, &listing.Price, &listing.CreatedAt,
-			&listing.CityName, &listing.PostalCode,
+			&listing.Street, &listing.CityName, &listing.PostalCode,
 			&listing.UserID, &listing.Username,
 		); err != nil {
 			return nil, 0, fmt.Errorf("GetPendingListings() scan failed: %v", err)
@@ -164,7 +164,7 @@ func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]mo
 
 func GetListingDetailsById(id int) (models.Listing, error) {
 	var listing models.Listing
-	err := utils.Conn.QueryRow("SELECT city_name, postal_code FROM listings WHERE id_item = $1", id).Scan(&listing.City, &listing.PostalCode)
+	err := utils.Conn.QueryRow("SELECT street, city_name, postal_code FROM listings WHERE id_item = $1", id).Scan(&listing.Street, &listing.City, &listing.PostalCode)
 	if err != nil {
 		return models.Listing{}, fmt.Errorf("GetListingDetailsById() failed: %v", err)
 	}
@@ -201,13 +201,21 @@ func UpdateListingById(listingID int, listing models.UpdateListingRequest) error
 	}
 
 	// update listing details
-	_, err = tx.Exec(`UPDATE listings SET city_name = $1, postal_code = $2 WHERE id_item = $3`, listing.City, listing.PostalCode, listingID)
+	_, err = tx.Exec(`UPDATE listings SET street = $1, city_name = $2, postal_code = $3 WHERE id_item = $4`, listing.Street, listing.City, listing.PostalCode, listingID)
 	if err != nil {
 		return fmt.Errorf("error updating listing details in tx: %v", err)
 	}
 
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("error committing item transaction: %v", err)
+	}
+	return nil
+}
+
+func CreateListing(listing models.CreateListingRequest) error {
+	_, err := utils.Conn.Exec("INSERT INTO listings (id_item, street, city_name, postal_code) VALUES ($1, $2, $3, $4)", listing.IdItem, listing.Street, listing.CityName, listing.PostalCode)
+	if err != nil {
+		return err
 	}
 	return nil
 }

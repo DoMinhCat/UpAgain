@@ -17,8 +17,8 @@ export const useGetAvailableEmployees = (
     staleTime: STALE_TIME,
     enabled,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Unable to fetch employees.",
+      errorTitle: "admin:events.details.assigned_employees.error_fetching_available",
+      errorMessage: "admin:events.details.assigned_employees.error_fetching_available",
     },
   });
 };
@@ -33,8 +33,8 @@ export const useGetEmployeeSchedule = (
     staleTime: STALE_TIME,
     enabled: isValidEmployeeId,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Unable to fetch employee's schedule.",
+      errorTitle: "admin:events.details.assigned_employees.error_fetching_schedule",
+      errorMessage: "admin:events.details.assigned_employees.error_fetching_schedule",
     },
   });
 };

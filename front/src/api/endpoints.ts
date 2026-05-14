@@ -98,6 +98,11 @@ export const ENDPOINTS = {
     REGISTER: "/register/",
   },
 
+  ITEMS: {
+    NEW: "/items/",
+    ME: "/items/me/",
+  },
+
   LISTINGS: {
     DETAILS: (id_listing: number) => `/listings/${id_listing}/`,
   },
@@ -132,12 +137,19 @@ export const ENDPOINTS = {
     MY_EVENTS: "/events/me/",
   },
 
+  ACCOUNTS: {
+    UPDATE_AVATAR: (id_account: number) => `/accounts/${id_account}/avatar/`,
+    NOTIFICATIONS: (id_account: number) =>
+      `/accounts/${id_account}/notifications/`,
+  },
+
+  // external providers
   STRIPE: {
     VERIFY: "/payments/verify/",
   },
 
-  ACCOUNTS: {
-    UPDATE_AVATAR: (id_account: number) => `/accounts/${id_account}/avatar/`,
-    NOTIFICATIONS: (id_account: number) => `/accounts/${id_account}/notifications/`,
+  LOCATION: {
+    GET_COOR: "/location/coordinates/",
+    GET_ADDRESS: "/location/address/",
   },
 } as const;

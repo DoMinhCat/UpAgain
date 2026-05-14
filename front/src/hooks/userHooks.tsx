@@ -9,8 +9,8 @@ export const useGetTotalScore = () => {
     queryFn: () => getUserStats(),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch total score.",
+      errorTitle: "common:notifications.error",
+      errorMessage: "common:notifications.fetch_error",
     },
   });
 };

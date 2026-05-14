@@ -31,7 +31,7 @@ func AuthMiddleware(requiredRole []string, next http.Handler) http.Handler {
 		}
 
 		if !slices.Contains(requiredRole, claims.Role) {
-			respond.RespondWithError(w, http.StatusUnauthorized, "You need to log in first.")
+			respond.RespondWithError(w, http.StatusForbidden, "You lack the permissions to perform this action.")
 			return
 		}
 		ctx := context.WithValue(r.Context(), "user", claims)

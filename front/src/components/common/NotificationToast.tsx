@@ -1,6 +1,7 @@
 import { notifications } from "@mantine/notifications";
 import type { AxiosError } from "axios";
 import type { ApiErrorData } from "../../api/axios";
+import i18n from "i18next";
 
 const autoCloseDuration = 5000;
 
@@ -32,19 +33,26 @@ export const showErrorNotification = (
     message = errorMessage;
   }
 
+  const translatedTitle = i18n.t(title, { defaultValue: title });
+  const translatedMessage = i18n.t(message.toString(), {
+    defaultValue: message.toString(),
+  });
+
   notifications.show({
-    title,
-    message: message.toString(),
+    title: translatedTitle,
+    message: translatedMessage,
     color: "red",
     autoClose: autoCloseDuration,
   });
 };
 
 export const showInfoNotification = (title = "Info", message: string) => {
-  // default title is "Info" if not provided any title
+  const translatedTitle = i18n.t(title, { defaultValue: title });
+  const translatedMessage = i18n.t(message, { defaultValue: message });
+
   notifications.show({
-    title: title,
-    message: message,
+    title: translatedTitle,
+    message: translatedMessage,
     color: "blue",
     autoClose: autoCloseDuration,
     styles: {
@@ -63,10 +71,12 @@ export const showInfoNotification = (title = "Info", message: string) => {
 };
 
 export const showSuccessNotification = (title = "Success", message: string) => {
-  // default title is "Success" if not provided any title
+  const translatedTitle = i18n.t(title, { defaultValue: title });
+  const translatedMessage = i18n.t(message, { defaultValue: message });
+
   notifications.show({
-    title: title,
-    message: message,
+    title: translatedTitle,
+    message: translatedMessage,
     color: "green",
     autoClose: autoCloseDuration,
     styles: {

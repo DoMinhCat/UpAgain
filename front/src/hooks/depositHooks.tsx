@@ -16,8 +16,8 @@ export const useGetDepositDetails = (id: number, isValid: boolean) => {
     enabled: isValid,
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error fetching deposit details",
-      errorMessage: "Failed to fetch deposit details",
+      errorTitle: "common:notifications.error",
+      errorMessage: "admin:listings.notifications.fetch_deposit_details_error",
     },
   });
 };
@@ -27,15 +27,15 @@ export const useUpdateDeposit = (id: number) => {
   return useMutation({
     mutationFn: (payload: FormData) => updateDeposit(id, payload),
     meta: {
-      errorTitle: "Error updating deposit",
-      errorMessage: "Failed to update deposit",
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:notifications.update_error",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["item-details", id] });
       queryClient.invalidateQueries({ queryKey: ["depositDetails", id] });
       showSuccessNotification(
-        "Deposit updated",
-        "Deposit updated successfully",
+        "marketplace:notifications.update_success_title",
+        "marketplace:notifications.update_success_message",
       );
     },
   });
@@ -51,8 +51,8 @@ export const useGetDepositCodesOfLatestTransaction = (
     enabled: isValidId,
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error fetching deposit codes",
-      errorMessage: "Failed to fetch deposit codes",
+      errorTitle: "common:notifications.error",
+      errorMessage: "admin:listings.notifications.fetch_deposit_codes_error",
     },
   });
 };
@@ -73,8 +73,8 @@ export const useTransferDepositContainer = (id_deposit: number) => {
         id_current_container,
       ),
     meta: {
-      errorTitle: "Transfer failed",
-      errorMessage: "Failed to transfer deposit container",
+      errorTitle: "common:notifications.error",
+      errorMessage: "admin:listings.notifications.transfer_error",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["item-details", id_deposit] });
@@ -82,8 +82,8 @@ export const useTransferDepositContainer = (id_deposit: number) => {
         queryKey: ["depositDetails", id_deposit],
       });
       showSuccessNotification(
-        "Container transferred",
-        "Container transferred successfully",
+        "admin:listings.notifications.transfer_success_title",
+        "admin:listings.notifications.transfer_success_message",
       );
     },
   });

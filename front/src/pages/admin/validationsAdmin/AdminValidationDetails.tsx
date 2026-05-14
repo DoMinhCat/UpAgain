@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Container,
   Box,
@@ -8,10 +7,9 @@ import {
   Text,
   Title,
   Button,
-  Modal,
   ThemeIcon,
-  Textarea,
   Badge,
+  Anchor,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import {
@@ -35,6 +33,7 @@ import { PATHS } from "../../../routes/paths";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import InfoField from "../../../components/common/InfoField";
 import { useProcessValidation } from "../../../hooks/validationHooks";
+import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
 
 export default function AdminValidationDetails() {
   const { t } = useTranslation("admin");
@@ -50,11 +49,10 @@ export default function AdminValidationDetails() {
 
   const [openedRefuse, { open: openRefuse, close: closeRefuse }] =
     useDisclosure(false);
-  const [refuseReason, setRefuseReason] = useState("");
   const processMutation = useProcessValidation();
 
   // Redirection de sécurité si on accède à l'URL directement sans les données
-  if (!item || !type || !id) {
+  if (!type || !id) {
     return <Navigate to={PATHS.ADMIN.VALIDATIONS.ALL} replace />;
   }
 
@@ -65,18 +63,21 @@ export default function AdminValidationDetails() {
     );
   };
 
-  const handleConfirmRefuse = () => {
-    if (refuseReason.trim().length > 0) {
-      processMutation.mutate(
-        {
-          entityType: type,
-          id: parseInt(id),
-          action: "refuse",
-          reason: refuseReason,
+  const handleConfirmRefuse = (reason: string) => {
+    processMutation.mutate(
+      {
+        entityType: type,
+        id: parseInt(id),
+        action: "refuse",
+        reason: reason,
+      },
+      {
+        onSuccess: () => {
+          closeRefuse();
+          navigate(PATHS.ADMIN.VALIDATIONS.ALL);
         },
-        { onSuccess: () => navigate(PATHS.ADMIN.VALIDATIONS.ALL) },
-      );
-    }
+      },
+    );
   };
 
   // Configuration dynamique selon le type
@@ -96,12 +97,15 @@ export default function AdminValidationDetails() {
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
         {t(`validations.details.types.${type}` as any, { defaultValue: type })}
-        {" " + t("validations.details.title_suffix", { defaultValue: "'s Details" })}
+        {" " + t("validations.details.title_suffix")}
       </Title>
       <MyBreadcrumbs
         breadcrumbs={[
           { title: t("validations.title"), href: PATHS.ADMIN.VALIDATIONS.ALL },
-          { title: `${t("common:details", { defaultValue: "Details" })} #${id}`, href: "#" },
+          {
+            title: `${t("validations.details.title", { defaultValue: "Details" })} #${id}`,
+            href: "#",
+          },
         ]}
       />
 
@@ -111,11 +115,31 @@ export default function AdminValidationDetails() {
             <Icon size={45} />
           </ThemeIcon>
           <Title order={2}>
-            {t(`validations.details.types.${type}` as any, { defaultValue: type })} #{id}
+            {t(`validations.details.types.${type}` as any, {
+              defaultValue: type,
+            })}{" "}
+            #{id}
           </Title>
           <Badge color="orange" variant="outline">
             {t("validations.details.waiting_validation")}
           </Badge>
+          <Anchor
+            size="sm"
+            mt="xs"
+            onClick={() => {
+              const path =
+                type === "events"
+                  ? `${PATHS.ADMIN.EVENTS.ALL}/${id}`
+                  : `${PATHS.ADMIN.LISTINGS}/${id}`;
+              navigate(path, {
+                state: { from: "validationDetail", item: item, type: type },
+              });
+            }}
+          >
+            {t("validations.details.view_full_details", {
+              defaultValue: "View full details",
+            })}
+          </Anchor>
         </Stack>
 
         <Title order={3} ta="left" mt="xl">
@@ -135,7 +159,8 @@ export default function AdminValidationDetails() {
               mb="sm"
               c={item.description ? "dark" : "dimmed"}
             >
-              {item.description || t("validations.details.fields.no_description")}
+              {item.description ||
+                t("validations.details.fields.no_description")}
             </Text>
           </InfoField>
 
@@ -175,7 +200,9 @@ export default function AdminValidationDetails() {
                 {type === "listings" && (
                   <InfoField label={t("validations.details.fields.price")}>
                     <Text ps="sm" mt="xs" fw={700} c="green">
-                      {item.price ? `${item.price} €` : t("common:free", { defaultValue: "Free" })}
+                      {item.price
+                        ? `${item.price} €`
+                        : t("common:free", { defaultValue: "Free" })}
                     </Text>
                   </InfoField>
                 )}
@@ -183,8 +210,9 @@ export default function AdminValidationDetails() {
 
               <InfoField label={t("validations.details.fields.location")}>
                 <Text ps="sm" mt="xs">
-                  <strong>{item.username}</strong> - {item.city_name} (
-                  {item.postal_code})
+                  <strong>{item.username}</strong> -{" "}
+                  {item.street && `${item.street}, `}
+                  {item.city_name} ({item.postal_code})
                 </Text>
               </InfoField>
             </Paper>
@@ -201,13 +229,18 @@ export default function AdminValidationDetails() {
               <Group grow mb="sm">
                 <InfoField label={t("validations.details.fields.category")}>
                   <Badge mt="xs" color="violet">
-                    {t(`events:categories.${item.category}` as any, { defaultValue: item.category })}
+                    {t(`events:categories.${item.category}` as any, {
+                      defaultValue: item.category,
+                    })}
                   </Badge>
                 </InfoField>
-                <InfoField label={t("validations.details.fields.scheduled_date")}>
+                <InfoField
+                  label={t("validations.details.fields.scheduled_date")}
+                >
                   <Text ps="sm" mt="xs" fw={500}>
                     {dayjs(item.date_start).format("DD/MM/YYYY")}
-                    {item.time_start && `${t("validations.details.fields.at")}${item.time_start}`}
+                    {item.time_start &&
+                      `${t("validations.details.fields.at")}${item.time_start}`}
                   </Text>
                 </InfoField>
               </Group>
@@ -215,12 +248,18 @@ export default function AdminValidationDetails() {
               <Group grow mb="sm">
                 <InfoField label={t("validations.details.fields.capacity")}>
                   <Text ps="sm" mt="xs">
-                    {item.capacity ? t("validations.details.fields.spots", { count: item.capacity }) : t("validations.details.fields.unlimited")}
+                    {item.capacity
+                      ? t("validations.details.fields.spots", {
+                          count: item.capacity,
+                        })
+                      : t("validations.details.fields.unlimited")}
                   </Text>
                 </InfoField>
                 <InfoField label={t("validations.details.fields.price")}>
                   <Text ps="sm" mt="xs" fw={700} c="green">
-                    {item.price ? `${item.price} €` : t("common:free", { defaultValue: "Free" })}
+                    {item.price
+                      ? `${item.price} €`
+                      : t("common:free", { defaultValue: "Free" })}
                   </Text>
                 </InfoField>
               </Group>
@@ -268,40 +307,15 @@ export default function AdminValidationDetails() {
         </Paper>
       </Container>
 
-      <Modal
+      <RefuseItemModal
         opened={openedRefuse}
         onClose={closeRefuse}
-        title={t("validations.details.refuse_modal.title")}
-        centered
-      >
-        <Textarea
-          placeholder={t("validations.details.refuse_modal.placeholder")}
-          value={refuseReason}
-          onChange={(event) => setRefuseReason(event.currentTarget.value)}
-          minRows={3}
-          data-autofocus
-        />
-        <Group justify="flex-end" mt="md">
-          <Button
-            variant="grey"
-            onClick={closeRefuse}
-            disabled={processMutation.isPending}
-          >
-            {t("common:actions.cancel", { defaultValue: "Cancel" })}
-          </Button>
-          <Button
-            variant="delete"
-            onClick={handleConfirmRefuse}
-            disabled={refuseReason.trim().length === 0}
-            loading={
-              processMutation.isPending &&
-              processMutation.variables?.action === "refuse"
-            }
-          >
-            {t("validations.details.refuse_modal.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+        onConfirm={handleConfirmRefuse}
+        loading={
+          processMutation.isPending &&
+          processMutation.variables?.action === "refuse"
+        }
+      />
     </Container>
   );
 }
