@@ -20,7 +20,11 @@ import {
 import { useTranslation, Trans } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAccountDetails, useAccountStats } from "../../hooks/accountHooks";
-import { useLikePost, useSavePost, useGetAllPosts } from "../../hooks/postHooks";
+import {
+  useLikePost,
+  useSavePost,
+  useGetAllPosts,
+} from "../../hooks/postHooks";
 import { useGetUserImpact } from "../../hooks/userHooks";
 import { useGetMyEvents } from "../../hooks/eventHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader";
@@ -300,7 +304,7 @@ export default function UserHome() {
                     data-variant="primary"
                     size="sm"
                     fw={700}
-                    onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
+                    onClick={() => navigate(PATHS.MARKETPLACE.ME)}
                   >
                     {t("user.manage.manage_listings")}
                   </Text>
@@ -324,7 +328,9 @@ export default function UserHome() {
                       {t("user.manage.deposits_title")}
                     </Title>
                     <Text size="sm" mt="xs">
-                      {t("user.manage.deposits_status", { count: accountStats?.total_deposits ?? 0 })}
+                      {t("user.manage.deposits_status", {
+                        count: accountStats?.total_deposits ?? 0,
+                      })}
                     </Text>
                   </Box>
 
@@ -334,7 +340,7 @@ export default function UserHome() {
                     data-variant="primary"
                     size="sm"
                     fw={700}
-                    onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
+                    onClick={() => navigate(PATHS.MARKETPLACE.ME)}
                   >
                     {t("user.manage.track_deposits")}
                   </Text>
@@ -350,24 +356,14 @@ export default function UserHome() {
                 })}
               </Title>
 
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                <Button
-                  className="button"
-                  data-variant="cta-reverse"
-                  size="lg"
-                  onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
-                >
-                  {t("user.manage.create_listing")}
-                </Button>
-                <Button
-                  className="button"
-                  data-variant="cta" // Golden shine for creating deposits
-                  size="lg"
-                  onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
-                >
-                  {t("user.manage.create_deposit")}
-                </Button>
-              </SimpleGrid>
+              <Button
+                className="button"
+                data-variant="cta"
+                size="lg"
+                onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
+              >
+                {t("user.manage.create_listing")}
+              </Button>
 
               <Stack gap="xs">
                 <Title order={3} ta="center">
@@ -386,7 +382,7 @@ export default function UserHome() {
                     className="button"
                     data-variant="secondary"
                     size="sm"
-                    onClick={() => navigate(PATHS.USER.POSTS.ALL)}
+                    onClick={() => navigate(PATHS.EVENTS.HOME)}
                   >
                     {t("user.manage.workshops_events")}
                   </Button>
@@ -443,7 +439,10 @@ export default function UserHome() {
                           key={post.id}
                           title={post.title}
                           description={post.content}
-                          image={post.photos?.[0] ?? "/banners/user-banner1-light.png"}
+                          image={
+                            post.photos?.[0] ??
+                            "/banners/user-banner1-light.png"
+                          }
                           category={post.category}
                           authorName={post.creator}
                           authorAvatar={post.creator_avatar ?? ""}
@@ -530,7 +529,9 @@ export default function UserHome() {
                         category={event.category}
                         title={event.title}
                         description={event.description ?? ""}
-                        image={event.images?.[0] ?? "/banners/user-banner1-light.png"}
+                        image={
+                          event.images?.[0] ?? "/banners/user-banner1-light.png"
+                        }
                         authorName={event.employee_name ?? "UpAgain"}
                         authorAvatar={event.employee_avatar ?? ""}
                         createdAt={event.created_at}
