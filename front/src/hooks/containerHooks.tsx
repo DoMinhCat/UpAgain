@@ -99,11 +99,11 @@ export const useDeleteContainer = () => {
     },
   });
 };
-export const useContainerDetails = (id: number) => {
+export const useContainerDetails = (id: number, isValidId?: boolean) => {
   return useQuery<Container>({
     queryKey: ["containerDetails", id],
     queryFn: () => getContainerDetails(id),
-    enabled: !!id,
+    enabled: !!id && (isValidId || true),
     meta: {
       errorTitle: "admin:containers.notifications.error_loading_details",
       errorMessage: "admin:containers.notifications.error_loading_details",
