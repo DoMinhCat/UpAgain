@@ -247,7 +247,7 @@ export default function AdminUsersModule() {
     if (selectedEditAcc?.id) {
       editMutation.mutate(
         {
-          id_account: selectedEditAcc.id,
+          id: selectedEditAcc.id,
           username: usernameEdit,
           email: emailEdit,
           phone: phoneEdit,
