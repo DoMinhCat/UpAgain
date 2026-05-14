@@ -60,13 +60,13 @@ export default function UserScorePage() {
       <MyBreadcrumbs
         breadcrumbs={[
           {
-            title: t("home.title"),
+            title: t("home:title"),
             href: PATHS.HOME,
           },
           ...(location.state?.from === "profile"
             ? [
                 {
-                  title: t("profile.title"),
+                  title: t("profile:title"),
                   href: PATHS.USER.PROFILE,
                 },
               ]
