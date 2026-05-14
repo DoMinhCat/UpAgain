@@ -1,6 +1,7 @@
 {
   "actions": {
     "update": "Update",
+    "search": "Search",
     "summary": "Summary",
     "cancel": "Cancel",
     "confirm": "Confirm"

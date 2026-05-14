@@ -97,11 +97,16 @@ create table events
     status       event_status   not null default 'pending', -- cancelled = deleted
     city         varchar(255)   not null,
     street       varchar(255)   not null,
+    postal_code  varchar(10)   not null,
     location_detail varchar(255),
     created_by   integer references accounts(id) on delete restrict,
-    -- TODO: add lat and lng returned by geocoding
-    -- lat NUMERIC(10, 8), 
-    -- lng NUMERIC(11, 8)
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 CREATE INDEX idx_events_status ON events (status);
 CREATE INDEX idx_events_category ON events (category);

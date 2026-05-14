@@ -14,6 +14,7 @@ export interface AppEvent {
   status: string;
   city: string;
   street: string;
+  postal_code: string;
   location_detail: string;
   employee_name: string | null;
   employee_avatar: string | null;
@@ -49,6 +50,7 @@ export interface EventCreationPayload {
   capacity?: number;
   city: string;
   street: string;
+  postal_code: string;
   location_detail?: string;
   status: string;
   images?: FormData;
@@ -75,9 +77,11 @@ export interface UpdateEventPayload {
   capacity?: number;
   city: string;
   street: string;
+  postal_code: string;
   location_detail?: string;
   images?: FormData;
 }
+
 
 export interface EventRegistrationPayload {
   id_event: number;

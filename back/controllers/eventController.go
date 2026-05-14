@@ -256,6 +256,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	event.Category = r.FormValue("category")
 	event.City = r.FormValue("city")
 	event.Street = r.FormValue("street")
+	event.PostalCode = r.FormValue("postal_code")
 	event.Status = r.FormValue("status")
 
 	if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
@@ -868,6 +869,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	payload.Category = r.FormValue("category")
 	payload.City = r.FormValue("city")
 	payload.Street = r.FormValue("street")
+	payload.PostalCode = r.FormValue("postal_code")
 
 	if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
 		payload.Capacity.SetValid(int64(capacity))
@@ -891,7 +893,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if hasParticipant {
-		if payload.StartAt.Time != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
+		if payload.StartAt.Time != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.PostalCode != oldEvent.PostalCode || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
 			utils.RespondWithError(w, http.StatusConflict, "Event's critical fields cannot be updated because it has participants registered.")
 			return
 		}
