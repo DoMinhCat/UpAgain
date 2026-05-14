@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"net/url"
 	"strings"
@@ -112,6 +113,31 @@ func AddressToCoor(address models.Address) (models.Coordinates, error) {
 		Lng:          bestResult.Geometry.Location.Lng,
 	}
 	return response, nil
+}
+
+// get the closest pair of coordinates by comparing euclidian distance (straight line distance)
+//
+// return the index of the closest pair in the given list of points (-1 if none)
+func GetClosestCoordinate(target models.Coordinates, points []models.Coordinates) int {
+    var closest int
+	if len(points) == 0 {
+		return -1
+	}
+
+	// first coordinate is the closest by default
+    minDistance := math.Pow(points[0].Lat-target.Lat, 2) + math.Pow(points[0].Lng-target.Lng, 2)
+	closest = 0
+
+    for i, p := range points {
+        // Basic Euclidean distance (a² + b²)
+        dist := math.Pow(p.Lat-target.Lat, 2) + math.Pow(p.Lng-target.Lng, 2)
+        
+        if dist < minDistance {
+            minDistance = dist
+            closest = i
+        }
+    }
+    return closest
 }
 
 // helper function to build Address from AddressComponent 

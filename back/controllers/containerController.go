@@ -4,7 +4,9 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -516,4 +518,63 @@ func GetContainerEarliestAvailability(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]time.Time{
 		"earliest_availability": earliest,
 	})
+}
+
+func GetNearestAvailableContainer(w http.ResponseWriter, r *http.Request) {
+	// get params: lat, lng from query
+	query := r.URL.Query()
+	latStr := query.Get("lat")
+	lngStr := query.Get("lng")
+
+	// validate
+	if latStr == "" || lngStr == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing latitude or longitude")
+		return
+	}
+
+	// convert to float
+	var params models.Coordinates
+	_, err := fmt.Sscanf(latStr, "%f", &params.Lat)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid latitude format")
+		return
+	}
+	_, err = fmt.Sscanf(lngStr, "%f", &params.Lng)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid longitude format")
+		return
+	}
+
+	if params.Lat > 90 || params.Lat < -90 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid latitude")
+		return
+	}
+	if params.Lng > 180 || params.Lng < -180 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid longitude")
+		return
+	}
+	
+	// get all available containers and sort them by distance from the user's location (the closer the better)
+	containers, err := db.GetAvailableContainers()
+	if err != nil {
+		slog.Error("GetAvailableContainers() failed", "controller", "GetNearestAvailableContainer", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching available containers.")
+		return
+	}
+
+	containersCoords := make([]models.Coordinates, len(containers))
+	for i, c := range containers {
+		containersCoords[i] = models.Coordinates{
+			Lat: c.Lat,
+			Lng: c.Lng,
+		}
+	}
+	closestIndex := geocode.GetClosestCoordinate(params, containersCoords)
+	if closestIndex == -1 {
+		utils.RespondWithError(w, http.StatusNotFound, "No available containers found.")
+		return
+	}
+	closestContainer := containers[closestIndex]
+
+	utils.RespondWithJSON(w, http.StatusOK, closestContainer)
 }
