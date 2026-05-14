@@ -658,6 +658,10 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 		}
 		coordinates, err := geocode.AddressToCoor(addressToResolve)
 		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
 			slog.Error("AddressToCoor() failed", "controller", "CreateItem", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
 			return

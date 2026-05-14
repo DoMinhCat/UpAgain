@@ -178,7 +178,13 @@ func UpdateListingById(listingID int, listing models.UpdateListingRequest) error
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec(`UPDATE items SET title = $1, description = $2, price = $3, weight = $4, state = $5,  material = $6 WHERE id = $7`, listing.Title, listing.Description, listing.Price, listing.Weight, listing.State, listing.Material, listingID)
+	_, err = tx.Exec(`
+		UPDATE items 
+		SET 
+			title = $1, description = $2, price = $3, weight = $4, state = $5,  material = $6 
+		WHERE id = $7`, 
+		listing.Title, listing.Description, listing.Price, listing.Weight, listing.State, listing.Material, listingID)
+
 	if err != nil {
 		return fmt.Errorf("error updating item in tx: %v", err)
 	}
@@ -200,11 +206,13 @@ func UpdateListingById(listingID int, listing models.UpdateListingRequest) error
 		}
 	}
 
-	// update listing details
-	_, err = tx.Exec(`UPDATE listings SET street = $1, city_name = $2, postal_code = $3 WHERE id_item = $4`, listing.Street, listing.City, listing.PostalCode, listingID)
-	if err != nil {
-		return fmt.Errorf("error updating listing details in tx: %v", err)
-	}
+	// update listing details only if there is lat/lng since if they are null, location was not changed
+	if listing.Lat != nil && listing.Lng != nil {
+		_, err = tx.Exec(`UPDATE listings SET street = $1, city_name = $2, postal_code = $3, lat = $4, lng = $5 WHERE id_item = $6`, listing.Street, listing.City, listing.PostalCode, *listing.Lat, *listing.Lng, listingID)
+		if err != nil {
+			return fmt.Errorf("error updating listing details in tx: %v", err)
+		}
+	} 
 
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("error committing item transaction: %v", err)
