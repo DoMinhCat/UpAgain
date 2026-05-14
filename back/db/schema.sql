@@ -253,6 +253,7 @@ create table items
     status      item_status  not null default 'pending', -- workflow status
     state       item_state   not null,                   -- new or needs to be repaired
     is_deleted  boolean      not null default false,
+    refuse_reason text,
     id_user     integer      not null references users(id_account)  on delete restrict
 );
 CREATE INDEX idx_items_status ON items (status);

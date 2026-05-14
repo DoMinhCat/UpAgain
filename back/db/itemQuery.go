@@ -350,7 +350,7 @@ func CheckItemExistByItemId(id int) (bool, error) {
 }
 
 func DeleteItemById(id int) error {
-	_, err := utils.Conn.Exec("UPDATE items SET is_deleted = true WHERE id = $1", id)
+	_, err := utils.Conn.Exec("UPDATE items SET is_deleted = true, refuse_reason = $1 WHERE id = $2", "", id)
 	if err != nil {
 		return fmt.Errorf("DeleteItemById() failed: %v", err)
 	}
@@ -400,7 +400,7 @@ func CheckListingOrDepositByItemId(id int) (bool, error) {
 	return isListing, nil
 }
 
-func UpdateItemStatusById(id int, new_status string) error {
+func UpdateItemStatusById(id int, new_status string, reason string) error {
 	var err error
 	if new_status == "deleted" {
 		err = DeleteItemById(id)
@@ -409,7 +409,7 @@ func UpdateItemStatusById(id int, new_status string) error {
 		}
 		return nil
 	}
-	_, err = utils.Conn.Exec("UPDATE items SET status = $1 WHERE id = $2", new_status, id)
+	_, err = utils.Conn.Exec("UPDATE items SET status = $1, refuse_reason = $2 WHERE id = $3", new_status, reason, id)
 	if err != nil {
 		return fmt.Errorf("UpdateItemStatusById() failed: %v", err)
 	}

@@ -418,7 +418,7 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 // @Router       /admin/items/{item_id}/ [patch]
 func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role == "employee" {
+	if role == "employee" || role == "pro" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -493,7 +493,7 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 
 	oldStatus, _ := db.GetItemStatusByItemId(id_item)
 
-	err = db.UpdateItemStatusById(id_item, payload.Status)
+	err = db.UpdateItemStatusById(id_item, payload.Status, "")
 	if err != nil {
 		slog.Error("UpdateItemStatusById() failed", "controller", "UpdateItemStatusById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item.")
