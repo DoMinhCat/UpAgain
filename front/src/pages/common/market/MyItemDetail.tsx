@@ -41,12 +41,13 @@ import {
   IconCircleCheck,
   IconPackage,
   IconBuildingStore,
+  IconTrash,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
 import { resolveUrl } from "../../../utils/imageUtils";
@@ -63,6 +64,10 @@ import {
 } from "../../../hooks/depositHooks";
 import { useDisclosure } from "@mantine/hooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
+import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
+import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
+import { useDeleteItem } from "../../../hooks/itemHooks";
+import { useTransferDepositContainer } from "../../../hooks/depositHooks";
 import dayjs from "dayjs";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
@@ -259,6 +264,7 @@ function TransactionTable({
 // ── main component ────────────────────────────────────────────────────────────
 
 export default function MyItemDetail() {
+  const navigate = useNavigate();
   const { t } = useTranslation(["marketplace", "home", "common", "admin"]);
   const { user } = useAuth();
   const role = user?.role ?? "user"; // "user" | "pro"
@@ -272,6 +278,37 @@ export default function MyItemDetail() {
 
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
+  const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
+  const [openedTransfer, { open: openTransfer, close: closeTransfer }] =
+    useDisclosure(false);
+
+  const deleteItemMutation = useDeleteItem();
+
+  const handleDelete = () => {
+    deleteItemMutation.mutate(id_item, {
+      onSuccess: () => {
+        closeDelete();
+        navigate(PATHS.MARKETPLACE.ME);
+      },
+    });
+  };
+
+  const transferMutation = useTransferDepositContainer(id_item);
+
+  const handleTransfer = (id_new_container: number) => {
+    transferMutation.mutate(
+      {
+        id_new_container,
+        id_current_container: depositDetails?.container_id || 0,
+      },
+      {
+        onSuccess: () => {
+          closeTransfer();
+        },
+      },
+    );
+  };
 
   // confirmation code input (user → submit 6-digit code to confirm retrieval)
   const [confirmCode, setConfirmCode] = useState("");
@@ -281,10 +318,11 @@ export default function MyItemDetail() {
   const limit = 5;
 
   // ── data ──────────────────────────────────────────────────────────────────
-  const { data: item, isLoading: isLoadingItem } = useGetItemDetails(
-    id_item,
-    isValidId,
-  );
+  const {
+    data: item,
+    isLoading: isLoadingItem,
+    isError: isItemError,
+  } = useGetItemDetails(id_item, isValidId);
   const isListing = item?.category === "listing";
   const isDeposit = item?.category === "deposit";
 
@@ -293,7 +331,10 @@ export default function MyItemDetail() {
   const { data: depositDetails, isLoading: isDepositDetailsLoading } =
     useGetDepositDetails(id_item, isValidId && isDeposit);
   const { data: containerDetails, isLoading: isContainerDetailsLoading } =
-    useContainerDetails(id_item, isValidId && isDeposit);
+    useContainerDetails(
+      depositDetails?.container_id || 0,
+      isValidId && isDeposit && !!depositDetails?.container_id,
+    );
 
   // Only users see transaction history (pro role removed by backend)
   const { data: transactionsData, isLoading: isLoadingTransactions } =
@@ -306,7 +347,7 @@ export default function MyItemDetail() {
   if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading)
     return <FullScreenLoader />;
 
-  if (!item && !isLoadingItem) {
+  if (isItemError && !isContainerDetailsLoading) {
     return <NotFoundPage />;
   }
 
@@ -431,10 +472,9 @@ export default function MyItemDetail() {
               {isDeposit && depositDetails && (
                 <Stack gap={4}>
                   <Text size="sm" c="dimmed">
-                    {t("marketplace:my_item_detail.container_id")}
-                    <strong>#{depositDetails.container_id}</strong>
+                    {t("marketplace:my_item_detail.container_id")} #
+                    {depositDetails.container_id}
                   </Text>
-                  {/* TODO: fetch container city/address from container details endpoint */}
                   <Text size="xs" c="dimmed">
                     {`${containerDetails?.street}, ${containerDetails?.postal_code} ${containerDetails?.city_name}`}
                   </Text>
@@ -518,16 +558,58 @@ export default function MyItemDetail() {
 
   /** USER right panel */
   const UserRightPanel = () => {
+    const showActionButtons = !isPurchased && !isReserved && !isCompleted;
+
+    const ActionButtons = () =>
+      showActionButtons ? (
+        <>
+          <Button
+            variant="secondary"
+            size="lg"
+            fullWidth
+            onClick={openEdit}
+            leftSection={<IconEdit size={18} />}
+          >
+            {t("marketplace:detail.edit")}
+          </Button>
+          {isDeposit && (
+            <Button
+              variant="secondary"
+              size="lg"
+              fullWidth
+              onClick={openTransfer}
+              leftSection={<IconBox size={18} />}
+            >
+              {t("marketplace:detail.transfer_container", {
+                defaultValue: "Transfer container",
+              })}
+            </Button>
+          )}
+          <Button
+            variant="delete"
+            size="lg"
+            fullWidth
+            onClick={openDelete}
+            leftSection={<IconTrash size={18} />}
+          >
+            {t("marketplace:detail.delete")}
+          </Button>
+        </>
+      ) : null;
+
     if (isPending) {
       return (
-        <Alert
-          icon={<IconInfoCircle size={18} />}
-          color="yellow"
-          variant="light"
-          title={t("marketplace:my_item_detail.pending_title")}
-        >
-          {t("marketplace:my_item_detail.pending_info")}
-        </Alert>
+        <Stack gap="md">
+          <Alert
+            icon={<IconInfoCircle size={18} />}
+            color="yellow"
+            variant="light"
+            title={t("marketplace:my_item_detail.pending_title")}
+          >
+            {t("marketplace:my_item_detail.pending_info")}
+          </Alert>
+          <ActionButtons />
+        </Stack>
       );
     }
 
@@ -540,12 +622,10 @@ export default function MyItemDetail() {
             variant="light"
             title={t("marketplace:my_item_detail.refused_title")}
           >
-            {item.refuse_reason ||
+            {item?.refuse_reason ||
               t("marketplace:my_item_detail.no_refuse_reason")}
           </Alert>
-          <Button variant="secondary" size="lg" fullWidth onClick={openEdit}>
-            {t("marketplace:detail.edit")}
-          </Button>
+          <ActionButtons />
         </Stack>
       );
     }
@@ -706,9 +786,7 @@ export default function MyItemDetail() {
     // approved (no transaction)
     return (
       <Stack gap="md">
-        <Button variant="secondary" size="lg" fullWidth onClick={openEdit}>
-          {t("marketplace:detail.edit")}
-        </Button>
+        <ActionButtons />
       </Stack>
     );
   };
@@ -743,24 +821,9 @@ export default function MyItemDetail() {
               </Group>
 
               {/* Photo carousel */}
-              {item?.images && item?.images.length > 0 ? (
+              {item?.images && item?.images.length > 0 && (
                 <Box>
                   <PhotosCarousel photos={item?.images} initialSlide={0} />
-                </Box>
-              ) : (
-                <Box
-                  h={240}
-                  style={{
-                    background: "var(--mantine-color-gray-1)",
-                    borderRadius: "var(--mantine-radius-lg)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text c="dimmed">
-                    {t("marketplace:my_item_detail.no_photos")}
-                  </Text>
                 </Box>
               )}
 
@@ -862,13 +925,11 @@ export default function MyItemDetail() {
                     ) : isDeposit && depositDetails ? (
                       <>
                         <Text size="sm" fw={700}>
-                          {t("marketplace:my_item_detail.container_id")}: #
+                          {t("marketplace:my_item_detail.container_id")} #
                           {depositDetails.container_id}
                         </Text>
                         <Text size="xs" c="dimmed">
-                          {t(
-                            "marketplace:my_item_detail.container_address_todo",
-                          )}
+                          {`${containerDetails?.street}, ${containerDetails?.postal_code} ${containerDetails?.city_name}`}
                         </Text>
                       </>
                     ) : (
@@ -938,10 +999,24 @@ export default function MyItemDetail() {
         <EditItemModal
           opened={openedEdit}
           onClose={closeEdit}
-          item={item}
+          item={item!}
           listingDetails={listingDetails}
         />
       )}
+      <DeleteItemModal
+        opened={openedDelete}
+        onClose={closeDelete}
+        onConfirm={handleDelete}
+        loading={deleteItemMutation.isPending}
+        title={t("marketplace:detail.delete")}
+      />
+      <TransferContainerModal
+        opened={openedTransfer}
+        onClose={closeTransfer}
+        onConfirm={handleTransfer}
+        isLoading={transferMutation.isPending}
+        currentContainerId={depositDetails?.container_id}
+      />
     </Container>
   );
 }
