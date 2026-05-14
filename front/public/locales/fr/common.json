@@ -1,0 +1,67 @@
+{
+  "actions": {
+    "update": "Mettre à jour",
+    "summary": "Résumé",
+    "cancel": "Annuler",
+    "confirm": "Confirmer"
+  },
+  "materials": {
+    "all": "Tous les matériaux",
+    "wood": "Bois",
+    "metal": "Métal",
+    "textile": "Textile",
+    "glass": "Verre",
+    "plastic": "Plastique",
+    "mixed": "Mixte",
+    "other": "Autre"
+  },
+  "states": {
+    "new": "Neuf",
+    "very_good": "Très bon état",
+    "good": "Bon état",
+    "need_repair": "À réparer"
+  },
+  "status": {
+    "all": "Tous les statuts",
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "refused": "Refusé",
+    "reserved": "Réservé",
+    "sold": "Vendu",
+    "to_drop_off": "À déposer",
+    "bought": "Acheté",
+    "to_retrieve": "À récupérer"
+  },
+  "categories": {
+    "all": "Toutes les catégories",
+    "listing": "Annonce",
+    "deposit": "Dépôt"
+  },
+  "units": {
+    "kg": "kg"
+  },
+  "notifications": {
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "free": "Gratuit",
+  "not_set": "Non défini",
+  "sort_by": "Trier par",
+  "type": "Type",
+  "pagination": {
+    "showing": "Affichage de",
+    "of": "sur",
+    "results": "résultats",
+    "items": "objets"
+  },
+  "time": {
+    "just_now": "À l'instant",
+    "minutes_ago_one": "Il y a 1 minute",
+    "minutes_ago_other": "Il y a {{count}} minutes",
+    "hours_ago_one": "Il y a 1 heure",
+    "hours_ago_other": "Il y a {{count}} heures",
+    "yesterday": "Hier",
+    "days_ago_one": "Il y a 1 jour",
+    "days_ago_other": "Il y a {{count}} jours"
+  }
+}
