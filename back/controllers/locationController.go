@@ -38,7 +38,7 @@ func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid latitude")
 		return
 	}
-	if params.Lng > 90 || params.Lng < -90 {
+	if params.Lng > 180 || params.Lng < -180 {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid longitude")
 		return
 	}
