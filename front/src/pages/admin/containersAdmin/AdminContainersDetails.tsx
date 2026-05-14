@@ -38,7 +38,6 @@ import {
   useContainerDetails,
   useUpdateStatus,
   useDeleteContainer,
-  useGetAllContainers,
   useUpdateLocation,
   useGetContainerSchedule,
 } from "../../../hooks/containerHooks";
@@ -77,16 +76,61 @@ export default function AdminContainersDetails() {
   //location
   const [locationCity, setLocationCity] = useState(container?.city_name || "");
   const [locationStreet, setLocationStreet] = useState(container?.street || "");
-  const { data: containersData } = useGetAllContainers();
+  const [locationPostalCode, setLocationPostalCode] = useState(
+    container?.postal_code || "",
+  );
+  const [errorCity, setErrorCity] = useState("");
+  const [errorStreet, setErrorStreet] = useState("");
+  const [errorPostalCode, setErrorPostalCode] = useState("");
+
+  const validateCity = (val: string) => {
+    if (!val) {
+      setErrorCity(t("events.create_modal.errors.city"));
+      return false;
+    }
+    setErrorCity("");
+    return true;
+  };
+
+  const validateStreet = (val: string) => {
+    if (!val) {
+      setErrorStreet(t("events.create_modal.errors.street"));
+      return false;
+    }
+    setErrorStreet("");
+    return true;
+  };
+
+  const validatePostalCode = (val: string) => {
+    if (!val) {
+      setErrorPostalCode(t("containers.create_modal.errors.postal_code"));
+      return false;
+    }
+    if (!/^\d{5}$/.test(val)) {
+      setErrorPostalCode(
+        t("containers.create_modal.errors.postal_code_invalid"),
+      );
+      return false;
+    }
+    setErrorPostalCode("");
+    return true;
+  };
+
   const locationMutation = useUpdateLocation();
 
-  const cityOptions = [
-    ...new Set(containersData?.containers?.map((c) => c.city_name) ?? []),
-  ].map((city) => ({ value: city, label: city }));
+  const handleLocationChange = (
+    city_name: string,
+    street: string,
+    postal_code: string,
+  ) => {
+    const isCityValid = validateCity(city_name);
+    const isStreetValid = validateStreet(street);
+    const isPostalValid = validatePostalCode(postal_code);
 
-  const handleLocationChange = (city_name: string, street: string) => {
+    if (!isCityValid || !isStreetValid || !isPostalValid) return;
+
     locationMutation.mutate(
-      { id: containerId, city_name, street },
+      { id: containerId, city_name, street, postal_code },
       {
         onSuccess: () => {
           closeLocation();
@@ -98,6 +142,10 @@ export default function AdminContainersDetails() {
   const handleOpenLocation = () => {
     setLocationCity(container?.city_name || "");
     setLocationStreet(container?.street || "");
+    setLocationPostalCode(container?.postal_code || "");
+    setErrorCity("");
+    setErrorStreet("");
+    setErrorPostalCode("");
     openLocation();
   };
   //status
@@ -144,7 +192,9 @@ export default function AdminContainersDetails() {
             : origin?.from === "listingDetails"
               ? [
                   {
-                    title: t("common:object_management", { defaultValue: "Object Management" }),
+                    title: t("common:object_management", {
+                      defaultValue: "Object Management",
+                    }),
                     href: PATHS.ADMIN.LISTINGS,
                   },
                   {
@@ -167,7 +217,9 @@ export default function AdminContainersDetails() {
           <ThemeIcon size={80} radius="xl" color={statusColor}>
             <IconBox size={45} />
           </ThemeIcon>
-          <Title order={2}>{t("common:container")} #{container?.id}</Title>
+          <Title order={2}>
+            {t("common:container")} #{container?.id}
+          </Title>
           <Text c="dimmed">
             {container?.street}, {container?.city_name} -{" "}
             {container?.postal_code}
@@ -181,7 +233,9 @@ export default function AdminContainersDetails() {
           <InfoField label={t("containers.details.current_status")}>
             <Group mt="xs" mb="xl">
               <Text fw={700} c={statusColor}>
-                {t(`status.${container?.status}` as any, { defaultValue: container?.status.toUpperCase() })}
+                {t(`status.${container?.status}` as any, {
+                  defaultValue: container?.status.toUpperCase(),
+                })}
               </Text>
               <Button
                 size="compact-xs"
@@ -319,19 +373,40 @@ export default function AdminContainersDetails() {
         centered
       >
         <Stack>
-          <Select
-            withAsterisk
+          <TextInput
             label={t("containers.create_modal.city")}
-            required
-            data={cityOptions}
+            withAsterisk
             value={locationCity}
-            onChange={(val) => val && setLocationCity(val)}
+            onChange={(e) => {
+              setLocationCity(e.target.value);
+              validateCity(e.target.value);
+            }}
+            error={errorCity}
+            onBlur={() => validateCity(locationCity)}
+            required
           />
           <TextInput
             label={t("containers.create_modal.street")}
             withAsterisk
             value={locationStreet}
-            onChange={(e) => setLocationStreet(e.target.value)}
+            onChange={(e) => {
+              setLocationStreet(e.target.value);
+              validateStreet(e.target.value);
+            }}
+            error={errorStreet}
+            onBlur={() => validateStreet(locationStreet)}
+            required
+          />
+          <TextInput
+            label={t("containers.create_modal.postal_code")}
+            withAsterisk
+            value={locationPostalCode}
+            onChange={(e) => {
+              setLocationPostalCode(e.target.value);
+              validatePostalCode(e.target.value);
+            }}
+            error={errorPostalCode}
+            onBlur={() => validatePostalCode(locationPostalCode)}
             required
           />
           <Group justify="flex-end" mt="md">
@@ -339,8 +414,15 @@ export default function AdminContainersDetails() {
               {t("common:actions.cancel")}
             </Button>
             <Button
-              disabled={!locationCity || !locationStreet}
-              onClick={() => handleLocationChange(locationCity, locationStreet)}
+              variant="primary"
+              onClick={() =>
+                handleLocationChange(
+                  locationCity,
+                  locationStreet,
+                  locationPostalCode,
+                )
+              }
+              loading={locationMutation.isPending}
             >
               {t("common:actions.confirm")}
             </Button>
@@ -355,7 +437,10 @@ export default function AdminContainersDetails() {
         centered
       >
         <Text size="sm">
-          {t("containers.delete_modal.text", { id: container?.id, city: container?.city_name })}
+          {t("containers.delete_modal.text", {
+            id: container?.id,
+            city: container?.city_name,
+          })}
         </Text>
         <Group mt="xl" justify="flex-end">
           <Button variant="grey" onClick={closeDelete}>
@@ -373,7 +458,11 @@ export default function AdminContainersDetails() {
 
       <Modal
         size="lg"
-        title={<Text fw={700}>{t("containers.details.schedule_title", { id: container?.id })}</Text>}
+        title={
+          <Text fw={700}>
+            {t("containers.details.schedule_title", { id: container?.id })}
+          </Text>
+        }
         opened={openedCalendar}
         onClose={closeCalendar}
         centered

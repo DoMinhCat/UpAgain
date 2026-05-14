@@ -426,15 +426,43 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid city name.")
 		return
 	}
-
 	if payload.Street == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Street is required.")
 		return
 	}
+	if payload.PostalCode == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Postal code is required.")
+		return
+	}
+	
 
 	oldContainer, _ := db.FindContainerByID(id)
+	hasLocationChange := false
+	if oldContainer.CityName != payload.CityName || oldContainer.Street != payload.Street || oldContainer.PostalCode != payload.PostalCode {
+		hasLocationChange = true
+	}
+	if hasLocationChange {
+		addressToResolve := models.Address{
+			Street:     payload.Street,
+			City:       payload.CityName,
+			PostalCode: payload.PostalCode,
+		}
 
-	if err := db.UpdateLocationContainer(id, payload.CityName, payload.Street); err != nil {
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "UpdateContainerLocation", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to resolve coordinates")
+			return
+		}
+		payload.Lat = &coordinates.Lat
+		payload.Lng = &coordinates.Lng
+	}
+
+	if err := db.UpdateLocationContainer(id, payload); err != nil {
 		slog.Error("UpdateLocationContainer() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return

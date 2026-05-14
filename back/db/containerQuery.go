@@ -172,9 +172,23 @@ func CheckContainerExistById(id int) (bool, error) {
 	return exist, err
 }
 
-func UpdateLocationContainer(id int, cityName string, street string) error {
-	query := `UPDATE containers SET city_name = $1, street = $2 WHERE id = $3`
-	_, err := utils.Conn.Exec(query, cityName, street, id)
+func UpdateLocationContainer(id int, payload models.UpdateLocationRequest) error {
+	var query string
+	if payload.Lat != nil && payload.Lng != nil {
+		query = `
+		UPDATE containers 
+		SET city_name = $1, street = $2, postal_code = $3, lat = $4, lng = $5
+		WHERE id = $6
+		`
+		_, err := utils.Conn.Exec(query, payload.CityName, payload.Street, payload.PostalCode, *payload.Lat, *payload.Lng, id)
+		return err
+	}
+	query = `
+	UPDATE containers 
+	SET city_name = $1, street = $2, postal_code = $3
+	WHERE id = $4
+	`
+	_, err := utils.Conn.Exec(query, payload.CityName, payload.Street, payload.PostalCode, id)
 	return err
 }
 
