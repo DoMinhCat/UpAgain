@@ -272,11 +272,11 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 	}
 
 	query := `
-		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, postal_code, location_detail, created_by, status)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, postal_code, location_detail, lat, lng, created_by, status)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		RETURNING id;
 	`
-	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, creatorId, status).Scan(&eventId)
+	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, event.Lat, event.Lng, creatorId, status).Scan(&eventId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
 	}
