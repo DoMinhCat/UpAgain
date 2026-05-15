@@ -15,6 +15,7 @@ import {
   Button,
 } from "@mantine/core";
 import { useAccountDetails } from "../../hooks/accountHooks.tsx";
+import { useGetUserImpact, useGetUserImpactItems } from "../../hooks/userHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader.tsx";
 import { DashboardCard } from "../../components/dashboard/DashboardCard.tsx";
 import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
@@ -23,6 +24,7 @@ import PaginationFooter from "../../components/common/PaginationFooter.tsx";
 import { UserImpactObjectCard } from "../../components/object/UserImpactObjectCard.tsx";
 import MyBreadcrumbs from "../../components/nav/MyBreadcrumbs.tsx";
 import { useTranslation } from "react-i18next";
+import { resolveUrl } from "../../utils/imageUtils.ts";
 export default function UserScorePage() {
   const location = useLocation();
   const { user } = useAuth();
@@ -37,43 +39,19 @@ export default function UserScorePage() {
   const [activePage, setActivePage] = useState(1);
   const ITEMS_PER_PAGE = 5;
 
-  // BACKEND INTEGRATION:
-  // In a real scenario, you would fetch these from an API like:
-  // const { data: myObjects, isLoading } = useGetMyImpactObjects({ page: activePage, limit: ITEMS_PER_PAGE });
-  // For now, we use mock data to demonstrate the layout.
+  const { data: impactData, isLoading: isLoadingImpact } = useGetUserImpact();
+  const { data: impactItemsData, isLoading: isLoadingItems } =
+    useGetUserImpactItems(activePage, ITEMS_PER_PAGE);
 
-  const MOCK_OBJECTS = [
-    {
-      id: 1,
-      title: "Vintage Oak Coffee Table",
-      image: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88",
-      price: 85,
-      material: "Solid Wood",
-      buyerName: "Julian R.",
-      soldDate: "2026-04-18",
-      impact: { co2: 12.5, water: 450, electricity: 18 },
-    },
-    {
-      id: 2,
-      title: "Retro Velvet Armchair",
-      image: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c",
-      price: 120,
-      material: "Velvet & Metal",
-      buyerName: "Sarah M.",
-      soldDate: "2026-04-15",
-      impact: { co2: 8.2, water: 120, electricity: 5 },
-    },
-    // Add more mock items as needed
-  ];
-
-  const hasObjects = MOCK_OBJECTS.length > 0;
-  const totalPages = 100;
+  const items = impactItemsData?.items ?? [];
+  const hasObjects = items.length > 0;
+  const totalPages = impactItemsData?.last_page ?? 1;
 
   if (role !== "user") {
     navigate(PATHS.HOME);
   }
 
-  if (isLoadingAccountDetails) {
+  if (isLoadingAccountDetails || isLoadingImpact || isLoadingItems) {
     return <FullScreenLoader />;
   }
 
@@ -82,13 +60,13 @@ export default function UserScorePage() {
       <MyBreadcrumbs
         breadcrumbs={[
           {
-            title: t("home.title"),
+            title: t("home:title"),
             href: PATHS.HOME,
           },
           ...(location.state?.from === "profile"
             ? [
                 {
-                  title: t("profile.title"),
+                  title: t("profile:title"),
                   href: PATHS.USER.PROFILE,
                 },
               ]
@@ -124,9 +102,8 @@ export default function UserScorePage() {
           >
             <Stack gap={0} align="center">
               <Text size="32px" fw={900} style={{ lineHeight: 1 }}>
-                {/* {accountDetails?.totalCo2Saved ?? "1,240"} */}{" "}
                 <Text span size="xl" fw={500}>
-                  1240 kg
+                  {impactData?.co2.toFixed(1) ?? "0"} kg
                 </Text>
               </Text>
             </Stack>
@@ -167,8 +144,7 @@ export default function UserScorePage() {
                   Water
                 </Text>
                 <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
-                  {/* {accountDetails?.totalWaterSaved ??  */}
-                  4,500 Liters
+                  {impactData?.water.toFixed(0) ?? "0"} L
                 </Text>
               </Group>
               <Progress
@@ -183,8 +159,7 @@ export default function UserScorePage() {
                   Electricity
                 </Text>
                 <Text size="sm" fw={700} c="var(--upagain-yellow)">
-                  {/* {accountDetails?.totalElectricitySaved ??  */}
-                  820 kWh
+                  {impactData?.electricity.toFixed(1) ?? "0"} kWh
                 </Text>
               </Group>
               <Progress
@@ -219,7 +194,7 @@ export default function UserScorePage() {
         </Title>
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg" w="100%">
           <Button
-            variant="cta"
+            variant="cta-reverse"
             size="lg"
             radius="xl"
             onClick={() => navigate(PATHS.EVENTS.HOME)}
@@ -227,10 +202,10 @@ export default function UserScorePage() {
             Take part in our events
           </Button>
           <Button
-            variant="cta-reverse"
+            variant="cta"
             size="lg"
             radius="xl"
-            onClick={() => navigate(PATHS.MARKETPLACE.HOME)}
+            onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
           >
             Post a new item
           </Button>
@@ -252,16 +227,23 @@ export default function UserScorePage() {
 
         {hasObjects ? (
           <Stack gap="md">
-            {MOCK_OBJECTS.map((obj) => (
+            {items.map((obj) => (
               <UserImpactObjectCard
                 key={obj.id}
                 title={obj.title}
-                image={obj.image}
+                image={
+                  resolveUrl(obj.images?.[0]) ??
+                  "/banners/user-banner1-light.png"
+                }
                 price={obj.price}
                 material={obj.material}
-                buyerName={obj.buyerName}
-                soldDate={obj.soldDate}
-                impact={obj.impact}
+                buyerName={obj.buyer_name}
+                soldDate={obj.sold_date}
+                impact={{
+                  co2: obj.co2,
+                  water: obj.water,
+                  electricity: obj.electricity,
+                }}
               />
             ))}
 
@@ -269,11 +251,11 @@ export default function UserScorePage() {
               <PaginationFooter
                 activePage={activePage}
                 setPage={setActivePage}
-                total_records={MOCK_OBJECTS.length}
+                total_records={impactItemsData?.total_records ?? 0}
                 last_page={totalPages}
                 limit={ITEMS_PER_PAGE}
                 unit="objects"
-                loading={false}
+                loading={isLoadingItems}
                 hidden={false}
               />
             )}
@@ -281,7 +263,7 @@ export default function UserScorePage() {
         ) : (
           <Stack align="center" py={40} gap="xl">
             <Text c="dimmed" ta="center">
-              You haven't posted any objects yet. Every recycled item counts!
+              You haven't sold any objects yet. Every upcycled object counts!
             </Text>
             <Button
               variant="cta"
@@ -290,7 +272,7 @@ export default function UserScorePage() {
               size="lg"
               onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
             >
-              Upcycle your first object
+              Post a new object
             </Button>
           </Stack>
         )}
