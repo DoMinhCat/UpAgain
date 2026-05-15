@@ -274,7 +274,7 @@ export default function MyItemDetail() {
 
   // photo lightbox
   const [lightboxOpened, setLightboxOpened] = useState(false);
-  const [lightboxSlide, setLightboxSlide] = useState(0);
+  const [lightboxSlide] = useState(0);
 
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
