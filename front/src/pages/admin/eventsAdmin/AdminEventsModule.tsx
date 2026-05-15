@@ -9,7 +9,6 @@ import {
   Button,
   Stack,
   Table,
-  Pill,
   Text,
   Badge,
 } from "@mantine/core";

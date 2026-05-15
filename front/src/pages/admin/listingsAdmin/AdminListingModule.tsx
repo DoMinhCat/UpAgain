@@ -12,7 +12,6 @@ import {
   Stack,
   Pill,
   Loader,
-  Modal,
 } from "@mantine/core";
 import { AdminCardInfo } from "../../../components/dashboard/AdminCardInfo";
 import { StatsCardDesc } from "../../../components/dashboard/AdminCardInfo";
