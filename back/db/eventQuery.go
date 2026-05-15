@@ -391,7 +391,19 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest) error {
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec(`UPDATE events SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, postal_code = $10, location_detail = $11 WHERE id = $12`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, eventID)
+	if event.Lat != nil && event.Lng != nil {
+		_, err = tx.Exec(`
+		UPDATE events 
+		SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, postal_code = $10, location_detail = $11, lat = $12, lng = $13 
+		WHERE id = $14
+		`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, *event.Lat, *event.Lng, eventID)
+	} else {
+		_, err = tx.Exec(`
+		UPDATE events 
+		SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, postal_code = $10, location_detail = $11 
+		WHERE id = $12
+		`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, eventID)
+	}
 	if err != nil {
 		return fmt.Errorf("error updating event in tx: %v", err)
 	}

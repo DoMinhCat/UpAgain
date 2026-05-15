@@ -101,6 +101,8 @@ type UpdateEventRequest struct {
 	PostalCode     string      `json:"postal_code"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
 	Images         []string    `json:"images"`
+	Lat            *float64     `json:"lat"`
+	Lng            *float64     `json:"lng"`
 }
 
 type EventRegistrationRequest struct {
