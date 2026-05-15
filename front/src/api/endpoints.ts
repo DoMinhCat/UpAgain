@@ -134,6 +134,8 @@ export const ENDPOINTS = {
       SAVED: "/posts/saved/",
       MY_POSTS: "/posts/me/",
     },
+    IMPACT: "/users/impact/",
+    ITEMS: "/users/items/",
   },
   EVENTS: {
     MY_EVENTS: "/events/me/",
