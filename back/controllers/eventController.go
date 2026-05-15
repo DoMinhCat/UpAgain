@@ -913,7 +913,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 	if hasParticipant {
 		if payload.StartAt.Time != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.PostalCode != oldEvent.PostalCode || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
-			utils.RespondWithError(w, http.StatusConflict, "Event's critical fields cannot be updated because it has participants registered.")
+			utils.RespondWithError(w, http.StatusConflict, "Event's critical fields cannot be updated because event already has participants.")
 			return
 		}
 	}
@@ -927,6 +927,56 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		slog.Error("GetPhotosPathsByObjectId() failed", "controller", "UpdateEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update event.")
 		return
+	}
+
+	hasChanges := false
+	if payload.Title != oldEvent.Title || 
+	payload.Description != oldEvent.Description || 
+	payload.Category != oldEvent.Category || 
+	payload.Capacity.Int64 != oldEvent.Capacity.Int64 || 
+	payload.StartAt.Time != oldEvent.StartAt.Time || 
+	payload.EndAt.Time != oldEvent.EndAt.Time || 
+	payload.Price.Float64 != oldEvent.Price.Float64 || 
+	payload.City != oldEvent.City || 
+	payload.Street != oldEvent.Street || 
+	payload.PostalCode != oldEvent.PostalCode || 
+	payload.LocationDetail.String != oldEvent.LocationDetail.String || 
+	len(keepImages) != len(currentImages) ||
+	newImg != nil {
+		hasChanges = true
+	}
+	if !hasChanges {
+		utils.RespondWithJSON(w, http.StatusNoContent, nil)
+		return
+	}
+
+	hasLocationChanged := false
+	if payload.City != oldEvent.City || 
+	   payload.Street != oldEvent.Street || 
+	   payload.PostalCode != oldEvent.PostalCode || 
+	   payload.LocationDetail.String != oldEvent.LocationDetail.String {
+		hasLocationChanged = true
+	}
+
+	if hasLocationChanged {
+		addressToResolve := models.Address{
+			City: payload.City,
+			Street: payload.Street,
+			PostalCode: payload.PostalCode,
+		}
+		
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address.")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "UpdateEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
+			return
+		}
+		payload.Lat = &coordinates.Lat
+		payload.Lng = &coordinates.Lng
 	}
 
 	// db.UpdateEventByEventId handles the database side; here we only manage physical files + build final list to insert into db
