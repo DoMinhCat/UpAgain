@@ -302,7 +302,7 @@ export default function AdminEventDetails() {
               <Title order={3}>{t("containers.details.location")}</Title>
             </Group>
             <Text mt="md">
-              {eventDetails?.street + " · " + eventDetails?.city}
+              {eventDetails?.street + " · " + eventDetails?.postal_code + " " + eventDetails?.city}
               {eventDetails?.location_detail && <br />}
               {eventDetails?.location_detail}
             </Text>
@@ -370,8 +370,9 @@ export default function AdminEventDetails() {
                   icon={<IconMapPin size={18} />}
                   label={t("containers.details.location")}
                   color="green"
-                  value={`${eventDetails?.street}, ${eventDetails?.city}`}
+                  value={`${eventDetails?.street}, ${eventDetails?.postal_code} ${eventDetails?.city}`}
                 />
+
               </SimpleGrid>
 
               {/* Footer Actions */}

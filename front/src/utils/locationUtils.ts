@@ -1,7 +1,8 @@
 import { showErrorNotification } from "../components/common/NotificationToast";
 import i18n from "i18next";
+import type { Coordinates } from "../api/interfaces/location";
 
-export const getCurrentLocation = () => {
+export const getCurrentLocation = (): Promise<Coordinates | null> => {
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
       showErrorNotification(
@@ -14,7 +15,10 @@ export const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        resolve({ latitude, longitude }); // Success!
+        resolve({
+          latitude: latitude,
+          longitude: longitude,
+        }); // Success!
       },
       (error) => {
         if (error.code === error.PERMISSION_DENIED) {

@@ -26,7 +26,9 @@
       "select_container": "Sélectionner un conteneur",
       "closest": "Trouver le plus proche",
       "view_map": "Voir sur la carte",
-      "map_placeholder": "Vue Carte (La carte interactive sera intégrée ici)"
+      "map_placeholder": "Vue Carte (La carte interactive sera intégrée ici)",
+      "closest_retrieved_title": "Conteneur le plus proche trouvé !",
+      "closest_retrieved_message": "Nous avons sélectionné le Conteneur #{{id}} pour vous."
     },
     "listing": {
       "title": "Remise en main propre",
@@ -35,7 +37,9 @@
       "current_location": "Utiliser ma position actuelle",
       "street": "Rue",
       "city": "Ville",
-      "postal_code": "Code Postal"
+      "postal_code": "Code Postal",
+      "address_retrieved_title": "Est-ce la bonne adresse ?",
+      "address_retrieved_message": "Veuillez vérifier à nouveau, l'adresse récupérée peut être imprécise."
     }
   },
   "submit": "Publier l'annonce",

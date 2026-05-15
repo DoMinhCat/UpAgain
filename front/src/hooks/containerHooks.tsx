@@ -9,13 +9,17 @@ import {
   getContainerCountStats,
   getAvailableContainers,
   getContainerSchedule,
+  getContainerEarliestAvailability,
+  getNearestContainer,
 } from "../api/containerModule";
 import {
   type ContainerCountStats,
   type Container,
   type ContainerSchedule,
+  type ContainerEarliestAvailability,
 } from "../api/interfaces/container";
 import { showSuccessNotification } from "../components/common/NotificationToast";
+import type { Coordinates } from "../api/interfaces/location";
 
 export const useGetAllContainers = (
   page: number = -1,
@@ -99,11 +103,11 @@ export const useDeleteContainer = () => {
     },
   });
 };
-export const useContainerDetails = (id: number) => {
+export const useContainerDetails = (id: number, isValidId?: boolean) => {
   return useQuery<Container>({
     queryKey: ["containerDetails", id],
     queryFn: () => getContainerDetails(id),
-    enabled: !!id,
+    enabled: !!id && (isValidId ?? true),
     meta: {
       errorTitle: "admin:containers.notifications.error_loading_details",
       errorMessage: "admin:containers.notifications.error_loading_details",
@@ -143,11 +147,13 @@ export const useUpdateLocation = () => {
       id,
       city_name,
       street,
+      postal_code,
     }: {
       id: number;
       city_name: string;
       street: string;
-    }) => updateContainerLocation(id, city_name, street),
+      postal_code: string;
+    }) => updateContainerLocation(id, city_name, street, postal_code),
     onSuccess: (_data, variables) => {
       showSuccessNotification(
         "admin:containers.notifications.update_location_success_title",
@@ -175,5 +181,40 @@ export const useGetContainerSchedule = (id: number) => {
       errorMessage: "admin:containers.notifications.error_loading_schedule",
     },
     staleTime: 1000 * 60 * 2, // refresh data every 2m
+  });
+};
+export const useGetContainerEarliestAvailability = (
+  id: number,
+  enabled: boolean = true,
+) => {
+  return useQuery<ContainerEarliestAvailability>({
+    queryKey: ["containerEarliestAvailability", id],
+    queryFn: () => getContainerEarliestAvailability(id),
+    enabled: !!id && enabled,
+    meta: {
+      errorTitle: "marketplace:notifications.fetch_earliest_error",
+      errorMessage: "marketplace:notifications.fetch_earliest_error",
+    },
+    staleTime: 1000 * 60 * 2, // refresh data every 2m
+  });
+};
+
+export const useGetNearestContainer = (
+  coordinates: Coordinates | null,
+  enabled: boolean = false,
+) => {
+  return useQuery<Container>({
+    queryKey: [
+      "nearestContainer",
+      coordinates?.latitude,
+      coordinates?.longitude,
+    ],
+    queryFn: () => getNearestContainer(coordinates!),
+    enabled: !!coordinates?.latitude && !!coordinates?.longitude && enabled,
+    meta: {
+      errorTitle: "marketplace:notifications.fetch_nearest_error",
+      errorMessage: "marketplace:notifications.fetch_nearest_error",
+    },
+    staleTime: 1000 * 60 * 5, // refresh data every 5m
   });
 };

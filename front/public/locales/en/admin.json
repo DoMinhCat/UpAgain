@@ -450,7 +450,11 @@
       "city": "City Name",
       "zip": "Postal Code",
       "postal_code": "Postal Code",
-      "submit": "Deploy"
+      "submit": "Deploy",
+      "errors": {
+        "postal_code": "Postal code is required",
+        "postal_code_invalid": "Postal code must be 5 digits"
+      }
     },
     "delete_modal": {
       "title": "Confirm Archiving",
@@ -550,6 +554,7 @@
       "no_access_code": "No access code generated for this deposit yet.",
       "owner": "Owner's Code",
       "buyer": "Buyer's Code",
+      "buyer_username": "Buyer",
       "six_digits_code": "6-DIGITS CODE",
       "valid_from": "Valid from: ",
       "valid_to": "Valid to: ",
@@ -759,6 +764,8 @@
       "street_placeholder": "21 Erard street",
       "city_label": "City",
       "city_placeholder": "Paris",
+      "postal_code_label": "Postal Code",
+      "postal_code_placeholder": "75001",
       "location_detail_label": "Additional location details",
       "location_detail_placeholder": "Room 12, 2nd floor",
       "start_date_label": "Start date",
@@ -775,6 +782,7 @@
         "price": "Price must be greater than or equal to 0",
         "street": "Street is required",
         "city": "City is required",
+        "postal_code": "Postal code is required",
         "category": "Category is required",
         "description": "A description is required",
         "start_date": "Start date is required",

@@ -4,10 +4,13 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // GetAllContainersHandler godoc
@@ -309,6 +312,34 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Street is required")
 		return
 	}
+	if c.CityName == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "City is required")
+		return
+	}
+	if c.PostalCode == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Postal code is required")
+		return
+	}
+
+	// resolve lat/lng
+	var addressToResolve = models.Address{
+		Street:     c.Street,
+		City:       c.CityName,
+		PostalCode: c.PostalCode,
+	}
+
+	coordinates, err := geocode.AddressToCoor(addressToResolve)
+	if err != nil {
+		if err.Error() == "ZERO_RESULTS" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+			return
+		}
+		slog.Error("AddressToCoor() failed", "controller", "CreateContainerHandler", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to resolve coordinates")
+		return
+	}
+	c.Lat = coordinates.Lat
+	c.Lng = coordinates.Lng
 
 	id, err := db.InsertContainer(c)
 	if err != nil {
@@ -325,9 +356,7 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c.ID = id
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(c)
+	utils.RespondWithJSON(w, http.StatusCreated, c)
 }
 
 // GetAvailableContainers godoc
@@ -397,15 +426,43 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid city name.")
 		return
 	}
-
 	if payload.Street == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Street is required.")
 		return
 	}
+	if payload.PostalCode == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Postal code is required.")
+		return
+	}
+	
 
 	oldContainer, _ := db.FindContainerByID(id)
+	hasLocationChange := false
+	if oldContainer.CityName != payload.CityName || oldContainer.Street != payload.Street || oldContainer.PostalCode != payload.PostalCode {
+		hasLocationChange = true
+	}
+	if hasLocationChange {
+		addressToResolve := models.Address{
+			Street:     payload.Street,
+			City:       payload.CityName,
+			PostalCode: payload.PostalCode,
+		}
 
-	if err := db.UpdateLocationContainer(id, payload.CityName, payload.Street); err != nil {
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "UpdateContainerLocation", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to resolve coordinates")
+			return
+		}
+		payload.Lat = &coordinates.Lat
+		payload.Lng = &coordinates.Lng
+	}
+
+	if err := db.UpdateLocationContainer(id, payload); err != nil {
 		slog.Error("UpdateLocationContainer() failed", "controller", "UpdateContainerLocation", "id", id, "error", err)
 		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
@@ -457,4 +514,121 @@ func GetContainerSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, deposits)
+}
+
+// GetContainerEarliestAvailability godoc
+// @Summary      Get earliest availability for a container
+// @Description  Calculates the earliest date and time the container will be available by looking at planned schedules (user and pro barcode ranges).
+// @Tags         container
+// @Produce      json
+// @Param        id   path      int  true  "Container ID"
+// @Success      200  {object}  map[string]time.Time "Earliest availability"
+// @Failure      400  {object}  nil  "Invalid ID"
+// @Failure      404  {object}  nil  "Container not found"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /containers/{id}/earliest/ [get]
+func GetContainerEarliestAvailability(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	exist, err := db.CheckContainerExistById(id)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "GetContainerEarliestAvailability", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container not found")
+		return
+	}
+
+	// get list of items and their dates planned for a container (bar code valid date range)
+	schedule, err := db.GetContainerScheduleByContainerId(id)
+	if err != nil {
+		slog.Error("GetContainerScheduleByContainerId() failed", "controller", "GetContainerEarliestAvailability", "id", id, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container schedule.")
+		return
+	}
+
+	// Loop through UserRange and ProRange to find the latest occupied date 
+	// and return the next earliest date (start date of next available slot after latest occupied date)
+	earliest := time.Now()
+
+	for _, item := range schedule.UserRange {
+		if item.ValidTo.After(earliest) {
+			earliest = item.ValidTo
+		}
+	}
+
+	for _, item := range schedule.ProRange {
+		if item.ValidTo.After(earliest) {
+			earliest = item.ValidTo
+		}
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]time.Time{
+		"earliest_availability": earliest,
+	})
+}
+
+func GetNearestAvailableContainer(w http.ResponseWriter, r *http.Request) {
+	// get params: lat, lng from query
+	query := r.URL.Query()
+	latStr := query.Get("lat")
+	lngStr := query.Get("lng")
+
+	// validate
+	if latStr == "" || lngStr == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing latitude or longitude")
+		return
+	}
+
+	// convert to float
+	var params models.Coordinates
+	_, err := fmt.Sscanf(latStr, "%f", &params.Lat)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid latitude format")
+		return
+	}
+	_, err = fmt.Sscanf(lngStr, "%f", &params.Lng)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid longitude format")
+		return
+	}
+
+	if params.Lat > 90 || params.Lat < -90 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid latitude")
+		return
+	}
+	if params.Lng > 180 || params.Lng < -180 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid longitude")
+		return
+	}
+	
+	// get all available containers and sort them by distance from the user's location (the closer the better)
+	containers, err := db.GetAvailableContainers()
+	if err != nil {
+		slog.Error("GetAvailableContainers() failed", "controller", "GetNearestAvailableContainer", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching available containers.")
+		return
+	}
+
+	containersCoords := make([]models.Coordinates, len(containers))
+	for i, c := range containers {
+		containersCoords[i] = models.Coordinates{
+			Lat: c.Lat,
+			Lng: c.Lng,
+		}
+	}
+	closestIndex := geocode.GetClosestCoordinate(params, containersCoords)
+	if closestIndex == -1 {
+		utils.RespondWithError(w, http.StatusNotFound, "No available containers found.")
+		return
+	}
+	closestContainer := containers[closestIndex]
+
+	utils.RespondWithJSON(w, http.StatusOK, closestContainer)
 }

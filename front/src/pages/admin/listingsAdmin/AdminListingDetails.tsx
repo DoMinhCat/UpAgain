@@ -76,6 +76,7 @@ import type { Transaction } from "../../../api/interfaces/transaction";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
+import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 
 export default function AdminListingDetails() {
   const { t } = useTranslation(["admin", "create_item", "common"]);
@@ -110,6 +111,8 @@ export default function AdminListingDetails() {
   const updateItemStatus = useUpdateItemStatus(id_item);
   const processMutation = useProcessValidation();
   const [openedRefuse, { open: openRefuse, close: closeRefuse }] =
+    useDisclosure(false);
+  const [openedDeleteModal, { open: openDeleteModal, close: closeDeleteModal }] =
     useDisclosure(false);
 
   const handleConfirmRefuse = (reason: string) => {
@@ -760,7 +763,13 @@ export default function AdminListingDetails() {
                             ? "primary"
                             : "delete"
                         }
-                        onClick={openUpdateStatusModal}
+                        onClick={
+                          ["pending", "refused"].includes(
+                            itemDetails?.status ?? "",
+                          )
+                            ? openUpdateStatusModal
+                            : openDeleteModal
+                        }
                         disabled={
                           itemDetails?.status !== "refused" &&
                           itemDetails?.status !== "pending" &&
@@ -830,7 +839,7 @@ export default function AdminListingDetails() {
           header={[
             t("validations.table.executed_on"),
             t("history.table.transaction_id"),
-            t("listings.details.buyer"),
+            t("listings.details.buyer_username"),
             t("users.details.fields.status"),
             t("common:actions.title", { defaultValue: "Actions" }),
           ]}
@@ -958,6 +967,17 @@ export default function AdminListingDetails() {
           </Button>
         </Group>
       </Modal>
+
+      <DeleteItemModal
+        opened={openedDeleteModal}
+        onClose={closeDeleteModal}
+        onConfirm={() => {
+          handleUpdateItemStatus("deleted");
+          closeDeleteModal();
+        }}
+        loading={updateItemStatus.isPending}
+        title={t("listings.details.status_modal.delete")}
+      />
 
       <Modal
         opened={openedCancelModal}

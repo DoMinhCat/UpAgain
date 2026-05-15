@@ -3,7 +3,8 @@
     "update": "Mettre à jour",
     "summary": "Résumé",
     "cancel": "Annuler",
-    "confirm": "Confirmer"
+    "confirm": "Confirmer",
+    "search": "Rechercher"
   },
   "materials": {
     "all": "Tous les matériaux",
@@ -52,7 +53,8 @@
     "showing": "Affichage de",
     "of": "sur",
     "results": "résultats",
-    "items": "objets"
+    "items": "objets",
+    "transactions": "transactions"
   },
   "time": {
     "just_now": "À l'instant",

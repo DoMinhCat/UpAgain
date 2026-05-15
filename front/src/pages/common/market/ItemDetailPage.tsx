@@ -24,6 +24,7 @@ import {
   IconInfoCircle,
   IconLeaf,
   IconTrash,
+  IconEdit,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
@@ -38,15 +39,19 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import DOMPurify from "dompurify";
 import { useGetListingDetails } from "../../../hooks/listingHooks";
-import { useGetDepositDetails } from "../../../hooks/depositHooks";
+import {
+  useGetDepositDetails,
+  useTransferDepositContainer,
+} from "../../../hooks/depositHooks";
 import { showInfoNotification } from "../../../components/common/NotificationToast";
 import { NotFoundPage } from "../../error/404";
 import { useDisclosure } from "@mantine/hooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
+import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 import { useNavigate } from "react-router-dom";
-import { Modal } from "@mantine/core";
-import { useTransferDepositContainer } from "../../../hooks/depositHooks";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
+import dayjs from "dayjs";
+import { useGetContainerEarliestAvailability } from "../../../hooks/containerHooks";
 
 export default function ItemDetailPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
@@ -77,6 +82,11 @@ export default function ItemDetailPage() {
   const { data: depositDetails, isLoading: isDepositDetailsLoading } =
     useGetDepositDetails(id_item, isValidId && isDeposit);
 
+  const { data: earliestAvailability } = useGetContainerEarliestAvailability(
+    depositDetails?.container_id || 0,
+    isValidId && isDeposit && !!depositDetails?.container_id,
+  );
+
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
   const [openedDelete, { open: openDelete, close: closeDelete }] =
@@ -104,6 +114,7 @@ export default function ItemDetailPage() {
   const handleDelete = () => {
     deleteItemMutation.mutate(id_item, {
       onSuccess: () => {
+        closeDelete();
         navigate(PATHS.MARKETPLACE.HOME);
       },
     });
@@ -514,6 +525,23 @@ export default function ItemDetailPage() {
                           ? t("marketplace:detail.retrieval.listing")
                           : t("marketplace:detail.retrieval.deposit")}
                       </Text>
+                      {isDeposit && earliestAvailability && (
+                        <Text
+                          size="xs"
+                          c="var(--upagain-neutral-green)"
+                          fw={700}
+                          mt={4}
+                        >
+                          {t("marketplace:my_item_detail.earliest_retrieval")}:{" "}
+                          {dayjs(
+                            earliestAvailability.earliest_availability,
+                          ).format("DD/MM/YYYY")}{" "}
+                          -{" "}
+                          {dayjs(earliestAvailability.earliest_availability)
+                            .add(5, "day")
+                            .format("DD/MM/YYYY")}
+                        </Text>
+                      )}
                     </Stack>
 
                     <Stack gap="sm">
@@ -573,6 +601,7 @@ export default function ItemDetailPage() {
                             fullWidth
                             color="var(--upagain-neutral-green)"
                             onClick={openEdit}
+                            leftSection={<IconEdit size={18} />}
                           >
                             {t("marketplace:detail.edit")}
                           </Button>
@@ -583,6 +612,7 @@ export default function ItemDetailPage() {
                               fullWidth
                               color="var(--upagain-neutral-green)"
                               onClick={openTransfer}
+                              leftSection={<IconBox size={18} />}
                             >
                               {t("marketplace:detail.transfer_container", {
                                 defaultValue: "Transfer container",
@@ -595,7 +625,7 @@ export default function ItemDetailPage() {
                             variant="delete"
                             fullWidth
                             color="var(--upagain-neutral-green)"
-                            rightSection={<IconTrash size={18} />}
+                            leftSection={<IconTrash size={18} />}
                             onClick={openDelete}
                           >
                             {t("marketplace:detail.delete")}
@@ -636,35 +666,15 @@ export default function ItemDetailPage() {
         />
       )}
 
-      <Modal
+      <DeleteItemModal
         opened={openedDelete}
         onClose={closeDelete}
+        onConfirm={handleDelete}
+        loading={deleteItemMutation.isPending}
         title={t("marketplace:detail.delete_confirm_title", {
           defaultValue: "Confirm Delete",
         })}
-        centered
-      >
-        <Stack>
-          <Text>
-            {t("marketplace:detail.delete_confirm_msg", {
-              defaultValue:
-                "Are you sure you want to delete this item? This action is irreversible.",
-            })}
-          </Text>
-          <Group justify="center" mt="md">
-            <Button variant="grey" onClick={closeDelete}>
-              {t("common:actions.cancel")}
-            </Button>
-            <Button
-              variant="delete"
-              onClick={handleDelete}
-              loading={deleteItemMutation.isPending}
-            >
-              {t("common:actions.confirm")}
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+      />
 
       <TransferContainerModal
         opened={openedTransfer}

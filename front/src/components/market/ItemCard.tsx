@@ -20,9 +20,10 @@ import { getTimeAgo } from "../../utils/timeUtils";
 
 interface ItemCardProps {
   item: Item;
+  isMyItem?: boolean;
 }
 
-export default function ItemCard({ item }: ItemCardProps) {
+export default function ItemCard({ item, isMyItem = false }: ItemCardProps) {
   const navigate = useNavigate();
   const theme = useComputedColorScheme("light");
   const { t } = useTranslation(["common", "marketplace"]);
@@ -50,9 +51,14 @@ export default function ItemCard({ item }: ItemCardProps) {
         e.currentTarget.style.boxShadow = "var(--mantine-shadow-sm)";
       }}
       onClick={() =>
-        navigate(`${PATHS.MARKETPLACE.HOME}/${item.id}`, {
-          state: { from: "marketplace" },
-        })
+        navigate(
+          isMyItem
+            ? `${PATHS.MARKETPLACE.ME}/${item.id}`
+            : `${PATHS.MARKETPLACE.HOME}/${item.id}`,
+          {
+            state: { from: isMyItem ? "myItems" : "marketplace" },
+          },
+        )
       }
     >
       <Card.Section>
