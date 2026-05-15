@@ -24,6 +24,7 @@ import {
   validateEventDate,
   validateEventCategory,
   validateEventDescription,
+  validateEventPostalCode,
 } from "../../utils/validations/eventValidation";
 
 interface CreateEventModalProps {
@@ -38,6 +39,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
   const [price, setPrice] = useState<number>(0);
   const [street, setStreet] = useState<string>("");
   const [city, setCity] = useState<string>("");
+  const [postalCode, setPostalCode] = useState<string>("");
   const [locationDetail, setLocationDetail] = useState<string>("");
   const [date, setDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
@@ -49,6 +51,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
   const [errorPrice, setErrorPrice] = useState<string>("");
   const [errorStreet, setErrorStreet] = useState<string>("");
   const [errorCity, setErrorCity] = useState<string>("");
+  const [errorPostalCode, setErrorPostalCode] = useState<string>("");
   const [errorDate, setErrorDate] = useState<string>("");
   const [errorEndDate, setErrorEndDate] = useState<string>("");
   const [errorCategory, setErrorCategory] = useState<string>("");
@@ -62,6 +65,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
     setPrice(0);
     setStreet("");
     setCity("");
+    setPostalCode("");
     setLocationDetail("");
     setDate(null);
     setEndDate(null);
@@ -72,6 +76,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
     setErrorPrice("");
     setErrorStreet("");
     setErrorCity("");
+    setErrorPostalCode("");
     setErrorDate("");
     setErrorEndDate("");
     setErrorCategory("");
@@ -120,6 +125,20 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
     setErrorCity("");
     return true;
   };
+  const handleValidatePostalCode = () => {
+    if (!validateEventPostalCode(postalCode)) {
+      setErrorPostalCode(t("events.create_modal.errors.postal_code"));
+      return false;
+    }
+    if (!/^\d{5}$/.test(postalCode)) {
+      setErrorPostalCode(
+        t("containers.create_modal.errors.postal_code_invalid"),
+      );
+      return false;
+    }
+    setErrorPostalCode("");
+    return true;
+  };
   const handleValidateCategory = () => {
     if (!validateEventCategory(category)) {
       setErrorCategory(t("events.create_modal.errors.category"));
@@ -160,6 +179,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
     const isPriceValid = handleValidatePrice();
     const isStreetValid = handleValidateStreet();
     const isCityValid = handleValidateCity();
+    const isPostalCodeValid = handleValidatePostalCode();
     const isStartDateValid = handleValidateStartDate();
     const isEndDateValid = handleValidateEndDate();
     const isCategoryValid = handleValidateCategory();
@@ -171,6 +191,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
       !isPriceValid ||
       !isStreetValid ||
       !isCityValid ||
+      !isPostalCodeValid ||
       !isStartDateValid ||
       !isEndDateValid ||
       !isCategoryValid ||
@@ -189,6 +210,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
         price,
         street,
         city,
+        postal_code: postalCode,
         location_detail: locationDetail,
         start_at: date ? dayjs(date).toISOString() : "",
         end_at: endDate ? dayjs(endDate).toISOString() : "",
@@ -256,7 +278,7 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
           required
         />
         <Grid>
-          <Grid.Col span={{ base: 12, md: 9 }}>
+          <Grid.Col span={{ base: 12, md: 7 }}>
             <TextInput
               withAsterisk
               label={t("events.create_modal.street_label")}
@@ -268,6 +290,21 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
               }}
               onBlur={handleValidateStreet}
               error={errorStreet}
+              required
+            />
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, md: 2 }}>
+            <TextInput
+              withAsterisk
+              label={t("events.create_modal.postal_code_label")}
+              disabled={createEventMutation.isPending}
+              value={postalCode}
+              placeholder={t("events.create_modal.postal_code_placeholder")}
+              onChange={(e) => {
+                setPostalCode(e.target.value);
+              }}
+              onBlur={handleValidatePostalCode}
+              error={errorPostalCode}
               required
             />
           </Grid.Col>

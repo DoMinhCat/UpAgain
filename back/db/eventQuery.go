@@ -187,7 +187,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	}
 
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, 
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.postal_code, e.location_detail, 
 		a.username, a.avatar, a.id,
 		(SELECT count(*) FROM event_registrations er WHERE er.id_event=e.id) as registered
 		FROM events e 
@@ -223,6 +223,7 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 			&event.Status,
 			&event.City,
 			&event.Street,
+			&event.PostalCode,
 			&event.LocationDetail,
 			&event.EmployeeName,
 			&event.EmployeeAvatar,
@@ -271,11 +272,11 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 	}
 
 	query := `
-		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail, created_by, status)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, postal_code, location_detail, lat, lng, created_by, status)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		RETURNING id;
 	`
-	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId, status).Scan(&eventId)
+	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, event.Lat, event.Lng, creatorId, status).Scan(&eventId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
 	}
@@ -285,7 +286,7 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 func GetEventDetailsById(id_event int) (models.Event, error) {
 	var event models.Event
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail,
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.postal_code, e.location_detail,
 		a.username, a.avatar, a.id
 		FROM events e 
 		JOIN accounts a ON e.created_by=a.id 
@@ -304,6 +305,7 @@ func GetEventDetailsById(id_event int) (models.Event, error) {
 		&event.Status,
 		&event.City,
 		&event.Street,
+		&event.PostalCode,
 		&event.LocationDetail,
 		&event.EmployeeName,
 		&event.EmployeeAvatar,
@@ -389,7 +391,19 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest) error {
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec(`UPDATE events SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, location_detail = $10 WHERE id = $11`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, eventID)
+	if event.Lat != nil && event.Lng != nil {
+		_, err = tx.Exec(`
+		UPDATE events 
+		SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, postal_code = $10, location_detail = $11, lat = $12, lng = $13 
+		WHERE id = $14
+		`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, *event.Lat, *event.Lng, eventID)
+	} else {
+		_, err = tx.Exec(`
+		UPDATE events 
+		SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, postal_code = $10, location_detail = $11 
+		WHERE id = $12
+		`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, eventID)
+	}
 	if err != nil {
 		return fmt.Errorf("error updating event in tx: %v", err)
 	}

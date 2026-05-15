@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
 	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
@@ -256,6 +257,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	event.Category = r.FormValue("category")
 	event.City = r.FormValue("city")
 	event.Street = r.FormValue("street")
+	event.PostalCode = r.FormValue("postal_code")
 	event.Status = r.FormValue("status")
 
 	if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
@@ -291,6 +293,24 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	addressToResolve := models.Address{
+		City:       event.City,
+		Street:     event.Street,
+		PostalCode: event.PostalCode,
+	}
+
+	coords, err := geocode.AddressToCoor(addressToResolve)
+	if err != nil {
+		if err.Error() == "ZERO_RESULTS" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid address.")
+			return
+		}
+		slog.Error("AddressToCoor() failed", "controller", "CreateEvent", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while resolving the address.")
+		return
+	}
+	event.Lat = coords.Lat
+	event.Lng = coords.Lng
 	eventId, err := db.CreateEvent(event, r.Context().Value("user").(models.AuthClaims).Id, role)
 	if err != nil {
 		slog.Error("CreateEvent() failed", "controller", "CreateEvent", "error", err)
@@ -868,6 +888,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	payload.Category = r.FormValue("category")
 	payload.City = r.FormValue("city")
 	payload.Street = r.FormValue("street")
+	payload.PostalCode = r.FormValue("postal_code")
 
 	if capacity, err := strconv.Atoi(r.FormValue("capacity")); err == nil {
 		payload.Capacity.SetValid(int64(capacity))
@@ -891,8 +912,8 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if hasParticipant {
-		if payload.StartAt.Time != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
-			utils.RespondWithError(w, http.StatusConflict, "Event's critical fields cannot be updated because it has participants registered.")
+		if payload.StartAt.Time != oldEvent.StartAt.Time || payload.City != oldEvent.City || payload.Street != oldEvent.Street || payload.PostalCode != oldEvent.PostalCode || payload.LocationDetail.String != oldEvent.LocationDetail.String || payload.Price.Float64 != oldEvent.Price.Float64 {
+			utils.RespondWithError(w, http.StatusConflict, "Event's critical fields cannot be updated because event already has participants.")
 			return
 		}
 	}
@@ -906,6 +927,56 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		slog.Error("GetPhotosPathsByObjectId() failed", "controller", "UpdateEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update event.")
 		return
+	}
+
+	hasChanges := false
+	if payload.Title != oldEvent.Title || 
+	payload.Description != oldEvent.Description || 
+	payload.Category != oldEvent.Category || 
+	payload.Capacity.Int64 != oldEvent.Capacity.Int64 || 
+	payload.StartAt.Time != oldEvent.StartAt.Time || 
+	payload.EndAt.Time != oldEvent.EndAt.Time || 
+	payload.Price.Float64 != oldEvent.Price.Float64 || 
+	payload.City != oldEvent.City || 
+	payload.Street != oldEvent.Street || 
+	payload.PostalCode != oldEvent.PostalCode || 
+	payload.LocationDetail.String != oldEvent.LocationDetail.String || 
+	len(keepImages) != len(currentImages) ||
+	newImg != nil {
+		hasChanges = true
+	}
+	if !hasChanges {
+		utils.RespondWithJSON(w, http.StatusNoContent, nil)
+		return
+	}
+
+	hasLocationChanged := false
+	if payload.City != oldEvent.City || 
+	   payload.Street != oldEvent.Street || 
+	   payload.PostalCode != oldEvent.PostalCode || 
+	   payload.LocationDetail.String != oldEvent.LocationDetail.String {
+		hasLocationChanged = true
+	}
+
+	if hasLocationChanged {
+		addressToResolve := models.Address{
+			City: payload.City,
+			Street: payload.Street,
+			PostalCode: payload.PostalCode,
+		}
+		
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address.")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "UpdateEventByEventId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
+			return
+		}
+		payload.Lat = &coordinates.Lat
+		payload.Lng = &coordinates.Lng
 	}
 
 	// db.UpdateEventByEventId handles the database side; here we only manage physical files + build final list to insert into db

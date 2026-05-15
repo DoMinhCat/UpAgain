@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
@@ -282,6 +283,32 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hasLocationChange := false
+	if listingFullDetails.Street != payload.Street ||
+		listingFullDetails.City != payload.City ||
+		listingFullDetails.PostalCode != payload.PostalCode {
+		hasLocationChange = true
+	}
+	if hasLocationChange {
+		addressToResolve := models.Address{
+			Street:     payload.Street,
+			PostalCode: payload.PostalCode,
+			City:       payload.City,
+		}
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "UpdateListing", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
+			return
+		}
+		payload.Lat = &coordinates.Lat
+		payload.Lng = &coordinates.Lng
+	}
+
 	finalPhotos, delErrs, err := helpers.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateListing", "error", delErr)
@@ -299,7 +326,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	}
 	// if is user then require validation from admin again
 	if needValidation {
-		err = db.UpdateItemStatusById(id, "pending")
+		err = db.UpdateItemStatusById(id, "pending", "")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateListing", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")

@@ -15,6 +15,7 @@ export interface Item {
   images?: string[];
   street?: string;
   score: number;
+  refuse_reason?: string;
 }
 
 export interface ItemsListPagination {

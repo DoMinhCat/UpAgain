@@ -1,6 +1,6 @@
 export interface Coordinates {
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface Address {

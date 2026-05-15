@@ -97,11 +97,16 @@ create table events
     status       event_status   not null default 'pending', -- cancelled = deleted
     city         varchar(255)   not null,
     street       varchar(255)   not null,
+    postal_code  varchar(10)   not null,
     location_detail varchar(255),
     created_by   integer references accounts(id) on delete restrict,
-    -- TODO: add lat and lng returned by geocoding
-    -- lat NUMERIC(10, 8), 
-    -- lng NUMERIC(11, 8)
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 CREATE INDEX idx_events_status ON events (status);
 CREATE INDEX idx_events_category ON events (category);
@@ -253,6 +258,7 @@ create table items
     status      item_status  not null default 'pending', -- workflow status
     state       item_state   not null,                   -- new or needs to be repaired
     is_deleted  boolean      not null default false,
+    refuse_reason text,
     id_user     integer      not null references users(id_account)  on delete restrict
 );
 CREATE INDEX idx_items_status ON items (status);
@@ -264,7 +270,14 @@ create table listings
     id_item     integer primary key references items (id) on delete cascade,
     street      text             not null,
     city_name   varchar(255) not null,
-    postal_code varchar(10)  not null
+    postal_code varchar(10)  not null,
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+    
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 
 CREATE TYPE container_status AS ENUM ('ready', 'waiting', 'occupied', 'maintenance');
@@ -276,7 +289,14 @@ create table containers
     postal_code varchar(10)      not null,
     street      text             not null,
     status      container_status not null default 'ready',
-    is_deleted  boolean          not null default false
+    is_deleted  boolean          not null default false,
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 CREATE INDEX idx_containers_status ON containers (status);
 CREATE INDEX idx_containers_postal_code ON containers (postal_code);

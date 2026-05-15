@@ -8,6 +8,8 @@ type Container struct {
 	CityName            string    `json:"city_name"`
 	PostalCode          string    `json:"postal_code"`
 	Street              string    `json:"street"`
+	Lat                 float64   `json:"lat"`
+	Lng                 float64   `json:"lng"`
 	Status              string    `json:"status"`
 	IsDeleted           bool      `json:"is_deleted"`
 	CurrentDepositId    int       `json:"current_deposit_id"`
@@ -24,8 +26,11 @@ type UpdateStatusRequest struct {
 }
 
 type UpdateLocationRequest struct {
-	CityName string `json:"city_name"`
-	Street   string `json:"street"`
+	PostalCode string   `json:"postal_code"`
+	CityName   string   `json:"city_name"`
+	Street     string   `json:"street"`
+	Lat        *float64 `json:"lat"`
+	Lng        *float64 `json:"lng"`
 }
 
 type ContainerFilters struct {

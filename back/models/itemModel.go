@@ -28,9 +28,10 @@ type Item struct {
 	Material        string    `json:"material"`
 	Price           float64   `json:"price"`
 	Status          string    `json:"status"`
+	RefuseReason    null.String `json:"refuse_reason"`
 	Photos          []string  `json:"images"`
-	Street      string    `json:"street"`
-	Score       int       `json:"score"`
+	Street          string    `json:"street"`
+	Score           int       `json:"score"`
 }
 
 type ItemCreateRequest struct {

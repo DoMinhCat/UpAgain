@@ -11,7 +11,7 @@ import (
 
 // GetItemTransactions godoc
 // @Summary      Get transactions for an item
-// @Description  Get paginated transactions for a specific item (admin/pro/user owner)
+// @Description  Get paginated transactions for a specific item (admin/user)
 // @Tags         transaction
 // @Produce      json
 // @Param        item_id  path      int     true   "Item ID"

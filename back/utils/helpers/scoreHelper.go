@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"backend/db"
 	"fmt"
 	"slices"
 )
@@ -39,11 +38,13 @@ const (
 	MIXED_ENERGY   float64 = 5
 )
 
+var Materials = []string{"wood", "metal", "textile", "glass", "plastic", "mixed", "other"}
+
 func CalculateCO2(material string, weight float64) (float64, error) {
 	if weight < 0 {
 		return 0, fmt.Errorf("weight must be positive")
 	}
-	if !slices.Contains(db.MATERIALS, material) {
+	if !slices.Contains(Materials, material) {
 		return 0, fmt.Errorf("invalid material")
 	}
 	switch material {
@@ -68,7 +69,7 @@ func CalculateWaterSaved(material string, weight float64) (float64, error) {
 	if weight < 0 {
 		return 0, fmt.Errorf("weight must be positive")
 	}
-	if !slices.Contains(db.MATERIALS, material) {
+	if !slices.Contains(Materials, material) {
 		return 0, fmt.Errorf("invalid material")
 	}
 	switch material {
@@ -93,7 +94,7 @@ func CalculateElectricitySaved(material string, weight float64) (float64, error)
 	if weight < 0 {
 		return 0, fmt.Errorf("weight must be positive")
 	}
-	if !slices.Contains(db.MATERIALS, material) {
+	if !slices.Contains(Materials, material) {
 		return 0, fmt.Errorf("invalid material")
 	}
 	switch material {

@@ -32,11 +32,15 @@ type UpdateListingRequest struct {
 	City        string   `json:"city"`
 	PostalCode  string   `json:"postal_code"`
 	Photos      []string `json:"photos"`
+	Lat         *float64 `json:"lat"`
+	Lng         *float64 `json:"lng"`
 }
 
 type CreateListingRequest struct {
-	IdItem      int    `json:"id_item"`
-	Street      string `json:"street"`
-	CityName    string `json:"city_name"`
-	PostalCode  string `json:"postal_code"`
+	IdItem     int     `json:"id_item"`
+	Street     string  `json:"street"`
+	CityName   string  `json:"city_name"`
+	PostalCode string  `json:"postal_code"`
+	Lat        float64 `json:"lat"`
+	Lng        float64 `json:"lng"`
 }

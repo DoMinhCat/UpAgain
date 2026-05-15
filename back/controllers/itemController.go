@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
 	validations "backend/utils/validations"
 	"encoding/json"
@@ -296,32 +297,32 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// err = db.DeleteItemById(id_item)
-	// if err != nil {
-	// 	slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
+	err = db.DeleteItemById(id_item)
+	if err != nil {
+		slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
 
-	// var entityType string
-	// isListing, err := db.CheckListingOrDepositByItemId(id_item)
-	// if err != nil {
-	// 	slog.Error("CheckListingOrDepositByItemId() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
-	// if isListing {
-	// 	entityType = "listing"
-	// } else {
-	// 	entityType = "deposit"
-	// }
+	var entityType string
+	isListing, err := db.CheckListingOrDepositByItemId(id_item)
+	if err != nil {
+		slog.Error("CheckListingOrDepositByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+	if isListing {
+		entityType = "listing"
+	} else {
+		entityType = "deposit"
+	}
 
-	// err = db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
-	// if err != nil {
-	// 	slog.Error("InsertHistory() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
+	if role == "admin" {
+		err = db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "DeleteItemById", "error", err)
+		}
+	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -418,7 +419,7 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 // @Router       /admin/items/{item_id}/ [patch]
 func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role == "employee" {
+	if role == "employee" || role == "pro" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -493,7 +494,7 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 
 	oldStatus, _ := db.GetItemStatusByItemId(id_item)
 
-	err = db.UpdateItemStatusById(id_item, payload.Status)
+	err = db.UpdateItemStatusById(id_item, payload.Status, "")
 	if err != nil {
 		slog.Error("UpdateItemStatusById() failed", "controller", "UpdateItemStatusById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item.")
@@ -649,7 +650,24 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 		payload.ListingInfo.PostalCode = r.FormValue("postal_code")
 		payload.ListingInfo.IdItem = id_item
 
-		// TODO: insert lat and lng into db once db structure is updated
+		// resolve coordinates
+		addressToResolve := models.Address{
+			Street:     payload.ListingInfo.Street,
+			PostalCode: payload.ListingInfo.PostalCode,
+			City:       payload.ListingInfo.CityName,
+		}
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		payload.ListingInfo.Lat = coordinates.Lat
+		payload.ListingInfo.Lng = coordinates.Lng
 		err = db.CreateListing(payload.ListingInfo)
 		if err != nil {
 			slog.Error("CreateListing() failed", "controller", "CreateItem", "error", err)

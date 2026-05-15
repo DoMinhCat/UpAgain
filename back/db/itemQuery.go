@@ -3,14 +3,12 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"slices"
 	"time"
 )
-
-var MATERIALS = []string{"wood", "metal", "textile", "glass", "plastic", "mixed", "other"}
-var STATES = []string{"new", "very_good", "good", "need_repair"}
 
 func GetAllItemsHistory(page, limit int, filters models.ValidationFilters) ([]models.AllItemResponse, int, error) {
 	var params []interface{}
@@ -350,7 +348,7 @@ func CheckItemExistByItemId(id int) (bool, error) {
 }
 
 func DeleteItemById(id int) error {
-	_, err := utils.Conn.Exec("UPDATE items SET is_deleted = true WHERE id = $1", id)
+	_, err := utils.Conn.Exec("UPDATE items SET is_deleted = true, refuse_reason = $1 WHERE id = $2", "", id)
 	if err != nil {
 		return fmt.Errorf("DeleteItemById() failed: %v", err)
 	}
@@ -361,13 +359,16 @@ func GetItemDetailsByItemId(id int) (models.Item, error) {
 	var item models.Item
 	row := utils.Conn.QueryRow(`
 		SELECT 
-			i.id, i.created_at, i.title, i.description, i.weight, i.state, i.id_user, i.material, i.price, i.status, a.avatar
+			i.id, i.created_at, i.title, i.description, i.weight, i.state, i.id_user, i.material, i.price, i.status, a.avatar, i.refuse_reason
 		FROM items i
 		JOIN accounts a ON i.id_user=a.id
 		WHERE i.id = $1 AND i.is_deleted = false
 	`, id)
-	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status, &item.CreatorAvatar)
+	err := row.Scan(&item.Id, &item.CreatedAt, &item.Title, &item.Description, &item.Weight, &item.State, &item.IdUser, &item.Material, &item.Price, &item.Status, &item.CreatorAvatar, &item.RefuseReason)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.Item{}, nil
+		}
 		return models.Item{}, fmt.Errorf("GetItemDetailsByItemId() failed: %v", err)
 	}
 
@@ -400,7 +401,7 @@ func CheckListingOrDepositByItemId(id int) (bool, error) {
 	return isListing, nil
 }
 
-func UpdateItemStatusById(id int, new_status string) error {
+func UpdateItemStatusById(id int, new_status string, reason string) error {
 	var err error
 	if new_status == "deleted" {
 		err = DeleteItemById(id)
@@ -409,7 +410,7 @@ func UpdateItemStatusById(id int, new_status string) error {
 		}
 		return nil
 	}
-	_, err = utils.Conn.Exec("UPDATE items SET status = $1 WHERE id = $2", new_status, id)
+	_, err = utils.Conn.Exec("UPDATE items SET status = $1, refuse_reason = $2 WHERE id = $3", new_status, reason, id)
 	if err != nil {
 		return fmt.Errorf("UpdateItemStatusById() failed: %v", err)
 	}
