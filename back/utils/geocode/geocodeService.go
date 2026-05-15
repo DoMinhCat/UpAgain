@@ -12,8 +12,8 @@ import (
 )
 
 // see docs for Geocode API here: https://developers.google.com/maps/documentation/geocoding/guides-v3/requests-geocoding?hl=en
-var geocodeBaseUrl = "https://maps.googleapis.com/maps/api/geocode/json" // add param "?params..."
-var defaultResponseLang = "fr"
+var geocodeBaseUrl = config.GeocodeBaseUrl
+var defaultResponseLang = config.DefaultResponseLang
 
 
 // Send GET request to geocode API and return Address
