@@ -16,6 +16,7 @@ import {
   Box,
   UnstyledButton,
   rem,
+  ScrollArea,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
@@ -51,6 +52,7 @@ import { Loader, Center } from "@mantine/core";
 import { useGetAddressFromCoordinates } from "../../../hooks/locationHooks";
 import type { Coordinates } from "../../../api/interfaces/location";
 import { useEffect } from "react";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 // Emission factors based on backend/utils/helpers/scoreHelper.go
 const EMISSION_FACTORS: Record<
@@ -671,124 +673,123 @@ export default function NewItem() {
 
                         <Grid gap="md">
                           <Grid.Col span={{ base: 12, md: 5 }}>
-                            <Stack gap="sm">
-                              {isLoadingContainersList ? (
-                                <Center py="xl">
-                                  <Loader size="sm" />
-                                </Center>
-                              ) : availableContainers &&
-                                availableContainers.length > 0 ? (
-                                availableContainers.map((container) => (
-                                  <Paper
-                                    key={container.id}
-                                    withBorder
-                                    p="md"
-                                    radius="md"
-                                    onClick={() => {
-                                      setContainerId(container.id);
-                                      setErrorContainer("");
-                                    }}
-                                    style={{
-                                      cursor: "pointer",
-                                      borderColor:
-                                        containerId === container.id
-                                          ? "var(--upagain-neutral-green)"
-                                          : undefined,
-                                      backgroundColor:
-                                        containerId === container.id
-                                          ? "var(--upagain-neutral-green)"
-                                          : undefined,
-                                      transition: "transform 0.1s ease",
-                                    }}
-                                    onMouseEnter={(e) =>
-                                      (e.currentTarget.style.transform =
-                                        "scale(1.02)")
-                                    }
-                                    onMouseLeave={(e) =>
-                                      (e.currentTarget.style.transform =
-                                        "scale(1)")
-                                    }
-                                  >
-                                    <Stack gap={2}>
-                                      <Group
-                                        justify="space-between"
-                                        wrap="nowrap"
-                                      >
+                            <ScrollArea h={450} scrollbars="y" pr="md">
+                              <Stack gap="sm">
+                                {isLoadingContainersList ? (
+                                  <Center py="xl">
+                                    <Loader size="sm" />
+                                  </Center>
+                                ) : availableContainers &&
+                                  availableContainers.length > 0 ? (
+                                  availableContainers.map((container) => (
+                                    <Paper
+                                      key={container.id}
+                                      withBorder
+                                      p="md"
+                                      radius="md"
+                                      onClick={() => {
+                                        setContainerId(container.id);
+                                        setErrorContainer("");
+                                      }}
+                                      style={{
+                                        cursor: "pointer",
+                                        borderColor:
+                                          containerId === container.id
+                                            ? "var(--upagain-neutral-green)"
+                                            : undefined,
+                                        backgroundColor:
+                                          containerId === container.id
+                                            ? "var(--upagain-neutral-green)"
+                                            : undefined,
+                                        transition: "transform 0.1s ease",
+                                      }}
+                                      onMouseEnter={(e) =>
+                                        (e.currentTarget.style.transform =
+                                          "scale(1.02)")
+                                      }
+                                      onMouseLeave={(e) =>
+                                        (e.currentTarget.style.transform =
+                                          "scale(1)")
+                                      }
+                                    >
+                                      <Stack gap={2}>
+                                        <Group
+                                          justify="space-between"
+                                          wrap="nowrap"
+                                        >
+                                          <Text
+                                            fw={700}
+                                            size="sm"
+                                            c={
+                                              containerId === container.id
+                                                ? "white"
+                                                : undefined
+                                            }
+                                          >
+                                            Container #{container.id}
+                                          </Text>
+                                          <Button
+                                            variant="subtle"
+                                            size="compact-xs"
+                                            leftSection={<IconMap size={14} />}
+                                            color={
+                                              containerId === container.id
+                                                ? "white"
+                                                : undefined
+                                            }
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setContainerId(container.id);
+                                              setErrorContainer("");
+                                            }}
+                                          >
+                                            {t("methods.deposit.view_map")}
+                                          </Button>
+                                        </Group>
+
                                         <Text
-                                          fw={700}
-                                          size="sm"
+                                          size="xs"
                                           c={
                                             containerId === container.id
                                               ? "white"
-                                              : undefined
+                                              : "dimmed"
                                           }
+                                          mt="xs"
                                         >
-                                          Container #{container.id}
+                                          {container.street},{" "}
+                                          {container.postal_code}{" "}
+                                          {container.city_name}
                                         </Text>
-                                        <Button
-                                          variant="subtle"
-                                          size="compact-xs"
-                                          leftSection={<IconMap size={14} />}
-                                          color={
-                                            containerId === container.id
-                                              ? "white"
-                                              : undefined
-                                          }
-                                        >
-                                          {t("methods.deposit.view_map")}
-                                        </Button>
-                                      </Group>
-
-                                      <Text
-                                        size="xs"
-                                        c={
-                                          containerId === container.id
-                                            ? "white"
-                                            : "dimmed"
-                                        }
-                                        mt="xs"
-                                      >
-                                        {container.street},{" "}
-                                        {container.postal_code}{" "}
-                                        {container.city_name}
-                                      </Text>
-                                    </Stack>
-                                  </Paper>
-                                ))
-                              ) : (
-                                <Text size="sm" c="dimmed" ta="center">
-                                  {t("methods.deposit.no_containers", {
-                                    defaultValue: "No containers available",
-                                  })}
-                                </Text>
-                              )}
-                            </Stack>
+                                      </Stack>
+                                    </Paper>
+                                  ))
+                                ) : (
+                                  <Text size="sm" c="dimmed" ta="center">
+                                    {t("methods.deposit.no_containers", {
+                                      defaultValue: "No containers available",
+                                    })}
+                                  </Text>
+                                )}
+                              </Stack>
+                            </ScrollArea>
                           </Grid.Col>
                           <Grid.Col span={{ base: 12, md: 7 }}>
-                            <Box
-                              h="100%"
-                              mih={300}
-                              bg="var(--mantine-color-gray-1)"
-                              style={{
-                                borderRadius: "var(--mantine-radius-md)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                border:
-                                  "2px dashed var(--mantine-color-gray-3)",
+                            <EmbeddedMap
+                              locations={
+                                availableContainers?.map((c) => ({
+                                  id: c.id,
+                                  lat: c.lat,
+                                  lng: c.lng,
+                                  label: `Container #${c.id}`,
+                                })) || []
+                              }
+                              centerOnId={containerId}
+                              onMarkerClick={(id) => {
+                                setContainerId(id);
+                                setErrorContainer("");
                               }}
-                            >
-                              <Stack align="center" gap="xs">
-                                <IconMap
-                                  size={48}
-                                  color="var(--mantine-color-gray-4)"
-                                  stroke={1}
-                                />
-                                <Text c="dimmed" size="sm">
-                                  {t("methods.deposit.map_placeholder")}
-                                </Text>
-                              </Stack>
-                            </Box>
+                              height={450}
+                            />
                           </Grid.Col>
                         </Grid>
                       </Stack>

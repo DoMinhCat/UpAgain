@@ -8,6 +8,8 @@ export interface Container {
   is_deleted: boolean;
   current_deposit_id: number | null;
   current_deposit_title: string | null;
+  lat: number;
+  lng: number;
 }
 
 export interface ContainerScheduleItem {
