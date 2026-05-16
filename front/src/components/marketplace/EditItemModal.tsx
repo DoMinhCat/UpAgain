@@ -268,7 +268,7 @@ export function EditItemModal({
         <Group justify="center" mt="sm" gap="xs">
           <IconInfoCircle size={16} color="var(--upagain-yellow)" />
           <Text size="xs" c="var(--upagain-yellow)" ta="center">
-            {t("listings.details.edit_modal.validation_notice")}
+            {t("create_item:validation_notice")}
           </Text>
         </Group>
       </Stack>

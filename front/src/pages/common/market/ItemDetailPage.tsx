@@ -640,7 +640,9 @@ export default function ItemDetailPage() {
                             }
                             rightSection={<IconChevronRight size={18} />}
                           >
-                            See in My Items
+                            {t("marketplace:detail.see_my_items", {
+                              defaultValue: "See in My Items",
+                            })}
                           </Button>
                         )}
 

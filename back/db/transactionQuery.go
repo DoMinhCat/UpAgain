@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -273,7 +274,8 @@ func InsertTransaction(transaction models.TransactionInsert) error {
 			insert into transactions (id_transaction, action, id_item, id_pro)
 			values ($1, $2, $3, $4);
 		`
-		_, err = utils.Conn.Exec(query, transactionUuid, transaction.Action, transaction.IdItem, transaction.IdPro)
+		slog.Debug(query, "transactionUuid", transactionUuid, "action", transaction.Action, "idItem", transaction.IdItem, "idPro", transaction.IdPro)
+		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro)
 	}
 	// TODO: else for other actions
 	if err != nil {
@@ -295,6 +297,30 @@ func GetTransactionLatestUuidByItemId(item_id int) (uuid.UUID, error) {
 	txUuidParsed, err := uuid.Parse(transactionUuid)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidByItemId() failed: %v", err.Error())
+	}
+	return txUuidParsed, nil
+}
+
+func GetTransactionLatestUuidOfPro(id_pro int, id_item int) (uuid.UUID, error) {
+	var transactionUuid string
+	query := `
+		SELECT id_transaction 
+		FROM transactions 
+		WHERE id_pro = $1 AND id_item = $2 
+		ORDER BY created_at DESC 
+		LIMIT 1;
+	`
+	err := utils.Conn.QueryRow(query, id_pro, id_item).Scan(&transactionUuid)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return uuid.Nil, nil
+		}
+		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidOfPro() failed: %v", err.Error())
+	}
+
+	txUuidParsed, err := uuid.Parse(transactionUuid)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidOfPro() failed: %v", err.Error())
 	}
 	return txUuidParsed, nil
 }

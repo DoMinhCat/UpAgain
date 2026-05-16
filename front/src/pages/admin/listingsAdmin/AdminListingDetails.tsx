@@ -52,11 +52,11 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
 import {
-  useCancelItemReservation,
   useGetItemDetails,
   useGetItemTransactions,
   useUpdateItemStatus,
 } from "../../../hooks/itemHooks";
+import { ConfirmCancelReservationModal } from "../../../components/market/ConfirmCancelReservationModal";
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
@@ -178,16 +178,6 @@ export default function AdminListingDetails() {
   // FORCE CANCEL TRANSACTION
   const [openedCancel, { open: openCancel, close: closeCancel }] =
     useDisclosure(false);
-
-  const cancelItemReservationMutation = useCancelItemReservation(id_item);
-
-  const handleCancelReservation = () => {
-    cancelItemReservationMutation.mutate(undefined, {
-      onSuccess: () => {
-        closeCancel();
-      },
-    });
-  };
 
   // DEPOSIT CODES
   const [
@@ -996,34 +986,11 @@ export default function AdminListingDetails() {
         title={t("listings.details.status_modal.delete")}
       />
 
-      <Modal
+      <ConfirmCancelReservationModal
         opened={openedCancel}
         onClose={closeCancel}
-        title={t("actions.cancel_transaction", {
-          defaultValue: "Cancel Transaction",
-        })}
-        size="lg"
-      >
-        <Text size="sm" c="dimmed">
-          {t("history.details.cancel_transaction_confirm", {
-            defaultValue: "Are you sure you want to cancel this transaction?",
-          })}
-        </Text>
-        <Group mt="lg" justify="end">
-          <Button onClick={closeCancel} variant="grey">
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            onClick={() => {
-              handleCancelReservation();
-            }}
-            variant="delete"
-            loading={cancelItemReservationMutation.isPending}
-          >
-            {t("common:actions.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+        idItem={id_item}
+      />
 
       <PhotoModal
         opened={openedCodeCarousel}
