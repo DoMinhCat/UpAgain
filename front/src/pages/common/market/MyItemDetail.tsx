@@ -73,6 +73,7 @@ import PaginationFooter from "../../../components/common/PaginationFooter";
 import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import { NotFoundPage } from "../../error/404";
 import { useContainerDetails } from "../../../hooks/containerHooks";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -939,6 +940,30 @@ export default function MyItemDetail() {
                     )}
                   </Stack>
                 </Group>
+
+                {((isListing && listingDetails?.lat && listingDetails?.lng) ||
+                  (isDeposit && depositDetails?.lat && depositDetails?.lng)) && (
+                  <EmbeddedMap
+                    height={300}
+                    locations={[
+                      {
+                        id: id_item,
+                        lat: isListing
+                          ? listingDetails!.lat
+                          : depositDetails!.lat,
+                        lng: isListing
+                          ? listingDetails!.lng
+                          : depositDetails!.lng,
+                        label: isListing
+                          ? t("marketplace:detail.location")
+                          : t("marketplace:my_item_detail.container_id") +
+                            ` #${depositDetails?.container_id}`,
+                      },
+                    ]}
+                    centerOnId={id_item}
+                    zoom={15}
+                  />
+                )}
               </Stack>
 
               <Divider />

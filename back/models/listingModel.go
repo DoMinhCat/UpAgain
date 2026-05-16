@@ -1,9 +1,11 @@
 package models
 
 type Listing struct {
-	Street     string `json:"street"`
-	City       string `json:"city"`
-	PostalCode string `json:"postal_code"`
+	Street     string  `json:"street"`
+	City       string  `json:"city"`
+	PostalCode string  `json:"postal_code"`
+	Lat        float64 `json:"lat"`
+	Lng        float64 `json:"lng"`
 }
 
 type ListingFullDetails struct {
@@ -19,6 +21,8 @@ type ListingFullDetails struct {
 	Street      string   `json:"street"`
 	City        string   `json:"city"`
 	PostalCode  string   `json:"postal_code"`
+	Lat         float64  `json:"lat"`
+	Lng         float64  `json:"lng"`
 }
 
 type UpdateListingRequest struct {

@@ -44,6 +44,8 @@ type Event struct {
 	EmployeeId     int         `json:"employee_id"`
 	Registered     int         `json:"registered"`
 	Images         []string    `json:"images"`
+	Lat            float64     `json:"lat"`
+	Lng            float64     `json:"lng"`
 	Attendees      []Account   `json:"attendees"`
 	Organizers     []Account   `json:"organizers"`
 }

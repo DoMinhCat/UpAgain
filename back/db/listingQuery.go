@@ -164,7 +164,8 @@ func GetPendingListings(page, limit int, filters models.ValidationFilters) ([]mo
 
 func GetListingDetailsById(id int) (models.Listing, error) {
 	var listing models.Listing
-	err := utils.Conn.QueryRow("SELECT street, city_name, postal_code FROM listings WHERE id_item = $1", id).Scan(&listing.Street, &listing.City, &listing.PostalCode)
+	err := utils.Conn.QueryRow("SELECT street, city_name, postal_code, lat, lng FROM listings WHERE id_item = $1", id).
+		Scan(&listing.Street, &listing.City, &listing.PostalCode, &listing.Lat, &listing.Lng)
 	if err != nil {
 		return models.Listing{}, fmt.Errorf("GetListingDetailsById() failed: %v", err)
 	}

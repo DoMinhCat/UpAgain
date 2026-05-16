@@ -286,7 +286,7 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 func GetEventDetailsById(id_event int) (models.Event, error) {
 	var event models.Event
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.postal_code, e.location_detail,
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.postal_code, e.location_detail, e.lat, e.lng,
 		a.username, a.avatar, a.id
 		FROM events e 
 		JOIN accounts a ON e.created_by=a.id 
@@ -307,6 +307,8 @@ func GetEventDetailsById(id_event int) (models.Event, error) {
 		&event.Street,
 		&event.PostalCode,
 		&event.LocationDetail,
+		&event.Lat,
+		&event.Lng,
 		&event.EmployeeName,
 		&event.EmployeeAvatar,
 		&event.EmployeeId,
