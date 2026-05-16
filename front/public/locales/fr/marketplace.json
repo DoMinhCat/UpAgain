@@ -105,5 +105,23 @@
     "completed_on": "Terminé le {{date}}",
     "cancelled_title": "Réservation annulée",
     "cancelled_on": "Annulée le {{date}}"
+  },
+  "open_container": {
+    "title": "Ouvrir le conteneur",
+    "subtitle": "Vérification d'accès pour les dépôts et retraits en conteneur.",
+    "opening_container": "Ouverture du conteneur #{{id}}",
+    "instructions": "Veuillez saisir le code d'accès à 6 chiffres ou télécharger l'image du code-barres fournie pour ce conteneur.",
+    "option_code_title": "Option A : Code d'accès à 6 chiffres",
+    "option_code_desc": "Saisissez le code d'accès de votre réservation.",
+    "option_barcode_title": "Option B : Téléchargement de code-barres",
+    "option_barcode_desc": "Téléchargez une photo claire du code-barres du conteneur.",
+    "verify_code": "Vérifier le code",
+    "verify_barcode": "Vérifier le code-barres",
+    "validation_error_code": "Veuillez entrer un code valide à 6 chiffres.",
+    "validation_error_barcode": "Veuillez d'abord télécharger une image de code-barres.",
+    "success_title": "Conteneur déverrouillé",
+    "success_desc": "Vérification réussie ! Le verrou du conteneur a été libéré.",
+    "back_to_market": "Retour à la boutique",
+    "dropzone_desc": "Cliquez ou glissez votre image de code-barres ici"
   }
 }

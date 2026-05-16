@@ -110,5 +110,23 @@
     "completed_on": "Completed on {{date}}",
     "cancelled_title": "Reservation Cancelled",
     "cancelled_on": "Cancelled on {{date}}"
+  },
+  "open_container": {
+    "title": "Open Container",
+    "subtitle": "Access verification for container deposits and retrievals.",
+    "opening_container": "Opening Container #{{id}}",
+    "instructions": "Please enter the 6-digit access code or upload the barcode image provided for this container.",
+    "option_code_title": "Option A: 6-Digit Access Code",
+    "option_code_desc": "Type the access code from your reservation.",
+    "option_barcode_title": "Option B: Barcode Upload",
+    "option_barcode_desc": "Upload a clear photo of the container's barcode.",
+    "verify_code": "Verify Access Code",
+    "verify_barcode": "Verify Barcode",
+    "validation_error_code": "Please enter a valid 6-digit code.",
+    "validation_error_barcode": "Please upload a barcode image first.",
+    "success_title": "Container Unlocked",
+    "success_desc": "Verification successful! The container lock has been released.",
+    "back_to_market": "Back to Marketplace",
+    "dropzone_desc": "Click or drag your barcode image here"
   }
 }

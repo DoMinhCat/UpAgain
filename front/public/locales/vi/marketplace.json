@@ -75,5 +75,23 @@
   "my_item_detail": {
     "cancelled_title": "Đặt chỗ đã bị hủy",
     "cancelled_on": "Đã hủy lúc {{date}}"
+  },
+  "open_container": {
+    "title": "Mở thùng chứa",
+    "subtitle": "Xác minh quyền truy cập để gửi và nhận đồ tại thùng chứa.",
+    "opening_container": "Đang mở thùng chứa #{{id}}",
+    "instructions": "Vui lòng nhập mã truy cập 6 chữ số hoặc tải lên hình ảnh mã vạch được cung cấp cho thùng chứa này.",
+    "option_code_title": "Cách A: Mã truy cập 6 chữ số",
+    "option_code_desc": "Nhập mã truy cập từ thông tin đặt chỗ của bạn.",
+    "option_barcode_title": "Cách B: Tải lên mã vạch",
+    "option_barcode_desc": "Tải lên ảnh chụp rõ nét mã vạch của thùng chứa.",
+    "verify_code": "Xác minh mã truy cập",
+    "verify_barcode": "Xác minh mã vạch",
+    "validation_error_code": "Vui lòng nhập mã gồm đúng 6 chữ số.",
+    "validation_error_barcode": "Vui lòng tải lên hình ảnh mã vạch trước.",
+    "success_title": "Thùng chứa đã mở khóa",
+    "success_desc": "Xác minh thành công! Khóa thùng chứa đã được mở.",
+    "back_to_market": "Quay lại cửa hàng",
+    "dropzone_desc": "Nhấp hoặc kéo thả hình ảnh mã vạch vào đây"
   }
 }

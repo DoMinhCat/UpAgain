@@ -26,6 +26,8 @@ export default function ImageDropzone({
   extraDescription = "The first image will be used as the primary image",
   props,
 }: ImageDropzoneProps) {
+  const isDropzoneDisabled = disabled ?? false;
+  const isDropzoneLoading = loading ?? false;
   const previews = files.map((file, index) => {
     const imageUrl =
       file instanceof Blob
@@ -63,8 +65,8 @@ export default function ImageDropzone({
   return (
     <>
       <Dropzone
-        loading={loading}
-        disabled={disabled}
+        loading={isDropzoneLoading}
+        disabled={isDropzoneDisabled}
         onDrop={(acceptedFiles) => {
           setFiles((prev) => [...prev, ...acceptedFiles]);
         }}
