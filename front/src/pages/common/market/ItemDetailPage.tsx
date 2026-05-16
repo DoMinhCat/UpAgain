@@ -685,33 +685,36 @@ export default function ItemDetailPage() {
         onClose={() => setLightboxOpened(false)}
         defaultActiveSlide={lightboxSlide}
       />
+      {role === "user" && (
+        <>
+          {item && (
+            <EditItemModal
+              opened={openedEdit}
+              onClose={closeEdit}
+              item={item}
+              listingDetails={listingDetails}
+            />
+          )}
 
-      {item && (
-        <EditItemModal
-          opened={openedEdit}
-          onClose={closeEdit}
-          item={item}
-          listingDetails={listingDetails}
-        />
+          <DeleteItemModal
+            opened={openedDelete}
+            onClose={closeDelete}
+            onConfirm={handleDelete}
+            loading={deleteItemMutation.isPending}
+            title={t("marketplace:detail.delete_confirm_title", {
+              defaultValue: "Confirm Delete",
+            })}
+          />
+
+          <TransferContainerModal
+            opened={openedTransfer}
+            onClose={closeTransfer}
+            onConfirm={handleTransfer}
+            isLoading={transferMutation.isPending}
+            currentContainerId={depositDetails?.container_id}
+          />
+        </>
       )}
-
-      <DeleteItemModal
-        opened={openedDelete}
-        onClose={closeDelete}
-        onConfirm={handleDelete}
-        loading={deleteItemMutation.isPending}
-        title={t("marketplace:detail.delete_confirm_title", {
-          defaultValue: "Confirm Delete",
-        })}
-      />
-
-      <TransferContainerModal
-        opened={openedTransfer}
-        onClose={closeTransfer}
-        onConfirm={handleTransfer}
-        isLoading={transferMutation.isPending}
-        currentContainerId={depositDetails?.container_id}
-      />
     </>
   );
 }
