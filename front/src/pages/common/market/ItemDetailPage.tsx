@@ -50,6 +50,7 @@ import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 import { useNavigate } from "react-router-dom";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
+import { ConfirmReservationModal } from "../../../components/market/ConfirmReservationModal";
 import dayjs from "dayjs";
 import { useGetContainerEarliestAvailability } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
@@ -94,6 +95,8 @@ export default function ItemDetailPage() {
     useDisclosure(false);
   const [openedTransfer, { open: openTransfer, close: closeTransfer }] =
     useDisclosure(false);
+  const [openedReserve, { open: openReserve, close: closeReserve }] =
+    useDisclosure(false);
 
   const deleteItemMutation = useDeleteItem();
   const transferMutation = useTransferDepositContainer(id_item);
@@ -130,6 +133,11 @@ export default function ItemDetailPage() {
         defaultValue: "This action will be available in the next update.",
       }),
     );
+  };
+
+  // RESERVE ITEM
+  const handleReserve = () => {
+    openReserve();
   };
 
   if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading) {
@@ -582,7 +590,7 @@ export default function ItemDetailPage() {
                             variant="secondary"
                             fullWidth
                             color="var(--upagain-neutral-green)"
-                            onClick={handleAction}
+                            onClick={handleReserve}
                             rightSection={<IconChevronRight size={18} />}
                           >
                             {t("marketplace:detail.reserve_now", {
@@ -596,7 +604,7 @@ export default function ItemDetailPage() {
                             fullWidth
                             color="var(--upagain-neutral-green)"
                             rightSection={<IconChevronRight size={18} />}
-                            onClick={handleAction}
+                            onClick={handleReserve}
                           >
                             {t("marketplace:detail.buy")}
                           </Button>
@@ -714,6 +722,14 @@ export default function ItemDetailPage() {
             currentContainerId={depositDetails?.container_id}
           />
         </>
+      )}
+      {role === "pro" && (
+        <ConfirmReservationModal
+          opened={openedReserve}
+          onClose={closeReserve}
+          idItem={id_item}
+          itemTitle={item?.title}
+        />
       )}
     </>
   );

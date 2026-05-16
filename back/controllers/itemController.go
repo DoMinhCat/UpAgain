@@ -795,6 +795,71 @@ func GetMyItems(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
+// TODO: swagger doc
+func ReserveItem(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	item_id, err := strconv.Atoi(r.PathValue("item_id"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while reserving item.")
+		return
+	}
+	
+	exist, err := db.CheckItemExistByItemId(item_id)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(item_id)+" does not exist.")
+		return
+	}
+	status, err := db.GetItemStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	if status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item can't be reserved at the moment.")
+		return
+	}
+
+	// check if item is already reserved or purchased
+	latestTx, err := db.GetTransactionLatestStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	if latestTx == "reserved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item is already reserved.")
+		return
+	} else if latestTx == "purchased" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item is already purchased.")
+		return
+	}
+
+	err = db.InsertTransaction(models.TransactionInsert{
+		Action: "reserved",
+		IdItem: item_id,
+		IdPro:  idRequestor,
+	})
+	if err != nil {
+		slog.Error("InsertTransaction() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item reserved successfully."})
+}
+
+// TODO: swagger doc
+func PurchaseItem(w http.ResponseWriter, r *http.Request) {
+	// handle stripe
+}
+
+
 // add score only when item status == completed
 // score, err := helpers.CalculateScore(payload.Material, payload.Weight)
 // if err != nil {

@@ -15,6 +15,8 @@ func GetItemRoutes(mux *http.ServeMux) {
 
 	mux.Handle("POST /items/{item_id}/transactions/{transaction_uuid}/cancel/{$}", middleware.AuthMiddleware([]string{"admin", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CancelTransaction))))
 	mux.Handle("POST /items/{$}", middleware.AuthMiddleware([]string{"user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CreateItem))))
+	mux.Handle("POST /items/{item_id}/reserve/{$}", middleware.AuthMiddleware([]string{"pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ReserveItem))))
+	mux.Handle("POST /items/{item_id}/purchase/{$}", middleware.AuthMiddleware([]string{"pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.PurchaseItem))))
 
 	mux.Handle("PATCH /items/{item_id}/{$}", middleware.AuthMiddleware([]string{"admin", "user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateItemStatusById))))
 

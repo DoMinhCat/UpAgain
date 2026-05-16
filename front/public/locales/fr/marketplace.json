@@ -42,7 +42,10 @@
     "delete_confirm_title": "Confirmer la suppression",
     "delete_confirm_msg": "Êtes-vous sûr de vouloir supprimer cet objet ?",
     "not_implemented_title": "Non implémenté",
-    "not_implemented_msg": "Cette fonctionnalité sera bientôt disponible."
+    "not_implemented_msg": "Cette fonctionnalité sera bientôt disponible.",
+    "reserve_confirm_title": "Confirmer la réservation",
+    "reserve_confirm_text": "Êtes-vous sûr de vouloir réserver cet objet ? Vous aurez 3 jours pour finaliser l'achat.",
+    "reserve_period": "3 jours de réservation"
   },
   "notifications": {
     "fetch_items_error": "Erreur lors de la récupération des objets",
@@ -59,7 +62,9 @@
     "post_success_message": "Veuillez attendre la validation d'un administrateur",
     "cancel_transaction_error": "Erreur lors de l'annulation de la transaction",
     "cancel_transaction_success_title": "Transaction Annulée",
-    "cancel_transaction_success_message": "La transaction a été annulée."
+    "cancel_transaction_success_message": "La transaction a été annulée.",
+    "reserve_success_title": "Objet réservé",
+    "reserve_success_message": "L'objet a été réservé avec succès. Vous pouvez le retrouver dans vos objets."
   },
   "my_item_detail": {
     "not_found": "Objet introuvable ou accès non autorisé.",

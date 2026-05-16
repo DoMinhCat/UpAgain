@@ -42,7 +42,10 @@
     "delete_confirm_title": "Xác nhận xóa",
     "delete_confirm_msg": "Bạn có chắc chắn muốn xóa món đồ này không?",
     "not_implemented_title": "Chưa phát triển",
-    "not_implemented_msg": "Tính năng này sẽ sớm ra mắt."
+    "not_implemented_msg": "Tính năng này sẽ sớm ra mắt.",
+    "reserve_confirm_title": "Xác nhận đặt chỗ",
+    "reserve_confirm_text": "Bạn có chắc chắn muốn đặt chỗ món đồ này không? Bạn sẽ có 3 ngày để hoàn tất việc mua hàng.",
+    "reserve_period": "Đặt chỗ trong 3 ngày"
   },
   "notifications": {
     "fetch_items_error": "Lỗi khi lấy danh sách món đồ",
@@ -58,6 +61,8 @@
     "post_success_message": "Vui lòng đợi quản trị viên phê duyệt",
     "cancel_transaction_error": "Lỗi khi hủy giao dịch",
     "cancel_transaction_success_title": "Đã hủy giao dịch",
-    "cancel_transaction_success_message": "Giao dịch đã được hủy thành công."
+    "cancel_transaction_success_message": "Giao dịch đã được hủy thành công.",
+    "reserve_success_title": "Đã đặt chỗ món đồ",
+    "reserve_success_message": "Món đồ đã được đặt chỗ thành công. Bạn có thể tìm thấy nó trong danh sách món đồ của mình."
   }
 }
