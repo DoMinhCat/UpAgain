@@ -7,6 +7,7 @@ export interface Transaction {
   id_item: number;
   id_pro: number;
   username_pro: string;
+  reservation_expiry?: string;
 }
 
 export interface TransactionsPagination {
