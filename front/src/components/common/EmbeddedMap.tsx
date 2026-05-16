@@ -204,6 +204,7 @@ export default function EmbeddedMap({
   height = "100%",
   zoom = 14,
 }: EmbeddedMapProps) {
+  const theme = useComputedColorScheme();
   const [cameraProps, setCameraProps] = useState({
     center: { lat: 48.8566, lng: 2.3522 },
     zoom: zoom,
@@ -274,7 +275,7 @@ export default function EmbeddedMap({
           gestureHandling="cooperative"
           disableDefaultUI
           zoomControl
-          colorScheme={useComputedColorScheme() === "dark" ? "DARK" : "LIGHT"}
+          colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
           style={{ width: "100%", height: "100%" }}
         >
           <MapController
