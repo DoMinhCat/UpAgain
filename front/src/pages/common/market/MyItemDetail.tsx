@@ -384,9 +384,10 @@ export default function MyItemDetail() {
                   <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
                     {t("marketplace:my_item_detail.reserved_until")}
                   </Text>
-                  {/* TODO: backend should provide reservation expiry date on transaction */}
                   <Text fw={700} size="lg" c="orange">
-                    {t("marketplace:my_item_detail.expiry_todo")}
+                    {dayjs(latestTx?.reservation_expiry).format(
+                      "DD/MM/YYYY - HH:mm A",
+                    )}
                   </Text>
                 </Stack>
               )}
@@ -421,7 +422,9 @@ export default function MyItemDetail() {
             {latestTx && (
               <Text size="sm" c="dimmed" ta="center">
                 {t("marketplace:my_item_detail.completed_on", {
-                  date: dayjs(latestTx.created_at).format("DD/MM/YYYY"),
+                  date: dayjs(latestTx.created_at).format(
+                    "DD/MM/YYYY - HH:mm A",
+                  ),
                 })}
               </Text>
             )}
@@ -662,9 +665,8 @@ export default function MyItemDetail() {
                 </Title>
               </Group>
               <Text fw={700}>{latestTx?.username_pro || "—"}</Text>
-              {/* TODO: reservation expiry from backend */}
               <Text size="xs" c="dimmed">
-                {t("marketplace:my_item_detail.expiry_todo")}
+                {dayjs(latestTx?.reservation_expiry).format("DD/MM/YYYY")}
               </Text>
             </Stack>
           </Paper>
