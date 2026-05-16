@@ -19,6 +19,8 @@ export interface AppEvent {
   employee_name: string | null;
   employee_avatar: string | null;
   registered: number;
+  lat: number;
+  lng: number;
   images?: string[];
   attendees?: Account[];
   organizers?: Account[];
@@ -81,7 +83,6 @@ export interface UpdateEventPayload {
   location_detail?: string;
   images?: FormData;
 }
-
 
 export interface EventRegistrationPayload {
   id_event: number;

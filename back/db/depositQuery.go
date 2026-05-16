@@ -143,6 +143,13 @@ func GetDepositDetailsById(id int) (models.DepositDetails, error) {
 		}
 		return deposit, fmt.Errorf("GetDepositDetailsById() failed: %v", err.Error())
 	}
+	err = utils.Conn.QueryRow("SELECT street, city_name, postal_code, lat, lng FROM containers WHERE id = $1", deposit.ContainerId).Scan(&deposit.Street, &deposit.City, &deposit.PostalCode, &deposit.Lat, &deposit.Lng)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return deposit, nil
+		}
+		return deposit, fmt.Errorf("GetDepositDetailsById() failed: %v", err.Error())
+	}
 	return deposit, nil
 }
 

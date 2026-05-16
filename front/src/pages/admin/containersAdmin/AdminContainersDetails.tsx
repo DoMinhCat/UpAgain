@@ -43,6 +43,7 @@ import {
 } from "../../../hooks/containerHooks";
 
 import { useState } from "react";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function AdminContainersDetails() {
   const { t } = useTranslation("admin");
@@ -270,6 +271,24 @@ export default function AdminContainersDetails() {
               {dayjs(container?.created_at).format("DD/MM/YYYY - HH:mm")}
             </Text>
           </InfoField>
+
+          {container?.lat && container?.lng && (
+            <Box mt="xl">
+              <EmbeddedMap
+                height={300}
+                locations={[
+                  {
+                    id: containerId,
+                    lat: container.lat,
+                    lng: container.lng,
+                    label: t("common:container") + ` #${containerId}`,
+                  },
+                ]}
+                centerOnId={containerId}
+                zoom={15}
+              />
+            </Box>
+          )}
         </Paper>
 
         <Title order={3} ta="left" mt="xl">

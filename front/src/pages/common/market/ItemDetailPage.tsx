@@ -52,6 +52,7 @@ import { useNavigate } from "react-router-dom";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import dayjs from "dayjs";
 import { useGetContainerEarliestAvailability } from "../../../hooks/containerHooks";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function ItemDetailPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
@@ -427,32 +428,60 @@ export default function ItemDetailPage() {
                       <Text size="lg" fw={500}>
                         {isListing
                           ? `${listingDetails?.city || ""}, ${listingDetails?.postal_code || ""}`
-                          : t("marketplace:detail.retrieval.deposit")}
+                          : depositDetails
+                            ? `${depositDetails.street}, ${depositDetails.postal_code} ${depositDetails.city}`
+                            : t("marketplace:detail.retrieval.deposit")}
                       </Text>
                     </Group>
                   </Stack>
 
                   {/* Google Maps Placeholder */}
-                  <Box
-                    h={300}
-                    bg="var(--mantine-color-gray-1)"
-                    style={{
-                      borderRadius: "var(--mantine-radius-lg)",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      border: "2px dashed var(--mantine-color-gray-3)",
-                    }}
-                  >
-                    <IconMapPin size={48} color="var(--mantine-color-gray-4)" />
-                    <Text c="dimmed" fw={600} mt="sm">
-                      {t("marketplace:detail.map_placeholder")}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {t("marketplace:detail.map_api_note")}
-                    </Text>
-                  </Box>
+                  {(isListing && listingDetails?.lat && listingDetails?.lng) ||
+                  (isDeposit && depositDetails?.lat && depositDetails?.lng) ? (
+                    <EmbeddedMap
+                      height={300}
+                      locations={[
+                        {
+                          id: id_item,
+                          lat: isListing
+                            ? listingDetails!.lat
+                            : depositDetails!.lat,
+                          lng: isListing
+                            ? listingDetails!.lng
+                            : depositDetails!.lng,
+                          label: isListing
+                            ? t("marketplace:detail.location")
+                            : t("marketplace:detail.retrieval.deposit"),
+                        },
+                      ]}
+                      centerOnId={id_item}
+                      zoom={15}
+                    />
+                  ) : (
+                    <Box
+                      h={300}
+                      bg="var(--mantine-color-gray-1)"
+                      style={{
+                        borderRadius: "var(--mantine-radius-lg)",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: "2px dashed var(--mantine-color-gray-3)",
+                      }}
+                    >
+                      <IconMapPin
+                        size={48}
+                        color="var(--mantine-color-gray-4)"
+                      />
+                      <Text c="dimmed" fw={600} mt="sm">
+                        {t("marketplace:detail.map_placeholder")}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {t("marketplace:detail.map_api_note")}
+                      </Text>
+                    </Box>
+                  )}
                 </Stack>
               </Stack>
             </Grid.Col>

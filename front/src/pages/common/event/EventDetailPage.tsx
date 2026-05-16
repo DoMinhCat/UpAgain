@@ -58,6 +58,7 @@ import { resolveUrl } from "../../../utils/imageUtils";
 import dayjs from "dayjs";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
 import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function EventDetailPage() {
   const { t } = useTranslation(["events", "admin"]);
@@ -364,7 +365,10 @@ export default function EventDetailPage() {
                               </Avatar.Group>
                               <Group gap={4} wrap="wrap">
                                 {event.organizers.map((organizer, index) => (
-                                  <Group key={organizer.username || index} gap={4}>
+                                  <Group
+                                    key={organizer.username || index}
+                                    gap={4}
+                                  >
                                     <Text
                                       className="text"
                                       size="sm"
@@ -456,35 +460,52 @@ export default function EventDetailPage() {
                           color="var(--upagain-neutral-green)"
                         />
                         <Text size="lg" fw={500}>
-                          {event.street}, {event.postal_code} {event.city} {event.location_detail}
+                          {event.location_detail}, {event.street},{" "}
+                          {event.postal_code} {event.city}
                         </Text>
                       </Group>
                     </Stack>
 
                     {/* Google Maps Placeholder */}
-                    <Box
-                      h={300}
-                      bg="var(--mantine-color-gray-1)"
-                      style={{
-                        borderRadius: "var(--mantine-radius-lg)",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px dashed var(--mantine-color-gray-3)",
-                      }}
-                    >
-                      <IconMapPin
-                        size={48}
-                        color="var(--mantine-color-gray-4)"
+                    {event.lat && event.lng ? (
+                      <EmbeddedMap
+                        height={300}
+                        locations={[
+                          {
+                            id: idEvent,
+                            lat: event.lat,
+                            lng: event.lng,
+                            label: t("detail.location"),
+                          },
+                        ]}
+                        centerOnId={idEvent}
+                        zoom={15}
                       />
-                      <Text c="dimmed" fw={600} mt="sm">
-                        {t("detail.map_placeholder")}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t("detail.map_api_note")}
-                      </Text>
-                    </Box>
+                    ) : (
+                      <Box
+                        h={300}
+                        bg="var(--mantine-color-gray-1)"
+                        style={{
+                          borderRadius: "var(--mantine-radius-lg)",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          border: "2px dashed var(--mantine-color-gray-3)",
+                        }}
+                      >
+                        <IconMapPin
+                          size={48}
+                          color="var(--mantine-color-gray-4)"
+                        />
+                        <Text c="dimmed" fw={600} mt="sm">
+                          {t("detail.map_placeholder")}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {t("detail.map_api_note")}
+                        </Text>
+                      </Box>
+                    )}
                   </Stack>
 
                   <Divider />

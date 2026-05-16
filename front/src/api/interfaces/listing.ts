@@ -12,6 +12,8 @@ export interface Listing {
   postal_code: string;
   id_user: number;
   username: string;
+  lat: number;
+  lng: number;
 }
 
 export interface PaginatedListingsResponse {
@@ -26,4 +28,6 @@ export interface ListingDetails {
   street: string;
   city: string;
   postal_code: string;
+  lat: number;
+  lng: number;
 }

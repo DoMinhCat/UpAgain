@@ -14,6 +14,7 @@ import {
   Image,
   CopyButton,
   Tooltip,
+  Box,
   ActionIcon,
   Anchor,
   ThemeIcon,
@@ -77,6 +78,7 @@ import type { CodeForAdmin } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function AdminListingDetails() {
   const { t } = useTranslation(["admin", "create_item", "common"]);
@@ -112,8 +114,10 @@ export default function AdminListingDetails() {
   const processMutation = useProcessValidation();
   const [openedRefuse, { open: openRefuse, close: closeRefuse }] =
     useDisclosure(false);
-  const [openedDeleteModal, { open: openDeleteModal, close: closeDeleteModal }] =
-    useDisclosure(false);
+  const [
+    openedDeleteModal,
+    { open: openDeleteModal, close: closeDeleteModal },
+  ] = useDisclosure(false);
 
   const handleConfirmRefuse = (reason: string) => {
     const category = itemDetails?.category;
@@ -364,6 +368,32 @@ export default function AdminListingDetails() {
                   __html: DOMPurify.sanitize(itemDetails?.description ?? ""),
                 }}
               />
+
+              {((isListing && listingDetails?.lat && listingDetails?.lng) ||
+                (isDeposit && depositDetails?.lat && depositDetails?.lng)) && (
+                <Box mt="xl">
+                  <EmbeddedMap
+                    height={300}
+                    locations={[
+                      {
+                        id: id_item,
+                        lat: isListing
+                          ? listingDetails!.lat
+                          : depositDetails!.lat,
+                        lng: isListing
+                          ? listingDetails!.lng
+                          : depositDetails!.lng,
+                        label: isListing
+                          ? t("listings.details.location")
+                          : t("common:container") +
+                            ` #${depositDetails?.container_id}`,
+                      },
+                    ]}
+                    centerOnId={id_item}
+                    zoom={15}
+                  />
+                </Box>
+              )}
             </Stack>
             {itemDetails?.images && itemDetails.images.length > 0 && (
               <>
