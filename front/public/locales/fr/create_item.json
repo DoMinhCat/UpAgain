@@ -44,6 +44,7 @@
   },
   "submit": "Publier l'annonce",
   "success": "Votre objet a été publié avec succès !",
+  "validation_notice": "Remarque : Toute modification devra être validée à nouveau par un administrateur avant d'apparaître sur la boutique.",
   "validation": {
     "required": "Ce champ est obligatoire",
     "min_weight": "Le poids doit être au moins de 0.1 kg",
