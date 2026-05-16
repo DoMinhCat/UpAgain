@@ -7,6 +7,7 @@ import {
   getItemDetails,
   getItemStats,
   getItemTransactions,
+  getLatestTransaction,
   getMyItems,
   reserveItem,
   updateItemStatus,
@@ -181,6 +182,22 @@ export const useCreateItem = () => {
         "marketplace:notifications.post_success_title",
         "marketplace:notifications.post_success_message",
       );
+    },
+  });
+};
+
+export const useGetLatestTransactionOfPro = (
+  id: number,
+  isValidId: boolean,
+) => {
+  return useQuery({
+    queryKey: ["latest-transaction-of-pro", id],
+    queryFn: () => getLatestTransaction(id),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Failed to retrieve transaction's detail",
+      errorMessage: "An error occurred while fetching transaction's detail",
     },
   });
 };

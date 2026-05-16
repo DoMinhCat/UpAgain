@@ -41,7 +41,7 @@ func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 	exist, err := db.CheckItemExistByItemId(itemId)
 	if err != nil {
 		slog.Error("CheckItemExistByItemId() failed", "controller", "GetItemTransactions", "item_id", itemId, "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching object's transactions")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching object's transactions")
 		return
 	}
 
@@ -78,14 +78,14 @@ func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 	transactions, err := db.GetTransactionsByItemId(itemId, page, limit)
 	if err != nil {
 		slog.Error("GetTransactionsByItemId() failed", "controller", "GetItemTransactions", "item_id", itemId, "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching object's transactions")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching object's transactions")
 		return
 	}
 
 	total, err := db.GetTotalTransactionsByItemId(itemId)
 	if err != nil {
 		slog.Error("GetTotalTransactionsByItemId() failed", "controller", "GetItemTransactions", "item_id", itemId, "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching object's transactions")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching object's transactions")
 		return
 	}
 
@@ -112,3 +112,34 @@ func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
+// TODO: swagger doc
+func GetLatestTransaction(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	itemId, err := strconv.Atoi(r.PathValue("item_id"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "GetLatestTransaction", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID")
+		return
+	}
+
+	exist, err := db.CheckItemExistByItemId(itemId)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "GetLatestTransaction", "item_id", itemId, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching object's latest transaction")
+		return
+	}
+
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Item with ID "+strconv.Itoa(itemId)+" not found")
+		return
+	}
+
+	transaction, err := db.GetLatestTransactionOfPro(idRequestor, itemId)
+	if err != nil {
+		slog.Error("GetLatestTransactionOfPro() failed", "controller", "GetLatestTransaction", "item_id", itemId, "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching object's latest transaction")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, transaction)
+}

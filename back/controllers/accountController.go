@@ -151,7 +151,7 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 
 	accounts, total, err := db.GetAllAccounts(isDeleted, page, limit, filters)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching accounts.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching accounts.")
 		slog.Error("GetAllAccounts() failed", "controller", "GetAllAccountsAdmin", "error", err)
 		return
 	}

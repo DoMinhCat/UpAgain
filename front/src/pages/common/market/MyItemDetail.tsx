@@ -42,6 +42,7 @@ import {
   IconPackage,
   IconBuildingStore,
   IconTrash,
+  IconChevronRight,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
@@ -371,8 +372,6 @@ export default function MyItemDetail() {
   const isReserved = latestTx?.action === "reserved";
   const isPurchased = latestTx?.action === "purchased" && !isCompleted; // bought but not completed
 
-  // ── right-panel sections ─────────────────────────────────────────────────
-
   /** PRO right panel */
   const ProRightPanel = () => {
     if (isReserved) {
@@ -405,7 +404,7 @@ export default function MyItemDetail() {
                 variant="primary"
                 fullWidth
                 size="md"
-                leftSection={<IconBuildingStore size={16} />}
+                rightSection={<IconChevronRight size={16} />}
               >
                 {t("marketplace:detail.buy")}
               </Button>

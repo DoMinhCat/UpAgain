@@ -39,6 +39,7 @@ import {
   useGetItemDetails,
   useDeleteItem,
   useGetItemTransactions,
+  useGetLatestTransactionOfPro,
 } from "../../../hooks/itemHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { getTimeAgo } from "../../../utils/timeUtils";
@@ -144,6 +145,13 @@ export default function ItemDetailPage() {
     );
   };
 
+  // CURRENT TRANSACTION
+  const { data: latestTransactionOfPro } = useGetLatestTransactionOfPro(
+    id_item,
+    isValidId && role === "pro",
+  );
+  const hasRelatedTransaction = latestTransactionOfPro?.id_item === id_item;
+  const isReservedByMe = latestTransactionOfPro?.action === "reserved";
   // RESERVE ITEM
   const handleReserve = () => {
     openReserve();
@@ -592,13 +600,12 @@ export default function ItemDetailPage() {
 
                     <Stack gap="sm">
                       {/* Buy and reserve for pro */}
-                      {role === "pro" && (
+                      {role === "pro" && !isReserved && (
                         <>
                           <Button
                             size="lg"
                             variant="secondary"
                             fullWidth
-                            disabled={isReserved}
                             color="var(--upagain-neutral-green)"
                             onClick={handleReserve}
                             rightSection={<IconChevronRight size={18} />}
@@ -610,17 +617,32 @@ export default function ItemDetailPage() {
                           <Button
                             size="lg"
                             radius="md"
-                            disabled={isReserved}
                             variant="cta-reverse"
                             fullWidth
                             color="var(--upagain-neutral-green)"
                             rightSection={<IconChevronRight size={18} />}
-                            onClick={handleReserve}
+                            onClick={handleAction}
                           >
                             {t("marketplace:detail.buy")}
                           </Button>
                         </>
                       )}
+
+                      {role === "pro" &&
+                        (isReservedByMe || hasRelatedTransaction) && (
+                          <Button
+                            size="lg"
+                            variant="secondary"
+                            fullWidth
+                            color="var(--upagain-neutral-green)"
+                            onClick={() =>
+                              navigate(PATHS.MARKETPLACE.ME + "/" + item.id)
+                            }
+                            rightSection={<IconChevronRight size={18} />}
+                          >
+                            See in My Items
+                          </Button>
+                        )}
 
                       {/* Admin see in back office */}
                       {role === "admin" && (
@@ -690,7 +712,7 @@ export default function ItemDetailPage() {
                               "Secure transaction guaranteed by UpAgain",
                           })}
                         </Text>
-                        {isReserved && (
+                        {isReserved && !isReservedByMe && (
                           <Alert icon={<IconInfoCircle size={18} />}>
                             {t("marketplace:detail.already_reserved_info", {
                               defaultValue:
