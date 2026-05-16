@@ -104,6 +104,8 @@ export const ENDPOINTS = {
     ME: "/items/me/",
     RESERVE: (idItem: number) => `/items/${idItem}/reserve/`,
     PURCHASE: (idItem: number) => `/items/${idItem}/purchase/`,
+    LATEST_TRANSACTION: (idItem: number) =>
+      `/items/${idItem}/transactions/latest/`,
   },
 
   LISTINGS: {

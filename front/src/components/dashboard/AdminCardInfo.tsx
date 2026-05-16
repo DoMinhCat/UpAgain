@@ -85,7 +85,7 @@ export function AdminCardInfo({
       {loading ? (
         <Loader />
       ) : error ? (
-        <Text c="red">An error occured while fetching data</Text>
+        <Text c="red">An error occurred while fetching data</Text>
       ) : (
         <>
           <Title order={3} mt="lg">

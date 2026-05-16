@@ -68,7 +68,7 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 
 	histories, total, err := db.GetAllAdminHistory(page, limit, filters)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching history.")
 		slog.Error("GetAllAdminHistory() failed", "controller", "GetAllAdminHistory", "error", err)
 		return
 	}
@@ -132,7 +132,7 @@ func GetHistoryDetails(w http.ResponseWriter, r *http.Request) {
 
 	exist, err := db.CheckHistoryExistsById(historyID)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching history.")
 		slog.Error("CheckHistoryExistsById() failed", "controller", "GetHistoryDetails", "error", err)
 		return
 	}
@@ -143,7 +143,7 @@ func GetHistoryDetails(w http.ResponseWriter, r *http.Request) {
 
 	history, err := db.GetHistoryDetailsById(historyID)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching history.")
 		slog.Error("GetHistoryDetails() failed", "controller", "GetHistoryDetails", "error", err)
 		return
 	}
