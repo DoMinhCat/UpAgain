@@ -19,6 +19,7 @@ import (
 // @Summary      Get all items
 // @Description  Get a paginated list of all items with optional filters for search, sort, status, material, and category.
 // @Tags         item
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page      query     int     false  "Page number"
 // @Param        limit     query     int     false  "Items per page"
@@ -30,7 +31,7 @@ import (
 // @Success      200       {object}  models.ItemListPagination
 // @Failure      400       {object}  nil  "Invalid query parameters"
 // @Failure      500       {object}  nil  "Internal server error"
-// @Router       /admin/items/ [get]
+// @Router       /items/ [get]
 func GetAllItems(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// default pagination
@@ -106,7 +107,7 @@ func GetAllItems(w http.ResponseWriter, r *http.Request) {
 // @Failure      400        {object}  nil  "Invalid timeframe"
 // @Failure      401        {object}  nil  "Unauthorized"
 // @Failure      500        {object}  nil  "Internal server error"
-// @Router       /admin/items/count/ [get]
+// @Router       /items/count/ [get]
 func GetAllItemsStats(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -237,7 +238,7 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request) {
 // @Failure      401      {object}  nil  "Unauthorized"
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
-// @Router       /admin/items/{item_id}/ [delete]
+// @Router       /items/{item_id}/ [delete]
 func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "user" {
@@ -338,7 +339,7 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 // @Failure      400      {object}  nil  "Invalid ID"
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
-// @Router       /admin/items/{item_id}/ [get]
+// @Router       /items/{item_id}/ [get]
 func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("item_id")
 	if idString == "" {
@@ -416,7 +417,7 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 // @Failure      401      {object}  nil  "Unauthorized"
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
-// @Router       /admin/items/{item_id}/ [patch]
+// @Router       /items/{item_id}/ [patch]
 func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" || role == "pro" {
@@ -521,6 +522,30 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item status updated successfully."})
 }
 
+// CreateItem godoc
+// @Summary      Create a new item
+// @Description  Create a new item (listing or deposit). Supports multipart/form-data for image uploads.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        title          formData  string  true   "Item title"
+// @Param        description    formData  string  true   "Item description"
+// @Param        price          formData  int     true   "Item price"
+// @Param        weight         formData  int     true   "Item weight"
+// @Param        material       formData  string  true   "Item material"
+// @Param        state          formData  string  true   "Item state"
+// @Param        category       formData  string  true   "Item category (listing or deposit)"
+// @Param        images         formData  file    true   "Item images"
+// @Param        id_container   formData  int     false  "Container ID (for deposit)"
+// @Param        street         formData  string  false  "Street (for listing)"
+// @Param        city_name      formData  string  false  "City name (for listing)"
+// @Param        postal_code    formData  string  false  "Postal code (for listing)"
+// @Success      200            {object}  map[string]string  "Item created successfully"
+// @Failure      400            {object}  nil  "Invalid request body or parameters"
+// @Failure      401            {object}  nil  "Unauthorized"
+// @Failure      500            {object}  nil  "Internal server error"
+// @Router       /items/ [post]
 func CreateItem(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 

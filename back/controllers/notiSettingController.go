@@ -22,7 +22,7 @@ import (
 // @Failure      401 {string} string "Unauthorized"
 // @Failure      403 {string} string "Forbidden"
 // @Failure      500 {string} string "Internal Server Error"
-// @Router       /accounts/{id_account}/notifications [get]
+// @Router       /accounts/{id_account}/notifications/ [get]
 func GetNotiSettings(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
@@ -67,7 +67,7 @@ func GetNotiSettings(w http.ResponseWriter, r *http.Request) {
 // @Failure      401 {string} string "Unauthorized"
 // @Failure      403 {string} string "Forbidden"
 // @Failure      500 {string} string "Internal Server Error"
-// @Router       /accounts/{id_account}/notifications [patch]
+// @Router       /accounts/{id_account}/notifications/ [patch]
 func UpdateNotiSetting(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {

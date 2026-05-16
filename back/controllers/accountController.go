@@ -88,6 +88,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get all accounts (Admin)
 // @Description  Get a list of all accounts with filters and pagination
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        is_deleted  query     bool    true   "Fetch deleted accounts"
 // @Param        page        query     int     false  "Page number"
@@ -182,6 +183,7 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Summary      Soft delete account
 // @Description  Marks an account as deleted
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      204         {object}  nil  "No Content"
@@ -269,6 +271,7 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account details
 // @Description  Get details of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      200         {object}  models.AccountDetails
@@ -313,6 +316,7 @@ func GetAccountDetails(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update password
 // @Description  Update the password of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                          true  "Account ID"
@@ -400,6 +404,7 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 // @Summary      Toggle ban status
 // @Description  Ban or unban an account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                      true  "Account ID"
@@ -498,6 +503,7 @@ func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Recover account
 // @Description  Restore a soft-deleted account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      204         {object}  nil  "No Content"
@@ -562,6 +568,7 @@ func RecoverAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account stats
 // @Description  Get activity statistics for a specific account based on its role
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      200         {object}  interface{}  "Stats (UserStats, ProStats, or EmployeeStats)"
@@ -645,6 +652,7 @@ func GetAccountStats(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update account
 // @Description  Update details of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                          true  "Account ID"
@@ -750,6 +758,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account count stats
 // @Description  Get total count of accounts and increase since last month
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {object}  models.AccountCountStats
 // @Failure      401  {object}  nil  "Unauthorized"

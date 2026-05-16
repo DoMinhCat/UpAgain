@@ -355,6 +355,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get pending listings
 // @Description  Get a paginated list of pending listings for admin
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
