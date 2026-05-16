@@ -31,7 +31,8 @@
     "sold": "Sold",
     "to_drop_off": "To Drop Off",
     "bought": "Bought",
-    "to_retrieve": "To Retrieve"
+    "to_retrieve": "To Retrieve",
+    "cancelled": "Cancelled"
   },
   "categories": {
     "all": "All Categories",

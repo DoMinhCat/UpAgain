@@ -902,7 +902,7 @@ func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 	// get uuid
 	uuid, err := db.GetTransactionLatestUuidOfPro(idRequestor, item_id)
 	if err != nil {
-		slog.Error("GetTransactionLatestUUIDByItemId() failed", "controller", "CancelItemReservation", "error", err)
+		slog.Error("GetTransactionLatestUuidOfPro() failed", "controller", "CancelItemReservation", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
 		return
 	}
