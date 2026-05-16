@@ -16,6 +16,7 @@ import (
 // @Summary      Get deposit details by ID
 // @Description  Get details of a specific deposit
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        deposit_id  path      int  true  "Deposit ID"
 // @Success      200         {object}  models.DepositDetails
@@ -63,6 +64,7 @@ func GetDepositDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update deposit details
 // @Description  Update the details of a specific deposit (only by owner or admin)
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Accept       multipart/form-data
 // @Produce      json
 // @Param        deposit_id       path      int     true   "Deposit ID"
@@ -299,6 +301,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get pending deposits
 // @Description  Get a paginated list of pending deposits for admin
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
@@ -332,6 +335,7 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get deposit codes for user and/or pro of the latest transaction
 // @Description  Get deposit code of pro and user of the latest transaction for a deposit
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        deposit_id    path     int     true  "Deposit ID"
 // @Success      200     {object}  []models.CodeForAdmin  "Deposit codes and their status"
@@ -373,6 +377,7 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 // @Summary      Transfer container by deposit ID
 // @Description  Change the container of a deposit to a another available container
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        deposit_id  path      int                              true  "Deposit ID"

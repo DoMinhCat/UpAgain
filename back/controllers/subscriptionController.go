@@ -15,6 +15,7 @@ import (
 // @Summary      Get all subscriptions
 // @Description  Get a paginated list of all subscriptions with filtering by active status
 // @Tags         subscription
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
@@ -80,6 +81,7 @@ func GetAllSubscriptionsHandler(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get subscription by ID
 // @Description  Get details of a specific subscription including user information
 // @Tags         subscription
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id   path      int  true  "Subscription ID"
 // @Success      200  {object}  models.SubscriptionWithUser
@@ -126,6 +128,7 @@ func GetSubscriptionByIDHandler(w http.ResponseWriter, r *http.Request) {
 // @Summary      Cancel subscription
 // @Description  Cancel an active subscription. Admin can cancel any, users can cancel their own.
 // @Tags         subscription
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Subscription ID"
@@ -205,6 +208,7 @@ func CancelSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update subscription price
 // @Description  Update the price of the premium subscription. Admin only.
 // @Tags         subscription
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        body  body      models.UpdateSubscriptionPriceRequest  true  "New price payload"
@@ -258,6 +262,7 @@ func UpdateSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get subscription price
 // @Description  Get the current price of the premium subscription
 // @Tags         subscription
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {object}  map[string]float64  "Current price"
 // @Failure      401  {object}  nil                 "Unauthorized"
@@ -362,7 +367,7 @@ func UpdateTrialDaysHandler(w http.ResponseWriter, r *http.Request) {
 // @Success      200        {object}  models.SubscriptionStats
 // @Failure      401        {object}  nil  "Unauthorized"
 // @Failure      500        {object}  nil  "Internal server error"
-// @Router       /subscriptions/stats [get]
+// @Router       /subscriptions/stats/ [get]
 func GetSubscriptionStatsHandler(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {

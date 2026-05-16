@@ -15,6 +15,7 @@ import (
 // @Summary      Get validation stats
 // @Description  Get counts of pending, approved, and refused for all entity types
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {object}  models.ValidationStats  "Validation stats"
 // @Failure      500  {object}  nil                     "Internal server error"
@@ -33,6 +34,7 @@ func GetValidationStats(w http.ResponseWriter, r *http.Request) {
 // @Summary      Process listing validation
 // @Description  Approve or refuse a listing
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Listing ID"
@@ -108,6 +110,7 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 // @Summary      Process deposit validation
 // @Description  Approve or refuse a deposit
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Deposit ID"
@@ -175,6 +178,7 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 // @Summary      Process event validation
 // @Description  Approve or refuse an event
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Event ID"
@@ -254,6 +258,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get items history
 // @Description  Get a paginated history of all items
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"

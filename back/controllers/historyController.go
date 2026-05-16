@@ -21,7 +21,7 @@ import (
 // @Param sort query string false "Sort order (most_recent_activity, oldest_activity)"
 // @Param module query string false "Filter by module"
 // @Param action query string false "Filter by action"
-// @Security BearerAuth
+// @Security ApiKeyAuth
 // @Success 200 {object} models.HistoryListPagination
 // @Failure 401 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -103,7 +103,7 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param history_id path int true "History ID"
-// @Security BearerAuth
+// @Security ApiKeyAuth
 // @Success 200 {object} models.History
 // @Failure 400 {object} map[string]string
 // @Failure 401 {object} map[string]string

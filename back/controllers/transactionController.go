@@ -13,6 +13,7 @@ import (
 // @Summary      Get transactions for an item
 // @Description  Get paginated transactions for a specific item (admin/user)
 // @Tags         transaction
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        item_id  path      int     true   "Item ID"
 // @Param        page     query     int     false  "Page number"
@@ -115,6 +116,7 @@ func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 // @Summary      Cancel transaction
 // @Description  Cancel an active reserved transaction for an item
 // @Tags         transaction
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        item_id           path      int     true  "Item ID"
 // @Param        transaction_uuid  path      string  true  "Transaction UUID"
