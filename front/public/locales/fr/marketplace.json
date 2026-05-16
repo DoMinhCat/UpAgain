@@ -102,6 +102,8 @@
     "deposit_in_container": "Votre objet a été déposé dans le conteneur. En attente du passage de l'acheteur.",
     "drop_off_reminder": "Veuillez déposer votre objet dans le conteneur avec le code ci-dessus :",
     "completed_title": "Transaction terminée",
-    "completed_on": "Terminé le {{date}}"
+    "completed_on": "Terminé le {{date}}",
+    "cancelled_title": "Réservation annulée",
+    "cancelled_on": "Annulée le {{date}}"
   }
 }
