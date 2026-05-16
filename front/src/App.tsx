@@ -16,6 +16,7 @@ import {
   Timeline,
   Checkbox,
   SegmentedControl,
+  Alert,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -60,6 +61,13 @@ const UpAgainTheme = createTheme({
       defaultProps: {
         classNames: {
           root: classes.pill,
+        },
+      },
+    }),
+    Alert: Alert.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.alert,
         },
       },
     }),

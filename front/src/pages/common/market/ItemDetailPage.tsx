@@ -12,6 +12,7 @@ import {
   Avatar,
   Button,
   useComputedColorScheme,
+  Alert,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import {
@@ -34,7 +35,11 @@ import { useParams } from "react-router-dom";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
 import { resolveUrl } from "../../../utils/imageUtils";
-import { useGetItemDetails, useDeleteItem } from "../../../hooks/itemHooks";
+import {
+  useGetItemDetails,
+  useDeleteItem,
+  useGetItemTransactions,
+} from "../../../hooks/itemHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import DOMPurify from "dompurify";
@@ -88,6 +93,10 @@ export default function ItemDetailPage() {
     depositDetails?.container_id || 0,
     isValidId && isDeposit && !!depositDetails?.container_id,
   );
+  const { data: transactionsData } = useGetItemTransactions(id_item, isValidId);
+  const latestTransaction = transactionsData?.transactions?.[0];
+  const isReserved = latestTransaction?.action === "reserved";
+  const isPurchased = latestTransaction?.action === "purchased";
 
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
@@ -144,7 +153,7 @@ export default function ItemDetailPage() {
     return <FullScreenLoader />;
   }
 
-  if (!item || item.status !== "approved") {
+  if (!item || item.status !== "approved" || isPurchased) {
     return <NotFoundPage />;
   }
 
@@ -589,6 +598,7 @@ export default function ItemDetailPage() {
                             size="lg"
                             variant="secondary"
                             fullWidth
+                            disabled={isReserved}
                             color="var(--upagain-neutral-green)"
                             onClick={handleReserve}
                             rightSection={<IconChevronRight size={18} />}
@@ -600,6 +610,7 @@ export default function ItemDetailPage() {
                           <Button
                             size="lg"
                             radius="md"
+                            disabled={isReserved}
                             variant="cta-reverse"
                             fullWidth
                             color="var(--upagain-neutral-green)"
@@ -672,12 +683,22 @@ export default function ItemDetailPage() {
                     </Stack>
 
                     {role === "pro" && (
-                      <Text size="xs" c="dimmed" ta="center">
-                        {t("marketplace:detail.secure_transaction_note", {
-                          defaultValue:
-                            "Secure transaction guaranteed by UpAgain",
-                        })}
-                      </Text>
+                      <Stack gap="sm">
+                        <Text size="xs" c="dimmed" ta="center">
+                          {t("marketplace:detail.secure_transaction_note", {
+                            defaultValue:
+                              "Secure transaction guaranteed by UpAgain",
+                          })}
+                        </Text>
+                        {isReserved && (
+                          <Alert icon={<IconInfoCircle size={18} />}>
+                            {t("marketplace:detail.already_reserved_info", {
+                              defaultValue:
+                                "This item is currently reserved by another professional. It may become available again if the reservation expires.",
+                            })}
+                          </Alert>
+                        )}
+                      </Stack>
                     )}
                   </Stack>
                 </Paper>
