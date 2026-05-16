@@ -58,9 +58,9 @@
   },
   "time": {
     "just_now": "Vừa xong",
-    "minutes_ago": "{{count}} phút trước",
-    "hours_ago": "{{count}} giờ trước",
+    "minutes_ago_other": "{{count}} phút trước",
+    "hours_ago_other": "{{count}} giờ trước",
     "yesterday": "Hôm qua",
-    "days_ago": "{{count}} ngày trước"
+    "days_ago_other": "{{count}} ngày trước"
   }
 }

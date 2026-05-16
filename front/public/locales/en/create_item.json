@@ -44,6 +44,7 @@
   },
   "submit": "Publish Listing",
   "success": "Your item has been posted successfully!",
+  "validation_notice": "Note: Any changes made will require re-validation by an administrator before appearing on the marketplace.",
   "validation": {
     "required": "This field is required",
     "min_weight": "Weight must be at least 0.1 kg",
