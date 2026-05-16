@@ -133,8 +133,8 @@ export const purchaseItem = async (id: number) => {
 };
 
 export const getLatestTransaction = async (
-  id: number,
+  id_item: number,
 ): Promise<Transaction> => {
-  const response = await api.get(ENDPOINTS.ITEMS.LATEST_TRANSACTION(id));
+  const response = await api.get(ENDPOINTS.ITEMS.LATEST_TRANSACTION(id_item));
   return response.data;
 };

@@ -55,6 +55,7 @@ import { resolveUrl } from "../../../utils/imageUtils";
 import {
   useGetItemDetails,
   useGetItemTransactions,
+  useGetLatestTransactionOfPro,
 } from "../../../hooks/itemHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import DOMPurify from "dompurify";
@@ -78,25 +79,6 @@ import { useContainerDetails } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: string }) {
-  const color =
-    status === "approved"
-      ? "green"
-      : status === "refused"
-        ? "red"
-        : status === "completed"
-          ? "teal"
-          : status === "reserved" || status === "purchased"
-            ? "blue"
-            : "yellow";
-  return (
-    <Badge size="lg" radius="md" variant="light" color={color}>
-      {status.toUpperCase()}
-    </Badge>
-  );
-}
-
 function AccessCodeCard({
   code,
   label,
@@ -342,22 +324,27 @@ export default function MyItemDetail() {
     );
 
   // Only users see transaction history (pro role removed by backend)
+  const { data: latestTx, isLoading: isLoadingProTransaction } =
+    useGetLatestTransactionOfPro(id_item, isValidId);
   const { data: transactionsData, isLoading: isLoadingTransactions } =
-    useGetItemTransactions(id_item, isValidId, activePage, limit);
+    useGetItemTransactions(id_item, isValidId && role === "user");
 
   // Deposit codes accessible to both roles now (backend updated)
   const { data: depositCodes, isLoading: isLoadingDepositCodes } =
     useGetDepositCodesOfLatestTransaction(id_item, isValidId && isDeposit);
 
-  if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading)
+  if (
+    isLoadingItem ||
+    isListingDetailsLoading ||
+    isDepositDetailsLoading ||
+    isContainerDetailsLoading ||
+    isLoadingProTransaction
+  )
     return <FullScreenLoader />;
 
   if (isItemError) {
     return <NotFoundPage />;
   }
-
-  const transactions = transactionsData?.transactions || [];
-  const latestTx = transactions[0]; // most recent transaction
 
   // deposit code helpers
   const userDepositCode = depositCodes?.[0];
@@ -374,6 +361,7 @@ export default function MyItemDetail() {
 
   const isReserved = latestTx?.action === "reserved";
   const isPurchased = latestTx?.action === "purchased" && !isCompleted; // bought but not completed
+  const isCancelled = latestTx?.action === "cancelled"; // bought but not completed
 
   /** PRO right panel */
   const ProRightPanel = () => {
@@ -411,12 +399,7 @@ export default function MyItemDetail() {
               >
                 {t("marketplace:detail.buy")}
               </Button>
-              <Button
-                variant="delete"
-                fullWidth
-                size="md"
-                onClick={openCancel}
-              >
+              <Button variant="delete" fullWidth size="md" onClick={openCancel}>
                 {t("marketplace:detail.cancel_reservation", {
                   defaultValue: "Cancel Reservation",
                 })}
@@ -439,6 +422,30 @@ export default function MyItemDetail() {
               <Text size="sm" c="dimmed" ta="center">
                 {t("marketplace:my_item_detail.completed_on", {
                   date: dayjs(latestTx.created_at).format("DD/MM/YYYY"),
+                })}
+              </Text>
+            )}
+          </Stack>
+        </Paper>
+      );
+    }
+
+    if (isCancelled) {
+      return (
+        <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+          <Stack gap="sm" align="center">
+            <IconAlertCircle size={48} color="var(--mantine-color-red-6)" />
+            <Title order={4} ta="center" c="red.6">
+              {t("marketplace:my_item_detail.cancelled_title", {
+                defaultValue: "Reservation Cancelled",
+              })}
+            </Title>
+            {latestTx && (
+              <Text size="sm" c="dimmed" ta="center">
+                {t("marketplace:my_item_detail.cancelled_on", {
+                  date: dayjs(latestTx.created_at).format(
+                    "DD/MM/YYYY - HH:mm A",
+                  ),
                 })}
               </Text>
             )}
@@ -821,7 +828,6 @@ export default function MyItemDetail() {
             <Stack gap="xl">
               {/* Status row */}
               <Group justify="flex-start" align="center" wrap="wrap">
-                <StatusBadge status={item?.status || ""} />
                 <Text size="sm" c="dimmed">
                   {t("marketplace:my_item_detail.posted_on", {
                     date: dayjs(item?.created_at).format("DD/MM/YYYY"),

@@ -107,6 +107,8 @@
     "deposit_in_container": "Your item has been dropped off at the container. Waiting for the buyer to pick it up.",
     "drop_off_reminder": "Please drop off your item at the container using the code above:",
     "completed_title": "Transaction Completed",
-    "completed_on": "Completed on {{date}}"
+    "completed_on": "Completed on {{date}}",
+    "cancelled_title": "Reservation Cancelled",
+    "cancelled_on": "Cancelled on {{date}}"
   }
 }
