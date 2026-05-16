@@ -45,7 +45,8 @@
     "not_implemented_msg": "Cette fonctionnalité sera bientôt disponible.",
     "reserve_confirm_title": "Confirmer la réservation",
     "reserve_confirm_text": "Êtes-vous sûr de vouloir réserver cet objet ? Vous aurez 3 jours pour finaliser l'achat.",
-    "reserve_period": "3 jours de réservation"
+    "reserve_period": "3 jours de réservation",
+    "already_reserved_info": "Cet objet est actuellement réservé par un autre professionnel. Il pourrait redevenir disponible si la réservation expire."
   },
   "notifications": {
     "fetch_items_error": "Erreur lors de la récupération des objets",

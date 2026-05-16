@@ -386,11 +386,7 @@ export default function MyItemDetail() {
                   {t("marketplace:my_item_detail.reservation_details")}
                 </Title>
               </Group>
-              <Alert
-                icon={<IconInfoCircle size={16} />}
-                color="blue"
-                variant="light"
-              >
+              <Alert icon={<IconInfoCircle size={16} />}>
                 {t("marketplace:my_item_detail.pro_reserved_info")}
               </Alert>
               {latestTx && (

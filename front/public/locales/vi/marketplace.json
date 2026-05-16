@@ -45,7 +45,8 @@
     "not_implemented_msg": "Tính năng này sẽ sớm ra mắt.",
     "reserve_confirm_title": "Xác nhận đặt chỗ",
     "reserve_confirm_text": "Bạn có chắc chắn muốn đặt chỗ món đồ này không? Bạn sẽ có 3 ngày để hoàn tất việc mua hàng.",
-    "reserve_period": "Đặt chỗ trong 3 ngày"
+    "reserve_period": "Đặt chỗ trong 3 ngày",
+    "already_reserved_info": "Món đồ này hiện đang được một chuyên gia khác đặt chỗ. Nó có thể khả dụng trở lại nếu việc đặt chỗ hết hạn."
   },
   "notifications": {
     "fetch_items_error": "Lỗi khi lấy danh sách món đồ",
