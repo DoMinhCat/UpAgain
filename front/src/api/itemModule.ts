@@ -54,11 +54,8 @@ export const getItemTransactions = async (
   return response.data;
 };
 
-export const cancelTransaction = async (
-  id: number,
-  transactionUuid: string,
-) => {
-  await api.post(ENDPOINTS.ADMIN.ITEMS.CANCEL_TRANSACTION(id, transactionUuid));
+export const cancelItemReservation = async (id: number) => {
+  await api.delete(ENDPOINTS.ADMIN.ITEMS.CANCEL_RESERVATION(id));
 };
 
 export const createItem = async (payload: CreateItemRequest): Promise<void> => {

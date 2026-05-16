@@ -52,7 +52,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
 import {
-  useCancelTransaction,
+  useCancelItemReservation,
   useGetItemDetails,
   useGetItemTransactions,
   useUpdateItemStatus,
@@ -176,32 +176,17 @@ export default function AdminListingDetails() {
   const transactions = transactionsData?.transactions || [];
 
   // FORCE CANCEL TRANSACTION
-  const [cancelTransactionId, setCancelTransactionId] =
-    useState<Transaction | null>(null);
-  const [
-    openedCancelModal,
-    { open: openCancelModal, close: closeCancelModal },
-  ] = useDisclosure(false);
+  const [openedCancel, { open: openCancel, close: closeCancel }] =
+    useDisclosure(false);
 
-  const handleOpenCancelModal = (transaction: Transaction) => {
-    setCancelTransactionId(transaction);
-    openCancelModal();
-  };
+  const cancelItemReservationMutation = useCancelItemReservation(id_item);
 
-  const cancelTransactionMutation = useCancelTransaction(id_item);
-
-  const handleCancelTransaction = () => {
-    cancelTransactionMutation.mutate(
-      cancelTransactionId?.id_transaction || "",
-      {
-        onSuccess: () => {
-          closeCancelModal();
-        },
-        onError: () => {
-          closeCancelModal();
-        },
+  const handleCancelReservation = () => {
+    cancelItemReservationMutation.mutate(undefined, {
+      onSuccess: () => {
+        closeCancel();
       },
-    );
+    });
   };
 
   // DEPOSIT CODES
@@ -918,16 +903,18 @@ export default function AdminListingDetails() {
                   </Badge>
                 </Table.Td>
                 <Table.Td ta="center">
-                  <Button
-                    variant="delete"
-                    size="xs"
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      handleOpenCancelModal(transaction);
-                    }}
-                  >
-                    {t("common:actions.cancel")}
-                  </Button>
+                  {transaction?.action === "reserved" && (
+                    <Button
+                      variant="delete"
+                      size="xs"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        openCancel();
+                      }}
+                    >
+                      {t("common:actions.cancel")}
+                    </Button>
+                  )}
                 </Table.Td>
               </Table.Tr>
             ))
@@ -1010,26 +997,28 @@ export default function AdminListingDetails() {
       />
 
       <Modal
-        opened={openedCancelModal}
-        onClose={closeCancelModal}
-        title={t("listings.details.transactions.cancel_modal_title")}
+        opened={openedCancel}
+        onClose={closeCancel}
+        title={t("actions.cancel_transaction", {
+          defaultValue: "Cancel Transaction",
+        })}
         size="lg"
       >
-        <Text>
-          {t("listings.details.transactions.cancel_confirm", {
-            id: cancelTransactionId?.id_transaction,
+        <Text size="sm" c="dimmed">
+          {t("history.details.cancel_transaction_confirm", {
+            defaultValue: "Are you sure you want to cancel this transaction?",
           })}
         </Text>
         <Group mt="lg" justify="end">
-          <Button onClick={closeCancelModal} variant="grey">
+          <Button onClick={closeCancel} variant="grey">
             {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={() => {
-              handleCancelTransaction();
+              handleCancelReservation();
             }}
             variant="delete"
-            loading={cancelTransactionMutation.isPending}
+            loading={cancelItemReservationMutation.isPending}
           >
             {t("common:actions.confirm")}
           </Button>

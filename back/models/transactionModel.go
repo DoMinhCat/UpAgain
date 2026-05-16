@@ -25,10 +25,10 @@ type TransactionsPaginationResponse struct {
 }
 
 type TransactionInsert struct {
+	IdTransaction      string     `json:"id_transaction"`
 	Action             string     `json:"action"`
 	IdItem             int        `json:"id_item"`
 	IdPro              int        `json:"id_pro"`
-	// IdTransaction      string     `json:"id_transaction"`
 	ItemPrice          *float64   `json:"item_price"`
 	CommissionRate     *float64   `json:"commission_rate"`
 	TotalPrice         *float64   `json:"total_price"`

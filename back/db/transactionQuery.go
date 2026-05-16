@@ -230,35 +230,14 @@ func GetTransactionLatestStatusByItemId(item_id int) (string, error) {
 	return status, nil
 }
 
-func CancelTransactionByUuid(transactionUuid string, idItem int, idPro int) error {
-	query := `
-		insert into transactions (id_transaction, action, id_item, id_pro) values ($1, 'cancelled', $2, $3);
-	`
-	_, err := utils.Conn.Exec(query, transactionUuid, idItem, idPro)
-	if err != nil {
-		return fmt.Errorf("CancelTransactionByUuid() failed: %v", err.Error())
-	}
-	return nil
-}
-
-func GetProIdByTransUuid(transactionUuid string) (int, error) {
-	var idPro int
-	query := `
-		select id_pro from transactions where id_transaction = $1;
-	`
-	err := utils.Conn.QueryRow(query, transactionUuid).Scan(&idPro)
-	if err != nil {
-		return 0, fmt.Errorf("GetProIdByTransUuid() failed: %v", err.Error())
-	}
-	return idPro, nil
-}
 
 func InsertTransaction(transaction models.TransactionInsert) error {
 	var transactionUuid string
 	var query string
 	var err error
 	// generate new uuid if it is reserve (first action)
-	if transaction.Action == "reserved" {
+	switch transaction.Action {
+	case "reserved":
 		transactionUuid = uuid.New().String()
 		reserveDurationDays := 3
 		reserveExpiry := time.Now().AddDate(0, 0, reserveDurationDays)
@@ -267,10 +246,33 @@ func InsertTransaction(transaction models.TransactionInsert) error {
 			values ($1, $2, $3, $4, $5);
 		`
 		_, err = utils.Conn.Exec(query, transactionUuid, transaction.Action, transaction.IdItem, transaction.IdPro, &reserveExpiry)
+	case "cancelled":
+		query = `
+			insert into transactions (id_transaction, action, id_item, id_pro)
+			values ($1, $2, $3, $4);
+		`
+		_, err = utils.Conn.Exec(query, transactionUuid, transaction.Action, transaction.IdItem, transaction.IdPro)
 	}
 	// TODO: else for other actions
 	if err != nil {
 		return fmt.Errorf("InsertTransaction() failed: %v", err.Error())
 	}
 	return nil
+}
+
+func GetTransactionLatestUuidByItemId(item_id int) (uuid.UUID, error) {
+	var transactionUuid string
+	query := `
+		select id_transaction from transactions where id_item = $1 order by created_at desc limit 1;
+	`
+	err := utils.Conn.QueryRow(query, item_id).Scan(&transactionUuid)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidByItemId() failed: %v", err.Error())
+	}
+
+	txUuidParsed, err := uuid.Parse(transactionUuid)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidByItemId() failed: %v", err.Error())
+	}
+	return txUuidParsed, nil
 }

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  cancelTransaction,
+  cancelItemReservation,
   createItem,
   deleteItem,
   getAllItems,
@@ -143,11 +143,10 @@ export const useGetItemTransactions = (
   });
 };
 
-export const useCancelTransaction = (id_item: number) => {
+export const useCancelItemReservation = (id_item: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (transactionUuid: string) =>
-      cancelTransaction(id_item, transactionUuid),
+    mutationFn: () => cancelItemReservation(id_item),
     meta: {
       errorTitle: "common:notifications.error",
       errorMessage: "marketplace:notifications.cancel_transaction_error",
@@ -155,6 +154,9 @@ export const useCancelTransaction = (id_item: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["item-transactions", id_item],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["item-details", id_item],
       });
       showSuccessNotification(
         "marketplace:notifications.cancel_transaction_success_title",
