@@ -5,7 +5,6 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -274,7 +273,6 @@ func InsertTransaction(transaction models.TransactionInsert) error {
 			insert into transactions (id_transaction, action, id_item, id_pro)
 			values ($1, $2, $3, $4);
 		`
-		slog.Debug(query, "transactionUuid", transactionUuid, "action", transaction.Action, "idItem", transaction.IdItem, "idPro", transaction.IdPro)
 		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro)
 	}
 	// TODO: else for other actions
@@ -282,23 +280,6 @@ func InsertTransaction(transaction models.TransactionInsert) error {
 		return fmt.Errorf("InsertTransaction() failed: %v", err.Error())
 	}
 	return nil
-}
-
-func GetTransactionLatestUuidByItemId(item_id int) (uuid.UUID, error) {
-	var transactionUuid string
-	query := `
-		select id_transaction from transactions where id_item = $1 order by created_at desc limit 1;
-	`
-	err := utils.Conn.QueryRow(query, item_id).Scan(&transactionUuid)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidByItemId() failed: %v", err.Error())
-	}
-
-	txUuidParsed, err := uuid.Parse(transactionUuid)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidByItemId() failed: %v", err.Error())
-	}
-	return txUuidParsed, nil
 }
 
 func GetTransactionLatestUuidOfPro(id_pro int, id_item int) (uuid.UUID, error) {

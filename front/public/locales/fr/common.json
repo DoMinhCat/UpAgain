@@ -31,7 +31,8 @@
     "sold": "Vendu",
     "to_drop_off": "À déposer",
     "bought": "Acheté",
-    "to_retrieve": "À récupérer"
+    "to_retrieve": "À récupérer",
+    "cancelled": "Annulé"
   },
   "categories": {
     "all": "Toutes les catégories",

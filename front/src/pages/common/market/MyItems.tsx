@@ -58,6 +58,7 @@ export default function MyItems() {
           { value: "reserved", label: t("common:status.reserved") },
           { value: "bought", label: t("common:status.bought") },
           { value: "to_retrieve", label: t("common:status.to_retrieve") },
+          { value: "cancelled", label: t("common:status.cancelled") },
         ]
       : [
           { value: "all", label: t("common:status.all") },
@@ -67,6 +68,7 @@ export default function MyItems() {
           { value: "reserved", label: t("common:status.reserved") },
           { value: "sold", label: t("common:status.sold") },
           { value: "to_drop_off", label: t("common:status.to_drop_off") },
+          { value: "cancelled", label: t("common:status.cancelled") },
         ];
 
   const CATEGORY_OPTIONS = [
