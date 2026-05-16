@@ -8,6 +8,7 @@ import {
   getItemStats,
   getItemTransactions,
   getMyItems,
+  reserveItem,
   updateItemStatus,
 } from "../api/itemModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
@@ -180,4 +181,28 @@ export const useCreateItem = () => {
       );
     },
   });
+};
+
+export const useReserveItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => reserveItem(id),
+    meta: {
+      errorTitle: "Reservation failed",
+      errorMessage: "Failed to reserve item, please try again later",
+    },
+    onSuccess: (_, id: number) => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
+      showSuccessNotification(
+        "marketplace:notifications.reserve_success_title",
+        "marketplace:notifications.reserve_success_message",
+      );
+    },
+  });
+};
+
+export const usePurchaseItem = (id: number) => {
+  // TODO
 };

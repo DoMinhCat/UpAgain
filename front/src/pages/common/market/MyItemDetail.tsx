@@ -942,7 +942,9 @@ export default function MyItemDetail() {
                 </Group>
 
                 {((isListing && listingDetails?.lat && listingDetails?.lng) ||
-                  (isDeposit && depositDetails?.lat && depositDetails?.lng)) && (
+                  (isDeposit &&
+                    depositDetails?.lat &&
+                    depositDetails?.lng)) && (
                   <EmbeddedMap
                     height={300}
                     locations={[
@@ -1044,7 +1046,7 @@ export default function MyItemDetail() {
         defaultActiveSlide={lightboxSlide}
       />
 
-      {item && (
+      {role === "user" && item && (
         <EditItemModal
           opened={openedEdit}
           onClose={closeEdit}
@@ -1052,20 +1054,24 @@ export default function MyItemDetail() {
           listingDetails={listingDetails}
         />
       )}
-      <DeleteItemModal
-        opened={openedDelete}
-        onClose={closeDelete}
-        onConfirm={handleDelete}
-        loading={deleteItemMutation.isPending}
-        title={t("marketplace:detail.delete")}
-      />
-      <TransferContainerModal
-        opened={openedTransfer}
-        onClose={closeTransfer}
-        onConfirm={handleTransfer}
-        isLoading={transferMutation.isPending}
-        currentContainerId={depositDetails?.container_id}
-      />
+      {role === "user" && (
+        <>
+          <DeleteItemModal
+            opened={openedDelete}
+            onClose={closeDelete}
+            onConfirm={handleDelete}
+            loading={deleteItemMutation.isPending}
+            title={t("marketplace:detail.delete")}
+          />
+          <TransferContainerModal
+            opened={openedTransfer}
+            onClose={closeTransfer}
+            onConfirm={handleTransfer}
+            isLoading={transferMutation.isPending}
+            currentContainerId={depositDetails?.container_id}
+          />
+        </>
+      )}
     </Container>
   );
 }

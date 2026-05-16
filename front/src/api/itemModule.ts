@@ -123,3 +123,11 @@ export const getMyItems = async (
   });
   return response.data;
 };
+
+export const reserveItem = async (id: number) => {
+  await api.post(ENDPOINTS.ITEMS.RESERVE(id));
+};
+
+export const purchaseItem = async (id: number) => {
+  await api.post(ENDPOINTS.ITEMS.PURCHASE(id));
+};

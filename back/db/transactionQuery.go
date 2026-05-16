@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // if param action_type is nil => get all kind of transaction
@@ -212,6 +214,22 @@ func GetTransactionLatestStatusByUuid(transactionUuid string) (string, error) {
 	return status, nil
 }
 
+// TODO: test query on supabase
+func GetTransactionLatestStatusByItemId(item_id int) (string, error) {
+	var status string
+	query := `
+		select action from transactions where id_item = $1 order by created_at desc limit 1;
+	`
+	err := utils.Conn.QueryRow(query, item_id).Scan(&status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", fmt.Errorf("GetTransactionLatestStatusByItemId() failed: %v", err.Error())
+	}
+	return status, nil
+}
+
 func CancelTransactionByUuid(transactionUuid string, idItem int, idPro int) error {
 	query := `
 		insert into transactions (id_transaction, action, id_item, id_pro) values ($1, 'cancelled', $2, $3);
@@ -233,4 +251,26 @@ func GetProIdByTransUuid(transactionUuid string) (int, error) {
 		return 0, fmt.Errorf("GetProIdByTransUuid() failed: %v", err.Error())
 	}
 	return idPro, nil
+}
+
+func InsertTransaction(transaction models.TransactionInsert) error {
+	var transactionUuid string
+	var query string
+	var err error
+	// generate new uuid if it is reserve (first action)
+	if transaction.Action == "reserved" {
+		transactionUuid = uuid.New().String()
+		reserveDurationDays := 3
+		reserveExpiry := time.Now().AddDate(0, 0, reserveDurationDays)
+		query = `
+			insert into transactions (id_transaction, action, id_item, id_pro, reservation_expiry)
+			values ($1, $2, $3, $4, $5);
+		`
+		_, err = utils.Conn.Exec(query, transactionUuid, transaction.Action, transaction.IdItem, transaction.IdPro, &reserveExpiry)
+	}
+	// TODO: else for other actions
+	if err != nil {
+		return fmt.Errorf("InsertTransaction() failed: %v", err.Error())
+	}
+	return nil
 }
