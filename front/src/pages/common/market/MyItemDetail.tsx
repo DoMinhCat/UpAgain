@@ -67,6 +67,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
+import { ConfirmCancelReservationModal } from "../../../components/market/ConfirmCancelReservationModal";
 import { useDeleteItem } from "../../../hooks/itemHooks";
 import { useTransferDepositContainer } from "../../../hooks/depositHooks";
 import dayjs from "dayjs";
@@ -284,6 +285,8 @@ export default function MyItemDetail() {
     useDisclosure(false);
   const [openedTransfer, { open: openTransfer, close: closeTransfer }] =
     useDisclosure(false);
+  const [openedCancel, { open: openCancel, close: closeCancel }] =
+    useDisclosure(false);
 
   const deleteItemMutation = useDeleteItem();
 
@@ -349,7 +352,7 @@ export default function MyItemDetail() {
   if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading)
     return <FullScreenLoader />;
 
-  if (isItemError && !isContainerDetailsLoading) {
+  if (isItemError) {
     return <NotFoundPage />;
   }
 
@@ -407,6 +410,16 @@ export default function MyItemDetail() {
                 rightSection={<IconChevronRight size={16} />}
               >
                 {t("marketplace:detail.buy")}
+              </Button>
+              <Button
+                variant="delete"
+                fullWidth
+                size="md"
+                onClick={openCancel}
+              >
+                {t("marketplace:detail.cancel_reservation", {
+                  defaultValue: "Cancel Reservation",
+                })}
               </Button>
             </Stack>
           </Paper>
@@ -1067,6 +1080,12 @@ export default function MyItemDetail() {
           />
         </>
       )}
+
+      <ConfirmCancelReservationModal
+        opened={openedCancel}
+        onClose={closeCancel}
+        idItem={id_item}
+      />
     </Container>
   );
 }
