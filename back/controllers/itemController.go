@@ -859,7 +859,67 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	// handle stripe
 }
 
-
+// TODO: swagger doc
+func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	item_id, err := strconv.Atoi(r.PathValue("item_id"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while cancelling item.")
+		return
+	}
+	exist, err := db.CheckItemExistByItemId(item_id)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(item_id)+" does not exist.")
+		return
+	}
+	status, err := db.GetItemStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	if status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item can't be cancelled at the moment.")
+		return
+	}
+	latestTx, err := db.GetTransactionLatestStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	if latestTx != "reserved" {
+		utils.RespondWithError(w, http.StatusConflict, "Item can't be cancelled at the moment.")
+		return
+	}
+	
+	// get uuid
+	uuid, err := db.GetTransactionLatestUuidByItemId(item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestUUIDByItemId() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	// cancel transaction
+	err = db.InsertTransaction(models.TransactionInsert{
+		IdTransaction: uuid.String(),
+		Action:        "cancelled",
+		IdItem:        item_id,
+		IdPro:         idRequestor,
+	})
+	if err != nil {
+		slog.Error("InsertTransaction() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item cancelled successfully."})
+}
 // add score only when item status == completed
 // score, err := helpers.CalculateScore(payload.Material, payload.Weight)
 // if err != nil {
