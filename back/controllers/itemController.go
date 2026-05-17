@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // GetAllItems godoc
@@ -856,7 +858,107 @@ func ReserveItem(w http.ResponseWriter, r *http.Request) {
 
 // TODO: swagger doc
 func PurchaseItem(w http.ResponseWriter, r *http.Request) {
-	// handle stripe
+	item_id, err := strconv.Atoi(r.PathValue("item_id"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while purchasing item.")
+		return
+	}
+
+	// validations
+	exist, err := db.CheckItemExistByItemId(item_id)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(item_id)+" does not exist.")
+		return
+	}
+	status, err := db.GetItemStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item can't be purchased at the moment.")
+		return
+	}
+	latestTx, err := db.GetTransactionLatestStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if latestTx == "purchased" {
+		utils.RespondWithError(w, http.StatusConflict, "Item is already purchased.")
+		return
+	}
+
+	// start purchase process
+	itemDetails, err := db.GetItemDetailsByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	// get existing transactions's uuid to insert later
+	latestTxOfPro, err := db.GetLatestTransactionOfPro(idRequestor, item_id)
+	if err != nil {
+		slog.Error("GetLatestTransactionOfPro() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	// if already reserved, get existing transactions's uuid to insert later
+	txUuid := ""
+	if latestTxOfPro.IdTransaction == "reserved" {
+		txUuid = latestTxOfPro.IdTransaction
+	// if buy right away without reservation, create new uuid
+	} else {	
+		txUuid = uuid.New().String()
+	}
+	itemCategory := itemDetails.Category
+
+	// NOT FREE BRANCH
+	if itemDetails.Price > 0 {
+		// TODO: handle stripe
+
+	// FREE BRANCH
+	} else {
+		freePrice := 0.0
+
+		// insert transaction
+		var confirm_code string
+		if itemCategory == "listing" {
+			confirm_code = helpers.GenerateRandom6CharCode()
+		}
+		err = db.InsertTransaction(models.TransactionInsert{
+				IdTransaction: txUuid,
+				Action: "purchased",
+				IdItem: item_id,
+				IdPro:  idRequestor,
+				ItemPrice: &freePrice,
+				CommissionRate: &freePrice,
+				TotalPrice: &freePrice,
+				ConfirmCode: &confirm_code,
+			})
+		if err != nil {
+			slog.Error("InsertTransaction() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
+		}
+
+		// TODO: if deposit then create barcode and 6 digit code for container for user role
+		
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
+		return
+	}
+	
+	// TODO: notify user that item is purchased
 }
 
 // TODO: swagger doc
@@ -920,16 +1022,22 @@ func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item cancelled successfully."})
 }
-// add score only when item status == completed
-// score, err := helpers.CalculateScore(payload.Material, payload.Weight)
-// if err != nil {
-// 	slog.Error("CalculateScore() failed", "controller", "CreateItem", "error", err)
-// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
-// 	return
-// }
-// err = db.UpdateUpcyclingScore(idRequestor, score)
-// if err != nil {
-// 	slog.Error("UpdateUpcyclingScore() failed", "controller", "CreateItem", "error", err)
-// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
-// 	return
-// }
+
+
+
+/*
+TODO:
+add score only when item status == completed (confirm code submit if listing, user code to open used if deposit)
+score, err := helpers.CalculateScore(payload.Material, payload.Weight)
+if err != nil {
+	slog.Error("CalculateScore() failed", "controller", "CreateItem", "error", err)
+	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+	return
+}
+err = db.UpdateUpcyclingScore(idRequestor, score)
+if err != nil {
+	slog.Error("UpdateUpcyclingScore() failed", "controller", "CreateItem", "error", err)
+	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+	return
+}
+*/

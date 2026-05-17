@@ -32,4 +32,5 @@ type TransactionInsert struct {
 	ItemPrice          *float64   `json:"item_price"`
 	CommissionRate     *float64   `json:"commission_rate"`
 	TotalPrice         *float64   `json:"total_price"`
+	ConfirmCode        *string    `json:"confirm_code"`
 }

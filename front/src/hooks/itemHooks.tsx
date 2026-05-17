@@ -9,6 +9,7 @@ import {
   getItemTransactions,
   getLatestTransaction,
   getMyItems,
+  purchaseItem,
   reserveItem,
   updateItemStatus,
 } from "../api/itemModule";
@@ -226,5 +227,22 @@ export const useReserveItem = () => {
 };
 
 export const usePurchaseItem = (id: number) => {
-  // TODO
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => purchaseItem(id),
+    meta: {
+      errorTitle: "Purchase failed",
+      errorMessage: "Failed to purchase item, please try again later",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
+      queryClient.invalidateQueries({ queryKey: ["my-items"] });
+      showSuccessNotification(
+        "Purchase success",
+        "Item purchased successfully",
+      );
+    },
+  });
 };
