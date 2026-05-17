@@ -952,8 +952,12 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: if deposit then create barcode and 6 digit code for container for user role
-		
+		if itemCategory == "listing" {
+			// TODO: if deposit then create barcode and 6 digit code for container for user role
+			utils.RespondWithError(w, http.StatusNotImplemented, "TODO: if deposit then create barcode and 6 digit code for container for user role")
+			return
+		}
+
 		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
 		return
 	}

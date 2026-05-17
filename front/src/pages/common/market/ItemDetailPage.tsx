@@ -57,6 +57,7 @@ import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal
 import { useNavigate } from "react-router-dom";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import { ConfirmReservationModal } from "../../../components/market/ConfirmReservationModal";
+import { ConfirmPurchaseModal } from "../../../components/market/ConfirmPurchaseModal";
 import dayjs from "dayjs";
 import { useGetContainerEarliestAvailability } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
@@ -107,6 +108,8 @@ export default function ItemDetailPage() {
     useDisclosure(false);
   const [openedReserve, { open: openReserve, close: closeReserve }] =
     useDisclosure(false);
+  const [openedPurchase, { open: openPurchase, close: closePurchase }] =
+    useDisclosure(false);
 
   const deleteItemMutation = useDeleteItem();
   const transferMutation = useTransferDepositContainer(id_item);
@@ -132,17 +135,6 @@ export default function ItemDetailPage() {
         navigate(PATHS.MARKETPLACE.HOME);
       },
     });
-  };
-
-  const handleAction = () => {
-    showInfoNotification(
-      t("marketplace:detail.not_implemented_title", {
-        defaultValue: "Feature coming soon",
-      }),
-      t("marketplace:detail.not_implemented_msg", {
-        defaultValue: "This action will be available in the next update.",
-      }),
-    );
   };
 
   // CURRENT TRANSACTION
@@ -621,7 +613,7 @@ export default function ItemDetailPage() {
                             fullWidth
                             color="var(--upagain-neutral-green)"
                             rightSection={<IconChevronRight size={18} />}
-                            onClick={handleAction}
+                            onClick={openPurchase}
                           >
                             {t("marketplace:detail.buy")}
                           </Button>
@@ -769,12 +761,21 @@ export default function ItemDetailPage() {
         </>
       )}
       {role === "pro" && (
-        <ConfirmReservationModal
-          opened={openedReserve}
-          onClose={closeReserve}
-          idItem={id_item}
-          itemTitle={item?.title}
-        />
+        <>
+          <ConfirmReservationModal
+            opened={openedReserve}
+            onClose={closeReserve}
+            idItem={id_item}
+            itemTitle={item?.title}
+          />
+          <ConfirmPurchaseModal
+            opened={openedPurchase}
+            onClose={closePurchase}
+            idItem={id_item}
+            itemTitle={item?.title}
+            price={item?.price}
+          />
+        </>
       )}
     </>
   );

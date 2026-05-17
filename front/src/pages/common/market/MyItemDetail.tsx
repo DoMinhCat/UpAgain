@@ -478,14 +478,6 @@ export default function MyItemDetail() {
                     {listingDetails.street}, {listingDetails.city}{" "}
                     {listingDetails.postal_code}
                   </Text>
-                  <Alert
-                    icon={<IconInfoCircle size={14} />}
-                    color="green"
-                    variant="light"
-                    mt="xs"
-                  >
-                    {t("marketplace:my_item_detail.pro_give_code_reminder")}
-                  </Alert>
                 </Stack>
               )}
               {isDeposit && depositDetails && (
