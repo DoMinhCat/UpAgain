@@ -243,26 +243,26 @@ CREATE TABLE photos (
     );
 );
 
-CREATE TYPE item_state AS ENUM ('new', 'very_good', 'good', 'need_repair');
-CREATE TYPE material AS ENUM ('wood', 'metal', 'textile', 'glass', 'plastic', 'mixed', 'other');
-CREATE TYPE item_status AS ENUM ('pending', 'approved', 'refused', 'completed');
+CREATE TYPE item_state      AS ENUM ('new', 'very_good', 'good', 'need_repair');
+CREATE TYPE material        AS ENUM ('wood', 'metal', 'textile', 'glass', 'plastic', 'mixed', 'other');
+CREATE TYPE item_status     AS ENUM ('pending', 'approved', 'refused', 'completed');
 create table items
 (
-    id          serial primary key,
-    created_at  timestamptz  not null default now(),
-    title       varchar(255) not null,
+    id          serial          primary key,
+    created_at  timestamptz     not null default now(),
+    title       varchar(255)    not null,
     description text,
-    price       numeric(8,2)   not null default 0,
-    weight      numeric(8,2)   not null,                   -- in kg
-    material    material     not null default 'other',
-    status      item_status  not null default 'pending', -- workflow status
-    state       item_state   not null,                   -- new or needs to be repaired
-    is_deleted  boolean      not null default false,
+    price       numeric(8,2)    not null default 0,
+    weight      numeric(8,2)    not null,                   -- in kg
+    material    material        not null default 'other',
+    status      item_status     not null default 'pending', -- workflow status
+    state       item_state      not null,                   -- new or needs to be repaired
+    is_deleted  boolean         not null default false,
     refuse_reason text,
-    id_user     integer      not null references users(id_account)  on delete restrict
+    id_user     integer         not null references users(id_account)  on delete restrict
 );
-CREATE INDEX idx_items_status ON items (status);
-CREATE INDEX idx_items_state ON items (state);
+CREATE INDEX idx_items_status   ON items (status);
+CREATE INDEX idx_items_state    ON items (state);
 CREATE INDEX idx_items_material ON items (material);
 
 create table listings

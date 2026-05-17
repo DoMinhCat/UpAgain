@@ -14,3 +14,18 @@ type CodeForAdmin struct {
 	IdTransaction string    `json:"id_transaction"`
 	IdContainer   int       `json:"id_container"`
 }
+
+type BarCodeData struct {
+	IdTransaction string    `json:"itx"`
+	UserType      string    `json:"ut"`
+	IdAccount     int       `json:"ia"`
+}
+
+type BarCodeInsert struct {
+	Code6Digit  string    `json:"code6digit"`
+	BarcodePath string    `json:"barcodePath"`
+	UserType    string    `json:"userType"`
+	IdAccount   int       `json:"idAccount"`
+	IdDeposit   int       `json:"idDeposit"`
+	IdTransaction string    `json:"idTransaction"`	
+}
