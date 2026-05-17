@@ -4,7 +4,6 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -21,7 +20,7 @@ import (
 // @Router       /users/score/ [get]
 func GetTotalScore(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" && role != "pro" {
+	if role != "admin" && role != "pro" && role != "user" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -33,29 +32,36 @@ func GetTotalScore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var totalCO2 float64
-	materials := []string{"wood", "metal", "textile", "glass", "plastic", "mixed"}
-	for _, material := range materials {
-		weight, err := db.GetTotalWeightByMaterialByStatus(material, "approved")
-		if err != nil {
-			slog.Error("GetTotalWeightByMaterialByStatus() failed", "controller", "GetTotalScore", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching total weight.")
-			return
-		}
-		co2, err := helpers.CalculateCO2(material, weight)
-		if err != nil {
-			slog.Error("CalculateCO2() failed", "controller", "GetTotalScore", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while calculating CO2.")
-			return
-		}
-		totalCO2 += co2
+	globalImpact, err := db.GetGlobalImpactStats()
+	if err != nil {
+		slog.Error("GetGlobalImpactStats() failed", "controller", "GetTotalScore", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while calculating CO2.")
+		return
 	}
 
 	stats := models.TotalScoreStats{
 		Total: total.Total,
-		CO2:   totalCO2,
+		CO2:   globalImpact.CO2,
 	}
 
+	utils.RespondWithJSON(w, http.StatusOK, stats)
+}
+
+// GetGlobalImpact godoc
+// @Summary      Get global environmental impact
+// @Description  Returns the total CO2 saved by all users across all completed items on the platform.
+// @Tags         user
+// @Produce      json
+// @Success      200  {object}  models.UserImpactStats  "Successfully retrieved global impact stats"
+// @Failure      500  {object}  nil                     "Internal server error"
+// @Router       /users/impact/global/ [get]
+func GetGlobalImpact(w http.ResponseWriter, r *http.Request) {
+	stats, err := db.GetGlobalImpactStats()
+	if err != nil {
+		slog.Error("GetGlobalImpactStats() failed", "controller", "GetGlobalImpact", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching global impact stats.")
+		return
+	}
 	utils.RespondWithJSON(w, http.StatusOK, stats)
 }
 
