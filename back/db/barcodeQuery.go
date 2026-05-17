@@ -86,7 +86,7 @@ func InsertBarcode(payload models.BarCodeInsert) error {
 		INSERT INTO barcodes (path, code, valid_to, user_type, id_account, id_deposit, id_transaction)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
-	err := utils.Conn.QueryRow(query, payload.BarcodePath, payload.Code6Digit, time.Now().AddDate(0, 0, 7), payload.UserType, payload.IdAccount, payload.IdDeposit, payload.IdTransaction)
+	_, err := utils.Conn.Exec(query, payload.BarcodePath, payload.Code6Digit, time.Now().AddDate(0, 0, 7), payload.UserType, payload.IdAccount, payload.IdDeposit, payload.IdTransaction)
 	if err != nil {
 		return fmt.Errorf("InsertBarcode() failed: %v", err)
 	}

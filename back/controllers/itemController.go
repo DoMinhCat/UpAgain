@@ -921,7 +921,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	}
 	// if already reserved, get existing transactions's uuid to insert later
 	txUuid := ""
-	if latestTxOfPro.IdTransaction == "reserved" {
+	if latestTxOfPro.Action == "reserved" {
 		txUuid = latestTxOfPro.IdTransaction
 	// if buy right away without reservation, create new uuid
 	} else {	
@@ -948,7 +948,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			code6 := helpers.GenerateRandom6CharCode()
 			barcodePath, err := helpers.GenerateAndSaveBarcode(models.BarCodeData{
 				IdTransaction: txUuid,
-				UserType:      "user",
+				UserType:      "u",
 			})
 			if err != nil {
 				slog.Error("GenerateAndSaveBarcode() failed", "controller", "PurchaseItem", "error", err)
