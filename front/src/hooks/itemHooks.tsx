@@ -160,6 +160,9 @@ export const useCancelItemReservation = (id_item: number) => {
       queryClient.invalidateQueries({
         queryKey: ["item-details", id_item],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["latest-transaction-of-pro", id_item],
+      });
       showSuccessNotification(
         "marketplace:notifications.cancel_transaction_success_title",
         "marketplace:notifications.cancel_transaction_success_message",
@@ -239,6 +242,9 @@ export const usePurchaseItem = (id: number) => {
       queryClient.invalidateQueries({ queryKey: ["item-stats"] });
       queryClient.invalidateQueries({ queryKey: ["item-details", id] });
       queryClient.invalidateQueries({ queryKey: ["my-items"] });
+      queryClient.invalidateQueries({
+        queryKey: ["latest-transaction-of-pro", id],
+      });
       showSuccessNotification(
         "Purchase success",
         "Item purchased successfully",

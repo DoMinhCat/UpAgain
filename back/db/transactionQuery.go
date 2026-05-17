@@ -236,7 +236,6 @@ func GetTransactionLatestStatusByUuid(transactionUuid string) (string, error) {
 	return status, nil
 }
 
-// TODO: test query on supabase
 func GetTransactionLatestStatusByItemId(item_id int) (string, error) {
 	var status string
 	query := `

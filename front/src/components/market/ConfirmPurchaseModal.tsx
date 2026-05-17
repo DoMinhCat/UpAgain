@@ -86,7 +86,7 @@ export function ConfirmPurchaseModal({
             {t("common:actions.cancel")}
           </Button>
           <Button
-            variant="primary"
+            variant="cta-reverse"
             loading={purchaseMutation.isPending}
             onClick={handleConfirm}
             radius="md"
