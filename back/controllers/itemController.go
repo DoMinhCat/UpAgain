@@ -919,6 +919,10 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 		return
 	}
+	if latestTxOfPro.Action == "purchased" {
+		utils.RespondWithError(w, http.StatusConflict, "You already purchased this item.")
+		return
+	}
 	// if already reserved, get existing transactions's uuid to insert later
 	txUuid := ""
 	if latestTxOfPro.Action == "reserved" {
@@ -947,6 +951,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			// generate code for user to drop object in container, no code for pro yet at this stage
 			code6 := helpers.GenerateRandom6CharCode()
 			barcodePath, err := helpers.GenerateAndSaveBarcode(models.BarCodeData{
+				Id:            latestTxOfPro.Id,
 				IdTransaction: txUuid,
 				UserType:      "u",
 			})

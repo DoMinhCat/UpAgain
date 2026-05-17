@@ -33,7 +33,7 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 	}
 
 	// shorten the payload
-	toEncode := fmt.Sprintf("%s|%s|%d", data.IdTransaction, data.UserType, data.IdAccount)
+	toEncode := fmt.Sprintf("%d|%s|%d", data.Id, data.UserType, data.IdAccount)
 	
 	// encode data into barcode
 	img, err := writer.Encode(toEncode, gozxing.BarcodeFormat_CODE_128, 250, 50, nil)
