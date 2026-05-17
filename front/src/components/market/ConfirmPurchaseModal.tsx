@@ -2,6 +2,8 @@ import { Button, Group, Modal, Stack, Text, ThemeIcon } from "@mantine/core";
 import { IconShoppingCart } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { usePurchaseItem } from "../../hooks/itemHooks";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "../../routes/paths";
 
 interface ConfirmPurchaseModalProps {
   opened: boolean;
@@ -22,11 +24,13 @@ export function ConfirmPurchaseModal({
 }: ConfirmPurchaseModalProps) {
   const { t } = useTranslation(["marketplace", "common"]);
   const purchaseMutation = usePurchaseItem(idItem);
+  const navigate = useNavigate();
 
   const handleConfirm = () => {
     purchaseMutation.mutate(undefined, {
       onSuccess: () => {
         onClose();
+        navigate(PATHS.MARKETPLACE.ME + "/" + idItem);
       },
       onError: () => {
         onClose();
