@@ -2,8 +2,10 @@ package helpers
 
 import (
 	"backend/models"
+	"encoding/base64"
 	"fmt"
 	"image/png"
+	"io"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -55,4 +57,18 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 		return "", fmt.Errorf("failed to encode barcode in png: %v", err)
 	}
 	return filepath.ToSlash(destPath), nil
+}
+
+func EncodeBarcodeToBase64(filepath string) (string, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open file: %v", err)
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return "", fmt.Errorf("failed to read file: %v", err)
+	}
+	return base64.StdEncoding.EncodeToString(data), nil	
 }
