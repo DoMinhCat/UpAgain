@@ -190,6 +190,7 @@ func GetTotalWeightByMaterialByStatus(material string, status string) (float64, 
 	return totalWeight, nil
 }
 
+// ! IMPORTANT: maybe need to adjust query to exclude purchased items 
 func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, int, error) {
 	var results []models.Item
 	var params []interface{}

@@ -351,7 +351,10 @@ create table transactions(
     reservation_expiry timestamptz, -- set +2 days when reserved   
     item_price         numeric(10,2), -- set at purchased to save item price at the moment (avoid change in the price afterwards)
     commission_rate    numeric(5,2), -- set at purchased to save commission rate at the moment (avoid change in the rate afterwards)
-    total_price        numeric(10,2) -- set at purchased to save total price (item's price + commission) at the moment (avoid change in the rate afterwards)
+    total_price        numeric(10,2), -- set at purchased to save total price (item's price + commission) at the moment (avoid change in the rate afterwards)
+    
+    -- set at purchased if is listing for pro to see and give user upon retrieval
+    confirm_code       char(6)         
 );
 CREATE INDEX idx_transactions_uuid ON transactions(id_transaction);
 

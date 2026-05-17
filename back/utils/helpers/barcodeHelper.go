@@ -4,8 +4,8 @@ import (
 	"math/rand"
 )
 
-// GenerateRandomCode generates a random 6-character code to open containers
-func GenerateRandomCode() string {
+// GenerateRandom6CharCode generates a random 6-character code for many purposes
+func GenerateRandom6CharCode() string {
 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, 6)
 	for i := range b {
