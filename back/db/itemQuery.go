@@ -195,7 +195,13 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	var results []models.Item
 	var params []interface{}
 	var countParams []interface{}
-	whereClause := "WHERE i.is_deleted = false"
+	whereClause := `WHERE i.is_deleted = false AND NOT EXISTS (
+		SELECT 1 FROM (
+			SELECT action FROM transactions 
+			WHERE id_item = i.id 
+			ORDER BY created_at DESC LIMIT 1
+		) lt WHERE lt.action = 'purchased'
+	)`
 	paramIndex := 1
 
 	// Multi select filters
