@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/makiuchi-d/gozxing"
@@ -29,9 +28,11 @@ func GenerateRandom6CharCode() string {
 // Return the path to the generated barcode.
 func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 	writer := oned.NewCode128Writer()
+	if data.UserType != "u" && data.UserType != "p" {
+		return "", fmt.Errorf("invalid user type, must be 'u' or 'p'")
+	}
 
 	// shorten the payload
-	data.IdTransaction = strings.ReplaceAll(data.IdTransaction, "-", "")
 	toEncode := fmt.Sprintf("%s|%s|%d", data.IdTransaction, data.UserType, data.IdAccount)
 	
 	// encode data into barcode
