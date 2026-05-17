@@ -8,4 +8,5 @@ export interface Barcode {
   id_account: number;
   id_deposit: number;
   id_transaction: string;
+  barcode_base64: string;
 }

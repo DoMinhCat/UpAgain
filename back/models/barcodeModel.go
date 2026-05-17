@@ -13,6 +13,7 @@ type Barcode struct {
 	IdDeposit     int       `json:"id_deposit"`
 	IdTransaction string    `json:"id_transaction"`
 	IdContainer   int       `json:"id_container"`
+	BarcodeBase64 string    `json:"barcode_base64"`
 }
 
 type BarCodeData struct {
