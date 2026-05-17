@@ -184,7 +184,7 @@ func GetLatestTransactionOfPro(idPro int, idItem int) (models.Transaction, error
 	var transaction models.Transaction
 	query := `
 		SELECT t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username,
-		       t.reservation_expiry, t.item_price, t.commission_rate, t.total_price
+		       t.reservation_expiry, t.item_price, t.commission_rate, t.total_price, t.confirm_code
 		FROM transactions t
 		JOIN accounts a on a.id = t.id_pro
 		WHERE t.id_pro = $1 AND t.id_item = $2
@@ -192,7 +192,7 @@ func GetLatestTransactionOfPro(idPro int, idItem int) (models.Transaction, error
 		LIMIT 1
 	`
 	err := utils.Conn.QueryRow(query, idPro, idItem).Scan(&transaction.Id, &transaction.IdTransaction, &transaction.CreatedAt, &transaction.Action, &transaction.IdItem, &transaction.IdPro, &transaction.UsernamePro,
-		&transaction.ReservationExpiry, &transaction.ItemPrice, &transaction.CommissionRate, &transaction.TotalPrice)
+		&transaction.ReservationExpiry, &transaction.ItemPrice, &transaction.CommissionRate, &transaction.TotalPrice, &transaction.ConfirmCode)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return transaction, nil
