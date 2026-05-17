@@ -70,6 +70,7 @@ import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import { ConfirmCancelReservationModal } from "../../../components/market/ConfirmCancelReservationModal";
+import { ConfirmPurchaseModal } from "../../../components/market/ConfirmPurchaseModal";
 import { useDeleteItem } from "../../../hooks/itemHooks";
 import { useTransferDepositContainer } from "../../../hooks/depositHooks";
 import dayjs from "dayjs";
@@ -270,6 +271,8 @@ export default function MyItemDetail() {
     useDisclosure(false);
   const [openedCancel, { open: openCancel, close: closeCancel }] =
     useDisclosure(false);
+  const [openedPurchase, { open: openPurchase, close: closePurchase }] =
+    useDisclosure(false);
 
   const deleteItemMutation = useDeleteItem();
 
@@ -398,6 +401,7 @@ export default function MyItemDetail() {
                 fullWidth
                 size="md"
                 rightSection={<IconChevronRight size={16} />}
+                onClick={openPurchase}
               >
                 {t("marketplace:detail.buy")}
               </Button>
@@ -1136,6 +1140,13 @@ export default function MyItemDetail() {
         opened={openedCancel}
         onClose={closeCancel}
         idItem={id_item}
+      />
+      <ConfirmPurchaseModal
+        opened={openedPurchase}
+        onClose={closePurchase}
+        idItem={id_item}
+        itemTitle={item?.title}
+        price={item?.price}
       />
     </Container>
   );

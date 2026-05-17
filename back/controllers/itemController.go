@@ -926,7 +926,8 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	// NOT FREE BRANCH
 	if itemDetails.Price > 0 {
 		// TODO: handle stripe
-
+		utils.RespondWithError(w, http.StatusNotImplemented, "TODO: handle stripe")
+		return
 	// FREE BRANCH
 	} else {
 		freePrice := 0.0
