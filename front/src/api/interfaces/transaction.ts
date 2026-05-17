@@ -8,6 +8,10 @@ export interface Transaction {
   id_pro: number;
   username_pro: string;
   reservation_expiry?: string;
+  item_price?: number;
+  commission_rate?: number;
+  total_price?: number;
+  confirm_code?: string;
 }
 
 export interface TransactionsPagination {

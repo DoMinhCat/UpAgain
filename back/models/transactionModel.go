@@ -14,6 +14,7 @@ type Transaction struct {
 	ItemPrice         *float64   `json:"item_price,omitempty"`
 	CommissionRate    *float64   `json:"commission_rate,omitempty"`
 	TotalPrice        *float64   `json:"total_price,omitempty"`
+	ConfirmCode       *string    `json:"confirm_code,omitempty"`
 }
 
 type TransactionsPaginationResponse struct {

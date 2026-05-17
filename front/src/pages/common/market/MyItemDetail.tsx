@@ -8,6 +8,7 @@ import {
   Title,
   Text,
   Badge,
+  Avatar,
   Divider,
   Grid,
   Alert,
@@ -460,6 +461,34 @@ export default function MyItemDetail() {
     if (isPurchased || isReserved) {
       return (
         <Stack gap="lg">
+          {isPurchased && (
+            <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+              <Stack gap="md">
+                <Group gap="sm">
+                  <IconCircleCheck size={20} color="var(--upagain-neutral-green)" />
+                  <Title order={4}>
+                    {t("marketplace:my_item_detail.purchase_details", {
+                      defaultValue: "Purchase Details",
+                    })}
+                  </Title>
+                </Group>
+                
+                {latestTx && (
+                  <Stack gap={4}>
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                      {t("marketplace:my_item_detail.purchased_on_label", {
+                        defaultValue: "Purchased On",
+                      })}
+                    </Text>
+                    <Text fw={700}>
+                      {dayjs(latestTx.created_at).format("DD/MM/YYYY - HH:mm A")}
+                    </Text>
+                  </Stack>
+                )}
+              </Stack>
+            </Paper>
+          )}
+
           {/* Location info */}
           <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
             <Stack gap="md">
@@ -543,18 +572,14 @@ export default function MyItemDetail() {
                 >
                   {t("marketplace:my_item_detail.pro_confirm_instructions")}
                 </Alert>
-                {/* TODO: fetch confirmation code from backend once endpoint is implemented */}
                 <Paper variant="primary" p="lg" radius="md" withBorder>
                   <Stack gap={4} align="center">
                     <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                       {t("marketplace:my_item_detail.confirmation_code_title")}
                     </Text>
                     <Title order={2} c="var(--upagain-neutral-green)">
-                      — — — —
+                      {latestTx?.confirm_code}
                     </Title>
-                    <Text size="xs" c="dimmed" ta="center">
-                      {t("marketplace:my_item_detail.code_todo")}
-                    </Text>
                   </Stack>
                 </Paper>
               </Stack>
@@ -677,6 +702,14 @@ export default function MyItemDetail() {
                 <Title order={4}>{t("marketplace:detail.buyer")}</Title>
               </Group>
               <Text fw={700}>{latestTx?.username_pro || "—"}</Text>
+              {latestTx && (
+                <Text size="xs" c="dimmed">
+                  {t("marketplace:my_item_detail.purchased_on", {
+                    defaultValue: "Purchased on {{date}}",
+                    date: dayjs(latestTx.created_at).format("DD/MM/YYYY - HH:mm A"),
+                  })}
+                </Text>
+              )}
             </Stack>
           </Paper>
 
@@ -837,6 +870,24 @@ export default function MyItemDetail() {
               )}
 
               <Title order={2}>{item?.title}</Title>
+
+              {/* Seller details */}
+              <Group gap="sm">
+                <Avatar
+                  src={resolveUrl(item?.creator_avatar || "")}
+                  name={item?.username}
+                  radius="xl"
+                  size="md"
+                />
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed" fw={700} tt="uppercase" style={{ letterSpacing: "0.5px" }}>
+                    {t("marketplace:my_item_detail.seller", { defaultValue: "Seller" })}
+                  </Text>
+                  <Text fw={700} size="sm">
+                    {item?.username || "—"}
+                  </Text>
+                </Stack>
+              </Group>
 
               {/* Key info grid */}
               <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
