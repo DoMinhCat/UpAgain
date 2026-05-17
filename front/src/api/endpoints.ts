@@ -115,8 +115,12 @@ export const ENDPOINTS = {
 
   DEPOSITS: {
     DETAILS: (id_deposit: number) => `/deposits/${id_deposit}/`,
-    CODES: (id_deposit: number) => `/deposits/${id_deposit}/codes/`,
     TRANSFER: (id_deposit: number) => `/deposits/${id_deposit}/transfer/`,
+  },
+
+  BARCODES: {
+    GET: (id_deposit: number) => `/codes/${id_deposit}/`,
+    DOWNLOAD: (id_deposit: number) => `/codes/${id_deposit}/download/`,
   },
 
   ADS: {
