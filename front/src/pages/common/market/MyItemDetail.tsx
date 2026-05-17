@@ -209,7 +209,7 @@ function TransactionTable({
       >
         {txs.length > 0 ? (
           txs.map((trx: any) => (
-            <Table.Tr key={trx.id_transaction}>
+            <Table.Tr key={trx.id}>
               <Table.Td ta="center">
                 {dayjs(trx.created_at).format("DD/MM/YYYY HH:mm")}
               </Table.Td>
@@ -332,9 +332,11 @@ export default function MyItemDetail() {
     useGetLatestTransactionOfPro(id_item, isValidId && role === "pro");
   const { data: transactionsData, isLoading: isLoadingTransactions } =
     useGetItemTransactions(id_item, isValidId && role === "user");
-  const hasActiveTransaction =
-    transactionsData?.transactions[0].action === "reserved" ||
-    transactionsData?.transactions[0].action === "purchased";
+  const hasActiveTransaction = !!(
+    transactionsData?.transactions?.[0] &&
+    (transactionsData.transactions[0].action === "reserved" ||
+      transactionsData.transactions[0].action === "purchased")
+  );
 
   // Deposit codes accessible to both roles now (backend updated)
   const { data: depositCodes, isLoading: isLoadingDepositCodes } =
@@ -370,8 +372,10 @@ export default function MyItemDetail() {
   const isPurchased =
     role === "pro"
       ? latestTx?.action === "purchased" && !isCompleted
-      : transactionsData?.transactions[0].action === "purchased" &&
-        !isCompleted; // bought but not completed
+      : !!(
+          transactionsData?.transactions?.[0] &&
+          transactionsData?.transactions[0].action === "purchased"
+        ) && !isCompleted; // bought but not completed
   const isCancelled = latestTx?.action === "cancelled";
 
   /** PRO right panel */
