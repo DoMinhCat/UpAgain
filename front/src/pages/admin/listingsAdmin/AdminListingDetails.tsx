@@ -74,7 +74,7 @@ import { useProcessValidation } from "../../../hooks/validationHooks";
 import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import type { Transaction } from "../../../api/interfaces/transaction";
-import type { CodeForAdmin } from "../../../api/interfaces/barcode";
+import type { Barcode } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
@@ -189,8 +189,8 @@ export default function AdminListingDetails() {
     useGetDepositCodesOfLatestTransaction(id_item, isValidId);
 
   const depositCodes = depositCodesData || [];
-  let userCode: CodeForAdmin | undefined;
-  let proCode: CodeForAdmin | undefined;
+  let userCode: Barcode | undefined;
+  let proCode: Barcode | undefined;
   // user code will always be generated first then pro (based on workflow I defined)
   if (depositCodes.length > 0) {
     userCode = depositCodes.find((code) => code.user_type === "user");

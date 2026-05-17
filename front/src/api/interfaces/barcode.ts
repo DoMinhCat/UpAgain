@@ -1,4 +1,4 @@
-export interface CodeForAdmin {
+export interface Barcode {
   path: string;
   code: string;
   valid_from: string;

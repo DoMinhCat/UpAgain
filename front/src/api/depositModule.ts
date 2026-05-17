@@ -1,6 +1,6 @@
 import { api } from "./axios";
 import { ENDPOINTS } from "./endpoints";
-import type { CodeForAdmin } from "./interfaces/barcode";
+import type { Barcode } from "./interfaces/barcode";
 import type { DepositDetails } from "./interfaces/deposit";
 
 export const getDepositDetails = async (
@@ -16,7 +16,7 @@ export const updateDeposit = async (id: number, payload: FormData) => {
 
 export const getDepositCodesOfLatestTransaction = async (
   id: number,
-): Promise<CodeForAdmin[]> => {
+): Promise<Barcode[]> => {
   const response = await api.get(ENDPOINTS.DEPOSITS.CODES(id));
   return response.data;
 };
