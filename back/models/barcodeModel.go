@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type CodeForAdmin struct {
+type Barcode struct {
 	Path          string    `json:"path"`
 	Code          string    `json:"code"`
 	ValidFrom     time.Time `json:"valid_from"`

@@ -338,7 +338,7 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Security     ApiKeyAuth
 // @Produce      json
 // @Param        deposit_id    path     int     true  "Deposit ID"
-// @Success      200     {object}  []models.CodeForAdmin  "Deposit codes and their status"
+// @Success      200     {object}  []models.Barcode  "Deposit codes and their status"
 // @Failure      400     {object}  nil                     "Invalid deposit ID"
 // @Failure      500     {object}  nil                     "Internal server error"
 // @Router       /deposits/{deposit_id}/codes/ [get]
@@ -351,26 +351,27 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 		return
 	}
 
-	var codes []models.CodeForAdmin
-	codes, err = db.GetCodesOfLatestTransactionByDepositId(depositId)
-	if err != nil {
-		slog.Error("db.GetCodesOfLatestTransactionByDepositId() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
-		return
-	}
-
+	var codes []models.Barcode
+	
 	if role == "admin" {
+		codes, err = db.GetCodesOfLatestTransactionByDepositId(depositId)
+		if err != nil {
+			slog.Error("db.GetCodesOfLatestTransactionByDepositId() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
+			return
+		}
 		utils.RespondWithJSON(w, http.StatusOK, codes)
 		return
 	} else {
-		for _, code := range codes {
-			if code.UserType == role {
-				utils.RespondWithJSON(w, http.StatusOK, []models.CodeForAdmin{code})
-				return
-			}
+		code, err := db.GetCodeByDepositIdAndUserType(depositId, role)
+		if err != nil {
+			slog.Error("db.GetCodeByDepositIdAndUserType() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
+			return
 		}
+		utils.RespondWithJSON(w, http.StatusOK, []models.Barcode{code})
+		return
 	}
-
 }
 
 // TransferContainerByDepositId godoc

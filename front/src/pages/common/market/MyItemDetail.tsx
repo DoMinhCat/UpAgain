@@ -75,7 +75,7 @@ import { useDeleteItem } from "../../../hooks/itemHooks";
 import { useTransferDepositContainer } from "../../../hooks/depositHooks";
 import dayjs from "dayjs";
 import PaginationFooter from "../../../components/common/PaginationFooter";
-import type { CodeForAdmin } from "../../../api/interfaces/barcode";
+import type { Barcode } from "../../../api/interfaces/barcode";
 import { NotFoundPage } from "../../error/404";
 import { useContainerDetails } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
@@ -86,7 +86,7 @@ function AccessCodeCard({
   label,
   icon,
 }: {
-  code: CodeForAdmin;
+  code: Barcode;
   label: string;
   icon: React.ReactNode;
 }) {
@@ -329,9 +329,12 @@ export default function MyItemDetail() {
 
   // Only users see transaction history (pro role removed by backend)
   const { data: latestTx, isLoading: isLoadingProTransaction } =
-    useGetLatestTransactionOfPro(id_item, isValidId);
+    useGetLatestTransactionOfPro(id_item, isValidId && role === "pro");
   const { data: transactionsData, isLoading: isLoadingTransactions } =
     useGetItemTransactions(id_item, isValidId && role === "user");
+  const hasActiveTransaction =
+    transactionsData?.transactions[0].action === "reserved" ||
+    transactionsData?.transactions[0].action === "purchased";
 
   // Deposit codes accessible to both roles now (backend updated)
   const { data: depositCodes, isLoading: isLoadingDepositCodes } =
@@ -346,7 +349,7 @@ export default function MyItemDetail() {
   )
     return <FullScreenLoader />;
 
-  if (isItemError || !latestTx || latestTx.id_pro === 0) {
+  if (isItemError || (role === "pro" && (!latestTx || latestTx.id_pro === 0))) {
     return <NotFoundPage />;
   }
 
@@ -354,7 +357,7 @@ export default function MyItemDetail() {
   const userDepositCode = depositCodes?.[0];
   const proDepositCode = depositCodes?.[0];
   // For pro, their code is the "pro" code; for user, it's the "user" code
-  const myDepositCode: CodeForAdmin | undefined =
+  const myDepositCode: Barcode | undefined =
     role === "pro" ? proDepositCode : userDepositCode;
 
   // ── derived state flags ───────────────────────────────────────────────────
@@ -364,9 +367,12 @@ export default function MyItemDetail() {
   const isCompleted = item?.status === "completed";
 
   const isReserved = latestTx?.action === "reserved";
-  const isPurchased = latestTx?.action === "purchased" && !isCompleted; // bought but not completed
+  const isPurchased =
+    role === "pro"
+      ? latestTx?.action === "purchased" && !isCompleted
+      : transactionsData?.transactions[0].action === "purchased" &&
+        !isCompleted; // bought but not completed
   const isCancelled = latestTx?.action === "cancelled"; // bought but not completed
-
   /** PRO right panel */
   const ProRightPanel = () => {
     if (isReserved) {
@@ -603,43 +609,130 @@ export default function MyItemDetail() {
 
   /** USER right panel */
   const UserRightPanel = () => {
-    const showActionButtons = !isPurchased && !isReserved && !isCompleted;
+    const showActionButtons = !isCompleted;
 
     const ActionButtons = () =>
       showActionButtons ? (
         <>
-          <Button
-            variant="secondary"
-            size="lg"
-            fullWidth
-            onClick={openEdit}
-            leftSection={<IconEdit size={18} />}
+          <Tooltip
+            label={t("marketplace:my_item_detail.active_transaction_tooltip", {
+              defaultValue:
+                "This action is disabled because there is currently an active transaction.",
+            })}
+            disabled={!hasActiveTransaction}
           >
-            {t("marketplace:detail.edit")}
-          </Button>
+            <div>
+              <Button
+                variant="secondary"
+                size="lg"
+                disabled={hasActiveTransaction}
+                fullWidth
+                onClick={openEdit}
+                leftSection={<IconEdit size={18} />}
+              >
+                {t("marketplace:detail.edit")}
+              </Button>
+            </div>
+          </Tooltip>
           {isDeposit && (
-            <Button
-              variant="secondary"
-              size="lg"
-              fullWidth
-              onClick={openTransfer}
-              leftSection={<IconBox size={18} />}
+            <Tooltip
+              label={t(
+                "marketplace:my_item_detail.active_transaction_tooltip",
+                {
+                  defaultValue:
+                    "This action is disabled because there is currently an active transaction.",
+                },
+              )}
+              disabled={!hasActiveTransaction}
             >
-              {t("marketplace:detail.transfer_container", {
-                defaultValue: "Transfer container",
-              })}
-            </Button>
+              <div>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  disabled={hasActiveTransaction}
+                  fullWidth
+                  onClick={openTransfer}
+                  leftSection={<IconBox size={18} />}
+                >
+                  {t("marketplace:detail.transfer_container", {
+                    defaultValue: "Transfer container",
+                  })}
+                </Button>
+              </div>
+            </Tooltip>
           )}
-          <Button
-            variant="delete"
-            size="lg"
-            fullWidth
-            onClick={openDelete}
-            leftSection={<IconTrash size={18} />}
+          <Tooltip
+            label={t("marketplace:my_item_detail.active_transaction_tooltip", {
+              defaultValue:
+                "This action is disabled because there is currently an active transaction.",
+            })}
+            disabled={!hasActiveTransaction}
           >
-            {t("marketplace:detail.delete")}
-          </Button>
+            <div>
+              <Button
+                variant="delete"
+                disabled={hasActiveTransaction}
+                size="lg"
+                fullWidth
+                onClick={openDelete}
+                leftSection={<IconTrash size={18} />}
+              >
+                {t("marketplace:detail.delete")}
+              </Button>
+            </div>
+          </Tooltip>
         </>
+      ) : null;
+
+    const UserDepositAccessCard = () =>
+      isDeposit ? (
+        <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+          <Stack gap="md">
+            <Group gap="sm">
+              <IconKey size={20} color="var(--upagain-neutral-green)" />
+              <Title order={4}>{t("admin:listings.details.access_info")}</Title>
+            </Group>
+            {isLoadingDepositCodes ? (
+              <Center py="md">
+                <Loader size="sm" />
+              </Center>
+            ) : userDepositCode ? (
+              <>
+                <AccessCodeCard
+                  code={userDepositCode}
+                  label={t("admin:listings.details.owner")}
+                  icon={<IconUserShield size={14} />}
+                />
+                {userDepositCode.status === "used" ? (
+                  <Alert
+                    icon={<IconCircleCheck size={16} />}
+                    color="teal"
+                    variant="light"
+                  >
+                    {t("marketplace:my_item_detail.deposit_in_container")}
+                  </Alert>
+                ) : (
+                  <Alert
+                    icon={<IconInfoCircle size={16} />}
+                    color="blue"
+                    variant="light"
+                  >
+                    {t("marketplace:my_item_detail.drop_off_reminder")}
+                    {depositDetails && (
+                      <Text fw={700} mt={4}>
+                        Container #{depositDetails.container_id}
+                      </Text>
+                    )}
+                  </Alert>
+                )}
+              </>
+            ) : (
+              <Text size="sm" c="dimmed">
+                {t("admin:listings.details.no_access_code")}
+              </Text>
+            )}
+          </Stack>
+        </Paper>
       ) : null;
 
     if (isPending) {
@@ -696,6 +789,7 @@ export default function MyItemDetail() {
               </Text>
             </Stack>
           </Paper>
+          <ActionButtons />
         </Stack>
       );
     }
@@ -758,57 +852,8 @@ export default function MyItemDetail() {
             </Paper>
           )}
 
-          {isDeposit && (
-            <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
-              <Stack gap="md">
-                <Group gap="sm">
-                  <IconKey size={20} color="var(--upagain-neutral-green)" />
-                  <Title order={4}>
-                    {t("admin:listings.details.access_info")}
-                  </Title>
-                </Group>
-                {isLoadingDepositCodes ? (
-                  <Center py="md">
-                    <Loader size="sm" />
-                  </Center>
-                ) : userDepositCode ? (
-                  <>
-                    <AccessCodeCard
-                      code={userDepositCode}
-                      label={t("admin:listings.details.owner")}
-                      icon={<IconUserShield size={14} />}
-                    />
-                    {userDepositCode.status === "used" ? (
-                      <Alert
-                        icon={<IconCircleCheck size={16} />}
-                        color="teal"
-                        variant="light"
-                      >
-                        {t("marketplace:my_item_detail.deposit_in_container")}
-                      </Alert>
-                    ) : (
-                      <Alert
-                        icon={<IconInfoCircle size={16} />}
-                        color="blue"
-                        variant="light"
-                      >
-                        {t("marketplace:my_item_detail.drop_off_reminder")}
-                        {depositDetails && (
-                          <Text fw={700} mt={4}>
-                            Container #{depositDetails.container_id}
-                          </Text>
-                        )}
-                      </Alert>
-                    )}
-                  </>
-                ) : (
-                  <Text size="sm" c="dimmed">
-                    {t("admin:listings.details.no_access_code")}
-                  </Text>
-                )}
-              </Stack>
-            </Paper>
-          )}
+          <UserDepositAccessCard />
+          <ActionButtons />
         </Stack>
       );
     }

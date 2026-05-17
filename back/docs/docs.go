@@ -1951,7 +1951,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.CodeForAdmin"
+                                "$ref": "#/definitions/models.Barcode"
                             }
                         }
                     },
@@ -5719,7 +5719,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CodeForAdmin": {
+        "models.Barcode": {
             "type": "object",
             "properties": {
                 "code": {
