@@ -416,7 +416,7 @@ export default function AdminUsersModule() {
       </Table.Tr>
     );
 
-  // EXPORT CSV
+  // EXPORT/DOWNLOAD CSV
   const [isExporting, setIsExporting] = useState(false);
   const exportAccounts = async () => {
     try {

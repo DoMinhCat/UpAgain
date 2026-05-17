@@ -372,7 +372,8 @@ export default function MyItemDetail() {
       ? latestTx?.action === "purchased" && !isCompleted
       : transactionsData?.transactions[0].action === "purchased" &&
         !isCompleted; // bought but not completed
-  const isCancelled = latestTx?.action === "cancelled"; // bought but not completed
+  const isCancelled = latestTx?.action === "cancelled";
+
   /** PRO right panel */
   const ProRightPanel = () => {
     if (isReserved) {
