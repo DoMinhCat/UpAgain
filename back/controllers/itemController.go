@@ -953,7 +953,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if itemCategory == "listing" {
+		if itemCategory == "deposit" {
 			// TODO: if deposit then create barcode and 6 digit code for container for user role
 			utils.RespondWithError(w, http.StatusNotImplemented, "TODO: if deposit then create barcode and 6 digit code for container for user role")
 			return

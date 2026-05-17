@@ -14,3 +14,9 @@ type CodeForAdmin struct {
 	IdTransaction string    `json:"id_transaction"`
 	IdContainer   int       `json:"id_container"`
 }
+
+type BarCodeData struct {
+	IdTransaction string    `json:"id_transaction"`
+	UserType      string    `json:"user_type"`
+	IdAccount     int       `json:"id_account"`
+}
