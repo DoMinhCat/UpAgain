@@ -275,11 +275,11 @@ func InsertTransaction(transaction models.TransactionInsert) error {
 		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro)
 	case "purchased":
 		query = `
-			insert into transactions (id_transaction, action, id_item, id_pro, confirm_code)
-			values ($1, $2, $3, $4, $5);
+			insert into transactions (id_transaction, action, id_item, id_pro, confirm_code, item_price, commission_rate, total_price)
+			values ($1, $2, $3, $4, $5, $6, $7, $8);
 		`
-		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro, transaction.ConfirmCode)
-	// TODO: else for other actions
+		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro, transaction.ConfirmCode, transaction.ItemPrice, transaction.CommissionRate, transaction.TotalPrice)
+	// TODO: case "expired"
 	default:
 		return fmt.Errorf("InsertTransaction() failed: invalid action %s", transaction.Action)
 	}
