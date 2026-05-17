@@ -904,6 +904,12 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 		return
 	}
+	depositDetails, err := db.GetDepositDetailsById(item_id)
+	if err != nil {
+		slog.Error("GetDepositDetailsById() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
 	// get existing transactions's uuid to insert later
@@ -922,6 +928,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		txUuid = uuid.New().String()
 	}
 	itemCategory := itemDetails.Category
+	sellerId:= itemDetails.IdUser
 
 	// NOT FREE BRANCH
 	if itemDetails.Price > 0 {
@@ -936,7 +943,41 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		var confirm_code string
 		if itemCategory == "listing" {
 			confirm_code = helpers.GenerateRandom6CharCode()
+		} else {
+			// generate code for user to drop object in container, no code for pro yet at this stage
+			code6 := helpers.GenerateRandom6CharCode()
+			barcodePath, err := helpers.GenerateAndSaveBarcode(models.BarCodeData{
+				IdTransaction: txUuid,
+				UserType:      "user",
+			})
+			if err != nil {
+				slog.Error("GenerateAndSaveBarcode() failed", "controller", "PurchaseItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+				return
+			}
+			err = db.InsertBarcode(models.BarCodeInsert{
+				Code6Digit:  code6,
+				BarcodePath: barcodePath,
+				UserType:    "user",
+				IdAccount:   sellerId,
+				IdDeposit:   item_id,
+				IdTransaction: txUuid,
+			})
+			if err != nil {
+				slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+				return
+			}
+
+			// update container status
+			err = db.UpdateStatusContainer(depositDetails.ContainerId, "waiting")
+			if err != nil {
+				slog.Error("UpdateStatusContainer() failed", "controller", "PurchaseItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+				return
+			}
 		}
+		
 		err = db.InsertTransaction(models.TransactionInsert{
 				IdTransaction: txUuid,
 				Action: "purchased",
@@ -950,12 +991,6 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			slog.Error("InsertTransaction() failed", "controller", "PurchaseItem", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
-			return
-		}
-
-		if itemCategory == "deposit" {
-			// TODO: if deposit then create barcode and 6 digit code for container for user role
-			utils.RespondWithError(w, http.StatusNotImplemented, "TODO: if deposit then create barcode and 6 digit code for container for user role")
 			return
 		}
 
