@@ -346,7 +346,7 @@ export default function MyItemDetail() {
   )
     return <FullScreenLoader />;
 
-  if (isItemError) {
+  if (isItemError || !latestTx || latestTx.id_pro === 0) {
     return <NotFoundPage />;
   }
 
@@ -469,14 +469,17 @@ export default function MyItemDetail() {
             <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
               <Stack gap="md">
                 <Group gap="sm">
-                  <IconCircleCheck size={20} color="var(--upagain-neutral-green)" />
+                  <IconCircleCheck
+                    size={20}
+                    color="var(--upagain-neutral-green)"
+                  />
                   <Title order={4}>
                     {t("marketplace:my_item_detail.purchase_details", {
                       defaultValue: "Purchase Details",
                     })}
                   </Title>
                 </Group>
-                
+
                 {latestTx && (
                   <Stack gap={4}>
                     <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
@@ -485,7 +488,9 @@ export default function MyItemDetail() {
                       })}
                     </Text>
                     <Text fw={700}>
-                      {dayjs(latestTx.created_at).format("DD/MM/YYYY - HH:mm A")}
+                      {dayjs(latestTx.created_at).format(
+                        "DD/MM/YYYY - HH:mm A",
+                      )}
                     </Text>
                   </Stack>
                 )}
@@ -710,7 +715,9 @@ export default function MyItemDetail() {
                 <Text size="xs" c="dimmed">
                   {t("marketplace:my_item_detail.purchased_on", {
                     defaultValue: "Purchased on {{date}}",
-                    date: dayjs(latestTx.created_at).format("DD/MM/YYYY - HH:mm A"),
+                    date: dayjs(latestTx.created_at).format(
+                      "DD/MM/YYYY - HH:mm A",
+                    ),
                   })}
                 </Text>
               )}
@@ -884,8 +891,16 @@ export default function MyItemDetail() {
                   size="md"
                 />
                 <Stack gap={2}>
-                  <Text size="xs" c="dimmed" fw={700} tt="uppercase" style={{ letterSpacing: "0.5px" }}>
-                    {t("marketplace:my_item_detail.seller", { defaultValue: "Seller" })}
+                  <Text
+                    size="xs"
+                    c="dimmed"
+                    fw={700}
+                    tt="uppercase"
+                    style={{ letterSpacing: "0.5px" }}
+                  >
+                    {t("marketplace:my_item_detail.seller", {
+                      defaultValue: "Seller",
+                    })}
                   </Text>
                   <Text fw={700} size="sm">
                     {item?.username || "—"}
