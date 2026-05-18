@@ -39,16 +39,15 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
 			return
 		}
-
 		// encode base64 for download in frontend
-		for _, code := range codes {
-			base64Code, err := helpers.EncodeBarcodeToBase64(code.Path)
+		for i := range codes {
+			base64Code, err := helpers.EncodeBarcodeToBase64(codes[i].Path)
 			if err != nil {
 				slog.Error("helpers.EncodeBarcodeToBase64() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
 				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while encoding deposit codes")
 				return
 			}
-			code.BarcodeBase64 = "data:image/png;base64," + base64Code
+			codes[i].BarcodeBase64 = "data:image/png;base64," + base64Code
 		}
 		utils.RespondWithJSON(w, http.StatusOK, codes)
 		return
