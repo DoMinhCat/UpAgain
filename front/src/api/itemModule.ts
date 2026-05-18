@@ -19,9 +19,10 @@ export const getAllItems = async (
   status?: string,
   material?: string,
   category?: string,
+  include_purchased?: boolean,
 ): Promise<ItemsListPagination> => {
   const response = await api.get(ENDPOINTS.ADMIN.ITEMS.ALL, {
-    params: { page, limit, search, sort, status, material, category },
+    params: { page, limit, search, sort, status, material, category, include_purchased },
   });
   return response.data;
 };
