@@ -49,7 +49,6 @@ import {
   useGetDepositDetails,
   useTransferDepositContainer,
 } from "../../../hooks/depositHooks";
-import { showInfoNotification } from "../../../components/common/NotificationToast";
 import { NotFoundPage } from "../../error/404";
 import { useDisclosure } from "@mantine/hooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
