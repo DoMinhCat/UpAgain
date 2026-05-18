@@ -1,13 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  cancelTransaction,
+  cancelItemReservation,
   createItem,
   deleteItem,
   getAllItems,
   getItemDetails,
   getItemStats,
   getItemTransactions,
+  getLatestTransaction,
   getMyItems,
+  purchaseItem,
+  reserveItem,
   updateItemStatus,
 } from "../api/itemModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
@@ -21,11 +24,12 @@ export const useGetAllItems = (
   status?: string,
   material?: string,
   category?: string,
+  include_purchased?: boolean,
 ) => {
   return useQuery({
-    queryKey: ["items", page, limit, search, sort, status, material, category],
+    queryKey: ["items", page, limit, search, sort, status, material, category, include_purchased],
     queryFn: () =>
-      getAllItems(page, limit, search, sort, status, material, category),
+      getAllItems(page, limit, search, sort, status, material, category, include_purchased),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "common:notifications.error",
@@ -142,11 +146,10 @@ export const useGetItemTransactions = (
   });
 };
 
-export const useCancelTransaction = (id_item: number) => {
+export const useCancelItemReservation = (id_item: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (transactionUuid: string) =>
-      cancelTransaction(id_item, transactionUuid),
+    mutationFn: () => cancelItemReservation(id_item),
     meta: {
       errorTitle: "common:notifications.error",
       errorMessage: "marketplace:notifications.cancel_transaction_error",
@@ -154,6 +157,12 @@ export const useCancelTransaction = (id_item: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["item-transactions", id_item],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["item-details", id_item],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["latest-transaction-of-pro", id_item],
       });
       showSuccessNotification(
         "marketplace:notifications.cancel_transaction_success_title",
@@ -177,6 +186,69 @@ export const useCreateItem = () => {
       showSuccessNotification(
         "marketplace:notifications.post_success_title",
         "marketplace:notifications.post_success_message",
+      );
+    },
+  });
+};
+
+export const useGetLatestTransactionOfPro = (
+  id: number,
+  isValidId: boolean,
+) => {
+  return useQuery({
+    queryKey: ["latest-transaction-of-pro", id],
+    queryFn: () => getLatestTransaction(id),
+    staleTime: STALE_TIME,
+    enabled: isValidId,
+    meta: {
+      errorTitle: "Failed to retrieve transaction's detail",
+      errorMessage: "An error occurred while fetching transaction's detail",
+    },
+  });
+};
+
+export const useReserveItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => reserveItem(id),
+    meta: {
+      errorTitle: "Reservation failed",
+      errorMessage: "Failed to reserve item, please try again later",
+    },
+    onSuccess: (_, id: number) => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["latest-transaction-of-pro", id],
+      });
+      showSuccessNotification(
+        "marketplace:notifications.reserve_success_title",
+        "marketplace:notifications.reserve_success_message",
+      );
+    },
+  });
+};
+
+export const usePurchaseItem = (id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => purchaseItem(id),
+    meta: {
+      errorTitle: "Purchase failed",
+      errorMessage: "Failed to purchase item, please try again later",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
+      queryClient.invalidateQueries({ queryKey: ["my-items"] });
+      queryClient.invalidateQueries({
+        queryKey: ["latest-transaction-of-pro", id],
+      });
+      showSuccessNotification(
+        "Purchase success",
+        "Item purchased successfully",
       );
     },
   });

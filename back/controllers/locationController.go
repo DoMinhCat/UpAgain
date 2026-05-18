@@ -9,6 +9,18 @@ import (
 	"net/http"
 )
 
+// GetAddressFromCoor godoc
+// @Summary      Get address from coordinates
+// @Description  Reverse geocoding: get address details (street, city, etc.) from latitude and longitude.
+// @Tags         location
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        lat  query     number  true  "Latitude"
+// @Param        lng  query     number  true  "Longitude"
+// @Success      200  {object}  models.Address  "Address details"
+// @Failure      400  {object}  nil             "Missing or invalid coordinates"
+// @Failure      500  {object}  nil             "Internal server error"
+// @Router       /location/address/ [get]
 func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
 	// get params: lat, lng from query
 	query := r.URL.Query()
@@ -52,6 +64,19 @@ func GetAddressFromCoor(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, address)
 }
 
+// GetCoorFromAddress godoc
+// @Summary      Get coordinates from address
+// @Description  Geocoding: get latitude and longitude from address details (street, postal code, city).
+// @Tags         location
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        street       query     string  true  "Street name"
+// @Param        postal_code  query     string  true  "Postal code"
+// @Param        city         query     string  true  "City name"
+// @Success      200          {object}  models.Coordinates  "Coordinates"
+// @Failure      400          {object}  nil                 "Invalid address"
+// @Failure      500          {object}  nil                 "Internal server error"
+// @Router       /location/coordinates/ [get]
 func GetCoorFromAddress(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	street := query.Get("street")

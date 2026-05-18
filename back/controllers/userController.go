@@ -14,6 +14,7 @@ import (
 // @Summary      Get total CO2 and UpScore
 // @Description  Get the total CO2 saved and total UpScore from all approved items in the system.
 // @Tags         user
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200      {object}  models.TotalScoreStats  "Successfully retrieved total score stats"
 // @Failure      401      {object}  nil                     "Unauthorized"
@@ -63,6 +64,7 @@ func GetTotalScore(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get user's personal environmental impact
 // @Description  Returns the total CO2, water, and electricity saved by the authenticated user based on their completed items.
 // @Tags         user
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {object}  models.UserImpactStats  "Successfully retrieved impact stats"
 // @Failure      401  {object}  nil                     "Unauthorized"
@@ -89,6 +91,7 @@ func GetUserImpact(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get user's completed items with impact
 // @Description  Returns a paginated list of the authenticated user's completed items with per-item CO2, water, and electricity impact.
 // @Tags         user
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page   query     int  false  "Page number"
 // @Param        limit  query     int  false  "Items per page"

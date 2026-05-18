@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getDepositCodesOfLatestTransaction,
   getDepositDetails,
   transferDepositContainer,
   updateDeposit,
 } from "../api/depositModule";
+import { getDepositCodesOfLatestTransaction } from "../api/barcodeModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 60 * 1000;

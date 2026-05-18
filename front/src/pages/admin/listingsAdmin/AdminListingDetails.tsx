@@ -48,15 +48,16 @@ import {
   IconUserShield,
   IconBasketCheck,
   IconX,
+  IconDownload,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
 import {
-  useCancelTransaction,
   useGetItemDetails,
   useGetItemTransactions,
   useUpdateItemStatus,
 } from "../../../hooks/itemHooks";
+import { ConfirmCancelReservationModal } from "../../../components/market/ConfirmCancelReservationModal";
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
@@ -74,14 +75,14 @@ import { useProcessValidation } from "../../../hooks/validationHooks";
 import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import type { Transaction } from "../../../api/interfaces/transaction";
-import type { CodeForAdmin } from "../../../api/interfaces/barcode";
+import type { Barcode } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function AdminListingDetails() {
-  const { t } = useTranslation(["admin", "create_item", "common"]);
+  const { t } = useTranslation(["admin", "create_item", "common", "marketplace"]);
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -176,33 +177,8 @@ export default function AdminListingDetails() {
   const transactions = transactionsData?.transactions || [];
 
   // FORCE CANCEL TRANSACTION
-  const [cancelTransactionId, setCancelTransactionId] =
-    useState<Transaction | null>(null);
-  const [
-    openedCancelModal,
-    { open: openCancelModal, close: closeCancelModal },
-  ] = useDisclosure(false);
-
-  const handleOpenCancelModal = (transaction: Transaction) => {
-    setCancelTransactionId(transaction);
-    openCancelModal();
-  };
-
-  const cancelTransactionMutation = useCancelTransaction(id_item);
-
-  const handleCancelTransaction = () => {
-    cancelTransactionMutation.mutate(
-      cancelTransactionId?.id_transaction || "",
-      {
-        onSuccess: () => {
-          closeCancelModal();
-        },
-        onError: () => {
-          closeCancelModal();
-        },
-      },
-    );
-  };
+  const [openedCancel, { open: openCancel, close: closeCancel }] =
+    useDisclosure(false);
 
   // DEPOSIT CODES
   const [
@@ -214,8 +190,8 @@ export default function AdminListingDetails() {
     useGetDepositCodesOfLatestTransaction(id_item, isValidId);
 
   const depositCodes = depositCodesData || [];
-  let userCode: CodeForAdmin | undefined;
-  let proCode: CodeForAdmin | undefined;
+  let userCode: Barcode | undefined;
+  let proCode: Barcode | undefined;
   // user code will always be generated first then pro (based on workflow I defined)
   if (depositCodes.length > 0) {
     userCode = depositCodes.find((code) => code.user_type === "user");
@@ -244,6 +220,115 @@ export default function AdminListingDetails() {
           closeTransferContainerModal();
         },
       },
+    );
+  };
+
+  const handleDownloadBarcode = (barcodeBase64: string, userType: string) => {
+    const link = document.createElement("a");
+    link.href = barcodeBase64;
+    link.download = `barcode-${userType}-${transactionsData?.transactions?.[0]?.id_transaction || "code"}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const renderAccessCard = (code: Barcode, userType: "owner" | "buyer") => {
+    const isOwner = userType === "owner";
+    return (
+      <Paper variant="primary" p="lg" radius="lg" withBorder shadow="sm">
+        <Stack gap="sm">
+          <Group justify="space-between">
+            <Group gap="sm">
+              <ThemeIcon variant="light" size="md" color={isOwner ? "var(--upagain-neutral-green)" : "blue"}>
+                {isOwner ? <IconUserShield size={18} /> : <IconBasketCheck size={18} />}
+              </ThemeIcon>
+              <Text fw={700}>
+                {isOwner ? t("listings.details.owner") : t("listings.details.buyer")}
+              </Text>
+            </Group>
+            <Badge
+              size="xs"
+              variant="outline"
+              color={
+                code.status === "used"
+                  ? "gray"
+                  : code.status === "expired"
+                    ? "red"
+                    : "green"
+              }
+            >
+              {code.status.toUpperCase()}
+            </Badge>
+          </Group>
+          
+          <Stack gap={4} align="center" mt="xs">
+            <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+              {t("listings.details.six_digits_code")}
+            </Text>
+            <Group gap="xs" justify="center">
+              <Title order={3} ta="center">
+                {code.code.slice(0, 3)} {code.code.slice(3)}
+              </Title>
+              <CopyButton value={code.code} timeout={3000}>
+                {({ copied, copy }) => (
+                  <Tooltip
+                    label={
+                      copied
+                        ? t("common:actions.copied", { defaultValue: "Copied" })
+                        : t("common:actions.copy", { defaultValue: "Copy code" })
+                    }
+                    withArrow
+                  >
+                    <ActionIcon
+                      color={copied ? "teal" : "gray"}
+                      variant="subtle"
+                      onClick={copy}
+                    >
+                      {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+              </CopyButton>
+            </Group>
+            
+            <Image
+              src={`${import.meta.env.VITE_API_BASE_URL}/${code.path}`}
+              radius="md"
+              alt={`${isOwner ? "Owner" : "Buyer"}'s access code`}
+              fallbackSrc="https://placehold.co/400x200?text=Barcode"
+              style={{ cursor: "pointer", width: "100%", maxWidth: "300px" }}
+              mt="md"
+              onClick={() => handleCodeClick([code.path || ""])}
+            />
+            
+            <Divider my="sm" style={{ width: "100%" }} />
+            
+            <Group justify="space-between" style={{ width: "100%" }} gap="xs">
+              <Text size="xs" c="dimmed">
+                {t("listings.details.valid_from")}{" "}
+                <Text span fw={600}>{dayjs(code.valid_from).format("DD/MM/YYYY HH:mm A")}</Text>
+              </Text>
+              <Text size="xs" c="dimmed">
+                {t("listings.details.valid_to")}{" "}
+                <Text span fw={600}>{dayjs(code.valid_to).format("DD/MM/YYYY HH:mm A")}</Text>
+              </Text>
+            </Group>
+
+            {code.barcode_base64 && (
+              <Button
+                variant="cta"
+                size="xs"
+                mt="sm"
+                fullWidth
+                leftSection={<IconDownload size={14} />}
+                onClick={() => handleDownloadBarcode(code.barcode_base64, userType)}
+              >
+                {t("marketplace:my_item_detail.download_barcode")}
+              </Button>
+            )}
+          </Stack>
+        </Stack>
+      </Paper>
     );
   };
 
@@ -419,205 +504,32 @@ export default function AdminListingDetails() {
                   <Title order={3}>{t("listings.details.access_info")}</Title>
                 </Group>
                 {isLoadingDepositCodes && (
-                  <Center>
+                  <Center py="xl">
                     <Loader />
                   </Center>
                 )}
-                {!userCode && !proCode && (
+                {!userCode && !proCode && !isLoadingDepositCodes && (
                   <Text c="dimmed" mt="lg">
                     {t("listings.details.no_access_code")}
                   </Text>
                 )}
-                {/* User code */}
-                <SimpleGrid cols={{ base: 1, md: 2 }} mt="md" spacing={"lg"}>
-                  {userCode && (
-                    <Group gap="sm">
-                      <Stack>
-                        <Group justify="space-between">
-                          <Group gap="sm">
-                            <ThemeIcon>
-                              <IconUserShield />
-                            </ThemeIcon>
-                            <Text>
-                              <strong>{t("listings.details.owner")}</strong>
-                            </Text>
-                          </Group>
-                          <Badge
-                            variant={
-                              userCode?.status === "used"
-                                ? "gray"
-                                : userCode?.status === "expired"
-                                  ? "red"
-                                  : "green"
-                            }
-                          >
-                            {userCode?.status.toUpperCase()}
-                          </Badge>
-                        </Group>
-                        <Paper variant="primary" p="lg">
-                          <Title order={5} c="dimmed" ta="center">
-                            {t("listings.details.six_digits_code")}
-                          </Title>
-                          <Group gap={"xs"} justify="center">
-                            <Title order={3} ta="center" my="md">
-                              {userCode?.code.slice(0, 3)}{" "}
-                              {userCode?.code.slice(3)}
-                            </Title>
-                            <CopyButton value={userCode?.code} timeout={3000}>
-                              {({ copied, copy }) => (
-                                <Tooltip
-                                  label={
-                                    copied
-                                      ? t("common:actions.copied", {
-                                          defaultValue: "Copied",
-                                        })
-                                      : t("common:actions.copy", {
-                                          defaultValue: "Copy code",
-                                        })
-                                  }
-                                  withArrow
-                                  position="right"
-                                >
-                                  <ActionIcon
-                                    color={copied ? "teal" : "gray"}
-                                    variant="subtle"
-                                    onClick={copy}
-                                  >
-                                    {copied ? (
-                                      <IconCheck size={16} />
-                                    ) : (
-                                      <IconCopy size={16} />
-                                    )}
-                                  </ActionIcon>
-                                </Tooltip>
-                              )}
-                            </CopyButton>
-                          </Group>
-                          <Image
-                            src={`${import.meta.env.VITE_API_BASE_URL}/${userCode?.path}`}
-                            radius="md"
-                            alt={"Owner's access code"}
-                            fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                            style={{ cursor: "pointer" }}
-                            onClick={() =>
-                              handleCodeClick([userCode?.path || ""])
-                            }
-                          />
-                          <Divider my="md" />
-                          <Text c="dimmed">
-                            {t("listings.details.valid_from")}
-                            {dayjs(userCode?.valid_from).format(
-                              "DD/MM/YYYY HH:mm A",
-                            )}
-                          </Text>
-                          <Text c="dimmed">
-                            {t("listings.details.valid_to")}
-                            {dayjs(userCode?.valid_to).format(
-                              "DD/MM/YYYY HH:mm A",
-                            )}
-                          </Text>
-                        </Paper>
-                      </Stack>
-                    </Group>
-                  )}
-
-                  {/* Pro code */}
-                  {proCode && (
-                    <Group gap="sm">
-                      <Stack>
-                        <Group justify="space-between">
-                          <Group gap="sm">
-                            <ThemeIcon color="blue">
-                              <IconBasketCheck />
-                            </ThemeIcon>
-                            <Text>
-                              <strong>{t("listings.details.buyer")}</strong>
-                            </Text>
-                          </Group>
-                          <Badge
-                            variant={
-                              proCode?.status === "used"
-                                ? "gray"
-                                : proCode?.status === "expired"
-                                  ? "red"
-                                  : "green"
-                            }
-                          >
-                            {proCode?.status.toUpperCase()}
-                          </Badge>
-                        </Group>
-                        <Paper variant="primary" p="lg">
-                          <Title order={5} c="dimmed" ta="center">
-                            {t("listings.details.six_digits_code")}
-                          </Title>
-                          <Group gap={"xs"} justify="center">
-                            <Title order={3} ta="center" my="md">
-                              {proCode?.code.slice(0, 3)}{" "}
-                              {proCode?.code.slice(3)}
-                            </Title>
-                            <CopyButton value={proCode?.code} timeout={3000}>
-                              {({ copied, copy }) => (
-                                <Tooltip
-                                  label={
-                                    copied
-                                      ? t("common:actions.copied", {
-                                          defaultValue: "Copied",
-                                        })
-                                      : t("common:actions.copy", {
-                                          defaultValue: "Copy code",
-                                        })
-                                  }
-                                  withArrow
-                                  position="right"
-                                >
-                                  <ActionIcon
-                                    color={copied ? "teal" : "gray"}
-                                    variant="subtle"
-                                    onClick={copy}
-                                  >
-                                    {copied ? (
-                                      <IconCheck size={16} />
-                                    ) : (
-                                      <IconCopy size={16} />
-                                    )}
-                                  </ActionIcon>
-                                </Tooltip>
-                              )}
-                            </CopyButton>
-                          </Group>
-                          <Image
-                            src={`${import.meta.env.VITE_API_BASE_URL}/${proCode?.path}`}
-                            radius="md"
-                            alt={"Buyer's access code"}
-                            fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                            style={{ cursor: "pointer" }}
-                            onClick={() =>
-                              handleCodeClick([proCode?.path || ""])
-                            }
-                          />
-                          <Divider my="md" />
-                          <Text c="dimmed">
-                            {t("listings.details.valid_from")}
-                            {dayjs(userCode?.valid_from).format(
-                              "DD/MM/YYYY HH:mm A",
-                            )}
-                          </Text>
-                          <Text c="dimmed">
-                            {t("listings.details.valid_to")}
-                            {dayjs(userCode?.valid_to).format(
-                              "DD/MM/YYYY HH:mm A",
-                            )}
-                          </Text>
-                        </Paper>
-                      </Stack>
-                    </Group>
-                  )}
+                <SimpleGrid cols={{ base: 1, md: 2 }} mt="md" spacing="lg">
+                  {userCode && renderAccessCard(userCode, "owner")}
+                  {proCode && renderAccessCard(proCode, "buyer")}
                   {userCode && !proCode && (
-                    <Stack justify="center">
-                      <Text c="dimmed" mt="lg" ta="center">
-                        {t("listings.details.buyer_code_waiting")}
-                      </Text>
-                    </Stack>
+                    <Paper variant="primary" p="xl" radius="lg" withBorder shadow="sm" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Stack justify="center" align="center" gap="xs">
+                        <ThemeIcon color="blue" size="xl" radius="md" variant="light">
+                          <IconBasketCheck size={24} />
+                        </ThemeIcon>
+                        <Text fw={700} size="sm" ta="center">
+                          {t("listings.details.buyer")}
+                        </Text>
+                        <Text size="xs" c="dimmed" ta="center" style={{ maxWidth: "200px" }}>
+                          {t("listings.details.buyer_code_waiting")}
+                        </Text>
+                      </Stack>
+                    </Paper>
                   )}
                 </SimpleGrid>
               </>
@@ -918,16 +830,18 @@ export default function AdminListingDetails() {
                   </Badge>
                 </Table.Td>
                 <Table.Td ta="center">
-                  <Button
-                    variant="delete"
-                    size="xs"
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      handleOpenCancelModal(transaction);
-                    }}
-                  >
-                    {t("common:actions.cancel")}
-                  </Button>
+                  {transaction?.action === "reserved" && (
+                    <Button
+                      variant="delete"
+                      size="xs"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        openCancel();
+                      }}
+                    >
+                      {t("common:actions.cancel")}
+                    </Button>
+                  )}
                 </Table.Td>
               </Table.Tr>
             ))
@@ -1009,32 +923,11 @@ export default function AdminListingDetails() {
         title={t("listings.details.status_modal.delete")}
       />
 
-      <Modal
-        opened={openedCancelModal}
-        onClose={closeCancelModal}
-        title={t("listings.details.transactions.cancel_modal_title")}
-        size="lg"
-      >
-        <Text>
-          {t("listings.details.transactions.cancel_confirm", {
-            id: cancelTransactionId?.id_transaction,
-          })}
-        </Text>
-        <Group mt="lg" justify="end">
-          <Button onClick={closeCancelModal} variant="grey">
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            onClick={() => {
-              handleCancelTransaction();
-            }}
-            variant="delete"
-            loading={cancelTransactionMutation.isPending}
-          >
-            {t("common:actions.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+      <ConfirmCancelReservationModal
+        opened={openedCancel}
+        onClose={closeCancel}
+        idItem={id_item}
+      />
 
       <PhotoModal
         opened={openedCodeCarousel}

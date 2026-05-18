@@ -23,6 +23,7 @@ import MyItems from "../pages/common/market/MyItems";
 import ItemDetailPage from "../pages/common/market/ItemDetailPage";
 import NewItem from "../pages/common/market/NewItem";
 import MyItemDetail from "../pages/common/market/MyItemDetail";
+import OpenContainerPage from "../pages/common/container/OpenContainerPage";
 
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -131,6 +132,10 @@ export const userRoutes: RouteObject = {
           ],
         },
       ],
+    },
+    {
+      path: "containers/open",
+      children: [{ index: true, element: <OpenContainerPage /> }],
     },
   ],
 };

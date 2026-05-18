@@ -8,6 +8,7 @@ import {
   Title,
   Text,
   Badge,
+  Avatar,
   Divider,
   Grid,
   Alert,
@@ -22,6 +23,7 @@ import {
   TextInput,
   Button,
   SimpleGrid,
+  PinInput,
 } from "@mantine/core";
 import {
   IconAlertCircle,
@@ -42,6 +44,8 @@ import {
   IconPackage,
   IconBuildingStore,
   IconTrash,
+  IconChevronRight,
+  IconDownload,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
@@ -54,6 +58,7 @@ import { resolveUrl } from "../../../utils/imageUtils";
 import {
   useGetItemDetails,
   useGetItemTransactions,
+  useGetLatestTransactionOfPro,
 } from "../../../hooks/itemHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import DOMPurify from "dompurify";
@@ -66,45 +71,30 @@ import { useDisclosure } from "@mantine/hooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
+import { ConfirmCancelReservationModal } from "../../../components/market/ConfirmCancelReservationModal";
+import { ConfirmPurchaseModal } from "../../../components/market/ConfirmPurchaseModal";
 import { useDeleteItem } from "../../../hooks/itemHooks";
 import { useTransferDepositContainer } from "../../../hooks/depositHooks";
 import dayjs from "dayjs";
 import PaginationFooter from "../../../components/common/PaginationFooter";
-import type { CodeForAdmin } from "../../../api/interfaces/barcode";
+import type { Barcode } from "../../../api/interfaces/barcode";
 import { NotFoundPage } from "../../error/404";
 import { useContainerDetails } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: string }) {
-  const color =
-    status === "approved"
-      ? "green"
-      : status === "refused"
-        ? "red"
-        : status === "completed"
-          ? "teal"
-          : status === "reserved" || status === "purchased"
-            ? "blue"
-            : "yellow";
-  return (
-    <Badge size="lg" radius="md" variant="light" color={color}>
-      {status.toUpperCase()}
-    </Badge>
-  );
-}
-
 function AccessCodeCard({
   code,
   label,
   icon,
+  onDownload,
 }: {
-  code: CodeForAdmin;
+  code: Barcode;
   label: string;
   icon: React.ReactNode;
+  onDownload?: () => void;
 }) {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["common", "marketplace"]);
   return (
     <Paper variant="primary" p="lg" radius="md" withBorder>
       <Stack gap="sm">
@@ -163,14 +153,26 @@ function AccessCodeCard({
           <Image
             src={resolveUrl(code.path)}
             radius="md"
-            alt="QR Code"
+            alt="Barcode"
             mt="xs"
-            fallbackSrc="https://placehold.co/200x200?text=QR"
+            fallbackSrc="https://placehold.co/400x200?text=Barcode"
           />
           <Text size="xs" c="dimmed" ta="center">
             {t("valid_to", { defaultValue: "Valid to:" })}{" "}
             {dayjs(code.valid_to).format("DD/MM/YYYY HH:mm")}
           </Text>
+          {onDownload && code.barcode_base64 && (
+            <Button
+              variant="cta"
+              size="xs"
+              mt="sm"
+              fullWidth
+              leftSection={<IconDownload size={14} />}
+              onClick={onDownload}
+            >
+              {t("marketplace:my_item_detail.download_barcode")}
+            </Button>
+          )}
         </Stack>
       </Stack>
     </Paper>
@@ -223,7 +225,7 @@ function TransactionTable({
       >
         {txs.length > 0 ? (
           txs.map((trx: any) => (
-            <Table.Tr key={trx.id_transaction}>
+            <Table.Tr key={trx.id}>
               <Table.Td ta="center">
                 {dayjs(trx.created_at).format("DD/MM/YYYY HH:mm")}
               </Table.Td>
@@ -283,6 +285,10 @@ export default function MyItemDetail() {
     useDisclosure(false);
   const [openedTransfer, { open: openTransfer, close: closeTransfer }] =
     useDisclosure(false);
+  const [openedCancel, { open: openCancel, close: closeCancel }] =
+    useDisclosure(false);
+  const [openedPurchase, { open: openPurchase, close: closePurchase }] =
+    useDisclosure(false);
 
   const deleteItemMutation = useDeleteItem();
 
@@ -313,6 +319,9 @@ export default function MyItemDetail() {
 
   // confirmation code input (user → submit 6-digit code to confirm retrieval)
   const [confirmCode, setConfirmCode] = useState("");
+  const handleSetConfirmCode = (val: string) => {
+    setConfirmCode(val.toUpperCase());
+  };
 
   // transactions pagination
   const [activePage, setPage] = useState(1);
@@ -338,28 +347,46 @@ export default function MyItemDetail() {
     );
 
   // Only users see transaction history (pro role removed by backend)
+  const { data: latestTx, isLoading: isLoadingProTransaction } =
+    useGetLatestTransactionOfPro(id_item, isValidId && role === "pro");
   const { data: transactionsData, isLoading: isLoadingTransactions } =
-    useGetItemTransactions(id_item, isValidId, activePage, limit);
+    useGetItemTransactions(id_item, isValidId && role === "user");
+  const hasActiveTransaction = !!(
+    transactionsData?.transactions?.[0] &&
+    (transactionsData.transactions[0].action === "reserved" ||
+      transactionsData.transactions[0].action === "purchased")
+  );
 
   // Deposit codes accessible to both roles now (backend updated)
   const { data: depositCodes, isLoading: isLoadingDepositCodes } =
     useGetDepositCodesOfLatestTransaction(id_item, isValidId && isDeposit);
+  const handleDownloadBarcode = (barcodeBase64: string) => {
+    const link = document.createElement("a");
+    link.href = barcodeBase64;
+    link.download = `barcode-${role === "pro" ? latestTx?.id_transaction : transactionsData?.transactions?.[0].id_transaction}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-  if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading)
+  if (
+    isLoadingItem ||
+    isListingDetailsLoading ||
+    isDepositDetailsLoading ||
+    isContainerDetailsLoading ||
+    isLoadingProTransaction
+  )
     return <FullScreenLoader />;
 
-  if (isItemError && !isContainerDetailsLoading) {
+  if (isItemError || (role === "pro" && (!latestTx || latestTx.id_pro === 0))) {
     return <NotFoundPage />;
   }
-
-  const transactions = transactionsData?.transactions || [];
-  const latestTx = transactions[0]; // most recent transaction
 
   // deposit code helpers
   const userDepositCode = depositCodes?.[0];
   const proDepositCode = depositCodes?.[0];
   // For pro, their code is the "pro" code; for user, it's the "user" code
-  const myDepositCode: CodeForAdmin | undefined =
+  const myDepositCode: Barcode | undefined =
     role === "pro" ? proDepositCode : userDepositCode;
 
   // ── derived state flags ───────────────────────────────────────────────────
@@ -369,9 +396,134 @@ export default function MyItemDetail() {
   const isCompleted = item?.status === "completed";
 
   const isReserved = latestTx?.action === "reserved";
-  const isPurchased = latestTx?.action === "purchased" && !isCompleted; // bought but not completed
+  const isPurchased =
+    role === "pro"
+      ? latestTx?.action === "purchased" && !isCompleted
+      : !!(
+          transactionsData?.transactions?.[0] &&
+          transactionsData?.transactions[0].action === "purchased"
+        ) && !isCompleted; // bought but not completed
+  const isCancelled = latestTx?.action === "cancelled";
 
-  // ── right-panel sections ─────────────────────────────────────────────────
+  const renderLeftAccessInfoCard = () => {
+    if (!isDeposit) return null;
+
+    if (role === "pro") {
+      if (isReserved || isPurchased) {
+        return (
+          <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+            <Stack gap="md">
+              <Group gap="sm">
+                <IconKey size={20} color="var(--upagain-neutral-green)" />
+                <Title order={4}>
+                  {t("admin:listings.details.access_info")}
+                </Title>
+              </Group>
+              {isLoadingDepositCodes ? (
+                <Center py="md">
+                  <Loader size="sm" />
+                </Center>
+              ) : myDepositCode &&
+                myDepositCode.code.length > 0 &&
+                myDepositCode.path.length > 0 ? (
+                <AccessCodeCard
+                  code={myDepositCode}
+                  label={t("admin:listings.details.buyer")}
+                  icon={<IconUserShield size={14} />}
+                  onDownload={() =>
+                    handleDownloadBarcode(myDepositCode.barcode_base64)
+                  }
+                />
+              ) : isPurchased ? (
+                <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
+                  {t("marketplace:my_item_detail.waiting_for_dropoff")}
+                </Text>
+              ) : (
+                <Text size="sm" c="dimmed">
+                  {t("admin:listings.details.no_access_code")}
+                </Text>
+              )}
+            </Stack>
+          </Paper>
+        );
+      }
+    } else {
+      if (isReserved || isPurchased) {
+        return (
+          <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+            <Stack gap="md">
+              <Group gap="sm">
+                <IconKey size={20} color="var(--upagain-neutral-green)" />
+                <Title order={4}>
+                  {t("admin:listings.details.access_info")}
+                </Title>
+              </Group>
+              {isLoadingDepositCodes ? (
+                <Center py="md">
+                  <Loader size="sm" />
+                </Center>
+              ) : userDepositCode ? (
+                <>
+                  <AccessCodeCard
+                    code={userDepositCode}
+                    label={t("admin:listings.details.owner")}
+                    icon={<IconUserShield size={14} />}
+                    onDownload={() =>
+                      handleDownloadBarcode(userDepositCode.barcode_base64)
+                    }
+                  />
+                  {userDepositCode.status === "used" ? (
+                    <Alert
+                      icon={<IconCircleCheck size={16} />}
+                      color="teal"
+                      variant="light"
+                    >
+                      {t("marketplace:my_item_detail.deposit_in_container")}
+                    </Alert>
+                  ) : (
+                    <>
+                      <Alert
+                        icon={<IconInfoCircle size={16} />}
+                        color="blue"
+                        variant="light"
+                      >
+                        {t("marketplace:my_item_detail.drop_off_reminder")}
+                        {depositDetails && (
+                          <Text fw={700} mt={4}>
+                            Container #{depositDetails.container_id}
+                          </Text>
+                        )}
+                      </Alert>
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        onClick={() =>
+                          navigate(PATHS.CONTAINERS.OPEN, {
+                            state: {
+                              id_container: depositDetails?.container_id,
+                              item_title: item?.title,
+                              item_id: item?.id,
+                            },
+                          })
+                        }
+                      >
+                        {t("marketplace:open_container.open_now")}
+                      </Button>
+                    </>
+                  )}
+                </>
+              ) : (
+                <Text size="sm" c="dimmed">
+                  {t("admin:listings.details.no_access_code")}
+                </Text>
+              )}
+            </Stack>
+          </Paper>
+        );
+      }
+    }
+    return null;
+  };
 
   /** PRO right panel */
   const ProRightPanel = () => {
@@ -386,11 +538,7 @@ export default function MyItemDetail() {
                   {t("marketplace:my_item_detail.reservation_details")}
                 </Title>
               </Group>
-              <Alert
-                icon={<IconInfoCircle size={16} />}
-                color="blue"
-                variant="light"
-              >
+              <Alert icon={<IconInfoCircle size={16} />}>
                 {t("marketplace:my_item_detail.pro_reserved_info")}
               </Alert>
               {latestTx && (
@@ -398,9 +546,10 @@ export default function MyItemDetail() {
                   <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
                     {t("marketplace:my_item_detail.reserved_until")}
                   </Text>
-                  {/* TODO: backend should provide reservation expiry date on transaction */}
                   <Text fw={700} size="lg" c="orange">
-                    {t("marketplace:my_item_detail.expiry_todo")}
+                    {dayjs(latestTx?.reservation_expiry).format(
+                      "DD/MM/YYYY - HH:mm A",
+                    )}
                   </Text>
                 </Stack>
               )}
@@ -409,9 +558,15 @@ export default function MyItemDetail() {
                 variant="primary"
                 fullWidth
                 size="md"
-                leftSection={<IconBuildingStore size={16} />}
+                rightSection={<IconChevronRight size={16} />}
+                onClick={openPurchase}
               >
                 {t("marketplace:detail.buy")}
+              </Button>
+              <Button variant="delete" fullWidth size="md" onClick={openCancel}>
+                {t("marketplace:detail.cancel_reservation", {
+                  defaultValue: "Cancel Reservation",
+                })}
               </Button>
             </Stack>
           </Paper>
@@ -430,7 +585,33 @@ export default function MyItemDetail() {
             {latestTx && (
               <Text size="sm" c="dimmed" ta="center">
                 {t("marketplace:my_item_detail.completed_on", {
-                  date: dayjs(latestTx.created_at).format("DD/MM/YYYY"),
+                  date: dayjs(latestTx.created_at).format(
+                    "DD/MM/YYYY - HH:mm A",
+                  ),
+                })}
+              </Text>
+            )}
+          </Stack>
+        </Paper>
+      );
+    }
+
+    if (isCancelled) {
+      return (
+        <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+          <Stack gap="sm" align="center">
+            <IconAlertCircle size={48} color="var(--mantine-color-red-6)" />
+            <Title order={4} ta="center" c="red.6">
+              {t("marketplace:my_item_detail.cancelled_title", {
+                defaultValue: "Reservation Cancelled",
+              })}
+            </Title>
+            {latestTx && (
+              <Text size="sm" c="dimmed" ta="center">
+                {t("marketplace:my_item_detail.cancelled_on", {
+                  date: dayjs(latestTx.created_at).format(
+                    "DD/MM/YYYY - HH:mm A",
+                  ),
                 })}
               </Text>
             )}
@@ -442,6 +623,39 @@ export default function MyItemDetail() {
     if (isPurchased || isReserved) {
       return (
         <Stack gap="lg">
+          {isPurchased && (
+            <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+              <Stack gap="md">
+                <Group gap="sm">
+                  <IconCircleCheck
+                    size={20}
+                    color="var(--upagain-neutral-green)"
+                  />
+                  <Title order={4}>
+                    {t("marketplace:my_item_detail.purchase_details", {
+                      defaultValue: "Purchase Details",
+                    })}
+                  </Title>
+                </Group>
+
+                {latestTx && (
+                  <Stack gap={4}>
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                      {t("marketplace:my_item_detail.purchased_on_label", {
+                        defaultValue: "Purchased On",
+                      })}
+                    </Text>
+                    <Text fw={700}>
+                      {dayjs(latestTx.created_at).format(
+                        "DD/MM/YYYY - HH:mm A",
+                      )}
+                    </Text>
+                  </Stack>
+                )}
+              </Stack>
+            </Paper>
+          )}
+
           {/* Location info */}
           <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
             <Stack gap="md">
@@ -460,14 +674,6 @@ export default function MyItemDetail() {
                     {listingDetails.street}, {listingDetails.city}{" "}
                     {listingDetails.postal_code}
                   </Text>
-                  <Alert
-                    icon={<IconInfoCircle size={14} />}
-                    color="green"
-                    variant="light"
-                    mt="xs"
-                  >
-                    {t("marketplace:my_item_detail.pro_give_code_reminder")}
-                  </Alert>
                 </Stack>
               )}
               {isDeposit && depositDetails && (
@@ -484,35 +690,6 @@ export default function MyItemDetail() {
             </Stack>
           </Paper>
 
-          {/* Access code for deposit */}
-          {isDeposit && (
-            <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
-              <Stack gap="md">
-                <Group gap="sm">
-                  <IconKey size={20} color="var(--upagain-neutral-green)" />
-                  <Title order={4}>
-                    {t("admin:listings.details.access_info")}
-                  </Title>
-                </Group>
-                {isLoadingDepositCodes ? (
-                  <Center py="md">
-                    <Loader size="sm" />
-                  </Center>
-                ) : myDepositCode ? (
-                  <AccessCodeCard
-                    code={myDepositCode}
-                    label={t("admin:listings.details.buyer")}
-                    icon={<IconUserShield size={14} />}
-                  />
-                ) : (
-                  <Text size="sm" c="dimmed">
-                    {t("admin:listings.details.no_access_code")}
-                  </Text>
-                )}
-              </Stack>
-            </Paper>
-          )}
-
           {/* Purchase confirmation for listing: pro gives code to user */}
           {isListing && (
             <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
@@ -526,25 +703,17 @@ export default function MyItemDetail() {
                     {t("marketplace:my_item_detail.confirmation_code_title")}
                   </Title>
                 </Group>
-                <Alert
-                  icon={<IconInfoCircle size={16} />}
-                  color="blue"
-                  variant="light"
-                >
+                <Alert icon={<IconInfoCircle size={16} />}>
                   {t("marketplace:my_item_detail.pro_confirm_instructions")}
                 </Alert>
-                {/* TODO: fetch confirmation code from backend once endpoint is implemented */}
                 <Paper variant="primary" p="lg" radius="md" withBorder>
                   <Stack gap={4} align="center">
                     <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                       {t("marketplace:my_item_detail.confirmation_code_title")}
                     </Text>
                     <Title order={2} c="var(--upagain-neutral-green)">
-                      — — — —
+                      {latestTx?.confirm_code}
                     </Title>
-                    <Text size="xs" c="dimmed" ta="center">
-                      {t("marketplace:my_item_detail.code_todo")}
-                    </Text>
                   </Stack>
                 </Paper>
               </Stack>
@@ -559,42 +728,78 @@ export default function MyItemDetail() {
 
   /** USER right panel */
   const UserRightPanel = () => {
-    const showActionButtons = !isPurchased && !isReserved && !isCompleted;
+    const showActionButtons = !isCompleted;
 
     const ActionButtons = () =>
       showActionButtons ? (
         <>
-          <Button
-            variant="secondary"
-            size="lg"
-            fullWidth
-            onClick={openEdit}
-            leftSection={<IconEdit size={18} />}
+          <Tooltip
+            label={t("marketplace:my_item_detail.active_transaction_tooltip", {
+              defaultValue:
+                "This action is disabled because there is currently an active transaction.",
+            })}
+            disabled={!hasActiveTransaction}
           >
-            {t("marketplace:detail.edit")}
-          </Button>
+            <div>
+              <Button
+                variant="secondary"
+                size="lg"
+                disabled={hasActiveTransaction}
+                fullWidth
+                onClick={openEdit}
+                leftSection={<IconEdit size={18} />}
+              >
+                {t("marketplace:detail.edit")}
+              </Button>
+            </div>
+          </Tooltip>
           {isDeposit && (
-            <Button
-              variant="secondary"
-              size="lg"
-              fullWidth
-              onClick={openTransfer}
-              leftSection={<IconBox size={18} />}
+            <Tooltip
+              label={t(
+                "marketplace:my_item_detail.active_transaction_tooltip",
+                {
+                  defaultValue:
+                    "This action is disabled because there is currently an active transaction.",
+                },
+              )}
+              disabled={!hasActiveTransaction}
             >
-              {t("marketplace:detail.transfer_container", {
-                defaultValue: "Transfer container",
-              })}
-            </Button>
+              <div>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  disabled={hasActiveTransaction}
+                  fullWidth
+                  onClick={openTransfer}
+                  leftSection={<IconBox size={18} />}
+                >
+                  {t("marketplace:detail.transfer_container", {
+                    defaultValue: "Transfer container",
+                  })}
+                </Button>
+              </div>
+            </Tooltip>
           )}
-          <Button
-            variant="delete"
-            size="lg"
-            fullWidth
-            onClick={openDelete}
-            leftSection={<IconTrash size={18} />}
+          <Tooltip
+            label={t("marketplace:my_item_detail.active_transaction_tooltip", {
+              defaultValue:
+                "This action is disabled because there is currently an active transaction.",
+            })}
+            disabled={!hasActiveTransaction}
           >
-            {t("marketplace:detail.delete")}
-          </Button>
+            <div>
+              <Button
+                variant="delete"
+                disabled={hasActiveTransaction}
+                size="lg"
+                fullWidth
+                onClick={openDelete}
+                leftSection={<IconTrash size={18} />}
+              >
+                {t("marketplace:detail.delete")}
+              </Button>
+            </div>
+          </Tooltip>
         </>
       ) : null;
 
@@ -647,12 +852,12 @@ export default function MyItemDetail() {
                 </Title>
               </Group>
               <Text fw={700}>{latestTx?.username_pro || "—"}</Text>
-              {/* TODO: reservation expiry from backend */}
               <Text size="xs" c="dimmed">
-                {t("marketplace:my_item_detail.expiry_todo")}
+                {dayjs(latestTx?.reservation_expiry).format("DD/MM/YYYY")}
               </Text>
             </Stack>
           </Paper>
+          <ActionButtons />
         </Stack>
       );
     }
@@ -667,7 +872,19 @@ export default function MyItemDetail() {
                 <IconPackage size={20} color="var(--upagain-neutral-green)" />
                 <Title order={4}>{t("marketplace:detail.buyer")}</Title>
               </Group>
-              <Text fw={700}>{latestTx?.username_pro || "—"}</Text>
+              <Text fw={700}>
+                {transactionsData?.transactions?.[0]?.username_pro || "—"}
+              </Text>
+              {transactionsData?.transactions?.[0] && (
+                <Text size="xs" c="dimmed">
+                  {t("marketplace:my_item_detail.purchased_on", {
+                    defaultValue: "Purchased on {{date}}",
+                    date: dayjs(
+                      transactionsData?.transactions?.[0].created_at,
+                    ).format("DD/MM/YYYY - HH:mm A"),
+                  })}
+                </Text>
+              )}
             </Stack>
           </Paper>
 
@@ -686,12 +903,16 @@ export default function MyItemDetail() {
                 <Text size="sm" c="dimmed">
                   {t("marketplace:my_item_detail.enter_code_instruction")}
                 </Text>
-                <TextInput
-                  placeholder="XXX XXX"
+                <PinInput
+                  length={6}
+                  type="alphanumeric"
+                  size="lg"
+                  placeholder="-"
+                  oneTimeCode
+                  // disabled={loading}
                   value={confirmCode}
-                  onChange={(e) => setConfirmCode(e.currentTarget.value)}
-                  maxLength={7}
-                  size="md"
+                  onChange={(val) => handleSetConfirmCode(val)}
+                  aria-label="6-Digit Access Code"
                 />
                 {/* TODO: submit confirmation code to backend */}
                 <Button
@@ -705,57 +926,7 @@ export default function MyItemDetail() {
             </Paper>
           )}
 
-          {isDeposit && (
-            <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
-              <Stack gap="md">
-                <Group gap="sm">
-                  <IconKey size={20} color="var(--upagain-neutral-green)" />
-                  <Title order={4}>
-                    {t("admin:listings.details.access_info")}
-                  </Title>
-                </Group>
-                {isLoadingDepositCodes ? (
-                  <Center py="md">
-                    <Loader size="sm" />
-                  </Center>
-                ) : userDepositCode ? (
-                  <>
-                    <AccessCodeCard
-                      code={userDepositCode}
-                      label={t("admin:listings.details.owner")}
-                      icon={<IconUserShield size={14} />}
-                    />
-                    {userDepositCode.status === "used" ? (
-                      <Alert
-                        icon={<IconCircleCheck size={16} />}
-                        color="teal"
-                        variant="light"
-                      >
-                        {t("marketplace:my_item_detail.deposit_in_container")}
-                      </Alert>
-                    ) : (
-                      <Alert
-                        icon={<IconInfoCircle size={16} />}
-                        color="blue"
-                        variant="light"
-                      >
-                        {t("marketplace:my_item_detail.drop_off_reminder")}
-                        {depositDetails && (
-                          <Text fw={700} mt={4}>
-                            Container #{depositDetails.container_id}
-                          </Text>
-                        )}
-                      </Alert>
-                    )}
-                  </>
-                ) : (
-                  <Text size="sm" c="dimmed">
-                    {t("admin:listings.details.no_access_code")}
-                  </Text>
-                )}
-              </Stack>
-            </Paper>
-          )}
+          <ActionButtons />
         </Stack>
       );
     }
@@ -813,7 +984,6 @@ export default function MyItemDetail() {
             <Stack gap="xl">
               {/* Status row */}
               <Group justify="flex-start" align="center" wrap="wrap">
-                <StatusBadge status={item?.status || ""} />
                 <Text size="sm" c="dimmed">
                   {t("marketplace:my_item_detail.posted_on", {
                     date: dayjs(item?.created_at).format("DD/MM/YYYY"),
@@ -829,6 +999,32 @@ export default function MyItemDetail() {
               )}
 
               <Title order={2}>{item?.title}</Title>
+
+              {/* Seller details */}
+              <Group gap="sm">
+                <Avatar
+                  src={resolveUrl(item?.creator_avatar || "")}
+                  name={item?.username}
+                  radius="xl"
+                  size="md"
+                />
+                <Stack gap={2}>
+                  <Text
+                    size="xs"
+                    c="dimmed"
+                    fw={700}
+                    tt="uppercase"
+                    style={{ letterSpacing: "0.5px" }}
+                  >
+                    {t("marketplace:my_item_detail.seller", {
+                      defaultValue: "Seller",
+                    })}
+                  </Text>
+                  <Text fw={700} size="sm">
+                    {item?.username || "—"}
+                  </Text>
+                </Stack>
+              </Group>
 
               {/* Key info grid */}
               <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
@@ -896,6 +1092,8 @@ export default function MyItemDetail() {
                 ))}
               </SimpleGrid>
 
+              {renderLeftAccessInfoCard()}
+
               <Divider />
 
               {/* Description */}
@@ -942,7 +1140,9 @@ export default function MyItemDetail() {
                 </Group>
 
                 {((isListing && listingDetails?.lat && listingDetails?.lng) ||
-                  (isDeposit && depositDetails?.lat && depositDetails?.lng)) && (
+                  (isDeposit &&
+                    depositDetails?.lat &&
+                    depositDetails?.lng)) && (
                   <EmbeddedMap
                     height={300}
                     locations={[
@@ -1030,7 +1230,7 @@ export default function MyItemDetail() {
                   </Stack>
                 </Paper>
               )}
-              {role === "pro" ? <ProRightPanel /> : <UserRightPanel />}
+              {role === "pro" ? ProRightPanel() : UserRightPanel()}
             </Stack>
           </Grid.Col>
         </Grid>
@@ -1044,7 +1244,7 @@ export default function MyItemDetail() {
         defaultActiveSlide={lightboxSlide}
       />
 
-      {item && (
+      {role === "user" && item && (
         <EditItemModal
           opened={openedEdit}
           onClose={closeEdit}
@@ -1052,19 +1252,36 @@ export default function MyItemDetail() {
           listingDetails={listingDetails}
         />
       )}
-      <DeleteItemModal
-        opened={openedDelete}
-        onClose={closeDelete}
-        onConfirm={handleDelete}
-        loading={deleteItemMutation.isPending}
-        title={t("marketplace:detail.delete")}
+      {role === "user" && (
+        <>
+          <DeleteItemModal
+            opened={openedDelete}
+            onClose={closeDelete}
+            onConfirm={handleDelete}
+            loading={deleteItemMutation.isPending}
+            title={t("marketplace:detail.delete")}
+          />
+          <TransferContainerModal
+            opened={openedTransfer}
+            onClose={closeTransfer}
+            onConfirm={handleTransfer}
+            isLoading={transferMutation.isPending}
+            currentContainerId={depositDetails?.container_id}
+          />
+        </>
+      )}
+
+      <ConfirmCancelReservationModal
+        opened={openedCancel}
+        onClose={closeCancel}
+        idItem={id_item}
       />
-      <TransferContainerModal
-        opened={openedTransfer}
-        onClose={closeTransfer}
-        onConfirm={handleTransfer}
-        isLoading={transferMutation.isPending}
-        currentContainerId={depositDetails?.container_id}
+      <ConfirmPurchaseModal
+        opened={openedPurchase}
+        onClose={closePurchase}
+        idItem={id_item}
+        itemTitle={item?.title}
+        price={item?.price}
       />
     </Container>
   );

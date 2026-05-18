@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"backend/utils/geocode"
+	helpers "backend/utils/helpers"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -17,6 +18,7 @@ import (
 // @Summary      Get all containers
 // @Description  Get a list of all containers
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
@@ -90,6 +92,7 @@ func GetAllContainersHandler(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get container by ID
 // @Description  Get a single container by its ID
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id   path      int  true  "Container ID"
 // @Success      200  {object}  models.Container
@@ -142,6 +145,7 @@ func GetContainerByID(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update container status
 // @Description  Update the status of a container. Can't update if status is waiting or occupied.
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Container ID"
@@ -191,6 +195,7 @@ func UpdateContainerStatus(w http.ResponseWriter, r *http.Request) {
 // @Summary      Delete container
 // @Description  Soft delete a container by its ID
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id   path      int  true  "Container ID"
 // @Success      204  {object}  nil  "No Content"
@@ -249,6 +254,7 @@ func DeleteContainer(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get container count stats
 // @Description  Get statistics about container counts (total and active)
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {object}  models.ContainerCountStats
 // @Failure      401  {object}  nil  "Unauthorized"
@@ -288,6 +294,7 @@ func GetContainerCountStats(w http.ResponseWriter, r *http.Request) {
 // @Summary      Create container
 // @Description  Create a new container
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        container  body      models.Container  true  "Container details"
@@ -363,6 +370,7 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get available containers
 // @Description  Get a list of available containers
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {array}   models.Container
 // @Failure      401  {object}  nil  "Unauthorized"
@@ -388,6 +396,7 @@ func GetAvailableContainers(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update container location
 // @Description  Update the location of a container.
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Container ID"
@@ -480,6 +489,7 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get container schedule
 // @Description  Returns the list of deposits and their planned dates (barcode valid date range) for a specific container.
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id   path      int  true  "Container ID"
 // @Success      200  {array}   models.ContainerSchedule
@@ -520,6 +530,7 @@ func GetContainerSchedule(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get earliest availability for a container
 // @Description  Calculates the earliest date and time the container will be available by looking at planned schedules (user and pro barcode ranges).
 // @Tags         container
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id   path      int  true  "Container ID"
 // @Success      200  {object}  map[string]time.Time "Earliest availability"
@@ -553,27 +564,27 @@ func GetContainerEarliestAvailability(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Loop through UserRange and ProRange to find the latest occupied date 
-	// and return the next earliest date (start date of next available slot after latest occupied date)
-	earliest := time.Now()
-
-	for _, item := range schedule.UserRange {
-		if item.ValidTo.After(earliest) {
-			earliest = item.ValidTo
-		}
-	}
-
-	for _, item := range schedule.ProRange {
-		if item.ValidTo.After(earliest) {
-			earliest = item.ValidTo
-		}
-	}
+	earliest := helpers.FindNextAvailableDate(schedule)
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]time.Time{
 		"earliest_availability": earliest,
 	})
 }
 
+// GetNearestAvailableContainer godoc
+// @Summary      Get nearest available container
+// @Description  Get the available container closest to specified coordinates.
+// @Tags         container
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        lat   query     float64  true  "Latitude"
+// @Param        lng   query     float64  true  "Longitude"
+// @Success      200   {object}  models.Container
+// @Failure      400   {object}  nil  "Missing or invalid latitude/longitude"
+// @Failure      401   {object}  nil  "Unauthorized"
+// @Failure      404   {object}  nil  "No available containers found"
+// @Failure      500   {object}  nil  "Internal server error"
+// @Router       /containers/nearest/ [get]
 func GetNearestAvailableContainer(w http.ResponseWriter, r *http.Request) {
 	// get params: lat, lng from query
 	query := r.URL.Query()

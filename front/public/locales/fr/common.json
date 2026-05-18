@@ -31,7 +31,8 @@
     "sold": "Vendu",
     "to_drop_off": "À déposer",
     "bought": "Acheté",
-    "to_retrieve": "À récupérer"
+    "to_retrieve": "À récupérer",
+    "cancelled": "Annulé"
   },
   "categories": {
     "all": "Toutes les catégories",
@@ -52,9 +53,12 @@
   "pagination": {
     "showing": "Affichage de",
     "of": "sur",
-    "results": "résultats",
-    "items": "objets",
-    "transactions": "transactions"
+    "results_one": "résultat",
+    "results_other": "résultats",
+    "items_one": "objet",
+    "items_other": "objets",
+    "transactions_one": "transaction",
+    "transactions_other": "transactions"
   },
   "time": {
     "just_now": "À l'instant",
@@ -65,5 +69,18 @@
     "yesterday": "Hier",
     "days_ago_one": "Il y a 1 jour",
     "days_ago_other": "Il y a {{count}} jours"
+  },
+  "footer": {
+    "description": "Donnez une seconde vie à vos objets. Une solution simple et écologique pour échanger et revaloriser vos ressources.",
+    "explore": "Explorer",
+    "browse_objects": "Parcourir les objets",
+    "smart_deposits": "Dépôts intelligents",
+    "community_articles": "Articles de la communauté",
+    "contact": "Contact",
+    "address": "123 Rue de l'Écologie, Paris, France",
+    "legal": "Mentions Légales",
+    "terms_conditions": "Conditions Générales d'Utilisation",
+    "privacy_policy": "Politique de Confidentialité",
+    "rights_reserved": "© {{year}} UpAgain. Tous droits réservés."
   }
 }
