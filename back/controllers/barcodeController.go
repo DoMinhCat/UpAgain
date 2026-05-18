@@ -66,7 +66,6 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 				return
 			}
 			code.BarcodeBase64 = "data:image/png;base64," + base64Code
-			slog.Debug("base64", "base64", base64Code)
 		}
 		utils.RespondWithJSON(w, http.StatusOK, []models.Barcode{code})
 		return

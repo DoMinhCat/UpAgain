@@ -126,6 +126,7 @@
     "validation_error_barcode": "Veuillez d'abord télécharger une image de code-barres.",
     "success_title": "Conteneur déverrouillé",
     "success_desc": "Vérification réussie ! Le verrou du conteneur a été libéré.",
+    "open_now": "Ouvrir le conteneur maintenant",
     "back_to_market": "Retour à la boutique",
     "dropzone_desc": "Cliquez ou glissez votre image de code-barres ici"
   }

@@ -72,4 +72,7 @@ export const PATHS = {
     MY_POSTS: "/community/me",
     SAVED_POSTS: "/community/saved",
   },
+  CONTAINERS: {
+    OPEN: "/containers/open",
+  },
 } as const;

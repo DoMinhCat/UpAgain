@@ -134,7 +134,7 @@ export const userRoutes: RouteObject = {
       ],
     },
     {
-      path: "containers",
+      path: "containers/open",
       children: [{ index: true, element: <OpenContainerPage /> }],
     },
   ],
