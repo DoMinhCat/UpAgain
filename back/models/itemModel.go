@@ -10,8 +10,9 @@ type ItemFilters struct {
 	Search   string `json:"search"`
 	Sort     string `json:"sort"`
 	Category string `json:"category"`
-	Status   string `json:"status"`
-	Material string `json:"material"`
+	Status           string `json:"status"`
+	Material         string `json:"material"`
+	IncludePurchased string `json:"include_purchased"`
 }
 
 type Item struct {

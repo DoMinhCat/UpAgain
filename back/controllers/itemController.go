@@ -35,6 +35,7 @@ import (
 // @Failure      500       {object}  nil  "Internal server error"
 // @Router       /items/ [get]
 func GetAllItems(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
 	var err error
 	// default pagination
 	page := -1
@@ -69,6 +70,9 @@ func GetAllItems(w http.ResponseWriter, r *http.Request) {
 		Material: query.Get("material"),
 	}
 
+	if role == "admin"{
+		filters.IncludePurchased = query.Get("include_purchased")
+	}
 	items, total, err := db.GetAllItems(page, limit, filters)
 	if err != nil {
 		slog.Error("GetAllItems() failed", "controller", "GetAllItems", "error", err)

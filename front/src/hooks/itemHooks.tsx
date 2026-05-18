@@ -24,11 +24,12 @@ export const useGetAllItems = (
   status?: string,
   material?: string,
   category?: string,
+  include_purchased?: boolean,
 ) => {
   return useQuery({
-    queryKey: ["items", page, limit, search, sort, status, material, category],
+    queryKey: ["items", page, limit, search, sort, status, material, category, include_purchased],
     queryFn: () =>
-      getAllItems(page, limit, search, sort, status, material, category),
+      getAllItems(page, limit, search, sort, status, material, category, include_purchased),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "common:notifications.error",
