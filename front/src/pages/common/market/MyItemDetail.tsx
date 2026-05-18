@@ -401,6 +401,126 @@ export default function MyItemDetail() {
         ) && !isCompleted; // bought but not completed
   const isCancelled = latestTx?.action === "cancelled";
 
+  const renderLeftAccessInfoCard = () => {
+    if (!isDeposit) return null;
+
+    if (role === "pro") {
+      if (isReserved || isPurchased) {
+        return (
+          <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+            <Stack gap="md">
+              <Group gap="sm">
+                <IconKey size={20} color="var(--upagain-neutral-green)" />
+                <Title order={4}>
+                  {t("admin:listings.details.access_info")}
+                </Title>
+              </Group>
+              {isLoadingDepositCodes ? (
+                <Center py="md">
+                  <Loader size="sm" />
+                </Center>
+              ) : myDepositCode &&
+                myDepositCode.code.length > 0 &&
+                myDepositCode.path.length > 0 ? (
+                <AccessCodeCard
+                  code={myDepositCode}
+                  label={t("admin:listings.details.buyer")}
+                  icon={<IconUserShield size={14} />}
+                  onDownload={() =>
+                    handleDownloadBarcode(myDepositCode.barcode_base64)
+                  }
+                />
+              ) : isPurchased ? (
+                <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
+                  {t("marketplace:my_item_detail.waiting_for_dropoff")}
+                </Text>
+              ) : (
+                <Text size="sm" c="dimmed">
+                  {t("admin:listings.details.no_access_code")}
+                </Text>
+              )}
+            </Stack>
+          </Paper>
+        );
+      }
+    } else {
+      if (isReserved || isPurchased) {
+        return (
+          <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
+            <Stack gap="md">
+              <Group gap="sm">
+                <IconKey size={20} color="var(--upagain-neutral-green)" />
+                <Title order={4}>
+                  {t("admin:listings.details.access_info")}
+                </Title>
+              </Group>
+              {isLoadingDepositCodes ? (
+                <Center py="md">
+                  <Loader size="sm" />
+                </Center>
+              ) : userDepositCode ? (
+                <>
+                  <AccessCodeCard
+                    code={userDepositCode}
+                    label={t("admin:listings.details.owner")}
+                    icon={<IconUserShield size={14} />}
+                    onDownload={() =>
+                      handleDownloadBarcode(userDepositCode.barcode_base64)
+                    }
+                  />
+                  {userDepositCode.status === "used" ? (
+                    <Alert
+                      icon={<IconCircleCheck size={16} />}
+                      color="teal"
+                      variant="light"
+                    >
+                      {t("marketplace:my_item_detail.deposit_in_container")}
+                    </Alert>
+                  ) : (
+                    <>
+                      <Alert
+                        icon={<IconInfoCircle size={16} />}
+                        color="blue"
+                        variant="light"
+                      >
+                        {t("marketplace:my_item_detail.drop_off_reminder")}
+                        {depositDetails && (
+                          <Text fw={700} mt={4}>
+                            Container #{depositDetails.container_id}
+                          </Text>
+                        )}
+                      </Alert>
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        onClick={() =>
+                          navigate(PATHS.CONTAINERS.OPEN, {
+                            state: {
+                              id_container: depositDetails?.container_id,
+                              item_title: item?.title,
+                              item_id: item?.id,
+                            },
+                          })
+                        }
+                      >
+                        {t("marketplace:open_container.open_now")}
+                      </Button>
+                    </>
+                  )}
+                </>
+              ) : (
+                <Text size="sm" c="dimmed">
+                  {t("admin:listings.details.no_access_code")}
+                </Text>
+              )}
+            </Stack>
+          </Paper>
+        );
+      }
+    }
+    return null;
+  };
+
   /** PRO right panel */
   const ProRightPanel = () => {
     if (isReserved) {
@@ -566,44 +686,6 @@ export default function MyItemDetail() {
             </Stack>
           </Paper>
 
-          {/* Access code for deposit */}
-          {isDeposit && (
-            <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
-              <Stack gap="md">
-                <Group gap="sm">
-                  <IconKey size={20} color="var(--upagain-neutral-green)" />
-                  <Title order={4}>
-                    {t("admin:listings.details.access_info")}
-                  </Title>
-                </Group>
-                {isLoadingDepositCodes ? (
-                  <Center py="md">
-                    <Loader size="sm" />
-                  </Center>
-                ) : myDepositCode &&
-                  myDepositCode.code.length > 0 &&
-                  myDepositCode.path.length > 0 ? (
-                  <AccessCodeCard
-                    code={myDepositCode}
-                    label={t("admin:listings.details.buyer")}
-                    icon={<IconUserShield size={14} />}
-                    onDownload={() =>
-                      handleDownloadBarcode(myDepositCode.barcode_base64)
-                    }
-                  />
-                ) : isPurchased ? (
-                  <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
-                    {t("marketplace:my_item_detail.waiting_for_dropoff")}
-                  </Text>
-                ) : (
-                  <Text size="sm" c="dimmed">
-                    {t("admin:listings.details.no_access_code")}
-                  </Text>
-                )}
-              </Stack>
-            </Paper>
-          )}
-
           {/* Purchase confirmation for listing: pro gives code to user */}
           {isListing && (
             <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
@@ -719,79 +801,6 @@ export default function MyItemDetail() {
             </div>
           </Tooltip>
         </>
-      ) : null;
-
-    const UserDepositAccessCard = () =>
-      // TODO: button to download barcode
-      isDeposit ? (
-        <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
-          <Stack gap="md">
-            <Group gap="sm">
-              <IconKey size={20} color="var(--upagain-neutral-green)" />
-              <Title order={4}>{t("admin:listings.details.access_info")}</Title>
-            </Group>
-            {isLoadingDepositCodes ? (
-              <Center py="md">
-                <Loader size="sm" />
-              </Center>
-            ) : userDepositCode ? (
-              <>
-                <AccessCodeCard
-                  code={userDepositCode}
-                  label={t("admin:listings.details.owner")}
-                  icon={<IconUserShield size={14} />}
-                  onDownload={() =>
-                    handleDownloadBarcode(userDepositCode.barcode_base64)
-                  }
-                />
-                {userDepositCode.status === "used" ? (
-                  <Alert
-                    icon={<IconCircleCheck size={16} />}
-                    color="teal"
-                    variant="light"
-                  >
-                    {t("marketplace:my_item_detail.deposit_in_container")}
-                  </Alert>
-                ) : (
-                  <>
-                    <Alert
-                      icon={<IconInfoCircle size={16} />}
-                      color="blue"
-                      variant="light"
-                    >
-                      {t("marketplace:my_item_detail.drop_off_reminder")}
-                      {depositDetails && (
-                        <Text fw={700} mt={4}>
-                          Container #{depositDetails.container_id}
-                        </Text>
-                      )}
-                    </Alert>
-                    {/* TODO: button to container open page */}
-                    <Button
-                      variant="secondary"
-                      size="lg"
-                      onClick={() =>
-                        navigate(PATHS.CONTAINERS.OPEN, {
-                          state: {
-                            id_container: depositDetails?.container_id,
-                            item_title: item?.title,
-                            item_id: item?.id,
-                          },
-                        })
-                      }
-                    >
-                      {t("marketplace:open_container.open_now")}
-                    </Button>
-                  </>
-                )}
-              </>
-            ) : (
-              <Text size="sm" c="dimmed">
-                {t("admin:listings.details.no_access_code")}
-              </Text>
-            )}
-          </Stack>
-        </Paper>
       ) : null;
 
     if (isPending) {
@@ -913,7 +922,6 @@ export default function MyItemDetail() {
             </Paper>
           )}
 
-          <UserDepositAccessCard />
           <ActionButtons />
         </Stack>
       );
@@ -1079,6 +1087,8 @@ export default function MyItemDetail() {
                   </Paper>
                 ))}
               </SimpleGrid>
+
+              {renderLeftAccessInfoCard()}
 
               <Divider />
 
