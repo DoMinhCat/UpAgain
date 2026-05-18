@@ -938,7 +938,19 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	itemCategory := itemDetails.Category
 	sellerId:= itemDetails.IdUser
 
-	// NOT FREE BRANCH
+	// get container schedule to calculate next available date
+	nextAvailableDateContainer := time.Time{}
+	if itemCategory == "deposit" {
+		containerSchedule, err := db.GetContainerScheduleByContainerId(depositDetails.ContainerId)
+		if err != nil {
+			slog.Error("GetContainerScheduleByContainerId() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
+		}
+		nextAvailableDateContainer = helpers.FindNextAvailableDate(containerSchedule)
+	}
+
+	// PAID BRANCH
 	if itemDetails.Price > 0 {
 		// TODO: handle stripe
 		utils.RespondWithError(w, http.StatusNotImplemented, "TODO: handle stripe")
@@ -947,7 +959,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	} else {
 		freePrice := 0.0
 
-		// insert transaction
+		// handle insertion of confirm code or barcode
 		var confirm_code string
 		if itemCategory == "listing" {
 			confirm_code = helpers.GenerateRandom6CharCode()
@@ -964,6 +976,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 				return
 			}
+
 			err = db.InsertBarcode(models.BarCodeInsert{
 				Code6Digit:  code6,
 				BarcodePath: barcodePath,
@@ -971,6 +984,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 				IdAccount:   sellerId,
 				IdDeposit:   item_id,
 				IdTransaction: txUuid,
+				ValidFrom: nextAvailableDateContainer,
 			})
 			if err != nil {
 				slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
