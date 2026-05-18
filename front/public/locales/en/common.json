@@ -53,9 +53,12 @@
   "pagination": {
     "showing": "Showing",
     "of": "of",
-    "results": "results",
-    "items": "items",
-    "transactions": "transactions"
+    "results_one": "result",
+    "results_other": "results",
+    "items_one": "item",
+    "items_other": "items",
+    "transactions_one": "transaction",
+    "transactions_other": "transactions"
   },
   "time": {
     "just_now": "Just now",
