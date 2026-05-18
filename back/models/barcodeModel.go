@@ -29,5 +29,6 @@ type BarCodeInsert struct {
 	UserType    string    `json:"userType"`
 	IdAccount   int       `json:"idAccount"`
 	IdDeposit   int       `json:"idDeposit"`
-	IdTransaction string    `json:"idTransaction"`	
+	IdTransaction string    `json:"idTransaction"`
+	ValidFrom   time.Time `json:"validFrom"`
 }
