@@ -62,5 +62,18 @@
     "hours_ago_other": "{{count}} giờ trước",
     "yesterday": "Hôm qua",
     "days_ago_other": "{{count}} ngày trước"
+  },
+  "footer": {
+    "description": "Mang lại cuộc đời thứ hai cho các món đồ của bạn. Phương thức trao đổi và tái chế tài nguyên đơn giản và thân thiện với môi trường.",
+    "explore": "Khám phá",
+    "browse_objects": "Xem các món đồ",
+    "smart_deposits": "Ký gửi thông minh",
+    "community_articles": "Bài viết cộng đồng",
+    "contact": "Liên hệ",
+    "address": "Số 123 Đường Sinh Thái, Paris, Pháp",
+    "legal": "Pháp lý",
+    "terms_conditions": "Điều khoản & Điều kiện",
+    "privacy_policy": "Chính sách Bảo mật",
+    "rights_reserved": "© {{year}} UpAgain. Bảo lưu mọi quyền."
   }
 }
