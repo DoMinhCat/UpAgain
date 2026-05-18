@@ -1115,39 +1115,44 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	isPaid := event.Price.Valid && event.Price.Float64 > 0.0
 	if isPaid {
-		if payload.Paid {
-			err = db.InsertEventRegistration(requestorId, event)
-			if err != nil {
-				slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		// user click on register and not redirected to stripe yet (1st call), then give user checkout link to stripe
+		if !payload.Paid {
+			frontendOrigin := utils.GetFrontOrigin()
+			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
 				return
 			}
-			utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
+			successUrlSeparator := "?"
+			if strings.Contains(payload.OriginUrl, "?") {
+				successUrlSeparator = "&"
+			}
+			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+				EntityName:    event.Title,
+				PriceInCents: int64(event.Price.Float64 * 100),
+				// return to the origin URL with param, frontend will check for that params to handle next steps
+				SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+				CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
+			})
+			if err != nil {
+				slog.Error("CreateStripeSession() failed", "controller", "RegisterToEventByEventId", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
 			return
 		}
-		frontendOrigin := utils.GetFrontOrigin()
-		if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
-			return
-		}
-		successUrlSeparator := "?"
-		if strings.Contains(payload.OriginUrl, "?") {
-			successUrlSeparator = "&"
-		}
-		checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
-			EventName:    event.Title,
-			PriceInCents: int64(event.Price.Float64 * 100),
-			// return to the origin URL with param, frontend will check for that params to handle next steps
-			SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
-			CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
-		})
+
+		// user got redirected back after having paid in stripe (2nd call)
+		err = db.InsertEventRegistration(requestorId, event)
 		if err != nil {
-			slog.Error("CreateStripeSession() failed", "controller", "RegisterToEventByEventId", "error", err)
+			slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
 			return
 		}
-		utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
+		utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
 		return
+
+		
 	} else {
 		err = db.InsertEventRegistration(requestorId, event)
 		if err != nil {

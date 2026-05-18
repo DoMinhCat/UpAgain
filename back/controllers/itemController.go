@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
+	stripe "backend/utils/stripe"
 	validations "backend/utils/validations"
 	"encoding/json"
 	"log/slog"
@@ -968,9 +969,43 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 
 	// PAID BRANCH
 	if itemDetails.Price > 0 {
-		// TODO: handle stripe
-		utils.RespondWithError(w, http.StatusNotImplemented, "TODO: handle stripe")
-		return
+		// only when not free then request contain a payload
+		var payload models.ItemPurchaseRequest
+		err := json.NewDecoder(r.Body).Decode(&payload)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+			return
+		}
+
+		// 1st phase: redirect user to stripe to pay by returning a checkout link to stripe
+		if !payload.Paid {
+			frontendOrigin := utils.GetFrontOrigin()
+			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
+				return
+			}
+			successUrlSeparator := "?"
+			if strings.Contains(payload.OriginUrl, "?") {
+				successUrlSeparator = "&"
+			}
+			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+				EntityName:    itemDetails.Title,
+				// TODO: upon item posting, add the commission of stripe and comission of UpAgain to price indicated by user 
+				PriceInCents: int64(itemDetails.Price * 100),
+				// return to the origin URL with param, frontend will check for that params to handle next steps
+				SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+				CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
+			})
+			if err != nil {
+				slog.Error("CreateStripeSession() failed", "controller", "PurchaseItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusOK, map[string]string{"checkout_url": checkoutUrl})
+			return
+		}
+		// TODO: 2nd phase user got redirected back after having paid in stripe
+
 	// FREE BRANCH
 	} else {
 		freePrice := 0.0
