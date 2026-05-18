@@ -23,6 +23,7 @@ import {
   TextInput,
   Button,
   SimpleGrid,
+  PinInput,
 } from "@mantine/core";
 import {
   IconAlertCircle,
@@ -318,6 +319,9 @@ export default function MyItemDetail() {
 
   // confirmation code input (user → submit 6-digit code to confirm retrieval)
   const [confirmCode, setConfirmCode] = useState("");
+  const handleSetConfirmCode = (val: string) => {
+    setConfirmCode(val.toUpperCase());
+  };
 
   // transactions pagination
   const [activePage, setPage] = useState(1);
@@ -699,11 +703,7 @@ export default function MyItemDetail() {
                     {t("marketplace:my_item_detail.confirmation_code_title")}
                   </Title>
                 </Group>
-                <Alert
-                  icon={<IconInfoCircle size={16} />}
-                  color="blue"
-                  variant="light"
-                >
+                <Alert icon={<IconInfoCircle size={16} />}>
                   {t("marketplace:my_item_detail.pro_confirm_instructions")}
                 </Alert>
                 <Paper variant="primary" p="lg" radius="md" withBorder>
@@ -903,12 +903,16 @@ export default function MyItemDetail() {
                 <Text size="sm" c="dimmed">
                   {t("marketplace:my_item_detail.enter_code_instruction")}
                 </Text>
-                <TextInput
-                  placeholder="XXX XXX"
+                <PinInput
+                  length={6}
+                  type="alphanumeric"
+                  size="lg"
+                  placeholder="-"
+                  oneTimeCode
+                  // disabled={loading}
                   value={confirmCode}
-                  onChange={(e) => setConfirmCode(e.currentTarget.value)}
-                  maxLength={7}
-                  size="md"
+                  onChange={(val) => handleSetConfirmCode(val)}
+                  aria-label="6-Digit Access Code"
                 />
                 {/* TODO: submit confirmation code to backend */}
                 <Button
@@ -1226,7 +1230,7 @@ export default function MyItemDetail() {
                   </Stack>
                 </Paper>
               )}
-              {role === "pro" ? <ProRightPanel /> : <UserRightPanel />}
+              {role === "pro" ? ProRightPanel() : UserRightPanel()}
             </Stack>
           </Grid.Col>
         </Grid>
