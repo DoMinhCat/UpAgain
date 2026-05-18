@@ -470,35 +470,51 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate if request delete
-	if payload.Status == "deleted" {
-		// check status
-		status, err := db.GetItemStatusByItemId(id_item)
-		if err != nil {
-			slog.Error("GetItemStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-			return
-		}
-		if status == "completed" {
-			utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" has already been purchased.")
-			return
-		}
-		transaction, err := db.GetTransactionsByItemId(id_item, -1, -1)
-		if err != nil {
-			slog.Error("GetTransactionsByItemId() failed", "controller", "DeleteItemById", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-			return
-		}
-
-		if len(transaction) != 0 {
-			latestTransaction := transaction[0]
-			if latestTransaction.Action == "reserved" || latestTransaction.Action == "purchased" {
-				utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
-				return
-			}
-		}
+	status, err := db.GetItemStatusByItemId(id_item)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+	statusLatestTx, err := db.GetTransactionLatestStatusByItemId(id_item)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
 	}
 
+	// validate status flow
+	switch payload.Status {
+		case "deleted":
+			// check status
+			if status == "completed" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
+				return
+			}
+			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+				return
+			}
+			
+		case "pending":
+			if status == "completed" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
+				return
+			}
+			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+				return
+			}
+		case "approved":
+			if status != "refused" && status != "pending"{
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" can't be approved at the moment.")
+				return
+			}
+			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+				return
+			}
+	}
 	oldStatus, _ := db.GetItemStatusByItemId(id_item)
 
 	err = db.UpdateItemStatusById(id_item, payload.Status, "")
