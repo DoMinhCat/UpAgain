@@ -83,8 +83,7 @@ export const ENDPOINTS = {
       DELETE: (id_item: number) => `/items/${id_item}/`,
       DETAILS: (id_item: number) => `/items/${id_item}/`,
       TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions/`,
-      CANCEL_TRANSACTION: (id_item: number, transactionUuid: string) =>
-        `/items/${id_item}/transactions/${transactionUuid}/cancel/`,
+      CANCEL_RESERVATION: (id_item: number) => `/items/${id_item}/cancel/`,
     },
     SUBSCRIPTIONS: {
       ALL: "/subscriptions/",
@@ -103,6 +102,11 @@ export const ENDPOINTS = {
   ITEMS: {
     NEW: "/items/",
     ME: "/items/me/",
+    RESERVE: (idItem: number) => `/items/${idItem}/reserve/`,
+    CANCEL_RESERVATION: (idItem: number) => `/items/${idItem}/cancel/`,
+    PURCHASE: (idItem: number) => `/items/${idItem}/purchase/`,
+    LATEST_TRANSACTION: (idItem: number) =>
+      `/items/${idItem}/transactions/latest/`,
   },
 
   LISTINGS: {
@@ -111,8 +115,12 @@ export const ENDPOINTS = {
 
   DEPOSITS: {
     DETAILS: (id_deposit: number) => `/deposits/${id_deposit}/`,
-    CODES: (id_deposit: number) => `/deposits/${id_deposit}/codes/`,
     TRANSFER: (id_deposit: number) => `/deposits/${id_deposit}/transfer/`,
+  },
+
+  BARCODES: {
+    GET: (id_deposit: number) => `/codes/${id_deposit}/`,
+    DOWNLOAD: (id_deposit: number) => `/codes/${id_deposit}/download/`,
   },
 
   ADS: {

@@ -15,6 +15,7 @@ import (
 // @Summary      Create an ad for a project
 // @Description  Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay (TODO).
 // @Tags         ads
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        body  body      models.CreateAdsRequest  true  "Create Ad payload"
@@ -110,6 +111,7 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update an ad
 // @Description  Update the start and end dates of an existing advertisement. Admin only.
 // @Tags         ads
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        ad_id  path      int                      true  "Ad ID"
@@ -190,6 +192,7 @@ func UpdateAds(w http.ResponseWriter, r *http.Request) {
 // @Summary      Delete an ad
 // @Description  Soft-delete (cancel) an existing advertisement by its ID. Admin can delete any ad, Pro users can only delete their own.
 // @Tags         ads
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        ad_id  path      int  true  "Ad ID"
 // @Success      204    {object}  nil  "No Content"

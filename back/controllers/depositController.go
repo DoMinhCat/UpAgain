@@ -16,6 +16,7 @@ import (
 // @Summary      Get deposit details by ID
 // @Description  Get details of a specific deposit
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        deposit_id  path      int  true  "Deposit ID"
 // @Success      200         {object}  models.DepositDetails
@@ -63,6 +64,7 @@ func GetDepositDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update deposit details
 // @Description  Update the details of a specific deposit (only by owner or admin)
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Accept       multipart/form-data
 // @Produce      json
 // @Param        deposit_id       path      int     true   "Deposit ID"
@@ -299,6 +301,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get pending deposits
 // @Description  Get a paginated list of pending deposits for admin
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
@@ -328,51 +331,11 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-// GetDepositCodesOfLatestTransactionByDepositId godoc
-// @Summary      Get deposit codes for user and/or pro of the latest transaction
-// @Description  Get deposit code of pro and user of the latest transaction for a deposit
-// @Tags         deposit
-// @Produce      json
-// @Param        deposit_id    path     int     true  "Deposit ID"
-// @Success      200     {object}  []models.CodeForAdmin  "Deposit codes and their status"
-// @Failure      400     {object}  nil                     "Invalid deposit ID"
-// @Failure      500     {object}  nil                     "Internal server error"
-// @Router       /deposits/{deposit_id}/codes/ [get]
-func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *http.Request) {
-	role := r.Context().Value("user").(models.AuthClaims).Role
-	depositId, err := strconv.Atoi(r.PathValue("deposit_id"))
-	if err != nil {
-		slog.Error("strconv.Atoi() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid deposit ID")
-		return
-	}
-
-	var codes []models.CodeForAdmin
-	codes, err = db.GetCodesOfLatestTransactionByDepositId(depositId)
-	if err != nil {
-		slog.Error("db.GetCodesOfLatestTransactionByDepositId() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
-		return
-	}
-
-	if role == "admin" {
-		utils.RespondWithJSON(w, http.StatusOK, codes)
-		return
-	} else {
-		for _, code := range codes {
-			if code.UserType == role {
-				utils.RespondWithJSON(w, http.StatusOK, []models.CodeForAdmin{code})
-				return
-			}
-		}
-	}
-
-}
-
 // TransferContainerByDepositId godoc
 // @Summary      Transfer container by deposit ID
 // @Description  Change the container of a deposit to a another available container
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        deposit_id  path      int                              true  "Deposit ID"

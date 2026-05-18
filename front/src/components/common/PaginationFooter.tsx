@@ -33,7 +33,7 @@ export default function PaginationFooter({
       <Text c="dimmed" size="sm">
         {t("pagination.showing")} {(activePage - 1) * limit + 1} -{" "}
         {Math.min(activePage * limit, total_records)} {t("pagination.of")}{" "}
-        {total_records} {t(`pagination.${unit}` as any)}
+        {total_records} {t(`pagination.${unit}` as any, { count: total_records })}
       </Text>
       <Pagination
         total={last_page || 1}

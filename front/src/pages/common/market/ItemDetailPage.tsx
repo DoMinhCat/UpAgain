@@ -12,6 +12,7 @@ import {
   Avatar,
   Button,
   useComputedColorScheme,
+  Alert,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import {
@@ -34,7 +35,12 @@ import { useParams } from "react-router-dom";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
 import { resolveUrl } from "../../../utils/imageUtils";
-import { useGetItemDetails, useDeleteItem } from "../../../hooks/itemHooks";
+import {
+  useGetItemDetails,
+  useDeleteItem,
+  useGetItemTransactions,
+  useGetLatestTransactionOfPro,
+} from "../../../hooks/itemHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import DOMPurify from "dompurify";
@@ -50,6 +56,8 @@ import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 import { useNavigate } from "react-router-dom";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
+import { ConfirmReservationModal } from "../../../components/market/ConfirmReservationModal";
+import { ConfirmPurchaseModal } from "../../../components/market/ConfirmPurchaseModal";
 import dayjs from "dayjs";
 import { useGetContainerEarliestAvailability } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
@@ -87,12 +95,20 @@ export default function ItemDetailPage() {
     depositDetails?.container_id || 0,
     isValidId && isDeposit && !!depositDetails?.container_id,
   );
+  const { data: transactionsData } = useGetItemTransactions(id_item, isValidId);
+  const latestTransaction = transactionsData?.transactions?.[0];
+  const isReserved = latestTransaction?.action === "reserved";
+  const isPurchased = latestTransaction?.action === "purchased";
 
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure(false);
   const [openedTransfer, { open: openTransfer, close: closeTransfer }] =
+    useDisclosure(false);
+  const [openedReserve, { open: openReserve, close: closeReserve }] =
+    useDisclosure(false);
+  const [openedPurchase, { open: openPurchase, close: closePurchase }] =
     useDisclosure(false);
 
   const deleteItemMutation = useDeleteItem();
@@ -121,22 +137,23 @@ export default function ItemDetailPage() {
     });
   };
 
-  const handleAction = () => {
-    showInfoNotification(
-      t("marketplace:detail.not_implemented_title", {
-        defaultValue: "Feature coming soon",
-      }),
-      t("marketplace:detail.not_implemented_msg", {
-        defaultValue: "This action will be available in the next update.",
-      }),
-    );
+  // CURRENT TRANSACTION
+  const { data: latestTransactionOfPro } = useGetLatestTransactionOfPro(
+    id_item,
+    isValidId && role === "pro",
+  );
+  const hasRelatedTransaction = latestTransactionOfPro?.id_item === id_item;
+  const isReservedByMe = latestTransactionOfPro?.action === "reserved";
+  // RESERVE ITEM
+  const handleReserve = () => {
+    openReserve();
   };
 
   if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading) {
     return <FullScreenLoader />;
   }
 
-  if (!item || item.status !== "approved") {
+  if (!item || item.status !== "approved" || isPurchased) {
     return <NotFoundPage />;
   }
 
@@ -575,14 +592,14 @@ export default function ItemDetailPage() {
 
                     <Stack gap="sm">
                       {/* Buy and reserve for pro */}
-                      {role === "pro" && (
+                      {role === "pro" && !isReserved && (
                         <>
                           <Button
                             size="lg"
                             variant="secondary"
                             fullWidth
                             color="var(--upagain-neutral-green)"
-                            onClick={handleAction}
+                            onClick={handleReserve}
                             rightSection={<IconChevronRight size={18} />}
                           >
                             {t("marketplace:detail.reserve_now", {
@@ -596,12 +613,30 @@ export default function ItemDetailPage() {
                             fullWidth
                             color="var(--upagain-neutral-green)"
                             rightSection={<IconChevronRight size={18} />}
-                            onClick={handleAction}
+                            onClick={openPurchase}
                           >
                             {t("marketplace:detail.buy")}
                           </Button>
                         </>
                       )}
+
+                      {role === "pro" &&
+                        (isReservedByMe || hasRelatedTransaction) && (
+                          <Button
+                            size="lg"
+                            variant="secondary"
+                            fullWidth
+                            color="var(--upagain-neutral-green)"
+                            onClick={() =>
+                              navigate(PATHS.MARKETPLACE.ME + "/" + item.id)
+                            }
+                            rightSection={<IconChevronRight size={18} />}
+                          >
+                            {t("marketplace:detail.see_my_items", {
+                              defaultValue: "See in My Items",
+                            })}
+                          </Button>
+                        )}
 
                       {/* Admin see in back office */}
                       {role === "admin" && (
@@ -664,12 +699,22 @@ export default function ItemDetailPage() {
                     </Stack>
 
                     {role === "pro" && (
-                      <Text size="xs" c="dimmed" ta="center">
-                        {t("marketplace:detail.secure_transaction_note", {
-                          defaultValue:
-                            "Secure transaction guaranteed by UpAgain",
-                        })}
-                      </Text>
+                      <Stack gap="sm">
+                        <Text size="xs" c="dimmed" ta="center">
+                          {t("marketplace:detail.secure_transaction_note", {
+                            defaultValue:
+                              "Secure transaction guaranteed by UpAgain",
+                          })}
+                        </Text>
+                        {isReserved && !isReservedByMe && (
+                          <Alert icon={<IconInfoCircle size={18} />}>
+                            {t("marketplace:detail.already_reserved_info", {
+                              defaultValue:
+                                "This item is currently reserved by another professional. It may become available again if the reservation expires.",
+                            })}
+                          </Alert>
+                        )}
+                      </Stack>
                     )}
                   </Stack>
                 </Paper>
@@ -685,33 +730,53 @@ export default function ItemDetailPage() {
         onClose={() => setLightboxOpened(false)}
         defaultActiveSlide={lightboxSlide}
       />
+      {role === "user" && (
+        <>
+          {item && (
+            <EditItemModal
+              opened={openedEdit}
+              onClose={closeEdit}
+              item={item}
+              listingDetails={listingDetails}
+            />
+          )}
 
-      {item && (
-        <EditItemModal
-          opened={openedEdit}
-          onClose={closeEdit}
-          item={item}
-          listingDetails={listingDetails}
-        />
+          <DeleteItemModal
+            opened={openedDelete}
+            onClose={closeDelete}
+            onConfirm={handleDelete}
+            loading={deleteItemMutation.isPending}
+            title={t("marketplace:detail.delete_confirm_title", {
+              defaultValue: "Confirm Delete",
+            })}
+          />
+
+          <TransferContainerModal
+            opened={openedTransfer}
+            onClose={closeTransfer}
+            onConfirm={handleTransfer}
+            isLoading={transferMutation.isPending}
+            currentContainerId={depositDetails?.container_id}
+          />
+        </>
       )}
-
-      <DeleteItemModal
-        opened={openedDelete}
-        onClose={closeDelete}
-        onConfirm={handleDelete}
-        loading={deleteItemMutation.isPending}
-        title={t("marketplace:detail.delete_confirm_title", {
-          defaultValue: "Confirm Delete",
-        })}
-      />
-
-      <TransferContainerModal
-        opened={openedTransfer}
-        onClose={closeTransfer}
-        onConfirm={handleTransfer}
-        isLoading={transferMutation.isPending}
-        currentContainerId={depositDetails?.container_id}
-      />
+      {role === "pro" && (
+        <>
+          <ConfirmReservationModal
+            opened={openedReserve}
+            onClose={closeReserve}
+            idItem={id_item}
+            itemTitle={item?.title}
+          />
+          <ConfirmPurchaseModal
+            opened={openedPurchase}
+            onClose={closePurchase}
+            idItem={id_item}
+            itemTitle={item?.title}
+            price={item?.price}
+          />
+        </>
+      )}
     </>
   );
 }

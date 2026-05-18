@@ -103,6 +103,7 @@ export function AdminListingModule() {
     appliedFilters.statusValue || undefined,
     appliedFilters.materialValue || undefined,
     appliedFilters.categoryValue || undefined,
+    true, // include_purchased
   );
   const allItems = items?.items || [];
 

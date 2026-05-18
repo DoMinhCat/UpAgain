@@ -10,8 +10,9 @@ type ItemFilters struct {
 	Search   string `json:"search"`
 	Sort     string `json:"sort"`
 	Category string `json:"category"`
-	Status   string `json:"status"`
-	Material string `json:"material"`
+	Status           string `json:"status"`
+	Material         string `json:"material"`
+	IncludePurchased string `json:"include_purchased"`
 }
 
 type Item struct {
@@ -23,12 +24,12 @@ type Item struct {
 	State           string    `json:"state"`
 	IdUser          int       `json:"id_user"`
 	Username        string    `json:"username"`
-	CreatorAvatar   null.String `json:"creator_avatar"`
+	CreatorAvatar   null.String `json:"creator_avatar" swaggertype:"string"`
 	Category        string    `json:"category"` // listing or deposit
 	Material        string    `json:"material"`
 	Price           float64   `json:"price"`
 	Status          string    `json:"status"`
-	RefuseReason    null.String `json:"refuse_reason"`
+	RefuseReason    null.String `json:"refuse_reason" swaggertype:"string"`
 	Photos          []string  `json:"images"`
 	Street          string    `json:"street"`
 	Score           int       `json:"score"`

@@ -35,14 +35,27 @@
     "posted_by": "Posté par",
     "reserve_now": "Réserver maintenant",
     "buy": "Acheter",
+    "buy_confirm_title": "Confirmer l'achat",
+    "buy_confirm_text": "Êtes-vous sûr de vouloir acheter cet objet ?",
+    "free": "Gratuit",
     "see_back_office": "Voir dans le Back Office",
+    "see_my_items": "Voir dans Mes Objets",
     "edit": "Modifier",
     "delete": "Supprimer",
     "transfer_container": "Transférer le conteneur",
     "delete_confirm_title": "Confirmer la suppression",
     "delete_confirm_msg": "Êtes-vous sûr de vouloir supprimer cet objet ?",
+    "delete_confirm_text": "Êtes-vous sûr de vouloir supprimer cet objet ? Cette action est irréversible.",
     "not_implemented_title": "Non implémenté",
-    "not_implemented_msg": "Cette fonctionnalité sera bientôt disponible."
+    "not_implemented_msg": "Cette fonctionnalité sera bientôt disponible.",
+    "reserve_confirm_title": "Confirmer la réservation",
+    "reserve_confirm_text": "Êtes-vous sûr de vouloir réserver cet objet ? Vous aurez 3 jours pour finaliser l'achat.",
+    "reserve_period": "3 jours de réservation",
+    "already_reserved_info": "Cet objet est actuellement réservé par un autre professionnel. Il pourrait redevenir disponible si la réservation expire.",
+    "cancel_reserve_confirm_title": "Confirmer l'annulation de la réservation",
+    "cancel_reserve_confirm_text": "Êtes-vous sûr de vouloir annuler cette réservation ?",
+    "cancel_reservation": "Annuler la réservation",
+    "cancel_reservation_button": "Confirmer l'annulation"
   },
   "notifications": {
     "fetch_items_error": "Erreur lors de la récupération des objets",
@@ -59,7 +72,9 @@
     "post_success_message": "Veuillez attendre la validation d'un administrateur",
     "cancel_transaction_error": "Erreur lors de l'annulation de la transaction",
     "cancel_transaction_success_title": "Transaction Annulée",
-    "cancel_transaction_success_message": "La transaction a été annulée."
+    "cancel_transaction_success_message": "La transaction a été annulée.",
+    "reserve_success_title": "Objet réservé",
+    "reserve_success_message": "L'objet a été réservé avec succès. Vous pouvez le retrouver dans vos objets."
   },
   "my_item_detail": {
     "not_found": "Objet introuvable ou accès non autorisé.",
@@ -90,6 +105,29 @@
     "deposit_in_container": "Votre objet a été déposé dans le conteneur. En attente du passage de l'acheteur.",
     "drop_off_reminder": "Veuillez déposer votre objet dans le conteneur avec le code ci-dessus :",
     "completed_title": "Transaction terminée",
-    "completed_on": "Terminé le {{date}}"
+    "completed_on": "Terminé le {{date}}",
+    "cancelled_title": "Réservation annulée",
+    "cancelled_on": "Annulée le {{date}}",
+    "waiting_for_dropoff": "En attente du dépôt de l'objet dans le conteneur par le vendeur. Une fois déposé, votre code de retrait et code-barres seront générés ici.",
+    "download_barcode": "Télécharger le code-barres"
+  },
+  "open_container": {
+    "title": "Ouvrir le conteneur",
+    "subtitle": "Vérification d'accès pour les dépôts et retraits en conteneur.",
+    "opening_container": "Ouverture du conteneur #{{id}}",
+    "instructions": "Veuillez saisir le code d'accès à 6 chiffres ou télécharger l'image du code-barres fournie pour ce conteneur.",
+    "option_code_title": "Option A : Code d'accès à 6 chiffres",
+    "option_code_desc": "Saisissez le code d'accès de votre réservation.",
+    "option_barcode_title": "Option B : Téléchargement de code-barres",
+    "option_barcode_desc": "Téléchargez une photo claire du code-barres du conteneur.",
+    "verify_code": "Vérifier le code",
+    "verify_barcode": "Vérifier le code-barres",
+    "validation_error_code": "Veuillez entrer un code valide à 6 chiffres.",
+    "validation_error_barcode": "Veuillez d'abord télécharger une image de code-barres.",
+    "success_title": "Conteneur déverrouillé",
+    "success_desc": "Vérification réussie ! Le verrou du conteneur a été libéré.",
+    "open_now": "Ouvrir le conteneur maintenant",
+    "back_to_market": "Retour à la boutique",
+    "dropzone_desc": "Cliquez ou glissez votre image de code-barres ici"
   }
 }

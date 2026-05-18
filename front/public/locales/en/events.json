@@ -111,15 +111,15 @@
     "cancel_registration_success_message": "Registration to event has been cancelled",
     "error_fetching_events": "Failed to fetch events.",
     "error_fetching_stats": "Failed to fetch event stats.",
-    "error_creating_event": "An error occured while creating new event",
-    "error_assigning_employee": "An error occured while assigning employee(s) to event",
+    "error_creating_event": "An error occurred while creating new event",
+    "error_assigning_employee": "An error occurred while assigning employee(s) to event",
     "error_fetching_details": "Failed to fetch event details.",
     "error_fetching_employees": "Failed to fetch assigned employees.",
-    "error_unassigning_employee": "An error occured while unassigning employee from event",
-    "error_updating_status": "An error occured while updating event status",
-    "error_updating_event": "An error occured while updating event",
-    "error_registering": "An error occured while registering to event",
-    "error_cancelling_registration": "An error occured while cancelling registration to event",
+    "error_unassigning_employee": "An error occurred while unassigning employee from event",
+    "error_updating_status": "An error occurred while updating event status",
+    "error_updating_event": "An error occurred while updating event",
+    "error_registering": "An error occurred while registering to event",
+    "error_cancelling_registration": "An error occurred while cancelling registration to event",
     "error_fetching_my_events": "Failed to fetch account's events."
   }
 }

@@ -243,26 +243,26 @@ CREATE TABLE photos (
     );
 );
 
-CREATE TYPE item_state AS ENUM ('new', 'very_good', 'good', 'need_repair');
-CREATE TYPE material AS ENUM ('wood', 'metal', 'textile', 'glass', 'plastic', 'mixed', 'other');
-CREATE TYPE item_status AS ENUM ('pending', 'approved', 'refused', 'completed');
+CREATE TYPE item_state      AS ENUM ('new', 'very_good', 'good', 'need_repair');
+CREATE TYPE material        AS ENUM ('wood', 'metal', 'textile', 'glass', 'plastic', 'mixed', 'other');
+CREATE TYPE item_status     AS ENUM ('pending', 'approved', 'refused', 'completed');
 create table items
 (
-    id          serial primary key,
-    created_at  timestamptz  not null default now(),
-    title       varchar(255) not null,
+    id          serial          primary key,
+    created_at  timestamptz     not null default now(),
+    title       varchar(255)    not null,
     description text,
-    price       numeric(8,2)   not null default 0,
-    weight      numeric(8,2)   not null,                   -- in kg
-    material    material     not null default 'other',
-    status      item_status  not null default 'pending', -- workflow status
-    state       item_state   not null,                   -- new or needs to be repaired
-    is_deleted  boolean      not null default false,
+    price       numeric(8,2)    not null default 0,
+    weight      numeric(8,2)    not null,                   -- in kg
+    material    material        not null default 'other',
+    status      item_status     not null default 'pending', -- workflow status
+    state       item_state      not null,                   -- new or needs to be repaired
+    is_deleted  boolean         not null default false,
     refuse_reason text,
-    id_user     integer      not null references users(id_account)  on delete restrict
+    id_user     integer         not null references users(id_account)  on delete restrict
 );
-CREATE INDEX idx_items_status ON items (status);
-CREATE INDEX idx_items_state ON items (state);
+CREATE INDEX idx_items_status   ON items (status);
+CREATE INDEX idx_items_state    ON items (state);
 CREATE INDEX idx_items_material ON items (material);
 
 create table listings
@@ -328,41 +328,44 @@ create table barcodes
 -- is_active: user can cancel subscription before end date (sub_to) and purchase a new subscription (stupid but possible)
 create table subscriptions
 (
-    id        serial primary key,
-    is_trial  boolean     not null,
-    is_active boolean     not null default true,
-    sub_from  timestamptz not null default now(),
-    sub_to    timestamptz not null,
-    CHECK ( sub_to>sub_from ),
-    id_pro    integer     not null references pros (id_account) on delete restrict,
-	cancel_reason  text,
-    price numeric(10,2) not null -- set at purchased to save price at the moment (avoid change in the price afterwards)
+    id            serial          primary key,
+    is_trial      boolean         not null,
+    is_active     boolean         not null default true,
+    sub_from      timestamptz     not null default now(),
+    sub_to        timestamptz     not null,
+    CHECK ( sub_to > sub_from ),
+    id_pro        integer         not null references pros (id_account) on delete restrict,
+	cancel_reason text,
+    price         numeric(10,2)   not null -- set at purchased to save price at the moment (avoid change in the price afterwards)
 );
 
 create type transaction_action as enum('cancelled', 'purchased', 'expired', 'reserved');
 create table transactions(
-    id serial primary key ,
-    id_transaction uuid not null,
-    created_at timestamptz not null default now(),
-    action transaction_action not null,
-    id_item int not null references items(id) on delete cascade ,
-    id_pro int not null references pros(id_account) on delete cascade
+    id               serial             primary key,
+    id_transaction   uuid               not null,
+    created_at       timestamptz        not null default now(),
+    action           transaction_action not null,
+    id_item          int                not null references items(id) on delete cascade,
+    id_pro           int                not null references pros(id_account) on delete cascade,
     -- expiry time if not paid after reserved
-    reservation_expiry       timestamptz, -- set +2 days when reserved   
-    item_price  numeric(10,2), -- set at purchased to save item price at the moment (avoid change in the price afterwards)
-    commission_rate numeric(5,2), -- set at purchased to save commission rate at the moment (avoid change in the rate afterwards)
-    total_price numeric(10,2) -- set at purchased to save total price (item's price + commission) at the moment (avoid change in the rate afterwards)
+    reservation_expiry timestamptz, -- set +2 days when reserved   
+    item_price         numeric(10,2), -- set at purchased to save item price at the moment (avoid change in the price afterwards)
+    commission_rate    numeric(5,2), -- set at purchased to save commission rate at the moment (avoid change in the rate afterwards)
+    total_price        numeric(10,2), -- set at purchased to save total price (item's price + commission) at the moment (avoid change in the rate afterwards)
+    
+    -- set at purchased if is listing for pro to see and give user upon retrieval
+    confirm_code       char(6)         
 );
 CREATE INDEX idx_transactions_uuid ON transactions(id_transaction);
 
 CREATE TABLE project_steps (
-  id SERIAL PRIMARY KEY,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  title VARCHAR(255) NOT NULL,
-  description TEXT NOT NULL,
-  step_order INTEGER NOT NULL DEFAULT 1
-  id_post INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  id          SERIAL         PRIMARY KEY,
+  created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+  is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
+  title       VARCHAR(255)   NOT NULL,
+  description TEXT           NOT NULL,
+  step_order  INTEGER        NOT NULL DEFAULT 1
+  id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
 );
 
 -- a project step can have multiple items

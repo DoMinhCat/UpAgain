@@ -6,7 +6,10 @@ import type {
   ItemAdminStats,
   ItemsListPagination,
 } from "./interfaces/item";
-import type { TransactionsPagination } from "./interfaces/transaction";
+import type {
+  Transaction,
+  TransactionsPagination,
+} from "./interfaces/transaction";
 
 export const getAllItems = async (
   page?: number,
@@ -16,9 +19,10 @@ export const getAllItems = async (
   status?: string,
   material?: string,
   category?: string,
+  include_purchased?: boolean,
 ): Promise<ItemsListPagination> => {
   const response = await api.get(ENDPOINTS.ADMIN.ITEMS.ALL, {
-    params: { page, limit, search, sort, status, material, category },
+    params: { page, limit, search, sort, status, material, category, include_purchased },
   });
   return response.data;
 };
@@ -54,11 +58,8 @@ export const getItemTransactions = async (
   return response.data;
 };
 
-export const cancelTransaction = async (
-  id: number,
-  transactionUuid: string,
-) => {
-  await api.post(ENDPOINTS.ADMIN.ITEMS.CANCEL_TRANSACTION(id, transactionUuid));
+export const cancelItemReservation = async (id: number) => {
+  await api.delete(ENDPOINTS.ADMIN.ITEMS.CANCEL_RESERVATION(id));
 };
 
 export const createItem = async (payload: CreateItemRequest): Promise<void> => {
@@ -121,5 +122,20 @@ export const getMyItems = async (
   const response = await api.get(ENDPOINTS.ITEMS.ME, {
     params: { page, limit, search, sort, status, material, category },
   });
+  return response.data;
+};
+
+export const reserveItem = async (id: number) => {
+  await api.post(ENDPOINTS.ITEMS.RESERVE(id));
+};
+
+export const purchaseItem = async (id: number) => {
+  await api.post(ENDPOINTS.ITEMS.PURCHASE(id));
+};
+
+export const getLatestTransaction = async (
+  id_item: number,
+): Promise<Transaction> => {
+  const response = await api.get(ENDPOINTS.ITEMS.LATEST_TRANSACTION(id_item));
   return response.data;
 };

@@ -14,6 +14,7 @@ import (
 // @Summary      Get available employees
 // @Description  Get a list of employees not occupied during a specific time range.
 // @Tags         employee
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        start_at  query     string  true  "Start date (RFC3339 format, e.g., 2026-03-22T17:00:00Z)"
 // @Param        end_at    query     string  true  "End date (RFC3339 format, e.g., 2026-03-22T19:00:00Z)"

@@ -194,7 +194,17 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	var results []models.Item
 	var params []interface{}
 	var countParams []interface{}
+	// TODO: admin can also see purchased items
 	whereClause := "WHERE i.is_deleted = false"
+	if filters.IncludePurchased != "true" {
+		whereClause += ` AND NOT EXISTS (
+			SELECT 1 FROM (
+				SELECT action FROM transactions 
+				WHERE id_item = i.id 
+				ORDER BY created_at DESC LIMIT 1
+			) lt WHERE lt.action = 'purchased'
+		)`
+	}
 	paramIndex := 1
 
 	// Multi select filters
@@ -515,6 +525,14 @@ func GetUserItemsPaginated(idUser int, page int, limit int, filters models.ItemF
 		} else if filters.Status == "completed" {
 			// Completed is removed for users, replaced by sold
 			return []models.Item{}, 0, nil
+		} else if filters.Status == "cancelled" {
+			whereClause += ` AND EXISTS (
+				SELECT 1 FROM (
+					SELECT action FROM transactions 
+					WHERE id_item = i.id 
+					ORDER BY created_at DESC LIMIT 1
+				) lt WHERE lt.action = 'cancelled'
+			)`
 		} else {
 			// Normal item_status filter (pending, approved, refused)
 			whereClause += fmt.Sprintf(" AND i.status = $%d", paramIndex)
@@ -645,6 +663,8 @@ func GetProItemsPaginated(idPro int, page int, limit int, filters models.ItemFil
 				AND b.status = 'active' 
 				AND now() BETWEEN b.valid_from AND b.valid_to
 			)`
+		} else if filters.Status == "cancelled" {
+			whereClause += " AND t.action = 'cancelled'"
 		} else {
 			// Pro doesn't see other statuses (pending, approved, refused, completed)
 			// Return empty if other status requested

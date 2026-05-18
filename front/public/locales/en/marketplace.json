@@ -39,14 +39,27 @@
     "posted_by": "Posted by",
     "reserve_now": "Reserve Now",
     "buy": "Buy",
+    "buy_confirm_title": "Confirm Purchase",
+    "buy_confirm_text": "Are you sure you want to purchase this item?",
+    "free": "Free",
     "see_back_office": "View in Back Office",
+    "see_my_items": "See in My Items",
     "edit": "Edit",
     "delete": "Delete",
     "transfer_container": "Transfer Container",
     "delete_confirm_title": "Confirm Delete",
     "delete_confirm_msg": "Are you sure you want to delete this item?",
+    "delete_confirm_text": "Are you sure you want to delete this item? This action is irreversible.",
     "not_implemented_title": "Not Implemented",
-    "not_implemented_msg": "This feature is coming soon."
+    "not_implemented_msg": "This feature is coming soon.",
+    "reserve_confirm_title": "Confirm Reservation",
+    "reserve_confirm_text": "Are you sure you want to reserve this item? You will have 3 days to complete the purchase.",
+    "reserve_period": "3 days reservation",
+    "already_reserved_info": "This item is currently reserved by another professional. It may become available again if the reservation expires.",
+    "cancel_reserve_confirm_title": "Confirm Cancel Reservation",
+    "cancel_reserve_confirm_text": "Are you sure you want to cancel this reservation?",
+    "cancel_reservation": "Cancel Reservation",
+    "cancel_reservation_button": "Confirm Cancel Reservation"
   },
   "notifications": {
     "fetch_items_error": "Error fetching items",
@@ -64,7 +77,9 @@
     "post_success_message": "Please wait for admin approval",
     "cancel_transaction_error": "Error cancelling transaction",
     "cancel_transaction_success_title": "Transaction Cancelled",
-    "cancel_transaction_success_message": "The transaction has been cancelled."
+    "cancel_transaction_success_message": "The transaction has been cancelled.",
+    "reserve_success_title": "Item Reserved",
+    "reserve_success_message": "The item has been successfully reserved. You can find it in your items."
   },
   "my_item_detail": {
     "not_found": "Item not found or you don't have access to it.",
@@ -95,6 +110,29 @@
     "deposit_in_container": "Your item has been dropped off at the container. Waiting for the buyer to pick it up.",
     "drop_off_reminder": "Please drop off your item at the container using the code above:",
     "completed_title": "Transaction Completed",
-    "completed_on": "Completed on {{date}}"
+    "completed_on": "Completed on {{date}}",
+    "cancelled_title": "Reservation Cancelled",
+    "cancelled_on": "Cancelled on {{date}}",
+    "waiting_for_dropoff": "Waiting for the seller to drop off the item in the container first. Once dropped off, your retrieval code and barcode will be generated here.",
+    "download_barcode": "Download Barcode"
+  },
+  "open_container": {
+    "title": "Open Container",
+    "subtitle": "Access verification for container deposits and retrievals.",
+    "opening_container": "Opening Container #{{id}}",
+    "instructions": "Please enter the 6-digit access code or upload the barcode image provided for this container.",
+    "option_code_title": "Option A: 6-Digit Access Code",
+    "option_code_desc": "Type the access code from your reservation.",
+    "option_barcode_title": "Option B: Barcode Upload",
+    "option_barcode_desc": "Upload a clear photo of the container's barcode.",
+    "verify_code": "Verify Access Code",
+    "verify_barcode": "Verify Barcode",
+    "validation_error_code": "Please enter a valid 6-digit code.",
+    "validation_error_barcode": "Please upload a barcode image first.",
+    "success_title": "Container Unlocked",
+    "success_desc": "Verification successful! The container lock has been released.",
+    "open_now": "Open container now",
+    "back_to_market": "Back to Marketplace",
+    "dropzone_desc": "Click or drag your barcode image here"
   }
 }

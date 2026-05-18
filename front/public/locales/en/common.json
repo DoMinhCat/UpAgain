@@ -31,7 +31,8 @@
     "sold": "Sold",
     "to_drop_off": "To Drop Off",
     "bought": "Bought",
-    "to_retrieve": "To Retrieve"
+    "to_retrieve": "To Retrieve",
+    "cancelled": "Cancelled"
   },
   "categories": {
     "all": "All Categories",
@@ -52,9 +53,12 @@
   "pagination": {
     "showing": "Showing",
     "of": "of",
-    "results": "results",
-    "items": "items",
-    "transactions": "transactions"
+    "results_one": "result",
+    "results_other": "results",
+    "items_one": "item",
+    "items_other": "items",
+    "transactions_one": "transaction",
+    "transactions_other": "transactions"
   },
   "time": {
     "just_now": "Just now",
@@ -65,5 +69,18 @@
     "yesterday": "Yesterday",
     "days_ago_one": "1 day ago",
     "days_ago_other": "{{count}} days ago"
+  },
+  "footer": {
+    "description": "Give your objects a second life. A simple and eco-friendly way to trade and upcycle resources.",
+    "explore": "Explore",
+    "browse_objects": "Browse Objects",
+    "smart_deposits": "Smart Deposits",
+    "community_articles": "Community Articles",
+    "contact": "Contact",
+    "address": "123 Eco Street, Paris, France",
+    "legal": "Legal",
+    "terms_conditions": "Terms & Conditions",
+    "privacy_policy": "Privacy Policy",
+    "rights_reserved": "© {{year}} UpAgain. All rights reserved."
   }
 }

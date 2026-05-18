@@ -24,6 +24,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetItemRoutes(mux)
 	GetListingRoutes(mux)
 	GetDepositRoutes(mux)
+	GetBarcodeRoutes(mux)
 	GetSubscriptionRoutes(mux)
 	GetFinanceRoutes(mux)
 	GetAdsRoutes(mux)
