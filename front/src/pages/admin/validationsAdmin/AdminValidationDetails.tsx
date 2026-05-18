@@ -34,6 +34,7 @@ import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import InfoField from "../../../components/common/InfoField";
 import { useProcessValidation } from "../../../hooks/validationHooks";
 import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
+import DOMPurify from "dompurify";
 
 export default function AdminValidationDetails() {
   const { t } = useTranslation("admin");
@@ -157,11 +158,10 @@ export default function AdminValidationDetails() {
               ps="sm"
               mt="xs"
               mb="sm"
-              c={item.description ? "dark" : "dimmed"}
-            >
-              {item.description ||
-                t("validations.details.fields.no_description")}
-            </Text>
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(item?.description || ""),
+              }}
+            />
           </InfoField>
 
           <InfoField label={t("validations.details.fields.created_at")}>
