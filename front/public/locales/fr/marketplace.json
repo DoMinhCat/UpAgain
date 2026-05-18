@@ -107,7 +107,9 @@
     "completed_title": "Transaction terminée",
     "completed_on": "Terminé le {{date}}",
     "cancelled_title": "Réservation annulée",
-    "cancelled_on": "Annulée le {{date}}"
+    "cancelled_on": "Annulée le {{date}}",
+    "waiting_for_dropoff": "En attente du dépôt de l'objet dans le conteneur par le vendeur. Une fois déposé, votre code de retrait et code-barres seront générés ici.",
+    "download_barcode": "Télécharger le code-barres"
   },
   "open_container": {
     "title": "Ouvrir le conteneur",

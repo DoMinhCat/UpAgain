@@ -77,7 +77,9 @@
   },
   "my_item_detail": {
     "cancelled_title": "Đặt chỗ đã bị hủy",
-    "cancelled_on": "Đã hủy lúc {{date}}"
+    "cancelled_on": "Đã hủy lúc {{date}}",
+    "waiting_for_dropoff": "Đang chờ người bán gửi mặt hàng vào thùng chứa trước. Sau khi gửi, mã nhận hàng và mã vạch của bạn sẽ được hiển thị tại đây.",
+    "download_barcode": "Tải xuống mã vạch"
   },
   "open_container": {
     "title": "Mở thùng chứa",

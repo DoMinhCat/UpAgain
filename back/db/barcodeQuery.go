@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 	"time"
 )
@@ -67,6 +68,9 @@ func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.Barcode, er
 	`
 	rows, err := utils.Conn.Query(query, depositId)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return []models.Barcode{}, nil
+		}
 		return nil, err
 	}
 	defer rows.Close()
@@ -94,21 +98,20 @@ func InsertBarcode(payload models.BarCodeInsert) error {
 }
 
 // get 1 barcode info for user or pro for a deposit
-func GetCodeByDepositIdAndUserType(depositId int, userType string) (models.Barcode, error) {
-	if userType != "user" && userType != "pro" {
-		return models.Barcode{}, fmt.Errorf("invalid user type")
-	}
-
+func GetCodeByDepositIdAndAccountId(depositId int, accountId int) (models.Barcode, error) {
 	var code models.Barcode
 	query := `
 	SELECT c.path, c.code, c.valid_from, c.valid_to, c.status, 
        c.user_type, c.id_account, c.id_deposit, c.id_transaction, d.id_container
 	FROM barcodes c
 	JOIN deposits d ON c.id_deposit = d.id_item
-	WHERE d.id_item = $1 AND c.user_type = $2
+	WHERE d.id_item = $1 AND c.id_account = $2
 	`
-	err := utils.Conn.QueryRow(query, depositId, userType).Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction, &code.IdContainer)
+	err := utils.Conn.QueryRow(query, depositId, accountId).Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction, &code.IdContainer)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.Barcode{}, nil
+		}
 		return models.Barcode{}, err
 	}
 	return code, nil
