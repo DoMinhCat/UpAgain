@@ -9,7 +9,7 @@ import (
 
 // Define a struct to pass data cleanly
 type CheckoutRequest struct {
-	EventName    string
+	EntityName    string
 	PriceInCents int64
 	SuccessURL   string
 	CancelURL    string
@@ -28,7 +28,7 @@ func CreateStripeSession(req CheckoutRequest) (string, error) {
 					Currency:   stripe.String("eur"),
 					UnitAmount: stripe.Int64(req.PriceInCents),
 					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
-						Name: stripe.String(req.EventName),
+						Name: stripe.String(req.EntityName),
 					},
 				},
 				Quantity: stripe.Int64(1),
