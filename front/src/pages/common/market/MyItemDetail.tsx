@@ -780,7 +780,7 @@ export default function MyItemDetail() {
                         })
                       }
                     >
-                      {t('marketplace:open_container.open_now')}
+                      {t("marketplace:open_container.open_now")}
                     </Button>
                   </>
                 )}
@@ -863,14 +863,16 @@ export default function MyItemDetail() {
                 <IconPackage size={20} color="var(--upagain-neutral-green)" />
                 <Title order={4}>{t("marketplace:detail.buyer")}</Title>
               </Group>
-              <Text fw={700}>{latestTx?.username_pro || "—"}</Text>
-              {latestTx && (
+              <Text fw={700}>
+                {transactionsData?.transactions?.[0]?.username_pro || "—"}
+              </Text>
+              {transactionsData?.transactions?.[0] && (
                 <Text size="xs" c="dimmed">
                   {t("marketplace:my_item_detail.purchased_on", {
                     defaultValue: "Purchased on {{date}}",
-                    date: dayjs(latestTx.created_at).format(
-                      "DD/MM/YYYY - HH:mm A",
-                    ),
+                    date: dayjs(
+                      transactionsData?.transactions?.[0].created_at,
+                    ).format("DD/MM/YYYY - HH:mm A"),
                   })}
                 </Text>
               )}
