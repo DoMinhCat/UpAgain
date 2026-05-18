@@ -979,6 +979,21 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 
 		// 1st phase: redirect user to stripe to pay by returning a checkout link to stripe
 		if !payload.Paid {
+			// handle price adjustment (commission rate of stripe and UpAgain at moment of purchase)
+			itemPriceInCents := itemDetails.Price*100
+
+			stripeCommissionTotal := itemPriceInCents * stripe.StripeCommissionRatePercentEU + float64(stripe.StripeCommissionFixedInCentsEU)
+			// our rate is store in %
+			upAgainCommissionRate, err := db.GetFinanceSettingByKey("commission_rate")
+			if err != nil {
+				slog.Error("GetFinanceSettingByKey() failed", "controller", "CreateItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+				return
+			}
+			upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate/100)
+			finalPriceToPayInCents := itemPriceInCents + upAgainCommTotal + stripeCommissionTotal
+
+
 			frontendOrigin := utils.GetFrontOrigin()
 			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
@@ -990,8 +1005,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			}
 			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
 				EntityName:    itemDetails.Title,
-				// TODO: upon item posting, add the commission of stripe and comission of UpAgain to price indicated by user 
-				PriceInCents: int64(itemDetails.Price * 100),
+				PriceInCents: int64(finalPriceToPayInCents),
 				// return to the origin URL with param, frontend will check for that params to handle next steps
 				SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
 				CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
@@ -1005,6 +1019,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// TODO: 2nd phase user got redirected back after having paid in stripe
+		// Insert into transactions table with calculated commission rate, total price,...
 
 	// FREE BRANCH
 	} else {
