@@ -96,6 +96,7 @@
     "validation_error_barcode": "Vui lòng tải lên hình ảnh mã vạch trước.",
     "success_title": "Thùng chứa đã mở khóa",
     "success_desc": "Xác minh thành công! Khóa thùng chứa đã được mở.",
+    "open_now": "Mở thùng chứa ngay",
     "back_to_market": "Quay lại cửa hàng",
     "dropzone_desc": "Nhấp hoặc kéo thả hình ảnh mã vạch vào đây"
   }

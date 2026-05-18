@@ -753,18 +753,36 @@ export default function MyItemDetail() {
                     {t("marketplace:my_item_detail.deposit_in_container")}
                   </Alert>
                 ) : (
-                  <Alert
-                    icon={<IconInfoCircle size={16} />}
-                    color="blue"
-                    variant="light"
-                  >
-                    {t("marketplace:my_item_detail.drop_off_reminder")}
-                    {depositDetails && (
-                      <Text fw={700} mt={4}>
-                        Container #{depositDetails.container_id}
-                      </Text>
-                    )}
-                  </Alert>
+                  <>
+                    <Alert
+                      icon={<IconInfoCircle size={16} />}
+                      color="blue"
+                      variant="light"
+                    >
+                      {t("marketplace:my_item_detail.drop_off_reminder")}
+                      {depositDetails && (
+                        <Text fw={700} mt={4}>
+                          Container #{depositDetails.container_id}
+                        </Text>
+                      )}
+                    </Alert>
+                    {/* TODO: button to container open page */}
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      onClick={() =>
+                        navigate(PATHS.CONTAINERS.OPEN, {
+                          state: {
+                            id_container: depositDetails?.container_id,
+                            item_title: item?.title,
+                            item_id: item?.id,
+                          },
+                        })
+                      }
+                    >
+                      {t('marketplace:open_container.open_now')}
+                    </Button>
+                  </>
                 )}
               </>
             ) : (

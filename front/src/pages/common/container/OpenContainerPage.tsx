@@ -35,12 +35,9 @@ import {
 export default function OpenContainerPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
   const location = useLocation();
-
-  // Retrieve the state from location (passed from the previous page)
-  const state = location.state as { id_container?: number } | null;
+  const state = location.state;
   const containerId = state?.id_container || 0;
 
-  // Input states
   const [code, setCode] = useState("");
   const handleSetCode = (value: string) => {
     setCode(value.toUpperCase());
@@ -116,7 +113,22 @@ export default function OpenContainerPage() {
                 title: t("home:title", { defaultValue: "Home" }),
                 href: PATHS.HOME,
               },
-              // optional origin
+              ...(state?.item_title && state?.item_id
+                ? [
+                    {
+                      title: t("marketplace:market"),
+                      href: PATHS.MARKETPLACE.HOME,
+                    },
+                    {
+                      title: t("marketplace:my_listings"),
+                      href: PATHS.MARKETPLACE.ME,
+                    },
+                    {
+                      title: state?.item_title || "Item details",
+                      href: PATHS.MARKETPLACE.ME + "/" + state.item_id,
+                    },
+                  ]
+                : []),
               {
                 title: t("marketplace:open_container.title", {
                   defaultValue: "Open Container",

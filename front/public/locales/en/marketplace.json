@@ -131,6 +131,7 @@
     "validation_error_barcode": "Please upload a barcode image first.",
     "success_title": "Container Unlocked",
     "success_desc": "Verification successful! The container lock has been released.",
+    "open_now": "Open container now",
     "back_to_market": "Back to Marketplace",
     "dropzone_desc": "Click or drag your barcode image here"
   }
