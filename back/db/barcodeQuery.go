@@ -5,7 +5,6 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
-	"time"
 )
 
 func GetAllCodesByContainerId(id_container int) ([]models.Barcode, error) {
@@ -87,10 +86,10 @@ func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.Barcode, er
 
 func InsertBarcode(payload models.BarCodeInsert) error {
 	query := `
-		INSERT INTO barcodes (path, code, valid_to, user_type, id_account, id_deposit, id_transaction)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO barcodes (path, code, valid_from, valid_to, user_type, id_account, id_deposit, id_transaction)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
-	_, err := utils.Conn.Exec(query, payload.BarcodePath, payload.Code6Digit, time.Now().AddDate(0, 0, 7), payload.UserType, payload.IdAccount, payload.IdDeposit, payload.IdTransaction)
+	_, err := utils.Conn.Exec(query, payload.BarcodePath, payload.Code6Digit, payload.ValidFrom, payload.ValidFrom.AddDate(0, 0, 7), payload.UserType, payload.IdAccount, payload.IdDeposit, payload.IdTransaction)
 	if err != nil {
 		return fmt.Errorf("InsertBarcode() failed: %v", err)
 	}

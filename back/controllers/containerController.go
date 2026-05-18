@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"backend/utils/geocode"
+	helpers "backend/utils/helpers"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -563,21 +564,7 @@ func GetContainerEarliestAvailability(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Loop through UserRange and ProRange to find the latest occupied date 
-	// and return the next earliest date (start date of next available slot after latest occupied date)
-	earliest := time.Now()
-
-	for _, item := range schedule.UserRange {
-		if item.ValidTo.After(earliest) {
-			earliest = item.ValidTo
-		}
-	}
-
-	for _, item := range schedule.ProRange {
-		if item.ValidTo.After(earliest) {
-			earliest = item.ValidTo
-		}
-	}
+	earliest := helpers.FindNextAvailableDate(schedule)
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]time.Time{
 		"earliest_availability": earliest,
