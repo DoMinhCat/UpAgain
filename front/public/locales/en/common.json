@@ -66,5 +66,18 @@
     "yesterday": "Yesterday",
     "days_ago_one": "1 day ago",
     "days_ago_other": "{{count}} days ago"
+  },
+  "footer": {
+    "description": "Give your objects a second life. A simple and eco-friendly way to trade and upcycle resources.",
+    "explore": "Explore",
+    "browse_objects": "Browse Objects",
+    "smart_deposits": "Smart Deposits",
+    "community_articles": "Community Articles",
+    "contact": "Contact",
+    "address": "123 Eco Street, Paris, France",
+    "legal": "Legal",
+    "terms_conditions": "Terms & Conditions",
+    "privacy_policy": "Privacy Policy",
+    "rights_reserved": "© {{year}} UpAgain. All rights reserved."
   }
 }

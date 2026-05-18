@@ -66,5 +66,18 @@
     "yesterday": "Hier",
     "days_ago_one": "Il y a 1 jour",
     "days_ago_other": "Il y a {{count}} jours"
+  },
+  "footer": {
+    "description": "Donnez une seconde vie à vos objets. Une solution simple et écologique pour échanger et revaloriser vos ressources.",
+    "explore": "Explorer",
+    "browse_objects": "Parcourir les objets",
+    "smart_deposits": "Dépôts intelligents",
+    "community_articles": "Articles de la communauté",
+    "contact": "Contact",
+    "address": "123 Rue de l'Écologie, Paris, France",
+    "legal": "Mentions Légales",
+    "terms_conditions": "Conditions Générales d'Utilisation",
+    "privacy_policy": "Politique de Confidentialité",
+    "rights_reserved": "© {{year}} UpAgain. Tous droits réservés."
   }
 }
