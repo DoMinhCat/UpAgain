@@ -53,26 +53,23 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 		utils.RespondWithJSON(w, http.StatusOK, codes)
 		return
 	} else {
-		code, err := db.GetCodeByDepositIdAndUserType(depositId, role)
+		code, err := db.GetCodeByDepositIdAndAccountId(depositId, r.Context().Value("user").(models.AuthClaims).Id)
 		if err != nil {
 			slog.Error("db.GetCodeByDepositIdAndUserType() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
 			return
 		}
-		base64Code, err := helpers.EncodeBarcodeToBase64(code.Path)
-		if err != nil {
-			slog.Error("helpers.EncodeBarcodeToBase64() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while encoding deposit codes")
-			return
+		if code.IdAccount != 0 {
+			base64Code, err := helpers.EncodeBarcodeToBase64(code.Path)
+			if err != nil {
+				slog.Error("helpers.EncodeBarcodeToBase64() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while encoding deposit codes")
+				return
+			}
+			code.BarcodeBase64 = "data:image/png;base64," + base64Code
+			slog.Debug("base64", "base64", base64Code)
 		}
-		code.BarcodeBase64 = "data:image/png;base64," + base64Code
 		utils.RespondWithJSON(w, http.StatusOK, []models.Barcode{code})
 		return
 	}
-}
-
-func DownloadBarcode(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=example.pdf")
-	w.Write([]byte("Hello, World!"))
 }

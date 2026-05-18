@@ -112,7 +112,9 @@
     "completed_title": "Transaction Completed",
     "completed_on": "Completed on {{date}}",
     "cancelled_title": "Reservation Cancelled",
-    "cancelled_on": "Cancelled on {{date}}"
+    "cancelled_on": "Cancelled on {{date}}",
+    "waiting_for_dropoff": "Waiting for the seller to drop off the item in the container first. Once dropped off, your retrieval code and barcode will be generated here.",
+    "download_barcode": "Download Barcode"
   },
   "open_container": {
     "title": "Open Container",

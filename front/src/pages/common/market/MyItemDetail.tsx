@@ -44,6 +44,7 @@ import {
   IconBuildingStore,
   IconTrash,
   IconChevronRight,
+  IconDownload,
 } from "@tabler/icons-react";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { useTranslation } from "react-i18next";
@@ -85,12 +86,14 @@ function AccessCodeCard({
   code,
   label,
   icon,
+  onDownload,
 }: {
   code: Barcode;
   label: string;
   icon: React.ReactNode;
+  onDownload?: () => void;
 }) {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["common", "marketplace"]);
   return (
     <Paper variant="primary" p="lg" radius="md" withBorder>
       <Stack gap="sm">
@@ -149,14 +152,26 @@ function AccessCodeCard({
           <Image
             src={resolveUrl(code.path)}
             radius="md"
-            alt="QR Code"
+            alt="Barcode"
             mt="xs"
-            fallbackSrc="https://placehold.co/200x200?text=QR"
+            fallbackSrc="https://placehold.co/400x200?text=Barcode"
           />
           <Text size="xs" c="dimmed" ta="center">
             {t("valid_to", { defaultValue: "Valid to:" })}{" "}
             {dayjs(code.valid_to).format("DD/MM/YYYY HH:mm")}
           </Text>
+          {onDownload && code.barcode_base64 && (
+            <Button
+              variant="cta"
+              size="xs"
+              mt="sm"
+              fullWidth
+              leftSection={<IconDownload size={14} />}
+              onClick={onDownload}
+            >
+              {t("marketplace:my_item_detail.download_barcode")}
+            </Button>
+          )}
         </Stack>
       </Stack>
     </Paper>
@@ -341,6 +356,14 @@ export default function MyItemDetail() {
   // Deposit codes accessible to both roles now (backend updated)
   const { data: depositCodes, isLoading: isLoadingDepositCodes } =
     useGetDepositCodesOfLatestTransaction(id_item, isValidId && isDeposit);
+  const handleDownloadBarcode = (barcodeBase64: string) => {
+    const link = document.createElement("a");
+    link.href = barcodeBase64;
+    link.download = `barcode-${role === "pro" ? latestTx?.id_transaction : transactionsData?.transactions?.[0].id_transaction}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (
     isLoadingItem ||
@@ -557,12 +580,21 @@ export default function MyItemDetail() {
                   <Center py="md">
                     <Loader size="sm" />
                   </Center>
-                ) : myDepositCode ? (
+                ) : myDepositCode &&
+                  myDepositCode.code.length > 0 &&
+                  myDepositCode.path.length > 0 ? (
                   <AccessCodeCard
                     code={myDepositCode}
                     label={t("admin:listings.details.buyer")}
                     icon={<IconUserShield size={14} />}
+                    onDownload={() =>
+                      handleDownloadBarcode(myDepositCode.barcode_base64)
+                    }
                   />
+                ) : isPurchased ? (
+                  <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
+                    {t("marketplace:my_item_detail.waiting_for_dropoff")}
+                  </Text>
                 ) : (
                   <Text size="sm" c="dimmed">
                     {t("admin:listings.details.no_access_code")}
@@ -690,6 +722,7 @@ export default function MyItemDetail() {
       ) : null;
 
     const UserDepositAccessCard = () =>
+      // TODO: button to download barcode
       isDeposit ? (
         <Paper p="xl" radius="lg" withBorder shadow="sm" variant="primary">
           <Stack gap="md">
@@ -707,6 +740,9 @@ export default function MyItemDetail() {
                   code={userDepositCode}
                   label={t("admin:listings.details.owner")}
                   icon={<IconUserShield size={14} />}
+                  onDownload={() =>
+                    handleDownloadBarcode(userDepositCode.barcode_base64)
+                  }
                 />
                 {userDepositCode.status === "used" ? (
                   <Alert
