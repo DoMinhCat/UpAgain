@@ -52,9 +52,12 @@
   "pagination": {
     "showing": "Đang hiển thị",
     "of": "trong tổng số",
-    "results": "kết quả",
-    "items": "món đồ",
-    "transactions": "giao dịch"
+    "results_one": "kết quả",
+    "results_other": "kết quả",
+    "items_one": "món đồ",
+    "items_other": "món đồ",
+    "transactions_one": "giao dịch",
+    "transactions_other": "giao dịch"
   },
   "time": {
     "just_now": "Vừa xong",
