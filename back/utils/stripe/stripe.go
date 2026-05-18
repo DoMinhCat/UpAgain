@@ -7,7 +7,10 @@ import (
 	"github.com/stripe/stripe-go/v85/checkout/session"
 )
 
-// Define a struct to pass data cleanly
+// Stripe commission = StripeCommissionRateEU + StripeCommissionFixedInCentsEU
+var StripeCommissionRatePercentEU = 0.015 // 1.5%
+var StripeCommissionFixedInCentsEU = 25 // 25 cents = 0.25 euro
+
 type CheckoutRequest struct {
 	EntityName    string
 	PriceInCents int64
@@ -15,7 +18,7 @@ type CheckoutRequest struct {
 	CancelURL    string
 }
 
-// The Modular Function
+// CreateStripeSession create a checkout session in stripe and return the checkout URL
 func CreateStripeSession(req CheckoutRequest) (string, error) {
 	stripe.Key = utils.GetStripeSecretKey()
 
