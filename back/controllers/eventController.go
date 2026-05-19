@@ -1117,6 +1117,9 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	if isPaid {
 		// user click on register and not redirected to stripe yet (1st call), then give user checkout link to stripe
 		if !payload.Paid {
+			// add stripe commission rate
+			stripeCommTotalInCents := int64(stripe.StripeCommissionRatePercentEU * (event.Price.Float64)) * 100 + int64(stripe.StripeCommissionFixedInCentsEU)
+			finalPriceInCents := stripeCommTotalInCents + int64(event.Price.Float64 * 100)
 			frontendOrigin := utils.GetFrontOrigin()
 			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
@@ -1128,7 +1131,7 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			}
 			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
 				EntityName:    event.Title,
-				PriceInCents: int64(event.Price.Float64 * 100),
+				PriceInCents: finalPriceInCents,
 				// return to the origin URL with param, frontend will check for that params to handle next steps
 				SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
 				CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
