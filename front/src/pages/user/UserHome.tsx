@@ -25,7 +25,7 @@ import {
   useSavePost,
   useGetAllPosts,
 } from "../../hooks/postHooks";
-import { useGetUserImpact } from "../../hooks/userHooks";
+import { useGetUserImpact, useGetTotalScore } from "../../hooks/userHooks";
 import { useGetMyEvents } from "../../hooks/eventHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { useAuth } from "../../context/AuthContext";
@@ -36,6 +36,9 @@ import PostCard from "../../components/post/PostCard";
 import { EventCard } from "../../components/event/EventCard";
 import { DashboardCard } from "../../components/dashboard/DashboardCard";
 import { useHandleStripeEventRegistration } from "../../hooks/stripeHooks";
+
+const WATER_MAX_L = 1000;
+const ELECTRICITY_MAX_KWH = 100;
 
 export default function UserHome() {
   const { t } = useTranslation("home");
@@ -53,6 +56,7 @@ export default function UserHome() {
   const { mutateAsync: savePostAsync } = useSavePost();
 
   const { data: impactData } = useGetUserImpact();
+  const { data: totalScore } = useGetTotalScore();
   const { data: accountStats } = useAccountStats(user?.id || 0, !!user?.id);
   const { data: myEvents } = useGetMyEvents();
   const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like");
@@ -162,7 +166,7 @@ export default function UserHome() {
                   </Text>
                 </Group>
                 <Progress
-                  value={75}
+                  value={Math.min(((impactData?.water ?? 0) / WATER_MAX_L) * 100, 100)}
                   color="var(--upagain-neutral-green)"
                   size="sm"
                   radius="xl"
@@ -177,7 +181,7 @@ export default function UserHome() {
                   </Text>
                 </Group>
                 <Progress
-                  value={40}
+                  value={Math.min(((impactData?.electricity ?? 0) / ELECTRICITY_MAX_KWH) * 100, 100)}
                   color="var(--upagain-yellow)"
                   size="sm"
                   radius="xl"
@@ -193,10 +197,10 @@ export default function UserHome() {
               align="center"
             >
               <Box pos="relative" my="sm">
-                <ScoreRing score={99} size={140} />
+                <ScoreRing score={accountDetails?.score ?? 0} size={140} />
               </Box>
               <Text size="xs" c="dimmed" ta="center">
-                {t("user.impact.score_rank", { percentage: 99 })}
+                {t("user.impact.score_rank", { percentage: accountDetails?.score ?? 0 })}
               </Text>
             </DashboardCard>
           </SimpleGrid>
@@ -207,7 +211,7 @@ export default function UserHome() {
         <Trans
           i18nKey="user.impact.altogether_saved"
           ns="home"
-          values={{ amount: "123,456,789+" }}
+          values={{ amount: totalScore?.co2.toFixed(0) ?? "..." }}
           components={{
             span: (
               <Text
@@ -226,7 +230,7 @@ export default function UserHome() {
             inherit
             style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
           >
-            123,456,789+
+            {totalScore?.co2.toFixed(0) ?? "..."}
           </Text>{" "}
           kg of CO2
         </Trans>
@@ -572,7 +576,7 @@ export default function UserHome() {
                         data-variant="cta"
                         size="md"
                         fullWidth
-                        onClick={() => navigate(PATHS.MARKETPLACE.HOME)} // Assuming event exploration is there
+                        onClick={() => navigate(PATHS.EVENTS.HOME)}
                       >
                         {t("user.agenda.explore_workshops")}
                       </Button>
