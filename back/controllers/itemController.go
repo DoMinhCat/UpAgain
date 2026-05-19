@@ -991,8 +991,9 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate/100)
-			finalPriceToPayInCents := itemPriceInCents + upAgainCommTotal + stripeCommissionTotal
-
+			// vat
+			vatTotalInCents := itemPriceInCents * stripe.VatRate
+			finalPriceToPayInCents := itemPriceInCents + upAgainCommTotal + stripeCommissionTotal + vatTotalInCents
 
 			frontendOrigin := utils.GetFrontOrigin()
 			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {

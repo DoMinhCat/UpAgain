@@ -1119,7 +1119,10 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		if !payload.Paid {
 			// add stripe commission rate
 			stripeCommTotalInCents := int64(stripe.StripeCommissionRatePercentEU * (event.Price.Float64)) * 100 + int64(stripe.StripeCommissionFixedInCentsEU)
-			finalPriceInCents := stripeCommTotalInCents + int64(event.Price.Float64 * 100)
+			// vat
+			vatTotalInCents := int64(event.Price.Float64*100 * stripe.VatRate)
+			finalPriceInCents := stripeCommTotalInCents + int64(event.Price.Float64 * 100) + vatTotalInCents
+			
 			frontendOrigin := utils.GetFrontOrigin()
 			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
