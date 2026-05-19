@@ -584,20 +584,20 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 	payload.Category = r.FormValue("category")
 	payload.Material = r.FormValue("material")
 	payload.State = r.FormValue("state")
-	price, err := strconv.Atoi(r.FormValue("price"))
+	price, err := strconv.ParseFloat(r.FormValue("price"), 64)
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid price.")
 		return
 	}
 	payload.Price = float64(price)
-	weight, err := strconv.Atoi(r.FormValue("weight"))
+	weight, err := strconv.ParseFloat(r.FormValue("weight"), 64)
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid weight.")
 		return
 	}
-	payload.Weight = float64(weight)
+	payload.Weight = weight
 	payload.IdUser = idRequestor
 
 	// sanitize payload
