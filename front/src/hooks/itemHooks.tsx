@@ -242,7 +242,7 @@ export const useReserveItem = () => {
       queryClient.invalidateQueries({ queryKey: ["item-stats"] });
       queryClient.invalidateQueries({ queryKey: ["item-details", id] });
       queryClient.invalidateQueries({
-        queryKey: ["latest-transaction-of-pro", id],
+        queryKey: ["latest-transaction-of-pro"],
       });
       showSuccessNotification(
         "marketplace:notifications.reserve_success_title",

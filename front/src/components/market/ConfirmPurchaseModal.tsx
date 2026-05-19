@@ -38,7 +38,8 @@ export function ConfirmPurchaseModal({
         {
           onSuccess: (data) => {
             onClose();
-            if (data.checkout_url) {
+            if (data.checkout_url && data.checkout_url != "") {
+              // 1st phase: checkout to stripe
               window.location.href = data.checkout_url;
             }
           },
