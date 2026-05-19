@@ -63,7 +63,7 @@
       "electricity": "Électricité",
       "upcycling_score": "Score d'Upcycling",
       "score_rank": "Top {{percentage}}% des Upcycleurs ce mois-ci !",
-      "altogether_saved": "Ensemble, nous avons sauvé <span>{{amount}}</span> kg de CO2"
+      "altogether_saved": "Ensemble, nous avons sauvé <span>{{co2}}</span> kg de CO2, <span>{{electricity}}</span> kWh, et <span>{{water}}</span> litres d'eau"
     },
     "manage": {
       "title": "Mes objets actifs",
@@ -72,8 +72,8 @@
       "listings_status": "Vous avez <b>{{count}} articles actifs</b> dans la <1>Boutique</1>.",
       "manage_listings": "Gérer toutes mes annonces →",
       "deposits_title": "Dépôts",
-      "deposits_status_one": "1 objet à livrer.",
-      "deposits_status_other": "{{count}} objets à livrer.",
+      "deposits_status_one": "1 objet dans la <1>Boutique</1>.",
+      "deposits_status_other": "{{count}} objets dans la <1>Boutique</1>.",
       "track_deposits": "Suivre tous mes dépôts →",
       "ready_to_do_more": "Prêt à en faire plus, {{username}} ?",
       "create_listing": "Créer une annonce",
