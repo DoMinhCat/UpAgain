@@ -205,7 +205,10 @@ export default function UserHome() {
                   {`${accountDetails.score} Upcycling points so far, keep going!`}
                 </Text>
               ) : (
-                <Button variant="cta-reverse">
+                <Button
+                  variant="cta-reverse"
+                  onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
+                >
                   Post an object now to obtain Upcylcing score
                 </Button>
               )}
