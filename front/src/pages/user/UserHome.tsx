@@ -55,6 +55,11 @@ export default function UserHome() {
   const { data: userImpactData } = useGetUserImpact();
   const { data: accountStats } = useAccountStats(user?.id || 0, !!user?.id);
   const { data: myEvents } = useGetMyEvents();
+  const myUpcomingEvents =
+    myEvents && myEvents.length > 0
+      ? myEvents.filter((event) => new Date(event.start_at) > new Date())
+      : [];
+  console.log(myUpcomingEvents.length);
   const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like"); // TODO: this endpoint should get sponsored posts first
   const posts = postsData?.posts ?? [];
   if (isLoadingAccountDetails) {
@@ -517,9 +522,9 @@ export default function UserHome() {
                   Render event cards if 'accountDetails.registeredEvents' (or similar) is not empty.
                   Else, render the CTA below to encourage participation.
                 */}
-                {myEvents && myEvents.length > 0 ? (
+                {myUpcomingEvents.length > 0 ? (
                   <Stack gap="md">
-                    {myEvents?.slice(0, 2).map((event) => (
+                    {myUpcomingEvents?.slice(0, 2).map((event) => (
                       <EventCard
                         key={event.id}
                         onclick={() => navigate(`/events/${event.id}`)}
@@ -570,7 +575,7 @@ export default function UserHome() {
                         data-variant="cta"
                         size="md"
                         fullWidth
-                        onClick={() => navigate(PATHS.MARKETPLACE.HOME)} // Assuming event exploration is there
+                        onClick={() => navigate(PATHS.EVENTS.PLANNING)}
                       >
                         {t("user.agenda.explore_workshops")}
                       </Button>
