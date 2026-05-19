@@ -60,6 +60,7 @@ import { ConfirmPurchaseModal } from "../../../components/market/ConfirmPurchase
 import dayjs from "dayjs";
 import { useGetContainerEarliestAvailability } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
+import { useHandleVerifyItemPurchase } from "../../../hooks/stripeHooks";
 
 export default function ItemDetailPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
@@ -71,6 +72,9 @@ export default function ItemDetailPage() {
   const id = params.id;
   const id_item = Number(id);
   const isValidId = !isNaN(id_item) && id_item > 0;
+
+  // VERIFY ITEM PURCHASE
+  const { isVerifying } = useHandleVerifyItemPurchase(id_item);
 
   // PHOTO CAROUSEL MODAL
   const [lightboxOpened, setLightboxOpened] = useState(false);
@@ -774,6 +778,7 @@ export default function ItemDetailPage() {
             idItem={id_item}
             itemTitle={item?.title}
             price={item?.price}
+            isVerifying={isVerifying}
           />
         </>
       )}

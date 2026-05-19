@@ -57,7 +57,7 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { resolveUrl } from "../../../utils/imageUtils";
 import dayjs from "dayjs";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
-import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function EventDetailPage() {
@@ -111,7 +111,7 @@ export default function EventDetailPage() {
   };
 
   // VERIFY PAYMENT SESSION
-  const { isVerifying } = useHandleStripeEventRegistration(idEvent);
+  const { isVerifying } = useHandleVerifyStripeEventRegistration(idEvent);
 
   // GET EVENT
   const { data: event, isLoading: isLoadingEvent } = useGetEventDetails(

@@ -12,6 +12,7 @@ interface ConfirmPurchaseModalProps {
   itemTitle?: string;
   price?: number;
   title?: string;
+  isVerifying: boolean;
 }
 
 export function ConfirmPurchaseModal({
@@ -21,6 +22,7 @@ export function ConfirmPurchaseModal({
   itemTitle,
   price,
   title,
+  isVerifying,
 }: ConfirmPurchaseModalProps) {
   const { t } = useTranslation(["marketplace", "common"]);
   const purchaseMutation = usePurchaseItem(idItem);
@@ -115,7 +117,7 @@ export function ConfirmPurchaseModal({
           </Button>
           <Button
             variant="cta-reverse"
-            loading={purchaseMutation.isPending}
+            loading={purchaseMutation.isPending || isVerifying}
             onClick={handleConfirm}
             radius="md"
           >

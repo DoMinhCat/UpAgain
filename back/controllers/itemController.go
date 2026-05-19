@@ -1018,6 +1018,16 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			}
 			utils.RespondWithJSON(w, http.StatusOK, map[string]string{"checkout_url": checkoutUrl})
 			return
+		} else {
+			// 2nd call: user got redirected back after having paid in stripe 
+			// err = db.InsertEventRegistration(requestorId, event)
+			// if err != nil {
+			// 	slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
+			// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+			// 	return
+			// }
+			utils.RespondWithJSON(w, http.StatusCreated, nil)
+			return
 		}
 		// TODO: 2nd phase user got redirected back after having paid in stripe
 		// Insert into transactions table with calculated commission rate, total price,...
