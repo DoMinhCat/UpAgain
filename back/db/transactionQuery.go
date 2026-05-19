@@ -280,7 +280,12 @@ func InsertTransaction(transaction models.TransactionInsert) (int, error) {
 			values ($1, $2, $3, $4, $5, $6, $7, $8) returning id;
 		`
 		err = utils.Conn.QueryRow(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro, transaction.ConfirmCode, transaction.ItemPrice, transaction.CommissionRate, transaction.TotalPrice).Scan(&idToReturn)
-	// TODO: case "expired"
+	case "expired":
+		query = `
+			insert into transactions (id_transaction, action, id_item, id_pro)
+			values ($1, $2, $3, $4, $5, $6, $7, $8) returning id;
+		`
+		err = utils.Conn.QueryRow(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro).Scan(&idToReturn)
 	default:
 		return 0, fmt.Errorf("InsertTransaction() failed: invalid action %s", transaction.Action)
 	}
