@@ -268,10 +268,6 @@ export const usePurchaseItem = (id: number) => {
       queryClient.invalidateQueries({
         queryKey: ["latest-transaction-of-pro", id],
       });
-      showSuccessNotification(
-        "Purchase success",
-        "Item purchased successfully",
-      );
     },
   });
 };
