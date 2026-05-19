@@ -719,6 +719,7 @@ export default function EventDetailPage() {
                               rightSection={<IconChevronRight size={18} />}
                               onClick={openRegister}
                               loading={registerToEvent.isPending || isVerifying}
+                              // TODO: hint Stripe's commission rate and VAT not applied yet, final price visible in stripe checkout page
                             >
                               {t("detail.register_now")}
                             </Button>
