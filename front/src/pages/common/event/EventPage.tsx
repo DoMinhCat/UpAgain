@@ -28,7 +28,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useGetAllEvents } from "../../../hooks/eventHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import type { AppEvent } from "../../../api/interfaces/event";
-import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function EventPage() {
   const { user } = useAuth();
@@ -37,7 +37,7 @@ export default function EventPage() {
   const navigate = useNavigate();
 
   // Stripe redirect handler
-  useHandleStripeEventRegistration();
+  useHandleVerifyStripeEventRegistration();
 
   // GET EVENTS BY CATE
   const LIMIT = 4;

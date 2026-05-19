@@ -10,6 +10,7 @@ import {
   showInfoNotification,
 } from "../components/common/NotificationToast";
 import { useTranslation } from "react-i18next";
+import { usePurchaseItem } from "./itemHooks";
 
 export const useVerifyStripeSession = () => {
   const { t } = useTranslation(["common"]);
@@ -23,7 +24,9 @@ export const useVerifyStripeSession = () => {
   });
 };
 
-export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
+export const useHandleVerifyStripeEventRegistration = (
+  fallbackEventId?: number,
+) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const verifyStripeSessionMutation = useVerifyStripeSession();
   const registerToEvent = useRegisterToEvent();
@@ -94,5 +97,63 @@ export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
   return {
     isVerifying:
       verifyStripeSessionMutation.isPending || registerToEvent.isPending,
+  };
+};
+
+export const useHandleVerifyItemPurchase = (id_item: number) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifyStripeSessionMutation = useVerifyStripeSession();
+  const purchaseItem = usePurchaseItem(id_item);
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+
+    // when redirected back from stripe url with param "success", verify with backend
+    if (status === "success" && sessionId && !isNaN(id_item) && id_item > 0) {
+      verifyStripeSessionMutation.mutate(
+        { session_id: sessionId },
+        {
+          onSuccess: (data) => {
+            // backend confirm payment is done
+            if (data.is_paid) {
+              purchaseItem.mutate(
+                { paid: true },
+                {
+                  onSuccess: () => {
+                    showSuccessNotification(
+                      "Purchase completed",
+                      "Item has been purchased successfully",
+                    );
+                    searchParams.delete("payment");
+                    searchParams.delete("sessionid");
+                    setSearchParams(searchParams);
+                  },
+                },
+              );
+            } else {
+              showErrorNotification("Purchase failed", "Payment not completed");
+              searchParams.delete("payment");
+              searchParams.delete("sessionid");
+              setSearchParams(searchParams);
+            }
+          },
+        },
+      );
+      // if user cancel payment
+    } else if (status === "cancelled" || status === "cancel") {
+      showInfoNotification(
+        "Purchase cancelled",
+        "You have cancelled the purchase",
+      );
+      searchParams.delete("payment");
+      searchParams.delete("sessionid");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  return {
+    isVerifying:
+      verifyStripeSessionMutation.isPending || purchaseItem.isPending,
   };
 };

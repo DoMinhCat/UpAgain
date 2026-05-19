@@ -1122,7 +1122,7 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			// vat
 			vatTotalInCents := int64(event.Price.Float64*100 * stripe.VatRate)
 			finalPriceInCents := stripeCommTotalInCents + int64(event.Price.Float64 * 100) + vatTotalInCents
-			
+
 			frontendOrigin := utils.GetFrontOrigin()
 			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
@@ -1146,19 +1146,17 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			}
 			utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
 			return
-		}
-
-		// user got redirected back after having paid in stripe (2nd call)
-		err = db.InsertEventRegistration(requestorId, event)
-		if err != nil {
-			slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+		} else {
+			// 2nd call: user got redirected back after having paid in stripe 
+			err = db.InsertEventRegistration(requestorId, event)
+			if err != nil {
+				slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
 			return
 		}
-		utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
-		return
-
-		
 	} else {
 		err = db.InsertEventRegistration(requestorId, event)
 		if err != nil {

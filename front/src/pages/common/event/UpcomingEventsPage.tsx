@@ -30,7 +30,7 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { useDisclosure } from "@mantine/hooks";
 import { EventListModal } from "../../../components/event/EventListModal";
 import dayjs from "dayjs";
-import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function UpcomingEventsPage() {
   const navigate = useNavigate();
@@ -113,7 +113,7 @@ export default function UpcomingEventsPage() {
     setCurrentUpcomingPage((prev) => Math.max(prev - 1, 1));
   };
   // Add hook to handle stripe redirect
-  useHandleStripeEventRegistration();
+  useHandleVerifyStripeEventRegistration();
 
   const handleNext = () => {
     setCurrentUpcomingPage((prev) => Math.min(prev + 1, totalUpcomingPages));

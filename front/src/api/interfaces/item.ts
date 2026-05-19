@@ -84,4 +84,5 @@ export interface ItemPurchaseResponse {
 
 export interface ItemPurchasePayload {
   origin_url?: string;
+  paid?: boolean;
 }
