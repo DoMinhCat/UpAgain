@@ -71,7 +71,7 @@ func GetAllItems(w http.ResponseWriter, r *http.Request) {
 		Material: query.Get("material"),
 	}
 
-	if role == "admin"{
+	if role == "admin" {
 		filters.IncludePurchased = query.Get("include_purchased")
 	}
 	items, total, err := db.GetAllItems(page, limit, filters)
@@ -486,35 +486,35 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 
 	// validate status flow
 	switch payload.Status {
-		case "deleted":
-			// check status
-			if status == "completed" {
-				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
-				return
-			}
-			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
-				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
-				return
-			}
-			
-		case "pending":
-			if status == "completed" {
-				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
-				return
-			}
-			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
-				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
-				return
-			}
-		case "approved":
-			if status != "refused" && status != "pending"{
-				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" can't be approved at the moment.")
-				return
-			}
-			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
-				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
-				return
-			}
+	case "deleted":
+		// check status
+		if status == "completed" {
+			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
+			return
+		}
+		if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+			return
+		}
+
+	case "pending":
+		if status == "completed" {
+			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
+			return
+		}
+		if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+			return
+		}
+	case "approved":
+		if status != "refused" && status != "pending" {
+			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" can't be approved at the moment.")
+			return
+		}
+		if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+			return
+		}
 	}
 	oldStatus, _ := db.GetItemStatusByItemId(id_item)
 
@@ -723,7 +723,7 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item created successfully."})
 }
 
@@ -827,7 +827,7 @@ func ReserveItem(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while reserving item.")
 		return
 	}
-	
+
 	exist, err := db.CheckItemExistByItemId(item_id)
 	if err != nil {
 		slog.Error("CheckItemExistByItemId() failed", "controller", "ReserveItem", "error", err)
@@ -947,12 +947,12 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	txUuid := ""
 	if latestTxOfPro.Action == "reserved" {
 		txUuid = latestTxOfPro.IdTransaction
-	// if buy right away without reservation, start new transaction with new uuid
-	} else {	
+		// if buy right away without reservation, start new transaction with new uuid
+	} else {
 		txUuid = uuid.New().String()
 	}
 	itemCategory := itemDetails.Category
-	sellerId:= itemDetails.IdUser
+	sellerId := itemDetails.IdUser
 
 	// get container schedule to calculate next available date
 	nextAvailableDateContainer := time.Time{}
@@ -980,8 +980,8 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// handle price adjustment (commission rate of stripe and UpAgain at moment of purchase)
-		itemPriceInCents := itemDetails.Price*100
-		stripeCommissionTotal := itemPriceInCents * stripe.StripeCommissionRatePercentEU + float64(stripe.StripeCommissionFixedInCentsEU)
+		itemPriceInCents := itemDetails.Price * 100
+		stripeCommissionTotal := itemPriceInCents*stripe.StripeCommissionRatePercentEU + float64(stripe.StripeCommissionFixedInCentsEU)
 		// our rate is store in %
 		upAgainCommissionRate, err := db.GetFinanceSettingByKey("commission_rate")
 		if err != nil {
@@ -989,7 +989,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
 			return
 		}
-		upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate/100)
+		upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate / 100)
 		// vat
 		vatTotalInCents := itemPriceInCents * stripe.VatRate
 		finalPriceToPayInCents := itemPriceInCents + upAgainCommTotal + stripeCommissionTotal + vatTotalInCents
@@ -1006,7 +1006,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 				successUrlSeparator = "&"
 			}
 			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
-				EntityName:    itemDetails.Title,
+				EntityName:   itemDetails.Title,
 				PriceInCents: int64(finalPriceToPayInCents),
 				// return to the origin URL with param, frontend will check for that params to handle next steps
 				SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
@@ -1020,9 +1020,9 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithJSON(w, http.StatusOK, map[string]string{"checkout_url": checkoutUrl})
 			return
 		} else {
-			// 2nd call: user got redirected back after having paid in stripe 
+			// 2nd call: user got redirected back after having paid in stripe
 			commissionRateToInsert = upAgainCommissionRate
-			totalPriceToInsert = finalPriceToPayInCents/100
+			totalPriceToInsert = finalPriceToPayInCents / 100
 		}
 	}
 
@@ -1038,15 +1038,15 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	insertedTxId, err := db.InsertTransaction(models.TransactionInsert{
-			IdTransaction: txUuid,
-			Action: "purchased",
-			IdItem: item_id,
-			IdPro:  idRequestor,
-			ItemPrice: &itemDetails.Price,
-			CommissionRate: &commissionRateToInsert,
-			TotalPrice: &totalPriceToInsert,
-			ConfirmCode: &confirm_code,
-		})
+		IdTransaction:  txUuid,
+		Action:         "purchased",
+		IdItem:         item_id,
+		IdPro:          idRequestor,
+		ItemPrice:      &itemDetails.Price,
+		CommissionRate: &commissionRateToInsert,
+		TotalPrice:     &totalPriceToInsert,
+		ConfirmCode:    &confirm_code,
+	})
 	if err != nil {
 		slog.Error("InsertTransaction() failed", "controller", "PurchaseItem", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
@@ -1066,19 +1066,19 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err = db.InsertBarcode(models.BarCodeInsert{
-			Code6Digit:  code6,
-			BarcodePath: barcodePath,
-			UserType:    "user",
-			IdAccount:   sellerId,
-			IdDeposit:   item_id,
+			Code6Digit:    code6,
+			BarcodePath:   barcodePath,
+			UserType:      "user",
+			IdAccount:     sellerId,
+			IdDeposit:     item_id,
 			IdTransaction: txUuid,
-			ValidFrom: nextAvailableDateContainer,
+			ValidFrom:     nextAvailableDateContainer,
 		})
 		if err != nil {
 			slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 			return
-	
+
 			// TODO: cron job will update container status to 'waiting' once the user's code enter the valid date
 			// TODO: trigger cron job right now to update container status in case available date for container is now
 			// err = db.UpdateStatusContainer(depositDetails.ContainerId, "waiting")
@@ -1133,7 +1133,7 @@ func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusConflict, "Item can't be cancelled at the moment.")
 		return
 	}
-	
+
 	// get uuid
 	uuid, err := db.GetTransactionLatestUuidOfPro(idRequestor, item_id)
 	if err != nil {
@@ -1156,7 +1156,12 @@ func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item cancelled successfully."})
 }
 
-
+// TODO: swagger doc
+func ConfirmListingRetrieval(w http.ResponseWriter, r *http.Request) {
+	// TODO: verify the received code with code in db
+	// TODO: change item's status to completed
+	// TODO: update item owner's score
+}
 
 /*
 TODO:
