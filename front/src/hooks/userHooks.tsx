@@ -3,16 +3,28 @@ import {
   getUserImpact,
   getUserImpactItems,
   getUserStats,
+  getGlobalImpact,
 } from "../api/userModule";
 import type {
   UserImpactStats,
   UserImpactItemsPagination,
   TotalScore,
+  GlobalImpactStats,
 } from "../api/interfaces/user";
 
 const STALE_TIME = 2 * 60 * 1000;
 
-// TODO: hooks for global impact /users/impact/global/
+export const useGetGlobalImpact = () => {
+  return useQuery<GlobalImpactStats>({
+    queryKey: ["globalImpact"],
+    queryFn: getGlobalImpact,
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "common:notifications.error",
+    },
+  });
+};
 
 export const useGetUserImpact = () => {
   return useQuery<UserImpactStats>({
