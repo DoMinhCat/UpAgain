@@ -27,15 +27,39 @@ export function ConfirmPurchaseModal({
   const navigate = useNavigate();
 
   const handleConfirm = () => {
-    purchaseMutation.mutate(undefined, {
-      onSuccess: () => {
-        onClose();
-        navigate(PATHS.MARKETPLACE.ME + "/" + idItem);
-      },
-      onError: () => {
-        onClose();
-      },
-    });
+    // not free
+    if (price && price > 0) {
+      purchaseMutation.mutate(
+        {
+          origin_url: window.location.origin + window.location.pathname,
+        },
+        {
+          onSuccess: (data) => {
+            onClose();
+            if (data.checkout_url) {
+              window.location.href = data.checkout_url;
+            }
+          },
+          onError: () => {
+            onClose();
+          },
+        },
+      );
+    } else {
+      // free
+      purchaseMutation.mutate(
+        {},
+        {
+          onSuccess: () => {
+            onClose();
+            navigate(PATHS.MARKETPLACE.ME + "/" + idItem);
+          },
+          onError: () => {
+            onClose();
+          },
+        },
+      );
+    }
   };
 
   return (
