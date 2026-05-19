@@ -1,8 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUserImpact, getUserImpactItems, getUserStats } from "../api/userModule";
-import type { UserImpactStats, UserImpactItemsPagination, TotalScore } from "../api/interfaces/user";
+import {
+  getUserImpact,
+  getUserImpactItems,
+  getUserStats,
+} from "../api/userModule";
+import type {
+  UserImpactStats,
+  UserImpactItemsPagination,
+  TotalScore,
+} from "../api/interfaces/user";
 
-const STALE_TIME = 60 * 1000;
+const STALE_TIME = 2 * 60 * 1000;
+
+// TODO: hooks for global impact /users/impact/global/
 
 export const useGetUserImpact = () => {
   return useQuery<UserImpactStats>({

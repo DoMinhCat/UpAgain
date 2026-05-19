@@ -52,10 +52,10 @@ export default function UserHome() {
   const { mutateAsync: likePostAsync } = useLikePost();
   const { mutateAsync: savePostAsync } = useSavePost();
 
-  const { data: impactData } = useGetUserImpact();
+  const { data: userImpactData } = useGetUserImpact();
   const { data: accountStats } = useAccountStats(user?.id || 0, !!user?.id);
   const { data: myEvents } = useGetMyEvents();
-  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like");
+  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like"); // TODO: this endpoint should get sponsored posts first
   const posts = postsData?.posts ?? [];
   if (isLoadingAccountDetails) {
     return <FullScreenLoader />;
@@ -114,7 +114,7 @@ export default function UserHome() {
             >
               <Stack gap={0} align="center">
                 <Text size="32px" fw={900} style={{ lineHeight: 1 }}>
-                  {impactData?.co2.toFixed(1) ?? "0"}{" "}
+                  {userImpactData?.co2.toFixed(1) ?? "0"}{" "}
                   <Text span size="xl" fw={500}>
                     kg
                   </Text>
@@ -158,7 +158,7 @@ export default function UserHome() {
                     {t("user.impact.water")}
                   </Text>
                   <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
-                    {impactData?.water.toFixed(0) ?? "0"} L
+                    {userImpactData?.water.toFixed(0) ?? "0"} L
                   </Text>
                 </Group>
                 <Progress
@@ -173,7 +173,7 @@ export default function UserHome() {
                     {t("user.impact.electricity")}
                   </Text>
                   <Text size="sm" fw={700} c="var(--upagain-yellow)">
-                    {impactData?.electricity.toFixed(1) ?? "0"} kWh
+                    {userImpactData?.electricity.toFixed(1) ?? "0"} kWh
                   </Text>
                 </Group>
                 <Progress
@@ -193,21 +193,32 @@ export default function UserHome() {
               align="center"
             >
               <Box pos="relative" my="sm">
-                <ScoreRing score={99} size={140} />
+                <ScoreRing score={accountDetails?.score} size={140} />
               </Box>
-              <Text size="xs" c="dimmed" ta="center">
-                {t("user.impact.score_rank", { percentage: 99 })}
-              </Text>
+              {accountDetails?.score && accountDetails.score > 0 ? (
+                <Text size="xs" c="dimmed" ta="center">
+                  {`${accountDetails.score} Upcycling points so far, keep going!`}
+                </Text>
+              ) : (
+                <Button variant="cta-reverse">
+                  Post an object now to obtain Upcylcing score
+                </Button>
+              )}
             </DashboardCard>
           </SimpleGrid>
         </Stack>
       </Container>
 
       <Title ta="center" order={2} my="md">
+        {/* // TODO: get global impact from /users/impact/global/ */}
         <Trans
           i18nKey="user.impact.altogether_saved"
           ns="home"
-          values={{ amount: "123,456,789+" }}
+          values={{
+            co2: "TODO",
+            electricity: "TODO",
+            water: "TODO",
+          }}
           components={{
             span: (
               <Text
@@ -218,18 +229,7 @@ export default function UserHome() {
               />
             ),
           }}
-        >
-          Altogether we saved{" "}
-          <Text
-            span
-            c="var(--upagain-yellow)"
-            inherit
-            style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
-          >
-            123,456,789+
-          </Text>{" "}
-          kg of CO2
-        </Trans>
+        ></Trans>
       </Title>
 
       {/* SECTION 3: MANAGE OBJECTS */}
@@ -263,12 +263,10 @@ export default function UserHome() {
 
               <Group align="stretch" grow>
                 {" "}
-                {/* 1. Change align to stretch */}
                 {/* COLUMN 1 */}
                 <Stack gap="md" style={{ flex: 1 }}>
                   <Box style={{ flex: 1 }}>
                     {" "}
-                    {/* 2. Wrap content in a flex-grow box */}
                     <Title
                       order={4}
                       size="sm"
@@ -291,14 +289,10 @@ export default function UserHome() {
                           1: <Anchor href={PATHS.MARKETPLACE.HOME} />,
                           b: <b />,
                         }}
-                      >
-                        You have <b>3 active</b> items in the{" "}
-                        <Anchor>Marketplace</Anchor>.
-                      </Trans>
+                      />
                     </Text>
                   </Box>
 
-                  {/* This link will now always sit at the bottom */}
                   <Text
                     className="text"
                     data-variant="primary"
@@ -313,7 +307,6 @@ export default function UserHome() {
                 <Stack gap="md" style={{ flex: 1 }}>
                   <Box style={{ flex: 1 }}>
                     {" "}
-                    {/* 2. Wrap content in a flex-grow box */}
                     <Title
                       order={4}
                       size="sm"
@@ -328,9 +321,15 @@ export default function UserHome() {
                       {t("user.manage.deposits_title")}
                     </Title>
                     <Text size="sm" mt="xs">
-                      {t("user.manage.deposits_status", {
-                        count: accountStats?.total_deposits ?? 0,
-                      })}
+                      <Trans
+                        i18nKey="user.manage.deposits_status"
+                        ns="home"
+                        values={{ count: accountStats?.total_deposits ?? 0 }}
+                        components={{
+                          1: <Anchor href={PATHS.MARKETPLACE.ME} />,
+                          b: <b />,
+                        }}
+                      />
                     </Text>
                   </Box>
 
@@ -427,8 +426,7 @@ export default function UserHome() {
               <Box style={{ flex: 1 }}>
                 {/* 
                   BACKEND LOGIC:
-                  The backend should ideally provide a 'featured' or 'community_selection' list.
-                  If the user has specific interests, this could be filtered by tags.
+                  The backend should provide sponsored posts first, other wise get most likes
                 */}
                 {posts.length > 0 ? (
                   <Stack gap="md">
