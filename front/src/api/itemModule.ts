@@ -4,6 +4,8 @@ import type {
   CreateItemRequest,
   Item,
   ItemAdminStats,
+  ItemPurchasePayload,
+  ItemPurchaseResponse,
   ItemsListPagination,
 } from "./interfaces/item";
 import type {
@@ -22,7 +24,16 @@ export const getAllItems = async (
   include_purchased?: boolean,
 ): Promise<ItemsListPagination> => {
   const response = await api.get(ENDPOINTS.ADMIN.ITEMS.ALL, {
-    params: { page, limit, search, sort, status, material, category, include_purchased },
+    params: {
+      page,
+      limit,
+      search,
+      sort,
+      status,
+      material,
+      category,
+      include_purchased,
+    },
   });
   return response.data;
 };
@@ -129,8 +140,12 @@ export const reserveItem = async (id: number) => {
   await api.post(ENDPOINTS.ITEMS.RESERVE(id));
 };
 
-export const purchaseItem = async (id: number) => {
-  await api.post(ENDPOINTS.ITEMS.PURCHASE(id));
+export const purchaseItem = async (
+  id: number,
+  payload: ItemPurchasePayload,
+): Promise<ItemPurchaseResponse> => {
+  const response = await api.post(ENDPOINTS.ITEMS.PURCHASE(id), payload);
+  return response.data;
 };
 
 export const getLatestTransaction = async (

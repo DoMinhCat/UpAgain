@@ -14,7 +14,10 @@ import {
   updateItemStatus,
 } from "../api/itemModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
-import type { CreateItemRequest } from "../api/interfaces/item";
+import type {
+  CreateItemRequest,
+  ItemPurchasePayload,
+} from "../api/interfaces/item";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -27,9 +30,28 @@ export const useGetAllItems = (
   include_purchased?: boolean,
 ) => {
   return useQuery({
-    queryKey: ["items", page, limit, search, sort, status, material, category, include_purchased],
+    queryKey: [
+      "items",
+      page,
+      limit,
+      search,
+      sort,
+      status,
+      material,
+      category,
+      include_purchased,
+    ],
     queryFn: () =>
-      getAllItems(page, limit, search, sort, status, material, category, include_purchased),
+      getAllItems(
+        page,
+        limit,
+        search,
+        sort,
+        status,
+        material,
+        category,
+        include_purchased,
+      ),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "common:notifications.error",
@@ -220,7 +242,7 @@ export const useReserveItem = () => {
       queryClient.invalidateQueries({ queryKey: ["item-stats"] });
       queryClient.invalidateQueries({ queryKey: ["item-details", id] });
       queryClient.invalidateQueries({
-        queryKey: ["latest-transaction-of-pro", id],
+        queryKey: ["latest-transaction-of-pro"],
       });
       showSuccessNotification(
         "marketplace:notifications.reserve_success_title",
@@ -233,7 +255,7 @@ export const useReserveItem = () => {
 export const usePurchaseItem = (id: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => purchaseItem(id),
+    mutationFn: (payload: ItemPurchasePayload) => purchaseItem(id, payload),
     meta: {
       errorTitle: "Purchase failed",
       errorMessage: "Failed to purchase item, please try again later",
@@ -246,10 +268,6 @@ export const usePurchaseItem = (id: number) => {
       queryClient.invalidateQueries({
         queryKey: ["latest-transaction-of-pro", id],
       });
-      showSuccessNotification(
-        "Purchase success",
-        "Item purchased successfully",
-      );
     },
   });
 };

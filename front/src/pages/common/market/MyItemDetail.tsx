@@ -81,6 +81,7 @@ import type { Barcode } from "../../../api/interfaces/barcode";
 import { NotFoundPage } from "../../error/404";
 import { useContainerDetails } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
+import { useHandleVerifyItemPurchase } from "../../../hooks/stripeHooks";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function AccessCodeCard({
@@ -289,6 +290,9 @@ export default function MyItemDetail() {
     useDisclosure(false);
   const [openedPurchase, { open: openPurchase, close: closePurchase }] =
     useDisclosure(false);
+
+  // VERIFY ITEM PURCHASE
+  const { isVerifying } = useHandleVerifyItemPurchase(id_item);
 
   const deleteItemMutation = useDeleteItem();
 
@@ -1282,6 +1286,7 @@ export default function MyItemDetail() {
         idItem={id_item}
         itemTitle={item?.title}
         price={item?.price}
+        isVerifying={isVerifying}
       />
     </Container>
   );

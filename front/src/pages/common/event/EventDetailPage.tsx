@@ -57,7 +57,7 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { resolveUrl } from "../../../utils/imageUtils";
 import dayjs from "dayjs";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
-import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function EventDetailPage() {
@@ -111,7 +111,7 @@ export default function EventDetailPage() {
   };
 
   // VERIFY PAYMENT SESSION
-  const { isVerifying } = useHandleStripeEventRegistration(idEvent);
+  const { isVerifying } = useHandleVerifyStripeEventRegistration(idEvent);
 
   // GET EVENT
   const { data: event, isLoading: isLoadingEvent } = useGetEventDetails(
@@ -168,7 +168,7 @@ export default function EventDetailPage() {
   const [openedAttendees, { open: openAttendees, close: closeAttendees }] =
     useDisclosure(false);
 
-  // CANCEL EVENT M
+  // CANCEL EVENT MODAL
   const [openedCancel, { open: openCancel, close: closeCancel }] =
     useDisclosure(false);
   // REGISTER EVENT MODAL
@@ -719,6 +719,7 @@ export default function EventDetailPage() {
                               rightSection={<IconChevronRight size={18} />}
                               onClick={openRegister}
                               loading={registerToEvent.isPending || isVerifying}
+                              // TODO: hint Stripe's commission rate and VAT not applied yet, final price visible in stripe checkout page
                             >
                               {t("detail.register_now")}
                             </Button>
