@@ -252,10 +252,11 @@ func GetTransactionLatestStatusByItemId(item_id int) (string, error) {
 }
 
 
-func InsertTransaction(transaction models.TransactionInsert) error {
+func InsertTransaction(transaction models.TransactionInsert) (int, error) {
 	var transactionUuid string
 	var query string
 	var err error
+	var idToReturn int
 	// generate new uuid if it is reserve (first action)
 	switch transaction.Action {
 	case "reserved":
@@ -264,30 +265,30 @@ func InsertTransaction(transaction models.TransactionInsert) error {
 		reserveExpiry := time.Now().AddDate(0, 0, reserveDurationDays)
 		query = `
 			insert into transactions (id_transaction, action, id_item, id_pro, reservation_expiry)
-			values ($1, $2, $3, $4, $5);
+			values ($1, $2, $3, $4, $5) returning id;
 		`
-		_, err = utils.Conn.Exec(query, transactionUuid, transaction.Action, transaction.IdItem, transaction.IdPro, &reserveExpiry)
+		err = utils.Conn.QueryRow(query, transactionUuid, transaction.Action, transaction.IdItem, transaction.IdPro, &reserveExpiry).Scan(&idToReturn)
 	case "cancelled":
 		query = `
 			insert into transactions (id_transaction, action, id_item, id_pro)
-			values ($1, $2, $3, $4);
+			values ($1, $2, $3, $4) returning id;
 		`
-		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro)
+		err = utils.Conn.QueryRow(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro).Scan(&idToReturn)
 	case "purchased":
 		query = `
 			insert into transactions (id_transaction, action, id_item, id_pro, confirm_code, item_price, commission_rate, total_price)
-			values ($1, $2, $3, $4, $5, $6, $7, $8);
+			values ($1, $2, $3, $4, $5, $6, $7, $8) returning id;
 		`
-		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro, transaction.ConfirmCode, transaction.ItemPrice, transaction.CommissionRate, transaction.TotalPrice)
+		err = utils.Conn.QueryRow(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro, transaction.ConfirmCode, transaction.ItemPrice, transaction.CommissionRate, transaction.TotalPrice).Scan(&idToReturn)
 	// TODO: case "expired"
 	default:
-		return fmt.Errorf("InsertTransaction() failed: invalid action %s", transaction.Action)
+		return 0, fmt.Errorf("InsertTransaction() failed: invalid action %s", transaction.Action)
 	}
 
 	if err != nil {
-		return fmt.Errorf("InsertTransaction() failed: %v", err.Error())
+		return 0, fmt.Errorf("InsertTransaction() failed: %v", err.Error())
 	}
-	return nil
+	return idToReturn, nil
 }
 
 func GetTransactionLatestUuidOfPro(id_pro int, id_item int) (uuid.UUID, error) {

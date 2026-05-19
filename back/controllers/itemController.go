@@ -864,7 +864,7 @@ func ReserveItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.InsertTransaction(models.TransactionInsert{
+	_, err = db.InsertTransaction(models.TransactionInsert{
 		Action: "reserved",
 		IdItem: item_id,
 		IdPro:  idRequestor,
@@ -918,7 +918,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// start purchase process
+	// get meta data
 	itemDetails, err := db.GetItemDetailsByItemId(item_id)
 	if err != nil {
 		slog.Error("GetItemDetailsByItemId() failed", "controller", "PurchaseItem", "error", err)
@@ -933,7 +933,6 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	}
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
-	// get existing transactions's uuid to insert later
 	latestTxOfPro, err := db.GetLatestTransactionOfPro(idRequestor, item_id)
 	if err != nil {
 		slog.Error("GetLatestTransactionOfPro() failed", "controller", "PurchaseItem", "error", err)
@@ -948,7 +947,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	txUuid := ""
 	if latestTxOfPro.Action == "reserved" {
 		txUuid = latestTxOfPro.IdTransaction
-	// if buy right away without reservation, create new uuid
+	// if buy right away without reservation, start new transaction with new uuid
 	} else {	
 		txUuid = uuid.New().String()
 	}
@@ -967,6 +966,10 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		nextAvailableDateContainer = helpers.FindNextAvailableDate(containerSchedule)
 	}
 
+	// price are in euros here
+	totalPriceToInsert := 0.0
+	commissionRateToInsert := 0.0 // in %
+
 	// PAID BRANCH
 	if itemDetails.Price > 0 {
 		// only when not free then request contain a payload
@@ -976,25 +979,23 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
 			return
 		}
+		// handle price adjustment (commission rate of stripe and UpAgain at moment of purchase)
+		itemPriceInCents := itemDetails.Price*100
+		stripeCommissionTotal := itemPriceInCents * stripe.StripeCommissionRatePercentEU + float64(stripe.StripeCommissionFixedInCentsEU)
+		// our rate is store in %
+		upAgainCommissionRate, err := db.GetFinanceSettingByKey("commission_rate")
+		if err != nil {
+			slog.Error("GetFinanceSettingByKey() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate/100)
+		// vat
+		vatTotalInCents := itemPriceInCents * stripe.VatRate
+		finalPriceToPayInCents := itemPriceInCents + upAgainCommTotal + stripeCommissionTotal + vatTotalInCents
 
 		// 1st phase: redirect user to stripe to pay by returning a checkout link to stripe
 		if !payload.Paid {
-			// handle price adjustment (commission rate of stripe and UpAgain at moment of purchase)
-			itemPriceInCents := itemDetails.Price*100
-
-			stripeCommissionTotal := itemPriceInCents * stripe.StripeCommissionRatePercentEU + float64(stripe.StripeCommissionFixedInCentsEU)
-			// our rate is store in %
-			upAgainCommissionRate, err := db.GetFinanceSettingByKey("commission_rate")
-			if err != nil {
-				slog.Error("GetFinanceSettingByKey() failed", "controller", "CreateItem", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
-				return
-			}
-			upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate/100)
-			// vat
-			vatTotalInCents := itemPriceInCents * stripe.VatRate
-			finalPriceToPayInCents := itemPriceInCents + upAgainCommTotal + stripeCommissionTotal + vatTotalInCents
-
 			frontendOrigin := utils.GetFrontOrigin()
 			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
@@ -1020,85 +1021,77 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 			// 2nd call: user got redirected back after having paid in stripe 
-			// err = db.InsertEventRegistration(requestorId, event)
-			// if err != nil {
-			// 	slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
-			// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
-			// 	return
-			// }
-			utils.RespondWithJSON(w, http.StatusCreated, nil)
-			return
+			commissionRateToInsert = upAgainCommissionRate
+			totalPriceToInsert = finalPriceToPayInCents/100
 		}
-		// TODO: 2nd phase user got redirected back after having paid in stripe
-		// Insert into transactions table with calculated commission rate, total price,...
+	}
 
-	// FREE BRANCH
+	// init dynamic variables to be inserted into transaction based on price and listing/deposit
+	confirm_code := ""
+	barcodePath := ""
+	code6 := ""
+	// handle genertion of confirm code or barcode
+	if itemCategory == "listing" {
+		confirm_code = helpers.GenerateRandom6CharCode()
 	} else {
-		freePrice := 0.0
+		code6 = helpers.GenerateRandom6CharCode()
+	}
 
-		// handle insertion of confirm code or barcode
-		var confirm_code string
-		if itemCategory == "listing" {
-			confirm_code = helpers.GenerateRandom6CharCode()
-		} else {
-			// generate code for user to drop object in container, no code for pro yet at this stage
-			code6 := helpers.GenerateRandom6CharCode()
-			barcodePath, err := helpers.GenerateAndSaveBarcode(models.BarCodeData{
-				Id:            latestTxOfPro.Id,
-				IdTransaction: txUuid,
-				UserType:      "u",
-			})
-			if err != nil {
-				slog.Error("GenerateAndSaveBarcode() failed", "controller", "PurchaseItem", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
-				return
-			}
+	insertedTxId, err := db.InsertTransaction(models.TransactionInsert{
+			IdTransaction: txUuid,
+			Action: "purchased",
+			IdItem: item_id,
+			IdPro:  idRequestor,
+			ItemPrice: &itemDetails.Price,
+			CommissionRate: &commissionRateToInsert,
+			TotalPrice: &totalPriceToInsert,
+			ConfirmCode: &confirm_code,
+		})
+	if err != nil {
+		slog.Error("InsertTransaction() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
 
-			err = db.InsertBarcode(models.BarCodeInsert{
-				Code6Digit:  code6,
-				BarcodePath: barcodePath,
-				UserType:    "user",
-				IdAccount:   sellerId,
-				IdDeposit:   item_id,
-				IdTransaction: txUuid,
-				ValidFrom: nextAvailableDateContainer,
-			})
-			if err != nil {
-				slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
-				return
-			}
-
-			// update container status
-			err = db.UpdateStatusContainer(depositDetails.ContainerId, "waiting")
-			if err != nil {
-				slog.Error("UpdateStatusContainer() failed", "controller", "PurchaseItem", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
-				return
-			}
-		}
-		
-		err = db.InsertTransaction(models.TransactionInsert{
-				IdTransaction: txUuid,
-				Action: "purchased",
-				IdItem: item_id,
-				IdPro:  idRequestor,
-				ItemPrice: &freePrice,
-				CommissionRate: &freePrice,
-				TotalPrice: &freePrice,
-				ConfirmCode: &confirm_code,
-			})
+	if itemCategory == "deposit" {
+		barcodePath, err = helpers.GenerateAndSaveBarcode(models.BarCodeData{
+			Id:            insertedTxId,
+			IdTransaction: txUuid,
+			UserType:      "u",
+		})
 		if err != nil {
-			slog.Error("InsertTransaction() failed", "controller", "PurchaseItem", "error", err)
+			slog.Error("GenerateAndSaveBarcode() failed", "controller", "PurchaseItem", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
-		return
-	}
+		err = db.InsertBarcode(models.BarCodeInsert{
+			Code6Digit:  code6,
+			BarcodePath: barcodePath,
+			UserType:    "user",
+			IdAccount:   sellerId,
+			IdDeposit:   item_id,
+			IdTransaction: txUuid,
+			ValidFrom: nextAvailableDateContainer,
+		})
+		if err != nil {
+			slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
 	
-	// TODO: notify user that item is purchased
+			// TODO: cron job will update container status to 'waiting' once the user's code enter the valid date
+			// TODO: trigger cron job right now to update container status in case available date for container is now
+			// err = db.UpdateStatusContainer(depositDetails.ContainerId, "waiting")
+			// if err != nil {
+			// 	slog.Error("UpdateStatusContainer() failed", "controller", "PurchaseItem", "error", err)
+			// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			// 	return
+			// }
+		}
+	}
+	// TODO: OneSignal notify user that item is purchased
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
 }
 
 // TODO: swagger doc
@@ -1149,7 +1142,7 @@ func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// cancel transaction
-	err = db.InsertTransaction(models.TransactionInsert{
+	_, err = db.InsertTransaction(models.TransactionInsert{
 		IdTransaction: uuid.String(),
 		Action:        "cancelled",
 		IdItem:        item_id,
