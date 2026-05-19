@@ -168,7 +168,7 @@ export default function EventDetailPage() {
   const [openedAttendees, { open: openAttendees, close: closeAttendees }] =
     useDisclosure(false);
 
-  // CANCEL EVENT M
+  // CANCEL EVENT MODAL
   const [openedCancel, { open: openCancel, close: closeCancel }] =
     useDisclosure(false);
   // REGISTER EVENT MODAL
