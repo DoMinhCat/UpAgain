@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
+	stripe "backend/utils/stripe"
 	validations "backend/utils/validations"
 	"encoding/json"
 	"log/slog"
@@ -470,35 +471,51 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate if request delete
-	if payload.Status == "deleted" {
-		// check status
-		status, err := db.GetItemStatusByItemId(id_item)
-		if err != nil {
-			slog.Error("GetItemStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-			return
-		}
-		if status == "completed" {
-			utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" has already been purchased.")
-			return
-		}
-		transaction, err := db.GetTransactionsByItemId(id_item, -1, -1)
-		if err != nil {
-			slog.Error("GetTransactionsByItemId() failed", "controller", "DeleteItemById", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-			return
-		}
-
-		if len(transaction) != 0 {
-			latestTransaction := transaction[0]
-			if latestTransaction.Action == "reserved" || latestTransaction.Action == "purchased" {
-				utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+idString+" is already purchased or reserved.")
-				return
-			}
-		}
+	status, err := db.GetItemStatusByItemId(id_item)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+	statusLatestTx, err := db.GetTransactionLatestStatusByItemId(id_item)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
 	}
 
+	// validate status flow
+	switch payload.Status {
+		case "deleted":
+			// check status
+			if status == "completed" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
+				return
+			}
+			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+				return
+			}
+			
+		case "pending":
+			if status == "completed" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
+				return
+			}
+			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+				return
+			}
+		case "approved":
+			if status != "refused" && status != "pending"{
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" can't be approved at the moment.")
+				return
+			}
+			if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+				utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
+				return
+			}
+	}
 	oldStatus, _ := db.GetItemStatusByItemId(id_item)
 
 	err = db.UpdateItemStatusById(id_item, payload.Status, "")
@@ -567,20 +584,20 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 	payload.Category = r.FormValue("category")
 	payload.Material = r.FormValue("material")
 	payload.State = r.FormValue("state")
-	price, err := strconv.Atoi(r.FormValue("price"))
+	price, err := strconv.ParseFloat(r.FormValue("price"), 64)
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid price.")
 		return
 	}
 	payload.Price = float64(price)
-	weight, err := strconv.Atoi(r.FormValue("weight"))
+	weight, err := strconv.ParseFloat(r.FormValue("weight"), 64)
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid weight.")
 		return
 	}
-	payload.Weight = float64(weight)
+	payload.Weight = weight
 	payload.IdUser = idRequestor
 
 	// sanitize payload
@@ -847,7 +864,7 @@ func ReserveItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.InsertTransaction(models.TransactionInsert{
+	_, err = db.InsertTransaction(models.TransactionInsert{
 		Action: "reserved",
 		IdItem: item_id,
 		IdPro:  idRequestor,
@@ -901,7 +918,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// start purchase process
+	// get meta data
 	itemDetails, err := db.GetItemDetailsByItemId(item_id)
 	if err != nil {
 		slog.Error("GetItemDetailsByItemId() failed", "controller", "PurchaseItem", "error", err)
@@ -916,7 +933,6 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	}
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
-	// get existing transactions's uuid to insert later
 	latestTxOfPro, err := db.GetLatestTransactionOfPro(idRequestor, item_id)
 	if err != nil {
 		slog.Error("GetLatestTransactionOfPro() failed", "controller", "PurchaseItem", "error", err)
@@ -931,7 +947,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	txUuid := ""
 	if latestTxOfPro.Action == "reserved" {
 		txUuid = latestTxOfPro.IdTransaction
-	// if buy right away without reservation, create new uuid
+	// if buy right away without reservation, start new transaction with new uuid
 	} else {	
 		txUuid = uuid.New().String()
 	}
@@ -950,78 +966,132 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		nextAvailableDateContainer = helpers.FindNextAvailableDate(containerSchedule)
 	}
 
+	// price are in euros here
+	totalPriceToInsert := 0.0
+	commissionRateToInsert := 0.0 // in %
+
 	// PAID BRANCH
 	if itemDetails.Price > 0 {
-		// TODO: handle stripe
-		utils.RespondWithError(w, http.StatusNotImplemented, "TODO: handle stripe")
-		return
-	// FREE BRANCH
-	} else {
-		freePrice := 0.0
-
-		// handle insertion of confirm code or barcode
-		var confirm_code string
-		if itemCategory == "listing" {
-			confirm_code = helpers.GenerateRandom6CharCode()
-		} else {
-			// generate code for user to drop object in container, no code for pro yet at this stage
-			code6 := helpers.GenerateRandom6CharCode()
-			barcodePath, err := helpers.GenerateAndSaveBarcode(models.BarCodeData{
-				Id:            latestTxOfPro.Id,
-				IdTransaction: txUuid,
-				UserType:      "u",
-			})
-			if err != nil {
-				slog.Error("GenerateAndSaveBarcode() failed", "controller", "PurchaseItem", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
-				return
-			}
-
-			err = db.InsertBarcode(models.BarCodeInsert{
-				Code6Digit:  code6,
-				BarcodePath: barcodePath,
-				UserType:    "user",
-				IdAccount:   sellerId,
-				IdDeposit:   item_id,
-				IdTransaction: txUuid,
-				ValidFrom: nextAvailableDateContainer,
-			})
-			if err != nil {
-				slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
-				return
-			}
-
-			// update container status
-			err = db.UpdateStatusContainer(depositDetails.ContainerId, "waiting")
-			if err != nil {
-				slog.Error("UpdateStatusContainer() failed", "controller", "PurchaseItem", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
-				return
-			}
-		}
-		
-		err = db.InsertTransaction(models.TransactionInsert{
-				IdTransaction: txUuid,
-				Action: "purchased",
-				IdItem: item_id,
-				IdPro:  idRequestor,
-				ItemPrice: &freePrice,
-				CommissionRate: &freePrice,
-				TotalPrice: &freePrice,
-				ConfirmCode: &confirm_code,
-			})
+		// only when not free then request contain a payload
+		var payload models.ItemPurchaseRequest
+		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
-			slog.Error("InsertTransaction() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+			return
+		}
+		// handle price adjustment (commission rate of stripe and UpAgain at moment of purchase)
+		itemPriceInCents := itemDetails.Price*100
+		stripeCommissionTotal := itemPriceInCents * stripe.StripeCommissionRatePercentEU + float64(stripe.StripeCommissionFixedInCentsEU)
+		// our rate is store in %
+		upAgainCommissionRate, err := db.GetFinanceSettingByKey("commission_rate")
+		if err != nil {
+			slog.Error("GetFinanceSettingByKey() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate/100)
+		// vat
+		vatTotalInCents := itemPriceInCents * stripe.VatRate
+		finalPriceToPayInCents := itemPriceInCents + upAgainCommTotal + stripeCommissionTotal + vatTotalInCents
+
+		// 1st phase: redirect user to stripe to pay by returning a checkout link to stripe
+		if !payload.Paid {
+			frontendOrigin := utils.GetFrontOrigin()
+			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
+				return
+			}
+			successUrlSeparator := "?"
+			if strings.Contains(payload.OriginUrl, "?") {
+				successUrlSeparator = "&"
+			}
+			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+				EntityName:    itemDetails.Title,
+				PriceInCents: int64(finalPriceToPayInCents),
+				// return to the origin URL with param, frontend will check for that params to handle next steps
+				SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+				CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
+			})
+			if err != nil {
+				slog.Error("CreateStripeSession() failed", "controller", "PurchaseItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusOK, map[string]string{"checkout_url": checkoutUrl})
+			return
+		} else {
+			// 2nd call: user got redirected back after having paid in stripe 
+			commissionRateToInsert = upAgainCommissionRate
+			totalPriceToInsert = finalPriceToPayInCents/100
+		}
+	}
+
+	// init dynamic variables to be inserted into transaction based on price and listing/deposit
+	confirm_code := ""
+	barcodePath := ""
+	code6 := ""
+	// handle genertion of confirm code or barcode
+	if itemCategory == "listing" {
+		confirm_code = helpers.GenerateRandom6CharCode()
+	} else {
+		code6 = helpers.GenerateRandom6CharCode()
+	}
+
+	insertedTxId, err := db.InsertTransaction(models.TransactionInsert{
+			IdTransaction: txUuid,
+			Action: "purchased",
+			IdItem: item_id,
+			IdPro:  idRequestor,
+			ItemPrice: &itemDetails.Price,
+			CommissionRate: &commissionRateToInsert,
+			TotalPrice: &totalPriceToInsert,
+			ConfirmCode: &confirm_code,
+		})
+	if err != nil {
+		slog.Error("InsertTransaction() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+
+	if itemCategory == "deposit" {
+		barcodePath, err = helpers.GenerateAndSaveBarcode(models.BarCodeData{
+			Id:            insertedTxId,
+			IdTransaction: txUuid,
+			UserType:      "u",
+		})
+		if err != nil {
+			slog.Error("GenerateAndSaveBarcode() failed", "controller", "PurchaseItem", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
-		return
-	}
+		err = db.InsertBarcode(models.BarCodeInsert{
+			Code6Digit:  code6,
+			BarcodePath: barcodePath,
+			UserType:    "user",
+			IdAccount:   sellerId,
+			IdDeposit:   item_id,
+			IdTransaction: txUuid,
+			ValidFrom: nextAvailableDateContainer,
+		})
+		if err != nil {
+			slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
 	
-	// TODO: notify user that item is purchased
+			// TODO: cron job will update container status to 'waiting' once the user's code enter the valid date
+			// TODO: trigger cron job right now to update container status in case available date for container is now
+			// err = db.UpdateStatusContainer(depositDetails.ContainerId, "waiting")
+			// if err != nil {
+			// 	slog.Error("UpdateStatusContainer() failed", "controller", "PurchaseItem", "error", err)
+			// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			// 	return
+			// }
+		}
+	}
+	// TODO: OneSignal notify user that item is purchased
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
 }
 
 // TODO: swagger doc
@@ -1072,7 +1142,7 @@ func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// cancel transaction
-	err = db.InsertTransaction(models.TransactionInsert{
+	_, err = db.InsertTransaction(models.TransactionInsert{
 		IdTransaction: uuid.String(),
 		Action:        "cancelled",
 		IdItem:        item_id,
