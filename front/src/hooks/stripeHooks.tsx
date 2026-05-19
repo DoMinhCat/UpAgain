@@ -1,7 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { StripePaymentVerificationRequest } from "../api/interfaces/stripe";
 import { verifyStripeSession } from "../api/stripeModule";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useRegisterToEvent } from "./eventHooks";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../components/common/NotificationToast";
 import { useTranslation } from "react-i18next";
 import { usePurchaseItem } from "./itemHooks";
+import { PATHS } from "../routes/paths";
 
 export const useVerifyStripeSession = () => {
   const { t } = useTranslation(["common"]);
@@ -101,9 +102,11 @@ export const useHandleVerifyStripeEventRegistration = (
 };
 
 export const useHandleVerifyItemPurchase = (id_item: number) => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const verifyStripeSessionMutation = useVerifyStripeSession();
   const purchaseItem = usePurchaseItem(id_item);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const status = searchParams.get("payment");
@@ -128,6 +131,16 @@ export const useHandleVerifyItemPurchase = (id_item: number) => {
                     searchParams.delete("payment");
                     searchParams.delete("sessionid");
                     setSearchParams(searchParams);
+                    queryClient.invalidateQueries({ queryKey: ["items"] });
+                    queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+                    queryClient.invalidateQueries({
+                      queryKey: ["item-details", id_item],
+                    });
+                    queryClient.invalidateQueries({ queryKey: ["my-items"] });
+                    queryClient.invalidateQueries({
+                      queryKey: ["latest-transaction-of-pro", id_item],
+                    });
+                    navigate(PATHS.MARKETPLACE.ME);
                   },
                 },
               );
