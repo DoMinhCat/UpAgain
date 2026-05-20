@@ -107,6 +107,7 @@ export const ENDPOINTS = {
     PURCHASE: (idItem: number) => `/items/${idItem}/purchase/`,
     LATEST_TRANSACTION: (idItem: number) =>
       `/items/${idItem}/transactions/latest/`,
+    CONFIRM: (idItem: number) => `/items/${idItem}/confirm/`,
   },
 
   LISTINGS: {
