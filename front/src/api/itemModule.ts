@@ -1,5 +1,6 @@
 import { api } from "./axios";
 import { ENDPOINTS } from "./endpoints";
+import type { ConfirmCodeRequest } from "./interfaces/barcode";
 import type {
   CreateItemRequest,
   Item,
@@ -153,4 +154,11 @@ export const getLatestTransaction = async (
 ): Promise<Transaction> => {
   const response = await api.get(ENDPOINTS.ITEMS.LATEST_TRANSACTION(id_item));
   return response.data;
+};
+
+export const confirmItemRetrieval = async (
+  id: number,
+  payload: ConfirmCodeRequest,
+) => {
+  await api.post(ENDPOINTS.ITEMS.CONFIRM(id), payload);
 };

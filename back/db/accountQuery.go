@@ -431,7 +431,7 @@ func UpdateAvatar(id_account int, avatar string) error {
 }
 
 func UpdateUpcyclingScore(id_account int, score int) error {
-	_, err := utils.Conn.Exec("UPDATE users SET up_score=up_score+$1 WHERE id_account=$2 AND deleted_at IS NULL", score, id_account)
+	_, err := utils.Conn.Exec("UPDATE users SET up_score=up_score+$1 WHERE id_account=$2", score, id_account)
 	if err != nil {
 		return fmt.Errorf("UpdateUpcyclingScore() failed: %v", err.Error())
 	}

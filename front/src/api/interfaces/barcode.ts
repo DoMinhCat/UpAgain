@@ -10,3 +10,7 @@ export interface Barcode {
   id_transaction: string;
   barcode_base64: string;
 }
+
+export interface ConfirmCodeRequest {
+  confirm_code: string;
+}
