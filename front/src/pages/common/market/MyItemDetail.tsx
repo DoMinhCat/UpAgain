@@ -20,7 +20,6 @@ import {
   ThemeIcon,
   Loader,
   Center,
-  TextInput,
   Button,
   SimpleGrid,
   PinInput,
@@ -56,6 +55,7 @@ import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
 import { resolveUrl } from "../../../utils/imageUtils";
 import {
+  useConfirmItemRetrieval,
   useGetItemDetails,
   useGetItemTransactions,
   useGetLatestTransactionOfPro,
@@ -371,6 +371,12 @@ export default function MyItemDetail() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // CONFIRM RETRIEVAL CODE
+  const confirmRetrieval = useConfirmItemRetrieval(id_item);
+  const handleConfirmRetrieval = () => {
+    confirmRetrieval.mutate({ confirm_code: confirmCode });
   };
 
   if (
@@ -913,16 +919,17 @@ export default function MyItemDetail() {
                   size="lg"
                   placeholder="-"
                   oneTimeCode
-                  // disabled={loading}
+                  disabled={confirmRetrieval.isPending}
                   value={confirmCode}
                   onChange={(val) => handleSetConfirmCode(val)}
                   aria-label="6-Digit Access Code"
                 />
-                {/* TODO: submit confirmation code to backend */}
                 <Button
                   variant="primary"
                   fullWidth
                   disabled={confirmCode.replace(" ", "").length < 6}
+                  onClick={handleConfirmRetrieval}
+                  loading={confirmRetrieval.isPending}
                 >
                   {t("marketplace:my_item_detail.confirm_button")}
                 </Button>
@@ -945,12 +952,16 @@ export default function MyItemDetail() {
             </Title>
             <Text size="sm" c="dimmed" ta="center">
               {t("marketplace:detail.buyer")}:{" "}
-              <strong>{latestTx?.username_pro || "—"}</strong>
+              <strong>
+                {transactionsData?.transactions[0].username_pro || "—"}
+              </strong>
             </Text>
-            {latestTx && (
+            {transactionsData && transactionsData.total_transactions > 0 && (
               <Text size="xs" c="dimmed">
                 {t("marketplace:my_item_detail.completed_on", {
-                  date: dayjs(latestTx.created_at).format("DD/MM/YYYY"),
+                  date: dayjs(
+                    transactionsData?.transactions[0].created_at,
+                  ).format("DD/MM/YYYY"),
                 })}
               </Text>
             )}
