@@ -319,3 +319,18 @@ func GetTransactionLatestUuidOfPro(id_pro int, id_item int) (uuid.UUID, error) {
 	}
 	return txUuidParsed, nil
 }
+
+func GetLatestConfirmCodeByItemId(item_id int) (string, error) {
+	code := ""
+	query := `
+		SELECT confirm_code FROM transactions
+		WHERE id_item=$1 AND confirm_code IS NOT NULL AND confirm_code!=''
+		ORDER BY created_at DESC
+		LIMIT 1 
+	`
+	err := utils.Conn.QueryRow(query, item_id).Scan(&code)
+	if err != nil {
+		return "", fmt.Errorf("GetLatestConfirmCodeByItemId() failed: %v", err.Error())
+	}
+	return code, nil
+}
