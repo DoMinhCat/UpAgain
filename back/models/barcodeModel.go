@@ -32,3 +32,7 @@ type BarCodeInsert struct {
 	IdTransaction string    `json:"idTransaction"`
 	ValidFrom   time.Time `json:"validFrom"`
 }
+
+type ConfirmCodeRequest struct {
+	ConfirmCode string `json:"confirm_code"`
+}

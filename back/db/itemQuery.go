@@ -413,6 +413,9 @@ func CheckListingOrDepositByItemId(id int) (bool, error) {
 
 func UpdateItemStatusById(id int, new_status string, reason string) error {
 	var err error
+	if !slices.Contains(ITEM_STATUS, new_status) {
+		return fmt.Errorf("UpdateItemStatusById() failed: invalid new status '%s'", new_status)
+	}
 	if new_status == "deleted" {
 		err = DeleteItemById(id)
 		if err != nil {

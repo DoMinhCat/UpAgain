@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   cancelItemReservation,
+  confirmItemRetrieval,
   createItem,
   deleteItem,
   getAllItems,
@@ -18,6 +19,7 @@ import type {
   CreateItemRequest,
   ItemPurchasePayload,
 } from "../api/interfaces/item";
+import type { ConfirmCodeRequest } from "../api/interfaces/barcode";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -268,6 +270,29 @@ export const usePurchaseItem = (id: number) => {
       queryClient.invalidateQueries({
         queryKey: ["latest-transaction-of-pro", id],
       });
+    },
+  });
+};
+
+export const useConfirmItemRetrieval = (id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ConfirmCodeRequest) =>
+      confirmItemRetrieval(id, payload),
+    meta: {
+      errorTitle: "Retrieval confirmation failed",
+      errorMessage: "Failed to confirm item's retrieval",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
+      queryClient.invalidateQueries({ queryKey: ["my-items"] });
+      queryClient.invalidateQueries({
+        queryKey: ["latest-transaction-of-pro", id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["userImpactItems"] });
+      queryClient.invalidateQueries({ queryKey: ["userImpact"] });
+      showSuccessNotification("Retrieval confirmed", "You are all set");
     },
   });
 };
