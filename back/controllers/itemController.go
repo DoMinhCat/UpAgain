@@ -1158,24 +1158,87 @@ func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 
 // TODO: swagger doc
 func ConfirmListingRetrieval(w http.ResponseWriter, r *http.Request) {
-	// TODO: verify the received code with code in db
-	// TODO: change item's status to completed
-	// TODO: update item owner's score
-}
+	item_id, err := strconv.Atoi(r.PathValue("item_id"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "ConfirmListingRetrieval", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while confirming retrieval.")
+		return
+	}
 
-/*
-TODO:
-add score only when item status == completed (confirm code submit if listing, user code to open used if deposit)
-score, err := helpers.CalculateScore(payload.Material, payload.Weight)
-if err != nil {
-	slog.Error("CalculateScore() failed", "controller", "CreateItem", "error", err)
-	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
-	return
+	exist, err := db.CheckItemExistByItemId(item_id)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "ConfirmListingRetrieval", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while confirming retrieval.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(item_id)+" does not exist.")
+		return
+	}
+
+	// check if item is already purchased
+	latestTx, err := db.GetTransactionLatestStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "ConfirmListingRetrieval", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while confirming retrieval.")
+		return
+	}
+	if latestTx == "cancelled" {
+		utils.RespondWithError(w, http.StatusConflict, "This transaction has been cancelled.")
+		return
+	}
+	if latestTx != "purchased" {
+		utils.RespondWithError(w, http.StatusConflict, "This item has not been purchased yet.")
+		return
+	}
+
+	//extract payload
+	var payload models.ConfirmCodeRequest
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+		return
+	}
+	payload.ConfirmCode = strings.TrimSpace(payload.ConfirmCode)
+
+	dbCode, err := db.GetLatestConfirmCodeByItemId(item_id)
+	if err!= nil {
+		slog.Error("GetLatestConfirmCodeByItemId() failed", "controller", "ConfirmListingRetrieval", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while confirming retrieval.")
+		return
+	}
+	if payload.ConfirmCode != dbCode {
+		utils.RespondWithError(w, http.StatusForbidden, "Incorrect confirm code, please try again.")
+		return
+	}
+	
+	// all passed, change item's status to completed
+	err = db.UpdateItemStatusById(item_id, "completed", "")
+	if err!= nil {
+		slog.Error("UpdateItemStatusById() failed", "controller", "ConfirmListingRetrieval", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while confirming retrieval.")
+		return
+	}
+	
+	// update item owner's score
+	item, err := db.GetItemDetailsByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "ConfirmListingRetrieval", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while confirming retrieval.")
+		return
+	}
+
+	score, err := helpers.CalculateScore(item.Material, item.Weight)
+	if err != nil {
+		slog.Error("CalculateScore() failed", "controller", "ConfirmListingRetrieval", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating user's score.")
+		return
+	}
+	err = db.UpdateUpcyclingScore(r.Context().Value("user").(models.AuthClaims).Id, score)
+	if err != nil {
+		slog.Error("UpdateUpcyclingScore() failed", "controller", "ConfirmListingRetrieval", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating user's score.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Retrieval confirmed."})
 }
-err = db.UpdateUpcyclingScore(idRequestor, score)
-if err != nil {
-	slog.Error("UpdateUpcyclingScore() failed", "controller", "CreateItem", "error", err)
-	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
-	return
-}
-*/
