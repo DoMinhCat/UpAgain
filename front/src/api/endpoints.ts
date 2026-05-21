@@ -21,7 +21,7 @@ export const ENDPOINTS = {
       SCHEDULE: (id_container: number) =>
         `/containers/${id_container}/schedule/`,
       EARLIEST: (id: number) => `/containers/${id}/earliest/`,
-      NEAREST: "/containers/nearest/",
+      NEAREST: "/containers/nearest",
     },
 
     FINANCE: {
@@ -78,8 +78,8 @@ export const ENDPOINTS = {
     },
 
     ITEMS: {
-      ALL: "/items/",
-      COUNT: "/items/count/",
+      ALL: "/items",
+      COUNT: "/items/count",
       DELETE: (id_item: number) => `/items/${id_item}/`,
       DETAILS: (id_item: number) => `/items/${id_item}/`,
       TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions/`,
@@ -102,8 +102,8 @@ export const ENDPOINTS = {
   },
 
   ITEMS: {
-    NEW: "/items/",
-    ME: "/items/me/",
+    NEW: "/items",
+    ME: "/items/me",
     RESERVE: (idItem: number) => `/items/${idItem}/reserve/`,
     CANCEL_RESERVATION: (idItem: number) => `/items/${idItem}/cancel/`,
     PURCHASE: (idItem: number) => `/items/${idItem}/purchase/`,
@@ -145,8 +145,8 @@ export const ENDPOINTS = {
       SAVED: "/posts/saved",
       MY_POSTS: "/posts/me",
     },
-    IMPACT: "/users/impact/",
-    ITEMS: "/users/items/",
+    IMPACT: "/users/impact",
+    ITEMS: "/users/items",
   },
   EVENTS: {
     MY_EVENTS: "/events/me",
@@ -164,7 +164,7 @@ export const ENDPOINTS = {
   },
 
   LOCATION: {
-    GET_COOR: "/location/coordinates/",
-    GET_ADDRESS: "/location/address/",
+    GET_COOR: "/location/coordinates",
+    GET_ADDRESS: "/location/address",
   },
 } as const;
