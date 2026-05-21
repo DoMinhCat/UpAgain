@@ -6,7 +6,7 @@ services:
     container_name: upcycle-back
     restart: always
     environment:
-      - APP_ENV=dev
+      - APP_ENV=prod
     volumes:
       - /mnt/truenas-web/back/.env.production:/root/.env.production
       - /mnt/truenas-web/back/.env.production:/root/.env.development
