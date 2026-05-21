@@ -105,7 +105,17 @@ func GetGlobalImpactStats() (models.UserImpactStats, error) {
 		if err != nil {
 			return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() CalculateCO2 failed: %w", err)
 		}
+		electricity, err := helpers.CalculateElectricitySaved(material, totalWeight)
+		if err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() CalculateElectricitySaved failed: %w", err)
+		}
+		water, err := helpers.CalculateWaterSaved(material, totalWeight)
+		if err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() CalculateWaterSaved failed: %w", err)
+		}
 		stats.CO2 += co2
+		stats.Electricity += electricity
+		stats.Water += water
 	}
 	if err := rows.Err(); err != nil {
 		return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() rows error: %w", err)
