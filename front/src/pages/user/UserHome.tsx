@@ -48,12 +48,12 @@ interface CO2Comparison {
 }
 
 function getCO2Comparison(co2Kg: number): CO2Comparison {
-  if (co2Kg < 1)    return { emoji: "🐹", key: "user.impact.animals.hamster" };
-  if (co2Kg < 5)    return { emoji: "🐱", key: "user.impact.animals.cat" };
-  if (co2Kg < 15)   return { emoji: "🐕", key: "user.impact.animals.dog" };
-  if (co2Kg < 50)   return { emoji: "🐑", key: "user.impact.animals.sheep" };
-  if (co2Kg < 150)  return { emoji: "🦁", key: "user.impact.animals.lion" };
-  if (co2Kg < 500)  return { emoji: "🐴", key: "user.impact.animals.horse" };
+  if (co2Kg < 1) return { emoji: "🐹", key: "user.impact.animals.hamster" };
+  if (co2Kg < 5) return { emoji: "🐱", key: "user.impact.animals.cat" };
+  if (co2Kg < 15) return { emoji: "🐕", key: "user.impact.animals.dog" };
+  if (co2Kg < 50) return { emoji: "🐑", key: "user.impact.animals.sheep" };
+  if (co2Kg < 150) return { emoji: "🦁", key: "user.impact.animals.lion" };
+  if (co2Kg < 500) return { emoji: "🐴", key: "user.impact.animals.horse" };
   if (co2Kg < 5000) return { emoji: "🐘", key: "user.impact.animals.elephant" };
   return { emoji: "🐋", key: "user.impact.animals.whale" };
 }
@@ -82,7 +82,7 @@ export default function UserHome() {
       ? myEvents.filter((event) => new Date(event.start_at) > new Date())
       : [];
 
-  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like");
+  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like"); // TODO: backend need to add param to return sponsored results first
   const posts = postsData?.posts ?? [];
 
   const co2Comparison = getCO2Comparison(userImpactData?.co2 ?? 0);
@@ -558,7 +558,7 @@ export default function UserHome() {
                       data-variant="primary"
                       size="sm"
                       fw={700}
-                      onClick={() => navigate(PATHS.EVENTS.HOME)}
+                      onClick={() => navigate(PATHS.EVENTS.PLANNING)}
                     >
                       {t("user.agenda.view_all")} →
                     </Text>
