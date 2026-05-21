@@ -1279,9 +1279,10 @@ func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
 		// 	return
 		// }
 	} else {
+		// user or pro
 		events, err = db.GetEventRegistrationsByAccountId(idRequestor)
 		if err != nil {
-			slog.Error("GetUpcomingRegisteredEventsByAccountId() failed", "controller", "GetMyEventsByAccountId", "error", err)
+			slog.Error("GetEventRegistrationsByAccountId() failed", "controller", "GetMyEventsByAccountId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
 			return
 		}

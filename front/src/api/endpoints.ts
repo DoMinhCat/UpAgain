@@ -131,6 +131,7 @@ export const ENDPOINTS = {
   },
 
   USER: {
+    GLOBAL_IMPACT: "/users/impact/global/",
     POSTS: {
       ALL: "/posts/",
       DETAILS: (id_post: number) => `/posts/${id_post}/`,
