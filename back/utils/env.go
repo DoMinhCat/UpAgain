@@ -11,16 +11,19 @@ func LoadEnv(env string) {
 	if env != "dev" && env != "prod" {
 		log.Panicf("Invalid env: %s. Must be 'dev' or 'prod'", env)
 	}
+	
+	// Try loading from .env.production or .env.development first
 	var envFile string
 	if env == "dev" {
 		envFile = ".env.development"
 	} else {
 		envFile = ".env.production"
 	}
-	err := godotenv.Load(envFile)
-	if err != nil {
-		log.Panicf("Error getting env: %v", err)
-	}
+	
+	godotenv.Load(envFile)
+	
+	// Always try loading from the root .env or environment variables as fallback
+	godotenv.Load(".env")
 }
 
 func GetDbUrl() string {
@@ -74,7 +77,11 @@ func GetStripeSecretKey() string {
 func GetOnesignalRestApiKey() string {
 	key := os.Getenv("ONESIGNAL_REST_API_KEY")
 	if key == "" {
-		log.Panic("ONESIGNAL_REST_API_KEY not find in .env")
+		// Fallback to ONESIGNAL_API_KEY if REST_API_KEY is missing
+		key = os.Getenv("ONESIGNAL_API_KEY")
+		if key == "" {
+			log.Panic("ONESIGNAL_REST_API_KEY not find in .env")
+		}
 	}
 	return key
 }
