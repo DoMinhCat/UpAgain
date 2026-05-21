@@ -46,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if existing.IsBanned {
-		response.RespondWithError(w, http.StatusUnauthorized, "Your account has been banned, contact an admin to unban your account.")
+		response.RespondWithError(w, http.StatusUnauthorized, "Your account has been banned, please contact an admin to unban your account.")
 		return
 	}
 
@@ -105,7 +105,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 // @Failure      500  {object}  nil                "Internal server error"
 // @Router       /refresh/ [post]
 func RefreshToken(w http.ResponseWriter, r *http.Request) {
-	slog.Debug("RefreshToken was called", "controller", "RefreshToken")
 	cookie, err := r.Cookie("refreshToken")
 	if err != nil {
 		response.RespondWithError(w, http.StatusUnauthorized, "No refresh token found.")

@@ -33,6 +33,7 @@ import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "../../utils/langUtils";
+import { resolveUrl } from "../../utils/imageUtils";
 
 export function UserNavBar() {
   const navigate = useNavigate();
@@ -75,10 +76,12 @@ export function UserNavBar() {
 
         {/* 2. Navigation Section */}
         <Group h="100%" gap="sm" visibleFrom="sm">
-          <HeaderLink
-            label={t("marketplace:marketplace")}
-            path={PATHS.MARKETPLACE.HOME}
-          />
+          {user?.role !== "employee" && (
+            <HeaderLink
+              label={t("marketplace:market")}
+              path={PATHS.MARKETPLACE.HOME}
+            />
+          )}
           <HeaderLink
             label={t("community:community")}
             path={PATHS.GUEST.POSTS}
@@ -163,7 +166,7 @@ export function UserNavBar() {
                 >
                   {accountDetails?.avatar ? (
                     <Avatar
-                      src={accountDetails?.avatar}
+                      src={resolveUrl(accountDetails?.avatar)}
                       name={accountDetails?.username}
                       color="initials"
                       size={40}
@@ -286,11 +289,13 @@ export function UserNavBar() {
       >
         <Stack gap="lg">
           <Stack gap="md">
-            <HeaderLink
-              label={t("marketplace:marketplace")}
-              path={PATHS.MARKETPLACE.HOME}
-              onClick={closeDrawer}
-            />
+            {user?.role !== "employee" && (
+              <HeaderLink
+                label={t("marketplace:market")}
+                path={PATHS.MARKETPLACE.HOME}
+                onClick={closeDrawer}
+              />
+            )}
             <HeaderLink
               label={t("community:community")}
               path={PATHS.GUEST.POSTS}

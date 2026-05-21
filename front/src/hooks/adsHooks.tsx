@@ -13,7 +13,10 @@ export const useCreateAds = () => {
   return useMutation({
     mutationFn: (payload: CreateAdsRequest) => createAds(payload),
     onSuccess: (variables) => {
-      showSuccessNotification("Ad created", "Ad created successfully");
+      showSuccessNotification(
+        "admin:posts.notifications.ads_created_title",
+        "admin:posts.notifications.ads_created_msg",
+      );
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({
@@ -21,8 +24,8 @@ export const useCreateAds = () => {
       });
     },
     meta: {
-      errorTitle: "Ad creation failed",
-      errorMessage: "Failed to create ad",
+      errorTitle: "admin:posts.notifications.error_creating_ads",
+      errorMessage: "admin:posts.notifications.error_creating_ads",
     },
   });
 };
@@ -33,14 +36,17 @@ export const useDeleteAds = () => {
   return useMutation({
     mutationFn: (id_ads: number) => deleteAds(id_ads),
     onSuccess: () => {
-      showSuccessNotification("Ad deleted", "Ad deleted successfully");
+      showSuccessNotification(
+        "admin:posts.notifications.ads_deleted_title",
+        "admin:posts.notifications.ads_deleted_msg",
+      );
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
     },
     meta: {
-      errorTitle: "Ad deletion failed",
-      errorMessage: "Failed to delete ad",
+      errorTitle: "admin:posts.notifications.error_deleting_ads",
+      errorMessage: "admin:posts.notifications.error_deleting_ads",
     },
   });
 };
@@ -57,7 +63,10 @@ export const useUpdateAds = () => {
       payload: UpdateAdsRequest;
     }) => updateAds(id_ads, payload),
     onSuccess: (variables) => {
-      showSuccessNotification("Ad updated", "Ad updated successfully");
+      showSuccessNotification(
+        "admin:posts.notifications.ads_updated_title",
+        "admin:posts.notifications.ads_updated_msg",
+      );
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({
@@ -65,8 +74,8 @@ export const useUpdateAds = () => {
       });
     },
     meta: {
-      errorTitle: "Ad update failed",
-      errorMessage: "Failed to update ad",
+      errorTitle: "admin:posts.notifications.error_updating_ads",
+      errorMessage: "admin:posts.notifications.error_updating_ads",
     },
   });
 };

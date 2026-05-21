@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/config"
 	"backend/routes"
 	"backend/utils"
 	"log/slog"
@@ -37,9 +38,9 @@ func CleanPathMiddleware(next http.Handler) http.Handler {
 		}
 
 		r.URL.Path = path
-		
+
 		slog.Info("Path Cleaning", "method", r.Method, "from", oldPath, "to", path)
-		
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -54,6 +55,9 @@ func main() {
 	}
 
 	utils.LoadEnv(env)
+
+	config.GeoCodeAPIKey = utils.GetGeoCodeApiKey()
+	config.OnesignalAPIKEY = utils.GetOnesignalRestApiKey()
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)

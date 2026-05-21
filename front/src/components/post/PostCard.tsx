@@ -74,7 +74,9 @@ export default function PostCard({
 
   const [localLiked, setLocalLiked] = useState<boolean | undefined>(undefined);
   const [localSaved, setLocalSaved] = useState<boolean | undefined>(undefined);
-  const [localLikeCount, setLocalLikeCount] = useState<number | undefined>(undefined);
+  const [localLikeCount, setLocalLikeCount] = useState<number | undefined>(
+    undefined,
+  );
   const [isLiking, setIsLiking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -168,7 +170,12 @@ export default function PostCard({
           lineClamp={2}
           h={42}
           dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(description),
+            __html: DOMPurify.sanitize(
+              description
+                .replace(/<[^>]*>/g, " ")
+                .replace(/\s+/g, " ")
+                .trim(),
+            ),
           }}
         />
       </Stack>
@@ -176,7 +183,7 @@ export default function PostCard({
       {/* Author & Time */}
       <Group mt="lg" gap="sm">
         <Avatar
-          src={authorAvatar}
+          src={resolveUrl(authorAvatar)}
           radius="xl"
           alt={authorName}
           name={authorName}

@@ -3,8 +3,6 @@ import {
   Title,
   Group,
   Grid,
-  TextInput,
-  Select,
   Table,
   Badge,
   Button,
@@ -16,9 +14,9 @@ import {
   Image,
   CopyButton,
   Tooltip,
+  Box,
   ActionIcon,
   Anchor,
-  NumberInput,
   ThemeIcon,
   Paper,
   SimpleGrid,
@@ -49,41 +47,42 @@ import {
   IconKey,
   IconUserShield,
   IconBasketCheck,
+  IconX,
+  IconDownload,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import AdminTable from "../../../components/admin/AdminTable";
 import {
-  useCancelTransaction,
   useGetItemDetails,
   useGetItemTransactions,
   useUpdateItemStatus,
 } from "../../../hooks/itemHooks";
+import { ConfirmCancelReservationModal } from "../../../components/market/ConfirmCancelReservationModal";
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
-import {
-  useGetListingDetails,
-  useUpdateListing,
-} from "../../../hooks/listingHooks";
+import { useGetListingDetails } from "../../../hooks/listingHooks";
 import {
   useGetDepositCodesOfLatestTransaction,
   useGetDepositDetails,
   useTransferDepositContainer,
-  useUpdateDeposit,
 } from "../../../hooks/depositHooks";
-import ImageDropzone from "../../../components/input/ImageDropzone";
-import { TextEditor } from "../../../components/input/TextEditor";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import PaginationFooter from "../../../components/common/PaginationFooter";
+import { useProcessValidation } from "../../../hooks/validationHooks";
+import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
+import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import type { Transaction } from "../../../api/interfaces/transaction";
-import type { CodeForAdmin } from "../../../api/interfaces/barcode";
+import type { Barcode } from "../../../api/interfaces/barcode";
 import PhotoModal from "../../../components/photo/PhotoModal";
-import { useGetAvailableContainers } from "../../../hooks/containerHooks";
+import { EditItemModal } from "../../../components/marketplace/EditItemModal";
+import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function AdminListingDetails() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "create_item", "common", "marketplace"]);
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -113,6 +112,33 @@ export default function AdminListingDetails() {
   ] = useDisclosure(false);
 
   const updateItemStatus = useUpdateItemStatus(id_item);
+  const processMutation = useProcessValidation();
+  const [openedRefuse, { open: openRefuse, close: closeRefuse }] =
+    useDisclosure(false);
+  const [
+    openedDeleteModal,
+    { open: openDeleteModal, close: closeDeleteModal },
+  ] = useDisclosure(false);
+
+  const handleConfirmRefuse = (reason: string) => {
+    const category = itemDetails?.category;
+    if (!category) return;
+    const entityType = (category + "s") as "listings" | "deposits";
+    processMutation.mutate(
+      {
+        entityType,
+        id: id_item,
+        action: "refuse",
+        reason,
+      },
+      {
+        onSuccess: () => {
+          closeRefuse();
+          navigate(PATHS.ADMIN.LISTINGS);
+        },
+      },
+    );
+  };
 
   const handleUpdateItemStatus = (status: string) => {
     updateItemStatus.mutate(status, {
@@ -138,209 +164,6 @@ export default function AdminListingDetails() {
   // EDIT MODAL
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
-  const [titleEdit, setTitleEdit] = useState<string>(itemDetails?.title || "");
-  const [descriptionEdit, setDescriptionEdit] = useState<string>(
-    itemDetails?.description || "",
-  );
-  const [materialEdit, setMaterialEdit] = useState<string>(
-    itemDetails?.material || "",
-  );
-  const [stateEdit, setStateEdit] = useState<string>(itemDetails?.state || "");
-  const [weightEdit, setWeightEdit] = useState<number>(
-    itemDetails?.weight || 0,
-  );
-  const [priceEdit, setPriceEdit] = useState<number>(itemDetails?.price || 0);
-  const [cityEdit, setCityEdit] = useState<string>(listingDetails?.city || "");
-  const [postalCodeEdit, setPostalCodeEdit] = useState<string>(
-    listingDetails?.postal_code || "",
-  );
-  const [fileEdit, setFileEdit] = useState<any[]>([]);
-
-  const [errorTitle, setErrorTitle] = useState("");
-  const [errorDescription, setErrorDescription] = useState("");
-  const [errorMaterial, setErrorMaterial] = useState("");
-  const [errorState, setErrorState] = useState("");
-  const [errorWeight, setErrorWeight] = useState("");
-  const [errorCity, setErrorCity] = useState("");
-  const [errorPostalCode, setErrorPostalCode] = useState("");
-  const [errorPrice, setErrorPrice] = useState("");
-
-  const handleOpenEdit = () => {
-    if (itemDetails) {
-      setTitleEdit(itemDetails?.title || "");
-      setDescriptionEdit(itemDetails?.description || "");
-      setMaterialEdit(itemDetails?.material || "");
-      setStateEdit(itemDetails?.state || "");
-      setWeightEdit(itemDetails?.weight || 0);
-      setPriceEdit(itemDetails?.price || 0);
-      const files = itemDetails?.images?.map((image) => {
-        return {
-          path: image,
-        };
-      });
-      setFileEdit(files || []);
-      if (isListing) {
-        setCityEdit(listingDetails?.city || "");
-        setPostalCodeEdit(listingDetails?.postal_code || "");
-      }
-    }
-    openEdit();
-  };
-
-  const handleCloseEdit = () => {
-    setErrorTitle("");
-    setErrorDescription("");
-    setErrorMaterial("");
-    setErrorState("");
-    setErrorWeight("");
-    setErrorCity("");
-    setErrorPostalCode("");
-
-    if (isListing) {
-      setCityEdit(listingDetails?.city || "");
-      setPostalCodeEdit(listingDetails?.postal_code || "");
-    }
-    closeEdit();
-  };
-
-  const validateTitle = () => {
-    if (!titleEdit) {
-      setErrorTitle("Title is required");
-      return false;
-    } else {
-      setErrorTitle("");
-      return true;
-    }
-  };
-
-  const validateDescription = () => {
-    const stripped = descriptionEdit.replace(/<[^>]*>/g, "").trim();
-    if (!descriptionEdit || stripped === "") {
-      setErrorDescription("Post's content is required");
-      return false;
-    }
-    setErrorDescription("");
-    return true;
-  };
-
-  const validateMaterial = () => {
-    if (!materialEdit) {
-      setErrorMaterial("Material is required");
-      return false;
-    } else {
-      setErrorMaterial("");
-      return true;
-    }
-  };
-
-  const validateState = () => {
-    if (!stateEdit) {
-      setErrorState("State is required");
-      return false;
-    } else {
-      setErrorState("");
-      return true;
-    }
-  };
-
-  const validateWeight = () => {
-    if (!weightEdit) {
-      setErrorWeight("Weight is required");
-      return false;
-    } else {
-      setErrorWeight("");
-      return true;
-    }
-  };
-
-  const validateCity = () => {
-    if (!cityEdit) {
-      setErrorCity("City is required");
-      return false;
-    } else {
-      setErrorCity("");
-      return true;
-    }
-  };
-
-  const validatePostalCode = () => {
-    if (!postalCodeEdit) {
-      setErrorPostalCode("Postal code is required");
-      return false;
-    }
-    if (!/^\d{5,9}$/.test(postalCodeEdit)) {
-      setErrorPostalCode("Invalid postal code");
-      return false;
-    }
-    setErrorPostalCode("");
-    return true;
-  };
-
-  const validatePrice = () => {
-    if (!priceEdit && priceEdit !== 0) {
-      setErrorPrice("Price is required");
-      return false;
-    } else {
-      setErrorPrice("");
-      return true;
-    }
-  };
-
-  // EDIT HANDLING
-  const updateListingMutation = useUpdateListing(id_item);
-  const updateDepositMutation = useUpdateDeposit(id_item);
-
-  const handleEdit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !validateTitle() ||
-      !validateDescription() ||
-      !validateMaterial() ||
-      !validateState() ||
-      !validateWeight() ||
-      !validatePrice()
-    ) {
-      return;
-    }
-
-    if (itemDetails?.category === "listing") {
-      if (!validateCity() || !validatePostalCode()) {
-        return;
-      }
-    }
-
-    const formData = new FormData();
-    formData.append("title", titleEdit);
-    formData.append("description", descriptionEdit);
-    formData.append("material", materialEdit);
-    formData.append("state", stateEdit);
-    formData.append("weight", weightEdit.toString());
-    formData.append("price", priceEdit.toString());
-    if (isListing) {
-      formData.append("city", cityEdit);
-      formData.append("postal_code", postalCodeEdit);
-    }
-    fileEdit.forEach((obj) => {
-      if (obj instanceof File) {
-        formData.append("new_images", obj);
-      } else if (obj.path) {
-        formData.append("existing_images", obj.path);
-      }
-    });
-    if (isListing) {
-      updateListingMutation.mutate(formData, {
-        onSuccess: () => {
-          closeEdit();
-        },
-      });
-    } else {
-      updateDepositMutation.mutate(formData, {
-        onSuccess: () => {
-          closeEdit();
-        },
-      });
-    }
-  };
 
   // TRANSACTIONS
   const [activePage, setPage] = useState(1);
@@ -354,33 +177,8 @@ export default function AdminListingDetails() {
   const transactions = transactionsData?.transactions || [];
 
   // FORCE CANCEL TRANSACTION
-  const [cancelTransactionId, setCancelTransactionId] =
-    useState<Transaction | null>(null);
-  const [
-    openedCancelModal,
-    { open: openCancelModal, close: closeCancelModal },
-  ] = useDisclosure(false);
-
-  const handleOpenCancelModal = (transaction: Transaction) => {
-    setCancelTransactionId(transaction);
-    openCancelModal();
-  };
-
-  const cancelTransactionMutation = useCancelTransaction(id_item);
-
-  const handleCancelTransaction = () => {
-    cancelTransactionMutation.mutate(
-      cancelTransactionId?.id_transaction || "",
-      {
-        onSuccess: () => {
-          closeCancelModal();
-        },
-        onError: () => {
-          closeCancelModal();
-        },
-      },
-    );
-  };
+  const [openedCancel, { open: openCancel, close: closeCancel }] =
+    useDisclosure(false);
 
   // DEPOSIT CODES
   const [
@@ -392,8 +190,8 @@ export default function AdminListingDetails() {
     useGetDepositCodesOfLatestTransaction(id_item, isValidId);
 
   const depositCodes = depositCodesData || [];
-  let userCode: CodeForAdmin | undefined;
-  let proCode: CodeForAdmin | undefined;
+  let userCode: Barcode | undefined;
+  let proCode: Barcode | undefined;
   // user code will always be generated first then pro (based on workflow I defined)
   if (depositCodes.length > 0) {
     userCode = depositCodes.find((code) => code.user_type === "user");
@@ -405,31 +203,16 @@ export default function AdminListingDetails() {
     setChosenCode(path);
     openCodeCarousel();
   };
-
-  // TRANSFER CONTAINER
-  const {
-    data: availableContainersData,
-    isLoading: isLoadingAvailableContainers,
-  } = useGetAvailableContainers();
-  const availableContainers = availableContainersData || [];
   const [
     openedTransferContainerModal,
     { open: openTransferContainerModal, close: closeTransferContainerModal },
   ] = useDisclosure(false);
-  const [transferContainer, setTransferContainer] = useState<string>(
-    depositDetails?.container_id.toString() || "",
-  );
   const transferContainerMutation = useTransferDepositContainer(id_item);
 
-  const handleOpenTransferContainerModal = () => {
-    setTransferContainer(depositDetails?.container_id.toString() || "");
-    openTransferContainerModal();
-  };
-
-  const handleTransferContainer = () => {
+  const handleTransferContainer = (id_new_container: number) => {
     transferContainerMutation.mutate(
       {
-        id_new_container: parseInt(transferContainer),
+        id_new_container,
         id_current_container: depositDetails?.container_id || 0,
       },
       {
@@ -437,6 +220,115 @@ export default function AdminListingDetails() {
           closeTransferContainerModal();
         },
       },
+    );
+  };
+
+  const handleDownloadBarcode = (barcodeBase64: string, userType: string) => {
+    const link = document.createElement("a");
+    link.href = barcodeBase64;
+    link.download = `barcode-${userType}-${transactionsData?.transactions?.[0]?.id_transaction || "code"}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const renderAccessCard = (code: Barcode, userType: "owner" | "buyer") => {
+    const isOwner = userType === "owner";
+    return (
+      <Paper variant="primary" p="lg" radius="lg" withBorder shadow="sm">
+        <Stack gap="sm">
+          <Group justify="space-between">
+            <Group gap="sm">
+              <ThemeIcon variant="light" size="md" color={isOwner ? "var(--upagain-neutral-green)" : "blue"}>
+                {isOwner ? <IconUserShield size={18} /> : <IconBasketCheck size={18} />}
+              </ThemeIcon>
+              <Text fw={700}>
+                {isOwner ? t("listings.details.owner") : t("listings.details.buyer")}
+              </Text>
+            </Group>
+            <Badge
+              size="xs"
+              variant="outline"
+              color={
+                code.status === "used"
+                  ? "gray"
+                  : code.status === "expired"
+                    ? "red"
+                    : "green"
+              }
+            >
+              {code.status.toUpperCase()}
+            </Badge>
+          </Group>
+          
+          <Stack gap={4} align="center" mt="xs">
+            <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+              {t("listings.details.six_digits_code")}
+            </Text>
+            <Group gap="xs" justify="center">
+              <Title order={3} ta="center">
+                {code.code.slice(0, 3)} {code.code.slice(3)}
+              </Title>
+              <CopyButton value={code.code} timeout={3000}>
+                {({ copied, copy }) => (
+                  <Tooltip
+                    label={
+                      copied
+                        ? t("common:actions.copied", { defaultValue: "Copied" })
+                        : t("common:actions.copy", { defaultValue: "Copy code" })
+                    }
+                    withArrow
+                  >
+                    <ActionIcon
+                      color={copied ? "teal" : "gray"}
+                      variant="subtle"
+                      onClick={copy}
+                    >
+                      {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+              </CopyButton>
+            </Group>
+            
+            <Image
+              src={`${import.meta.env.VITE_API_BASE_URL}/${code.path}`}
+              radius="md"
+              alt={`${isOwner ? "Owner" : "Buyer"}'s access code`}
+              fallbackSrc="https://placehold.co/400x200?text=Barcode"
+              style={{ cursor: "pointer", width: "100%", maxWidth: "300px" }}
+              mt="md"
+              onClick={() => handleCodeClick([code.path || ""])}
+            />
+            
+            <Divider my="sm" style={{ width: "100%" }} />
+            
+            <Group justify="space-between" style={{ width: "100%" }} gap="xs">
+              <Text size="xs" c="dimmed">
+                {t("listings.details.valid_from")}{" "}
+                <Text span fw={600}>{dayjs(code.valid_from).format("DD/MM/YYYY HH:mm A")}</Text>
+              </Text>
+              <Text size="xs" c="dimmed">
+                {t("listings.details.valid_to")}{" "}
+                <Text span fw={600}>{dayjs(code.valid_to).format("DD/MM/YYYY HH:mm A")}</Text>
+              </Text>
+            </Group>
+
+            {code.barcode_base64 && (
+              <Button
+                variant="cta"
+                size="xs"
+                mt="sm"
+                fullWidth
+                leftSection={<IconDownload size={14} />}
+                onClick={() => handleDownloadBarcode(code.barcode_base64, userType)}
+              >
+                {t("marketplace:my_item_detail.download_barcode")}
+              </Button>
+            )}
+          </Stack>
+        </Stack>
+      </Paper>
     );
   };
 
@@ -452,6 +344,8 @@ export default function AdminListingDetails() {
         {t("listings.details.title")}
       </Title>
       <MyBreadcrumbs
+        mt="md"
+        mb="md"
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [
@@ -482,7 +376,33 @@ export default function AdminListingDetails() {
                       href: PATHS.ADMIN.CONTAINERS + "/" + origin.idContainer,
                     },
                   ]
-                : [{ title: t("listings.title"), href: PATHS.ADMIN.LISTINGS }]),
+                : origin?.from === "validationDetail"
+                  ? [
+                      {
+                        title: t("validations.title"),
+                        href: PATHS.ADMIN.VALIDATIONS.ALL,
+                      },
+                      {
+                        title:
+                          t("validations.details.title") +
+                          " #" +
+                          origin.item.id_item,
+                        href:
+                          "/" +
+                          PATHS.ADMIN.VALIDATIONS.ALL +
+                          "/" +
+                          origin.type +
+                          "/" +
+                          origin.item.id_item,
+                        state: { item: origin.item, type: origin.type },
+                      },
+                    ]
+                  : [
+                      {
+                        title: t("listings.title"),
+                        href: PATHS.ADMIN.LISTINGS,
+                      },
+                    ]),
           {
             title: t("listings.details.title"),
             href: PATHS.ADMIN.LISTINGS + "/" + id,
@@ -533,6 +453,32 @@ export default function AdminListingDetails() {
                   __html: DOMPurify.sanitize(itemDetails?.description ?? ""),
                 }}
               />
+
+              {((isListing && listingDetails?.lat && listingDetails?.lng) ||
+                (isDeposit && depositDetails?.lat && depositDetails?.lng)) && (
+                <Box mt="xl">
+                  <EmbeddedMap
+                    height={300}
+                    locations={[
+                      {
+                        id: id_item,
+                        lat: isListing
+                          ? listingDetails!.lat
+                          : depositDetails!.lat,
+                        lng: isListing
+                          ? listingDetails!.lng
+                          : depositDetails!.lng,
+                        label: isListing
+                          ? t("listings.details.location")
+                          : t("common:container") +
+                            ` #${depositDetails?.container_id}`,
+                      },
+                    ]}
+                    centerOnId={id_item}
+                    zoom={15}
+                  />
+                </Box>
+              )}
             </Stack>
             {itemDetails?.images && itemDetails.images.length > 0 && (
               <>
@@ -558,205 +504,32 @@ export default function AdminListingDetails() {
                   <Title order={3}>{t("listings.details.access_info")}</Title>
                 </Group>
                 {isLoadingDepositCodes && (
-                  <Center>
+                  <Center py="xl">
                     <Loader />
                   </Center>
                 )}
-                {!userCode && !proCode && (
+                {!userCode && !proCode && !isLoadingDepositCodes && (
                   <Text c="dimmed" mt="lg">
                     {t("listings.details.no_access_code")}
                   </Text>
                 )}
-                {/* User code */}
-                <SimpleGrid cols={{ base: 1, md: 2 }} mt="md" spacing={"lg"}>
-                  {userCode && (
-                    <Group gap="sm">
-                      <Stack>
-                        <Group justify="space-between">
-                          <Group gap="sm">
-                            <ThemeIcon>
-                              <IconUserShield />
-                            </ThemeIcon>
-                            <Text>
-                              <strong>{t("listings.details.owner")}</strong>
-                            </Text>
-                          </Group>
-                          <Badge
-                            variant={
-                              userCode?.status === "used"
-                                ? "gray"
-                                : userCode?.status === "expired"
-                                  ? "red"
-                                  : "green"
-                            }
-                          >
-                            {userCode?.status.toUpperCase()}
-                          </Badge>
-                        </Group>
-                        <Paper variant="primary" p="lg">
-                          <Title order={5} c="dimmed" ta="center">
-                            {t("listings.details.six_digits_code")}
-                          </Title>
-                          <Group gap={"xs"} justify="center">
-                            <Title order={3} ta="center" my="md">
-                              {userCode?.code.slice(0, 3)}{" "}
-                              {userCode?.code.slice(3)}
-                            </Title>
-                            <CopyButton value={userCode?.code} timeout={3000}>
-                              {({ copied, copy }) => (
-                                <Tooltip
-                                  label={
-                                    copied
-                                      ? t("common:actions.copied", {
-                                          defaultValue: "Copied",
-                                        })
-                                      : t("common:actions.copy", {
-                                          defaultValue: "Copy code",
-                                        })
-                                  }
-                                  withArrow
-                                  position="right"
-                                >
-                                  <ActionIcon
-                                    color={copied ? "teal" : "gray"}
-                                    variant="subtle"
-                                    onClick={copy}
-                                  >
-                                    {copied ? (
-                                      <IconCheck size={16} />
-                                    ) : (
-                                      <IconCopy size={16} />
-                                    )}
-                                  </ActionIcon>
-                                </Tooltip>
-                              )}
-                            </CopyButton>
-                          </Group>
-                          <Image
-                            src={`${import.meta.env.VITE_API_BASE_URL}/${userCode?.path}`}
-                            radius="md"
-                            alt={"Owner's access code"}
-                            fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                            style={{ cursor: "pointer" }}
-                            onClick={() =>
-                              handleCodeClick([userCode?.path || ""])
-                            }
-                          />
-                          <Divider my="md" />
-                          <Text c="dimmed">
-                            {t("listings.details.valid_from")}
-                            {dayjs(userCode?.valid_from).format(
-                              "DD/MM/YYYY HH:mm A",
-                            )}
-                          </Text>
-                          <Text c="dimmed">
-                            {t("listings.details.valid_to")}
-                            {dayjs(userCode?.valid_to).format(
-                              "DD/MM/YYYY HH:mm A",
-                            )}
-                          </Text>
-                        </Paper>
-                      </Stack>
-                    </Group>
-                  )}
-
-                  {/* Pro code */}
-                  {proCode && (
-                    <Group gap="sm">
-                      <Stack>
-                        <Group justify="space-between">
-                          <Group gap="sm">
-                            <ThemeIcon color="blue">
-                              <IconBasketCheck />
-                            </ThemeIcon>
-                            <Text>
-                              <strong>{t("listings.details.buyer")}</strong>
-                            </Text>
-                          </Group>
-                          <Badge
-                            variant={
-                              proCode?.status === "used"
-                                ? "gray"
-                                : proCode?.status === "expired"
-                                  ? "red"
-                                  : "green"
-                            }
-                          >
-                            {proCode?.status.toUpperCase()}
-                          </Badge>
-                        </Group>
-                        <Paper variant="primary" p="lg">
-                          <Title order={5} c="dimmed" ta="center">
-                            {t("listings.details.six_digits_code")}
-                          </Title>
-                          <Group gap={"xs"} justify="center">
-                            <Title order={3} ta="center" my="md">
-                              {proCode?.code.slice(0, 3)}{" "}
-                              {proCode?.code.slice(3)}
-                            </Title>
-                            <CopyButton value={proCode?.code} timeout={3000}>
-                              {({ copied, copy }) => (
-                                <Tooltip
-                                  label={
-                                    copied
-                                      ? t("common:actions.copied", {
-                                          defaultValue: "Copied",
-                                        })
-                                      : t("common:actions.copy", {
-                                          defaultValue: "Copy code",
-                                        })
-                                  }
-                                  withArrow
-                                  position="right"
-                                >
-                                  <ActionIcon
-                                    color={copied ? "teal" : "gray"}
-                                    variant="subtle"
-                                    onClick={copy}
-                                  >
-                                    {copied ? (
-                                      <IconCheck size={16} />
-                                    ) : (
-                                      <IconCopy size={16} />
-                                    )}
-                                  </ActionIcon>
-                                </Tooltip>
-                              )}
-                            </CopyButton>
-                          </Group>
-                          <Image
-                            src={`${import.meta.env.VITE_API_BASE_URL}/${proCode?.path}`}
-                            radius="md"
-                            alt={"Buyer's access code"}
-                            fallbackSrc="https://placehold.co/600x400?text=Image+not+found"
-                            style={{ cursor: "pointer" }}
-                            onClick={() =>
-                              handleCodeClick([proCode?.path || ""])
-                            }
-                          />
-                          <Divider my="md" />
-                          <Text c="dimmed">
-                            {t("listings.details.valid_from")}
-                            {dayjs(userCode?.valid_from).format(
-                              "DD/MM/YYYY HH:mm A",
-                            )}
-                          </Text>
-                          <Text c="dimmed">
-                            {t("listings.details.valid_to")}
-                            {dayjs(userCode?.valid_to).format(
-                              "DD/MM/YYYY HH:mm A",
-                            )}
-                          </Text>
-                        </Paper>
-                      </Stack>
-                    </Group>
-                  )}
+                <SimpleGrid cols={{ base: 1, md: 2 }} mt="md" spacing="lg">
+                  {userCode && renderAccessCard(userCode, "owner")}
+                  {proCode && renderAccessCard(proCode, "buyer")}
                   {userCode && !proCode && (
-                    <Stack justify="center">
-                      <Text c="dimmed" mt="lg" ta="center">
-                        {t("listings.details.buyer_code_waiting")}
-                      </Text>
-                    </Stack>
+                    <Paper variant="primary" p="xl" radius="lg" withBorder shadow="sm" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Stack justify="center" align="center" gap="xs">
+                        <ThemeIcon color="blue" size="xl" radius="md" variant="light">
+                          <IconBasketCheck size={24} />
+                        </ThemeIcon>
+                        <Text fw={700} size="sm" ta="center">
+                          {t("listings.details.buyer")}
+                        </Text>
+                        <Text size="xs" c="dimmed" ta="center" style={{ maxWidth: "200px" }}>
+                          {t("listings.details.buyer_code_waiting")}
+                        </Text>
+                      </Stack>
+                    </Paper>
                   )}
                 </SimpleGrid>
               </>
@@ -867,7 +640,7 @@ export default function AdminListingDetails() {
                     icon={<IconMapPin size={18} />}
                     label={t("containers.details.location")}
                     color="white"
-                    value={`${listingDetails?.city} ${listingDetails?.postal_code}`}
+                    value={`${listingDetails?.street}, ${listingDetails?.city} ${listingDetails?.postal_code}`}
                   />
                 ) : (
                   <CardStatsItem
@@ -905,12 +678,12 @@ export default function AdminListingDetails() {
                     <Group grow>
                       <Button
                         variant="edit"
-                        onClick={handleOpenEdit}
+                        onClick={openEdit}
                         loading={
-                          isItemDetailsLoading ||
-                          updateItemStatus.isPending ||
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending
+                          isItemDetailsLoading || updateItemStatus.isPending
+                          // ||
+                          // updateDepositMutation.isPending ||
+                          // updateListingMutation.isPending
                         }
                         disabled={
                           itemDetails?.status == "completed" ||
@@ -932,7 +705,13 @@ export default function AdminListingDetails() {
                             ? "primary"
                             : "delete"
                         }
-                        onClick={openUpdateStatusModal}
+                        onClick={
+                          ["pending", "refused"].includes(
+                            itemDetails?.status ?? "",
+                          )
+                            ? openUpdateStatusModal
+                            : openDeleteModal
+                        }
                         disabled={
                           itemDetails?.status !== "refused" &&
                           itemDetails?.status !== "pending" &&
@@ -948,17 +727,28 @@ export default function AdminListingDetails() {
                             ? t("listings.details.approve_item")
                             : t("listings.details.delete_item")}
                       </Button>
+                      {itemDetails?.status === "pending" && (
+                        <Button
+                          fullWidth
+                          variant="delete"
+                          leftSection={<IconX size={16} />}
+                          onClick={openRefuse}
+                          loading={
+                            processMutation.isPending &&
+                            processMutation.variables?.action === "refuse"
+                          }
+                        >
+                          {t("admin:validations.details.actions.refuse", {
+                            defaultValue: "Refuse",
+                          })}
+                        </Button>
+                      )}
                     </Group>
                     {itemDetails?.category === "deposit" && (
                       <Button
                         fullWidth
                         variant="secondary"
-                        disabled={
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending ||
-                          isLoadingAvailableContainers
-                        }
-                        onClick={handleOpenTransferContainerModal}
+                        onClick={openTransferContainerModal}
                       >
                         {t("listings.details.transfer_container")}
                       </Button>
@@ -967,188 +757,14 @@ export default function AdminListingDetails() {
                 </>
               )}
 
-              {/* Edit Modal */}
-              <Modal
-                opened={openedEdit}
-                onClose={handleCloseEdit}
-                title={t("listings.details.edit_modal.title")}
-                centered
-                size="xl"
-              >
-                <Stack>
-                  <TextInput
-                    data-autofocus
-                    withAsterisk
-                    label={t("validations.table.title")}
-                    value={titleEdit}
-                    onChange={(e) => {
-                      setTitleEdit(e.target.value);
-                    }}
-                    onBlur={() => validateTitle()}
-                    error={errorTitle}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    required
-                  />
-                  <NumberInput
-                    min={0}
-                    withAsterisk
-                    label={t("validations.table.price")}
-                    value={priceEdit}
-                    onChange={(value) => {
-                      setPriceEdit(Number(value));
-                    }}
-                    onBlur={() => validatePrice()}
-                    error={errorPrice}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    required
-                  />
-                  <NumberInput
-                    min={0}
-                    withAsterisk
-                    label={t("listings.filters.weight")}
-                    value={weightEdit}
-                    onChange={(value) => {
-                      setWeightEdit(Number(value));
-                    }}
-                    onBlur={() => validateWeight()}
-                    error={errorWeight}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    required
-                  />
-                  <Select
-                    withAsterisk
-                    label={t("listings.filters.material")}
-                    value={materialEdit}
-                    error={errorMaterial}
-                    onBlur={() => validateMaterial()}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    data={[
-                      { value: "wood", label: t("common:materials.wood") },
-                      { value: "glass", label: t("common:materials.glass") },
-                      {
-                        value: "plastic",
-                        label: t("common:materials.plastic"),
-                      },
-                      { value: "metal", label: t("common:materials.metal") },
-                      {
-                        value: "textile",
-                        label: t("common:materials.textile"),
-                      },
-                      { value: "mixed", label: t("common:materials.mixed") },
-                      { value: "other", label: t("common:materials.other") },
-                    ]}
-                    onChange={(value) => {
-                      setMaterialEdit(value as string);
-                    }}
-                  />
-                  <Select
-                    withAsterisk
-                    label={t("listings.filters.state")}
-                    value={stateEdit}
-                    error={errorState}
-                    onBlur={() => validateState()}
-                    disabled={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    data={[
-                      { value: "new", label: t("common:states.new") },
-                      {
-                        value: "very_good",
-                        label: t("common:states.very_good"),
-                      },
-                      { value: "good", label: t("common:states.good") },
-                      {
-                        value: "need_repair",
-                        label: t("common:states.need_repair"),
-                      },
-                    ]}
-                    onChange={(value) => {
-                      setStateEdit(value as string);
-                    }}
-                  />
-                  {itemDetails?.category === "listing" && (
-                    <SimpleGrid cols={2}>
-                      <TextInput
-                        withAsterisk
-                        label={t("containers.create_modal.city")}
-                        value={cityEdit}
-                        error={errorCity}
-                        onBlur={() => validateCity()}
-                        onChange={(e) => {
-                          setCityEdit(e.target.value);
-                        }}
-                        disabled={
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending
-                        }
-                        required
-                      />
-                      <TextInput
-                        withAsterisk
-                        label={t("containers.create_modal.postal_code")}
-                        value={postalCodeEdit}
-                        error={errorPostalCode}
-                        onBlur={() => validatePostalCode()}
-                        onChange={(e) => {
-                          setPostalCodeEdit(e.target.value);
-                        }}
-                        disabled={
-                          updateDepositMutation.isPending ||
-                          updateListingMutation.isPending
-                        }
-                        required
-                      />
-                    </SimpleGrid>
-                  )}
-
-                  <TextEditor
-                    label={t("listings.details.edit_modal.description_label")}
-                    value={descriptionEdit}
-                    error={errorDescription ?? ""}
-                    onChange={(value) => {
-                      setDescriptionEdit(value);
-                    }}
-                  />
-                  <ImageDropzone
-                    loading={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    files={fileEdit}
-                    setFiles={setFileEdit}
-                  />
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={handleCloseEdit} variant="grey">
-                    {t("common:actions.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e) => {
-                      handleEdit(e);
-                    }}
-                    loading={
-                      updateDepositMutation.isPending ||
-                      updateListingMutation.isPending
-                    }
-                    variant="primary"
-                  >
-                    {t("common:actions.confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+              {itemDetails && (
+                <EditItemModal
+                  opened={openedEdit}
+                  onClose={closeEdit}
+                  item={itemDetails}
+                  listingDetails={listingDetails}
+                />
+              )}
             </Card>
           </Grid.Col>
         </Grid>
@@ -1165,7 +781,7 @@ export default function AdminListingDetails() {
           header={[
             t("validations.table.executed_on"),
             t("history.table.transaction_id"),
-            t("listings.details.buyer"),
+            t("listings.details.buyer_username"),
             t("users.details.fields.status"),
             t("common:actions.title", { defaultValue: "Actions" }),
           ]}
@@ -1214,16 +830,18 @@ export default function AdminListingDetails() {
                   </Badge>
                 </Table.Td>
                 <Table.Td ta="center">
-                  <Button
-                    variant="delete"
-                    size="xs"
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      handleOpenCancelModal(transaction);
-                    }}
-                  >
-                    {t("common:actions.cancel")}
-                  </Button>
+                  {transaction?.action === "reserved" && (
+                    <Button
+                      variant="delete"
+                      size="xs"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        openCancel();
+                      }}
+                    >
+                      {t("common:actions.cancel")}
+                    </Button>
+                  )}
                 </Table.Td>
               </Table.Tr>
             ))
@@ -1294,32 +912,22 @@ export default function AdminListingDetails() {
         </Group>
       </Modal>
 
-      <Modal
-        opened={openedCancelModal}
-        onClose={closeCancelModal}
-        title={t("listings.details.transactions.cancel_modal_title")}
-        size="lg"
-      >
-        <Text>
-          {t("listings.details.transactions.cancel_confirm", {
-            id: cancelTransactionId?.id_transaction,
-          })}
-        </Text>
-        <Group mt="lg" justify="end">
-          <Button onClick={closeCancelModal} variant="grey">
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            onClick={() => {
-              handleCancelTransaction();
-            }}
-            variant="delete"
-            loading={cancelTransactionMutation.isPending}
-          >
-            {t("common:actions.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+      <DeleteItemModal
+        opened={openedDeleteModal}
+        onClose={closeDeleteModal}
+        onConfirm={() => {
+          handleUpdateItemStatus("deleted");
+          closeDeleteModal();
+        }}
+        loading={updateItemStatus.isPending}
+        title={t("listings.details.status_modal.delete")}
+      />
+
+      <ConfirmCancelReservationModal
+        opened={openedCancel}
+        onClose={closeCancel}
+        idItem={id_item}
+      />
 
       <PhotoModal
         opened={openedCodeCarousel}
@@ -1329,44 +937,23 @@ export default function AdminListingDetails() {
         activeSlide={0}
       />
 
-      <Modal
+      <TransferContainerModal
         opened={openedTransferContainerModal}
         onClose={closeTransferContainerModal}
-        title={t("listings.details.transfer_modal.title")}
-        size="lg"
-      >
-        <Text mb="sm">{t("listings.details.transfer_modal.choose")}</Text>
-        <Select
-          withAsterisk
-          value={transferContainer}
-          disabled={
-            updateDepositMutation.isPending ||
-            updateListingMutation.isPending ||
-            isLoadingAvailableContainers
-          }
-          data={availableContainers.map((container) => ({
-            value: container.id.toString(),
-            label: `${t("common:container", { defaultValue: "Container" })} #${container.id}`,
-          }))}
-          onChange={(value) => {
-            setTransferContainer(value as string);
-          }}
-        />
-        <Group mt="lg" justify="center">
-          <Button onClick={closeTransferContainerModal} variant="grey">
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            onClick={() => {
-              handleTransferContainer();
-            }}
-            variant="primary"
-            loading={transferContainerMutation.isPending}
-          >
-            {t("common:actions.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+        onConfirm={handleTransferContainer}
+        isLoading={transferContainerMutation.isPending}
+        currentContainerId={depositDetails?.container_id}
+      />
+
+      <RefuseItemModal
+        opened={openedRefuse}
+        onClose={closeRefuse}
+        onConfirm={handleConfirmRefuse}
+        loading={
+          processMutation.isPending &&
+          processMutation.variables?.action === "refuse"
+        }
+      />
     </Container>
   );
 }

@@ -12,6 +12,7 @@ import (
 // @Summary      Verify Stripe payment session
 // @Description  Verify if a Stripe checkout session has been paid.
 // @Tags         payment
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        payload  body      models.VerifyPaymentRequest  true  "Stripe session ID"

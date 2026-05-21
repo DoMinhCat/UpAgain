@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	helpers "backend/utils/helpers"
 	validations "backend/utils/validations"
 	"encoding/csv"
 	"encoding/json"
@@ -11,6 +12,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -68,6 +70,12 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if role == "admin" {
 		roleToInsert = "employee"
 	}
+
+	err = db.InsertDefaultNotiSetting(id_inserted)
+	if err != nil {
+		slog.Error("InsertDefaultNotiSetting() failed", "controller", "CreateAccount", "error", err)
+	}
+
 	err = db.InsertHistory(roleToInsert, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
 	if err != nil {
 		slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
@@ -80,6 +88,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get all accounts (Admin)
 // @Description  Get a list of all accounts with filters and pagination
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        is_deleted  query     bool    true   "Fetch deleted accounts"
 // @Param        page        query     int     false  "Page number"
@@ -142,7 +151,7 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 
 	accounts, total, err := db.GetAllAccounts(isDeleted, page, limit, filters)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching accounts.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching accounts.")
 		slog.Error("GetAllAccounts() failed", "controller", "GetAllAccountsAdmin", "error", err)
 		return
 	}
@@ -174,6 +183,7 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Summary      Soft delete account
 // @Description  Marks an account as deleted
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      204         {object}  nil  "No Content"
@@ -261,6 +271,7 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account details
 // @Description  Get details of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      200         {object}  models.AccountDetails
@@ -305,6 +316,7 @@ func GetAccountDetails(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update password
 // @Description  Update the password of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                          true  "Account ID"
@@ -392,6 +404,7 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 // @Summary      Toggle ban status
 // @Description  Ban or unban an account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                      true  "Account ID"
@@ -490,6 +503,7 @@ func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Recover account
 // @Description  Restore a soft-deleted account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      204         {object}  nil  "No Content"
@@ -554,6 +568,7 @@ func RecoverAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account stats
 // @Description  Get activity statistics for a specific account based on its role
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      200         {object}  interface{}  "Stats (UserStats, ProStats, or EmployeeStats)"
@@ -637,6 +652,7 @@ func GetAccountStats(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update account
 // @Description  Update details of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                          true  "Account ID"
@@ -663,6 +679,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// deos account exist?
 	exist, err := db.CheckAccountExistsById(id_account, nil)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
@@ -698,27 +715,14 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("NewDecoder() failed", "controller", "UpdateAccount", "error", err)
 		return
 	}
+	// sanitize input
+	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
+	payload.Username = strings.TrimSpace(payload.Username)
+	payload.Phone = strings.TrimSpace(payload.Phone)
 
-	// check if email already exists
-	id, err := db.GetAccountIdByEmail(payload.Email)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountIdByEmail() failed", "controller", "UpdateAccount", "error", err)
-		return
-	}
-	if id != 0 && id != id_account {
-		utils.RespondWithError(w, http.StatusConflict, "Email already exists.")
-		return
-	}
-
-	username_id, err := db.GetAccountIdByUsername(payload.Username)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountIdByUsername() failed", "controller", "UpdateAccount", "error", err)
-		return
-	}
-	if username_id != 0 && username_id != id_account {
-		utils.RespondWithError(w, http.StatusConflict, "Username already exists.")
+	validationResult := validations.ValidateAccountUpdate(payload)
+	if !validationResult.Success {
+		utils.RespondWithError(w, http.StatusBadRequest, validationResult.Message.Error())
 		return
 	}
 
@@ -754,6 +758,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account count stats
 // @Description  Get total count of accounts and increase since last month
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {object}  models.AccountCountStats
 // @Failure      401  {object}  nil  "Unauthorized"
@@ -858,4 +863,101 @@ func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+// UpdateAvatar godoc
+// @Summary      Update avatar
+// @Description  Upload and update the avatar image for the authenticated account.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        id_account path int true "Account ID"
+// @Param        avatar formData file true "Avatar image file"
+// @Success      204 {object} nil "No Content"
+// @Failure      400 {string} string "Bad Request"
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      404 {string} string "Account not found"
+// @Failure      500 {string} string "Internal Server Error"
+// @Router       /accounts/{id_account}/avatar/ [post]
+func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+	idRequester := r.Context().Value("user").(models.AuthClaims).Id
+
+	id_account, err := strconv.Atoi(r.PathValue("id_account"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid account ID.")
+		return
+	}
+
+	// can only update own avatar
+	if id_account != idRequester {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	deleted := false
+	exist, err := db.CheckAccountExistsById(id_account, &deleted)
+	if err != nil {
+		slog.Error("CheckAccountExistById() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", id_account))
+		return
+	}
+
+	err = r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
+		return
+	}
+
+	newAvatars := r.MultipartForm.File["avatar"]
+	if len(newAvatars) == 0 {
+		utils.RespondWithError(w, http.StatusBadRequest, "No avatar provided.")
+		return
+	}
+	if len(newAvatars) > 1 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Only one avatar can be uploaded.")
+		return
+	}
+	newAvatar := newAvatars[0]
+
+	// delete old avatar if any
+	account, err := db.GetAccountDetailsById(id_account)
+	if err != nil {
+		slog.Error("GetAccountDetailsById() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+	oldAvatar := account.Avatar
+
+	if oldAvatar.Valid && oldAvatar.String != "" {
+		err = helpers.DeleteFileByPath("images/accounts", oldAvatar.String)
+		if err != nil {
+			slog.Error("DeleteFileByPath() failed", "controller", "UpdateAvatar", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+			return
+		}
+	}
+
+	// insert new avatar and update db
+	newAvatarPath, err := helpers.SaveUploadedFile(newAvatar, "images/accounts")
+	if err != nil {
+		slog.Error("SaveUploadedFile() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+
+	err = db.UpdateAvatar(id_account, newAvatarPath)
+	if err != nil {
+		slog.Error("UpdateAvatar() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)	
 }

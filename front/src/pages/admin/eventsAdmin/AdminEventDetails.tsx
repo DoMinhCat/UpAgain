@@ -17,6 +17,7 @@ import {
   Loader,
   Tooltip,
   SimpleGrid,
+  Box,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
@@ -53,6 +54,7 @@ import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { EditEventModal } from "../../../components/event/EditEventModal";
 import { CancelEventModal } from "../../../components/event/CancelEventModal";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 export default function AdminEventDetails() {
   const { t } = useTranslation("admin");
   const location = useLocation();
@@ -302,10 +304,28 @@ export default function AdminEventDetails() {
               <Title order={3}>{t("containers.details.location")}</Title>
             </Group>
             <Text mt="md">
-              {eventDetails?.street + " · " + eventDetails?.city}
+              {eventDetails?.street + " · " + eventDetails?.postal_code + " " + eventDetails?.city}
               {eventDetails?.location_detail && <br />}
               {eventDetails?.location_detail}
             </Text>
+
+            {eventDetails?.lat && eventDetails?.lng && (
+              <Box mt="xl">
+                <EmbeddedMap
+                  height={300}
+                  locations={[
+                    {
+                      id: id_event,
+                      lat: eventDetails.lat,
+                      lng: eventDetails.lng,
+                      label: t("containers.details.location"),
+                    },
+                  ]}
+                  centerOnId={id_event}
+                  zoom={15}
+                />
+              </Box>
+            )}
           </Grid.Col>
 
           {/* RIGHT SECTION */}
@@ -370,8 +390,9 @@ export default function AdminEventDetails() {
                   icon={<IconMapPin size={18} />}
                   label={t("containers.details.location")}
                   color="green"
-                  value={`${eventDetails?.street}, ${eventDetails?.city}`}
+                  value={`${eventDetails?.street}, ${eventDetails?.postal_code} ${eventDetails?.city}`}
                 />
+
               </SimpleGrid>
 
               {/* Footer Actions */}

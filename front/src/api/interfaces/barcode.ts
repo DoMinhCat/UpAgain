@@ -1,4 +1,4 @@
-export interface CodeForAdmin {
+export interface Barcode {
   path: string;
   code: string;
   valid_from: string;
@@ -8,4 +8,5 @@ export interface CodeForAdmin {
   id_account: number;
   id_deposit: number;
   id_transaction: string;
+  barcode_base64: string;
 }
