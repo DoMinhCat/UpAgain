@@ -13,7 +13,7 @@ func GetSubscriptionRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /subscriptions/trial", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetTrialDaysHandler))))
 	mux.Handle("GET /subscriptions/stats", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetSubscriptionStatsHandler))))
 
-	mux.Handle("PUT /subscriptions/{id}/revoke", middleware.AuthMiddleware([]string{"admin", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CancelSubscriptionHandler))))
+	mux.Handle("PUT /subscriptions/{id}/revoke", middleware.AuthMiddleware([]string{"admin","pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CancelSubscriptionHandler))))
 	mux.Handle("PUT /subscriptions/price", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateSubscriptionPriceHandler))))
 	mux.Handle("PUT /subscriptions/trial", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateTrialDaysHandler))))
 }
