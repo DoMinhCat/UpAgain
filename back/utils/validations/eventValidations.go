@@ -83,6 +83,15 @@ func ValidateEventCreation(newEvent models.CreateEventRequest) models.Validation
 		return response
 	}
 
+	if strings.TrimSpace(newEvent.PostalCode) == "" {
+		response = models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("Postal code is required."),
+			Error:   http.StatusBadRequest,
+		}
+		return response
+	}
+
 	if newEvent.Capacity.Valid && newEvent.Capacity.Int64 <= 0 {
 		response = models.ValidationResponse{
 			Success: false,
@@ -196,6 +205,15 @@ func ValidateEventUpdate(updateEvent models.UpdateEventRequest) models.Validatio
 		response = models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("City is required."),
+			Error:   http.StatusBadRequest,
+		}
+		return response
+	}
+
+	if strings.TrimSpace(updateEvent.PostalCode) == "" {
+		response = models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("Postal code is required."),
 			Error:   http.StatusBadRequest,
 		}
 		return response

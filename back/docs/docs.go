@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/accounts/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all accounts with filters and pagination",
                 "produces": [
                     "application/json"
@@ -92,6 +97,11 @@ const docTemplate = `{
         },
         "/accounts/count/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get total count of accounts and increase since last month",
                 "produces": [
                     "application/json"
@@ -146,6 +156,11 @@ const docTemplate = `{
         },
         "/accounts/{id_account}/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get details of a specific account",
                 "produces": [
                     "application/json"
@@ -185,6 +200,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Marks an account as deleted",
                 "produces": [
                     "application/json"
@@ -224,8 +244,78 @@ const docTemplate = `{
                 }
             }
         },
+        "/accounts/{id_account}/avatar/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Upload and update the avatar image for the authenticated account.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Update avatar",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Avatar image file",
+                        "name": "avatar",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Account not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/accounts/{id_account}/ban/": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Ban or unban an account",
                 "consumes": [
                     "application/json"
@@ -277,8 +367,139 @@ const docTemplate = `{
                 }
             }
         },
+        "/accounts/{id_account}/notifications/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns a list of notification settings for a specific account.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Get notification settings",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NotiSetting"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Updates a specific notification setting for an account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Update notification setting",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateNotiSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/accounts/{id_account}/password/": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update the password of a specific account",
                 "consumes": [
                     "application/json"
@@ -332,6 +553,11 @@ const docTemplate = `{
         },
         "/accounts/{id_account}/recover/": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Restore a soft-deleted account",
                 "produces": [
                     "application/json"
@@ -370,6 +596,11 @@ const docTemplate = `{
         },
         "/accounts/{id_account}/stats/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get activity statistics for a specific account based on its role",
                 "produces": [
                     "application/json"
@@ -409,6 +640,11 @@ const docTemplate = `{
         },
         "/accounts/{id_account}/update/": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update details of a specific account",
                 "consumes": [
                     "application/json"
@@ -457,120 +693,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/items/": {
-            "get": {
-                "description": "Get a paginated list of all items with optional filters for search, sort, status, material, and category.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "item"
-                ],
-                "summary": "Get all items",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Items per page",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search by title or username",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort order",
-                        "name": "sort",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by status",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by material",
-                        "name": "material",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by category (listing or deposit)",
-                        "name": "category",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.ItemListPagination"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid query parameters"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
-        "/admin/items/count/": {
+        "/admin/items/history/": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get admin-level statistics for items including counts by status, material, category, and timeframe.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "item"
-                ],
-                "summary": "Get item statistics",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Timeframe filter: today, last_3_days, last_week, last_month, last_year, all",
-                        "name": "timeframe",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.ItemAdminStats"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid timeframe"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
-        "/admin/items/history/": {
-            "get": {
                 "description": "Get a paginated history of all items",
                 "produces": [
                     "application/json"
@@ -636,151 +765,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/items/{item_id}/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get detailed information for a specific item including photos and owner username.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "item"
-                ],
-                "summary": "Get item details",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Item ID",
-                        "name": "item_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Item"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid ID"
-                    },
-                    "404": {
-                        "description": "Item not found"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Soft-delete an item (listing or deposit) by its ID. Admin can delete any item; users can only delete their own. Item that is reserved or completed can't be deleted",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "item"
-                ],
-                "summary": "Delete item",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Item ID",
-                        "name": "item_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Invalid ID"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Item not found"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update the status of an item (pending, approved, refused, deleted, completed). Admin and users only.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "item"
-                ],
-                "summary": "Update item status",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Item ID",
-                        "name": "item_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "New status",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.ItemStatusUpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Item status updated successfully",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid ID or status"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Item not found"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
         "/admin/validations/deposits/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a paginated list of pending deposits for admin",
                 "produces": [
                     "application/json"
@@ -834,6 +825,11 @@ const docTemplate = `{
         },
         "/admin/validations/deposits/{id}/": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Approve or refuse a deposit",
                 "consumes": [
                     "application/json"
@@ -884,6 +880,11 @@ const docTemplate = `{
         },
         "/admin/validations/events/{id}/": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Approve or refuse an event",
                 "consumes": [
                     "application/json"
@@ -937,6 +938,11 @@ const docTemplate = `{
         },
         "/admin/validations/listings/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a paginated list of pending listings for admin",
                 "produces": [
                     "application/json"
@@ -990,6 +996,11 @@ const docTemplate = `{
         },
         "/admin/validations/listings/{id}/": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Approve or refuse a listing",
                 "consumes": [
                     "application/json"
@@ -1043,6 +1054,11 @@ const docTemplate = `{
         },
         "/admin/validations/stats/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get counts of pending, approved, and refused for all entity types",
                 "produces": [
                     "application/json"
@@ -1066,6 +1082,11 @@ const docTemplate = `{
         },
         "/ads/": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay (TODO).",
                 "consumes": [
                     "application/json"
@@ -1112,6 +1133,11 @@ const docTemplate = `{
         },
         "/ads/{ad_id}/": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Soft-delete (cancel) an existing advertisement by its ID. Admin can delete any ad, Pro users can only delete their own.",
                 "produces": [
                     "application/json"
@@ -1145,6 +1171,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update the start and end dates of an existing advertisement. Admin only.",
                 "consumes": [
                     "application/json"
@@ -1193,8 +1224,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/comments/{id_comment}/": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a comment by ID. Admins and employees can delete any comment; users can only delete their own.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comment"
+                ],
+                "summary": "Delete a comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Comment ID",
+                        "name": "id_comment",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/containers/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all containers",
                 "produces": [
                     "application/json"
@@ -1242,6 +1321,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new container",
                 "consumes": [
                     "application/json"
@@ -1288,6 +1372,11 @@ const docTemplate = `{
         },
         "/containers/available/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of available containers",
                 "produces": [
                     "application/json"
@@ -1320,6 +1409,11 @@ const docTemplate = `{
         },
         "/containers/count/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get statistics about container counts (total and active)",
                 "produces": [
                     "application/json"
@@ -1347,8 +1441,68 @@ const docTemplate = `{
                 }
             }
         },
+        "/containers/nearest/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get the available container closest to specified coordinates.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "container"
+                ],
+                "summary": "Get nearest available container",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "format": "float64",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "format": "float64",
+                        "description": "Longitude",
+                        "name": "lng",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Container"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid latitude/longitude"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "No available containers found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/containers/{id}/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a single container by its ID",
                 "produces": [
                     "application/json"
@@ -1388,6 +1542,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update the status of a container. Can't update if status is waiting or occupied.",
                 "consumes": [
                     "application/json"
@@ -1433,6 +1592,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Soft delete a container by its ID",
                 "produces": [
                     "application/json"
@@ -1466,8 +1630,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/containers/{id}/earliest/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Calculates the earliest date and time the container will be available by looking at planned schedules (user and pro barcode ranges).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "container"
+                ],
+                "summary": "Get earliest availability for a container",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Container ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Earliest availability",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "404": {
+                        "description": "Container not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/containers/{id}/location/": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update the location of a container.",
                 "consumes": [
                     "application/json"
@@ -1515,6 +1730,11 @@ const docTemplate = `{
         },
         "/containers/{id}/schedule/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns the list of deposits and their planned dates (barcode valid date range) for a specific container.",
                 "produces": [
                     "application/json"
@@ -1556,6 +1776,11 @@ const docTemplate = `{
         },
         "/deposits/{deposit_id}/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get details of a specific deposit",
                 "produces": [
                     "application/json"
@@ -1595,6 +1820,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update the details of a specific deposit (only by owner or admin)",
                 "consumes": [
                     "multipart/form-data"
@@ -1693,6 +1923,11 @@ const docTemplate = `{
         },
         "/deposits/{deposit_id}/codes/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get deposit code of pro and user of the latest transaction for a deposit",
                 "produces": [
                     "application/json"
@@ -1716,7 +1951,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.CodeForAdmin"
+                                "$ref": "#/definitions/models.Barcode"
                             }
                         }
                     },
@@ -1731,6 +1966,11 @@ const docTemplate = `{
         },
         "/deposits/{deposit_id}/transfer/": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Change the container of a deposit to a another available container",
                 "consumes": [
                     "application/json"
@@ -1778,6 +2018,11 @@ const docTemplate = `{
         },
         "/employees/available/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of employees not occupied during a specific time range.",
                 "produces": [
                     "application/json"
@@ -1872,6 +2117,11 @@ const docTemplate = `{
         },
         "/events/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get list of all events with pagination, search, status and sort filters.",
                 "consumes": [
                     "application/json"
@@ -1952,6 +2202,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new event from the provided multipart form data.",
                 "consumes": [
                     "multipart/form-data"
@@ -2050,6 +2305,11 @@ const docTemplate = `{
         },
         "/events/cancel/": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Cancel registration to an event by event ID.",
                 "consumes": [
                     "application/json"
@@ -2090,6 +2350,11 @@ const docTemplate = `{
         },
         "/events/count/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get general stats of events to show in event module's cards. Stats include:\n- total events\n- new events since last month (30 days)\n- upcoming events in next 30 days\n- total registrations since last month\n- total pending approvals for events",
                 "consumes": [
                     "application/json"
@@ -2127,6 +2392,11 @@ const docTemplate = `{
         },
         "/events/employees/{id}/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get list of employees assigned to an event by ID.",
                 "consumes": [
                     "application/json"
@@ -2172,9 +2442,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/events/me/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get list of events registered by the current user or assigned to the current employee.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Get my events",
+                "responses": {
+                    "200": {
+                        "description": "List of events",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Event"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Account not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/events/register/": {
             "post": {
-                "description": "Register to an event by event ID.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Register to an event by event ID. If the event is paid, it returns a Stripe checkout URL unless already paid.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2197,8 +2509,17 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "Stripe checkout URL returned",
+                        "schema": {
+                            "$ref": "#/definitions/models.EventRegistrationResponse"
+                        }
+                    },
                     "201": {
-                        "description": "Registered successfully"
+                        "description": "Registered successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.EventRegistrationResponse"
+                        }
                     },
                     "400": {
                         "description": "Invalid request payload or event conditions not met"
@@ -2214,6 +2535,11 @@ const docTemplate = `{
         },
         "/events/{id}/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get detailed information about an event by its ID.",
                 "consumes": [
                     "application/json"
@@ -2255,6 +2581,11 @@ const docTemplate = `{
         },
         "/events/{id}/assign/": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Assign a list of employees to an event by its ID. Replaces existing assignments.",
                 "consumes": [
                     "application/json"
@@ -2305,6 +2636,11 @@ const docTemplate = `{
         },
         "/events/{id}/status/": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update the status of an event (cancelled, approved, refused, pending).",
                 "consumes": [
                     "application/json"
@@ -2355,6 +2691,11 @@ const docTemplate = `{
         },
         "/events/{id}/unassign/": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Remove an employee assignment from an event by ID.",
                 "produces": [
                     "application/json"
@@ -2402,6 +2743,11 @@ const docTemplate = `{
         },
         "/events/{id}/update/": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update the details of an existing event by its ID using multipart form data. Employee can't update event if it's already cancelled and updating will require re-validation from admin. Only admin, creator or assigned employee can edit. Can't update critical fields: start_at, city, street, location_detail, price if event has participants already registered.",
                 "consumes": [
                     "multipart/form-data"
@@ -2808,7 +3154,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "Fetches all admin's activites from the database with pagination and filters.",
@@ -2892,7 +3238,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "Fetches the details of a specific admin activity.",
@@ -2952,9 +3298,472 @@ const docTemplate = `{
                 }
             }
         },
+        "/items/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a paginated list of all items with optional filters for search, sort, status, material, and category.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Get all items",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by title or username",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by material",
+                        "name": "material",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category (listing or deposit)",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ItemListPagination"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new item (listing or deposit). Supports multipart/form-data for image uploads.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Create a new item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Item price",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Item weight",
+                        "name": "weight",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item material",
+                        "name": "material",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item state",
+                        "name": "state",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item category (listing or deposit)",
+                        "name": "category",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Item images",
+                        "name": "images",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Container ID (for deposit)",
+                        "name": "id_container",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Street (for listing)",
+                        "name": "street",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City name (for listing)",
+                        "name": "city_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Postal code (for listing)",
+                        "name": "postal_code",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item created successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/items/count/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get admin-level statistics for items including counts by status, material, category, and timeframe.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Get item statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Timeframe filter: today, last_3_days, last_week, last_month, last_year, all",
+                        "name": "timeframe",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ItemAdminStats"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid timeframe"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/items/me/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a paginated list of items belonging to the current user (or items interacted with if pro).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Get my items",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by title",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (user: pending/approved/refused/reserved/sold/to_drop_off | pro: reserved/bought/to_retrieve)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by material",
+                        "name": "material",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category (listing or deposit)",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ItemListPagination"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/items/{item_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get detailed information for a specific item including photos and owner username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Get item details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Item"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "404": {
+                        "description": "Item not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Soft-delete an item (listing or deposit) by its ID. Admin can delete any item; users can only delete their own. Item that is reserved or completed can't be deleted",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Delete item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Item not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update the status of an item (pending, approved, refused, deleted, completed). Admin and users only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Update item status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New status",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ItemStatusUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item status updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or status"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Item not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/items/{item_id}/transactions/": {
             "get": {
-                "description": "Get paginated transactions for a specific item (admin/pro/user owner)",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get paginated transactions for a specific item (admin/user)",
                 "produces": [
                     "application/json"
                 ],
@@ -3007,6 +3816,11 @@ const docTemplate = `{
         },
         "/items/{item_id}/transactions/{transaction_uuid}/cancel/": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Cancel an active reserved transaction for an item",
                 "produces": [
                     "application/json"
@@ -3164,6 +3978,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Street address",
+                        "name": "street",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "City",
                         "name": "city",
                         "in": "formData",
@@ -3201,6 +4022,107 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Listing not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/location/address/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Reverse geocoding: get address details (street, city, etc.) from latitude and longitude.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "location"
+                ],
+                "summary": "Get address from coordinates",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "lng",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Address details",
+                        "schema": {
+                            "$ref": "#/definitions/models.Address"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid coordinates"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/location/coordinates/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Geocoding: get latitude and longitude from address details (street, postal code, city).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "location"
+                ],
+                "summary": "Get coordinates from address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Street name",
+                        "name": "street",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Postal code",
+                        "name": "postal_code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "City name",
+                        "name": "city",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Coordinates",
+                        "schema": {
+                            "$ref": "#/definitions/models.Coordinates"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid address"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -3254,7 +4176,49 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts": {
+        "/payments/verify/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Verify if a Stripe checkout session has been paid.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Verify Stripe payment session",
+                "parameters": [
+                    {
+                        "description": "Stripe session ID",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.VerifyPaymentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment verification result",
+                        "schema": {
+                            "$ref": "#/definitions/models.VerifyPaymentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payload or session"
+                    }
+                }
+            }
+        },
+        "/posts/": {
             "get": {
                 "security": [
                     {
@@ -3396,50 +4360,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/comments/{id_comment}/": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Delete a comment by ID. Admins and employees can delete any comment; users can only delete their own.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "comment"
-                ],
-                "summary": "Delete a comment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Comment ID",
-                        "name": "id_comment",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Comment deleted successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid ID"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
-        "/posts/stats": {
+        "/posts/count/": {
             "get": {
                 "security": [
                     {
@@ -3476,7 +4397,183 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/{id_post}": {
+        "/posts/me/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a paginated list of posts created by the authenticated account.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get posts by account ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Post"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/saved/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a paginated list of posts saved by the authenticated account.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get saved posts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Post"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/steps/{step_id}/": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes a specific project step by its ID. Admin only.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Delete a project step",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted successfully"
+                    },
+                    "400": {
+                        "description": "Invalid ID or step not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/": {
             "get": {
                 "security": [
                     {
@@ -3609,7 +4706,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/{id_post}/comments": {
+        "/posts/{id_post}/comments/": {
             "get": {
                 "security": [
                     {
@@ -3665,9 +4762,65 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new comment on a post.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comment"
+                ],
+                "summary": "Add a comment to a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Comment content",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateCommentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
-        "/posts/{id_post}/delete": {
+        "/posts/{id_post}/delete/": {
             "patch": {
                 "security": [
                     {
@@ -3716,7 +4869,105 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/{id_post}/steps": {
+        "/posts/{id_post}/like/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Like or unlike a post. Returns the new like state.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Toggle like on a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/save/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Save or unsave a post. Returns the new save state.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Toggle save on a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/steps/": {
             "get": {
                 "security": [
                     {
@@ -3765,21 +5016,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/{id_post}/steps/{step_id}": {
-            "delete": {
+        "/posts/{id_post}/view/": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Deletes a specific project step by its ID. Admin only.",
+                "description": "Increments the view counter of a post by 1.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Posts"
                 ],
-                "summary": "Delete a project step",
+                "summary": "Increment post view count",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3787,27 +5038,14 @@ const docTemplate = `{
                         "name": "id_post",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Step ID",
-                        "name": "step_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Deleted successfully"
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
-                        "description": "Invalid ID or step not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
+                        "description": "Bad Request",
                         "schema": {
                             "type": "string"
                         }
@@ -3892,6 +5130,11 @@ const docTemplate = `{
         },
         "/subscriptions/price/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get the current price of the premium subscription",
                 "produces": [
                     "application/json"
@@ -3920,6 +5163,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update the price of the premium subscription. Admin only.",
                 "consumes": [
                     "application/json"
@@ -3958,7 +5206,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/subscriptions/stats": {
+        "/subscriptions/stats/": {
             "get": {
                 "security": [
                     {
@@ -4077,6 +5325,11 @@ const docTemplate = `{
         },
         "/subscriptions/{id}/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get details of a specific subscription including user information",
                 "produces": [
                     "application/json"
@@ -4118,6 +5371,11 @@ const docTemplate = `{
         },
         "/subscriptions/{id}/revoke/": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Cancel an active subscription. Admin can cancel any, users can cancel their own.",
                 "consumes": [
                     "application/json"
@@ -4166,8 +5424,92 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/impact/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns the total CO2, water, and electricity saved by the authenticated user based on their completed items.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user's personal environmental impact",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved impact stats",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserImpactStats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/users/items/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns a paginated list of the authenticated user's completed items with per-item CO2, water, and electricity impact.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user's completed items with impact",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved items",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserImpactItemsPagination"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/users/score/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get the total CO2 saved and total UpScore from all approved items in the system.",
                 "produces": [
                     "application/json"
@@ -4278,6 +5620,23 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Address": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "description": "Paris",
+                    "type": "string"
+                },
+                "postal_code": {
+                    "description": "75015",
+                    "type": "string"
+                },
+                "street": {
+                    "description": "21 rue Erard",
+                    "type": "string"
+                }
+            }
+        },
         "models.AllItemResponse": {
             "type": "object",
             "properties": {
@@ -4360,7 +5719,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CodeForAdmin": {
+        "models.Barcode": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4448,6 +5807,12 @@ const docTemplate = `{
                 "is_deleted": {
                     "type": "boolean"
                 },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
                 "postal_code": {
                     "type": "string"
                 },
@@ -4527,6 +5892,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Coordinates": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                }
+            }
+        },
         "models.CreateAccountRequest": {
             "type": "object",
             "properties": {
@@ -4567,11 +5943,34 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateCommentRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
         "models.DepositDetails": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string"
+                },
                 "container_id": {
                     "type": "integer"
+                },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "postal_code": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },
@@ -4602,6 +6001,9 @@ const docTemplate = `{
                 "employee_avatar": {
                     "type": "string"
                 },
+                "employee_id": {
+                    "type": "integer"
+                },
                 "employee_name": {
                     "description": "creator",
                     "type": "string"
@@ -4618,6 +6020,12 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
                 "location_detail": {
                     "type": "string"
                 },
@@ -4626,6 +6034,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.Account"
                     }
+                },
+                "postal_code": {
+                    "type": "string"
                 },
                 "price": {
                     "type": "number"
@@ -4660,6 +6071,20 @@ const docTemplate = `{
             "properties": {
                 "id_event": {
                     "type": "integer"
+                },
+                "origin_url": {
+                    "type": "string"
+                },
+                "paid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.EventRegistrationResponse": {
+            "type": "object",
+            "properties": {
+                "checkout_url": {
+                    "type": "string"
                 }
             }
         },
@@ -4829,6 +6254,9 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "creator_avatar": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -4850,10 +6278,19 @@ const docTemplate = `{
                 "price": {
                     "type": "number"
                 },
+                "refuse_reason": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
                 "state": {
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                },
+                "street": {
                     "type": "string"
                 },
                 "title": {
@@ -4952,7 +6389,16 @@ const docTemplate = `{
                 "city": {
                     "type": "string"
                 },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
                 "postal_code": {
+                    "type": "string"
+                },
+                "street": {
                     "type": "string"
                 }
             }
@@ -4964,6 +6410,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.NotiSetting": {
+            "type": "object",
+            "properties": {
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "noti_type": {
                     "type": "string"
                 }
             }
@@ -5018,6 +6475,9 @@ const docTemplate = `{
                 "creator": {
                     "type": "string"
                 },
+                "creator_avatar": {
+                    "type": "string"
+                },
                 "creator_id": {
                     "type": "integer"
                 },
@@ -5026,6 +6486,12 @@ const docTemplate = `{
                 },
                 "id_account": {
                     "type": "integer"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "is_saved": {
+                    "type": "boolean"
                 },
                 "like_count": {
                     "type": "integer"
@@ -5432,7 +6898,27 @@ const docTemplate = `{
                 "city_name": {
                     "type": "string"
                 },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "postal_code": {
+                    "type": "string"
+                },
                 "street": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateNotiSettingRequest": {
+            "type": "object",
+            "properties": {
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "noti_type": {
                     "type": "string"
                 }
             }
@@ -5467,6 +6953,84 @@ const docTemplate = `{
             "properties": {
                 "trial_days": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.UserImpactItem": {
+            "type": "object",
+            "properties": {
+                "buyer_name": {
+                    "type": "string"
+                },
+                "co2": {
+                    "type": "number"
+                },
+                "electricity": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "material": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sold_date": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "water": {
+                    "type": "number"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.UserImpactItemsPagination": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserImpactItem"
+                    }
+                },
+                "last_page": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "total_records": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.UserImpactStats": {
+            "type": "object",
+            "properties": {
+                "co2": {
+                    "type": "number"
+                },
+                "electricity": {
+                    "type": "number"
+                },
+                "water": {
+                    "type": "number"
                 }
             }
         },
@@ -5592,6 +7156,22 @@ const docTemplate = `{
                 },
                 "refused_listings": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.VerifyPaymentRequest": {
+            "type": "object",
+            "properties": {
+                "session_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.VerifyPaymentResponse": {
+            "type": "object",
+            "properties": {
+                "is_paid": {
+                    "type": "boolean"
                 }
             }
         }

@@ -4,17 +4,24 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	"backend/utils/geocode"
+	helpers "backend/utils/helpers"
+	validations "backend/utils/validations"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // GetAllItems godoc
 // @Summary      Get all items
 // @Description  Get a paginated list of all items with optional filters for search, sort, status, material, and category.
 // @Tags         item
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page      query     int     false  "Page number"
 // @Param        limit     query     int     false  "Items per page"
@@ -26,8 +33,9 @@ import (
 // @Success      200       {object}  models.ItemListPagination
 // @Failure      400       {object}  nil  "Invalid query parameters"
 // @Failure      500       {object}  nil  "Internal server error"
-// @Router       /admin/items/ [get]
+// @Router       /items/ [get]
 func GetAllItems(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
 	var err error
 	// default pagination
 	page := -1
@@ -62,6 +70,9 @@ func GetAllItems(w http.ResponseWriter, r *http.Request) {
 		Material: query.Get("material"),
 	}
 
+	if role == "admin"{
+		filters.IncludePurchased = query.Get("include_purchased")
+	}
 	items, total, err := db.GetAllItems(page, limit, filters)
 	if err != nil {
 		slog.Error("GetAllItems() failed", "controller", "GetAllItems", "error", err)
@@ -102,7 +113,7 @@ func GetAllItems(w http.ResponseWriter, r *http.Request) {
 // @Failure      400        {object}  nil  "Invalid timeframe"
 // @Failure      401        {object}  nil  "Unauthorized"
 // @Failure      500        {object}  nil  "Internal server error"
-// @Router       /admin/items/count/ [get]
+// @Router       /items/count/ [get]
 func GetAllItemsStats(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -233,7 +244,7 @@ func GetAllItemsStats(w http.ResponseWriter, r *http.Request) {
 // @Failure      401      {object}  nil  "Unauthorized"
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
-// @Router       /admin/items/{item_id}/ [delete]
+// @Router       /items/{item_id}/ [delete]
 func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "user" {
@@ -293,32 +304,32 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// err = db.DeleteItemById(id_item)
-	// if err != nil {
-	// 	slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
+	err = db.DeleteItemById(id_item)
+	if err != nil {
+		slog.Error("DeleteItemById() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
 
-	// var entityType string
-	// isListing, err := db.CheckListingOrDepositByItemId(id_item)
-	// if err != nil {
-	// 	slog.Error("CheckListingOrDepositByItemId() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
-	// if isListing {
-	// 	entityType = "listing"
-	// } else {
-	// 	entityType = "deposit"
-	// }
+	var entityType string
+	isListing, err := db.CheckListingOrDepositByItemId(id_item)
+	if err != nil {
+		slog.Error("CheckListingOrDepositByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+	if isListing {
+		entityType = "listing"
+	} else {
+		entityType = "deposit"
+	}
 
-	// err = db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
-	// if err != nil {
-	// 	slog.Error("InsertHistory() failed", "controller", "DeleteItemById", "error", err)
-	// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
-	// 	return
-	// }
+	if role == "admin" {
+		err = db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "DeleteItemById", "error", err)
+		}
+	}
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -334,7 +345,7 @@ func DeleteItemById(w http.ResponseWriter, r *http.Request) {
 // @Failure      400      {object}  nil  "Invalid ID"
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
-// @Router       /admin/items/{item_id}/ [get]
+// @Router       /items/{item_id}/ [get]
 func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("item_id")
 	if idString == "" {
@@ -386,6 +397,15 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 	}
 	item.Username = username
 
+	// calculate item score
+	score, err := helpers.CalculateScore(item.Material, item.Weight)
+	if err != nil {
+		slog.Error("CalculateScore() failed", "controller", "GetItemDetails", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item.")
+		return
+	}
+	item.Score = score
+
 	utils.RespondWithJSON(w, http.StatusOK, item)
 }
 
@@ -403,10 +423,10 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 // @Failure      401      {object}  nil  "Unauthorized"
 // @Failure      404      {object}  nil  "Item not found"
 // @Failure      500      {object}  nil  "Internal server error"
-// @Router       /admin/items/{item_id}/ [patch]
+// @Router       /items/{item_id}/ [patch]
 func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role == "employee" {
+	if role == "employee" || role == "pro" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
 		return
 	}
@@ -481,7 +501,7 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 
 	oldStatus, _ := db.GetItemStatusByItemId(id_item)
 
-	err = db.UpdateItemStatusById(id_item, payload.Status)
+	err = db.UpdateItemStatusById(id_item, payload.Status, "")
 	if err != nil {
 		slog.Error("UpdateItemStatusById() failed", "controller", "UpdateItemStatusById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item.")
@@ -507,3 +527,580 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item status updated successfully."})
 }
+
+// CreateItem godoc
+// @Summary      Create a new item
+// @Description  Create a new item (listing or deposit). Supports multipart/form-data for image uploads.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        title          formData  string  true   "Item title"
+// @Param        description    formData  string  true   "Item description"
+// @Param        price          formData  int     true   "Item price"
+// @Param        weight         formData  int     true   "Item weight"
+// @Param        material       formData  string  true   "Item material"
+// @Param        state          formData  string  true   "Item state"
+// @Param        category       formData  string  true   "Item category (listing or deposit)"
+// @Param        images         formData  file    true   "Item images"
+// @Param        id_container   formData  int     false  "Container ID (for deposit)"
+// @Param        street         formData  string  false  "Street (for listing)"
+// @Param        city_name      formData  string  false  "City name (for listing)"
+// @Param        postal_code    formData  string  false  "Postal code (for listing)"
+// @Success      200            {object}  map[string]string  "Item created successfully"
+// @Failure      400            {object}  nil  "Invalid request body or parameters"
+// @Failure      401            {object}  nil  "Unauthorized"
+// @Failure      500            {object}  nil  "Internal server error"
+// @Router       /items/ [post]
+func CreateItem(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	var payload models.ItemCreateRequest
+	err := r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+		return
+	}
+	payload.Title = r.FormValue("title")
+	payload.Description = r.FormValue("description")
+	payload.Category = r.FormValue("category")
+	payload.Material = r.FormValue("material")
+	payload.State = r.FormValue("state")
+	price, err := strconv.Atoi(r.FormValue("price"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid price.")
+		return
+	}
+	payload.Price = float64(price)
+	weight, err := strconv.Atoi(r.FormValue("weight"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid weight.")
+		return
+	}
+	payload.Weight = float64(weight)
+	payload.IdUser = idRequestor
+
+	// sanitize payload
+	payload.Title = strings.TrimSpace(payload.Title)
+	payload.Description = strings.TrimSpace(payload.Description)
+	payload.Category = strings.ToLower(strings.TrimSpace(payload.Category))
+	payload.Material = strings.ToLower(strings.TrimSpace(payload.Material))
+	payload.State = strings.ToLower(strings.TrimSpace(payload.State))
+
+	// validate payload
+	validation := validations.ValidateItemCreation(payload)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+		return
+	}
+
+	// at least one photo
+	files := r.MultipartForm.File["images"]
+	if len(files) == 0 {
+		utils.RespondWithError(w, http.StatusBadRequest, "At least one photo is required.")
+		return
+	}
+
+	// call to db to insert into items
+	id_item, err := db.CreateItem(payload)
+	if err != nil {
+		slog.Error("CreateItem() failed", "controller", "CreateItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+		return
+	}
+
+	// upload and insert images
+	for _, file := range files {
+		path, err := helpers.SaveUploadedFile(file, "images/items")
+		if err != nil {
+			slog.Error("SaveUploadedFile() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error saving images.")
+			return
+		}
+		payload.Photos = append(payload.Photos, path)
+	}
+	for i, imgPath := range payload.Photos {
+		imagePayload := models.PhotoInsertRequest{
+			Path:       imgPath,
+			IsPrimary:  i == 0,
+			ObjectType: "item",
+			FkId:       id_item,
+		}
+		err = db.InsertImage(imagePayload)
+		if err != nil {
+			slog.Error("db.InsertImage() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating the item.")
+			return
+		}
+	}
+
+	// insert into deposit or listing based on category
+	if payload.Category == "deposit" {
+		idContainer, err := strconv.Atoi(r.FormValue("id_container"))
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid container ID.")
+			return
+		}
+		payload.DepositInfo.IdContainer = idContainer
+		payload.DepositInfo.IdItem = id_item
+
+		// check container
+		exist, err := db.CheckContainerExistById(idContainer)
+		if err != nil {
+			slog.Error("CheckContainerExistById() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		if !exist {
+			utils.RespondWithError(w, http.StatusBadRequest, "Container with ID "+strconv.Itoa(idContainer)+" does not exist.")
+			return
+		}
+		status, err := db.GetContainerStatusById(idContainer)
+		if err != nil {
+			slog.Error("GetContainerStatusById() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		if status == "maintenance" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Container with ID "+strconv.Itoa(idContainer)+" is currently under maintenance. Please try again later.")
+			return
+		}
+		err = db.CreateDeposit(payload.DepositInfo)
+		if err != nil {
+			slog.Error("CreateDeposit() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+	} else {
+		payload.ListingInfo.Street = r.FormValue("street")
+		payload.ListingInfo.CityName = r.FormValue("city_name")
+		payload.ListingInfo.PostalCode = r.FormValue("postal_code")
+		payload.ListingInfo.IdItem = id_item
+
+		// resolve coordinates
+		addressToResolve := models.Address{
+			Street:     payload.ListingInfo.Street,
+			PostalCode: payload.ListingInfo.PostalCode,
+			City:       payload.ListingInfo.CityName,
+		}
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+		payload.ListingInfo.Lat = coordinates.Lat
+		payload.ListingInfo.Lng = coordinates.Lng
+		err = db.CreateListing(payload.ListingInfo)
+		if err != nil {
+			slog.Error("CreateListing() failed", "controller", "CreateItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			return
+		}
+	}
+	
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item created successfully."})
+}
+
+// GetMyItems godoc
+// @Summary      Get my items
+// @Description  Get a paginated list of items belonging to the current user (or items interacted with if pro).
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        page      query     int     false  "Page number"
+// @Param        limit     query     int     false  "Items per page"
+// @Param        search    query     string  false  "Search by title"
+// @Param        sort      query     string  false  "Sort order"
+// @Param        status    query     string  false  "Filter by status (user: pending/approved/refused/reserved/sold/to_drop_off | pro: reserved/bought/to_retrieve)"
+// @Param        material  query     string  false  "Filter by material"
+// @Param        category  query     string  false  "Filter by category (listing or deposit)"
+// @Success      200       {object}  models.ItemListPagination
+// @Failure      400       {object}  nil  "Invalid query parameters"
+// @Failure      401       {object}  nil  "Unauthorized"
+// @Failure      500       {object}  nil  "Internal server error"
+// @Router       /items/me/ [get]
+func GetMyItems(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	var err error
+	// default pagination
+	page := -1
+	limit := -1
+
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetMyItems", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching items.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetMyItems", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while fetching items.")
+			return
+		}
+	}
+
+	filters := models.ItemFilters{
+		Search:   query.Get("search"),
+		Status:   query.Get("status"),
+		Material: query.Get("material"),
+		Category: query.Get("category"),
+		Sort:     query.Get("sort"),
+	}
+
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	var items []models.Item
+	var total int
+	if role == "pro" {
+		items, total, err = db.GetProItemsPaginated(idRequestor, page, limit, filters)
+	} else {
+		items, total, err = db.GetUserItemsPaginated(idRequestor, page, limit, filters)
+	}
+
+	if err != nil {
+		slog.Error("GetMyItemsPaginated() failed", "controller", "GetMyItems", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching items.")
+		return
+	}
+
+	lastPage := 1
+	if limit > 0 {
+		lastPage = (total + limit - 1) / limit
+		if lastPage == 0 {
+			lastPage = 1
+		}
+	}
+
+	result := models.ItemListPagination{
+		Items:        items,
+		CurrentPage:  page,
+		LastPage:     lastPage,
+		Limit:        limit,
+		TotalRecords: total,
+	}
+	if page == -1 || limit == -1 {
+		result.CurrentPage = 1
+		result.LastPage = 1
+	}
+	utils.RespondWithJSON(w, http.StatusOK, result)
+}
+
+// TODO: swagger doc
+func ReserveItem(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	item_id, err := strconv.Atoi(r.PathValue("item_id"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while reserving item.")
+		return
+	}
+	
+	exist, err := db.CheckItemExistByItemId(item_id)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(item_id)+" does not exist.")
+		return
+	}
+	status, err := db.GetItemStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	if status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item can't be reserved at the moment.")
+		return
+	}
+
+	// check if item is already reserved or purchased
+	latestTx, err := db.GetTransactionLatestStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	if latestTx == "reserved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item is already reserved.")
+		return
+	} else if latestTx == "purchased" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item is already purchased.")
+		return
+	}
+
+	err = db.InsertTransaction(models.TransactionInsert{
+		Action: "reserved",
+		IdItem: item_id,
+		IdPro:  idRequestor,
+	})
+	if err != nil {
+		slog.Error("InsertTransaction() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item reserved successfully."})
+}
+
+// TODO: swagger doc
+func PurchaseItem(w http.ResponseWriter, r *http.Request) {
+	item_id, err := strconv.Atoi(r.PathValue("item_id"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while purchasing item.")
+		return
+	}
+
+	// validations
+	exist, err := db.CheckItemExistByItemId(item_id)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(item_id)+" does not exist.")
+		return
+	}
+	status, err := db.GetItemStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item can't be purchased at the moment.")
+		return
+	}
+	latestTx, err := db.GetTransactionLatestStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if latestTx == "purchased" {
+		utils.RespondWithError(w, http.StatusConflict, "Item is already purchased.")
+		return
+	}
+
+	// start purchase process
+	itemDetails, err := db.GetItemDetailsByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	depositDetails, err := db.GetDepositDetailsById(item_id)
+	if err != nil {
+		slog.Error("GetDepositDetailsById() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	// get existing transactions's uuid to insert later
+	latestTxOfPro, err := db.GetLatestTransactionOfPro(idRequestor, item_id)
+	if err != nil {
+		slog.Error("GetLatestTransactionOfPro() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if latestTxOfPro.Action == "purchased" {
+		utils.RespondWithError(w, http.StatusConflict, "You already purchased this item.")
+		return
+	}
+	// if already reserved, get existing transactions's uuid to insert later
+	txUuid := ""
+	if latestTxOfPro.Action == "reserved" {
+		txUuid = latestTxOfPro.IdTransaction
+	// if buy right away without reservation, create new uuid
+	} else {	
+		txUuid = uuid.New().String()
+	}
+	itemCategory := itemDetails.Category
+	sellerId:= itemDetails.IdUser
+
+	// get container schedule to calculate next available date
+	nextAvailableDateContainer := time.Time{}
+	if itemCategory == "deposit" {
+		containerSchedule, err := db.GetContainerScheduleByContainerId(depositDetails.ContainerId)
+		if err != nil {
+			slog.Error("GetContainerScheduleByContainerId() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
+		}
+		nextAvailableDateContainer = helpers.FindNextAvailableDate(containerSchedule)
+	}
+
+	// PAID BRANCH
+	if itemDetails.Price > 0 {
+		// TODO: handle stripe
+		utils.RespondWithError(w, http.StatusNotImplemented, "TODO: handle stripe")
+		return
+	// FREE BRANCH
+	} else {
+		freePrice := 0.0
+
+		// handle insertion of confirm code or barcode
+		var confirm_code string
+		if itemCategory == "listing" {
+			confirm_code = helpers.GenerateRandom6CharCode()
+		} else {
+			// generate code for user to drop object in container, no code for pro yet at this stage
+			code6 := helpers.GenerateRandom6CharCode()
+			barcodePath, err := helpers.GenerateAndSaveBarcode(models.BarCodeData{
+				Id:            latestTxOfPro.Id,
+				IdTransaction: txUuid,
+				UserType:      "u",
+			})
+			if err != nil {
+				slog.Error("GenerateAndSaveBarcode() failed", "controller", "PurchaseItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+				return
+			}
+
+			err = db.InsertBarcode(models.BarCodeInsert{
+				Code6Digit:  code6,
+				BarcodePath: barcodePath,
+				UserType:    "user",
+				IdAccount:   sellerId,
+				IdDeposit:   item_id,
+				IdTransaction: txUuid,
+				ValidFrom: nextAvailableDateContainer,
+			})
+			if err != nil {
+				slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+				return
+			}
+
+			// update container status
+			err = db.UpdateStatusContainer(depositDetails.ContainerId, "waiting")
+			if err != nil {
+				slog.Error("UpdateStatusContainer() failed", "controller", "PurchaseItem", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+				return
+			}
+		}
+		
+		err = db.InsertTransaction(models.TransactionInsert{
+				IdTransaction: txUuid,
+				Action: "purchased",
+				IdItem: item_id,
+				IdPro:  idRequestor,
+				ItemPrice: &freePrice,
+				CommissionRate: &freePrice,
+				TotalPrice: &freePrice,
+				ConfirmCode: &confirm_code,
+			})
+		if err != nil {
+			slog.Error("InsertTransaction() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
+		return
+	}
+	
+	// TODO: notify user that item is purchased
+}
+
+// TODO: swagger doc
+func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	item_id, err := strconv.Atoi(r.PathValue("item_id"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while cancelling item.")
+		return
+	}
+	exist, err := db.CheckItemExistByItemId(item_id)
+	if err != nil {
+		slog.Error("CheckItemExistByItemId() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(item_id)+" does not exist.")
+		return
+	}
+	status, err := db.GetItemStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemStatusByItemId() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	if status != "approved" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Item can't be cancelled at the moment.")
+		return
+	}
+	latestTx, err := db.GetTransactionLatestStatusByItemId(item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	if latestTx != "reserved" {
+		utils.RespondWithError(w, http.StatusConflict, "Item can't be cancelled at the moment.")
+		return
+	}
+	
+	// get uuid
+	uuid, err := db.GetTransactionLatestUuidOfPro(idRequestor, item_id)
+	if err != nil {
+		slog.Error("GetTransactionLatestUuidOfPro() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	// cancel transaction
+	err = db.InsertTransaction(models.TransactionInsert{
+		IdTransaction: uuid.String(),
+		Action:        "cancelled",
+		IdItem:        item_id,
+		IdPro:         idRequestor,
+	})
+	if err != nil {
+		slog.Error("InsertTransaction() failed", "controller", "CancelItemReservation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while cancelling item.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item cancelled successfully."})
+}
+
+
+
+/*
+TODO:
+add score only when item status == completed (confirm code submit if listing, user code to open used if deposit)
+score, err := helpers.CalculateScore(payload.Material, payload.Weight)
+if err != nil {
+	slog.Error("CalculateScore() failed", "controller", "CreateItem", "error", err)
+	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+	return
+}
+err = db.UpdateUpcyclingScore(idRequestor, score)
+if err != nil {
+	slog.Error("UpdateUpcyclingScore() failed", "controller", "CreateItem", "error", err)
+	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+	return
+}
+*/

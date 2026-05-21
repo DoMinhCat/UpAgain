@@ -19,7 +19,9 @@ export const ENDPOINTS = {
       COUNT: "/containers/count",
       AVAILABLE: "/containers/available",
       SCHEDULE: (id_container: number) =>
-        `/containers/${id_container}/schedule`,
+        `/containers/${id_container}/schedule/`,
+      EARLIEST: (id: number) => `/containers/${id}/earliest/`,
+      NEAREST: "/containers/nearest/",
     },
 
     FINANCE: {
@@ -76,11 +78,12 @@ export const ENDPOINTS = {
     },
 
     ITEMS: {
-      ALL: "/items",
-      COUNT: "/items/count",
-      DELETE: (id_item: number) => `/items/${id_item}`,
-      DETAILS: (id_item: number) => `/items/${id_item}`,
-      TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions`,
+      ALL: "/items/",
+      COUNT: "/items/count/",
+      DELETE: (id_item: number) => `/items/${id_item}/`,
+      DETAILS: (id_item: number) => `/items/${id_item}/`,
+      TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions/`,
+      CANCEL_RESERVATION: (id_item: number) => `/items/${id_item}/cancel/`,
       CANCEL_TRANSACTION: (id_item: number, transactionUuid: string) =>
         `/items/${id_item}/transactions/${transactionUuid}/cancel`,
     },
@@ -98,14 +101,29 @@ export const ENDPOINTS = {
     REGISTER: "/register",
   },
 
+  ITEMS: {
+    NEW: "/items/",
+    ME: "/items/me/",
+    RESERVE: (idItem: number) => `/items/${idItem}/reserve/`,
+    CANCEL_RESERVATION: (idItem: number) => `/items/${idItem}/cancel/`,
+    PURCHASE: (idItem: number) => `/items/${idItem}/purchase/`,
+    LATEST_TRANSACTION: (idItem: number) =>
+      `/items/${idItem}/transactions/latest/`,
+  },
+
   LISTINGS: {
     DETAILS: (id_listing: number) => `/listings/${id_listing}`,
   },
 
   DEPOSITS: {
-    DETAILS: (id_deposit: number) => `/deposits/${id_deposit}`,
+    DETAILS: (id_deposit: number) => `/deposits/${id_deposit}/`,
     CODES: (id_deposit: number) => `/deposits/${id_deposit}/codes`,
-    TRANSFER: (id_deposit: number) => `/deposits/${id_deposit}/transfer`,
+    TRANSFER: (id_deposit: number) => `/deposits/${id_deposit}/transfer/`,
+  },
+
+  BARCODES: {
+    GET: (id_deposit: number) => `/codes/${id_deposit}/`,
+    DOWNLOAD: (id_deposit: number) => `/codes/${id_deposit}/download/`,
   },
 
   ADS: {
@@ -127,12 +145,26 @@ export const ENDPOINTS = {
       SAVED: "/posts/saved",
       MY_POSTS: "/posts/me",
     },
+    IMPACT: "/users/impact/",
+    ITEMS: "/users/items/",
   },
   EVENTS: {
     MY_EVENTS: "/events/me",
   },
 
+  ACCOUNTS: {
+    UPDATE_AVATAR: (id_account: number) => `/accounts/${id_account}/avatar/`,
+    NOTIFICATIONS: (id_account: number) =>
+      `/accounts/${id_account}/notifications/`,
+  },
+
+  // external providers
   STRIPE: {
     VERIFY: "/payments/verify",
+  },
+
+  LOCATION: {
+    GET_COOR: "/location/coordinates/",
+    GET_ADDRESS: "/location/address/",
   },
 } as const;

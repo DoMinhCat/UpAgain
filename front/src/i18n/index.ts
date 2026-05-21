@@ -20,6 +20,7 @@ const namespaces = [
   "events",
   "home",
   "marketplace",
+  "profile",
 ];
 
 i18next

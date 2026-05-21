@@ -5,6 +5,7 @@ import { IconChevronRight } from "@tabler/icons-react";
 interface MyBreadcrumbsProps {
   title: string;
   href: string;
+  state?: any;
 }
 
 export default function MyBreadcrumbs({
@@ -29,7 +30,11 @@ export default function MyBreadcrumbs({
         data-variant={!isLast ? "primary" : undefined}
         size="sm"
         fw={isLast ? 800 : 600}
-        onClick={!isLast ? () => navigate(breadcrumb.href) : undefined}
+        onClick={
+          !isLast
+            ? () => navigate(breadcrumb.href, { state: breadcrumb.state })
+            : undefined
+        }
         style={{
           // 2. Explicitly override the color for the links (previous items)
           color: isLast

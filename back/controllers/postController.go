@@ -4,7 +4,7 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	helper "backend/utils/helper"
+	helpers "backend/utils/helpers"
 	validations "backend/utils/validations"
 	"fmt"
 	"log/slog"
@@ -23,7 +23,7 @@ import (
 // @Success 200 {object} models.PostCountStatsResponse
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Failed to get stats of posts"
-// @Router /posts/stats [get]
+// @Router /posts/count/ [get]
 func GetPostsStats(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -125,7 +125,7 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {string} string "Bad Request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts [post]
+// @Router /posts/ [post]
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "employee" && role != "pro" {
@@ -146,7 +146,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	payload.Category = r.FormValue("category")
 	files := r.MultipartForm.File["images"]
 	for _, file := range files {
-		path, err := helper.SaveUploadedFile(file, "images/posts")
+		path, err := helpers.SaveUploadedFile(file, "images/posts")
 		if err != nil {
 			slog.Error("SaveUploadedFile() failed", "controller", "CreatePost", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
@@ -210,7 +210,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.PostListPagination
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts [get]
+// @Router /posts/ [get]
 func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// default pagination
@@ -291,7 +291,7 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {string} string "Bad Request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post}/delete [patch]
+// @Router /posts/{id_post}/delete/ [patch]
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 
@@ -360,7 +360,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.Post
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post} [get]
+// @Router /posts/{id_post}/ [get]
 func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id_post")
 	if idStr == "" {
@@ -407,7 +407,7 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Success 204 "No Content"
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post}/view [post]
+// @Router /posts/{id_post}/view/ [post]
 func ViewPost(w http.ResponseWriter, r *http.Request) {
 	idAccount := r.Context().Value("user").(models.AuthClaims).Id
 	role := r.Context().Value("user").(models.AuthClaims).Role
@@ -453,7 +453,7 @@ func ViewPost(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} map[string]bool
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post}/like [post]
+// @Router /posts/{id_post}/like/ [post]
 func LikePost(w http.ResponseWriter, r *http.Request) {
 	idAccount := r.Context().Value("user").(models.AuthClaims).Id
 
@@ -494,7 +494,7 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} map[string]bool
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post}/save [post]
+// @Router /posts/{id_post}/save/ [post]
 func SavePost(w http.ResponseWriter, r *http.Request) {
 	idAccount := r.Context().Value("user").(models.AuthClaims).Id
 
@@ -542,7 +542,7 @@ func SavePost(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {string} string "Bad Request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post} [put]
+// @Router /posts/{id_post}/ [put]
 func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "user" {
@@ -620,7 +620,7 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle physical files + collect final path list
-	finalImages, delErrs, err := helper.ProcessPhotoUpdate("images/posts", currentImages, keepImages, newImg)
+	finalImages, delErrs, err := helpers.ProcessPhotoUpdate("images/posts", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdatePostById", "error", delErr)
 	}
@@ -675,7 +675,7 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.PostCommentsResponse
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post}/comments [get]
+// @Router /posts/{id_post}/comments/ [get]
 func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id_post")
 	if idStr == "" {
@@ -789,7 +789,7 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 // @Success      200      {object}  []models.ProjectStep
 // @Failure      400      {string}  string  "Invalid or missing post ID"
 // @Failure      500      {string}  string  "Internal Server Error"
-// @Router       /posts/{id_post}/steps [get]
+// @Router       /posts/{id_post}/steps/ [get]
 func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 	idPost, err := strconv.Atoi(r.PathValue("id_post"))
 	if err != nil {
@@ -830,7 +830,7 @@ func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 // @Failure      400       {string}  string  "Invalid ID or step not found"
 // @Failure      401       {string}  string  "Unauthorized"
 // @Failure      500       {string}  string  "Internal Server Error"
-// @Router       /posts/{id_post}/steps/{step_id} [delete]
+// @Router       /posts/steps/{step_id}/ [delete]
 func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -865,7 +865,19 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, nil)
 }
 
-// Get posts posted by an account
+// GetPostsByAccountId godoc
+// @Summary Get posts by account ID
+// @Description Get a paginated list of posts created by the authenticated account.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param category query string false "Filter by category"
+// @Success 200 {array} models.Post
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/me/ [get]
 func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
@@ -918,6 +930,19 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, posts)
 }
 
+// GetSavedPosts godoc
+// @Summary Get saved posts
+// @Description Get a paginated list of posts saved by the authenticated account.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param category query string false "Filter by category"
+// @Success 200 {array} models.Post
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/saved/ [get]
 func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 

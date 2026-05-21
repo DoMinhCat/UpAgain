@@ -5,7 +5,9 @@ import {
   type ContainerCountStats,
   type ContainerListPagination,
   type ContainerSchedule,
+  type ContainerEarliestAvailability,
 } from "./interfaces/container";
+import type { Coordinates } from "./interfaces/location";
 
 export const getAllContainers = async (
   page: number = -1,
@@ -60,12 +62,14 @@ export const updateContainerLocation = async (
   id: number,
   city_name: string,
   street: string,
+  postal_code: string,
 ) => {
   const response = await api.put(
     `${ENDPOINTS.ADMIN.CONTAINERS.ALL}${id}/location/`,
     {
       city_name,
       street,
+      postal_code,
     },
   );
   return response.data;
@@ -75,5 +79,21 @@ export const getContainerSchedule = async (
   id: number,
 ): Promise<ContainerSchedule> => {
   const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.SCHEDULE(id)}`);
+  return response.data;
+};
+
+export const getContainerEarliestAvailability = async (
+  id: number,
+): Promise<ContainerEarliestAvailability> => {
+  const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.EARLIEST(id)}`);
+  return response.data;
+};
+
+export const getNearestContainer = async (
+  coordinates: Coordinates,
+): Promise<Container> => {
+  const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.NEAREST, {
+    params: { lat: coordinates.latitude, lng: coordinates.longitude },
+  });
   return response.data;
 };

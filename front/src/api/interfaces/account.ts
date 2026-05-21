@@ -4,7 +4,7 @@ export interface AccountCountStats {
 }
 
 export interface updateAccountPayload {
-  id_account: number;
+  id: number;
   username: string;
   email: string;
   phone?: string;

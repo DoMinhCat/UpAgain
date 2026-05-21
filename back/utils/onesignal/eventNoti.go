@@ -1,3 +1,3 @@
-package notifications
+package onesignal
 
 // Handling sending notification when event is created, updated, cancelled, ...

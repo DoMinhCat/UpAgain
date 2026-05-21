@@ -94,33 +94,36 @@ export default function UserPostsPage() {
             <Text c="dimmed" size="md">
               {t("community:subtitle")}
             </Text>
-            {(user?.role === "employee" || user?.role === "pro") && (
-              <Button
-                leftSection={<IconArticle stroke={2} />}
-                variant="primary"
-                onClick={() => {
-                  navigate(PATHS.POSTS.MY_POSTS, {
-                    state: { from: "communityIndex" },
-                  });
-                }}
-              >
-                {t("community:my_posts")}
-              </Button>
-            )}
 
-            {(user?.role === "user" || user?.role === "pro") && (
-              <Button
-                leftSection={<IconBookmarkFilled stroke={2} />}
-                variant="primary"
-                onClick={() => {
-                  navigate(PATHS.POSTS.SAVED_POSTS, {
-                    state: { from: "communityIndex" },
-                  });
-                }}
-              >
-                {t("community:saved_posts")}
-              </Button>
-            )}
+            <Group justify="flex-end" wrap="wrap">
+              {(user?.role === "employee" || user?.role === "pro") && (
+                <Button
+                  leftSection={<IconArticle stroke={2} />}
+                  variant="primary"
+                  onClick={() => {
+                    navigate(PATHS.POSTS.MY_POSTS, {
+                      state: { from: "communityIndex" },
+                    });
+                  }}
+                >
+                  {t("community:my_posts")}
+                </Button>
+              )}
+
+              {(user?.role === "user" || user?.role === "pro") && (
+                <Button
+                  leftSection={<IconBookmarkFilled stroke={2} />}
+                  variant="primary"
+                  onClick={() => {
+                    navigate(PATHS.POSTS.SAVED_POSTS, {
+                      state: { from: "communityIndex" },
+                    });
+                  }}
+                >
+                  {t("community:saved_posts")}
+                </Button>
+              )}
+            </Group>
           </Group>
         </Stack>
 
@@ -191,7 +194,7 @@ export default function UserPostsPage() {
                 image={post.photos?.[0] ?? ""}
                 category={post.category}
                 authorName={post.creator}
-                authorAvatar=""
+                authorAvatar={post.creator_avatar ?? ""}
                 postedTime={post.created_at}
                 views={post.view_count}
                 likes={post.like_count}

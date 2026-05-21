@@ -34,18 +34,20 @@ import {
 import dayjs from "dayjs";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
+import {
+  validateConfirmPassword,
+  validateEmail,
+  validatePassword,
+  validatePhone,
+  validateUsername,
+  validateRole,
+} from "../../../utils/validations/accountValidation";
 
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { getExportAccountsCsv } from "../../../api/accountModule";
 import { showErrorNotification } from "../../../components/common/NotificationToast";
-
-const requirements = [
-  { re: /[0-9]/, label: "requirement_number" },
-  { re: /[A-Z]/, label: "requirement_uppercase" },
-  { re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: "requirement_special" },
-];
 
 export default function AdminUsersModule() {
   const { t } = useTranslation("admin");
@@ -82,145 +84,55 @@ export default function AdminUsersModule() {
   const [emailEditError, setEmailEditError] = useState<string | null>(null);
   const [phoneEditError, setPhoneEditError] = useState<string | null>(null);
   // validations
-  const validateUsernameNew = (val: string) => {
-    if (!val) {
-      setUsernameNewError(t("users.errors.username_required"));
-      return false;
-    }
-    if (val.length < 4) {
-      setUsernameNewError(t("users.errors.username_min"));
-      return false;
-    }
-    if (val.length > 20) {
-      setUsernameNewError(t("users.errors.username_max"));
-      return false;
-    }
-    setUsernameNewError(null);
-    return true;
+  const handleValidateUsernameNew = (val: string) => {
+    const error = validateUsername(val, t);
+    setUsernameNewError(error);
+    return error === null;
   };
-  const validateUsernameEdit = (val: string) => {
-    if (!val) {
-      setUsernameEditError(t("users.errors.username_required"));
-      return false;
-    }
-    if (val.length < 4) {
-      setUsernameEditError(t("users.errors.username_min"));
-      return false;
-    }
-    if (val.length > 20) {
-      setUsernameEditError(t("users.errors.username_max"));
-      return false;
-    }
-    setUsernameEditError(null);
-    return true;
+  const handleValidateUsernameEdit = (val: string) => {
+    const error = validateUsername(val, t);
+    setUsernameEditError(error);
+    return error === null;
   };
 
-  const validateEmailNew = (val: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!val) {
-      setEmailNewError(t("users.errors.email_required"));
-      return false;
-    }
-    if (!regex.test(val)) {
-      setEmailNewError(t("users.errors.email_invalid"));
-      return false;
-    }
-    setEmailNewError(null);
-    return true;
+  const handleValidateEmailNew = (val: string) => {
+    const error = validateEmail(val, t);
+    setEmailNewError(error);
+    return error === null;
   };
-  const validateEmailEdit = (val: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!val) {
-      setEmailEditError(t("users.errors.email_required"));
-      return false;
-    }
-    if (!regex.test(val)) {
-      setEmailEditError(t("users.errors.email_invalid"));
-      return false;
-    }
-    setEmailEditError(null);
-    return true;
+  const handleValidateEmailEdit = (val: string) => {
+    const error = validateEmail(val, t);
+    setEmailEditError(error);
+    return error === null;
   };
 
-  const validatePasswordNew = (val: string) => {
-    if (!val) {
-      setPasswordNewError(t("users.errors.password_required"));
-      return false;
-    }
-    if (val.length < 12) {
-      setPasswordNewError(t("users.errors.password_min"));
-      return false;
-    }
-    if (val.length > 60) {
-      setPasswordNewError(t("users.errors.password_max"));
-      return false;
-    }
-    if (!requirements.every((requirement) => requirement.re.test(val))) {
-      setPasswordNewError(t("users.errors.password_complexity"));
-      return false;
-    }
-    setPasswordNewError(null);
-    return true;
+  const handleValidatePasswordNew = (val: string) => {
+    const error = validatePassword(val, t);
+    setPasswordNewError(error);
+    return error === null;
   };
 
-  const validateConfirmPasswordNew = (val: string) => {
-    if (!val) {
-      setConfirmPasswordNewError(t("users.errors.confirm_required"));
-      return false;
-    }
-    if (val !== passwordNew) {
-      setConfirmPasswordNewError(t("users.errors.confirm_mismatch"));
-      return false;
-    }
-    setConfirmPasswordNewError(null);
-    return true;
+  const handleValidateConfirmPasswordNew = (val: string) => {
+    const error = validateConfirmPassword(val, passwordNew, t);
+    setConfirmPasswordNewError(error);
+    return error === null;
   };
 
-  const validatePhoneNew = (val: string) => {
-    if (val.length !== 0) {
-      if (!val.match(/^[0-9]+$/)) {
-        setPhoneNewError(t("users.errors.phone_numbers_only"));
-        return false;
-      }
-      if (val.length < 10) {
-        setPhoneNewError(t("users.errors.phone_min"));
-        return false;
-      }
-      if (val.length > 15) {
-        setPhoneNewError(t("users.errors.phone_max"));
-        return false;
-      }
-      setPhoneNewError(null);
-      return true;
-    }
+  const handleValidatePhoneNew = (val: string) => {
+    const error = validatePhone(val, t);
+    setPhoneNewError(error);
+    return error === null;
   };
-  const validatePhoneEdit = (val: string) => {
-    if (val.length !== 0) {
-      if (!val.match(/^[0-9]+$/)) {
-        setPhoneEditError(t("users.errors.phone_numbers_only"));
-        return false;
-      }
-      if (val.length < 10) {
-        setPhoneEditError(t("users.errors.phone_min"));
-        return false;
-      }
-      if (val.length > 15) {
-        setPhoneEditError(t("users.errors.phone_max"));
-        return false;
-      }
-      setPhoneEditError(null);
-      return true;
-    }
-    return true;
+  const handleValidatePhoneEdit = (val: string) => {
+    const error = validatePhone(val, t);
+    setPhoneEditError(error);
+    return error === null;
   };
 
-  const validateRoleNew = (val: string) => {
-    if (!val) {
-      setRoleNewError(t("users.errors.role_required"));
-      return false;
-    }
-    setRoleNewError(null);
-    return true;
+  const handleValidateRoleNew = (val: string) => {
+    const error = validateRole(val, t);
+    setRoleNewError(error);
+    return error === null;
   };
 
   // create hook
@@ -247,11 +159,11 @@ export default function AdminUsersModule() {
     console.log(isPremiumNew, isTrialNew);
     e.preventDefault();
     if (
-      !validateUsernameNew(usernameNew) ||
-      !validateEmailNew(emailNew) ||
-      !validatePasswordNew(passwordNew) ||
-      !validateConfirmPasswordNew(confirmPasswordNew) ||
-      !validateRoleNew(roleNew)
+      !handleValidateUsernameNew(usernameNew) ||
+      !handleValidateEmailNew(emailNew) ||
+      !handleValidatePasswordNew(passwordNew) ||
+      !handleValidateConfirmPasswordNew(confirmPasswordNew) ||
+      !handleValidateRoleNew(roleNew)
     )
       return;
     createMutation.mutate(
@@ -325,9 +237,9 @@ export default function AdminUsersModule() {
 
   const handleEditAccount = async (e: React.FormEvent) => {
     e.preventDefault();
-    const userErr = validateUsernameEdit(usernameEdit);
-    const emailErr = validateEmailEdit(emailEdit);
-    const phoneErr = validatePhoneEdit(phoneEdit);
+    const userErr = handleValidateUsernameEdit(usernameEdit);
+    const emailErr = handleValidateEmailEdit(emailEdit);
+    const phoneErr = handleValidatePhoneEdit(phoneEdit);
     if (!userErr || !emailErr || !phoneErr) {
       console.log(userErr, emailErr, phoneErr);
       return;
@@ -335,7 +247,7 @@ export default function AdminUsersModule() {
     if (selectedEditAcc?.id) {
       editMutation.mutate(
         {
-          id_account: selectedEditAcc.id,
+          id: selectedEditAcc.id,
           username: usernameEdit,
           email: emailEdit,
           phone: phoneEdit,
@@ -504,7 +416,7 @@ export default function AdminUsersModule() {
       </Table.Tr>
     );
 
-  // EXPORT CSV
+  // EXPORT/DOWNLOAD CSV
   const [isExporting, setIsExporting] = useState(false);
   const exportAccounts = async () => {
     try {
@@ -719,9 +631,9 @@ export default function AdminUsersModule() {
             placeholder={t("users.create_modal.username")}
             onChange={(e) => {
               setUsernameNew(e.target.value);
-              validateUsernameNew(e.target.value);
+              handleValidateUsernameNew(e.target.value);
             }}
-            onBlur={() => validateUsernameNew(usernameNew)}
+            onBlur={() => handleValidateUsernameNew(usernameNew)}
             error={usernameNewError}
             required
           />
@@ -731,9 +643,9 @@ export default function AdminUsersModule() {
             placeholder={t("users.create_modal.email")}
             onChange={(e) => {
               setEmailNew(e.target.value);
-              validateEmailNew(e.target.value);
+              handleValidateEmailNew(e.target.value);
             }}
-            onBlur={() => validateEmailNew(emailNew)}
+            onBlur={() => handleValidateEmailNew(emailNew)}
             error={emailNewError}
             required
           />
@@ -744,9 +656,9 @@ export default function AdminUsersModule() {
             placeholder={t("users.create_modal.password")}
             onChange={(e) => {
               setPasswordNew(e.target.value);
-              validatePasswordNew(e.target.value);
+              handleValidatePasswordNew(e.target.value);
             }}
-            onBlur={() => validatePasswordNew(passwordNew)}
+            onBlur={() => handleValidatePasswordNew(passwordNew)}
             error={passwordNewError}
             required
           />
@@ -757,9 +669,9 @@ export default function AdminUsersModule() {
             placeholder={t("users.create_modal.confirm_password")}
             onChange={(e) => {
               setConfirmPasswordNew(e.target.value);
-              validateConfirmPasswordNew(e.target.value);
+              handleValidateConfirmPasswordNew(e.target.value);
             }}
-            onBlur={() => validateConfirmPasswordNew(confirmPasswordNew)}
+            onBlur={() => handleValidateConfirmPasswordNew(confirmPasswordNew)}
             error={confirmPasswordNewError}
             required
           />
@@ -768,9 +680,9 @@ export default function AdminUsersModule() {
             placeholder={t("users.create_modal.phone")}
             onChange={(e) => {
               setPhoneNew(e.target.value);
-              validatePhoneNew(e.target.value);
+              handleValidatePhoneNew(e.target.value);
             }}
-            onBlur={() => validatePhoneNew(phoneNew)}
+            onBlur={() => handleValidatePhoneNew(phoneNew)}
             error={phoneNewError}
             disabled={disablePhone}
           />
@@ -779,7 +691,7 @@ export default function AdminUsersModule() {
             clearable
             label={t("users.create_modal.role")}
             error={roleNewError}
-            onBlur={() => validateRoleNew(roleNew)}
+            onBlur={() => handleValidateRoleNew(roleNew)}
             placeholder={t("users.create_modal.role")}
             data={[
               { value: "user", label: t("users.roles.user") },
@@ -849,9 +761,9 @@ export default function AdminUsersModule() {
             value={usernameEdit}
             onChange={(e) => {
               setUsernameEdit(e.target.value);
-              validateUsernameEdit(e.target.value);
+              handleValidateUsernameEdit(e.target.value);
             }}
-            onBlur={() => validateUsernameEdit(usernameEdit)}
+            onBlur={() => handleValidateUsernameEdit(usernameEdit)}
             error={usernameEditError}
             disabled={isAccountDetailsLoading}
             required
@@ -863,9 +775,9 @@ export default function AdminUsersModule() {
             value={emailEdit}
             onChange={(e) => {
               setEmailEdit(e.target.value);
-              validateEmailEdit(e.target.value);
+              handleValidateEmailEdit(e.target.value);
             }}
-            onBlur={() => validateEmailEdit(emailEdit)}
+            onBlur={() => handleValidateEmailEdit(emailEdit)}
             error={emailEditError}
             disabled={isAccountDetailsLoading}
             required
@@ -876,9 +788,9 @@ export default function AdminUsersModule() {
             value={phoneEdit}
             onChange={(e) => {
               setPhoneEdit(e.target.value);
-              validatePhoneEdit(e.target.value);
+              handleValidatePhoneEdit(e.target.value);
             }}
-            onBlur={() => validatePhoneEdit(phoneEdit)}
+            onBlur={() => handleValidatePhoneEdit(phoneEdit)}
             error={phoneEditError}
             disabled={disablePhoneEdit || isAccountDetailsLoading}
           />

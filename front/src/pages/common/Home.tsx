@@ -18,6 +18,8 @@ const Home = () => {
       //   return <ProHome />;
       case "user":
         return <UserHome />;
+      case "admin":
+        return <GuestHome />;
       default:
         return <GuestHome />;
     }

@@ -55,6 +55,18 @@ definitions:
       username:
         type: string
     type: object
+  models.Address:
+    properties:
+      city:
+        description: Paris
+        type: string
+      postal_code:
+        description: "75015"
+        type: string
+      street:
+        description: 21 rue Erard
+        type: string
+    type: object
   models.AllItemResponse:
     properties:
       created_at:
@@ -105,10 +117,10 @@ definitions:
     properties:
       employees:
         items:
-          $ref: '#/definitions/models.AvailableEmployee'
+          $ref: "#/definitions/models.AvailableEmployee"
         type: array
     type: object
-  models.CodeForAdmin:
+  models.Barcode:
     properties:
       code:
         type: string
@@ -166,6 +178,10 @@ definitions:
         type: integer
       is_deleted:
         type: boolean
+      lat:
+        type: number
+      lng:
+        type: number
       postal_code:
         type: string
       status:
@@ -184,7 +200,7 @@ definitions:
     properties:
       containers:
         items:
-          $ref: '#/definitions/models.Container'
+          $ref: "#/definitions/models.Container"
         type: array
       current_page:
         type: integer
@@ -199,11 +215,11 @@ definitions:
     properties:
       pro_range:
         items:
-          $ref: '#/definitions/models.ContainerScheduleItem'
+          $ref: "#/definitions/models.ContainerScheduleItem"
         type: array
       user_range:
         items:
-          $ref: '#/definitions/models.ContainerScheduleItem'
+          $ref: "#/definitions/models.ContainerScheduleItem"
         type: array
     type: object
   models.ContainerScheduleItem:
@@ -216,6 +232,13 @@ definitions:
         type: string
       valid_to:
         type: string
+    type: object
+  models.Coordinates:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
     type: object
   models.CreateAccountRequest:
     properties:
@@ -243,16 +266,31 @@ definitions:
       id_post:
         type: integer
     type: object
+  models.CreateCommentRequest:
+    properties:
+      content:
+        type: string
+    type: object
   models.DepositDetails:
     properties:
+      city:
+        type: string
       container_id:
         type: integer
+      lat:
+        type: number
+      lng:
+        type: number
+      postal_code:
+        type: string
+      street:
+        type: string
     type: object
   models.Event:
     properties:
       attendees:
         items:
-          $ref: '#/definitions/models.Account'
+          $ref: "#/definitions/models.Account"
         type: array
       capacity:
         type: integer
@@ -266,6 +304,8 @@ definitions:
         type: string
       employee_avatar:
         type: string
+      employee_id:
+        type: integer
       employee_name:
         description: creator
         type: string
@@ -277,12 +317,18 @@ definitions:
         items:
           type: string
         type: array
+      lat:
+        type: number
+      lng:
+        type: number
       location_detail:
         type: string
       organizers:
         items:
-          $ref: '#/definitions/models.Account'
+          $ref: "#/definitions/models.Account"
         type: array
+      postal_code:
+        type: string
       price:
         type: number
       registered:
@@ -305,6 +351,15 @@ definitions:
     properties:
       id_event:
         type: integer
+      origin_url:
+        type: string
+      paid:
+        type: boolean
+    type: object
+  models.EventRegistrationResponse:
+    properties:
+      checkout_url:
+        type: string
     type: object
   models.EventStats:
     properties:
@@ -325,7 +380,7 @@ definitions:
         type: integer
       events:
         items:
-          $ref: '#/definitions/models.Event'
+          $ref: "#/definitions/models.Event"
         type: array
       last_page:
         type: integer
@@ -369,7 +424,7 @@ definitions:
         type: integer
       histories:
         items:
-          $ref: '#/definitions/models.History'
+          $ref: "#/definitions/models.History"
         type: array
       last_page:
         type: integer
@@ -405,7 +460,7 @@ definitions:
         type: integer
       users:
         items:
-          $ref: '#/definitions/models.InvoiceUser'
+          $ref: "#/definitions/models.InvoiceUser"
         type: array
     type: object
   models.Item:
@@ -414,6 +469,8 @@ definitions:
         description: listing or deposit
         type: string
       created_at:
+        type: string
+      creator_avatar:
         type: string
       description:
         type: string
@@ -429,9 +486,15 @@ definitions:
         type: string
       price:
         type: number
+      refuse_reason:
+        type: string
+      score:
+        type: integer
       state:
         type: string
       status:
+        type: string
+      street:
         type: string
       title:
         type: string
@@ -478,7 +541,7 @@ definitions:
         type: integer
       items:
         items:
-          $ref: '#/definitions/models.Item'
+          $ref: "#/definitions/models.Item"
         type: array
       last_page:
         type: integer
@@ -496,7 +559,13 @@ definitions:
     properties:
       city:
         type: string
+      lat:
+        type: number
+      lng:
+        type: number
       postal_code:
+        type: string
+      street:
         type: string
     type: object
   models.LoginRequest:
@@ -506,13 +575,20 @@ definitions:
       password:
         type: string
     type: object
+  models.NotiSetting:
+    properties:
+      is_enabled:
+        type: boolean
+      noti_type:
+        type: string
+    type: object
   models.PaginatedHistoryResponse:
     properties:
       current_page:
         type: integer
       items:
         items:
-          $ref: '#/definitions/models.AllItemResponse'
+          $ref: "#/definitions/models.AllItemResponse"
         type: array
       last_page:
         type: integer
@@ -539,12 +615,18 @@ definitions:
         type: string
       creator:
         type: string
+      creator_avatar:
+        type: string
       creator_id:
         type: integer
       id:
         type: integer
       id_account:
         type: integer
+      is_liked:
+        type: boolean
+      is_saved:
+        type: boolean
       like_count:
         type: integer
       photos:
@@ -562,7 +644,7 @@ definitions:
     properties:
       comments:
         items:
-          $ref: '#/definitions/models.Comment'
+          $ref: "#/definitions/models.Comment"
         type: array
       current_page:
         type: integer
@@ -598,7 +680,7 @@ definitions:
         type: integer
       posts:
         items:
-          $ref: '#/definitions/models.Post'
+          $ref: "#/definitions/models.Post"
         type: array
       total_records:
         type: integer
@@ -615,7 +697,7 @@ definitions:
         type: integer
       items:
         items:
-          $ref: '#/definitions/models.StepItem'
+          $ref: "#/definitions/models.StepItem"
         type: array
       photos:
         items:
@@ -642,10 +724,10 @@ definitions:
     properties:
       data:
         items:
-          $ref: '#/definitions/models.RevenueMonthData'
+          $ref: "#/definitions/models.RevenueMonthData"
         type: array
       summary:
-        $ref: '#/definitions/models.RevenueSummary'
+        $ref: "#/definitions/models.RevenueSummary"
       year:
         type: integer
     type: object
@@ -759,7 +841,7 @@ definitions:
         type: integer
       transactions:
         items:
-          $ref: '#/definitions/models.Transaction'
+          $ref: "#/definitions/models.Transaction"
         type: array
     type: object
   models.TransferContainerRequest:
@@ -808,7 +890,20 @@ definitions:
     properties:
       city_name:
         type: string
+      lat:
+        type: number
+      lng:
+        type: number
+      postal_code:
+        type: string
       street:
+        type: string
+    type: object
+  models.UpdateNotiSettingRequest:
+    properties:
+      is_enabled:
+        type: boolean
+      noti_type:
         type: string
     type: object
   models.UpdatePasswordRequest:
@@ -831,6 +926,57 @@ definitions:
     properties:
       trial_days:
         type: integer
+    type: object
+  models.UserImpactItem:
+    properties:
+      buyer_name:
+        type: string
+      co2:
+        type: number
+      electricity:
+        type: number
+      id:
+        type: integer
+      images:
+        items:
+          type: string
+        type: array
+      material:
+        type: string
+      price:
+        type: number
+      sold_date:
+        type: string
+      title:
+        type: string
+      water:
+        type: number
+      weight:
+        type: number
+    type: object
+  models.UserImpactItemsPagination:
+    properties:
+      current_page:
+        type: integer
+      items:
+        items:
+          $ref: "#/definitions/models.UserImpactItem"
+        type: array
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  models.UserImpactStats:
+    properties:
+      co2:
+        type: number
+      electricity:
+        type: number
+      water:
+        type: number
     type: object
   models.UserInvoice:
     properties:
@@ -881,7 +1027,7 @@ definitions:
         type: integer
       invoices:
         items:
-          $ref: '#/definitions/models.UserInvoice'
+          $ref: "#/definitions/models.UserInvoice"
         type: array
       total:
         type: integer
@@ -916,6 +1062,16 @@ definitions:
       refused_listings:
         type: integer
     type: object
+  models.VerifyPaymentRequest:
+    properties:
+      session_id:
+        type: string
+    type: object
+  models.VerifyPaymentResponse:
+    properties:
+      is_paid:
+        type: boolean
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -927,37 +1083,37 @@ paths:
     get:
       description: Get a list of all accounts with filters and pagination
       parameters:
-      - description: Fetch deleted accounts
-        in: query
-        name: is_deleted
-        required: true
-        type: boolean
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Limit
-        in: query
-        name: limit
-        type: integer
-      - description: Search query
-        in: query
-        name: search
-        type: string
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      - description: Filter by role
-        in: query
-        name: role
-        type: string
-      - description: Filter by status
-        in: query
-        name: status
-        type: string
+        - description: Fetch deleted accounts
+          in: query
+          name: is_deleted
+          required: true
+          type: boolean
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Limit
+          in: query
+          name: limit
+          type: integer
+        - description: Search query
+          in: query
+          name: search
+          type: string
+        - description: Sort order
+          in: query
+          name: sort
+          type: string
+        - description: Filter by role
+          in: query
+          name: role
+          type: string
+        - description: Filter by status
+          in: query
+          name: status
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: List of accounts and pagination info
@@ -970,20 +1126,22 @@ paths:
           description: Unauthorized
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get all accounts (Admin)
       tags:
-      - account
+        - account
   /accounts/{id_account}/:
     delete:
       description: Marks an account as deleted
       parameters:
-      - description: Account ID
-        in: path
-        name: id_account
-        required: true
-        type: integer
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -997,24 +1155,26 @@ paths:
           description: Account not found
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Soft delete account
       tags:
-      - account
+        - account
     get:
       description: Get details of a specific account
       parameters:
-      - description: Account ID
-        in: path
-        name: id_account
-        required: true
-        type: integer
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.AccountDetails'
+            $ref: "#/definitions/models.AccountDetails"
         "400":
           description: Invalid ID
         "401":
@@ -1023,28 +1183,72 @@ paths:
           description: Forbidden
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get account details
       tags:
-      - account
+        - account
+  /accounts/{id_account}/avatar/:
+    post:
+      consumes:
+        - multipart/form-data
+      description: Upload and update the avatar image for the authenticated account.
+      parameters:
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
+        - description: Avatar image file
+          in: formData
+          name: avatar
+          required: true
+          type: file
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Account not found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Update avatar
+      tags:
+        - account
   /accounts/{id_account}/ban/:
     patch:
       consumes:
-      - application/json
+        - application/json
       description: Ban or unban an account
       parameters:
-      - description: Account ID
-        in: path
-        name: id_account
-        required: true
-        type: integer
-      - description: Current ban status
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.ToggleBanRequest'
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
+        - description: Current ban status
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.ToggleBanRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -1058,28 +1262,111 @@ paths:
           description: Account not found
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Toggle ban status
       tags:
-      - account
+        - account
+  /accounts/{id_account}/notifications/:
+    get:
+      description: Returns a list of notification settings for a specific account.
+      parameters:
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/models.NotiSetting"
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get notification settings
+      tags:
+        - account
+    patch:
+      consumes:
+        - application/json
+      description: Updates a specific notification setting for an account.
+      parameters:
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
+        - description: Update payload
+          in: body
+          name: payload
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateNotiSettingRequest"
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Update notification setting
+      tags:
+        - account
   /accounts/{id_account}/password/:
     patch:
       consumes:
-      - application/json
+        - application/json
       description: Update the password of a specific account
       parameters:
-      - description: Account ID
-        in: path
-        name: id_account
-        required: true
-        type: integer
-      - description: New password
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdatePasswordRequest'
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
+        - description: New password
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdatePasswordRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -1093,20 +1380,22 @@ paths:
           description: Account not found
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Update password
       tags:
-      - account
+        - account
   /accounts/{id_account}/recover/:
     patch:
       description: Restore a soft-deleted account
       parameters:
-      - description: Account ID
-        in: path
-        name: id_account
-        required: true
-        type: integer
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -1118,20 +1407,22 @@ paths:
           description: Account not found
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Recover account
       tags:
-      - account
+        - account
   /accounts/{id_account}/stats/:
     get:
       description: Get activity statistics for a specific account based on its role
       parameters:
-      - description: Account ID
-        in: path
-        name: id_account
-        required: true
-        type: integer
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Stats (UserStats, ProStats, or EmployeeStats)
@@ -1144,28 +1435,30 @@ paths:
           description: Account not found
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get account stats
       tags:
-      - account
+        - account
   /accounts/{id_account}/update/:
     patch:
       consumes:
-      - application/json
+        - application/json
       description: Update details of a specific account
       parameters:
-      - description: Account ID
-        in: path
-        name: id_account
-        required: true
-        type: integer
-      - description: Account updates
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateAccountRequest'
+        - description: Account ID
+          in: path
+          name: id_account
+          required: true
+          type: integer
+        - description: Account updates
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateAccountRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -1177,32 +1470,37 @@ paths:
           description: Email or Username already exists
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Update account
       tags:
-      - account
+        - account
   /accounts/count/:
     get:
       description: Get total count of accounts and increase since last month
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.AccountCountStats'
+            $ref: "#/definitions/models.AccountCountStats"
         "401":
           description: Unauthorized
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get account count stats
       tags:
-      - account
+        - account
   /accounts/export/:
     get:
-      description: Exports a list of all accounts into a CSV file downloaded by the
+      description:
+        Exports a list of all accounts into a CSV file downloaded by the
         client. Admin only.
       produces:
-      - text/csv
+        - text/csv
       responses:
         "200":
           description: CSV file containing accounts
@@ -1211,70 +1509,1871 @@ paths:
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Export accounts to CSV
       tags:
-      - account
-  /admin/items/:
+        - account
+  /admin/items/history/:
     get:
-      description: Get a paginated list of all items with optional filters for search,
-        sort, status, material, and category.
+      description: Get a paginated history of all items
       parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Items per page
-        in: query
-        name: limit
-        type: integer
-      - description: Search by title or username
-        in: query
-        name: search
-        type: string
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      - description: Filter by status
-        in: query
-        name: status
-        type: string
-      - description: Filter by material
-        in: query
-        name: material
-        type: string
-      - description: Filter by category (listing or deposit)
-        in: query
-        name: category
-        type: string
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Limit
+          in: query
+          name: limit
+          type: integer
+        - description: Search query
+          in: query
+          name: search
+          type: string
+        - description: Sort order
+          in: query
+          name: sort
+          type: string
+        - description: Filter by status
+          in: query
+          name: status
+          type: string
+        - description: Filter by type
+          in: query
+          name: type
+          type: string
       produces:
-      - application/json
+        - application/json
+      responses:
+        "200":
+          description: Paginated items history
+          schema:
+            $ref: "#/definitions/models.PaginatedHistoryResponse"
+        "400":
+          description: Invalid pagination parameters
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get items history
+      tags:
+        - validation
+  /admin/validations/deposits/:
+    get:
+      description: Get a paginated list of pending deposits for admin
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Limit
+          in: query
+          name: limit
+          type: integer
+        - description: Search query
+          in: query
+          name: search
+          type: string
+        - description: Sort order
+          in: query
+          name: sort
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Paginated deposits
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid pagination parameters
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get pending deposits
+      tags:
+        - validation
+  /admin/validations/deposits/{id}/:
+    put:
+      consumes:
+        - application/json
+      description: Approve or refuse a deposit
+      parameters:
+        - description: Deposit ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Validation decision
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.ValidationActionRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Deposit status updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID or payload
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Process deposit validation
+      tags:
+        - validation
+  /admin/validations/events/{id}/:
+    put:
+      consumes:
+        - application/json
+      description: Approve or refuse an event
+      parameters:
+        - description: Event ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Validation decision
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.ValidationActionRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Event status updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID or payload
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Process event validation
+      tags:
+        - validation
+  /admin/validations/listings/:
+    get:
+      description: Get a paginated list of pending listings for admin
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Limit
+          in: query
+          name: limit
+          type: integer
+        - description: Search query
+          in: query
+          name: search
+          type: string
+        - description: Sort order
+          in: query
+          name: sort
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Paginated listings
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid pagination parameters
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get pending listings
+      tags:
+        - validation
+  /admin/validations/listings/{id}/:
+    put:
+      consumes:
+        - application/json
+      description: Approve or refuse a listing
+      parameters:
+        - description: Listing ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Validation decision
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.ValidationActionRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Listing status updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID or payload
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Process listing validation
+      tags:
+        - validation
+  /admin/validations/stats/:
+    get:
+      description: Get counts of pending, approved, and refused for all entity types
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Validation stats
+          schema:
+            $ref: "#/definitions/models.ValidationStats"
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get validation stats
+      tags:
+        - validation
+  /ads/:
+    post:
+      consumes:
+        - application/json
+      description:
+        Create a new advertisement for a specific project. Admin creates
+        it for free, Pro users will need to pay (TODO).
+      parameters:
+        - description: Create Ad payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.CreateAdsRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Ad created successfully.
+          schema:
+            type: string
+        "400":
+          description: Invalid request body or project does not exist
+        "401":
+          description: Unauthorized
+        "409":
+          description: Project already has an active ad
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Create an ad for a project
+      tags:
+        - ads
+  /ads/{ad_id}/:
+    delete:
+      description:
+        Soft-delete (cancel) an existing advertisement by its ID. Admin
+        can delete any ad, Pro users can only delete their own.
+      parameters:
+        - description: Ad ID
+          in: path
+          name: ad_id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid Ad ID or ad does not exist
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Delete an ad
+      tags:
+        - ads
+    patch:
+      consumes:
+        - application/json
+      description:
+        Update the start and end dates of an existing advertisement. Admin
+        only.
+      parameters:
+        - description: Ad ID
+          in: path
+          name: ad_id
+          required: true
+          type: integer
+        - description: Update Ad payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateAdsRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Ad updated successfully.
+          schema:
+            type: string
+        "400":
+          description: Invalid Ad ID or request body
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Update an ad
+      tags:
+        - ads
+  /comments/{id_comment}/:
+    delete:
+      description:
+        Delete a comment by ID. Admins and employees can delete any comment;
+        users can only delete their own.
+      parameters:
+        - description: Comment ID
+          in: path
+          name: id_comment
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Comment deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Delete a comment
+      tags:
+        - comment
+  /containers/:
+    get:
+      description: Get a list of all containers
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Limit
+          in: query
+          name: limit
+          type: integer
+        - description: Search query
+          in: query
+          name: search
+          type: string
+        - description: Filter by status
+          in: query
+          name: status
+          type: string
+      produces:
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ItemListPagination'
+            $ref: "#/definitions/models.ContainerListPagination"
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get all containers
+      tags:
+        - container
+    post:
+      consumes:
+        - application/json
+      description: Create a new container
+      parameters:
+        - description: Container details
+          in: body
+          name: container
+          required: true
+          schema:
+            $ref: "#/definitions/models.Container"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: "#/definitions/models.Container"
+        "400":
+          description: Invalid request or postal code
+          schema:
+            type: string
+        "500":
+          description: Creation failed
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Create container
+      tags:
+        - container
+  /containers/{id}/:
+    delete:
+      description: Soft delete a container by its ID
+      parameters:
+        - description: Container ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Delete container
+      tags:
+        - container
+    get:
+      description: Get a single container by its ID
+      parameters:
+        - description: Container ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.Container"
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "404":
+          description: Container not found
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get container by ID
+      tags:
+        - container
+    put:
+      consumes:
+        - application/json
+      description:
+        Update the status of a container. Can't update if status is waiting
+        or occupied.
+      parameters:
+        - description: Container ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: New status payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateStatusRequest"
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Update container status
+      tags:
+        - container
+  /containers/{id}/earliest/:
+    get:
+      description:
+        Calculates the earliest date and time the container will be available
+        by looking at planned schedules (user and pro barcode ranges).
+      parameters:
+        - description: Container ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Earliest availability
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID
+        "404":
+          description: Container not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get earliest availability for a container
+      tags:
+        - container
+  /containers/{id}/location/:
+    put:
+      consumes:
+        - application/json
+      description: Update the location of a container.
+      parameters:
+        - description: Container ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: New location payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateLocationRequest"
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Update container location
+      tags:
+        - container
+  /containers/{id}/schedule/:
+    get:
+      description:
+        Returns the list of deposits and their planned dates (barcode valid
+        date range) for a specific container.
+      parameters:
+        - description: Container ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/models.ContainerSchedule"
+            type: array
+        "400":
+          description: Invalid ID
+        "404":
+          description: Container not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get container schedule
+      tags:
+        - container
+  /containers/available/:
+    get:
+      description: Get a list of available containers
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/models.Container"
+            type: array
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get available containers
+      tags:
+        - container
+  /containers/count/:
+    get:
+      description: Get statistics about container counts (total and active)
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.ContainerCountStats"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get container count stats
+      tags:
+        - container
+  /containers/nearest/:
+    get:
+      description: Get the available container closest to specified coordinates.
+      parameters:
+        - description: Latitude
+          format: float64
+          in: query
+          name: lat
+          required: true
+          type: number
+        - description: Longitude
+          format: float64
+          in: query
+          name: lng
+          required: true
+          type: number
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.Container"
+        "400":
+          description: Missing or invalid latitude/longitude
+        "401":
+          description: Unauthorized
+        "404":
+          description: No available containers found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get nearest available container
+      tags:
+        - container
+  /deposits/{deposit_id}/:
+    get:
+      description: Get details of a specific deposit
+      parameters:
+        - description: Deposit ID
+          in: path
+          name: deposit_id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.DepositDetails"
+        "400":
+          description: Invalid deposit ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Deposit not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get deposit details by ID
+      tags:
+        - deposit
+    put:
+      consumes:
+        - multipart/form-data
+      description: Update the details of a specific deposit (only by owner or admin)
+      parameters:
+        - description: Deposit ID
+          in: path
+          name: deposit_id
+          required: true
+          type: integer
+        - description: Title
+          in: formData
+          name: title
+          required: true
+          type: string
+        - description: Description
+          in: formData
+          name: description
+          required: true
+          type: string
+        - description: Weight
+          in: formData
+          name: weight
+          required: true
+          type: number
+        - description: State
+          in: formData
+          name: state
+          required: true
+          type: string
+        - description: Material
+          in: formData
+          name: material
+          required: true
+          type: string
+        - description: Price
+          in: formData
+          name: price
+          required: true
+          type: number
+        - description: Existing images to keep
+          in: formData
+          name: existing_images
+          type: array
+        - description: New images to upload
+          in: formData
+          name: new_images
+          type: file
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: Successfully updated
+        "400":
+          description: Invalid request parameters
+        "401":
+          description: Unauthorized
+        "404":
+          description: Deposit not found
+        "409":
+          description: Deposit is completed or reserved
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Update deposit details
+      tags:
+        - deposit
+  /deposits/{deposit_id}/codes/:
+    get:
+      description:
+        Get deposit code of pro and user of the latest transaction for
+        a deposit
+      parameters:
+        - description: Deposit ID
+          in: path
+          name: deposit_id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Deposit codes and their status
+          schema:
+            items:
+              $ref: "#/definitions/models.Barcode"
+            type: array
+        "400":
+          description: Invalid deposit ID
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get deposit codes for user and/or pro of the latest transaction
+      tags:
+        - deposit
+  /deposits/{deposit_id}/transfer/:
+    patch:
+      consumes:
+        - application/json
+      description: Change the container of a deposit to a another available container
+      parameters:
+        - description: Deposit ID
+          in: path
+          name: deposit_id
+          required: true
+          type: integer
+        - description: Transfer Container payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.TransferContainerRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Container transferred successfully
+        "400":
+          description: Invalid deposit ID or container ID
+        "404":
+          description: Deposit or Container not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Transfer container by deposit ID
+      tags:
+        - deposit
+  /employees/{id_employee}/schedule/:
+    get:
+      description:
+        Returns the list of events assigned to a specific employee. Admins
+        can view any employee's schedule; employees can only view their own.
+      parameters:
+        - description: Employee account ID
+          in: path
+          name: id_employee
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: List of assigned events
+          schema:
+            items:
+              $ref: "#/definitions/models.Event"
+            type: array
+        "400":
+          description: Invalid employee ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Employee not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get employee schedule
+      tags:
+        - employee
+  /employees/available/:
+    get:
+      description: Get a list of employees not occupied during a specific time range.
+      parameters:
+        - description: Start date (RFC3339 format, e.g., 2026-03-22T17:00:00Z)
+          in: query
+          name: start_at
+          required: true
+          type: string
+        - description: End date (RFC3339 format, e.g., 2026-03-22T19:00:00Z)
+          in: query
+          name: end_at
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: List of available employees
+          schema:
+            $ref: "#/definitions/models.AvailableEmployeesResponse"
+        "400":
+          description: Invalid time format
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get available employees
+      tags:
+        - employee
+  /events/:
+    get:
+      consumes:
+        - application/json
+      description:
+        Get list of all events with pagination, search, status and sort
+        filters.
+      parameters:
+        - description: Current page number (default 1)
+          in: query
+          name: page
+          type: integer
+        - description: Number of events per page (default all)
+          in: query
+          name: limit
+          type: integer
+        - description: Search in title or city
+          in: query
+          name: search
+          type: string
+        - description: "Filter by status: pending, approved, refused"
+          in: query
+          name: status
+          type: string
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description: Filter by city
+          in: query
+          name: city
+          type: string
+        - description: Sort by field
+          in: query
+          name: sort
+          type: string
+        - description: Filter by future events only
+          in: query
+          name: future_only
+          type: boolean
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Events list retrieved successfully
+          schema:
+            $ref: "#/definitions/models.EventsListPagination"
+        "400":
+          description: Invalid query parameters
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get all events
+      tags:
+        - event
+    post:
+      consumes:
+        - multipart/form-data
+      description: Create a new event from the provided multipart form data.
+      parameters:
+        - description: Event title
+          in: formData
+          name: title
+          required: true
+          type: string
+        - description: Event description
+          in: formData
+          name: description
+          type: string
+        - description: Start date (RFC3339 format)
+          in: formData
+          name: start_at
+          type: string
+        - description: End date (RFC3339 format)
+          in: formData
+          name: end_at
+          type: string
+        - description: Event price
+          in: formData
+          name: price
+          type: number
+        - description: Event category (workshop, conference, meetups, exposition, other)
+          in: formData
+          name: category
+          type: string
+        - description: Max attendees
+          in: formData
+          name: capacity
+          type: integer
+        - description: City
+          in: formData
+          name: city
+          type: string
+        - description: Street
+          in: formData
+          name: street
+          type: string
+        - description: Additional location details
+          in: formData
+          name: location_detail
+          type: string
+        - description: Event images (multiple allowed)
+          in: formData
+          name: images
+          type: file
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Event created successfully
+        "400":
+          description: Invalid payload or parsing error
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Create new event
+      tags:
+        - event
+  /events/{id}/:
+    get:
+      consumes:
+        - application/json
+      description: Get detailed information about an event by its ID.
+      parameters:
+        - description: Event ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Event details retrieved successfully
+          schema:
+            $ref: "#/definitions/models.Event"
+        "400":
+          description: Invalid event ID
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get event details
+      tags:
+        - event
+  /events/{id}/assign/:
+    post:
+      consumes:
+        - application/json
+      description:
+        Assign a list of employees to an event by its ID. Replaces existing
+        assignments.
+      parameters:
+        - description: Event ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: List of employee IDs
+          in: body
+          name: payload
+          required: true
+          schema:
+            $ref: "#/definitions/models.AssignEmployeeRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Employees assigned successfully
+        "400":
+          description: Invalid payload or ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Assign employees to event
+      tags:
+        - event
+  /events/{id}/status/:
+    patch:
+      consumes:
+        - application/json
+      description: Update the status of an event (cancelled, approved, refused, pending).
+      parameters:
+        - description: Event ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: New status
+          in: body
+          name: payload
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateEventStatusRequest"
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: Status updated
+        "400":
+          description: Invalid ID or status
+        "401":
+          description: Unauthorized
+        "409":
+          description: Event already ended or has paid participants
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Update event status
+      tags:
+        - event
+  /events/{id}/unassign/:
+    delete:
+      description: Remove an employee assignment from an event by ID.
+      parameters:
+        - description: Event ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Employee ID to unassign
+          in: body
+          name: payload
+          required: true
+          schema:
+            $ref: "#/definitions/models.UnAssignEmployeeRequest"
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: Employee unassigned
+        "400":
+          description: Invalid payload or ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Unassign employee from event
+      tags:
+        - event
+  /events/{id}/update/:
+    put:
+      consumes:
+        - multipart/form-data
+      description:
+        "Update the details of an existing event by its ID using multipart
+        form data. Employee can't update event if it's already cancelled and updating
+        will require re-validation from admin. Only admin, creator or assigned employee
+        can edit. Can't update critical fields: start_at, city, street, location_detail,
+        price if event has participants already registered."
+      parameters:
+        - description: Event ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Event title
+          in: formData
+          name: title
+          type: string
+        - description: Event description
+          in: formData
+          name: description
+          type: string
+        - description: Start date (RFC3339 format)
+          in: formData
+          name: start_at
+          type: string
+        - description: End date (RFC3339 format)
+          in: formData
+          name: end_at
+          type: string
+        - description: Event price
+          in: formData
+          name: price
+          type: number
+        - description: Event category
+          in: formData
+          name: category
+          type: string
+        - description: Max attendees
+          in: formData
+          name: capacity
+          type: integer
+        - description: City
+          in: formData
+          name: city
+          type: string
+        - description: Street
+          in: formData
+          name: street
+          type: string
+        - description: Additional location details
+          in: formData
+          name: location_detail
+          type: string
+        - description: List of existing image paths to keep (multiple allowed)
+          in: formData
+          name: existing_images
+          type: string
+        - description: New event images to upload (multiple allowed)
+          in: formData
+          name: new_images
+          type: file
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: Event updated successfully
+        "400":
+          description: Invalid payload or ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Update event details
+      tags:
+        - event
+  /events/cancel/:
+    patch:
+      consumes:
+        - application/json
+      description: Cancel registration to an event by event ID.
+      parameters:
+        - description: Event cancellation payload
+          in: body
+          name: payload
+          required: true
+          schema:
+            $ref: "#/definitions/models.EventCancelRegistrationRequest"
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: Registration cancelled successfully
+        "400":
+          description: Invalid request payload or registration conditions not met
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Cancel registration to event
+      tags:
+        - event
+  /events/count/:
+    get:
+      consumes:
+        - application/json
+      description: |-
+        Get general stats of events to show in event module's cards. Stats include:
+        - total events
+        - new events since last month (30 days)
+        - upcoming events in next 30 days
+        - total registrations since last month
+        - total pending approvals for events
+      parameters:
+        - description:
+            "Timeframe filter: today, last_3_days, last_week, last_month,
+            last_year, all"
+          in: query
+          name: timeframe
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Event stats retrieved successfully
+          schema:
+            $ref: "#/definitions/models.EventStats"
+        "400":
+          description: Invalid ID or payload
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get event stats
+      tags:
+        - event
+  /events/employees/{id}/:
+    get:
+      consumes:
+        - application/json
+      description: Get list of employees assigned to an event by ID.
+      parameters:
+        - description: Event ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: List of assigned employees
+          schema:
+            items:
+              $ref: "#/definitions/models.AssignedEmployee"
+            type: array
+        "400":
+          description: Invalid event ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Event not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get assigned employees
+      tags:
+        - event
+  /events/me/:
+    get:
+      description:
+        Get list of events registered by the current user or assigned to
+        the current employee.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: List of events
+          schema:
+            items:
+              $ref: "#/definitions/models.Event"
+            type: array
+        "400":
+          description: Account not found
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get my events
+      tags:
+        - event
+  /events/register/:
+    post:
+      consumes:
+        - application/json
+      description:
+        Register to an event by event ID. If the event is paid, it returns
+        a Stripe checkout URL unless already paid.
+      parameters:
+        - description: Event registration payload
+          in: body
+          name: payload
+          required: true
+          schema:
+            $ref: "#/definitions/models.EventRegistrationRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Stripe checkout URL returned
+          schema:
+            $ref: "#/definitions/models.EventRegistrationResponse"
+        "201":
+          description: Registered successfully
+          schema:
+            $ref: "#/definitions/models.EventRegistrationResponse"
+        "400":
+          description: Invalid request payload or event conditions not met
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Register to event
+      tags:
+        - event
+  /finance/invoices/:
+    get:
+      description:
+        Returns a paginated list of accounts with their total transaction
+        count and total amount spent. Supports search by username or email.
+      parameters:
+        - description: Page number (default 1)
+          in: query
+          name: page
+          type: integer
+        - description: Items per page (default 10, max 100)
+          in: query
+          name: limit
+          type: integer
+        - description: Search by username or email
+          in: query
+          name: search
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.InvoicesListResponse"
+        "400":
+          description: Invalid page or limit parameter
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get invoice users
+      tags:
+        - finance
+  /finance/invoices/{userId}/:
+    get:
+      description:
+        Returns all invoices (transactions, subscriptions, ads, events)
+        for a specific account. Admins can access any user's invoices; non-admin users
+        can only access their own.
+      parameters:
+        - description: Account ID
+          in: path
+          name: userId
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.UserInvoicesResponse"
+        "400":
+          description: Invalid user ID
+        "401":
+          description: Unauthorized or forbidden
+        "404":
+          description: User not found
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get user invoices
+      tags:
+        - finance
+  /finance/revenue/:
+    get:
+      description:
+        Returns monthly revenue data grouped by category (subscriptions,
+        commissions, ads, events) for a given year, along with a yearly summary.
+      parameters:
+        - description: Year (defaults to current year, must be between 2000 and 2100)
+          in: query
+          name: year
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.RevenueResponse"
+        "400":
+          description: Invalid year parameter
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get monthly revenue
+      tags:
+        - finance
+  /finance/settings/:
+    get:
+      description: Returns all finance settings. Admin only.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/models.FinanceSetting"
+            type: array
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get finance settings
+      tags:
+        - finance
+  /finance/settings/{key}/:
+    get:
+      description:
+        Returns a specific finance setting by its key. Accessible to all
+        users.
+      parameters:
+        - description:
+            Setting key (e.g., trial_days, commission_rate, ads_price_per_month,
+            subscription_price)
+          in: path
+          name: key
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: number
+        "400":
+          description: Missing or invalid key parameter
+        "500":
+          description: Internal server error
+      summary: Get finance setting by key
+      tags:
+        - finance
+    put:
+      consumes:
+        - application/json
+      description:
+        "Updates one finance setting by key. Keys: trial_days, commission_rate,
+        ads_price_per_month, subscription_price. Admin only."
+      parameters:
+        - description: Setting key
+          in: path
+          name: key
+          required: true
+          type: string
+        - description: Setting value payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateFinanceSettingRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request or missing key
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Update finance setting
+      tags:
+        - finance
+  /healthcheck/:
+    get:
+      description: Check the database connection status
+      produces:
+        - text/plain
+      responses:
+        "200":
+          description: Database connected successfully
+          schema:
+            type: string
+        "500":
+          description: "Error connecting to database: ..."
+          schema:
+            type: string
+      summary: Health Check
+      tags:
+        - health
+  /history/:
+    get:
+      consumes:
+        - application/json
+      description:
+        Fetches all admin's activites from the database with pagination
+        and filters.
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Number of records per page
+          in: query
+          name: limit
+          type: integer
+        - description: Search by admin name or item ID
+          in: query
+          name: search
+          type: string
+        - description: Sort order (most_recent_activity, oldest_activity)
+          in: query
+          name: sort
+          type: string
+        - description: Filter by module
+          in: query
+          name: module
+          type: string
+        - description: Filter by action
+          in: query
+          name: action
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.HistoryListPagination"
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Get all admin activities
+      tags:
+        - Admin History
+  /history/{history_id}/:
+    get:
+      consumes:
+        - application/json
+      description: Fetches the details of a specific admin activity.
+      parameters:
+        - description: History ID
+          in: path
+          name: history_id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.History"
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+        - ApiKeyAuth: []
+      summary: Get history details
+      tags:
+        - Admin History
+  /items/:
+    get:
+      description:
+        Get a paginated list of all items with optional filters for search,
+        sort, status, material, and category.
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Search by title or username
+          in: query
+          name: search
+          type: string
+        - description: Sort order
+          in: query
+          name: sort
+          type: string
+        - description: Filter by status
+          in: query
+          name: status
+          type: string
+        - description: Filter by material
+          in: query
+          name: material
+          type: string
+        - description: Filter by category (listing or deposit)
+          in: query
+          name: category
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.ItemListPagination"
         "400":
           description: Invalid query parameters
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get all items
       tags:
-      - item
-  /admin/items/{item_id}/:
+        - item
+    post:
+      consumes:
+        - multipart/form-data
+      description:
+        Create a new item (listing or deposit). Supports multipart/form-data
+        for image uploads.
+      parameters:
+        - description: Item title
+          in: formData
+          name: title
+          required: true
+          type: string
+        - description: Item description
+          in: formData
+          name: description
+          required: true
+          type: string
+        - description: Item price
+          in: formData
+          name: price
+          required: true
+          type: integer
+        - description: Item weight
+          in: formData
+          name: weight
+          required: true
+          type: integer
+        - description: Item material
+          in: formData
+          name: material
+          required: true
+          type: string
+        - description: Item state
+          in: formData
+          name: state
+          required: true
+          type: string
+        - description: Item category (listing or deposit)
+          in: formData
+          name: category
+          required: true
+          type: string
+        - description: Item images
+          in: formData
+          name: images
+          required: true
+          type: file
+        - description: Container ID (for deposit)
+          in: formData
+          name: id_container
+          type: integer
+        - description: Street (for listing)
+          in: formData
+          name: street
+          type: string
+        - description: City name (for listing)
+          in: formData
+          name: city_name
+          type: string
+        - description: Postal code (for listing)
+          in: formData
+          name: postal_code
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Item created successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request body or parameters
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Create a new item
+      tags:
+        - item
+  /items/{item_id}/:
     delete:
-      description: Soft-delete an item (listing or deposit) by its ID. Admin can delete
+      description:
+        Soft-delete an item (listing or deposit) by its ID. Admin can delete
         any item; users can only delete their own. Item that is reserved or completed
         can't be deleted
       parameters:
-      - description: Item ID
-        in: path
-        name: item_id
-        required: true
-        type: integer
+        - description: Item ID
+          in: path
+          name: item_id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -1287,26 +3386,27 @@ paths:
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Delete item
       tags:
-      - item
+        - item
     get:
-      description: Get detailed information for a specific item including photos and
+      description:
+        Get detailed information for a specific item including photos and
         owner username.
       parameters:
-      - description: Item ID
-        in: path
-        name: item_id
-        required: true
-        type: integer
+        - description: Item ID
+          in: path
+          name: item_id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Item'
+            $ref: "#/definitions/models.Item"
         "400":
           description: Invalid ID
         "404":
@@ -1314,29 +3414,30 @@ paths:
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Get item details
       tags:
-      - item
+        - item
     patch:
       consumes:
-      - application/json
-      description: Update the status of an item (pending, approved, refused, deleted,
+        - application/json
+      description:
+        Update the status of an item (pending, approved, refused, deleted,
         completed). Admin and users only.
       parameters:
-      - description: Item ID
-        in: path
-        name: item_id
-        required: true
-        type: integer
-      - description: New status
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.ItemStatusUpdateRequest'
+        - description: Item ID
+          in: path
+          name: item_id
+          required: true
+          type: integer
+        - description: New status
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.ItemStatusUpdateRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Item status updated successfully
@@ -1353,1560 +3454,34 @@ paths:
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Update item status
       tags:
-      - item
-  /admin/items/count/:
-    get:
-      description: Get admin-level statistics for items including counts by status,
-        material, category, and timeframe.
-      parameters:
-      - description: 'Timeframe filter: today, last_3_days, last_week, last_month,
-          last_year, all'
-        in: query
-        name: timeframe
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ItemAdminStats'
-        "400":
-          description: Invalid timeframe
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      security:
-      - ApiKeyAuth: []
-      summary: Get item statistics
-      tags:
-      - item
-  /admin/items/history/:
-    get:
-      description: Get a paginated history of all items
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Limit
-        in: query
-        name: limit
-        type: integer
-      - description: Search query
-        in: query
-        name: search
-        type: string
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      - description: Filter by status
-        in: query
-        name: status
-        type: string
-      - description: Filter by type
-        in: query
-        name: type
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Paginated items history
-          schema:
-            $ref: '#/definitions/models.PaginatedHistoryResponse'
-        "400":
-          description: Invalid pagination parameters
-        "403":
-          description: Forbidden
-        "500":
-          description: Internal server error
-      summary: Get items history
-      tags:
-      - validation
-  /admin/validations/deposits/:
-    get:
-      description: Get a paginated list of pending deposits for admin
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Limit
-        in: query
-        name: limit
-        type: integer
-      - description: Search query
-        in: query
-        name: search
-        type: string
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Paginated deposits
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid pagination parameters
-        "500":
-          description: Internal server error
-      summary: Get pending deposits
-      tags:
-      - validation
-  /admin/validations/deposits/{id}/:
-    put:
-      consumes:
-      - application/json
-      description: Approve or refuse a deposit
-      parameters:
-      - description: Deposit ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Validation decision
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.ValidationActionRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Deposit status updated successfully
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Invalid ID or payload
-        "500":
-          description: Internal server error
-      summary: Process deposit validation
-      tags:
-      - validation
-  /admin/validations/events/{id}/:
-    put:
-      consumes:
-      - application/json
-      description: Approve or refuse an event
-      parameters:
-      - description: Event ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Validation decision
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.ValidationActionRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Event status updated successfully
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Invalid ID or payload
-        "404":
-          description: Event not found
-        "500":
-          description: Internal server error
-      summary: Process event validation
-      tags:
-      - validation
-  /admin/validations/listings/:
-    get:
-      description: Get a paginated list of pending listings for admin
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Limit
-        in: query
-        name: limit
-        type: integer
-      - description: Search query
-        in: query
-        name: search
-        type: string
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Paginated listings
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid pagination parameters
-        "500":
-          description: Internal server error
-      summary: Get pending listings
-      tags:
-      - validation
-  /admin/validations/listings/{id}/:
-    put:
-      consumes:
-      - application/json
-      description: Approve or refuse a listing
-      parameters:
-      - description: Listing ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Validation decision
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.ValidationActionRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Listing status updated successfully
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Invalid ID or payload
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      summary: Process listing validation
-      tags:
-      - validation
-  /admin/validations/stats/:
-    get:
-      description: Get counts of pending, approved, and refused for all entity types
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Validation stats
-          schema:
-            $ref: '#/definitions/models.ValidationStats'
-        "500":
-          description: Internal server error
-      summary: Get validation stats
-      tags:
-      - validation
-  /ads/:
-    post:
-      consumes:
-      - application/json
-      description: Create a new advertisement for a specific project. Admin creates
-        it for free, Pro users will need to pay (TODO).
-      parameters:
-      - description: Create Ad payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateAdsRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Ad created successfully.
-          schema:
-            type: string
-        "400":
-          description: Invalid request body or project does not exist
-        "401":
-          description: Unauthorized
-        "409":
-          description: Project already has an active ad
-        "500":
-          description: Internal server error
-      summary: Create an ad for a project
-      tags:
-      - ads
-  /ads/{ad_id}/:
-    delete:
-      description: Soft-delete (cancel) an existing advertisement by its ID. Admin
-        can delete any ad, Pro users can only delete their own.
-      parameters:
-      - description: Ad ID
-        in: path
-        name: ad_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Invalid Ad ID or ad does not exist
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      summary: Delete an ad
-      tags:
-      - ads
-    patch:
-      consumes:
-      - application/json
-      description: Update the start and end dates of an existing advertisement. Admin
-        only.
-      parameters:
-      - description: Ad ID
-        in: path
-        name: ad_id
-        required: true
-        type: integer
-      - description: Update Ad payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateAdsRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Ad updated successfully.
-          schema:
-            type: string
-        "400":
-          description: Invalid Ad ID or request body
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      summary: Update an ad
-      tags:
-      - ads
-  /containers/:
-    get:
-      description: Get a list of all containers
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Limit
-        in: query
-        name: limit
-        type: integer
-      - description: Search query
-        in: query
-        name: search
-        type: string
-      - description: Filter by status
-        in: query
-        name: status
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ContainerListPagination'
-        "500":
-          description: Internal server error
-      summary: Get all containers
-      tags:
-      - container
-    post:
-      consumes:
-      - application/json
-      description: Create a new container
-      parameters:
-      - description: Container details
-        in: body
-        name: container
-        required: true
-        schema:
-          $ref: '#/definitions/models.Container'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.Container'
-        "400":
-          description: Invalid request or postal code
-          schema:
-            type: string
-        "500":
-          description: Creation failed
-          schema:
-            type: string
-      summary: Create container
-      tags:
-      - container
-  /containers/{id}/:
-    delete:
-      description: Soft delete a container by its ID
-      parameters:
-      - description: Container ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal error
-          schema:
-            type: string
-      summary: Delete container
-      tags:
-      - container
-    get:
-      description: Get a single container by its ID
-      parameters:
-      - description: Container ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Container'
-        "400":
-          description: Invalid ID
-          schema:
-            type: string
-        "404":
-          description: Container not found
-          schema:
-            type: string
-      summary: Get container by ID
-      tags:
-      - container
-    put:
-      consumes:
-      - application/json
-      description: Update the status of a container. Can't update if status is waiting
-        or occupied.
-      parameters:
-      - description: Container ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: New status payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateStatusRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal error
-          schema:
-            type: string
-      summary: Update container status
-      tags:
-      - container
-  /containers/{id}/location/:
-    put:
-      consumes:
-      - application/json
-      description: Update the location of a container.
-      parameters:
-      - description: Container ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: New location payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateLocationRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal error
-          schema:
-            type: string
-      summary: Update container location
-      tags:
-      - container
-  /containers/{id}/schedule/:
-    get:
-      description: Returns the list of deposits and their planned dates (barcode valid
-        date range) for a specific container.
-      parameters:
-      - description: Container ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.ContainerSchedule'
-            type: array
-        "400":
-          description: Invalid ID
-        "404":
-          description: Container not found
-        "500":
-          description: Internal server error
-      summary: Get container schedule
-      tags:
-      - container
-  /containers/available/:
-    get:
-      description: Get a list of available containers
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Container'
-            type: array
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-          schema:
-            type: string
-      summary: Get available containers
-      tags:
-      - container
-  /containers/count/:
-    get:
-      description: Get statistics about container counts (total and active)
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ContainerCountStats'
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal error
-          schema:
-            type: string
-      summary: Get container count stats
-      tags:
-      - container
-  /deposits/{deposit_id}/:
-    get:
-      description: Get details of a specific deposit
-      parameters:
-      - description: Deposit ID
-        in: path
-        name: deposit_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.DepositDetails'
-        "400":
-          description: Invalid deposit ID
-        "401":
-          description: Unauthorized
-        "404":
-          description: Deposit not found
-        "500":
-          description: Internal server error
-      summary: Get deposit details by ID
-      tags:
-      - deposit
-    put:
-      consumes:
-      - multipart/form-data
-      description: Update the details of a specific deposit (only by owner or admin)
-      parameters:
-      - description: Deposit ID
-        in: path
-        name: deposit_id
-        required: true
-        type: integer
-      - description: Title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: Description
-        in: formData
-        name: description
-        required: true
-        type: string
-      - description: Weight
-        in: formData
-        name: weight
-        required: true
-        type: number
-      - description: State
-        in: formData
-        name: state
-        required: true
-        type: string
-      - description: Material
-        in: formData
-        name: material
-        required: true
-        type: string
-      - description: Price
-        in: formData
-        name: price
-        required: true
-        type: number
-      - description: Existing images to keep
-        in: formData
-        name: existing_images
-        type: array
-      - description: New images to upload
-        in: formData
-        name: new_images
-        type: file
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: Successfully updated
-        "400":
-          description: Invalid request parameters
-        "401":
-          description: Unauthorized
-        "404":
-          description: Deposit not found
-        "409":
-          description: Deposit is completed or reserved
-        "500":
-          description: Internal server error
-      summary: Update deposit details
-      tags:
-      - deposit
-  /deposits/{deposit_id}/codes/:
-    get:
-      description: Get deposit code of pro and user of the latest transaction for
-        a deposit
-      parameters:
-      - description: Deposit ID
-        in: path
-        name: deposit_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Deposit codes and their status
-          schema:
-            items:
-              $ref: '#/definitions/models.CodeForAdmin'
-            type: array
-        "400":
-          description: Invalid deposit ID
-        "500":
-          description: Internal server error
-      summary: Get deposit codes for user and/or pro of the latest transaction
-      tags:
-      - deposit
-  /deposits/{deposit_id}/transfer/:
-    patch:
-      consumes:
-      - application/json
-      description: Change the container of a deposit to a another available container
-      parameters:
-      - description: Deposit ID
-        in: path
-        name: deposit_id
-        required: true
-        type: integer
-      - description: Transfer Container payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.TransferContainerRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Container transferred successfully
-        "400":
-          description: Invalid deposit ID or container ID
-        "404":
-          description: Deposit or Container not found
-        "500":
-          description: Internal server error
-      summary: Transfer container by deposit ID
-      tags:
-      - deposit
-  /employees/{id_employee}/schedule/:
-    get:
-      description: Returns the list of events assigned to a specific employee. Admins
-        can view any employee's schedule; employees can only view their own.
-      parameters:
-      - description: Employee account ID
-        in: path
-        name: id_employee
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of assigned events
-          schema:
-            items:
-              $ref: '#/definitions/models.Event'
-            type: array
-        "400":
-          description: Invalid employee ID
-        "401":
-          description: Unauthorized
-        "404":
-          description: Employee not found
-        "500":
-          description: Internal server error
-      security:
-      - ApiKeyAuth: []
-      summary: Get employee schedule
-      tags:
-      - employee
-  /employees/available/:
-    get:
-      description: Get a list of employees not occupied during a specific time range.
-      parameters:
-      - description: Start date (RFC3339 format, e.g., 2026-03-22T17:00:00Z)
-        in: query
-        name: start_at
-        required: true
-        type: string
-      - description: End date (RFC3339 format, e.g., 2026-03-22T19:00:00Z)
-        in: query
-        name: end_at
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of available employees
-          schema:
-            $ref: '#/definitions/models.AvailableEmployeesResponse'
-        "400":
-          description: Invalid time format
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      summary: Get available employees
-      tags:
-      - employee
-  /events/:
-    get:
-      consumes:
-      - application/json
-      description: Get list of all events with pagination, search, status and sort
-        filters.
-      parameters:
-      - description: Current page number (default 1)
-        in: query
-        name: page
-        type: integer
-      - description: Number of events per page (default all)
-        in: query
-        name: limit
-        type: integer
-      - description: Search in title or city
-        in: query
-        name: search
-        type: string
-      - description: 'Filter by status: pending, approved, refused'
-        in: query
-        name: status
-        type: string
-      - description: Filter by category
-        in: query
-        name: category
-        type: string
-      - description: Filter by city
-        in: query
-        name: city
-        type: string
-      - description: Sort by field
-        in: query
-        name: sort
-        type: string
-      - description: Filter by future events only
-        in: query
-        name: future_only
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Events list retrieved successfully
-          schema:
-            $ref: '#/definitions/models.EventsListPagination'
-        "400":
-          description: Invalid query parameters
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      summary: Get all events
-      tags:
-      - event
-    post:
-      consumes:
-      - multipart/form-data
-      description: Create a new event from the provided multipart form data.
-      parameters:
-      - description: Event title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: Event description
-        in: formData
-        name: description
-        type: string
-      - description: Start date (RFC3339 format)
-        in: formData
-        name: start_at
-        type: string
-      - description: End date (RFC3339 format)
-        in: formData
-        name: end_at
-        type: string
-      - description: Event price
-        in: formData
-        name: price
-        type: number
-      - description: Event category (workshop, conference, meetups, exposition, other)
-        in: formData
-        name: category
-        type: string
-      - description: Max attendees
-        in: formData
-        name: capacity
-        type: integer
-      - description: City
-        in: formData
-        name: city
-        type: string
-      - description: Street
-        in: formData
-        name: street
-        type: string
-      - description: Additional location details
-        in: formData
-        name: location_detail
-        type: string
-      - description: Event images (multiple allowed)
-        in: formData
-        name: images
-        type: file
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Event created successfully
-        "400":
-          description: Invalid payload or parsing error
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      summary: Create new event
-      tags:
-      - event
-  /events/{id}/:
-    get:
-      consumes:
-      - application/json
-      description: Get detailed information about an event by its ID.
-      parameters:
-      - description: Event ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Event details retrieved successfully
-          schema:
-            $ref: '#/definitions/models.Event'
-        "400":
-          description: Invalid event ID
-        "404":
-          description: Event not found
-        "500":
-          description: Internal server error
-      summary: Get event details
-      tags:
-      - event
-  /events/{id}/assign/:
-    post:
-      consumes:
-      - application/json
-      description: Assign a list of employees to an event by its ID. Replaces existing
-        assignments.
-      parameters:
-      - description: Event ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: List of employee IDs
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/models.AssignEmployeeRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Employees assigned successfully
-        "400":
-          description: Invalid payload or ID
-        "401":
-          description: Unauthorized
-        "404":
-          description: Event not found
-        "500":
-          description: Internal server error
-      summary: Assign employees to event
-      tags:
-      - event
-  /events/{id}/status/:
-    patch:
-      consumes:
-      - application/json
-      description: Update the status of an event (cancelled, approved, refused, pending).
-      parameters:
-      - description: Event ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: New status
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateEventStatusRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: Status updated
-        "400":
-          description: Invalid ID or status
-        "401":
-          description: Unauthorized
-        "409":
-          description: Event already ended or has paid participants
-        "500":
-          description: Internal server error
-      summary: Update event status
-      tags:
-      - event
-  /events/{id}/unassign/:
-    delete:
-      description: Remove an employee assignment from an event by ID.
-      parameters:
-      - description: Event ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Employee ID to unassign
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/models.UnAssignEmployeeRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: Employee unassigned
-        "400":
-          description: Invalid payload or ID
-        "401":
-          description: Unauthorized
-        "404":
-          description: Event not found
-        "500":
-          description: Internal server error
-      summary: Unassign employee from event
-      tags:
-      - event
-  /events/{id}/update/:
-    put:
-      consumes:
-      - multipart/form-data
-      description: 'Update the details of an existing event by its ID using multipart
-        form data. Employee can''t update event if it''s already cancelled and updating
-        will require re-validation from admin. Only admin, creator or assigned employee
-        can edit. Can''t update critical fields: start_at, city, street, location_detail,
-        price if event has participants already registered.'
-      parameters:
-      - description: Event ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Event title
-        in: formData
-        name: title
-        type: string
-      - description: Event description
-        in: formData
-        name: description
-        type: string
-      - description: Start date (RFC3339 format)
-        in: formData
-        name: start_at
-        type: string
-      - description: End date (RFC3339 format)
-        in: formData
-        name: end_at
-        type: string
-      - description: Event price
-        in: formData
-        name: price
-        type: number
-      - description: Event category
-        in: formData
-        name: category
-        type: string
-      - description: Max attendees
-        in: formData
-        name: capacity
-        type: integer
-      - description: City
-        in: formData
-        name: city
-        type: string
-      - description: Street
-        in: formData
-        name: street
-        type: string
-      - description: Additional location details
-        in: formData
-        name: location_detail
-        type: string
-      - description: List of existing image paths to keep (multiple allowed)
-        in: formData
-        name: existing_images
-        type: string
-      - description: New event images to upload (multiple allowed)
-        in: formData
-        name: new_images
-        type: file
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: Event updated successfully
-        "400":
-          description: Invalid payload or ID
-        "401":
-          description: Unauthorized
-        "404":
-          description: Event not found
-        "500":
-          description: Internal server error
-      summary: Update event details
-      tags:
-      - event
-  /events/cancel/:
-    patch:
-      consumes:
-      - application/json
-      description: Cancel registration to an event by event ID.
-      parameters:
-      - description: Event cancellation payload
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/models.EventCancelRegistrationRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: Registration cancelled successfully
-        "400":
-          description: Invalid request payload or registration conditions not met
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      summary: Cancel registration to event
-      tags:
-      - event
-  /events/count/:
-    get:
-      consumes:
-      - application/json
-      description: |-
-        Get general stats of events to show in event module's cards. Stats include:
-        - total events
-        - new events since last month (30 days)
-        - upcoming events in next 30 days
-        - total registrations since last month
-        - total pending approvals for events
-      parameters:
-      - description: 'Timeframe filter: today, last_3_days, last_week, last_month,
-          last_year, all'
-        in: query
-        name: timeframe
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Event stats retrieved successfully
-          schema:
-            $ref: '#/definitions/models.EventStats'
-        "400":
-          description: Invalid ID or payload
-        "500":
-          description: Internal server error
-      summary: Get event stats
-      tags:
-      - event
-  /events/employees/{id}/:
-    get:
-      consumes:
-      - application/json
-      description: Get list of employees assigned to an event by ID.
-      parameters:
-      - description: Event ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of assigned employees
-          schema:
-            items:
-              $ref: '#/definitions/models.AssignedEmployee'
-            type: array
-        "400":
-          description: Invalid event ID
-        "401":
-          description: Unauthorized
-        "404":
-          description: Event not found
-        "500":
-          description: Internal server error
-      summary: Get assigned employees
-      tags:
-      - event
-  /events/register/:
-    post:
-      consumes:
-      - application/json
-      description: Register to an event by event ID.
-      parameters:
-      - description: Event registration payload
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/models.EventRegistrationRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Registered successfully
-        "400":
-          description: Invalid request payload or event conditions not met
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      summary: Register to event
-      tags:
-      - event
-  /finance/invoices/:
-    get:
-      description: Returns a paginated list of accounts with their total transaction
-        count and total amount spent. Supports search by username or email.
-      parameters:
-      - description: Page number (default 1)
-        in: query
-        name: page
-        type: integer
-      - description: Items per page (default 10, max 100)
-        in: query
-        name: limit
-        type: integer
-      - description: Search by username or email
-        in: query
-        name: search
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.InvoicesListResponse'
-        "400":
-          description: Invalid page or limit parameter
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      security:
-      - ApiKeyAuth: []
-      summary: Get invoice users
-      tags:
-      - finance
-  /finance/invoices/{userId}/:
-    get:
-      description: Returns all invoices (transactions, subscriptions, ads, events)
-        for a specific account. Admins can access any user's invoices; non-admin users
-        can only access their own.
-      parameters:
-      - description: Account ID
-        in: path
-        name: userId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.UserInvoicesResponse'
-        "400":
-          description: Invalid user ID
-        "401":
-          description: Unauthorized or forbidden
-        "404":
-          description: User not found
-        "500":
-          description: Internal server error
-      security:
-      - ApiKeyAuth: []
-      summary: Get user invoices
-      tags:
-      - finance
-  /finance/revenue/:
-    get:
-      description: Returns monthly revenue data grouped by category (subscriptions,
-        commissions, ads, events) for a given year, along with a yearly summary.
-      parameters:
-      - description: Year (defaults to current year, must be between 2000 and 2100)
-        in: query
-        name: year
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.RevenueResponse'
-        "400":
-          description: Invalid year parameter
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      security:
-      - ApiKeyAuth: []
-      summary: Get monthly revenue
-      tags:
-      - finance
-  /finance/settings/:
-    get:
-      description: Returns all finance settings. Admin only.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.FinanceSetting'
-            type: array
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      security:
-      - ApiKeyAuth: []
-      summary: Get finance settings
-      tags:
-      - finance
-  /finance/settings/{key}/:
-    get:
-      description: Returns a specific finance setting by its key. Accessible to all
-        users.
-      parameters:
-      - description: Setting key (e.g., trial_days, commission_rate, ads_price_per_month,
-          subscription_price)
-        in: path
-        name: key
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: number
-        "400":
-          description: Missing or invalid key parameter
-        "500":
-          description: Internal server error
-      summary: Get finance setting by key
-      tags:
-      - finance
-    put:
-      consumes:
-      - application/json
-      description: 'Updates one finance setting by key. Keys: trial_days, commission_rate,
-        ads_price_per_month, subscription_price. Admin only.'
-      parameters:
-      - description: Setting key
-        in: path
-        name: key
-        required: true
-        type: string
-      - description: Setting value payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateFinanceSettingRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid request or missing key
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      security:
-      - ApiKeyAuth: []
-      summary: Update finance setting
-      tags:
-      - finance
-  /healthcheck/:
-    get:
-      description: Check the database connection status
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: Database connected successfully
-          schema:
-            type: string
-        "500":
-          description: 'Error connecting to database: ...'
-          schema:
-            type: string
-      summary: Health Check
-      tags:
-      - health
-  /history/:
-    get:
-      consumes:
-      - application/json
-      description: Fetches all admin's activites from the database with pagination
-        and filters.
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Number of records per page
-        in: query
-        name: limit
-        type: integer
-      - description: Search by admin name or item ID
-        in: query
-        name: search
-        type: string
-      - description: Sort order (most_recent_activity, oldest_activity)
-        in: query
-        name: sort
-        type: string
-      - description: Filter by module
-        in: query
-        name: module
-        type: string
-      - description: Filter by action
-        in: query
-        name: action
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.HistoryListPagination'
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get all admin activities
-      tags:
-      - Admin History
-  /history/{history_id}/:
-    get:
-      consumes:
-      - application/json
-      description: Fetches the details of a specific admin activity.
-      parameters:
-      - description: History ID
-        in: path
-        name: history_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.History'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get history details
-      tags:
-      - Admin History
+        - item
   /items/{item_id}/transactions/:
     get:
-      description: Get paginated transactions for a specific item (admin/pro/user
-        owner)
+      description: Get paginated transactions for a specific item (admin/user)
       parameters:
-      - description: Item ID
-        in: path
-        name: item_id
-        required: true
-        type: integer
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Limit per page
-        in: query
-        name: limit
-        type: integer
+        - description: Item ID
+          in: path
+          name: item_id
+          required: true
+          type: integer
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Limit per page
+          in: query
+          name: limit
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.TransactionsPaginationResponse'
+            $ref: "#/definitions/models.TransactionsPaginationResponse"
         "400":
           description: Invalid parameters
         "401":
@@ -2915,25 +3490,27 @@ paths:
           description: Item not found
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get transactions for an item
       tags:
-      - transaction
+        - transaction
   /items/{item_id}/transactions/{transaction_uuid}/cancel/:
     post:
       description: Cancel an active reserved transaction for an item
       parameters:
-      - description: Item ID
-        in: path
-        name: item_id
-        required: true
-        type: integer
-      - description: Transaction UUID
-        in: path
-        name: transaction_uuid
-        required: true
-        type: string
+        - description: Item ID
+          in: path
+          name: item_id
+          required: true
+          type: integer
+        - description: Transaction UUID
+          in: path
+          name: transaction_uuid
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Transaction cancelled successfully
@@ -2947,26 +3524,113 @@ paths:
           description: Transaction cannot be cancelled
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Cancel transaction
       tags:
-      - transaction
+        - transaction
+  /items/count/:
+    get:
+      description:
+        Get admin-level statistics for items including counts by status,
+        material, category, and timeframe.
+      parameters:
+        - description:
+            "Timeframe filter: today, last_3_days, last_week, last_month,
+            last_year, all"
+          in: query
+          name: timeframe
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.ItemAdminStats"
+        "400":
+          description: Invalid timeframe
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get item statistics
+      tags:
+        - item
+  /items/me/:
+    get:
+      description:
+        Get a paginated list of items belonging to the current user (or
+        items interacted with if pro).
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Search by title
+          in: query
+          name: search
+          type: string
+        - description: Sort order
+          in: query
+          name: sort
+          type: string
+        - description:
+            "Filter by status (user: pending/approved/refused/reserved/sold/to_drop_off
+            | pro: reserved/bought/to_retrieve)"
+          in: query
+          name: status
+          type: string
+        - description: Filter by material
+          in: query
+          name: material
+          type: string
+        - description: Filter by category (listing or deposit)
+          in: query
+          name: category
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.ItemListPagination"
+        "400":
+          description: Invalid query parameters
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get my items
+      tags:
+        - item
   /listings/{listing_id}/:
     get:
-      description: Get detailed information about a specific listing item, including
+      description:
+        Get detailed information about a specific listing item, including
         city and postal code.
       parameters:
-      - description: Listing item ID
-        in: path
-        name: listing_id
-        required: true
-        type: integer
+        - description: Listing item ID
+          in: path
+          name: listing_id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Listing details
           schema:
-            $ref: '#/definitions/models.Listing'
+            $ref: "#/definitions/models.Listing"
         "400":
           description: Invalid ID
         "404":
@@ -2974,72 +3638,78 @@ paths:
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Get listing details
       tags:
-      - listing
+        - listing
     put:
       consumes:
-      - multipart/form-data
-      description: Update an existing listing item's details and images. If updated
+        - multipart/form-data
+      description:
+        Update an existing listing item's details and images. If updated
         by a user, status resets to pending for re-validation. User can only update
         their own listings.
       parameters:
-      - description: Listing item ID
-        in: path
-        name: listing_id
-        required: true
-        type: integer
-      - description: Item title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: Item description (HTML)
-        in: formData
-        name: description
-        required: true
-        type: string
-      - description: Item weight
-        in: formData
-        name: weight
-        required: true
-        type: number
-      - description: Item state (new, good, very_good, need_repair)
-        in: formData
-        name: state
-        required: true
-        type: string
-      - description: Item material (wood, metal, textile, glass, plastic, other, mixed)
-        in: formData
-        name: material
-        required: true
-        type: string
-      - description: Item price
-        in: formData
-        name: price
-        required: true
-        type: number
-      - description: City
-        in: formData
-        name: city
-        required: true
-        type: string
-      - description: Postal code (5-9 digits)
-        in: formData
-        name: postal_code
-        required: true
-        type: string
-      - description: Paths of existing images to keep (multiple allowed)
-        in: formData
-        name: existing_images
-        type: string
-      - description: New images to upload (multiple allowed)
-        in: formData
-        name: new_images
-        type: file
+        - description: Listing item ID
+          in: path
+          name: listing_id
+          required: true
+          type: integer
+        - description: Item title
+          in: formData
+          name: title
+          required: true
+          type: string
+        - description: Item description (HTML)
+          in: formData
+          name: description
+          required: true
+          type: string
+        - description: Item weight
+          in: formData
+          name: weight
+          required: true
+          type: number
+        - description: Item state (new, good, very_good, need_repair)
+          in: formData
+          name: state
+          required: true
+          type: string
+        - description: Item material (wood, metal, textile, glass, plastic, other, mixed)
+          in: formData
+          name: material
+          required: true
+          type: string
+        - description: Item price
+          in: formData
+          name: price
+          required: true
+          type: number
+        - description: Street address
+          in: formData
+          name: street
+          required: true
+          type: string
+        - description: City
+          in: formData
+          name: city
+          required: true
+          type: string
+        - description: Postal code (5-9 digits)
+          in: formData
+          name: postal_code
+          required: true
+          type: string
+        - description: Paths of existing images to keep (multiple allowed)
+          in: formData
+          name: existing_images
+          type: string
+        - description: New images to upload (multiple allowed)
+          in: formData
+          name: new_images
+          type: file
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -3052,25 +3722,95 @@ paths:
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Update listing
       tags:
-      - listing
+        - listing
+  /location/address/:
+    get:
+      description:
+        "Reverse geocoding: get address details (street, city, etc.) from
+        latitude and longitude."
+      parameters:
+        - description: Latitude
+          in: query
+          name: lat
+          required: true
+          type: number
+        - description: Longitude
+          in: query
+          name: lng
+          required: true
+          type: number
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Address details
+          schema:
+            $ref: "#/definitions/models.Address"
+        "400":
+          description: Missing or invalid coordinates
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get address from coordinates
+      tags:
+        - location
+  /location/coordinates/:
+    get:
+      description:
+        "Geocoding: get latitude and longitude from address details (street,
+        postal code, city)."
+      parameters:
+        - description: Street name
+          in: query
+          name: street
+          required: true
+          type: string
+        - description: Postal code
+          in: query
+          name: postal_code
+          required: true
+          type: string
+        - description: City name
+          in: query
+          name: city
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Coordinates
+          schema:
+            $ref: "#/definitions/models.Coordinates"
+        "400":
+          description: Invalid address
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get coordinates from address
+      tags:
+        - location
   /login/:
     post:
       consumes:
-      - application/json
-      description: Authenticate a user and return a JWT token and set a refresh token
+        - application/json
+      description:
+        Authenticate a user and return a JWT token and set a refresh token
         cookie
       parameters:
-      - description: Login credentials
-        in: body
-        name: credentials
-        required: true
-        schema:
-          $ref: '#/definitions/models.LoginRequest'
+        - description: Login credentials
+          in: body
+          name: credentials
+          required: true
+          schema:
+            $ref: "#/definitions/models.LoginRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: token
@@ -3086,40 +3826,68 @@ paths:
           description: Internal server error
       summary: Login
       tags:
-      - auth
-  /posts:
+        - auth
+  /payments/verify/:
+    post:
+      consumes:
+        - application/json
+      description: Verify if a Stripe checkout session has been paid.
+      parameters:
+        - description: Stripe session ID
+          in: body
+          name: payload
+          required: true
+          schema:
+            $ref: "#/definitions/models.VerifyPaymentRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Payment verification result
+          schema:
+            $ref: "#/definitions/models.VerifyPaymentResponse"
+        "400":
+          description: Invalid payload or session
+      security:
+        - ApiKeyAuth: []
+      summary: Verify Stripe payment session
+      tags:
+        - payment
+  /posts/:
     get:
-      description: Get a paginated list of all posts with filters for search, category,
+      description:
+        Get a paginated list of all posts with filters for search, category,
         and sorting.
       parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Items per page
-        in: query
-        name: limit
-        type: integer
-      - description: Search query
-        in: query
-        name: search
-        type: string
-      - description: Filter by category
-        in: query
-        name: category
-        type: string
-      - description: Sort by (highest_view, lowest_view, most_recent_creation, oldest_creation,
-          highest_like, lowest_like)
-        in: query
-        name: sort
-        type: string
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Search query
+          in: query
+          name: search
+          type: string
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+        - description:
+            Sort by (highest_view, lowest_view, most_recent_creation, oldest_creation,
+            highest_like, lowest_like)
+          in: query
+          name: sort
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.PostListPagination'
+            $ref: "#/definitions/models.PostListPagination"
         "400":
           description: Bad Request
           schema:
@@ -3129,36 +3897,36 @@ paths:
           schema:
             type: string
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Get all posts
       tags:
-      - Posts
+        - Posts
     post:
       consumes:
-      - multipart/form-data
+        - multipart/form-data
       description: Create a new post with title, content, category, and images.
       parameters:
-      - description: Post Title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: Post Content (HTML allowed)
-        in: formData
-        name: content
-        required: true
-        type: string
-      - description: Post Category
-        in: formData
-        name: category
-        required: true
-        type: string
-      - description: Post Images
-        in: formData
-        name: images
-        type: file
+        - description: Post Title
+          in: formData
+          name: title
+          required: true
+          type: string
+        - description: Post Content (HTML allowed)
+          in: formData
+          name: content
+          required: true
+          type: string
+        - description: Post Category
+          in: formData
+          name: category
+          required: true
+          type: string
+        - description: Post Images
+          in: formData
+          name: images
+          type: file
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: Post created successfully
@@ -3177,26 +3945,26 @@ paths:
           schema:
             type: string
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Create a new post
       tags:
-      - Posts
-  /posts/{id_post}:
+        - Posts
+  /posts/{id_post}/:
     get:
       description: Get detailed information about a single post by ID.
       parameters:
-      - description: Post ID
-        in: path
-        name: id_post
-        required: true
-        type: integer
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Post'
+            $ref: "#/definitions/models.Post"
         "400":
           description: Bad Request
           schema:
@@ -3206,48 +3974,48 @@ paths:
           schema:
             type: string
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Get post details
       tags:
-      - Posts
+        - Posts
     put:
       consumes:
-      - multipart/form-data
+        - multipart/form-data
       description: Update an existing post's data and images.
       parameters:
-      - description: Post ID
-        in: path
-        name: id_post
-        required: true
-        type: integer
-      - description: Post Title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: Post Content
-        in: formData
-        name: content
-        required: true
-        type: string
-      - description: Post Category
-        in: formData
-        name: category
-        required: true
-        type: string
-      - collectionFormat: csv
-        description: Image paths to keep
-        in: formData
-        items:
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
+        - description: Post Title
+          in: formData
+          name: title
+          required: true
           type: string
-        name: existing_images
-        type: array
-      - description: New images to upload
-        in: formData
-        name: new_images
-        type: file
+        - description: Post Content
+          in: formData
+          name: content
+          required: true
+          type: string
+        - description: Post Category
+          in: formData
+          name: category
+          required: true
+          type: string
+        - collectionFormat: csv
+          description: Image paths to keep
+          in: formData
+          items:
+            type: string
+          name: existing_images
+          type: array
+        - description: New images to upload
+          in: formData
+          name: new_images
+          type: file
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -3264,34 +4032,34 @@ paths:
           schema:
             type: string
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Update a post
       tags:
-      - Posts
-  /posts/{id_post}/comments:
+        - Posts
+  /posts/{id_post}/comments/:
     get:
       description: Get a paginated list of comments for a specific post.
       parameters:
-      - description: Post ID
-        in: path
-        name: id_post
-        required: true
-        type: integer
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Items per page
-        in: query
-        name: limit
-        type: integer
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Items per page
+          in: query
+          name: limit
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.PostCommentsResponse'
+            $ref: "#/definitions/models.PostCommentsResponse"
         "400":
           description: Bad Request
           schema:
@@ -3301,22 +4069,59 @@ paths:
           schema:
             type: string
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Get post comments
       tags:
-      - Posts
-  /posts/{id_post}/delete:
+        - Posts
+    post:
+      consumes:
+        - application/json
+      description: Create a new comment on a post.
+      parameters:
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
+        - description: Comment content
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.CreateCommentRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: "#/definitions/models.Comment"
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Add a comment to a post
+      tags:
+        - comment
+  /posts/{id_post}/delete/:
     patch:
-      description: Delete a post by ID. Users can only delete their own posts unless
+      description:
+        Delete a post by ID. Users can only delete their own posts unless
         they are admin.
       parameters:
-      - description: Post ID
-        in: path
-        name: id_post
-        required: true
-        type: integer
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -3333,27 +4138,89 @@ paths:
           schema:
             type: string
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Delete a post
       tags:
-      - Posts
-  /posts/{id_post}/steps:
+        - Posts
+  /posts/{id_post}/like/:
+    post:
+      description: Like or unlike a post. Returns the new like state.
+      parameters:
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Toggle like on a post
+      tags:
+        - Posts
+  /posts/{id_post}/save/:
+    post:
+      description: Save or unsave a post. Returns the new save state.
+      parameters:
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Toggle save on a post
+      tags:
+        - Posts
+  /posts/{id_post}/steps/:
     get:
       description: Returns all project steps associated with a specific post.
       parameters:
-      - description: Post ID
-        in: path
-        name: id_post
-        required: true
-        type: integer
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.ProjectStep'
+              $ref: "#/definitions/models.ProjectStep"
             type: array
         "400":
           description: Invalid or missing post ID
@@ -3364,26 +4231,154 @@ paths:
           schema:
             type: string
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Get project steps
       tags:
-      - Posts
-  /posts/{id_post}/steps/{step_id}:
+        - Posts
+  /posts/{id_post}/view/:
+    post:
+      description: Increments the view counter of a post by 1.
+      parameters:
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Increment post view count
+      tags:
+        - Posts
+  /posts/count/:
+    get:
+      description:
+        Get general statistics about posts, including total count, new
+        posts, engagement rate, and counts per category.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/models.PostCountStatsResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Failed to get stats of posts
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get post statistics
+      tags:
+        - Posts
+  /posts/me/:
+    get:
+      description: Get a paginated list of posts created by the authenticated account.
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/models.Post"
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get posts by account ID
+      tags:
+        - Posts
+  /posts/saved/:
+    get:
+      description: Get a paginated list of posts saved by the authenticated account.
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Items per page
+          in: query
+          name: limit
+          type: integer
+        - description: Filter by category
+          in: query
+          name: category
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: "#/definitions/models.Post"
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      summary: Get saved posts
+      tags:
+        - Posts
+  /posts/steps/{step_id}/:
     delete:
       description: Deletes a specific project step by its ID. Admin only.
       parameters:
-      - description: Post ID
-        in: path
-        name: id_post
-        required: true
-        type: integer
-      - description: Step ID
-        in: path
-        name: step_id
-        required: true
-        type: integer
+        - description: Post ID
+          in: path
+          name: id_post
+          required: true
+          type: integer
+        - description: Step ID
+          in: path
+          name: step_id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Deleted successfully
@@ -3400,67 +4395,15 @@ paths:
           schema:
             type: string
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Delete a project step
       tags:
-      - Posts
-  /posts/comments/{id_comment}/:
-    delete:
-      description: Delete a comment by ID. Admins and employees can delete any comment;
-        users can only delete their own.
-      parameters:
-      - description: Comment ID
-        in: path
-        name: id_comment
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Comment deleted successfully
-          schema:
-            type: string
-        "400":
-          description: Invalid ID
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal server error
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a comment
-      tags:
-      - comment
-  /posts/stats:
-    get:
-      description: Get general statistics about posts, including total count, new
-        posts, engagement rate, and counts per category.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.PostCountStatsResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "500":
-          description: Failed to get stats of posts
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: Get post statistics
-      tags:
-      - Posts
+        - Posts
   /refresh/:
     post:
       description: Refresh the JWT token using the refresh token cookie
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: token
@@ -3474,21 +4417,21 @@ paths:
           description: Internal server error
       summary: Refresh Token
       tags:
-      - auth
+        - auth
   /register/:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Creates a new account
       parameters:
-      - description: Account details
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateAccountRequest'
+        - description: Account details
+          in: body
+          name: account
+          required: true
+          schema:
+            $ref: "#/definitions/models.CreateAccountRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: Account created successfully
@@ -3500,23 +4443,23 @@ paths:
           description: Internal server error
       summary: Create an account
       tags:
-      - account
+        - account
   /subscriptions/{id}/:
     get:
       description: Get details of a specific subscription including user information
       parameters:
-      - description: Subscription ID
-        in: path
-        name: id
-        required: true
-        type: integer
+        - description: Subscription ID
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.SubscriptionWithUser'
+            $ref: "#/definitions/models.SubscriptionWithUser"
         "400":
           description: Invalid subscription ID
         "401":
@@ -3525,29 +4468,32 @@ paths:
           description: Subscription not found
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get subscription by ID
       tags:
-      - subscription
+        - subscription
   /subscriptions/{id}/revoke/:
     put:
       consumes:
-      - application/json
-      description: Cancel an active subscription. Admin can cancel any, users can
+        - application/json
+      description:
+        Cancel an active subscription. Admin can cancel any, users can
         cancel their own.
       parameters:
-      - description: Subscription ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Cancel reason payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.RevokeSubscriptionRequest'
+        - description: Subscription ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Cancel reason payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.RevokeSubscriptionRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -3559,14 +4505,16 @@ paths:
           description: Subscription not found
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Cancel subscription
       tags:
-      - subscription
+        - subscription
   /subscriptions/price/:
     get:
       description: Get the current price of the premium subscription
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Current price
@@ -3579,22 +4527,24 @@ paths:
           description: Unauthorized
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get subscription price
       tags:
-      - subscription
+        - subscription
     put:
       consumes:
-      - application/json
+        - application/json
       description: Update the price of the premium subscription. Admin only.
       parameters:
-      - description: New price payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateSubscriptionPriceRequest'
+        - description: New price payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateSubscriptionPriceRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -3604,39 +4554,42 @@ paths:
           description: Unauthorized
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Update subscription price
       tags:
-      - subscription
-  /subscriptions/stats:
+        - subscription
+  /subscriptions/stats/:
     get:
-      description: Get statistics about subscriptions such as active count, trial
+      description:
+        Get statistics about subscriptions such as active count, trial
         count, cancellations, etc.
       parameters:
-      - description: Timeframe filter (e.g. today, last_week, all)
-        in: query
-        name: timeframe
-        type: string
+        - description: Timeframe filter (e.g. today, last_week, all)
+          in: query
+          name: timeframe
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.SubscriptionStats'
+            $ref: "#/definitions/models.SubscriptionStats"
         "401":
           description: Unauthorized
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Get subscription stats
       tags:
-      - subscription
+        - subscription
   /subscriptions/trial/:
     get:
       description: Get the current number of trial days for subscriptions. Admin only.
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: Trial days
@@ -3650,23 +4603,23 @@ paths:
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Get trial days
       tags:
-      - subscription
+        - subscription
     put:
       consumes:
-      - application/json
+        - application/json
       description: Update the number of trial days for subscriptions. Admin only.
       parameters:
-      - description: New trial days payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateTrialDaysRequest'
+        - description: New trial days payload
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/models.UpdateTrialDaysRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -3677,26 +4630,82 @@ paths:
         "500":
           description: Internal server error
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: []
       summary: Update trial days
       tags:
-      - subscription
-  /users/score/:
+        - subscription
+  /users/impact/:
     get:
-      description: Get the total CO2 saved and total UpScore from all approved items
-        in the system.
+      description:
+        Returns the total CO2, water, and electricity saved by the authenticated
+        user based on their completed items.
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
-          description: Successfully retrieved total score stats
+          description: Successfully retrieved impact stats
           schema:
-            $ref: '#/definitions/models.TotalScoreStats'
+            $ref: "#/definitions/models.UserImpactStats"
         "401":
           description: Unauthorized
         "500":
           description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get user's personal environmental impact
+      tags:
+        - user
+  /users/items/:
+    get:
+      description:
+        Returns a paginated list of the authenticated user's completed
+        items with per-item CO2, water, and electricity impact.
+      parameters:
+        - description: Page number
+          in: query
+          name: page
+          type: integer
+        - description: Items per page
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Successfully retrieved items
+          schema:
+            $ref: "#/definitions/models.UserImpactItemsPagination"
+        "400":
+          description: Invalid query parameters
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Get user's completed items with impact
+      tags:
+        - user
+  /users/score/:
+    get:
+      description:
+        Get the total CO2 saved and total UpScore from all approved items
+        in the system.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Successfully retrieved total score stats
+          schema:
+            $ref: "#/definitions/models.TotalScoreStats"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
       summary: Get total CO2 and UpScore
       tags:
-      - user
+        - user
 swagger: "2.0"

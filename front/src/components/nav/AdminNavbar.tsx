@@ -32,6 +32,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useAccountDetails } from "../../hooks/accountHooks";
 import { useTranslation } from "react-i18next";
 import { LANGUAGES } from "../../i18n/index";
+import { resolveUrl } from "../../utils/imageUtils";
 
 interface NavbarLinkProps {
   icon: typeof IconHome2;
@@ -201,7 +202,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
                 <Group gap="xs" wrap="nowrap">
                   {accountDetails?.avatar ? (
                     <Avatar
-                      src={accountDetails?.avatar}
+                      src={resolveUrl(accountDetails?.avatar)}
                       name={accountDetails?.username}
                       color="initials"
                       size="40"
@@ -300,6 +301,7 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
               <Menu.Divider />
               <Menu.Item
                 leftSection={<IconLogout size={14} />}
+                color="red"
                 onClick={() => {
                   handleLogout();
                   if (onLinkClick) onLinkClick();

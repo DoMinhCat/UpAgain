@@ -1,7 +1,12 @@
 package models
 
 type DepositDetails struct {
-	ContainerId int `json:"container_id"`
+	ContainerId int     `json:"container_id"`
+	Street      string  `json:"street"`
+	City        string  `json:"city"`
+	PostalCode  string  `json:"postal_code"`
+	Lat         float64 `json:"lat"`
+	Lng         float64 `json:"lng"`
 }
 
 type UpdateDepositRequest struct {
@@ -31,4 +36,9 @@ type DepositFullDetails struct {
 type TransferContainerRequest struct {
 	CurrentContainerId int `json:"current_container_id"`
 	NewContainerId     int `json:"new_container_id"`
+}
+
+type CreateDepositRequest struct {
+	IdItem      int `json:"id_item"`
+	IdContainer int `json:"id_container"`
 }
