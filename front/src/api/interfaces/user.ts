@@ -23,6 +23,12 @@ export interface UserImpactItem {
   electricity: number;
 }
 
+export interface GlobalImpactStats {
+  co2: number;
+  water: number;
+  electricity: number;
+}
+
 export interface UserImpactItemsPagination {
   items: UserImpactItem[];
   current_page: number;
