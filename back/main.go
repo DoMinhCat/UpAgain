@@ -68,7 +68,7 @@ func main() {
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration
-	allowedOrigins := []string{utils.GetFrontOrigin(), "http://localhost:5174"}
+	allowedOrigins := []string{utils.GetFrontOrigin(), "http://localhost:5173", "http://localhost:5174", "http://upcycleconnect.org", "https://upcycleconnect.org"}
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
