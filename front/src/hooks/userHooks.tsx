@@ -1,8 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUserImpact, getUserImpactItems, getUserStats } from "../api/userModule";
-import type { UserImpactStats, UserImpactItemsPagination, TotalScore } from "../api/interfaces/user";
+import {
+  getUserImpact,
+  getUserImpactItems,
+  getUserStats,
+  getGlobalImpact,
+} from "../api/userModule";
+import type {
+  UserImpactStats,
+  UserImpactItemsPagination,
+  TotalScore,
+  GlobalImpactStats,
+} from "../api/interfaces/user";
 
-const STALE_TIME = 60 * 1000;
+const STALE_TIME = 2 * 60 * 1000;
+
+export const useGetGlobalImpact = () => {
+  return useQuery<GlobalImpactStats>({
+    queryKey: ["globalImpact"],
+    queryFn: getGlobalImpact,
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "common:notifications.error",
+    },
+  });
+};
 
 export const useGetUserImpact = () => {
   return useQuery<UserImpactStats>({
