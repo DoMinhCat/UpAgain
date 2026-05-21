@@ -443,7 +443,6 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Postal code is required.")
 		return
 	}
-	
 
 	oldContainer, _ := db.FindContainerByID(id)
 	hasLocationChange := false
@@ -618,7 +617,7 @@ func GetNearestAvailableContainer(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid longitude")
 		return
 	}
-	
+
 	// get all available containers and sort them by distance from the user's location (the closer the better)
 	containers, err := db.GetAvailableContainers()
 	if err != nil {
@@ -642,4 +641,15 @@ func GetNearestAvailableContainer(w http.ResponseWriter, r *http.Request) {
 	closestContainer := containers[closestIndex]
 
 	utils.RespondWithJSON(w, http.StatusOK, closestContainer)
+}
+
+// TODO: swagger doc
+func OpenContainer(w http.ResponseWriter, r *http.Request) {
+	role := r.Context().Value("user").(models.AuthClaims).Role
+
+	// TODO: parse the code received and compare with db code (validity)
+
+	// TODO: handle role user => update user score, onesignal pro, create code for pro
+	// TODO: handle pro role => update item status
+
 }
