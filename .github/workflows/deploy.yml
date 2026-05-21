@@ -3,7 +3,7 @@ name: Deploy UpAgain
 on:
   push:
     branches:
-      - arnaud/ci
+      - main
 
 jobs:
   deploy:
@@ -13,8 +13,8 @@ jobs:
         run: |
           cd /app/UpAgain
           git config --global --add safe.directory /app/UpAgain
-          git fetch origin arnaud/ci
-          git reset --hard origin/arnaud/ci
+          git fetch origin main
+          git reset --hard origin/main
           git clean -fd
         env:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
