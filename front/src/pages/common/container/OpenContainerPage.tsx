@@ -27,10 +27,9 @@ import {
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import ImageDropzone from "../../../components/input/ImageDropzone";
-import {
-  showSuccessNotification,
-  showErrorNotification,
-} from "../../../components/common/NotificationToast";
+import { showErrorNotification } from "../../../components/common/NotificationToast";
+import { useOpenContainer } from "../../../hooks/containerHooks";
+import { NotFoundPage } from "../../error/404";
 
 export default function OpenContainerPage() {
   const { t } = useTranslation(["marketplace", "home", "common"]);
@@ -44,14 +43,16 @@ export default function OpenContainerPage() {
   };
   const [files, setFiles] = useState<any[]>([]);
 
-  // Simulation states for a smooth premium UX
-  const [verifyingCode, setVerifyingCode] = useState(false);
-  const [verifyingBarcode, setVerifyingBarcode] = useState(false);
+  const [verifyingType, setVerifyingType] = useState<"code" | "barcode" | null>(
+    null,
+  );
   const [unlocked, setUnlocked] = useState(false);
 
-  // Verification actions (UI Simulation with complete validation and feedback)
+  const { mutate: openContainer, isPending } = useOpenContainer();
+
+  // Verification actions
   const handleVerifyCode = () => {
-    if (code.length !== 6 || !/^\d+$/.test(code)) {
+    if (code.length !== 6) {
       showErrorNotification(
         t("marketplace:open_container.validation_error_code", {
           defaultValue: "Please enter a valid 6-digit code.",
@@ -60,20 +61,22 @@ export default function OpenContainerPage() {
       return;
     }
 
-    setVerifyingCode(true);
-    setTimeout(() => {
-      setVerifyingCode(false);
-      setUnlocked(true);
-      showSuccessNotification(
-        t("marketplace:open_container.success_title", {
-          defaultValue: "Container Unlocked",
-        }),
-        t("marketplace:open_container.success_desc", {
-          defaultValue:
-            "Verification successful! The container lock has been released.",
-        }),
-      );
-    }, 1500);
+    setVerifyingType("code");
+    openContainer(
+      {
+        id: containerId,
+        payload: { code6digit: code },
+      },
+      {
+        onSuccess: () => {
+          setUnlocked(true);
+          setVerifyingType(null);
+        },
+        onError: () => {
+          setVerifyingType(null);
+        },
+      },
+    );
   };
 
   const handleVerifyBarcode = () => {
@@ -86,21 +89,25 @@ export default function OpenContainerPage() {
       return;
     }
 
-    setVerifyingBarcode(true);
-    setTimeout(() => {
-      setVerifyingBarcode(false);
-      setUnlocked(true);
-      showSuccessNotification(
-        t("marketplace:open_container.success_title", {
-          defaultValue: "Container Unlocked",
-        }),
-        t("marketplace:open_container.success_desc", {
-          defaultValue:
-            "Verification successful! The container lock has been released.",
-        }),
-      );
-    }, 1500);
+    setVerifyingType("barcode");
+    openContainer(
+      {
+        id: containerId,
+        payload: { barcode: files[0] },
+      },
+      {
+        onSuccess: () => {
+          setUnlocked(true);
+          setVerifyingType(null);
+        },
+        onError: () => {
+          setVerifyingType(null);
+        },
+      },
+    );
   };
+
+  if (!state.item_id) return <NotFoundPage />;
 
   return (
     <Container size="lg" py="xl">
@@ -287,7 +294,7 @@ export default function OpenContainerPage() {
                       size="lg"
                       placeholder=""
                       oneTimeCode
-                      disabled={verifyingCode || verifyingBarcode}
+                      disabled={isPending}
                       value={code}
                       onChange={handleSetCode}
                       aria-label="6-Digit Access Code"
@@ -315,10 +322,10 @@ export default function OpenContainerPage() {
                   variant="primary"
                   fullWidth
                   onClick={handleVerifyCode}
-                  disabled={code.length !== 6 || verifyingBarcode}
-                  loading={verifyingCode}
+                  disabled={code.length !== 6 || isPending}
+                  loading={verifyingType === "code"}
                   leftSection={
-                    verifyingCode ? (
+                    verifyingType === "code" ? (
                       <Loader size="xs" color="white" />
                     ) : (
                       <IconLockOpen size={18} />
@@ -381,8 +388,8 @@ export default function OpenContainerPage() {
                     <ImageDropzone
                       files={files}
                       setFiles={setFiles}
-                      loading={verifyingBarcode}
-                      disabled={verifyingCode || files.length > 0}
+                      loading={verifyingType === "barcode"}
+                      disabled={isPending || files.length > 0}
                       maxSizeDescription={t(
                         "marketplace:open_container.dropzone_desc",
                         {
@@ -400,10 +407,10 @@ export default function OpenContainerPage() {
                   fullWidth
                   mt="xl"
                   onClick={handleVerifyBarcode}
-                  disabled={files.length === 0 || verifyingCode}
-                  loading={verifyingBarcode}
+                  disabled={files.length === 0 || isPending}
+                  loading={verifyingType === "barcode"}
                   leftSection={
-                    verifyingBarcode ? (
+                    verifyingType === "barcode" ? (
                       <Loader size="xs" color="white" />
                     ) : (
                       <IconBarcode size={18} />

@@ -73,7 +73,8 @@
     "cancel_transaction_success_title": "Đã hủy giao dịch",
     "cancel_transaction_success_message": "Giao dịch đã được hủy thành công.",
     "reserve_success_title": "Đã đặt chỗ món đồ",
-    "reserve_success_message": "Món đồ đã được đặt chỗ thành công. Bạn có thể tìm thấy nó trong danh sách món đồ của mình."
+    "reserve_success_message": "Món đồ đã được đặt chỗ thành công. Bạn có thể tìm thấy nó trong danh sách món đồ của mình.",
+    "open_container_error": "Lỗi khi mở thùng chứa"
   },
   "my_item_detail": {
     "cancelled_title": "Đặt chỗ đã bị hủy",
