@@ -63,7 +63,19 @@
       "electricity": "Electricity",
       "upcycling_score": "Upcycling Score",
       "score_rank": "Top {{percentage}}% of Upcyclers this month!",
-      "altogether_saved": "Altogether we saved <span>{{amount}}</span> kg of CO2"
+      "score_points": "{{score}} Upcycling points so far, keep going!",
+      "start_upcycling_cta": "Post an object to get your Upcycling Score",
+      "altogether_saved": "Altogether we saved <span>{{co2}}</span> kg of CO2, <span>{{electricity}}</span> kWh, and <span>{{water}}</span> liters of water",
+      "animals": {
+        "hamster": "That's about the weight of a hamster!",
+        "cat": "That's about the weight of a cat!",
+        "dog": "That's about the weight of a dog!",
+        "sheep": "That's about the weight of a sheep!",
+        "lion": "That's about the weight of a lion!",
+        "horse": "That's about the weight of a horse!",
+        "elephant": "That's about the weight of an elephant!",
+        "whale": "That's about the weight of a whale!"
+      }
     },
     "manage": {
       "title": "My active objects",
@@ -72,8 +84,8 @@
       "listings_status": "You have <b>{{count}} active</b> items in the <1>Marketplace</1>.",
       "manage_listings": "Manage all listings →",
       "deposits_title": "Deposits",
-      "deposits_status_one": "1 object to be delivered.",
-      "deposits_status_other": "{{count}} objects to be delivered.",
+      "deposits_status_one": "1 object in the <1>Marketplace</1>.",
+      "deposits_status_other": "{{count}} objects in the <1>Marketplace</1>.",
       "track_deposits": "Track all my deposits →",
       "ready_to_do_more": "Ready to do more, {{username}}?",
       "create_listing": "Create a listing",
