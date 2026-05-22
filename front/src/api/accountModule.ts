@@ -32,13 +32,13 @@ export const RegisterRequest = async (payload: RegisterPayload) => {
 };
 
 export const deleteAccount = async (id_account: number) => {
-  return await api.delete(ENDPOINTS.ADMIN.USERS.ALL + id_account + "/");
+  return await api.delete(ENDPOINTS.ADMIN.USERS.ALL + "/" + id_account);
 };
 
 export const getAccountDetails = async (
   id_account: number,
 ): Promise<Account> => {
-  const response = await api.get(ENDPOINTS.ADMIN.USERS.ALL + id_account + "/");
+  const response = await api.get(ENDPOINTS.ADMIN.USERS.ALL + "/" + id_account);
   return response.data;
 };
 

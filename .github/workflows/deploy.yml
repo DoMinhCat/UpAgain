@@ -1,0 +1,48 @@
+name: Deploy UpAgain
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Sync Code Manually
+        run: |
+          cd /app/UpAgain
+          git config --global --add safe.directory /app/UpAgain
+          git fetch origin main
+          git reset --hard origin/main
+          git clean -fd
+        env:
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+
+      - name: Build Frontend on Host
+        run: |
+          cd /app/UpAgain/front
+          echo "VITE_API_BASE_URL=/api" > .env.production
+          npm install
+          npm run build
+
+      - name: Verify NAS Access
+        working-directory: /app/UpAgain
+        run: |
+          echo "Checking NAS access..."
+          ls -ld /mnt/truenas-web/back/
+          ls -ld /mnt/truenas-web/front/
+          touch /mnt/truenas-web/back/ci_test && rm /mnt/truenas-web/back/ci_test
+          echo "NAS access verified."
+
+      - name: Create Env File
+        working-directory: /app/UpAgain
+        run: |
+          echo "CLOUDFLARE_TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}" > .env
+
+      - name: Start Containers
+        working-directory: /app/UpAgain
+        env:
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+        run: |
+          docker-compose up -d --build --remove-orphans
