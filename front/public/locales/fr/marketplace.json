@@ -74,7 +74,8 @@
     "cancel_transaction_success_title": "Transaction Annulée",
     "cancel_transaction_success_message": "La transaction a été annulée.",
     "reserve_success_title": "Objet réservé",
-    "reserve_success_message": "L'objet a été réservé avec succès. Vous pouvez le retrouver dans vos objets."
+    "reserve_success_message": "L'objet a été réservé avec succès. Vous pouvez le retrouver dans vos objets.",
+    "open_container_error": "Erreur lors de l'ouverture du conteneur"
   },
   "my_item_detail": {
     "not_found": "Objet introuvable ou accès non autorisé.",
