@@ -63,7 +63,7 @@ export const ENDPOINTS = {
     POSTS: {
       ALL: "/posts",
       STATS: "/posts/count",
-      DELETE: (id_post: number) => `/posts/${id_post}/delete`,
+      DELETE: (id_post: number) => `/posts/${id_post}`,
       DETAILS: (id_post: number) => `/posts/${id_post}`,
       UPDATE: (id_post: number) => `/posts/${id_post}`,
       COMMENTS: (id_post: number) => `/posts/${id_post}/comments`,
