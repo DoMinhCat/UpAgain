@@ -21,7 +21,7 @@ import (
 // @Param sort query string false "Sort order (most_recent_activity, oldest_activity)"
 // @Param module query string false "Filter by module"
 // @Param action query string false "Filter by action"
-// @Security BearerAuth
+// @Security ApiKeyAuth
 // @Success 200 {object} models.HistoryListPagination
 // @Failure 401 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -68,7 +68,7 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 
 	histories, total, err := db.GetAllAdminHistory(page, limit, filters)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching history.")
 		slog.Error("GetAllAdminHistory() failed", "controller", "GetAllAdminHistory", "error", err)
 		return
 	}
@@ -103,7 +103,7 @@ func GetAllAdminHistory(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param history_id path int true "History ID"
-// @Security BearerAuth
+// @Security ApiKeyAuth
 // @Success 200 {object} models.History
 // @Failure 400 {object} map[string]string
 // @Failure 401 {object} map[string]string
@@ -130,9 +130,20 @@ func GetHistoryDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exist, err := db.CheckHistoryExistsById(historyID)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching history.")
+		slog.Error("CheckHistoryExistsById() failed", "controller", "GetHistoryDetails", "error", err)
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "History entry not found.")
+		return
+	}
+
 	history, err := db.GetHistoryDetailsById(historyID)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching history.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching history.")
 		slog.Error("GetHistoryDetails() failed", "controller", "GetHistoryDetails", "error", err)
 		return
 	}

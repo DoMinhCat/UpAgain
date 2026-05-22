@@ -1,0 +1,589 @@
+import { HeroBanner } from "../../components/hero/HeroBanner";
+import {
+  Anchor,
+  Button,
+  Container,
+  Group,
+  Image,
+  useComputedColorScheme,
+} from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  SimpleGrid,
+  Paper,
+  Box,
+  Progress,
+  Center,
+} from "@mantine/core";
+import { useTranslation, Trans } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { useAccountDetails, useAccountStats } from "../../hooks/accountHooks";
+import {
+  useLikePost,
+  useSavePost,
+  useGetAllPosts,
+} from "../../hooks/postHooks";
+import { useGetUserImpact } from "../../hooks/userHooks";
+import { useGetMyEvents } from "../../hooks/eventHooks";
+import FullScreenLoader from "../../components/common/FullScreenLoader";
+import { useAuth } from "../../context/AuthContext";
+import { ScoreRing } from "../../components/score/ScoreRing";
+import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
+import { PATHS } from "../../routes/paths";
+import PostCard from "../../components/post/PostCard";
+import { EventCard } from "../../components/event/EventCard";
+import { DashboardCard } from "../../components/dashboard/DashboardCard";
+import { useHandleStripeEventRegistration } from "../../hooks/stripeHooks";
+
+export default function UserHome() {
+  const { t } = useTranslation("home");
+  const navigate = useNavigate();
+  const scheme = useComputedColorScheme("light");
+  const { user } = useAuth();
+
+  useHandleStripeEventRegistration();
+
+  // GET ACCOUNT INFO
+  const { data: accountDetails, isLoading: isLoadingAccountDetails } =
+    useAccountDetails(user?.id || 0);
+
+  const { mutateAsync: likePostAsync } = useLikePost();
+  const { mutateAsync: savePostAsync } = useSavePost();
+
+  const { data: impactData } = useGetUserImpact();
+  const { data: accountStats } = useAccountStats(user?.id || 0, !!user?.id);
+  const { data: myEvents } = useGetMyEvents();
+  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like");
+  const posts = postsData?.posts ?? [];
+  if (isLoadingAccountDetails) {
+    return <FullScreenLoader />;
+  }
+  return (
+    <>
+      <HeroBanner
+        src={`/banners/user-banner1-${scheme}.png`}
+        height="80vh"
+        style={{
+          // We start the fade much later (at 85%) so it's only at the very edge
+          maskImage:
+            "linear-gradient(to bottom, black 0%, black 85%, rgba(0, 0, 0, 0.5) 92%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, black 0%, black 85%, rgba(0, 0, 0, 0.5) 92%, transparent 100%)",
+        }}
+      >
+        <Stack
+          align="center"
+          gap="xs"
+          style={{
+            animation: "fadeIn 1s ease-out",
+            // Moves content up by shifting the flex alignment or adding a bottom "spacer"
+            marginTop: "-10vh",
+          }}
+        >
+          <Title size={56} ta="center" style={{ lineHeight: 1.1 }}>
+            {t("user.hero.title", { username: accountDetails?.username })}
+          </Title>
+          <Text size="xl" fw={500} ta="center" maw={700} c="dimmed">
+            {t("user.hero.subtitle")}
+          </Text>
+        </Stack>
+      </HeroBanner>
+
+      {/* SECTION 2: YOUR IMPACT */}
+      <Container px="md" py={50} size="xl">
+        <Stack gap="xl">
+          {/* Section Header */}
+          <Stack gap={0}>
+            <Title order={2} size={32} c="var(--mantine-color-text)">
+              {t("user.impact.title")}
+            </Title>
+            <Text c="dimmed" size="sm">
+              {t("user.impact.subtitle")}
+            </Text>
+          </Stack>
+
+          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
+            {/* CARD 1: CO2 IMPACT */}
+            <DashboardCard
+              title={t("user.impact.co2_saved")}
+              icon={<IconLeaf size={18} />}
+              color="var(--upagain-neutral-green)"
+              align="center"
+            >
+              <Stack gap={0} align="center">
+                <Text size="32px" fw={900} style={{ lineHeight: 1 }}>
+                  {impactData?.co2.toFixed(1) ?? "0"}{" "}
+                  <Text span size="xl" fw={500}>
+                    kg
+                  </Text>
+                </Text>
+              </Stack>
+
+              <Box pos="relative" py="sm">
+                <Image
+                  src="/banners/user-banner1-light.png"
+                  height={80}
+                  width={80}
+                  style={{ filter: "grayscale(1) opacity(0.3)" }}
+                />
+                {/* Catchy Overlay Text */}
+                <Text
+                  size="xs"
+                  ta="center"
+                  mt="xs"
+                  c="var(--upagain-dark-green)"
+                  fw={600}
+                  style={{
+                    backgroundColor: "var(--upagain-light-green)",
+                    borderRadius: "4px",
+                    padding: "2px 8px",
+                  }}
+                >
+                  {t("user.impact.elephant_comparison")}
+                </Text>
+              </Box>
+            </DashboardCard>
+
+            {/* CARD 2: RESOURCES */}
+            <DashboardCard
+              title={t("user.impact.resources_saved")}
+              icon={<IconDroplet size={18} />}
+              color="var(--upagain-yellow)"
+            >
+              <Stack gap="xs" mt="sm">
+                <Group justify="space-between">
+                  <Text size="sm" fw={500}>
+                    {t("user.impact.water")}
+                  </Text>
+                  <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
+                    {impactData?.water.toFixed(0) ?? "0"} L
+                  </Text>
+                </Group>
+                <Progress
+                  value={75}
+                  color="var(--upagain-neutral-green)"
+                  size="sm"
+                  radius="xl"
+                />
+
+                <Group justify="space-between" mt="xs">
+                  <Text size="sm" fw={500}>
+                    {t("user.impact.electricity")}
+                  </Text>
+                  <Text size="sm" fw={700} c="var(--upagain-yellow)">
+                    {impactData?.electricity.toFixed(1) ?? "0"} kWh
+                  </Text>
+                </Group>
+                <Progress
+                  value={40}
+                  color="var(--upagain-yellow)"
+                  size="sm"
+                  radius="xl"
+                />
+              </Stack>
+            </DashboardCard>
+
+            {/* CARD 3: SCORE */}
+            <DashboardCard
+              title={t("user.impact.upcycling_score")}
+              icon={<IconTrophy size={18} />}
+              color="var(--upagain-light-green)"
+              align="center"
+            >
+              <Box pos="relative" my="sm">
+                <ScoreRing score={99} size={140} />
+              </Box>
+              <Text size="xs" c="dimmed" ta="center">
+                {t("user.impact.score_rank", { percentage: 99 })}
+              </Text>
+            </DashboardCard>
+          </SimpleGrid>
+        </Stack>
+      </Container>
+
+      <Title ta="center" order={2} my="md">
+        <Trans
+          i18nKey="user.impact.altogether_saved"
+          ns="home"
+          values={{ amount: "123,456,789+" }}
+          components={{
+            span: (
+              <Text
+                span
+                c="var(--upagain-yellow)"
+                inherit
+                style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
+              />
+            ),
+          }}
+        >
+          Altogether we saved{" "}
+          <Text
+            span
+            c="var(--upagain-yellow)"
+            inherit
+            style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
+          >
+            123,456,789+
+          </Text>{" "}
+          kg of CO2
+        </Trans>
+      </Title>
+
+      {/* SECTION 3: MANAGE OBJECTS */}
+      <Container px="md" py={50} size="xl">
+        <Paper
+          className="paper"
+          data-variant="primary"
+          p={40}
+          radius="lg"
+          style={{
+            borderLeft: "6px solid var(--upagain-neutral-green)",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "translateY(-4px)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.transform = "translateY(0)")
+          }
+        >
+          <SimpleGrid cols={{ base: 1, lg: 2 }} spacing={50}>
+            {/* LEFT COLUMN: ACTIVE STATUS */}
+            <Stack gap="xl">
+              <Stack gap={5}>
+                <Title order={2} size={32}>
+                  {t("user.manage.title")}
+                </Title>
+                <Text c="dimmed" size="sm">
+                  {t("user.manage.subtitle")}
+                </Text>
+              </Stack>
+
+              <Group align="stretch" grow>
+                {" "}
+                {/* 1. Change align to stretch */}
+                {/* COLUMN 1 */}
+                <Stack gap="md" style={{ flex: 1 }}>
+                  <Box style={{ flex: 1 }}>
+                    {" "}
+                    {/* 2. Wrap content in a flex-grow box */}
+                    <Title
+                      order={4}
+                      size="sm"
+                      c={
+                        scheme === "light"
+                          ? "var(--upagain-dark-green)"
+                          : "var(--upagain-light-green)"
+                      }
+                      tt="uppercase"
+                      lts={1}
+                    >
+                      {t("user.manage.listings_title")}
+                    </Title>
+                    <Text size="sm" mt="xs">
+                      <Trans
+                        i18nKey="user.manage.listings_status"
+                        ns="home"
+                        values={{ count: accountStats?.total_listings ?? 0 }}
+                        components={{
+                          1: <Anchor href={PATHS.MARKETPLACE.HOME} />,
+                          b: <b />,
+                        }}
+                      >
+                        You have <b>3 active</b> items in the{" "}
+                        <Anchor>Marketplace</Anchor>.
+                      </Trans>
+                    </Text>
+                  </Box>
+
+                  {/* This link will now always sit at the bottom */}
+                  <Text
+                    className="text"
+                    data-variant="primary"
+                    size="sm"
+                    fw={700}
+                    onClick={() => navigate(PATHS.MARKETPLACE.ME)}
+                  >
+                    {t("user.manage.manage_listings")}
+                  </Text>
+                </Stack>
+                {/* COLUMN 2 */}
+                <Stack gap="md" style={{ flex: 1 }}>
+                  <Box style={{ flex: 1 }}>
+                    {" "}
+                    {/* 2. Wrap content in a flex-grow box */}
+                    <Title
+                      order={4}
+                      size="sm"
+                      c={
+                        scheme === "light"
+                          ? "var(--upagain-dark-green)"
+                          : "var(--upagain-light-green)"
+                      }
+                      tt="uppercase"
+                      lts={1}
+                    >
+                      {t("user.manage.deposits_title")}
+                    </Title>
+                    <Text size="sm" mt="xs">
+                      {t("user.manage.deposits_status", {
+                        count: accountStats?.total_deposits ?? 0,
+                      })}
+                    </Text>
+                  </Box>
+
+                  {/* This link will align horizontally with the one in Column 1 */}
+                  <Text
+                    className="text"
+                    data-variant="primary"
+                    size="sm"
+                    fw={700}
+                    onClick={() => navigate(PATHS.MARKETPLACE.ME)}
+                  >
+                    {t("user.manage.track_deposits")}
+                  </Text>
+                </Stack>
+              </Group>
+            </Stack>
+
+            {/* RIGHT COLUMN: QUICK ACTIONS */}
+            <Stack gap="lg" justify="center">
+              <Title order={3} ta="center">
+                {t("user.manage.ready_to_do_more", {
+                  username: accountDetails?.username,
+                })}
+              </Title>
+
+              <Button
+                className="button"
+                data-variant="cta"
+                size="lg"
+                onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
+              >
+                {t("user.manage.create_listing")}
+              </Button>
+
+              <Stack gap="xs">
+                <Title order={3} ta="center">
+                  {t("user.manage.explore_community")}
+                </Title>
+                <Group justify="center">
+                  <Button
+                    className="button"
+                    data-variant="secondary"
+                    size="sm"
+                    onClick={() => navigate(PATHS.USER.POSTS.ALL)}
+                  >
+                    {t("user.manage.guides_projects")}
+                  </Button>
+                  <Button
+                    className="button"
+                    data-variant="secondary"
+                    size="sm"
+                    onClick={() => navigate(PATHS.EVENTS.HOME)}
+                  >
+                    {t("user.manage.workshops_events")}
+                  </Button>
+                </Group>
+              </Stack>
+            </Stack>
+          </SimpleGrid>
+        </Paper>
+      </Container>
+
+      {/* SECTION 4: COMMUNITY & AGENDA */}
+      <Container px="md" py={50} size="xl" mb="xl">
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+          {/* 4.1 COMMUNITY INSIGHTS */}
+          <Paper
+            variant="primary"
+            p={30}
+            radius="lg"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              transition: "transform 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "translateY(-4px)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "translateY(0)")
+            }
+          >
+            <Stack gap="xl" style={{ flex: 1 }}>
+              <Stack gap={5}>
+                <Title order={2} size={28}>
+                  {t("user.community.highlights")}
+                </Title>
+                <Text c="dimmed" size="sm">
+                  {t("user.community.highlights_desc")}
+                </Text>
+              </Stack>
+
+              <Box style={{ flex: 1 }}>
+                {/* 
+                  BACKEND LOGIC:
+                  The backend should ideally provide a 'featured' or 'community_selection' list.
+                  If the user has specific interests, this could be filtered by tags.
+                */}
+                {posts.length > 0 ? (
+                  <Stack gap="md">
+                    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                      {posts.map((post) => (
+                        <PostCard
+                          currentRole={user?.role || ""}
+                          key={post.id}
+                          title={post.title}
+                          description={post.content}
+                          image={
+                            post.photos?.[0] ??
+                            "/banners/user-banner1-light.png"
+                          }
+                          category={post.category}
+                          authorName={post.creator}
+                          authorAvatar={post.creator_avatar ?? ""}
+                          postedTime={post.created_at}
+                          views={post.view_count}
+                          likes={post.like_count}
+                          isLiked={post.is_liked ?? false}
+                          isSaved={post.is_saved ?? false}
+                          onLike={() => likePostAsync(post.id)}
+                          onSave={() => savePostAsync(post.id)}
+                        />
+                      ))}
+                    </SimpleGrid>
+                  </Stack>
+                ) : (
+                  <Center h="100%" style={{ minHeight: 200 }}>
+                    <Stack align="center" gap="xs">
+                      <IconLeaf
+                        size={40}
+                        color="var(--upagain-neutral-green)"
+                        stroke={1.5}
+                      />
+                      <Text c="dimmed" ta="center" maw={300}>
+                        {t("user.community.quiet_community")}
+                      </Text>
+                    </Stack>
+                  </Center>
+                )}
+              </Box>
+
+              <Button
+                variant="secondary"
+                className="button"
+                data-variant="secondary"
+                onClick={() => navigate(PATHS.USER.POSTS.ALL)}
+                fullWidth
+              >
+                {t("user.community.discover_topics")}
+              </Button>
+            </Stack>
+          </Paper>
+
+          {/* 4.2 USER AGENDA */}
+          <Paper
+            variant="primary"
+            p={30}
+            radius="lg"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              transition: "transform 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "translateY(-4px)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "translateY(0)")
+            }
+          >
+            <Stack gap="xl" style={{ flex: 1 }}>
+              <Stack gap={5}>
+                <Title order={2} size={28}>
+                  {t("user.agenda.title")}
+                </Title>
+                <Text c="dimmed" size="sm">
+                  {t("user.agenda.subtitle")}
+                </Text>
+              </Stack>
+
+              <Box style={{ flex: 1 }}>
+                {/* 
+                  BACKEND LOGIC:
+                  Render event cards if 'accountDetails.registeredEvents' (or similar) is not empty.
+                  Else, render the CTA below to encourage participation.
+                */}
+                {myEvents && myEvents.length > 0 ? (
+                  <Stack gap="md">
+                    {myEvents?.slice(0, 2).map((event) => (
+                      <EventCard
+                        key={event.id}
+                        onclick={() => navigate(`/events/${event.id}`)}
+                        orientation="horizontal"
+                        category={event.category}
+                        title={event.title}
+                        description={event.description ?? ""}
+                        image={
+                          event.images?.[0] ?? "/banners/user-banner1-light.png"
+                        }
+                        authorName={event.employee_name ?? "UpAgain"}
+                        authorAvatar={event.employee_avatar ?? ""}
+                        createdAt={event.created_at}
+                        eventDate={event.start_at}
+                        price={event.price ?? 0}
+                        registeredCount={event.registered ?? 0}
+                        city={event.city}
+                      />
+                    ))}
+                    <Text
+                      className="text"
+                      data-variant="primary"
+                      size="sm"
+                      fw={700}
+                      onClick={() => navigate(PATHS.EVENTS.HOME)}
+                    >
+                      {t("user.agenda.view_all")} →
+                    </Text>
+                  </Stack>
+                ) : (
+                  <Center h="100%" style={{ minHeight: 200 }}>
+                    <Stack align="center" gap="lg" w="100%">
+                      <Stack align="center" gap={0}>
+                        <IconTrophy
+                          size={48}
+                          color="var(--upagain-yellow)"
+                          stroke={1.5}
+                        />
+                        <Text fw={600} size="lg" mt="md">
+                          {t("user.agenda.no_events_title")}
+                        </Text>
+                        <Text c="dimmed" ta="center" size="sm" maw={280}>
+                          {t("user.agenda.no_events_desc")}
+                        </Text>
+                      </Stack>
+                      <Button
+                        className="button"
+                        data-variant="cta"
+                        size="md"
+                        fullWidth
+                        onClick={() => navigate(PATHS.MARKETPLACE.HOME)} // Assuming event exploration is there
+                      >
+                        {t("user.agenda.explore_workshops")}
+                      </Button>
+                    </Stack>
+                  </Center>
+                )}
+              </Box>
+            </Stack>
+          </Paper>
+        </SimpleGrid>
+      </Container>
+    </>
+  );
+}

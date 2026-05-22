@@ -1,0 +1,54 @@
+{
+  "header": {
+    "badge": "Kết nối với tụi mình",
+    "title": "Tụi mình luôn sẵn sàng lắng nghe",
+    "description": "Dù bạn có thắc mục về việc ký gửi đồ, muốn tổ chức workshop hay chỉ đơn giản là muốn nói lời chào, đừng ngần ngại nhắn cho tụi mình nha."
+  },
+  "info": {
+    "email": {
+      "title": "Email",
+      "description": "Đội ngũ siêu nhiệt tình luôn ở đây."
+    },
+    "office": {
+      "title": "Trụ sở",
+      "description": "Ghé qua chào tụi mình một tiếng nha."
+    },
+    "phone": {
+      "title": "Số điện thoại",
+      "description": "Thứ 2 - Thứ 6, từ 9h đến 18h."
+    }
+  },
+  "form": {
+    "title": "Gửi lời nhắn cho UpAgain",
+    "first_name": {
+      "label": "Tên",
+      "placeholder": "An",
+      "error": "Cho tụi mình biết tên bạn với nha"
+    },
+    "last_name": {
+      "label": "Họ",
+      "placeholder": "Nguyễn",
+      "error": "Họ của bạn là gì ta?"
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "anguyen@vi-du.com",
+      "error": "Thiếu email rồi kìa"
+    },
+    "subject": {
+      "label": "Tiêu đề",
+      "placeholder": "Bạn cần tụi mình giúp gì nè?",
+      "error": "Bạn nhắn về việc gì thế?"
+    },
+    "message": {
+      "label": "Lời nhắn",
+      "placeholder": "Viết chi tiết ở đây nha...",
+      "error": "Nội dung đâu rồi ta?"
+    },
+    "submit": "Gửi lời nhắn đi!",
+    "success": {
+      "title": "Đã gửi thành công!",
+      "message": "Cảm ơn bạn đã nhắn tin. Tụi mình sẽ phản hồi sớm nhất có thể nha!"
+    }
+  }
+}

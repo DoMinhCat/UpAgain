@@ -1,0 +1,54 @@
+{
+  "community": "Cộng đồng",
+  "subtitle": "Khám phá các hướng dẫn, dự án và lời khuyên được chia sẻ bởi cộng đồng của chúng mình.",
+  "search_placeholder": "Tìm kiếm bài viết...",
+  "filters": {
+    "all": "Tất cả",
+    "tutorial": "Hướng dẫn",
+    "tips": "Mẹo nhỏ",
+    "news": "Tin tức",
+    "case_study": "Nghiên cứu",
+    "project": "Dự án",
+    "other": "Khác"
+  },
+  "sort": {
+    "most_recent": "Mới nhất",
+    "most_popular": "Phổ biến nhất",
+    "most_viewed": "Xem nhiều nhất"
+  },
+  "empty": {
+    "title": "Không có bài viết nào khớp với tìm kiếm của bạn.",
+    "subtitle": "Hãy thử một danh mục hoặc từ khóa khác."
+  },
+  "my_posts": "Bài viết của tôi",
+  "manage_posts_subtitle": "Quản lý tất cả các bài viết của bạn tại một nơi.",
+  "saved_posts": "Bài viết đã lưu",
+  "manage_saved_posts_subtitle": "Bài viết bạn yêu thích",
+  "empty_my_posts": "Bạn chưa đăng bài viết nào trong danh mục này",
+  "empty_saved_posts": "Bạn chưa lưu bài viết nào",
+  "notifications": {
+    "delete_post_success_title": "Đã xóa bài viết",
+    "delete_post_success_message": "Bài viết đã được xóa thành công rồi nha.",
+    "update_post_success_title": "Đã cập nhật bài viết",
+    "update_post_success_message": "Bài viết đã được cập nhật thành công rồi.",
+    "delete_comment_success_title": "Đã xóa bình luận",
+    "delete_comment_success_message": "Bình luận đã được xóa thành công rồi.",
+    "delete_step_success_title": "Đã xóa bước dự án",
+    "delete_step_success_message": "Bước dự án đã được xóa thành công rồi nha.",
+    "error_fetching_posts": "Lấy danh sách bài viết hổng được rồi.",
+    "error_fetching_details": "Lấy chi tiết bài viết hổng xong rồi.",
+    "error_creating_post": "Tạo bài viết mới thất bại rồi nè.",
+    "error_updating_post": "Cập nhật bài viết hổng được rồi.",
+    "error_deleting_post": "Xóa bài viết thất bại rồi đại vương ơi.",
+    "error_deleting_comment": "Xóa bình luận hổng xong rồi.",
+    "error_deleting_step": "Xóa bước dự án thất bại rồi.",
+    "error_fetching_stats": "Lấy thống kê bài viết hổng được rồi.",
+    "error_fetching_comments": "Lấy danh sách bình luận thất bại rồi.",
+    "error_fetching_steps": "Lấy các bước dự án hổng xong rồi.",
+    "error_liking_post": "Thích bài viết hổng được rồi nè.",
+    "error_saving_post": "Lưu bài viết thất bại rồi nha.",
+    "error_tracking_view": "Theo dõi lượt xem hổng xong rồi.",
+    "error_posting_comment": "Đăng bình luận thất bại rồi đại vương ơi.",
+    "error_liking_comment": "Thích bình luận hổng được rồi."
+  }
+}

@@ -11,3 +11,7 @@ back/bin/
 back/images/
 .direnv/
 *.md
+.agents/*
+.env
+*.ps1
+*.bat

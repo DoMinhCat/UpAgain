@@ -3,7 +3,12 @@ import { getNewAccessToken } from "./auth";
 import { ENDPOINTS } from "./endpoints";
 import { router } from "../routes/routes";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || "/api";
+export type ApiErrorData = {
+  message?: string | Error;
+  error?: string | Error;
+};
+
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export const api = axios.create({
   baseURL: baseURL,
@@ -23,7 +28,11 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 404) {
       router.navigate("/404", { replace: true });
-      return new Promise(() => {});
+      return new Promise(() => { });
+    }
+    if (error.response?.status === 500) {
+      router.navigate("/500", { replace: true });
+      return new Promise(() => { });
     }
     const originalRequest = error.config;
     if (

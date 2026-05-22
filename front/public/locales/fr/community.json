@@ -1,0 +1,54 @@
+{
+  "community": "Communauté",
+  "subtitle": "Découvrez des guides, des projets et des conseils partagés par notre communauté d'upcycleurs.",
+  "search_placeholder": "Rechercher des articles...",
+  "filters": {
+    "all": "Tout",
+    "tutorial": "Tutoriel",
+    "tips": "Conseils",
+    "news": "Actualités",
+    "case_study": "Étude de cas",
+    "project": "Projet",
+    "other": "Autre"
+  },
+  "sort": {
+    "most_recent": "Plus récent",
+    "most_popular": "Plus populaire",
+    "most_viewed": "Plus vu"
+  },
+  "empty": {
+    "title": "Aucun article ne correspond à votre recherche.",
+    "subtitle": "Essayez une autre catégorie ou un autre mot-clé."
+  },
+  "my_posts": "Mes posts",
+  "saved_posts": "Posts sauvegardés",
+  "manage_posts_subtitle": "Gérez tous vos posts au même endroit.",
+  "manage_saved_posts_subtitle": "Tous vos posts favoris au même endroit.",
+  "empty_my_posts": "Vous n'avez encore rien posté dans cette catégorie",
+  "empty_saved_posts": "Vous n'avez encore sauvegardé aucun post",
+  "notifications": {
+    "delete_post_success_title": "Article supprimé",
+    "delete_post_success_message": "L'article a été supprimé avec succès.",
+    "update_post_success_title": "Article mis à jour",
+    "update_post_success_message": "L'article a été mis à jour avec succès.",
+    "delete_comment_success_title": "Commentaire supprimé",
+    "delete_comment_success_message": "Le commentaire a été supprimé avec succès.",
+    "delete_step_success_title": "Étape du projet supprimée",
+    "delete_step_success_message": "L'étape du projet a été supprimée avec succès.",
+    "error_fetching_posts": "Échec de la récupération des articles.",
+    "error_fetching_details": "Échec de la récupération des détails de l'article.",
+    "error_creating_post": "Échec de la création de l'article.",
+    "error_updating_post": "Échec de la mise à jour de l'article.",
+    "error_deleting_post": "Échec de la suppression de l'article.",
+    "error_deleting_comment": "Échec de la suppression du commentaire.",
+    "error_deleting_step": "Échec de la suppression de l'étape du projet.",
+    "error_fetching_stats": "Échec de la récupération des statistiques des articles.",
+    "error_fetching_comments": "Échec de la récupération des commentaires.",
+    "error_fetching_steps": "Échec de la récupération des étapes du projet.",
+    "error_liking_post": "Échec du like de l'article.",
+    "error_saving_post": "Échec de la sauvegarde de l'article.",
+    "error_tracking_view": "Échec du suivi de la vue.",
+    "error_posting_comment": "Échec de la publication du commentaire.",
+    "error_liking_comment": "Échec du like du commentaire."
+  }
+}

@@ -5,36 +5,27 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 )
 
-func GetTotalSubscriptionSpendingsById(id_account int) (int, error) {
-	var total int
-	var sub_from time.Time
-	var sub_to time.Time
+func GetTotalSubscriptionSpendingsById(id_account int) (float64, error) {
+	var total_str string
 
-	// get subscription price
-	subscription_price, err := GetFinanceSettingByKey("subscription_price")
-	if err != nil {
-		return 0, fmt.Errorf("GetTotalSubscriptionSpendingsById() failed: %v", err.Error())
-	}
-
+	// Uses snapshot price stored in subscriptions table at purchase time
 	query := `
-	select sub_from, sub_to from subscriptions where id_pro = $1
-	and is_trial=false;
+	select COALESCE(sum(price), 0.0)::text from subscriptions
+	where id_pro = $1 and is_trial=false;
 	`
-	rows, err := utils.Conn.Query(query, id_account)
+	err := utils.Conn.QueryRow(query, id_account).Scan(&total_str)
 	if err != nil {
-		return 0, fmt.Errorf("GetTotalSubscriptionSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetTotalSubscriptionSpendingsById() failed: %v", err.Error())
 	}
-	defer rows.Close()
-	for rows.Next() {
-		if err := rows.Scan(&sub_from, &sub_to); err != nil {
-			return 0, fmt.Errorf("GetTotalSubscriptionSpendingsById() failed: %v", err.Error())
-		}
-		// price is monthly, so we divide by 30 to get price of 1 day
-		total += int(subscription_price/30) * int(sub_to.Sub(sub_from).Hours()/24)
-	}
+	total, err := strconv.ParseFloat(total_str, 64)
+    if err != nil {
+        return 0.0, fmt.Errorf("conversion failed: %w", err)
+    }
+	
 	return total, nil
 }
 
@@ -56,7 +47,7 @@ func GetAllSubscriptions(page, limit int, onlyActive bool, filters models.Subscr
 	if onlyActive {
 		activeFilter = "AND s.is_active = true"
 	} else {
-		activeFilter = "AND s.is_active = false"
+		activeFilter = "AND s.is_active = false AND s.is_trial = false"
 	}
 
 	args := []interface{}{}
@@ -216,4 +207,17 @@ func GetSubscriptionStats(timeframe *string) (models.SubscriptionStats, error) {
 	}
 
 	return stats, nil
+}
+
+func CreateSubscription(id_pro int, is_trial bool) error {
+	sub_to := time.Now().AddDate(0, 1, 0)
+	current_price, err := GetFinanceSettingByKey("subscription_price")
+	if err != nil {
+		return err
+	}
+	query := `
+	INSERT INTO subscriptions (is_trial, sub_to, id_pro, price) 
+	VALUES ($1, $2, $3, $4);`
+	_, err = utils.Conn.Exec(query, is_trial, sub_to, id_pro, current_price)
+	return err
 }

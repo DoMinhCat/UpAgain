@@ -4,11 +4,12 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	helper "backend/utils/helper"
+	helpers "backend/utils/helpers"
 	validations "backend/utils/validations"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strconv"
 	"time"
 )
@@ -22,7 +23,7 @@ import (
 // @Success 200 {object} models.PostCountStatsResponse
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Failed to get stats of posts"
-// @Router /posts/stats [get]
+// @Router /posts/count/ [get]
 func GetPostsStats(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -124,7 +125,7 @@ func GetPostsStats(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {string} string "Bad Request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts [post]
+// @Router /posts/ [post]
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "employee" && role != "pro" {
@@ -145,7 +146,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	payload.Category = r.FormValue("category")
 	files := r.MultipartForm.File["images"]
 	for _, file := range files {
-		path, err := helper.SaveUploadedFile(file, "images/posts")
+		path, err := helpers.SaveUploadedFile(file, "images/posts")
 		if err != nil {
 			slog.Error("SaveUploadedFile() failed", "controller", "CreatePost", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
@@ -209,7 +210,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.PostListPagination
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts [get]
+// @Router /posts/ [get]
 func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// default pagination
@@ -243,7 +244,14 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		Category: query.Get("category"),
 	}
 
-	posts, total, err := db.GetAllPosts(page, limit, filters)
+	idAccount := 0
+	if userCtx := r.Context().Value("user"); userCtx != nil {
+		if claims, ok := userCtx.(models.AuthClaims); ok {
+			idAccount = claims.Id
+		}
+	}
+
+	posts, total, err := db.GetAllPosts(page, limit, filters, idAccount)
 	if err != nil {
 		slog.Error("GetAllPosts() failed", "controller", "GetAllPosts", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching posts.")
@@ -283,7 +291,7 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {string} string "Bad Request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post}/delete [patch]
+// @Router /posts/{id_post}/delete/ [patch]
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 
@@ -352,7 +360,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.Post
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post} [get]
+// @Router /posts/{id_post}/ [get]
 func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id_post")
 	if idStr == "" {
@@ -378,7 +386,8 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := db.GetPostDetailsById(id)
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+	post, err := db.GetPostDetailsById(id, idAccount)
 	if err != nil {
 		slog.Error("db.GetPostDetailsById() failed", "controller", "GetPostDetailsById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post details")
@@ -386,6 +395,134 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, post)
+}
+
+// ViewPost godoc
+// @Summary Increment post view count
+// @Description Increments the view counter of a post by 1.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Success 204 "No Content"
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post}/view/ [post]
+func ViewPost(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "user" && role != "pro" && role != "admin" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action")
+		return
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "ViewPost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to register view")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	counted, err := db.IncrementPostView(id, idAccount)
+	if err != nil {
+		slog.Error("db.IncrementPostView() failed", "controller", "ViewPost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to register view")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]bool{"counted": counted})
+}
+
+// LikePost godoc
+// @Summary Toggle like on a post
+// @Description Like or unlike a post. Returns the new like state.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Success 200 {object} map[string]bool
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post}/like/ [post]
+func LikePost(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
+	id, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "LikePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to toggle like")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	isLiked, err := db.ToggleLikePost(id, idAccount)
+	if err != nil {
+		slog.Error("db.ToggleLikePost() failed", "controller", "LikePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to toggle like")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]bool{"is_liked": isLiked})
+}
+
+// SavePost godoc
+// @Summary Toggle save on a post
+// @Description Save or unsave a post. Returns the new save state.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id_post path int true "Post ID"
+// @Success 200 {object} map[string]bool
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/{id_post}/save/ [post]
+func SavePost(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
+	id, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(id)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "SavePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to toggle save")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	isSaved, err := db.ToggleSavePost(id, idAccount)
+	if err != nil {
+		slog.Error("db.ToggleSavePost() failed", "controller", "SavePost", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to toggle save")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]bool{"is_saved": isSaved})
 }
 
 // UpdatePostById godoc
@@ -405,7 +542,7 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {string} string "Bad Request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post} [put]
+// @Router /posts/{id_post}/ [put]
 func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "user" {
@@ -483,7 +620,7 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle physical files + collect final path list
-	finalImages, delErrs, err := helper.ProcessPhotoUpdate("images/posts", currentImages, keepImages, newImg)
+	finalImages, delErrs, err := helpers.ProcessPhotoUpdate("images/posts", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdatePostById", "error", delErr)
 	}
@@ -538,7 +675,7 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.PostCommentsResponse
 // @Failure 400 {string} string "Bad Request"
 // @Failure 500 {string} string "Internal Server Error"
-// @Router /posts/{id_post}/comments [get]
+// @Router /posts/{id_post}/comments/ [get]
 func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id_post")
 	if idStr == "" {
@@ -642,6 +779,17 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
+// GetProjectStepsByPostId godoc
+// @Summary      Get project steps
+// @Description  Returns all project steps associated with a specific post.
+// @Tags         Posts
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_post  path      int  true  "Post ID"
+// @Success      200      {object}  []models.ProjectStep
+// @Failure      400      {string}  string  "Invalid or missing post ID"
+// @Failure      500      {string}  string  "Internal Server Error"
+// @Router       /posts/{id_post}/steps/ [get]
 func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 	idPost, err := strconv.Atoi(r.PathValue("id_post"))
 	if err != nil {
@@ -670,6 +818,19 @@ func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, steps)
 }
 
+// DeleteProjectStepByPostId godoc
+// @Summary      Delete a project step
+// @Description  Deletes a specific project step by its ID. Admin only.
+// @Tags         Posts
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_post   path      int  true  "Post ID"
+// @Param        step_id   path      int  true  "Step ID"
+// @Success      200       {object}  nil     "Deleted successfully"
+// @Failure      400       {string}  string  "Invalid ID or step not found"
+// @Failure      401       {string}  string  "Unauthorized"
+// @Failure      500       {string}  string  "Internal Server Error"
+// @Router       /posts/steps/{step_id}/ [delete]
 func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" {
@@ -702,4 +863,134 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, nil)
+}
+
+// GetPostsByAccountId godoc
+// @Summary Get posts by account ID
+// @Description Get a paginated list of posts created by the authenticated account.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param category query string false "Filter by category"
+// @Success 200 {array} models.Post
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/me/ [get]
+func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	deleted := false
+	exists, err := db.CheckAccountExistsById(idRequestor, &deleted)
+	if err != nil {
+		slog.Error("db.CheckAccountExistsById() failed", "controller", "GetPostsByAccountId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Account ID "+strconv.Itoa(idRequestor)+" not found")
+		return
+	}
+
+	page, limit := -1, 10
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetPostsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid page.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetPostsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid limit.")
+			return
+		}
+	}
+
+	category := query.Get("category")
+	if category != "" && !slices.Contains(db.PostCategories, category){
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid category")
+	}
+
+	posts, err := db.GetPostsByAccountId(idRequestor, page, limit, category)
+	if err != nil {
+		slog.Error("db.GetPostsByAccountId() failed", "controller", "GetPostsByAccountId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, posts)
+}
+
+// GetSavedPosts godoc
+// @Summary Get saved posts
+// @Description Get a paginated list of posts saved by the authenticated account.
+// @Tags Posts
+// @Security ApiKeyAuth
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Param category query string false "Filter by category"
+// @Success 200 {array} models.Post
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /posts/saved/ [get]
+func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	deleted := false
+	exists, err := db.CheckAccountExistsById(idRequestor, &deleted)
+	if err != nil {
+		slog.Error("db.CheckAccountExistsById() failed", "controller", "GetPostsByAccountId", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Account ID "+strconv.Itoa(idRequestor)+" not found")
+		return
+	}
+
+	page, limit := -1, 10
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	if pageStr != "" {
+		page, err = strconv.Atoi(pageStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetSavedPosts", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid page.")
+			return
+		}
+	}
+
+	limitStr := query.Get("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "GetSavedPosts", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid limit.")
+			return
+		}
+	}
+	category := query.Get("category")
+	if category != "" && !slices.Contains(db.PostCategories, category){
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid category")
+	}
+
+
+	posts, err := db.GetSavedPosts(idRequestor, page, limit, category)
+	if err != nil {
+		slog.Error("db.GetSavedPosts() failed", "controller", "GetSavedPosts", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get saved posts")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, posts)
 }

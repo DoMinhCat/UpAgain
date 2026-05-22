@@ -5,8 +5,11 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"slices"
 	"time"
 )
+
+var PostCategories = []string{"tutorial", "tips", "news", "case_study", "other", "project"}
 
 // if param category is nil => get all kind of category
 func GetTotalPostsByIdAccountByCategory(id int, category *string) (int, error) {
@@ -198,7 +201,7 @@ func CreatePost(payload models.CreatePostRequest) (int, error) {
 }
 
 // get only posts that are not deleted
-func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post, int, error) {
+func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int) ([]models.Post, int, error) {
 	var results []models.Post
 	var params []interface{}
 	var countParams []interface{}
@@ -213,15 +216,21 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 		paramIndex++
 	}
 
+	fromJoinClause := " FROM posts p JOIN accounts a ON p.id_account=a.id LEFT JOIN ads ad ON p.id=ad.id_post AND ad.status = 'active'"
+
 	if filters.Category != "" {
-		whereClause += fmt.Sprintf(" AND p.category = $%d", paramIndex)
-		params = append(params, filters.Category)
-		countParams = append(countParams, filters.Category)
-		paramIndex++
+		if filters.Category == "sponsored" {
+			whereClause += " AND ad.id IS NOT NULL"
+		} else {
+			whereClause += fmt.Sprintf(" AND p.category = $%d", paramIndex)
+			params = append(params, filters.Category)
+			countParams = append(countParams, filters.Category)
+			paramIndex++
+		}
 	}
 
 	var totalRecords int
-	countQuery := "SELECT COUNT(*) FROM posts p JOIN accounts a ON p.id_account=a.id " + whereClause
+	countQuery := "SELECT COUNT(*) " + fromJoinClause + " " + whereClause
 	err := utils.Conn.QueryRow(countQuery, countParams...).Scan(&totalRecords)
 	if err != nil {
 		return nil, 0, fmt.Errorf("GetAllPosts() count failed: %v", err)
@@ -231,9 +240,9 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 	if filters.Sort != "" {
 		switch filters.Sort {
 		case "highest_view":
-			orderBy = "ORDER BY p.view_count ASC"
-		case "lowest_view":
 			orderBy = "ORDER BY p.view_count DESC"
+		case "lowest_view":
+			orderBy = "ORDER BY p.view_count ASC"
 		case "most_recent_creation":
 			orderBy = "ORDER BY p.created_at DESC"
 		case "oldest_creation":
@@ -248,10 +257,9 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 	}
 
 	query := `
-		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username 
-		FROM posts p 
-		JOIN accounts a ON p.id_account=a.id 
-		` + whereClause + " " + orderBy
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id, a.avatar
+		` + fromJoinClause + `
+		 ` + whereClause + " " + orderBy
 
 	// pagination
 	if limit != -1 && page != -1 {
@@ -268,12 +276,24 @@ func GetAllPosts(page int, limit int, filters models.PostFilters) ([]models.Post
 	defer rows.Close()
 
 	for rows.Next() {
-		var event models.Post
-		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Content, &event.Category, &event.ViewCount, &event.LikeCount, &event.IdAccount, &event.Creator)
+		var post models.Post
+		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.AdsId, &post.CreatorAvatar)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllPosts() scan failed: %v", err.Error())
 		}
-		results = append(results, event)
+
+		// get photos of post
+		photos, err := GetPhotosPathsByObjectId(post.Id, "post")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllPosts() photos failed: %v", err.Error())
+		}
+		post.Photos = photos
+
+		if idAccount != 0 {
+			post.IsLiked, _ = IsPostLikedByUser(post.Id, idAccount)
+			post.IsSaved, _ = IsPostSavedByUser(post.Id, idAccount)
+		}
+		results = append(results, post)
 	}
 
 	return results, totalRecords, nil
@@ -318,10 +338,16 @@ func GetTotalSavesByPostId(id int) (int, error) {
 	return total, nil
 }
 
-func GetPostDetailsById(id int) (models.Post, error) {
+func GetPostDetailsById(id int, id_account ...int) (models.Post, error) {
 	var post models.Post
-	query := `select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id from posts p join accounts a on p.id_account=a.id where p.id = $1 and p.is_deleted = false;`
-	err := utils.Conn.QueryRow(query, id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId)
+	query := `
+	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id, ad.start_date, ad.end_date
+	from posts p 
+	join accounts a on p.id_account=a.id 
+	left join ads ad on p.id=ad.id_post and ad.status = 'active'
+	where p.id = $1 and p.is_deleted = false;
+	`
+	err := utils.Conn.QueryRow(query, id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId, &post.AdsId, &post.AdsFrom, &post.AdsTo)
 	if err != nil {
 		return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
 	}
@@ -344,14 +370,195 @@ func GetPostDetailsById(id int) (models.Post, error) {
 	}
 	post.SaveCount = saves
 
+	if len(id_account) > 0 {
+		post.IsLiked, err = IsPostLikedByUser(id, id_account[0])
+		if err != nil {
+			return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
+		}
+		post.IsSaved, err = IsPostSavedByUser(id, id_account[0])
+		if err != nil {
+			return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
+		}
+	}
+
 	return post, nil
 }
 
+// returns true if view was counted, once account can increase view count many times
+func IncrementPostView(id_post int, id_account int) (bool, error) {
+	_, err := utils.Conn.Exec(`INSERT INTO viewed_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
+	if err != nil {
+		return false, fmt.Errorf("IncrementPostView() insert failed: '%v'", err)
+	}
+	_, err = utils.Conn.Exec(`UPDATE posts SET view_count = view_count + 1 WHERE id = $1 AND is_deleted = false;`, id_post)
+	if err != nil {
+		return false, fmt.Errorf("IncrementPostView() update failed: '%v'", err)
+	}
+	return true, nil
+}
+
+func IsPostLikedByUser(id_post int, id_account int) (bool, error) {
+	var exists bool
+	err := utils.Conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM liked_posts WHERE id_post = $1 AND id_account = $2);`, id_post, id_account).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("IsPostLikedByUser() failed: '%v'", err)
+	}
+	return exists, nil
+}
+
+// returns true if now liked, false if unliked
+func ToggleLikePost(id_post int, id_account int) (bool, error) {
+	liked, err := IsPostLikedByUser(id_post, id_account)
+	if err != nil {
+		return false, err
+	}
+	if liked {
+		_, err = utils.Conn.Exec(`DELETE FROM liked_posts WHERE id_post = $1 AND id_account = $2;`, id_post, id_account)
+		if err != nil {
+			return false, fmt.Errorf("ToggleLikePost() delete failed: '%v'", err)
+		}
+		_, err = utils.Conn.Exec(`UPDATE posts SET like_count = like_count - 1 WHERE id = $1;`, id_post)
+		if err != nil {
+			return false, fmt.Errorf("ToggleLikePost() decrement failed: '%v'", err)
+		}
+		return false, nil
+	}
+	_, err = utils.Conn.Exec(`INSERT INTO liked_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
+	if err != nil {
+		return false, fmt.Errorf("ToggleLikePost() insert failed: '%v'", err)
+	}
+	_, err = utils.Conn.Exec(`UPDATE posts SET like_count = like_count + 1 WHERE id = $1;`, id_post)
+	if err != nil {
+		return false, fmt.Errorf("ToggleLikePost() increment failed: '%v'", err)
+	}
+	return true, nil
+}
+
+func IsPostSavedByUser(id_post int, id_account int) (bool, error) {
+	var exists bool
+	err := utils.Conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM saved_posts WHERE id_post = $1 AND id_account = $2);`, id_post, id_account).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("IsPostSavedByUser() failed: '%v'", err)
+	}
+	return exists, nil
+}
+
+// returns true if now saved, false if unsaved
+func ToggleSavePost(id_post int, id_account int) (bool, error) {
+	saved, err := IsPostSavedByUser(id_post, id_account)
+	if err != nil {
+		return false, err
+	}
+	if saved {
+		_, err = utils.Conn.Exec(`DELETE FROM saved_posts WHERE id_post = $1 AND id_account = $2;`, id_post, id_account)
+		if err != nil {
+			return false, fmt.Errorf("ToggleSavePost() delete failed: '%v'", err)
+		}
+		return false, nil
+	}
+	_, err = utils.Conn.Exec(`INSERT INTO saved_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
+	if err != nil {
+		return false, fmt.Errorf("ToggleSavePost() insert failed: '%v'", err)
+	}
+	return true, nil
+}
+
 func UpdatePostById(id_post int, payload models.CreatePostRequest) error {
+	if !slices.Contains(PostCategories, payload.Category) {
+		return fmt.Errorf("UpdatePostById() failed: invalid post category '%v'", payload.Category)
+	}
 	query := `update posts set title = $1, content = $2, category = $3 where id = $4 and is_deleted = false;`
 	_, err := utils.Conn.Exec(query, payload.Title, payload.Content, payload.Category, id_post)
 	if err != nil {
 		return fmt.Errorf("UpdatePostById() failed: '%v'", err)
 	}
 	return nil
+}
+
+// default page: 1
+//
+// default limit: 10
+//
+// query by all category by passing "" in category
+func GetPostsByAccountId(id_account int, page int, limit int, category string) (models.PostListPagination, error) {
+	var result models.PostListPagination
+	if category != "" && !slices.Contains(PostCategories, category) {
+		return result, fmt.Errorf("GetPostsByAccountId() failed: invalid post category '%v'", category)
+	}
+	if page <= 0 {
+		page = 1
+	}
+	if limit <= 0 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+
+	var params []interface{}
+	params = append(params, id_account)
+	categoryWhereClause := ""
+	if category != "" {
+		categoryWhereClause = " AND p.category = $2"
+		params = append(params, category)
+	}
+	params = append(params, limit)
+	params = append(params, offset)
+
+	paramIndex := []int{2,3}
+	if category != "" {
+		paramIndex = []int{3,4}
+	}
+
+	query := fmt.Sprintf(`
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
+		from posts p 
+		join accounts a on p.id_account=a.id 
+		left join ads ad on p.id=ad.id_post and ad.status = 'active'
+		WHERE p.is_deleted = false AND p.id_account = $1 %v
+		ORDER BY p.created_at DESC
+		LIMIT $%v OFFSET $%v
+	`, categoryWhereClause, paramIndex[0], paramIndex[1])
+	rows, err := utils.Conn.Query(query, params...)
+	if err != nil {
+		return result, fmt.Errorf("GetPostsByAccountId() query failed: '%v'", err)
+	}
+	defer rows.Close()
+	var posts []models.Post
+	for rows.Next() {
+		var post models.Post
+		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.AdsId)
+		if err != nil {
+			return result, fmt.Errorf("GetPostsByAccountId() scan failed: '%v'", err)
+		}
+		photos, err := GetPhotosPathsByObjectId(post.Id, "post")
+		if err != nil {
+			return result, fmt.Errorf("GetPostsByAccountId() failed: '%v'", err)
+		}
+		post.Photos = photos
+		if id_account != 0 {
+			post.IsLiked, _ = IsPostLikedByUser(post.Id, id_account)
+			post.IsSaved, _ = IsPostSavedByUser(post.Id, id_account)
+		}
+		posts = append(posts, post)
+	}
+
+	countParams := []interface{}{
+		id_account,
+	}
+	if category != "" {
+		countParams = append(countParams, category)
+	}
+	queryCount := fmt.Sprintf(`select count(*) from posts p where p.id_account = $1 and p.is_deleted = false %v;`, categoryWhereClause)
+	err = utils.Conn.QueryRow(queryCount, countParams...).Scan(&result.TotalRecords)
+	if err != nil {
+		return result, fmt.Errorf("GetPostsByAccountId() count query failed: '%v'", err)
+	}
+
+	result.Posts = posts
+	result.CurrentPage = page
+	result.Limit = limit
+	result.LastPage = result.TotalRecords / limit
+	if result.TotalRecords%limit != 0 {
+		result.LastPage++
+	}
+	return result, nil
 }

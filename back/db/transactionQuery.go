@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // if param action_type is nil => get all kind of transaction
@@ -80,18 +82,17 @@ func GetProTotalDepositsByIdByAction(id int, action_type *string) (int, error) {
 	return total, nil
 }
 
-func GetProTotalItemsSpendingsById(id int) (int, error) {
-	var total int
+func GetProTotalItemsSpendingsById(id int) (float64, error) {
+	var total float64
+	// Uses snapshot total_price (item_price + commission) stored in transactions
 	query := `
-		select COALESCE(sum(i.price), 0) from transactions t
-		join pros p on p.id_account = t.id_pro
-		join items i on i.id = t.id_item
-		where p.id_account = $1 and i.price is not null and t.action = 'purchased';
+		select COALESCE(sum(t.total_price), 0)::float8 from transactions t
+		where t.id_pro = $1 and t.action = 'purchased' and t.total_price is not null;
 	`
 	row := utils.Conn.QueryRow(query, id)
 	err := row.Scan(&total)
 	if err != nil {
-		return 0, fmt.Errorf("GetProTotalItemsSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetProTotalItemsSpendingsById() failed: %v", err.Error())
 	}
 
 	return total, nil
@@ -142,10 +143,15 @@ func GetTotalTransactionsSince(since time.Time) (int, error) {
 	return total, nil
 }
 
+// get all transactions for an item with pagination
+//
+// set page and limit to -1 to get all without pagination
 func GetTransactionsByItemId(itemId int, page int, limit int) ([]models.Transaction, error) {
 	var transactions []models.Transaction
 	query := `
-		select t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username from transactions t
+		select t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username,
+		       t.reservation_expiry, t.item_price, t.commission_rate, t.total_price
+		from transactions t
 		join accounts a on a.id = t.id_pro
 		where t.id_item = $1
 		order by t.created_at desc
@@ -165,12 +171,35 @@ func GetTransactionsByItemId(itemId int, page int, limit int) ([]models.Transact
 	defer rows.Close()
 	for rows.Next() {
 		var t models.Transaction
-		if err := rows.Scan(&t.Id, &t.IdTransaction, &t.CreatedAt, &t.Action, &t.IdItem, &t.IdPro, &t.UsernamePro); err != nil {
+		if err := rows.Scan(&t.Id, &t.IdTransaction, &t.CreatedAt, &t.Action, &t.IdItem, &t.IdPro, &t.UsernamePro,
+			&t.ReservationExpiry, &t.ItemPrice, &t.CommissionRate, &t.TotalPrice); err != nil {
 			return nil, fmt.Errorf("GetTransactionsByItemId() failed: %v", err.Error())
 		}
 		transactions = append(transactions, t)
 	}
 	return transactions, nil
+}
+
+func GetLatestTransactionOfPro(idPro int, idItem int) (models.Transaction, error) {
+	var transaction models.Transaction
+	query := `
+		SELECT t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username,
+		       t.reservation_expiry, t.item_price, t.commission_rate, t.total_price, t.confirm_code
+		FROM transactions t
+		JOIN accounts a on a.id = t.id_pro
+		WHERE t.id_pro = $1 AND t.id_item = $2
+		ORDER BY t.created_at desc
+		LIMIT 1
+	`
+	err := utils.Conn.QueryRow(query, idPro, idItem).Scan(&transaction.Id, &transaction.IdTransaction, &transaction.CreatedAt, &transaction.Action, &transaction.IdItem, &transaction.IdPro, &transaction.UsernamePro,
+		&transaction.ReservationExpiry, &transaction.ItemPrice, &transaction.CommissionRate, &transaction.TotalPrice, &transaction.ConfirmCode)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return transaction, nil
+		}
+		return transaction, fmt.Errorf("GetLatestTransactionOfPro() failed: %v", err.Error())
+	}
+	return transaction, nil
 }
 
 func GetTotalTransactionsByItemId(itemId int) (int, error) {
@@ -207,25 +236,80 @@ func GetTransactionLatestStatusByUuid(transactionUuid string) (string, error) {
 	return status, nil
 }
 
-func CancelTransactionByUuid(transactionUuid string, idItem int, idPro int) error {
+func GetTransactionLatestStatusByItemId(item_id int) (string, error) {
+	var status string
 	query := `
-		insert into transactions (id_transaction, action, id_item, id_pro) values ($1, 'cancelled', $2, $3);
+		select action from transactions where id_item = $1 order by created_at desc limit 1;
 	`
-	_, err := utils.Conn.Exec(query, transactionUuid, idItem, idPro)
+	err := utils.Conn.QueryRow(query, item_id).Scan(&status)
 	if err != nil {
-		return fmt.Errorf("CancelTransactionByUuid() failed: %v", err.Error())
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", fmt.Errorf("GetTransactionLatestStatusByItemId() failed: %v", err.Error())
+	}
+	return status, nil
+}
+
+
+func InsertTransaction(transaction models.TransactionInsert) error {
+	var transactionUuid string
+	var query string
+	var err error
+	// generate new uuid if it is reserve (first action)
+	switch transaction.Action {
+	case "reserved":
+		transactionUuid = uuid.New().String()
+		reserveDurationDays := 3
+		reserveExpiry := time.Now().AddDate(0, 0, reserveDurationDays)
+		query = `
+			insert into transactions (id_transaction, action, id_item, id_pro, reservation_expiry)
+			values ($1, $2, $3, $4, $5);
+		`
+		_, err = utils.Conn.Exec(query, transactionUuid, transaction.Action, transaction.IdItem, transaction.IdPro, &reserveExpiry)
+	case "cancelled":
+		query = `
+			insert into transactions (id_transaction, action, id_item, id_pro)
+			values ($1, $2, $3, $4);
+		`
+		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro)
+	case "purchased":
+		query = `
+			insert into transactions (id_transaction, action, id_item, id_pro, confirm_code, item_price, commission_rate, total_price)
+			values ($1, $2, $3, $4, $5, $6, $7, $8);
+		`
+		_, err = utils.Conn.Exec(query, transaction.IdTransaction, transaction.Action, transaction.IdItem, transaction.IdPro, transaction.ConfirmCode, transaction.ItemPrice, transaction.CommissionRate, transaction.TotalPrice)
+	// TODO: case "expired"
+	default:
+		return fmt.Errorf("InsertTransaction() failed: invalid action %s", transaction.Action)
+	}
+
+	if err != nil {
+		return fmt.Errorf("InsertTransaction() failed: %v", err.Error())
 	}
 	return nil
 }
 
-func GetProIdByTransUuid(transactionUuid string) (int, error) {
-	var idPro int
+func GetTransactionLatestUuidOfPro(id_pro int, id_item int) (uuid.UUID, error) {
+	var transactionUuid string
 	query := `
-		select id_pro from transactions where id_transaction = $1;
+		SELECT id_transaction 
+		FROM transactions 
+		WHERE id_pro = $1 AND id_item = $2 
+		ORDER BY created_at DESC 
+		LIMIT 1;
 	`
-	err := utils.Conn.QueryRow(query, transactionUuid).Scan(&idPro)
+	err := utils.Conn.QueryRow(query, id_pro, id_item).Scan(&transactionUuid)
 	if err != nil {
-		return 0, fmt.Errorf("GetProIdByTransUuid() failed: %v", err.Error())
+		if err == sql.ErrNoRows {
+			return uuid.Nil, nil
+		}
+		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidOfPro() failed: %v", err.Error())
 	}
-	return idPro, nil
+
+	txUuidParsed, err := uuid.Parse(transactionUuid)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("GetTransactionLatestUuidOfPro() failed: %v", err.Error())
+	}
+	return txUuidParsed, nil
 }

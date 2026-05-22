@@ -4,7 +4,7 @@ export interface AccountCountStats {
 }
 
 export interface updateAccountPayload {
-  id_account: number;
+  id: number;
   username: string;
   email: string;
   phone?: string;
@@ -35,6 +35,8 @@ export interface RegisterPayload {
   username: string;
   phone?: string;
   role: string;
+  is_trial?: boolean;
+  is_premium?: boolean;
 }
 
 export interface Account {

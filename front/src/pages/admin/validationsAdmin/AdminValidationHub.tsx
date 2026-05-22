@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Container,
   Tabs,
@@ -38,7 +39,7 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 
 import AdminTable from "../../../components/admin/AdminTable";
-import { AdminCardInfo } from "../../../components/admin/AdminCardInfo";
+import { AdminCardInfo } from "../../../components/dashboard/AdminCardInfo";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { PATHS } from "../../../routes/paths";
 import {
@@ -52,20 +53,20 @@ import {
   useGetAllEvents,
   useApproveRefuseEvent,
 } from "../../../hooks/eventHooks";
-import { ChartLegend } from "../../../components/common/chart/ChartLegend";
+import { ChartLegend } from "../../../components/chart/ChartLegend";
 
 const LIMIT = 10;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function getStatusBadge(status: string) {
+function getStatusBadge(status: string, t: any) {
   switch (status) {
     case "approved":
-      return <Badge color="green">Approved</Badge>;
+      return <Badge color="green">{t("status.approved")}</Badge>;
     case "refused":
-      return <Badge color="red">Refused</Badge>;
+      return <Badge color="red">{t("status.refused")}</Badge>;
     case "pending":
-      return <Badge color="yellow">Pending</Badge>;
+      return <Badge color="yellow">{t("status.pending")}</Badge>;
     default:
       return <Badge color="gray">{status}</Badge>;
   }
@@ -88,6 +89,7 @@ const defaultFilters: FiltersState = {
 // ─── Overview Tab ────────────────────────────────────────────────────────────
 
 function OverviewTab() {
+  const { t } = useTranslation("admin");
   const { data: stats, isLoading, isError } = useValidationStats();
 
   const totalPending =
@@ -110,37 +112,37 @@ function OverviewTab() {
     totalProcessed > 0 ? Math.round((totalApproved / totalProcessed) * 100) : 0;
 
   const chartData = [
-    { name: "Pending", value: totalPending, color: "orange.5" },
-    { name: "Approved", value: totalApproved, color: "green.6" },
-    { name: "Refused", value: totalRefused, color: "red.6" },
+    { name: t("status.pending"), value: totalPending, color: "orange.5" },
+    { name: t("status.approved"), value: totalApproved, color: "green.6" },
+    { name: t("status.refused"), value: totalRefused, color: "red.6" },
   ].filter((d) => d.value > 0);
 
   return (
     <Stack gap="xl" mt="md">
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }}>
         <AdminCardInfo
-          title="Total Pending"
+          title={t("validations.overview.pending")}
           icon={IconClockHour4}
           value={totalPending}
           loading={isLoading}
           error={isError}
         />
         <AdminCardInfo
-          title="Total Approved"
+          title={t("validations.overview.approved")}
           icon={IconCircleCheck}
           value={totalApproved}
           loading={isLoading}
           error={isError}
         />
         <AdminCardInfo
-          title="Total Refused"
+          title={t("validations.overview.refused")}
           icon={IconCircleX}
           value={totalRefused}
           loading={isLoading}
           error={isError}
         />
         <AdminCardInfo
-          title="Approval Rate"
+          title={t("validations.overview.rate")}
           icon={IconChartBar}
           value={`${approvalRate}%`}
           loading={isLoading}
@@ -153,7 +155,7 @@ function OverviewTab() {
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Paper withBorder p="lg" radius="md" shadow="sm" h="100%">
             <Text fw={600} mb="md">
-              Overall Status Distribution
+              {t("validations.overview.distribution")}
             </Text>
             {isLoading ? (
               <Group justify="center" py="xl">
@@ -173,9 +175,9 @@ function OverviewTab() {
             )}
             <ChartLegend
               data={[
-                { label: "Approved", color: "green.6" },
-                { label: "Pending", color: "orange.5" },
-                { label: "Refused", color: "red.6" },
+                { label: t("status.approved"), color: "green.6" },
+                { label: t("status.pending"), color: "orange.5" },
+                { label: t("status.refused"), color: "red.6" },
               ]}
             />
           </Paper>
@@ -185,7 +187,7 @@ function OverviewTab() {
         <Grid.Col span={{ base: 12, md: 7 }}>
           <Paper withBorder p="lg" radius="md" shadow="sm" h="100%">
             <Text fw={600} mb="md">
-              Breakdown by Type
+              {t("validations.overview.breakdown")}
             </Text>
             {isLoading ? (
               <Group justify="center" py="xl">
@@ -195,15 +197,17 @@ function OverviewTab() {
               <Table>
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th>Type</Table.Th>
-                    <Table.Th ta="center">Pending</Table.Th>
-                    <Table.Th ta="center">Approved</Table.Th>
-                    <Table.Th ta="center">Refused</Table.Th>
+                    <Table.Th>{t("history.table.module")}</Table.Th>
+                    <Table.Th ta="center">{t("status.pending")}</Table.Th>
+                    <Table.Th ta="center">{t("status.approved")}</Table.Th>
+                    <Table.Th ta="center">{t("status.refused")}</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                   <Table.Tr>
-                    <Table.Td fw={500}>Deposits</Table.Td>
+                    <Table.Td fw={500}>
+                      {t("validations.overview.types.deposit")}
+                    </Table.Td>
                     <Table.Td ta="center">
                       <Badge color="orange" variant="light">
                         {stats?.pending_deposits ?? 0}
@@ -221,7 +225,9 @@ function OverviewTab() {
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>
-                    <Table.Td fw={500}>Listings</Table.Td>
+                    <Table.Td fw={500}>
+                      {t("validations.overview.types.listing")}
+                    </Table.Td>
                     <Table.Td ta="center">
                       <Badge color="orange" variant="light">
                         {stats?.pending_listings ?? 0}
@@ -239,7 +245,9 @@ function OverviewTab() {
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>
-                    <Table.Td fw={500}>Events</Table.Td>
+                    <Table.Td fw={500}>
+                      {t("validations.overview.types.event")}
+                    </Table.Td>
                     <Table.Td ta="center">
                       <Badge color="orange" variant="light">
                         {stats?.pending_events ?? 0}
@@ -285,6 +293,7 @@ function FilterBar({
   showStatus = false,
   showType = false,
 }: FilterBarProps) {
+  const { t } = useTranslation("admin");
   // Always total to 12 columns to ensure consistent length across all tabs
   const searchSpan = 12 - (showStatus ? 2 : 0) - (showType ? 2 : 0) - 2 - 3;
 
@@ -292,9 +301,10 @@ function FilterBar({
     <Grid align="flex-end" mb="md">
       <Grid.Col span={{ base: 12, md: searchSpan }}>
         <TextInput
-          label="Search"
-          variant="filled"
-          placeholder="Search items by title, username or ID..."
+          label={t("history.filters.search")}
+          placeholder={t("validations.table.search_placeholder", {
+            defaultValue: "Search items by title, username or ID...",
+          })}
           rightSection={<IconSearch size={14} />}
           value={filters.searchValue}
           onChange={(e) => onFilterChange("searchValue", e.target.value)}
@@ -305,12 +315,12 @@ function FilterBar({
       {showStatus && (
         <Grid.Col span={{ base: 6, md: 2 }}>
           <Select
-            label="Status"
-            placeholder="All status"
+            label={t("history.filters.status")}
+            placeholder={t("users.status.all")}
             data={[
-              { value: "pending", label: "Pending" },
-              { value: "approved", label: "Approved" },
-              { value: "refused", label: "Refused" },
+              { value: "pending", label: t("status.pending") },
+              { value: "approved", label: t("status.approved") },
+              { value: "refused", label: t("status.refused") },
             ]}
             value={filters.statusValue}
             onChange={(val) => onFilterChange("statusValue", val)}
@@ -322,12 +332,18 @@ function FilterBar({
       {showType && (
         <Grid.Col span={{ base: 6, md: 2 }}>
           <Select
-            label="Type"
-            placeholder="All types"
+            label={t("history.table.module")}
+            placeholder={t("history.filters.module_placeholder")}
             data={[
-              { value: "Deposit", label: "Deposit" },
-              { value: "Listing", label: "Listing" },
-              { value: "Event", label: "Event" },
+              {
+                value: "Deposit",
+                label: t("validations.overview.types.deposit"),
+              },
+              {
+                value: "Listing",
+                label: t("validations.overview.types.listing"),
+              },
+              { value: "Event", label: t("validations.overview.types.event") },
             ]}
             value={filters.typeValue}
             onChange={(val) => onFilterChange("typeValue", val)}
@@ -336,13 +352,13 @@ function FilterBar({
         </Grid.Col>
       )}
 
-      <Grid.Col span={{ base: 6, md: 2 }}>
+      <Grid.Col span={{ base: 12, md: 2 }}>
         <Select
-          label="Sort by"
-          placeholder="Default"
+          label={t("history.filters.sort")}
+          placeholder={t("history.filters.sort_placeholder")}
           data={[
-            { value: "oldest", label: "Oldest first" },
-            { value: "most_recent", label: "Most recent first" },
+            { value: "oldest", label: t("history.filters.sort_oldest") },
+            { value: "most_recent", label: t("history.filters.sort_recent") },
           ]}
           value={filters.sortValue}
           onChange={(val) => onFilterChange("sortValue", val)}
@@ -353,10 +369,10 @@ function FilterBar({
       <Grid.Col span={{ base: 12, md: 3 }}>
         <Group gap="xs" grow>
           <Button variant="primary" onClick={onApply}>
-            Search
+            {t("history.filters.apply")}
           </Button>
           <Button variant="secondary" onClick={onReset}>
-            Reset
+            {t("history.filters.reset")}
           </Button>
         </Group>
       </Grid.Col>
@@ -373,6 +389,7 @@ interface ActionHandlers {
 }
 
 function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
+  const { t } = useTranslation("admin");
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
   const [appliedFilters, setAppliedFilters] =
@@ -416,13 +433,13 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
         loading={isLoading}
         error={isError ? new Error("Could not load pending deposits.") : null}
         header={[
-          "Submitted on",
-          "ID",
-          "Title",
-          "User",
-          "Container",
-          "Material",
-          "Actions",
+          t("validations.table.submitted_on"),
+          t("users.table.id"),
+          t("validations.table.title"),
+          t("validations.table.user"),
+          t("validations.table.container"),
+          t("validations.table.material"),
+          t("users.table.actions"),
         ]}
         footer={
           <PaginationFooter
@@ -440,7 +457,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           <Table.Tr>
             <Table.Td colSpan={7} ta="center">
               <Text c="dimmed" py="md">
-                No pending deposits found.
+                {t("validations.table.no_pending.deposits")}
               </Text>
             </Table.Td>
           </Table.Tr>
@@ -453,7 +470,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 navigate(
                   `${PATHS.ADMIN.VALIDATIONS.ALL}/deposits/${d.id_item}`,
                   {
-                    state: { item: d },
+                    state: { item: d, type: "deposit" },
                   },
                 )
               }
@@ -469,7 +486,9 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               <Table.Td ta="center">
                 {d.city_name} ({d.postal_code})
               </Table.Td>
-              <Table.Td ta="center">{d.material}</Table.Td>
+              <Table.Td ta="center">
+                {d.material.charAt(0).toUpperCase() + d.material.slice(1)}
+              </Table.Td>
               <Table.Td ta="center">
                 <Group
                   gap="xs"
@@ -482,7 +501,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     leftSection={<IconCheck size={14} />}
                     onClick={() => onApprove(d.id_item, "deposits")}
                   >
-                    Approve
+                    {t("validations.table.actions.approve")}
                   </Button>
                   <Button
                     size="xs"
@@ -490,7 +509,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     leftSection={<IconX size={14} />}
                     onClick={() => onOpenRefuse(d.id_item, "deposits")}
                   >
-                    Refuse
+                    {t("validations.table.actions.refuse")}
                   </Button>
                 </Group>
               </Table.Td>
@@ -505,6 +524,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 // ─── Listings Tab ────────────────────────────────────────────────────────────
 
 function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
+  const { t } = useTranslation("admin");
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
   const [appliedFilters, setAppliedFilters] =
@@ -548,13 +568,13 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
         loading={isLoading}
         error={isError ? new Error("Could not load pending listings.") : null}
         header={[
-          "Submitted on",
-          "ID",
-          "Title",
-          "User",
-          "City",
-          "Price",
-          "Actions",
+          t("validations.table.submitted_on"),
+          t("users.table.id"),
+          t("validations.table.title"),
+          t("validations.table.creator"),
+          t("validations.table.location"),
+          t("validations.table.price"),
+          t("users.table.actions"),
         ]}
         footer={
           !hasFilters &&
@@ -576,7 +596,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
           <Table.Tr>
             <Table.Td colSpan={7} ta="center">
               <Text c="dimmed" py="md">
-                No pending listings found.
+                {t("validations.table.no_pending.listings")}
               </Text>
             </Table.Td>
           </Table.Tr>
@@ -589,7 +609,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                 navigate(
                   `${PATHS.ADMIN.VALIDATIONS.ALL}/listings/${l.id_item}`,
                   {
-                    state: { item: l },
+                    state: { item: l, type: "listing" },
                   },
                 )
               }
@@ -603,7 +623,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
               <Table.Td ta="center">{l.title}</Table.Td>
               <Table.Td ta="center">{l.username}</Table.Td>
               <Table.Td ta="center">
-                {l.city_name} ({l.postal_code})
+                {l.street}, {l.city_name} ({l.postal_code})
               </Table.Td>
               <Table.Td ta="center">
                 {l.price != null ? `${l.price} €` : "—"}
@@ -620,7 +640,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     leftSection={<IconCheck size={14} />}
                     onClick={() => onApprove(l.id_item, "listings")}
                   >
-                    Approve
+                    {t("validations.table.actions.approve")}
                   </Button>
                   <Button
                     size="xs"
@@ -628,7 +648,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
                     leftSection={<IconX size={14} />}
                     onClick={() => onOpenRefuse(l.id_item, "listings")}
                   >
-                    Refuse
+                    {t("validations.table.actions.refuse")}
                   </Button>
                 </Group>
               </Table.Td>
@@ -643,6 +663,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 // ─── Events Tab ──────────────────────────────────────────────────────────────
 
 function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
+  const { t } = useTranslation("admin");
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
   const [appliedFilters, setAppliedFilters] =
@@ -662,6 +683,9 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
     appliedFilters.searchValue || undefined,
     "pending",
     appliedFilters.sortValue || undefined,
+    undefined,
+    undefined,
+    true,
   );
 
   const events = data?.events ?? [];
@@ -717,13 +741,13 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
         loading={isLoading}
         error={isError ? new Error("Could not load pending events.") : null}
         header={[
-          "Submitted on",
-          "ID",
-          "Title",
-          "Creator",
-          "Category",
-          "Start date",
-          "Actions",
+          t("validations.table.submitted_on"),
+          t("users.table.id"),
+          t("validations.table.title"),
+          t("validations.table.creator"),
+          t("validations.table.category"),
+          t("validations.table.start_date"),
+          t("users.table.actions"),
         ]}
         footer={
           !hasFilters &&
@@ -745,7 +769,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
           <Table.Tr>
             <Table.Td colSpan={7} ta="center">
               <Text c="dimmed" py="md">
-                No pending events found.
+                {t("validations.table.no_pending.events")}
               </Text>
             </Table.Td>
           </Table.Tr>
@@ -776,19 +800,23 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
                       : ev.category === "workshop"
                         ? "blue"
                         : ev.category === "conference"
-                          ? "green"
+                          ? "var(--upagain-neutral-green)"
                           : ev.category === "meetups"
-                            ? "yellow"
+                            ? "var(--upagain-yellow)"
                             : "red"
                   }
                 >
-                  {ev.category.charAt(0).toUpperCase() + ev.category.slice(1)}
+                  {t(`events:categories.${ev.category}` as any, {
+                    defaultValue:
+                      ev.category.charAt(0).toUpperCase() +
+                      ev.category.slice(1),
+                  })}
                 </Pill>
               </Table.Td>
               <Table.Td ta="center">
                 {ev.start_at
                   ? dayjs(ev.start_at).format("DD/MM/YYYY")
-                  : "Not set"}
+                  : t("common:not_set", { defaultValue: "Not set" })}
               </Table.Td>
               <Table.Td ta="center">
                 <Group
@@ -807,7 +835,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
                       statusMutation.variables?.status === "approved"
                     }
                   >
-                    Approve
+                    {t("validations.table.actions.approve")}
                   </Button>
                   <Button
                     size="xs"
@@ -815,7 +843,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
                     leftSection={<IconX size={14} />}
                     onClick={() => handleOpenRefuse(ev.id)}
                   >
-                    Refuse
+                    {t("validations.table.actions.refuse")}
                   </Button>
                 </Group>
               </Table.Td>
@@ -828,16 +856,16 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
       <Modal
         opened={refuseOpened}
         onClose={closeRefuse}
-        title="Refuse this event"
+        title={t("validations.refuse_modal.title")}
         centered
       >
         <Stack gap="md">
           <Text size="sm" c="dimmed">
-            Please provide a reason for the refusal. This will be logged.
+            {t("validations.refuse_modal.text")}
           </Text>
           <Textarea
-            label="Reason"
-            placeholder="Enter refusal reason..."
+            label={t("validations.refuse_modal.label")}
+            placeholder={t("validations.refuse_modal.placeholder")}
             value={refuseReason}
             onChange={(e) => setRefuseReason(e.currentTarget.value)}
             minRows={3}
@@ -845,7 +873,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
           />
           <Group justify="flex-end">
             <Button variant="grey" onClick={closeRefuse}>
-              Cancel
+              {t("validations.refuse_modal.cancel")}
             </Button>
             <Button
               variant="delete"
@@ -853,7 +881,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
               disabled={refuseReason.trim().length === 0}
               loading={statusMutation.isPending}
             >
-              Confirm Refusal
+              {t("validations.refuse_modal.confirm")}
             </Button>
           </Group>
         </Stack>
@@ -865,6 +893,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
 // ─── History Tab ─────────────────────────────────────────────────────────────
 
 function HistoryTab() {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
@@ -920,8 +949,23 @@ function HistoryTab() {
       />
       <AdminTable
         loading={isLoading}
-        error={isError ? new Error("Could not load history.") : null}
-        header={["Created on", "ID", "Title", "Type", "User", "Status"]}
+        error={
+          isError
+            ? new Error(
+                t("validations.history.error", {
+                  defaultValue: "Could not load history.",
+                }),
+              )
+            : null
+        }
+        header={[
+          t("validations.table.submitted_on"),
+          t("users.table.id"),
+          t("validations.table.title"),
+          t("history.table.module"),
+          t("validations.table.user"),
+          t("users.table.status"),
+        ]}
         footer={
           <PaginationFooter
             activePage={activePage}
@@ -938,7 +982,7 @@ function HistoryTab() {
           <Table.Tr>
             <Table.Td colSpan={6} ta="center">
               <Text c="dimmed" py="md">
-                No history records found.
+                {t("validations.history.no_history")}
               </Text>
             </Table.Td>
           </Table.Tr>
@@ -993,7 +1037,7 @@ function HistoryTab() {
                 </Badge>
               </Table.Td>
               <Table.Td ta="center">{item.username}</Table.Td>
-              <Table.Td ta="center">{getStatusBadge(item.status)}</Table.Td>
+              <Table.Td ta="center">{getStatusBadge(item.status, t)}</Table.Td>
             </Table.Tr>
           ))
         )}
@@ -1005,6 +1049,7 @@ function HistoryTab() {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function AdminValidationHub() {
+  const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const processMutation = useProcessValidation();
 
@@ -1059,28 +1104,45 @@ export default function AdminValidationHub() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg" mb="xl">
-        Validation Hub
+        {t("validations.title")}
       </Title>
 
       <Tabs defaultValue="overview" keepMounted={false}>
         <Tabs.List>
-          <Tabs.Tab value="overview" leftSection={<IconChartBar size={16} />}>
-            Overview
-          </Tabs.Tab>
-          <Tabs.Tab value="deposits" leftSection={<IconSofa size={16} />}>
-            Deposits
-          </Tabs.Tab>
-          <Tabs.Tab value="listings" leftSection={<IconTags size={16} />}>
-            Listings
+          <Tabs.Tab
+            color="var(--upagain-neutral-green)"
+            value="overview"
+            leftSection={<IconChartBar size={16} />}
+          >
+            {t("validations.tabs.overview")}
           </Tabs.Tab>
           <Tabs.Tab
+            color="var(--upagain-neutral-green)"
+            value="deposits"
+            leftSection={<IconSofa size={16} />}
+          >
+            {t("validations.tabs.deposits")}
+          </Tabs.Tab>
+          <Tabs.Tab
+            color="var(--upagain-neutral-green)"
+            value="listings"
+            leftSection={<IconTags size={16} />}
+          >
+            {t("validations.tabs.listings")}
+          </Tabs.Tab>
+          <Tabs.Tab
+            color="var(--upagain-neutral-green)"
             value="events"
             leftSection={<IconCalendarEvent size={16} />}
           >
-            Events
+            {t("validations.tabs.events")}
           </Tabs.Tab>
-          <Tabs.Tab value="history" leftSection={<IconHistory size={16} />}>
-            History
+          <Tabs.Tab
+            color="var(--upagain-neutral-green)"
+            value="history"
+            leftSection={<IconHistory size={16} />}
+          >
+            {t("validations.tabs.history")}
           </Tabs.Tab>
         </Tabs.List>
 
@@ -1109,17 +1171,16 @@ export default function AdminValidationHub() {
       <Modal
         opened={opened}
         onClose={close}
-        title="Refuse this submission"
+        title={t("validations.refuse_modal.title")}
         centered
       >
         <Stack gap="md">
           <Text size="sm" c="dimmed">
-            Please provide a reason for the refusal. This will be sent to the
-            user.
+            {t("validations.refuse_modal.text_shared")}
           </Text>
           <Textarea
-            label="Reason"
-            placeholder="Enter refusal reason..."
+            label={t("validations.refuse_modal.label")}
+            placeholder={t("validations.refuse_modal.placeholder")}
             value={refuseReason}
             onChange={(e) => setRefuseReason(e.currentTarget.value)}
             minRows={3}
@@ -1127,7 +1188,7 @@ export default function AdminValidationHub() {
           />
           <Group justify="flex-end">
             <Button variant="grey" onClick={close}>
-              Cancel
+              {t("validations.refuse_modal.cancel")}
             </Button>
             <Button
               variant="delete"
@@ -1135,7 +1196,7 @@ export default function AdminValidationHub() {
               disabled={refuseReason.trim().length === 0}
               loading={processMutation.isPending}
             >
-              Confirm Refusal
+              {t("validations.refuse_modal.confirm")}
             </Button>
           </Group>
         </Stack>

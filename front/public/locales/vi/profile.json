@@ -1,0 +1,99 @@
+{
+  "account": {
+    "title": "Cài đặt tài khoản",
+    "subtitle": "Quản lý thông tin hồ sơ của bạn",
+    "update_avatar": "Cập nhật ảnh đại diện",
+    "personal_details": "Chi tiết cá nhân",
+    "joined_on": "Tham gia vào",
+    "username": "Tên người dùng",
+    "phone": "Điện thoại",
+    "email": "Email",
+    "statistics": "Thống kê",
+    "upcycling_points": "Điểm Upcycling",
+    "deposits_posted": "Số lần gửi đồ đã đăng",
+    "deposit_posted": "lần gửi đồ đã đăng",
+    "deposits_posted_plural": "lần gửi đồ đã đăng",
+    "listings_posted": "Danh sách đã đăng",
+    "listing_posted": "danh sách đã đăng",
+    "listings_posted_plural": "danh sách đã đăng",
+    "discard_changes": "Hủy bỏ thay đổi",
+    "save_changes": "Lưu thay đổi",
+    "modal_avatar_title": "Cập nhật ảnh đại diện",
+    "modal_avatar_confirm": "Xác nhận",
+    "modal_avatar_cancel": "Hủy"
+  },
+  "security": {
+    "title": "Cài đặt bảo mật",
+    "subtitle": "Quản lý email và mật khẩu để bảo vệ tài khoản của bạn",
+    "sensitive_info": "Thông tin nhạy cảm",
+    "email_address": "Địa chỉ email",
+    "email_description": "Cập nhật địa chỉ email sẽ thay đổi cách bạn đăng nhập.",
+    "change_password": "Thay đổi mật khẩu",
+    "password_description": "Hãy đảm bảo tài khoản của bạn sử dụng mật khẩu dài và ngẫu nhiên để luôn an toàn.",
+    "new_password": "Mật khẩu mới",
+    "confirm_password": "Xác nhận mật khẩu",
+    "update_password": "Cập nhật mật khẩu"
+  },
+  "preferences": {
+    "title": "Tùy chọn",
+    "subtitle": "Quản lý cài đặt thông báo và tùy chọn hiển thị của bạn",
+    "push_notifications": "Thông báo Push",
+    "push_notifications_desc": "Bật thông báo push để nhận cập nhật theo thời gian thực trên thiết bị của bạn.",
+    "notification_types": "Loại thông báo",
+    "notification_types_desc": "Chọn những sự kiện bạn muốn được thông báo.",
+    "display_settings": "Cài đặt hiển thị",
+    "display_settings_desc": "Tùy chỉnh giao diện ứng dụng của bạn.",
+    "theme": "Chủ đề",
+    "language": "Ngôn ngữ",
+    "dark_mode": "Chế độ tối",
+    "light_mode": "Chế độ sáng"
+  },
+  "notifications": {
+    "user_object_status": "Cập nhật trạng thái đối tượng",
+    "user_validation_status": "Cập nhật trạng thái xác thực",
+    "user_object_retrieved": "Đối tượng đã được lấy",
+    "user_event_updated": "Sự kiện đã cập nhật",
+    "user_code_expiring": "Mã sắp hết hạn (24h)",
+    "pro_material_available": "Vật liệu mới có sẵn",
+    "pro_object_deposited": "Đối tượng đã được gửi",
+    "pro_subscription_end": "Sắp kết thúc gói đăng ký",
+    "pro_code_expiring": "Mã lấy đồ sắp hết hạn",
+    "emp_event_updated": "Sự kiện được giao đã cập nhật",
+    "emp_event_assigned": "Sự kiện mới được giao",
+    "update_success_title": "Đã cập nhật cài đặt",
+    "update_success_message": "Tùy chọn thông báo của bạn đã được cập nhật rồi nha."
+  },
+  "billings": {
+    "title": "Thanh toán & Đăng ký",
+    "subtitle": "Quản lý phương thức thanh toán và hóa đơn của bạn",
+    "table": {
+      "date": "Ngày",
+      "type": "Loại",
+      "description": "Mô tả",
+      "details": "Chi tiết",
+      "amount": "Số tiền",
+      "actions": "Hành động",
+      "no_invoices": "Không tìm thấy hóa đơn"
+    },
+    "download_tooltip": "Tải hóa đơn"
+  },
+  "users": {
+    "errors": {
+      "username_required": "Tên người dùng là bắt buộc",
+      "username_min": "Tên người dùng phải có ít nhất 4 ký tự",
+      "username_max": "Tên người dùng phải có tối đa 20 ký tự",
+      "email_required": "Email là bắt buộc",
+      "email_invalid": "Định dạng email không hợp lệ",
+      "password_required": "Mật khẩu là bắt buộc",
+      "password_min": "Mật khẩu phải có ít nhất 12 ký tự",
+      "password_max": "Mật khẩu phải có tối đa 60 ký tự",
+      "password_complexity": "Mật khẩu phải chứa ít nhất một chữ số, một chữ hoa và một ký tự đặc biệt",
+      "confirm_required": "Xác nhận mật khẩu là bắt buộc",
+      "confirm_mismatch": "Mật khẩu không khớp",
+      "phone_numbers_only": "Số điện thoại chỉ được chứa chữ số",
+      "phone_min": "Điện thoại phải có ít nhất 10 ký tự",
+      "phone_max": "Điện thoại phải có tối đa 15 ký tự",
+      "role_required": "Vai trò là bắt buộc"
+    }
+  }
+}

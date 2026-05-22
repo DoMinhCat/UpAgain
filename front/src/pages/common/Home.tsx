@@ -1,11 +1,6 @@
-// src/pages/Home.tsx
-// import AdminHome from "./admin/AdminHome";
-// import ProHome from "./ProHome";
-// import UserHome from "./UserHome";
 import { useAuth } from "../../context/AuthContext";
-import { Navigate } from "react-router-dom";
-import { PATHS } from "../../routes/paths";
 import GuestHome from "../guest/GuestHome";
+import UserHome from "../user/UserHome";
 
 const Home = () => {
   const { user } = useAuth();
@@ -16,17 +11,16 @@ const Home = () => {
   } else {
     // Render component based on role
     switch (user.role) {
-      case "admin":
-        return <Navigate to={PATHS.ADMIN.HOME} />;
-      // TODO: add other home page for each role
+      // admin can move freely between admin space and user space
+
+      // TODO:
       // case "pro":
       //   return <ProHome />;
-      // case "user":
-      //   return <UserHome />;
+      case "user":
+        return <UserHome />;
+      case "admin":
+        return <GuestHome />;
       default:
-        // return <GuestHome />;
-
-        // temporary
         return <GuestHome />;
     }
   }

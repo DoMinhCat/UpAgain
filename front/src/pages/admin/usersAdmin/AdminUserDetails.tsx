@@ -19,9 +19,10 @@ import {
   HoverCard,
   UnstyledButton,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
-import { ScoreRing } from "../../../components/user/ScoreRing";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
+import { ScoreRing } from "../../../components/score/ScoreRing";
 import { useEffect, useState } from "react";
 import { Calendar } from "@mantine/dates";
 import { useGetEmployeeSchedule } from "../../../hooks/employeeHooks";
@@ -44,14 +45,20 @@ import {
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
-import PasswordStrengthInput, {
-  requirements,
-} from "../../../components/common/input/PasswordStrengthInput";
+import PasswordStrengthInput from "../../../components/input/PasswordStrengthInput";
 import { IconLock, IconInfoCircleFilled } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuth } from "../../../context/AuthContext";
+import {
+  validateConfirmPassword,
+  validateEmail,
+  validatePassword,
+  validatePhone,
+  validateUsername,
+} from "../../../utils/validations/accountValidation";
 
 export default function AdminUserDetails() {
+  const { t } = useTranslation("admin");
   // for breadcrumbs
   const location = useLocation();
   const origin = location.state;
@@ -90,89 +97,34 @@ export default function AdminUserDetails() {
   const [disablePhoneEdit, setDisablePhoneEdit] = useState<boolean>(false);
 
   //validations
-  const validatePassword = (val: string) => {
-    if (!val) {
-      setPasswordError("Password is required");
-      return false;
-    }
-    if (val.length < 12) {
-      setPasswordError("Password must be at least 12 characters long");
-      return false;
-    }
-    if (val.length > 60) {
-      setPasswordError("Password must be at most 60 characters long");
-      return false;
-    }
-    if (!requirements.every((requirement) => requirement.re.test(val))) {
-      setPasswordError(
-        "Password must contain at least one number, one uppercase letter, and one special character",
-      );
-      return false;
-    }
-    setPasswordError(null);
-    return true;
+  const handleValidatePassword = (val: string) => {
+    const error = validatePassword(val, t);
+    setPasswordError(error);
+    return error === null;
   };
 
-  const validateConfirmPassword = (val: string) => {
-    if (!val) {
-      setConfirmPasswordError("You must confirm your password");
-      return false;
-    } else if (val !== password) {
-      setConfirmPasswordError("Passwords do not match");
-      return false;
-    }
-    setConfirmPasswordError(null);
-    return true;
+  const handleValidateConfirmPassword = (val: string) => {
+    const error = validateConfirmPassword(val, password, t);
+    setConfirmPasswordError(error);
+    return error === null;
   };
 
-  const validateUsernameEdit = (val: string) => {
-    if (!val) {
-      setUsernameEditError("Username is required");
-      return false;
-    }
-    if (val.length < 4) {
-      setUsernameEditError("Username must be at least 4 characters long");
-      return false;
-    }
-    if (val.length > 20) {
-      setUsernameEditError("Username must be at most 20 characters long");
-      return false;
-    }
-    setUsernameEditError(null);
-    return true;
+  const handleValidateUsernameEdit = (val: string) => {
+    const error = validateUsername(val, t);
+    setUsernameEditError(error);
+    return error === null;
   };
 
-  const validateEmailEdit = (val: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!val) {
-      setEmailEditError("Email is required");
-      return false;
-    }
-    if (!regex.test(val)) {
-      setEmailEditError("Invalid email format");
-      return false;
-    }
-    setEmailEditError(null);
-    return true;
+  const handleValidateEmailEdit = (val: string) => {
+    const error = validateEmail(val, t);
+    setEmailEditError(error);
+    return error === null;
   };
 
-  const validatePhoneEdit = (val: string) => {
-    if (val.length !== 0) {
-      if (!val.match(/^[0-9]+$/)) {
-        setPhoneEditError("Phone number must contain only numbers");
-        return false;
-      }
-      if (val.length < 10) {
-        setPhoneEditError("Phone must be at least 10 characters long");
-        return false;
-      }
-      if (val.length > 15) {
-        setPhoneEditError("Phone must be at most 15 characters long");
-        return false;
-      }
-      setPhoneEditError(null);
-      return true;
-    }
+  const handleValidatePhoneEdit = (val: string) => {
+    const error = validatePhone(val, t);
+    setPhoneEditError(error);
+    return error === null;
   };
 
   // Fetch account info to display
@@ -235,11 +187,13 @@ export default function AdminUserDetails() {
   const { mutate: mutatePasswordUpdate, isPending: isPendingPasswordUpdate } =
     useUpdatePassword();
 
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = (
+    e: React.MouseEvent<HTMLButtonElement> | React.SubmitEvent,
+  ) => {
     e.preventDefault();
     if (
-      !validatePassword(password) ||
-      !validateConfirmPassword(confirmPassword)
+      !handleValidatePassword(password) ||
+      !handleValidateConfirmPassword(confirmPassword)
     )
       return;
 
@@ -292,27 +246,25 @@ export default function AdminUserDetails() {
   };
 
   const editMutation = useUpdateAccount();
-  const handleEditAccount = async (e: React.FormEvent) => {
+  const handleEditAccount = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (
-      !validateUsernameEdit(usernameEdit) ||
-      !validateEmailEdit(emailEdit) ||
-      !validatePhoneEdit(phoneEdit)
+      !handleValidateUsernameEdit(usernameEdit) ||
+      !handleValidateEmailEdit(emailEdit) ||
+      !handleValidatePhoneEdit(phoneEdit)
     )
       return;
     if (accountId) {
       editMutation.mutate(
         {
-          id_account: accountId,
+          id: accountId,
           username: usernameEdit,
           email: emailEdit,
           phone: phoneEdit,
         },
         {
-          onSuccess: (response: any) => {
-            if (response?.status === 204) {
-              closeEdit();
-            }
+          onSuccess: () => {
+            closeEdit();
           },
         },
       );
@@ -333,43 +285,45 @@ export default function AdminUserDetails() {
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
-        User's Details
+        {t("users.details.title")}
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin === "allUsers"
-            ? [{ title: "User Management", href: PATHS.ADMIN.USERS.ALL }]
+            ? [{ title: t("users.title"), href: PATHS.ADMIN.USERS.ALL }]
             : origin === "deletedList"
               ? [
-                  { title: "User Management", href: PATHS.ADMIN.USERS.ALL },
+                  { title: t("users.title"), href: PATHS.ADMIN.USERS.ALL },
                   {
-                    title: "Deleted Accounts",
+                    title: t("users.deleted.title"),
                     href: PATHS.ADMIN.USERS.DELETED,
                   },
                 ]
               : origin?.from === "eventDetails"
                 ? [
-                    { title: "Event Management", href: PATHS.ADMIN.EVENTS.ALL },
+                    { title: t("events.title"), href: PATHS.ADMIN.EVENTS.ALL },
                     {
-                      title: "Event's Details",
+                      title: t("events.details.title"),
                       href: PATHS.ADMIN.EVENTS.ALL + "/" + origin?.id_event,
                     },
                   ]
                 : origin?.from === "postDetails"
                   ? [
                       {
-                        title: "Post Management",
+                        title: t("posts.title"),
                         href: PATHS.ADMIN.POSTS,
                       },
                       {
-                        title: "Post's Details",
+                        title: t("posts.details.title", {
+                          defaultValue: "Post's Details",
+                        }),
                         href: PATHS.ADMIN.POSTS + "/" + origin?.id_post,
                       },
                     ]
                   : origin?.from === "historyDetails"
                     ? [
                         {
-                          title: "History's Details",
+                          title: t("history.title"),
                           href:
                             PATHS.ADMIN.HISTORY.ALL + "/" + origin?.id_history,
                         },
@@ -377,11 +331,11 @@ export default function AdminUserDetails() {
                     : origin?.from === "listingDetail"
                       ? [
                           {
-                            title: "Object Management",
+                            title: t("listings.title"),
                             href: PATHS.ADMIN.LISTINGS,
                           },
                           {
-                            title: "Object's Details",
+                            title: t("listings.details.title"),
                             href:
                               PATHS.ADMIN.LISTINGS + "/" + origin?.listingId,
                           },
@@ -389,24 +343,35 @@ export default function AdminUserDetails() {
                       : origin?.from === "SubscriptionDetails"
                         ? [
                             {
-                              title: "Subscription Management",
+                              title: t("subscription.title", {
+                                defaultValue: "Subscription Management",
+                              }),
                               href: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
                             },
                             {
-                              title: "Subscription's Details",
+                              title: t("subscription.details.title", {
+                                defaultValue: "Subscription's Details",
+                              }),
                               href:
                                 PATHS.ADMIN.SUBSCRIPTIONS.ALL +
                                 "/" +
                                 origin?.id_sub,
                             },
                           ]
-                        : [
-                            {
-                              title: "User Management",
-                              href: PATHS.ADMIN.USERS.ALL,
-                            },
-                          ]),
-          { title: "User's Details", href: "#" },
+                        : origin?.from === "finance"
+                          ? [
+                              {
+                                title: t("finance.title"),
+                                href: PATHS.ADMIN.FINANCE.ALL,
+                              },
+                            ]
+                          : [
+                              {
+                                title: t("users.title"),
+                                href: PATHS.ADMIN.USERS.ALL,
+                              },
+                            ]),
+          { title: t("users.details.title"), href: "#" },
         ]}
       />
       <Container px="md" size="sm" mt="xl">
@@ -418,7 +383,6 @@ export default function AdminUserDetails() {
 
         <Stack justify="center" align="center">
           <Avatar
-            // avatar must be in /src/assets/avatars
             src={accountDetails?.avatar}
             name="User's name"
             color="initials"
@@ -427,91 +391,92 @@ export default function AdminUserDetails() {
           <Title order={3}>{accountDetails?.username}</Title>
         </Stack>
         <Title order={3} ta="left" mt="xl">
-          General Information
+          {t("users.details.general_info")}
         </Title>
 
-        <Paper variant="primary" px="lg" py="md" mt="sm">
-          <InfoField label="Username">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
+          <InfoField label={t("users.details.fields.username")}>
             <Text ps="sm" mt="xs" mb="xl">
               {accountDetails?.username}
             </Text>
           </InfoField>
-          <InfoField label="Registered on">
+          <InfoField label={t("users.details.fields.registered_on")}>
             <Text ps="sm" mt="xs" mb="xl">
               {dayjs(accountDetails?.created_at).format("DD/MM/YYYY - HH:mm")}
             </Text>
           </InfoField>
-          <InfoField label="Role">
+          <InfoField label={t("users.details.fields.role")}>
             {accountDetails?.role === "user" ? (
               <Text ps="sm" mt="xs" mb="xl" c="blue">
-                User
+                {t("users.roles.user")}
               </Text>
             ) : accountDetails?.role === "pro" ? (
               <Text ps="sm" mt="xs" mb="xl" c="yellow">
-                Pro
+                {t("users.roles.pro")}
               </Text>
             ) : accountDetails?.role === "employee" ? (
               <Text ps="sm" mt="xs" mb="xl" c="green">
-                Employee
+                {t("users.roles.employee")}
               </Text>
             ) : (
               <Text ps="sm" mt="xs" mb="xl" c="red">
-                Admin
+                {t("users.roles.admin")}
               </Text>
             )}
           </InfoField>
-          <InfoField label="Status">
+          <InfoField label={t("users.details.fields.status")}>
             {accountDetails?.deleted_at ? (
               <Text ps="sm" mt="xs" mb="xl" c="red">
-                Deleted
+                {t("users.details.fields.deleted")}
               </Text>
             ) : accountDetails?.is_banned ? (
               <Text ps="sm" mt="xs" mb="xl" c="red">
-                Banned
+                {t("users.details.fields.banned")}
               </Text>
             ) : (
               <Text ps="sm" mt="xs" mb="xl" c="green">
-                Active
+                {t("users.details.fields.active")}
               </Text>
             )}
           </InfoField>
-          {accountDetails?.is_premium ??
-            (accountDetails?.is_premium ? (
-              <InfoField label="Subscription">
-                <Text ps="sm" mt="xs" mb="xl">
-                  Freemium
-                </Text>
-              </InfoField>
+          <InfoField label={t("users.details.fields.subscription")}>
+            {accountDetails?.is_premium ? (
+              <Text
+                ps="sm"
+                mt="xs"
+                mb="xl"
+                fw={700}
+                variant="gradient"
+                gradient={{
+                  from: "rgba(199, 165, 70, 1)",
+                  to: "rgba(230, 225, 188, 1)",
+                  deg: 90,
+                }}
+              >
+                {t("users.details.fields.premium")}
+              </Text>
             ) : (
-              <InfoField label="Subscription">
-                <Text
-                  ps="sm"
-                  mt="xs"
-                  mb="xl"
-                  gradient={{
-                    from: "rgba(199, 165, 70, 1)",
-                    to: "rgba(230, 225, 188, 1)",
-                    deg: 90,
-                  }}
-                >
-                  Premium
-                </Text>
-              </InfoField>
-            ))}
+              <Text ps="sm" mt="xs" mb="xl">
+                {t("users.details.fields.freemium")}
+              </Text>
+            )}
+          </InfoField>
         </Paper>
 
         <Title order={3} ta="left" mt="xl">
-          Contact
+          {t("users.details.contact")}
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
-          <InfoField label="Email">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
+          <InfoField label={t("users.details.fields.email")}>
             <Text ps="sm" mt="xs" mb="xl">
               {accountDetails?.email}
             </Text>
           </InfoField>
-          <InfoField label="Phone number">
+          <InfoField label={t("users.details.fields.phone")}>
             <Text ps="sm" mt="xs" mb="xl">
-              {accountDetails?.phone ? accountDetails?.phone : "N/A"}
+              {accountDetails?.phone
+                ? accountDetails?.phone
+                : t("users.details.fields.n_a")}
             </Text>
           </InfoField>
         </Paper>
@@ -519,47 +484,54 @@ export default function AdminUserDetails() {
         {!accountDetails?.deleted_at && (
           <>
             <Title order={3} ta="left" mt="xl">
-              Activities
+              {t("users.details.activities")}
             </Title>
-            <Paper variant="primary" px="lg" py="md" mt="sm">
-              <InfoField label="Last active on">
+            <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
+              <InfoField label={t("users.details.fields.last_active")}>
                 <Text ps="sm" mt="xs">
                   {accountDetails?.last_active
                     ? dayjs(accountDetails?.last_active).format(
                         "DD/MM/YYYY - HH:mm",
                       )
-                    : "N/A"}
+                    : t("users.details.fields.n_a")}
                 </Text>
               </InfoField>
               {role == "user" && (
                 <>
-                  <InfoField label="Total container deposits posted" mt="xl">
+                  <InfoField
+                    label={t("users.details.fields.total_deposits")}
+                    mt="xl"
+                  >
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
                           ? accountStats?.total_deposits +
+                            " " +
                             (accountStats?.total_deposits === 1
-                              ? " deposit"
-                              : " deposits") +
-                            " posted"
-                          : "Failed to get account's stats"}
+                              ? t("users.details.fields.deposit_singular")
+                              : t("users.details.fields.deposit_plural")) +
+                            " " +
+                            t("users.details.fields.posted")
+                          : t("users.details.fields.stats_error")}
                       </Text>
                     )}
                   </InfoField>
-                  <InfoField label="Total listings posted">
+                  <InfoField label={t("users.details.fields.total_listings")}>
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
                           ? accountStats?.total_listings +
+                            " " +
                             (accountStats?.total_listings === 1
-                              ? " listing"
-                              : " listings") +
-                            " posted"
-                          : "Failed to get account's stats"}
+                              ? t("users.details.fields.listing_singular")
+                              : t("users.details.fields.listing_plural")) +
+                            " " +
+                            t("users.details.fields.posted")
+                          : t("users.details.fields.stats_error")}
                       </Text>
                     )}
                   </InfoField>
@@ -579,39 +551,44 @@ export default function AdminUserDetails() {
 
               {role == "employee" && (
                 <>
-                  <InfoField label="Total events/workshops assigned" mt="xl">
+                  <InfoField
+                    label={t("users.details.fields.total_events")}
+                    mt="xl"
+                  >
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
                           ? accountStats?.total_events +
+                            " " +
                             (accountStats?.total_events === 1
-                              ? " event/workshop"
-                              : " events/workshops") +
-                            " assigned"
-                          : "Failed to get account's stats"}
+                              ? t("users.details.fields.event_singular")
+                              : t("users.details.fields.event_plural")) +
+                            " " +
+                            t("users.details.fields.assigned")
+                          : t("users.details.fields.stats_error")}
                       </Text>
                     )}
                   </InfoField>
-                  <InfoField label="Total articles posted">
+                  <InfoField label={t("users.details.fields.total_posts")}>
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
                           ? accountStats?.total_posts +
+                            " " +
                             (accountStats?.total_posts === 1
-                              ? " article"
-                              : " articles") +
-                            " posted"
-                          : "Failed to get account's stats"}
+                              ? t("users.details.fields.article_singular")
+                              : t("users.details.fields.article_plural")) +
+                            " " +
+                            t("users.details.fields.posted")
+                          : t("users.details.fields.stats_error")}
                       </Text>
                     )}
                   </InfoField>
-                  <InfoField label="Current tasks">
-                    {/* TODO: Open modal showing calendar with filled occupied dates and
-                      link to the event's details */}
+                  <InfoField label={t("users.details.fields.current_tasks")}>
                     <Button
                       mt="xs"
                       variant="primary"
@@ -625,48 +602,59 @@ export default function AdminUserDetails() {
               )}
               {role == "pro" && (
                 <>
-                  <InfoField label="Total listings purchased" mt="xl">
+                  <InfoField
+                    label={t("users.details.fields.total_listings_purchased")}
+                    mt="xl"
+                  >
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
                           ? accountStats?.total_listings +
+                            " " +
                             (accountStats?.total_listings === 1
-                              ? " listing"
-                              : " listings") +
-                            " purchased"
-                          : "Failed to get account's stats"}
+                              ? t("users.details.fields.listing_singular")
+                              : t("users.details.fields.listing_plural")) +
+                            " " +
+                            t("users.details.fields.purchased")
+                          : t("users.details.fields.stats_error")}
                       </Text>
                     )}
                   </InfoField>
-                  <InfoField label="Total container deposits purchased">
+                  <InfoField
+                    label={t("users.details.fields.total_deposits_purchased")}
+                  >
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
                           ? accountStats?.total_deposits +
+                            " " +
                             (accountStats?.total_deposits === 1
-                              ? " deposit"
-                              : " deposits") +
-                            " purchased"
-                          : "Failed to get account's stats"}
+                              ? t("users.details.fields.deposit_singular")
+                              : t("users.details.fields.deposit_plural")) +
+                            " " +
+                            t("users.details.fields.purchased")
+                          : t("users.details.fields.stats_error")}
                       </Text>
                     )}
                   </InfoField>
-                  <InfoField label="Total projects posted">
+                  <InfoField label={t("users.details.fields.total_projects")}>
                     {isAccountStatsLoading ? (
                       <Loader mb="xl" size="sm" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
                           ? accountStats?.total_projects +
+                            " " +
                             (accountStats?.total_projects === 1
-                              ? " project"
-                              : " projects") +
-                            " posted"
-                          : "Failed to get account's stats"}
+                              ? t("users.details.fields.project_singular")
+                              : t("users.details.fields.project_plural")) +
+                            " " +
+                            t("users.details.fields.posted")
+                          : t("users.details.fields.stats_error")}
                       </Text>
                     )}
                   </InfoField>
@@ -687,35 +675,45 @@ export default function AdminUserDetails() {
           </>
         )}
         <Title order={3} ta="left" mt="xl" c="red">
-          Danger zone
+          {t("users.details.danger_zone")}
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
+        <Paper
+          variant="primary"
+          px="lg"
+          py="md"
+          mt="sm"
+          radius="lg"
+          style={{ border: "1px solid #ff000033" }}
+        >
           {accountDetails?.deleted_at ? (
-            <InfoField label="Recover account">
+            <InfoField label={t("users.details.actions.recover")}>
               <Box ps="sm" mb="xl">
                 <Text c="dimmed" my="xs">
-                  Recover this deleted account
+                  {t("users.details.modals.recover_text")}
                 </Text>
                 <Button
                   variant="primary"
                   onClick={openRecover}
                   loading={isPendingRecover}
                 >
-                  Recover account
+                  {t("users.details.actions.recover")}
                 </Button>
               </Box>
             </InfoField>
           ) : (
             <>
-              <InfoField label="Edit account">
+              <InfoField label={t("users.details.actions.edit")}>
                 <Box ps="sm" mb="xl">
                   <Group gap="xs">
                     <Text c="dimmed" my="xs">
-                      Modify account's username, contact information, etc.
+                      {t("users.edit_modal.title", {
+                        defaultValue:
+                          "Modify account's username, contact information, etc.",
+                      })}
                     </Text>
                     {role === "admin" && accountId != user?.id && (
                       <Tooltip
-                        label="Cannot edit another admin's account"
+                        label={t("users.details.tooltips.edit_admin")}
                         closeDelay={200}
                         transitionProps={{ transition: "pop", duration: 300 }}
                       >
@@ -728,20 +726,20 @@ export default function AdminUserDetails() {
                     onClick={openEdit}
                     disabled={role === "admin" && accountId != user?.id}
                   >
-                    Edit account
+                    {t("users.details.actions.edit")}
                   </Button>
                 </Box>
               </InfoField>
 
-              <InfoField label="Change password">
+              <InfoField label={t("users.details.actions.change_password")}>
                 <Box ps="sm" mb="xl">
                   <Group gap="xs">
                     <Text mt="xs" mb="xs" c="dimmed">
-                      Assign a new password for this account
+                      {t("users.details.modals.password_title")}
                     </Text>
                     {role === "admin" && accountId != user?.id && (
                       <Tooltip
-                        label="Cannot change password of another admin"
+                        label={t("users.details.tooltips.password_admin")}
                         closeDelay={200}
                         transitionProps={{ transition: "pop", duration: 300 }}
                       >
@@ -749,11 +747,15 @@ export default function AdminUserDetails() {
                       </Tooltip>
                     )}
                   </Group>
-                  <form onSubmit={handleChangePassword}>
+                  <form
+                    onSubmit={(e: React.SubmitEvent) => handleChangePassword(e)}
+                  >
                     <PasswordStrengthInput
                       w="50%"
                       variant="body-color"
-                      placeholder="New password"
+                      placeholder={t(
+                        "users.details.modals.password_placeholder",
+                      )}
                       value={password}
                       disabled={
                         isPendingPasswordUpdate ||
@@ -763,7 +765,7 @@ export default function AdminUserDetails() {
                       onChange={(event) => {
                         const value = event.currentTarget.value;
                         setPassword(value);
-                        validatePassword(value);
+                        handleValidatePassword(value);
                       }}
                       error={passwordError}
                       required
@@ -774,11 +776,13 @@ export default function AdminUserDetails() {
                       w="50%"
                       mt="xs"
                       value={confirmPassword}
-                      placeholder="Confirm new password"
+                      placeholder={t(
+                        "users.details.modals.password_confirm_placeholder",
+                      )}
                       onChange={(event) => {
                         const value = event.currentTarget.value;
                         setConfirmPassword(value);
-                        validateConfirmPassword(value);
+                        handleValidateConfirmPassword(value);
                       }}
                       disabled={
                         isPendingPasswordUpdate ||
@@ -788,60 +792,70 @@ export default function AdminUserDetails() {
                       required
                     />
                     <Button
-                      mt="md"
                       variant="edit"
-                      onClick={() => {
-                        if (
-                          !validatePassword(password) ||
-                          !validateConfirmPassword(confirmPassword)
-                        )
-                          return;
-                        openChangePassword();
-                      }}
-                      loading={isPendingPasswordUpdate}
+                      mt="xs"
+                      onClick={openChangePassword}
                       disabled={
                         isPendingPasswordUpdate ||
-                        (role === "admin" && accountId != user?.id)
+                        (role === "admin" && accountId != user?.id) ||
+                        !password ||
+                        !confirmPassword ||
+                        !!passwordError ||
+                        !!confirmPasswordError
                       }
                     >
-                      Change password
+                      {t("users.details.actions.change_password")}
                     </Button>
                     <Modal
                       opened={openedChangePassword}
                       onClose={closeChangePassword}
-                      title="Change password"
+                      title={t("users.details.modals.password_title")}
                     >
-                      Are you sure you change password for this account? The old
-                      password will be replaced by the new one.
+                      {t("users.details.modals.password_text", {
+                        defaultValue:
+                          "Are you sure you change password for this account? The old password will be replaced by the new one.",
+                      })}
                       <Group mt="lg" justify="flex-end">
                         <Button onClick={closeChangePassword} variant="grey">
-                          Cancel
+                          {t("common:actions.cancel", {
+                            defaultValue: "Cancel",
+                          })}
                         </Button>
                         <Button
-                          onClick={handleChangePassword}
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                            handleChangePassword(e)
+                          }
                           variant="edit"
                           loading={isPendingPasswordUpdate}
                         >
-                          Change password
+                          {t("users.details.actions.change_password")}
                         </Button>
                       </Group>
                     </Modal>
                   </form>
                 </Box>
               </InfoField>
-              <InfoField label={is_banned ? "Unban account" : "Ban account"}>
+              <InfoField
+                label={
+                  is_banned
+                    ? t("users.details.actions.unban")
+                    : t("users.details.actions.ban")
+                }
+              >
                 <Box ps="sm" mb="xl">
                   <Group gap="xs">
                     <Text c="dimmed" my="xs">
                       {is_banned
-                        ? "This account will regain access to UpAgain"
-                        : "This account will not be able to access to UpAgain until an admin unbans it"}
+                        ? t("users.details.modals.unban_text")
+                        : t("users.details.modals.ban_text")}
                     </Text>
                     {role === "admin" &&
                       accountId != user?.id &&
                       !is_banned && (
                         <Tooltip
-                          label="Cannot ban an admin"
+                          label={t("users.details.tooltips.ban_admin", {
+                            defaultValue: "Cannot ban an admin",
+                          })}
                           closeDelay={200}
                           transitionProps={{ transition: "pop", duration: 300 }}
                         >
@@ -854,20 +868,22 @@ export default function AdminUserDetails() {
                     onClick={openBan}
                     disabled={role === "admin" || isPendingToggleBan}
                   >
-                    {!is_banned ? "Ban account" : "Unban account"}
+                    {!is_banned
+                      ? t("users.details.actions.ban")
+                      : t("users.details.actions.unban")}
                   </Button>
                 </Box>
               </InfoField>
 
-              <InfoField label="Delete account">
+              <InfoField label={t("users.details.actions.delete")}>
                 <Box ps="sm" mb="xl">
                   <Group gap="xs">
                     <Text c="dimmed" my="xs">
-                      This account will be soft deleted
+                      {t("users.details.modals.delete_text")}
                     </Text>
                     {role === "admin" && accountId != user?.id && (
                       <Tooltip
-                        label="Cannot delete another admin's account"
+                        label={t("users.details.tooltips.edit_admin")}
                         closeDelay={200}
                         transitionProps={{ transition: "pop", duration: 300 }}
                       >
@@ -880,7 +896,7 @@ export default function AdminUserDetails() {
                     onClick={openDelete}
                     disabled={role === "admin" && accountId != user?.id}
                   >
-                    Delete account
+                    {t("users.details.actions.delete")}
                   </Button>
                 </Box>
               </InfoField>
@@ -889,13 +905,15 @@ export default function AdminUserDetails() {
         </Paper>
       </Container>
       {/* // modal delete */}
-      <Modal opened={openedDelete} onClose={closeDelete} title="Delete account">
-        Are you sure you want to delete this account?
-        <br />
-        This account will be soft deleted.
+      <Modal
+        opened={openedDelete}
+        onClose={closeDelete}
+        title={t("users.details.modals.delete_title")}
+      >
+        {t("users.details.modals.delete_text")}
         <Group mt="lg" justify="flex-end">
           <Button onClick={closeDelete} variant="grey">
-            Cancel
+            {t("common:actions.cancel", { defaultValue: "Cancel" })}
           </Button>
           <Button
             onClick={() => {
@@ -904,7 +922,7 @@ export default function AdminUserDetails() {
             variant="delete"
             loading={deletionMutation.isPending}
           >
-            Delete
+            {t("users.details.actions.delete")}
           </Button>
         </Group>
       </Modal>
@@ -913,21 +931,27 @@ export default function AdminUserDetails() {
       <Modal
         opened={openedBan}
         onClose={closeBan}
-        title={!is_banned ? "Ban account" : "Unban account"}
+        title={
+          !is_banned
+            ? t("users.details.modals.ban_title")
+            : t("users.details.modals.unban_title")
+        }
       >
         {!is_banned
-          ? "Are you sure you want to ban this account? This account will be banned."
-          : "Are you sure you want to unban this account? This account will regain access."}
+          ? t("users.details.modals.ban_text")
+          : t("users.details.modals.unban_text")}
         <Group mt="lg" justify="flex-end">
           <Button onClick={closeBan} variant="grey">
-            Cancel
+            {t("common:actions.cancel", { defaultValue: "Cancel" })}
           </Button>
           <Button
             onClick={handleBan}
             variant={!is_banned ? "delete" : "primary"}
             loading={isPendingToggleBan}
           >
-            {!is_banned ? "Ban account" : "Unban account"}
+            {!is_banned
+              ? t("users.details.actions.ban")
+              : t("users.details.actions.unban")}
           </Button>
         </Group>
       </Modal>
@@ -936,27 +960,26 @@ export default function AdminUserDetails() {
       <Modal
         opened={openedRecover}
         onClose={closeRecover}
-        title="Recover account"
+        title={t("users.details.modals.recover_title")}
       >
-        Are you sure you want to recover this account? This account will regain
-        access.
+        {t("users.details.modals.recover_text")}
         <Group mt="lg" justify="flex-end">
           <Button onClick={closeRecover} variant="grey">
-            Cancel
+            {t("common:actions.cancel", { defaultValue: "Cancel" })}
           </Button>
           <Button
             onClick={handleRecover}
             variant="primary"
             loading={isPendingRecover}
           >
-            Recover account
+            {t("users.details.actions.recover")}
           </Button>
         </Group>
       </Modal>
 
-      {/* // edit modal */}
+      {/* edit modal */}
       <Modal
-        title="Edit account"
+        title={t("users.edit_modal.title")}
         opened={openedEdit}
         onClose={closeEdit}
         centered
@@ -965,46 +988,46 @@ export default function AdminUserDetails() {
           <TextInput
             data-autofocus
             withAsterisk
-            label="Username"
+            label={t("users.edit_modal.username")}
             value={usernameEdit}
-            placeholder="Username"
+            placeholder={t("users.edit_modal.username")}
             onChange={(e) => {
               setUsernameEdit(e.target.value);
-              validateUsernameEdit(e.target.value);
+              handleValidateUsernameEdit(e.target.value);
             }}
-            onBlur={() => validateUsernameEdit(usernameEdit)}
+            onBlur={() => handleValidateUsernameEdit(usernameEdit)}
             error={usernameEditError}
             required
           />
           <TextInput
             withAsterisk
-            label="Email"
+            label={t("users.edit_modal.email")}
             value={emailEdit}
-            placeholder="Email"
+            placeholder={t("users.edit_modal.email")}
             onChange={(e) => {
               setEmailEdit(e.target.value);
-              validateEmailEdit(e.target.value);
+              handleValidateEmailEdit(e.target.value);
             }}
-            onBlur={() => validateEmailEdit(emailEdit)}
+            onBlur={() => handleValidateEmailEdit(emailEdit)}
             error={emailEditError}
             required
           />
           <TextInput
-            label="Phone"
+            label={t("users.edit_modal.phone")}
             value={phoneEdit}
-            placeholder="Phone"
+            placeholder={t("users.edit_modal.phone")}
             onChange={(e) => {
               setPhoneEdit(e.target.value);
-              validatePhoneEdit(e.target.value);
+              handleValidatePhoneEdit(e.target.value);
             }}
-            onBlur={() => validatePhoneEdit(phoneEdit)}
+            onBlur={() => handleValidatePhoneEdit(phoneEdit)}
             error={phoneEditError}
             disabled={disablePhoneEdit}
           />
         </Stack>
         <Group mt="lg" justify="center">
           <Button onClick={closeEdit} variant="grey">
-            Cancel
+            {t("users.edit_modal.cancel")}
           </Button>
           <Button
             onClick={(e) => {
@@ -1013,7 +1036,7 @@ export default function AdminUserDetails() {
             variant="primary"
             loading={editMutation.isPending}
           >
-            Confirm
+            {t("users.edit_modal.submit")}
           </Button>
         </Group>
       </Modal>
@@ -1022,7 +1045,12 @@ export default function AdminUserDetails() {
       <Modal
         size="lg"
         title={
-          <Text fw={700}>{`${accountDetails?.username}'s work schedule`}</Text>
+          <Text fw={700}>
+            {t("users.details.modals.calendar_title", {
+              username: accountDetails?.username,
+              defaultValue: `${accountDetails?.username}'s work schedule`,
+            })}
+          </Text>
         }
         opened={openedCalendar}
         onClose={closeCalendar}

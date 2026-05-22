@@ -1,0 +1,54 @@
+{
+  "community": "Community",
+  "subtitle": "Discover guides, projects, and tips shared by our community of upcyclers.",
+  "search_placeholder": "Search articles...",
+  "filters": {
+    "all": "All",
+    "tutorial": "Tutorial",
+    "tips": "Tips",
+    "news": "News",
+    "case_study": "Case Study",
+    "project": "Project",
+    "other": "Other"
+  },
+  "sort": {
+    "most_recent": "Most recent",
+    "most_popular": "Most popular",
+    "most_viewed": "Most viewed"
+  },
+  "empty": {
+    "title": "No articles match your search.",
+    "subtitle": "Try a different category or keyword."
+  },
+  "my_posts": "My posts",
+  "saved_posts": "Saved posts",
+  "manage_posts_subtitle": "Manage all your posts in one place.",
+  "manage_saved_posts_subtitle": "All your favorite posts in one place.",
+  "empty_my_posts": "You haven't posted anything of this category yet",
+  "empty_saved_posts": "You haven't saved any posts yet",
+  "notifications": {
+    "delete_post_success_title": "Post deleted",
+    "delete_post_success_message": "The post has been deleted successfully.",
+    "update_post_success_title": "Post updated",
+    "update_post_success_message": "The post has been updated successfully.",
+    "delete_comment_success_title": "Comment deleted",
+    "delete_comment_success_message": "The comment has been deleted successfully.",
+    "delete_step_success_title": "Project step deleted",
+    "delete_step_success_message": "The project step has been deleted successfully.",
+    "error_fetching_posts": "Failed to fetch posts.",
+    "error_fetching_details": "Failed to fetch post details.",
+    "error_creating_post": "Failed to create post.",
+    "error_updating_post": "Failed to update post.",
+    "error_deleting_post": "Failed to delete post.",
+    "error_deleting_comment": "Failed to delete comment.",
+    "error_deleting_step": "Failed to delete project step.",
+    "error_fetching_stats": "Failed to fetch post stats.",
+    "error_fetching_comments": "Failed to fetch comments.",
+    "error_fetching_steps": "Failed to fetch project steps.",
+    "error_liking_post": "Failed to like post.",
+    "error_saving_post": "Failed to save post.",
+    "error_tracking_view": "Failed to track view.",
+    "error_posting_comment": "Failed to post comment.",
+    "error_liking_comment": "Failed to like comment."
+  }
+}

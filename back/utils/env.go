@@ -11,16 +11,19 @@ func LoadEnv(env string) {
 	if env != "dev" && env != "prod" && env != "production" && env != "development" {
 		log.Panicf("Invalid env: %s. Must be 'dev', 'prod', 'production' or 'development'", env)
 	}
+	
+	// Try loading from .env.production or .env.development first
 	var envFile string
 	if env == "dev" || env == "development" {
 		envFile = ".env.development"
 	} else {
 		envFile = ".env.production"
 	}
-	err := godotenv.Load(envFile)
-	if err != nil {
-		log.Panicf("Error getting env: %v", err)
-	}
+	
+	godotenv.Load(envFile)
+	
+	// Always try loading from the root .env or environment variables as fallback
+	godotenv.Load(".env")
 }
 
 func GetDbUrl() string {
@@ -61,4 +64,40 @@ func GetFrontOrigin() string {
 		log.Panic("FRONTEND_ORIGIN not find in .env")
 	}
 	return frontOrigin
+}
+
+func GetStripeSecretKey() string {
+	secret := os.Getenv("STRIPE_SECRET_API_KEY")
+	if secret == "" {
+		log.Panic("STRIPE_SECRET_API_KEY not find in .env")
+	}
+	return secret
+}
+
+func GetOnesignalRestApiKey() string {
+	key := os.Getenv("ONESIGNAL_REST_API_KEY")
+	if key == "" {
+		// Fallback to ONESIGNAL_API_KEY if REST_API_KEY is missing
+		key = os.Getenv("ONESIGNAL_API_KEY")
+		if key == "" {
+			log.Panic("ONESIGNAL_REST_API_KEY not find in .env")
+		}
+	}
+	return key
+}
+
+func GetOnesignalAppId() string {
+	id := os.Getenv("ONESIGNAL_APP_ID")
+	if id == "" {
+		log.Panic("ONESIGNAL_APP_ID not find in .env")
+	}
+	return id
+}
+
+func GetGeoCodeApiKey() string {
+	key := os.Getenv("GEOCODE_API_KEY")
+	if key == "" {
+		log.Panic("GEOCODE_API_KEY not find in .env")
+	}
+	return key
 }

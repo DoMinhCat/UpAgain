@@ -7,6 +7,18 @@ import (
 	"fmt"
 )
 
+func CheckHistoryExistsById(id_history int) (bool, error) {
+	var exist bool
+	query := `
+	SELECT EXISTS(SELECT 1 FROM admin_history WHERE id = $1)
+	`
+	err := utils.Conn.QueryRow(query, id_history).Scan(&exist)
+	if err != nil {
+		return false, fmt.Errorf("CheckHistoryExistsById() query failed: %v", err.Error())
+	}
+	return exist, nil
+}
+
 func GetAllAdminHistory(page int, limit int, filters models.HistoryFilters) ([]models.History, int, error) {
 	histories := make([]models.History, 0)
 	var params []interface{}

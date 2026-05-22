@@ -36,7 +36,7 @@ func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]m
 		return nil, 0, fmt.Errorf("GetAllContainers() count failed: %v", err)
 	}
 
-	query := "SELECT id, created_at, city_name, postal_code, status, is_deleted FROM containers " + whereClause + " ORDER BY id ASC"
+	query := "SELECT id, created_at, city_name, postal_code, street, status, is_deleted FROM containers " + whereClause + " ORDER BY id ASC"
 
 	if limit != -1 && page != -1 {
 		offset := (page - 1) * limit
@@ -53,7 +53,7 @@ func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]m
 	var containers []models.Container
 	for rows.Next() {
 		var c models.Container
-		if err := rows.Scan(&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Status, &c.IsDeleted); err != nil {
+		if err := rows.Scan(&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Street, &c.Status, &c.IsDeleted); err != nil {
 			return nil, 0, err
 		}
 		containers = append(containers, c)
@@ -68,11 +68,11 @@ func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]m
 
 func FindContainerByID(id int) (models.Container, error) {
 	var c models.Container
-	query := `SELECT id, created_at, city_name, postal_code, status, is_deleted
+	query := `SELECT id, created_at, city_name, postal_code, street, status, is_deleted
 			  FROM containers WHERE id = $1 AND is_deleted = false`
 
 	err := utils.Conn.QueryRow(query, id).Scan(
-		&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Status, &c.IsDeleted,
+		&c.ID, &c.CreatedAt, &c.CityName, &c.PostalCode, &c.Street, &c.Status, &c.IsDeleted,
 	)
 	return c, err
 }
@@ -89,11 +89,6 @@ func SoftDeleteContainer(id int) error {
 	return err
 }
 
-// return total count of containers by status
-//
-// Available status: "active" => ("occupied" or "ready") and not deleted, "occupied", "maintenance", "ready", "deleted"
-//
-// return total of all records if status is nil
 func GetContainerCountByStatus(status *string) (int, error) {
 	var count int
 	param := ""
@@ -101,7 +96,7 @@ func GetContainerCountByStatus(status *string) (int, error) {
 	if status != nil {
 		switch *status {
 		case "active":
-			param = "WHERE (status='occupied' or status='ready') and is_deleted=false"
+			param = "WHERE (status='occupied' or status='ready' or status='waiting') and is_deleted=false"
 		case "occupied":
 			param = "WHERE status='occupied' and is_deleted=false"
 		case "maintenance":
@@ -124,10 +119,10 @@ func GetContainerCountByStatus(status *string) (int, error) {
 
 func InsertContainer(c models.Container) (int, error) {
 	var newId int
-	query := `INSERT INTO containers (city_name, postal_code, status, is_deleted, created_at)
-              VALUES ($1, $2, $3, false, NOW()) RETURNING id`
+	query := `INSERT INTO containers (city_name, postal_code, street, status, is_deleted, created_at, lat, lng)
+		  VALUES ($1, $2, $3, $4, false, NOW(), $5, $6) RETURNING id`
 
-	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, "ready").Scan(&newId)
+	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, c.Street, "ready", c.Lat, c.Lng).Scan(&newId)
 
 	if err != nil {
 		slog.Error("CRITICAL SQL ERROR", "msg", err.Error())
@@ -145,7 +140,11 @@ func GetContainerStatusById(id int) (string, error) {
 
 func GetAvailableContainers() ([]models.Container, error) {
 	var containers []models.Container
-	query := `SELECT id FROM containers WHERE status != 'maintenance' AND is_deleted = false`
+	query := `
+	SELECT id, city_name, postal_code, street, lat, lng 
+	FROM containers 
+	WHERE status != 'maintenance' AND is_deleted = false
+	`
 	rows, err := utils.Conn.Query(query)
 	if err != nil {
 		return nil, err
@@ -153,7 +152,7 @@ func GetAvailableContainers() ([]models.Container, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var c models.Container
-		if err := rows.Scan(&c.ID); err != nil {
+		if err := rows.Scan(&c.ID, &c.CityName, &c.PostalCode, &c.Street, &c.Lat, &c.Lng); err != nil {
 			return nil, err
 		}
 		containers = append(containers, c)
@@ -168,8 +167,84 @@ func CheckContainerExistById(id int) (bool, error) {
 	return exist, err
 }
 
-func UpdateLocationContainer(id int, cityName string) error {
-	query := `UPDATE containers SET city_name = $1 WHERE id = $2`
-	_, err := utils.Conn.Exec(query, cityName, id)
+func UpdateLocationContainer(id int, payload models.UpdateLocationRequest) error {
+	var query string
+	if payload.Lat != nil && payload.Lng != nil {
+		query = `
+		UPDATE containers 
+		SET city_name = $1, street = $2, postal_code = $3, lat = $4, lng = $5
+		WHERE id = $6
+		`
+		_, err := utils.Conn.Exec(query, payload.CityName, payload.Street, payload.PostalCode, *payload.Lat, *payload.Lng, id)
+		return err
+	}
+	query = `
+	UPDATE containers 
+	SET city_name = $1, street = $2, postal_code = $3
+	WHERE id = $4
+	`
+	_, err := utils.Conn.Exec(query, payload.CityName, payload.Street, payload.PostalCode, id)
 	return err
+}
+
+func GetContainerScheduleByContainerId(id int) (models.ContainerSchedule, error) {
+	var result models.ContainerSchedule
+	var userRange []models.ContainerScheduleItem
+	var proRange []models.ContainerScheduleItem
+
+	query := `
+	SELECT 
+		d.id_item AS deposit_id, i.title AS deposit_title,
+		b.valid_from,
+		b.valid_to
+	FROM deposits d
+	JOIN barcodes b ON d.id_item = b.id_deposit
+	JOIN items i ON d.id_item = i.id
+	WHERE d.id_container = $1 
+		AND i.is_deleted = false
+		AND b.user_type = 'user'
+	ORDER BY b.valid_from ASC;
+	`
+	rows, err := utils.Conn.Query(query, id)
+	if err != nil {
+		return result, fmt.Errorf("GetContainerScheduleByContainerId() query user code failed: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var c models.ContainerScheduleItem
+		if err := rows.Scan(&c.DepositId, &c.DepositTitle, &c.ValidFrom, &c.ValidTo); err != nil {
+			return result, fmt.Errorf("GetContainerScheduleByContainerId() scan user code failed: %v", err)
+		}
+		userRange = append(userRange, c)
+	}
+
+	query = `
+	SELECT 
+		d.id_item AS deposit_id, i.title AS deposit_title,
+		b.valid_from,
+		b.valid_to
+	FROM deposits d
+	JOIN barcodes b ON d.id_item = b.id_deposit
+	JOIN items i ON d.id_item = i.id
+	WHERE d.id_container = $1 
+		AND i.is_deleted = false
+		AND b.user_type = 'pro'
+	ORDER BY b.valid_from ASC;
+	`
+	rows, err = utils.Conn.Query(query, id)
+	if err != nil {
+		return result, fmt.Errorf("GetContainerScheduleByContainerId() query pro code failed: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var c models.ContainerScheduleItem
+		if err := rows.Scan(&c.DepositId, &c.DepositTitle, &c.ValidFrom, &c.ValidTo); err != nil {
+			return result, fmt.Errorf("GetContainerScheduleByContainerId() scan pro code failed: %v", err)
+		}
+		proRange = append(proRange, c)
+	}
+
+	result.UserRange = userRange
+	result.ProRange = proRange
+	return result, nil
 }

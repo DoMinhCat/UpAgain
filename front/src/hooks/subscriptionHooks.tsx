@@ -26,11 +26,12 @@ export const useGetAllSubscriptions = (
 ) => {
   return useQuery<SubscriptionListPagination>({
     queryKey: ["subscriptions", page, limit, active, search, sort, isTrial],
-    queryFn: () => getAllSubscriptions(page, limit, active, search, sort, isTrial),
+    queryFn: () =>
+      getAllSubscriptions(page, limit, active, search, sort, isTrial),
     staleTime: 1000 * 60,
     meta: {
-      errorTitle: "Subscriptions Error",
-      errorMessage: "Unable to load subscriptions.",
+      errorTitle: "admin:subscriptions.notifications.error_loading_subscriptions",
+      errorMessage: "admin:subscriptions.notifications.error_loading_subscriptions",
     },
   });
 };
@@ -42,8 +43,8 @@ export const useGetSubscriptionByID = (id: number) => {
     enabled: !!id,
     staleTime: 1000 * 60 * 2,
     meta: {
-      errorTitle: "Subscription error",
-      errorMessage: `Could not load subscription #${id}`,
+      errorTitle: "admin:subscriptions.notifications.error_loading_details",
+      errorMessage: "admin:subscriptions.notifications.error_loading_details",
     },
   });
 };
@@ -59,13 +60,16 @@ export const useRevokeSubscription = () => {
       cancel_reason: string;
     }) => revokeSubscription(id, cancel_reason),
     onSuccess: (_, { id }) => {
-      showSuccessNotification("Revoked", "Subscription has been revoked");
+      showSuccessNotification(
+        "admin:subscriptions.notifications.revoke_success_title",
+        "admin:subscriptions.notifications.revoke_success_message",
+      );
       queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
       queryClient.invalidateQueries({ queryKey: ["subscriptionDetails", id] });
     },
     meta: {
-      errorTitle: "Subscription cancelation failed",
-      errorMessage: "Could not cancel the subscription.",
+      errorTitle: "admin:subscriptions.notifications.error_revoking",
+      errorMessage: "admin:subscriptions.notifications.error_revoking",
     },
   });
 };
@@ -76,8 +80,8 @@ export const useGetSubscriptionPrice = () => {
     queryFn: getSubscriptionPrice,
     staleTime: 1000 * 60 * 5,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Could not load subscription price.",
+      errorTitle: "admin:subscriptions.notifications.error_loading_price",
+      errorMessage: "admin:subscriptions.notifications.error_loading_price",
     },
   });
 };
@@ -87,12 +91,15 @@ export const useUpdateSubscriptionPrice = () => {
   return useMutation({
     mutationFn: (price: number) => updateSubscriptionPrice(price),
     onSuccess: () => {
-      showSuccessNotification("Updated", "Subscription price updated");
+      showSuccessNotification(
+        "admin:subscriptions.notifications.update_price_success_title",
+        "admin:subscriptions.notifications.update_price_success_message",
+      );
       queryClient.invalidateQueries({ queryKey: ["subscriptionPrice"] });
     },
     meta: {
-      errorTitle: "Update Failed",
-      errorMessage: "Could not update subscription price.",
+      errorTitle: "admin:subscriptions.notifications.error_updating_price",
+      errorMessage: "admin:subscriptions.notifications.error_updating_price",
     },
   });
 };
@@ -103,8 +110,8 @@ export const useGetTrialDays = () => {
     queryFn: getTrialDays,
     staleTime: 1000 * 60 * 5,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load trial days.",
+      errorTitle: "admin:subscriptions.notifications.error_loading_trial",
+      errorMessage: "admin:subscriptions.notifications.error_loading_trial",
     },
   });
 };
@@ -114,12 +121,15 @@ export const useUpdateTrialDays = () => {
   return useMutation({
     mutationFn: (trial_days: number) => updateTrialDays(trial_days),
     onSuccess: () => {
-      showSuccessNotification("Updated", "Trial days updated");
+      showSuccessNotification(
+        "admin:subscriptions.notifications.update_trial_success_title",
+        "admin:subscriptions.notifications.update_trial_success_message",
+      );
       queryClient.invalidateQueries({ queryKey: ["trialDays"] });
     },
     meta: {
-      errorTitle: "Update Failed",
-      errorMessage: "Could not update trial days.",
+      errorTitle: "admin:subscriptions.notifications.error_updating_trial",
+      errorMessage: "admin:subscriptions.notifications.error_updating_trial",
     },
   });
 };
@@ -130,8 +140,8 @@ export const useGetSubscriptionStats = (timeframe?: string) => {
     queryFn: () => getSubscriptionStats(timeframe),
     staleTime: 1000 * 60,
     meta: {
-      errorTitle: "Stats Error",
-      errorMessage: "Could not load subscription stats.",
+      errorTitle: "admin:subscriptions.notifications.error_loading_stats",
+      errorMessage: "admin:subscriptions.notifications.error_loading_stats",
     },
   });
 };

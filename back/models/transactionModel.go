@@ -3,13 +3,18 @@ package models
 import "time"
 
 type Transaction struct {
-	Id            int       `json:"id"`
-	IdTransaction string    `json:"id_transaction"`
-	CreatedAt     time.Time `json:"created_at"`
-	Action        string    `json:"action"`
-	IdItem        int       `json:"id_item"`
-	IdPro         int       `json:"id_pro"`
-	UsernamePro   string    `json:"username_pro"`
+	Id                int        `json:"id"`
+	IdTransaction     string     `json:"id_transaction"`
+	CreatedAt         time.Time  `json:"created_at"`
+	Action            string     `json:"action"`
+	IdItem            int        `json:"id_item"`
+	IdPro             int        `json:"id_pro"`
+	UsernamePro       string     `json:"username_pro"`
+	ReservationExpiry *time.Time `json:"reservation_expiry,omitempty"`
+	ItemPrice         *float64   `json:"item_price,omitempty"`
+	CommissionRate    *float64   `json:"commission_rate,omitempty"`
+	TotalPrice        *float64   `json:"total_price,omitempty"`
+	ConfirmCode       *string    `json:"confirm_code,omitempty"`
 }
 
 type TransactionsPaginationResponse struct {
@@ -18,4 +23,15 @@ type TransactionsPaginationResponse struct {
 	CurrentPage       int           `json:"current_page"`
 	LastPage          int           `json:"last_page"`
 	Limit             int           `json:"limit"`
+}
+
+type TransactionInsert struct {
+	IdTransaction      string     `json:"id_transaction"`
+	Action             string     `json:"action"`
+	IdItem             int        `json:"id_item"`
+	IdPro              int        `json:"id_pro"`
+	ItemPrice          *float64   `json:"item_price"`
+	CommissionRate     *float64   `json:"commission_rate"`
+	TotalPrice         *float64   `json:"total_price"`
+	ConfirmCode        *string    `json:"confirm_code"`
 }

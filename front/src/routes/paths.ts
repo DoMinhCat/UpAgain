@@ -1,5 +1,3 @@
-// for navigations ONLY, routes in routes/ should use relative path
-
 export const PATHS = {
   // common endpoints here for all roles
   HOME: "/",
@@ -27,6 +25,7 @@ export const PATHS = {
       DETAILS: "/admin/history/:id",
     },
     LISTINGS: "/admin/listings",
+    LISTINGS_DETAILS: (id: number) => `/admin/listings/${id}`,
     SUBSCRIPTIONS: {
       ALL: "/admin/subscriptions",
       DETAILS: "/admin/subscriptions/:id",
@@ -34,6 +33,13 @@ export const PATHS = {
   },
   USER: {
     // paths for user espace here
+    SCORE: "/score",
+    PROFILE: "/profile",
+    POSTS: {
+      ALL: "/community",
+      DETAILS: "/community/:id",
+      DETAILS_FN: (id: number) => `/community/${id}`,
+    },
   },
   PRO: {
     // paths for pro/artisans espace here
@@ -41,15 +47,32 @@ export const PATHS = {
   GUEST: {
     LOGIN: "/login",
     REGISTER: "/register",
-    REGISTER_PRO: "/register/pro",
     ABOUT: "/about",
     PRICING: "/pricing",
-    POSTS: "/posts",
+    POSTS: "/community",
     CONTACT: "/contact",
     FORGOT: "/forgot",
   },
   ERROR: {
     NOT_FOUND: "/404",
     UNAUTHORIZED: "/403",
+    INTERNAL_SERVER_ERROR: "/500",
+  },
+  MARKETPLACE: {
+    HOME: "/marketplace",
+    ME: "/marketplace/me",
+    NEW: "/marketplace/new",
+  },
+  EVENTS: {
+    HOME: "/events",
+    PLANNING: "/events/planning",
+  },
+  POSTS: {
+    HOME: "/community",
+    MY_POSTS: "/community/me",
+    SAVED_POSTS: "/community/saved",
+  },
+  CONTAINERS: {
+    OPEN: "/containers/open",
   },
 } as const;

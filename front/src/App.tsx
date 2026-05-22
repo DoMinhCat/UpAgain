@@ -14,17 +14,25 @@ import {
   Badge,
   Divider,
   Timeline,
+  Checkbox,
+  SegmentedControl,
+  Alert,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
 import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
-import { DateTimePicker } from "@mantine/dates";
+import { DateTimePicker, DatePickerInput } from "@mantine/dates";
+import React, { useEffect } from "react";
+import FullScreenLoader from "./components/common/FullScreenLoader";
+import OneSignal from "react-onesignal";
+("use client");
 
 const UpAgainTheme = createTheme({
   focusRing: "never",
   fontFamily: "Nunito, sans-serif",
   cursorType: "pointer",
+  defaultRadius: "sm",
 
   components: {
     Select: Select.extend({
@@ -42,10 +50,24 @@ const UpAgainTheme = createTheme({
         },
       },
     }),
+    Checkbox: Checkbox.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.checkbox,
+        },
+      },
+    }),
     Pill: Pill.extend({
       defaultProps: {
         classNames: {
           root: classes.pill,
+        },
+      },
+    }),
+    Alert: Alert.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.alert,
         },
       },
     }),
@@ -117,6 +139,14 @@ const UpAgainTheme = createTheme({
         },
       },
     }),
+    DatePickerInput: DatePickerInput.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.input,
+          label: classes.label,
+        },
+      },
+    }),
     Progress: Progress.extend({
       defaultProps: {
         classNames: {
@@ -133,10 +163,43 @@ const UpAgainTheme = createTheme({
         },
       },
     }),
+    SegmentedControl: SegmentedControl.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.segmentedControl,
+          label: classes.segmentedControlLabel,
+          indicator: classes.segmentedControlIndicator,
+        },
+        // Ensure it always uses the pill shape
+        radius: "xl",
+        // Set a smooth transition duration
+        transitionDuration: 300,
+      },
+    }),
   },
 });
 
 function App() {
+  const OneSignalAppId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+
+  // OnseSignal init
+  useEffect(() => {
+    // Ensure this code runs only on the client side
+    if (typeof window !== "undefined") {
+      const initOneSignal = async () => {
+        try {
+          await OneSignal.init({
+            appId: OneSignalAppId,
+          });
+          OneSignal.Debug.setLogLevel("warn");
+        } catch (error) {
+          console.error("OneSignal init error:", error);
+        }
+      };
+      initOneSignal();
+    }
+  }, []);
+
   return (
     <MantineProvider
       theme={UpAgainTheme}
@@ -149,9 +212,9 @@ function App() {
           "--mantine-color-text": "#2a2a28",
           // these for custom components that need different color than background
           "--component-color-bg": "#44444e",
-          "--component-color-primary": "#45a575", // opposite
+          "--component-color-primary": "#45a575",
           "--border-color": "#c7c7c7",
-          "--paper-border-color": "#f6f4f4",
+          "--paper-color": "#fcfaf5",
           "--mantine-color-anchor": "#7a5c3e",
           "--mantine-primary-color-filled": "#45a575",
           "--upagain-yellow": "#e3b23c",
@@ -171,15 +234,21 @@ function App() {
           "--component-color-bg": "#f9f7f2",
           "--component-color-primary": "#45a575",
           "--border-color": "#78756e",
-          "--paper-border-color": "#3a3a3a",
+          "--paper-color": "#3a3a3a",
           "--mantine-color-dimmed": "#c9c9c9",
           "--mantine-color-anchor": "#e3b23c",
           "--mantine-primary-color-filled": "#45a575",
         },
       })}
     >
-      <Notifications limit={3} zIndex={1000} />
-      <RouterProvider router={router} />
+      <React.Suspense fallback={<FullScreenLoader />}>
+        <Notifications
+          limit={3}
+          zIndex={1000}
+          pauseResetOnHover="notification"
+        />
+        <RouterProvider router={router} />
+      </React.Suspense>
     </MantineProvider>
   );
 }

@@ -8,8 +8,8 @@ type ProDetails struct {
 }
 
 type ProStats struct {
-	TotalDeposits int `json:"total_deposits"`
-	TotalListings int `json:"total_listings"`
-	TotalProjects int `json:"total_projects"`
-	TotalSpent    int `json:"total_spendings"`
+	TotalDeposits int     `json:"total_deposits"`
+	TotalListings int     `json:"total_listings"`
+	TotalProjects int     `json:"total_projects"`
+	TotalSpent    float64 `json:"total_spendings"`
 }
