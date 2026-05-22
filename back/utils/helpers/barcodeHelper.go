@@ -72,3 +72,19 @@ func EncodeBarcodeToBase64(filepath string) (string, error) {
 	}
 	return base64.StdEncoding.EncodeToString(data), nil	
 }
+
+func IsCodeValid(idUser int, idContainer int, code models.Barcode) bool {
+	if code.IdAccount != idUser {
+		return false
+	}
+	if code.IdContainer != idContainer {
+		return false
+	}
+	if code.Status != "active" {
+		return false
+	}
+	if code.ValidTo.Before(time.Now()) || code.ValidFrom.After(time.Now()) {
+		return false
+	}
+	return true
+}

@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"slices"
 )
 
 func GetAllCodesByContainerId(id_container int) ([]models.Barcode, error) {
@@ -114,4 +115,37 @@ func GetCodeByDepositIdAndAccountId(depositId int, accountId int) (models.Barcod
 		return models.Barcode{}, err
 	}
 	return code, nil
+}
+
+func GetCodeBy6DigitCode(code6digit string) (models.Barcode, error) {
+	var code models.Barcode
+	query := `
+	SELECT c.path, c.code, c.valid_from, c.valid_to, c.status, 
+       c.user_type, c.id_account, c.id_deposit, c.id_transaction, d.id_container
+	FROM barcodes c
+	JOIN deposits d ON c.id_deposit = d.id_item
+	WHERE c.code = $1
+	`
+	err := utils.Conn.QueryRow(query, code).Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction, &code.IdContainer)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.Barcode{}, nil
+		}
+		return models.Barcode{}, err
+	}
+	return code, nil
+}
+
+func UpdateCodeStatusBy6DigitCode(code string, status string) error {
+	if !slices.Contains(CODE_STATUS, status) {
+		return fmt.Errorf("Invalid status: %s", status)
+	}
+	query := `
+	UPDATE barcodes SET status = $1 WHERE code = $2
+	`
+	_, err := utils.Conn.Exec(query, status, code)
+	if err != nil {
+		return fmt.Errorf("UpdateCodeStatus() failed: %v", err)
+	}
+	return nil
 }
