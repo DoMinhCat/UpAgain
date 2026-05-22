@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -675,22 +676,22 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id 
 
 	receivedBarcode := false
-	if payload.Code6Digit != "" {
+	if payload.Code6Digit == "" {
 		receivedBarcode = true
 	}
 	
 	var dbCode models.Barcode
-	if receivedBarcode == false {
+	if !receivedBarcode {
 		// check if 6 digit code is correct and valid
-		dbCode, err	= db.GetCodeBy6DigitCode(payload.Code6Digit)
-		if dbCode.Code == "" {
-			// No code found in db
-			utils.RespondWithError(w, http.StatusBadRequest, "Incorrect 6 digit code.")
-			return
-		}
+		dbCode, err = db.GetCodeBy6DigitCode(payload.Code6Digit)
 		if err != nil {
 			slog.Error("GetCodeBy6DigitCode() failed", "controller", "OpenContainer", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while verifying code.")
+			return
+		}
+		if dbCode.Code == "" {
+			// No code found in db
+			utils.RespondWithError(w, http.StatusBadRequest, "Incorrect 6 digit code.")
 			return
 		}
 		if !helpers.IsCodeValid(idRequestor, id_container, dbCode) {
@@ -699,9 +700,56 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 		}		
 	} else {
 		// check if barcode is correct and valid		
-		// TODO: process multipart form
-		// Decode barcode to get barcode info
-		// Check against db for validity
+		file, _, err := r.FormFile("barcode")
+		if err != nil {
+			slog.Error("r.FormFile() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Access code or barcode image is required.")
+			return
+		}
+		defer file.Close()
+
+		decodedText, err := helpers.DecodeBarcode(file)
+		if err != nil {
+			slog.Error("DecodeBarcode() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Failed to decode barcode image.")
+			return
+		}
+
+		parts := strings.Split(decodedText, "|")
+		if len(parts) != 3 {
+			slog.Error("Invalid barcode format", "controller", "OpenContainer", "text", decodedText)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid barcode.")
+			return
+		}
+
+		depositId, err := strconv.Atoi(parts[0])
+		if err != nil {
+			slog.Error("Invalid deposit ID in barcode", "controller", "OpenContainer", "id", parts[0], "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid barcode.")
+			return
+		}
+		
+		accountId, err := strconv.Atoi(parts[2])
+		if err != nil {
+			slog.Error("Invalid account ID in barcode", "controller", "OpenContainer", "id", parts[2], "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid barcode.")
+			return
+		}
+
+		dbCode, err = db.GetCodeByDepositIdAndAccountId(depositId, accountId)
+		if err != nil {
+			slog.Error("GetCodeByDepositIdAndAccountId() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while verifying barcode.")
+			return
+		}
+		if dbCode.Code == "" {
+			utils.RespondWithError(w, http.StatusBadRequest, "No matching barcode found.")
+			return
+		}
+		if !helpers.IsCodeValid(idRequestor, id_container, dbCode) {
+			utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect or invalid barcode.")
+			return
+		}
 	}
 	// code is ok, proceed to open container and update status based on role
 
@@ -710,14 +758,14 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 		// user dropped object
 		newContainerStatus = "occupied"
 
-		// get pro id by id transaction (uuid)
+		// get pro transaction by id transaction (uuid)
 		tx, err := db.GetLatestTransactionByUuid(dbCode.IdTransaction)
 		if tx.Id == 0 {
 			utils.RespondWithError(w, http.StatusBadRequest, "No transaction found for the item you just retrieved.")
 			return
 		}
 		if err != nil {
-			slog.Error("GetLatestTransactionOfPro() failed", "controller", "OpenContainer", "error", err)
+			slog.Error("GetLatestTransactionByUuid() failed", "controller", "OpenContainer", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching transaction.")
 			return
 		}
@@ -784,7 +832,7 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// finally update barcode status to used
-	err = db.UpdateCodeStatusBy6DigitCode(payload.Code6Digit, "used")
+	err = db.UpdateCodeStatusBy6DigitCode(dbCode.Code, "used")
 	if err != nil {
 		slog.Error("UpdateCodeStatusBy6DigitCode() failed", "controller", "OpenContainer", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating code status.")

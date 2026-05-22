@@ -4,6 +4,8 @@ import (
 	"backend/models"
 	"encoding/base64"
 	"fmt"
+	"image"
+	_ "image/jpeg"
 	"image/png"
 	"io"
 	"math/rand"
@@ -87,4 +89,26 @@ func IsCodeValid(idUser int, idContainer int, code models.Barcode) bool {
 		return false
 	}
 	return true
+}
+
+// DecodeBarcode decodes a barcode from the given image reader.
+func DecodeBarcode(imgReader io.Reader) (string, error) {
+	img, _, err := image.Decode(imgReader)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode image: %v", err)
+	}
+
+	bmp, err := gozxing.NewBinaryBitmapFromImage(img)
+	if err != nil {
+		return "", fmt.Errorf("failed to create binary bitmap: %v", err)
+	}
+
+	// Try reading as Code 128 (our generated barcode format)
+	reader := oned.NewCode128Reader()
+	result, err := reader.Decode(bmp, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode barcode: %v", err)
+	}
+
+	return result.GetText(), nil
 }
