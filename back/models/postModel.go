@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/guregu/null"
 )
 
 type PostCountStatsResponse struct {
@@ -34,6 +36,12 @@ type Post struct {
 	Creator      string    `json:"creator"`
 	CreatorId    int       `json:"creator_id"`
 	Photos       []string  `json:"photos"`
+	CreatorAvatar null.String `json:"creator_avatar" swaggertype:"string"`
+	AdsId        null.Int  `json:"ads_id" swaggertype:"string"`
+	AdsFrom      null.Time `json:"ads_from" swaggertype:"string"`
+	AdsTo        null.Time `json:"ads_to" swaggertype:"string"`
+	IsLiked      bool      `json:"is_liked"`
+	IsSaved      bool      `json:"is_saved"`
 }
 
 type PostListPagination struct {

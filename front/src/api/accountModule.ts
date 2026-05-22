@@ -32,13 +32,13 @@ export const RegisterRequest = async (payload: RegisterPayload) => {
 };
 
 export const deleteAccount = async (id_account: number) => {
-  return await api.delete(ENDPOINTS.ADMIN.USERS.ALL + id_account + "/");
+  return await api.delete(ENDPOINTS.ADMIN.USERS.ALL + "/" + id_account + "/");
 };
 
 export const getAccountDetails = async (
   id_account: number,
 ): Promise<Account> => {
-  const response = await api.get(ENDPOINTS.ADMIN.USERS.ALL + id_account + "/");
+  const response = await api.get(ENDPOINTS.ADMIN.USERS.ALL + "/" + id_account + "/");
   return response.data;
 };
 
@@ -66,7 +66,8 @@ export const getAccountStats = async (
 };
 
 export const updateAccount = async (payload: updateAccountPayload) => {
-  return await api.patch(ENDPOINTS.ADMIN.USERS.UPDATE(payload.id_account), {
+  return await api.patch(ENDPOINTS.ADMIN.USERS.UPDATE(payload.id), {
+    id: payload.id,
     username: payload.username,
     email: payload.email,
     phone: payload.phone,
@@ -75,5 +76,25 @@ export const updateAccount = async (payload: updateAccountPayload) => {
 
 export const getAccountCountStats = async (): Promise<AccountCountStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.USERS.COUNT);
+  return response.data;
+};
+
+export const getExportAccountsCsv = async () => {
+  const response = await api.get(ENDPOINTS.ADMIN.USERS.EXPORT_CSV, {
+    responseType: "blob",
+  });
+  return response.data;
+};
+
+export const updateAvatar = async (id_account: number, payload: FormData) => {
+  const response = await api.patch(
+    ENDPOINTS.ACCOUNTS.UPDATE_AVATAR(id_account),
+    payload,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
   return response.data;
 };

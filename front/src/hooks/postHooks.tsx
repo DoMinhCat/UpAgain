@@ -1,17 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  AddComment,
   CreatePost,
   DeleteComment,
   DeletePost,
   DeleteProjectStep,
   GetAllPosts,
+  GetMyPosts,
   GetPostComments,
   GetPostDetails,
   GetPostsStats,
   GetProjectStepsByPostId,
+  GetSavedPosts,
+  GetUserPostComments,
+  GetUserPostDetails,
+  GetUserPosts,
+  IncrementPostView,
+  LikeComment,
+  LikePost,
+  SavePost,
   UpdatePost,
 } from "../api/postModule";
-import type { PostsListPagination } from "../api/interfaces/post";
+import type {
+  AddCommentPayload,
+  PostsListPagination,
+} from "../api/interfaces/post";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
@@ -22,8 +35,8 @@ export const useGetPostsStats = () => {
     queryFn: GetPostsStats,
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error fetching post stats",
-      errorMessage: "Failed to fetch post stats",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_stats",
     },
   });
 };
@@ -33,13 +46,14 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: CreatePost,
     meta: {
-      errorTitle: "Error creating post",
-      errorMessage: "Failed to create post",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_creating_post",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["myPosts"] });
     },
   });
 };
@@ -56,8 +70,8 @@ export const useGetAllPosts = (
     queryFn: () => GetAllPosts(page, limit, search, category, sort),
     staleTime: STALE_TIME,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch posts.",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_posts",
     },
   });
 };
@@ -67,16 +81,17 @@ export const useDeletePost = () => {
   return useMutation({
     mutationFn: (id_post: number) => DeletePost(id_post),
     meta: {
-      errorTitle: "Error deleting post",
-      errorMessage: "Failed to delete post",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_deleting_post",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["myPosts"] });
       showSuccessNotification(
-        "Post deleted",
-        "The post has been deleted successfully.",
+        "community:notifications.delete_post_success_title",
+        "community:notifications.delete_post_success_message",
       );
     },
   });
@@ -89,8 +104,8 @@ export const useGetPostDetails = (id_post: number, isValidId: boolean) => {
     staleTime: STALE_TIME,
     enabled: isValidId,
     meta: {
-      errorTitle: "Error fetching post details",
-      errorMessage: "Failed to fetch post details",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_details",
     },
   });
 };
@@ -100,17 +115,19 @@ export const useUpdatePost = (id_post: number) => {
   return useMutation({
     mutationFn: (payload: FormData) => UpdatePost(id_post, payload),
     meta: {
-      errorTitle: "Error updating post",
-      errorMessage: "Failed to update post",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_updating_post",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postStats"] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
-        "Post updated",
-        "The post has been updated successfully.",
+        "community:notifications.update_post_success_title",
+        "community:notifications.update_post_success_message",
       );
     },
   });
@@ -128,8 +145,8 @@ export const useGetPostComments = (
     staleTime: STALE_TIME,
     enabled: isValidId,
     meta: {
-      errorTitle: "Error fetching post comments",
-      errorMessage: "Failed to fetch post comments",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_comments",
     },
   });
 };
@@ -139,16 +156,18 @@ export const useDeleteComment = () => {
   return useMutation({
     mutationFn: (id_comment: number) => DeleteComment(id_comment),
     meta: {
-      errorTitle: "Error deleting comment",
-      errorMessage: "Failed to delete comment",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_deleting_comment",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postComments"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostComments"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
-        "Comment deleted",
-        "The comment has been deleted successfully.",
+        "community:notifications.delete_comment_success_title",
+        "community:notifications.delete_comment_success_message",
       );
     },
   });
@@ -164,8 +183,8 @@ export const useGetProjectStepsByPostId = (
     staleTime: STALE_TIME,
     enabled: isValidId,
     meta: {
-      errorTitle: "Error fetching project details",
-      errorMessage: "Failed to fetch project details",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_steps",
     },
   });
 };
@@ -175,17 +194,172 @@ export const useDeleteProjectStep = () => {
   return useMutation({
     mutationFn: (id_step: number) => DeleteProjectStep(id_step),
     meta: {
-      errorTitle: "Error deleting project step",
-      errorMessage: "Failed to delete project step",
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_deleting_step",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
-        "Project step deleted",
-        "The project step has been deleted successfully.",
+        "community:notifications.delete_step_success_title",
+        "community:notifications.delete_step_success_message",
       );
+    },
+  });
+};
+
+// --- User-facing hooks ---
+
+export const useGetUserPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+  sort?: string,
+  search?: string,
+) => {
+  return useQuery<PostsListPagination>({
+    queryKey: ["userPosts", page, limit, category, sort, search],
+    queryFn: () => GetUserPosts(page, limit, category, sort, search),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_posts",
+    },
+  });
+};
+
+export const useGetUserPostDetails = (id_post: number, enabled: boolean) => {
+  return useQuery({
+    queryKey: ["userPostDetails", id_post],
+    queryFn: () => GetUserPostDetails(id_post),
+    staleTime: STALE_TIME,
+    enabled,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_details",
+    },
+  });
+};
+
+export const useGetUserPostComments = (
+  id_post: number,
+  enabled: boolean,
+  page?: number,
+  limit?: number,
+) => {
+  return useQuery({
+    queryKey: ["userPostComments", id_post, page, limit],
+    queryFn: () => GetUserPostComments(id_post, page, limit),
+    staleTime: STALE_TIME,
+    enabled,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_comments",
+    },
+  });
+};
+
+export const useLikePost = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_post: number) => LikePost(id_post),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_liking_post",
+    },
+    onSuccess: (_, id_post) => {
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+    },
+  });
+};
+
+export const useSavePost = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_post: number) => SavePost(id_post),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_saving_post",
+    },
+    onSuccess: (_, id_post) => {
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
+    },
+  });
+};
+
+export const useIncrementPostView = () => {
+  return useMutation({
+    mutationFn: (id_post: number) => IncrementPostView(id_post),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_tracking_view",
+    },
+  });
+};
+
+export const useAddComment = (id_post: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: AddCommentPayload) => AddComment(id_post, payload),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_posting_comment",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["userPostComments", id_post],
+      });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+    },
+  });
+};
+
+export const useLikeComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id_comment: number) => LikeComment(id_comment),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_liking_comment",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userPostComments"] });
+    },
+  });
+};
+
+export const useGetSavedPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+) => {
+  return useQuery({
+    queryKey: ["savedPosts", page, limit, category],
+    queryFn: () => GetSavedPosts(page, limit, category),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_posts",
+    },
+  });
+};
+
+export const useGetMyPosts = (
+  page?: number,
+  limit?: number,
+  category?: string,
+) => {
+  return useQuery({
+    queryKey: ["myPosts", page, limit, category],
+    queryFn: () => GetMyPosts(page, limit, category),
+    staleTime: STALE_TIME,
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_fetching_posts",
     },
   });
 };

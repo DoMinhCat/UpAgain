@@ -64,7 +64,7 @@ func GetPendingDeposits(page, limit int, filters models.ValidationFilters) ([]mo
 	countQuery := `
 		SELECT COUNT(DISTINCT i.id)
 		FROM items i
-		LEFT JOIN deposits d ON i.id = d.id_item
+		JOIN deposits d ON i.id = d.id_item
 		LEFT JOIN containers c ON d.id_container = c.id
 		LEFT JOIN accounts a ON i.id_user = a.id
 		` + whereClause
@@ -137,7 +137,20 @@ func GetTotalDeposits(since *time.Time) (int, error) {
 func GetDepositDetailsById(id int) (models.DepositDetails, error) {
 	var deposit models.DepositDetails
 	err := utils.Conn.QueryRow("SELECT id_container FROM deposits WHERE id_item = $1", id).Scan(&deposit.ContainerId)
-	return deposit, err
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return deposit, nil
+		}
+		return deposit, fmt.Errorf("GetDepositDetailsById() failed: %v", err.Error())
+	}
+	err = utils.Conn.QueryRow("SELECT street, city_name, postal_code, lat, lng FROM containers WHERE id = $1", deposit.ContainerId).Scan(&deposit.Street, &deposit.City, &deposit.PostalCode, &deposit.Lat, &deposit.Lng)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return deposit, nil
+		}
+		return deposit, fmt.Errorf("GetDepositDetailsById() failed: %v", err.Error())
+	}
+	return deposit, nil
 }
 
 func UpdateDepositById(depositID int, deposit models.UpdateDepositRequest) error {
@@ -177,6 +190,41 @@ func UpdateDepositById(depositID int, deposit models.UpdateDepositRequest) error
 
 func UpdateContainerByDepositId(depositID int, idContainer int) error {
 	_, err := utils.Conn.Exec("UPDATE deposits SET id_container = $1 WHERE id_item = $2", idContainer, depositID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetCurrentDepositByContainerId returns id and title of the deposit item currently booked for this container
+func GetCurrentDepositByContainerId(id int) (int, string, error) {
+	var depositID int
+	var title string
+
+	// currently booked => must have an active code for this deposit item
+	// only 1 active code at a time for a container is guaranteed by flow of deposit
+	// LIMIT act as safety net
+	query := `
+		SELECT d.id_item, i.title
+		FROM deposits d
+		JOIN items i ON d.id_item = i.id
+		JOIN barcodes b ON d.id_item = b.id_deposit
+		WHERE d.id_container = $1
+		AND i.status = 'approved'
+		AND b.status = 'active'
+		AND b.valid_from <= NOW()
+		AND b.valid_to >= NOW()
+		LIMIT 1;
+	`
+	err := utils.Conn.QueryRow(query, id).Scan(&depositID, &title)
+	if err == sql.ErrNoRows {
+		return 0, "", nil
+	}
+	return depositID, title, err
+}
+
+func CreateDeposit(deposit models.CreateDepositRequest) error {
+	_, err := utils.Conn.Exec("INSERT INTO deposits (id_item, id_container) VALUES ($1, $2)", deposit.IdItem, deposit.IdContainer)
 	if err != nil {
 		return err
 	}

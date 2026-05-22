@@ -9,10 +9,10 @@ import (
 )
 
 // get total money user spent on events
-func GetTotalEventSpendingsById(id int) (int, error) {
-	var total int
+func GetTotalEventSpendingsById(id int) (float64, error) {
+	var total float64
 	query := `
-		select COALESCE(SUM(e.price),0) as total_spent from events e
+		select COALESCE(SUM(e.price),0)::float8 from events e
 		join event_registrations er on e.id = er.id_event
 		join users u on er.id_account = u.id_account
 		where e.price is not null and er.status!='cancelled' and u.id_account=$1;
@@ -21,7 +21,7 @@ func GetTotalEventSpendingsById(id int) (int, error) {
 	row := utils.Conn.QueryRow(query, id)
 	err := row.Scan(&total)
 	if err != nil {
-		return 0, fmt.Errorf("GetTotalEventSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetTotalEventSpendingsById() failed: %v", err.Error())
 	}
 
 	return total, nil
@@ -121,6 +121,11 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 	whereClause := "WHERE e.created_at IS NOT NULL"
 	paramIndex := 1
 
+	// for validation hub request show only events in the future
+	if filters.Validation || filters.OnlyFuture {
+		whereClause += " AND e.start_at > now()"
+	}
+
 	if filters.Search != "" {
 		searchParam := "%" + filters.Search + "%"
 		whereClause += fmt.Sprintf(" AND (e.title ILIKE $%d OR a.username ILIKE $%d OR CAST(e.id AS TEXT) ILIKE $%d)", paramIndex, paramIndex, paramIndex)
@@ -133,6 +138,20 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 		whereClause += fmt.Sprintf(" AND e.status = $%d", paramIndex)
 		params = append(params, filters.Status)
 		countParams = append(countParams, filters.Status)
+		paramIndex++
+	}
+
+	if filters.Category != "" && filters.Category != "all" {
+		whereClause += fmt.Sprintf(" AND e.category = $%d", paramIndex)
+		params = append(params, filters.Category)
+		countParams = append(countParams, filters.Category)
+		paramIndex++
+	}
+
+	if filters.City != "" && filters.City != "all" {
+		whereClause += fmt.Sprintf(" AND e.city = $%d", paramIndex)
+		params = append(params, filters.City)
+		countParams = append(countParams, filters.City)
 		paramIndex++
 	}
 
@@ -158,15 +177,21 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 			orderBy = "ORDER BY e.price DESC"
 		case "lowest_price":
 			orderBy = "ORDER BY e.price ASC"
+		case "random":
+			orderBy = "ORDER BY RANDOM()"
+		case "most_popular":
+			orderBy = "ORDER BY registered DESC"
 		default:
 			orderBy = "ORDER BY e.id ASC"
 		}
 	}
 
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail, a.username 
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.postal_code, e.location_detail, 
+		a.username, a.avatar, a.id,
+		(SELECT count(*) FROM event_registrations er WHERE er.id_event=e.id) as registered
 		FROM events e 
-		JOIN accounts a ON e.created_by=a.id 
+		JOIN accounts a ON e.created_by=a.id
 		` + whereClause + " " + orderBy
 
 	// pagination
@@ -185,10 +210,51 @@ func GetAllEvents(page int, limit int, filters models.EventFilters) ([]models.Ev
 
 	for rows.Next() {
 		var event models.Event
-		err := rows.Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.EndAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail, &event.EmployeeName)
+		err := rows.Scan(
+			&event.Id,
+			&event.CreatedAt,
+			&event.Title,
+			&event.Description,
+			&event.StartAt,
+			&event.EndAt,
+			&event.Price,
+			&event.Category,
+			&event.Capacity,
+			&event.Status,
+			&event.City,
+			&event.Street,
+			&event.PostalCode,
+			&event.LocationDetail,
+			&event.EmployeeName,
+			&event.EmployeeAvatar,
+			&event.EmployeeId,
+			&event.Registered)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllEvents() scan failed: %v", err.Error())
 		}
+
+		images, err := GetPhotosPathsByObjectId(event.Id, "event")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllEvents() failed: %v", err.Error())
+		}
+		event.Images = images
+
+		// attendees
+		attendees, err := GetAttendeesByEventId(event.Id)
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllEvents() failed: %v", err.Error())
+		}
+		event.Attendees = attendees
+
+		// author avatar
+		authorAvatar, err := GetPhotosPathsByObjectId(event.EmployeeId, "avatar")
+		if err != nil {
+			return nil, 0, fmt.Errorf("GetAllEvents() failed: %v", err.Error())
+		}
+		if len(authorAvatar) > 0 {
+			event.EmployeeAvatar.String = authorAvatar[0]
+		}
+
 		results = append(results, event)
 	}
 
@@ -206,11 +272,11 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 	}
 
 	query := `
-		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, location_detail, created_by, status)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		INSERT INTO events (title, description, start_at, end_at, price, category, capacity, city, street, postal_code, location_detail, lat, lng, created_by, status)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		RETURNING id;
 	`
-	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, creatorId, status).Scan(&eventId)
+	err := utils.Conn.QueryRow(query, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, event.Lat, event.Lng, creatorId, status).Scan(&eventId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateEvent() failed: %v", err.Error())
 	}
@@ -220,10 +286,33 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 func GetEventDetailsById(id_event int) (models.Event, error) {
 	var event models.Event
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.location_detail
-		FROM events e WHERE e.id=$1;
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.postal_code, e.location_detail, e.lat, e.lng,
+		a.username, a.avatar, a.id
+		FROM events e 
+		JOIN accounts a ON e.created_by=a.id 
+		WHERE e.id=$1;
 	`
-	err := utils.Conn.QueryRow(query, id_event).Scan(&event.Id, &event.CreatedAt, &event.Title, &event.Description, &event.StartAt, &event.EndAt, &event.Price, &event.Category, &event.Capacity, &event.Status, &event.City, &event.Street, &event.LocationDetail)
+	err := utils.Conn.QueryRow(query, id_event).Scan(
+		&event.Id,
+		&event.CreatedAt,
+		&event.Title,
+		&event.Description,
+		&event.StartAt,
+		&event.EndAt,
+		&event.Price,
+		&event.Category,
+		&event.Capacity,
+		&event.Status,
+		&event.City,
+		&event.Street,
+		&event.PostalCode,
+		&event.LocationDetail,
+		&event.Lat,
+		&event.Lng,
+		&event.EmployeeName,
+		&event.EmployeeAvatar,
+		&event.EmployeeId,
+	)
 	if err != nil {
 		return models.Event{}, fmt.Errorf("GetEventDetailsById() failed: %v", err.Error())
 	}
@@ -231,9 +320,23 @@ func GetEventDetailsById(id_event int) (models.Event, error) {
 	// Fetch photos
 	photos, err := GetPhotosPathsByObjectId(id_event, "event")
 	if err != nil {
-		return event, fmt.Errorf("failed to fetch photos: %v", err.Error())
+		return event, fmt.Errorf("GetPhotosPathsByObjectId() failed: %v", err.Error())
 	}
 	event.Images = photos
+
+	// fetch organizers
+	organizers, err := GetOrganizersByEventId(id_event)
+	if err != nil {
+		return event, fmt.Errorf("GetOrganizersByEventId() failed: %v", err.Error())
+	}
+	event.Organizers = organizers
+
+	// fetch attendees
+	attendees, err := GetAttendeesByEventId(id_event)
+	if err != nil {
+		return event, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
+	}
+	event.Attendees = attendees
 
 	return event, nil
 }
@@ -265,7 +368,7 @@ func CheckEventExistsById(id_event int) (bool, error) {
 	return exists, nil
 }
 
-func UpdateEventStatusByEventId(eventID int, newStatus string, employeeID int) error {
+func UpdateEventStatusByEventId(eventID int, newStatus string) error {
 	tx, err := utils.Conn.Begin()
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %v", err)
@@ -275,14 +378,6 @@ func UpdateEventStatusByEventId(eventID int, newStatus string, employeeID int) e
 	_, err = tx.Exec(`UPDATE events SET status = $1 WHERE id = $2`, newStatus, eventID)
 	if err != nil {
 		return fmt.Errorf("error updating event status in tx: %v", err)
-	}
-
-	_, err = tx.Exec(`
-		INSERT INTO admin_history (entity_type, entity_id, action, id_employee)
-		VALUES ('event', $1, 'update', $2)
-	`, eventID, employeeID)
-	if err != nil {
-		return fmt.Errorf("error inserting into admin_history in tx: %v", err)
 	}
 
 	if err = tx.Commit(); err != nil {
@@ -298,7 +393,19 @@ func UpdateEventByEventId(eventID int, event models.UpdateEventRequest) error {
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec(`UPDATE events SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, location_detail = $10 WHERE id = $11`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.LocationDetail, eventID)
+	if event.Lat != nil && event.Lng != nil {
+		_, err = tx.Exec(`
+		UPDATE events 
+		SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, postal_code = $10, location_detail = $11, lat = $12, lng = $13 
+		WHERE id = $14
+		`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, *event.Lat, *event.Lng, eventID)
+	} else {
+		_, err = tx.Exec(`
+		UPDATE events 
+		SET title = $1, description = $2, start_at = $3, end_at = $4, price = $5, category = $6, capacity = $7, city = $8, street = $9, postal_code = $10, location_detail = $11 
+		WHERE id = $12
+		`, event.Title, event.Description, event.StartAt, event.EndAt, event.Price, event.Category, event.Capacity, event.City, event.Street, event.PostalCode, event.LocationDetail, eventID)
+	}
 	if err != nil {
 		return fmt.Errorf("error updating event in tx: %v", err)
 	}

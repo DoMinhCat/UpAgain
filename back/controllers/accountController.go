@@ -4,12 +4,15 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	helpers "backend/utils/helpers"
 	validations "backend/utils/validations"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -40,16 +43,19 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		role = claims.Role
 	}
 
-	if newAccount.Role == "admin" || newAccount.Role == "employee" {
-		if role != "admin" {
-			utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to create an admin or employee account.")
-			return
-		}
+	if role == "employee" {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to create an account.")
+		return
 	}
 
 	validationResponse := validations.ValidateAccountCreation(newAccount)
 	if !validationResponse.Success {
 		utils.RespondWithError(w, validationResponse.Error, validationResponse.Message.Error())
+		return
+	}
+
+	if newAccount.Role == "pro" && (newAccount.IsPremium == nil || newAccount.IsTrial == nil) {
+		utils.RespondWithError(w, http.StatusBadRequest, "Missing premium and/or trial status.")
 		return
 	}
 
@@ -60,13 +66,19 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	roleToInsert := newAccount.Role
 	if role == "admin" {
-		err = db.InsertHistory(newAccount.Role, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
-			slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
-			return
-		}
+		roleToInsert = "employee"
+	}
+
+	err = db.InsertDefaultNotiSetting(id_inserted)
+	if err != nil {
+		slog.Error("InsertDefaultNotiSetting() failed", "controller", "CreateAccount", "error", err)
+	}
+
+	err = db.InsertHistory(roleToInsert, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
+	if err != nil {
+		slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
@@ -76,6 +88,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get all accounts (Admin)
 // @Description  Get a list of all accounts with filters and pagination
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        is_deleted  query     bool    true   "Fetch deleted accounts"
 // @Param        page        query     int     false  "Page number"
@@ -138,7 +151,7 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 
 	accounts, total, err := db.GetAllAccounts(isDeleted, page, limit, filters)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while fetching accounts.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching accounts.")
 		slog.Error("GetAllAccounts() failed", "controller", "GetAllAccountsAdmin", "error", err)
 		return
 	}
@@ -170,6 +183,7 @@ func GetAllAccountsAdmin(w http.ResponseWriter, r *http.Request) {
 // @Summary      Soft delete account
 // @Description  Marks an account as deleted
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      204         {object}  nil  "No Content"
@@ -241,12 +255,13 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("SoftDeleteAccount() failed", "controller", "SoftDeleteAccount", "error", err)
 		return
 	}
+	if role_deleted == "admin" {
+		role_deleted = "employee"
+	}
 	if role == "admin" {
 		err = db.InsertHistory(role_deleted, id_account, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
 		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while soft deleting an account.")
 			slog.Error("InsertHistory() failed", "controller", "SoftDeleteAccount", "error", err)
-			return
 		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -256,6 +271,7 @@ func SoftDeleteAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account details
 // @Description  Get details of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      200         {object}  models.AccountDetails
@@ -300,6 +316,7 @@ func GetAccountDetails(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update password
 // @Description  Update the password of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                          true  "Account ID"
@@ -335,14 +352,14 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deleteRole, err := db.GetRoleById(id_account)
+	updateRole, err := db.GetRoleById(id_account)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating password.")
 		slog.Error("GetRoleById() failed", "controller", "UpdatePassword", "error", err)
 		return
 	}
 	// an admin changes password of another admin
-	if deleteRole == "admin" && id_account != userID {
+	if updateRole == "admin" && id_account != userID {
 		utils.RespondWithError(w, http.StatusForbidden, "Only the admin himself/herself can update his/her account's password.")
 		return
 	}
@@ -374,11 +391,9 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if role == "admin" {
-		err = db.InsertHistory(deleteRole, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, nil, nil)
+		err = db.InsertHistory(updateRole, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, nil, nil)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating account's password.")
 			slog.Error("InsertHistory() failed", "controller", "UpdatePassword", "error", err)
-			return
 		}
 	}
 
@@ -389,6 +404,7 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 // @Summary      Toggle ban status
 // @Description  Ban or unban an account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                      true  "Account ID"
@@ -476,9 +492,7 @@ func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 	if role == "admin" {
 		err = db.InsertHistory(banRole, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, oldState, newState)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, errMsg)
 			slog.Error("InsertHistory() failed", "controller", "ToggleBanAccount", "error", err)
-			return
 		}
 	}
 
@@ -489,6 +503,7 @@ func ToggleBanAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Recover account
 // @Description  Restore a soft-deleted account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      204         {object}  nil  "No Content"
@@ -543,9 +558,7 @@ func RecoverAccount(w http.ResponseWriter, r *http.Request) {
 	if role == "admin" {
 		err = db.InsertHistory(role_recovered, id_account, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": true}, map[string]interface{}{"is_deleted": false})
 		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while recovering an account.")
 			slog.Error("InsertHistory() failed", "controller", "RecoverAccount", "error", err)
-			return
 		}
 	}
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
@@ -555,6 +568,7 @@ func RecoverAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account stats
 // @Description  Get activity statistics for a specific account based on its role
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        id_account  path      int  true  "Account ID"
 // @Success      200         {object}  interface{}  "Stats (UserStats, ProStats, or EmployeeStats)"
@@ -638,6 +652,7 @@ func GetAccountStats(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update account
 // @Description  Update details of a specific account
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id_account  path      int                          true  "Account ID"
@@ -664,6 +679,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// deos account exist?
 	exist, err := db.CheckAccountExistsById(id_account, nil)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
@@ -699,36 +715,25 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("NewDecoder() failed", "controller", "UpdateAccount", "error", err)
 		return
 	}
+	// sanitize input
+	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
+	payload.Username = strings.TrimSpace(payload.Username)
+	payload.Phone = strings.TrimSpace(payload.Phone)
 
-	// check if email already exists
-	id, err := db.GetAccountIdByEmail(payload.Email)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountIdByEmail() failed", "controller", "UpdateAccount", "error", err)
-		return
-	}
-	if id != 0 && id != id_account {
-		utils.RespondWithError(w, http.StatusConflict, "Email already exists.")
+	validationResult := validations.ValidateAccountUpdate(payload)
+	if !validationResult.Success {
+		utils.RespondWithError(w, http.StatusBadRequest, validationResult.Message.Error())
 		return
 	}
 
-	username_id, err := db.GetAccountIdByUsername(payload.Username)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountIdByUsername() failed", "controller", "UpdateAccount", "error", err)
-		return
-	}
-	if username_id != 0 && username_id != id_account {
-		utils.RespondWithError(w, http.StatusConflict, "Username already exists.")
-		return
-	}
-
-	// Get old state for history before update
-	oldAccount, err := db.GetAccountDetailsById(id_account)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetAccountDetailsById() failed", "controller", "UpdateAccount", "error", err)
-		return
+	getOldAccountOk := true
+	var oldAccount interface{}
+	if claims.Role == "admin" {
+		oldAccount, err = db.GetAccountDetailsById(id_account)
+		if err != nil {
+			getOldAccountOk = false
+			slog.Error("GetAccountDetailsById() failed to get old account state", "controller", "UpdateAccount", "error", err)
+		}
 	}
 
 	payload.Id = id_account
@@ -739,12 +744,10 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if claims.Role == "admin" {
+	if claims.Role == "admin" && getOldAccountOk {
 		err = db.InsertHistory(role, id_account, "update", claims.Id, oldAccount, payload)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
 			slog.Error("InsertHistory() failed", "controller", "UpdateAccount", "error", err)
-			return
 		}
 	}
 
@@ -755,6 +758,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get account count stats
 // @Description  Get total count of accounts and increase since last month
 // @Tags         account
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {object}  models.AccountCountStats
 // @Failure      401  {object}  nil  "Unauthorized"
@@ -788,4 +792,172 @@ func GetAccountCount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, stats)
+}
+
+// ExportAccountsCsv godoc
+// @Summary      Export accounts to CSV
+// @Description  Exports a list of all accounts into a CSV file downloaded by the client. Admin only.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Produce      text/csv
+// @Success      200  {file}    file  "CSV file containing accounts"
+// @Failure      500  {object}  nil   "Internal server error"
+// @Router       /accounts/export/ [get]
+func ExportAccountsCsv(w http.ResponseWriter, r *http.Request) {
+	accounts, _, err := db.GetAllAccounts(false, -1, -1, models.AccountFilters{})
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while exporting accounts.")
+		slog.Error("GetAllAccounts() failed", "controller", "ExportAccountsCsv", "error", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment; filename=UpAgain_accounts.csv")
+
+	writer := csv.NewWriter(w)
+	defer writer.Flush()
+
+	writer.Write([]string{"Registered on", "ID", "Username", "Role", "Status", "Email", "Phone"})
+
+	for _, a := range accounts {
+		status := "active"
+		if a.IsBanned {
+			status = "banned"
+		}
+
+		// get Phone
+		phone := "N/A"
+		if a.Role == "user" {
+			user, err := db.GetUserDetailsById(a.Id)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while exporting accounts.")
+				slog.Error("GetUserDetailsById() failed", "controller", "ExportAccountsCsv", "error", err)
+				return
+			}
+			if user.Phone.Valid {
+				phone = user.Phone.String
+			}
+		}
+		if a.Role == "pro" {
+			pro, err := db.GetProDetailsById(a.Id)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while exporting accounts.")
+				slog.Error("GetProDetailsById() failed", "controller", "ExportAccountsCsv", "error", err)
+				return
+			}
+			if pro.Phone.Valid {
+				phone = pro.Phone.String
+			}
+		}
+		err := writer.Write([]string{
+			a.CreatedAt.Format("2006-01-02 15:04:05"),
+			strconv.Itoa(a.Id),
+			a.Username,
+			a.Role,
+			status,
+			a.Email,
+			phone,
+		})
+		if err != nil {
+			slog.Error("Write() failed", "controller", "ExportAccountsCsv", "error", err)
+			return
+		}
+	}
+}
+
+// UpdateAvatar godoc
+// @Summary      Update avatar
+// @Description  Upload and update the avatar image for the authenticated account.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        id_account path int true "Account ID"
+// @Param        avatar formData file true "Avatar image file"
+// @Success      204 {object} nil "No Content"
+// @Failure      400 {string} string "Bad Request"
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      404 {string} string "Account not found"
+// @Failure      500 {string} string "Internal Server Error"
+// @Router       /accounts/{id_account}/avatar/ [post]
+func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+	idRequester := r.Context().Value("user").(models.AuthClaims).Id
+
+	id_account, err := strconv.Atoi(r.PathValue("id_account"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid account ID.")
+		return
+	}
+
+	// can only update own avatar
+	if id_account != idRequester {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+
+	deleted := false
+	exist, err := db.CheckAccountExistsById(id_account, &deleted)
+	if err != nil {
+		slog.Error("CheckAccountExistById() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", id_account))
+		return
+	}
+
+	err = r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Error parsing form.")
+		return
+	}
+
+	newAvatars := r.MultipartForm.File["avatar"]
+	if len(newAvatars) == 0 {
+		utils.RespondWithError(w, http.StatusBadRequest, "No avatar provided.")
+		return
+	}
+	if len(newAvatars) > 1 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Only one avatar can be uploaded.")
+		return
+	}
+	newAvatar := newAvatars[0]
+
+	// delete old avatar if any
+	account, err := db.GetAccountDetailsById(id_account)
+	if err != nil {
+		slog.Error("GetAccountDetailsById() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+	oldAvatar := account.Avatar
+
+	if oldAvatar.Valid && oldAvatar.String != "" {
+		err = helpers.DeleteFileByPath("images/accounts", oldAvatar.String)
+		if err != nil {
+			slog.Error("DeleteFileByPath() failed", "controller", "UpdateAvatar", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+			return
+		}
+	}
+
+	// insert new avatar and update db
+	newAvatarPath, err := helpers.SaveUploadedFile(newAvatar, "images/accounts")
+	if err != nil {
+		slog.Error("SaveUploadedFile() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+
+	err = db.UpdateAvatar(id_account, newAvatarPath)
+	if err != nil {
+		slog.Error("UpdateAvatar() failed", "controller", "UpdateAvatar", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating avatar.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)	
 }

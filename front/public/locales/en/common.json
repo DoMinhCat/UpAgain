@@ -1,0 +1,86 @@
+{
+  "actions": {
+    "update": "Update",
+    "search": "Search",
+    "summary": "Summary",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "materials": {
+    "all": "All Materials",
+    "wood": "Wood",
+    "metal": "Metal",
+    "textile": "Textile",
+    "glass": "Glass",
+    "plastic": "Plastic",
+    "mixed": "Mixed",
+    "other": "Other"
+  },
+  "states": {
+    "new": "New",
+    "very_good": "Very Good",
+    "good": "Good",
+    "need_repair": "Need Repair"
+  },
+  "status": {
+    "all": "All Statuses",
+    "pending": "Pending",
+    "approved": "Approved",
+    "refused": "Refused",
+    "reserved": "Reserved",
+    "sold": "Sold",
+    "to_drop_off": "To Drop Off",
+    "bought": "Bought",
+    "to_retrieve": "To Retrieve",
+    "cancelled": "Cancelled"
+  },
+  "categories": {
+    "all": "All Categories",
+    "listing": "Listing",
+    "deposit": "Deposit"
+  },
+  "units": {
+    "kg": "kg"
+  },
+  "notifications": {
+    "error": "Error",
+    "success": "Success"
+  },
+  "free": "Free",
+  "not_set": "Not set",
+  "sort_by": "Sort by",
+  "type": "Type",
+  "pagination": {
+    "showing": "Showing",
+    "of": "of",
+    "results_one": "result",
+    "results_other": "results",
+    "items_one": "item",
+    "items_other": "items",
+    "transactions_one": "transaction",
+    "transactions_other": "transactions"
+  },
+  "time": {
+    "just_now": "Just now",
+    "minutes_ago_one": "1 minute ago",
+    "minutes_ago_other": "{{count}} minutes ago",
+    "hours_ago_one": "1 hour ago",
+    "hours_ago_other": "{{count}} hours ago",
+    "yesterday": "Yesterday",
+    "days_ago_one": "1 day ago",
+    "days_ago_other": "{{count}} days ago"
+  },
+  "footer": {
+    "description": "Give your objects a second life. A simple and eco-friendly way to trade and upcycle resources.",
+    "explore": "Explore",
+    "browse_objects": "Browse Objects",
+    "smart_deposits": "Smart Deposits",
+    "community_articles": "Community Articles",
+    "contact": "Contact",
+    "address": "123 Eco Street, Paris, France",
+    "legal": "Legal",
+    "terms_conditions": "Terms & Conditions",
+    "privacy_policy": "Privacy Policy",
+    "rights_reserved": "© {{year}} UpAgain. All rights reserved."
+  }
+}

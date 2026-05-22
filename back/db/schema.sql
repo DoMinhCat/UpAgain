@@ -27,20 +27,26 @@ create table accounts
     password   varchar(255) not null,
     role       account_role not null,
     deleted_at timestamptz  null,
-    is_banned  boolean      not null default false
+    is_banned  boolean      not null default false,
+    avatar     varchar(255)
 );
 -- create index on role for faster query
 CREATE INDEX idx_account_role ON account (role);
 
 -- syntax: [account type]_[entity]_[action/event]
 CREATE TYPE noti_setting AS ENUM (
-    'user_object_status', -- deposit/listing posted by user is bough/reserved/cancelled reservation by pro
+    -- for users:
+    'user_object_status', -- deposit/listing posted by user is bought/reserved/cancelled reservation by pro
     'user_validation_status', --deposit/posting posted by user is validated by admin
     'user_object_retrieved', -- object in container retrieved by pro
-    'user_event_updated', -- my event is updated by admin
+    'user_event_updated', -- my event is updated
+    'user_code_expiring', -- my code to deposit is expiring in 24h
+    -- for pros:
     'pro_material_available', --custom alert for new deposit/listing matching chosen material(s)
     'pro_object_deposited', -- object put in container by user
     'pro_subscription_end', -- premium subscription ending in 1 week
+    'pro_code_expiring', -- my code to retrieve object is expiring in 24h
+    -- for employees:
     'emp_event_updated', -- my event is updated by admin
     'emp_event_assigned' -- new event assigned to me by admin
     );
@@ -71,10 +77,11 @@ create table employees
 create table pros
 (
     id_account integer primary key references account (id) on delete restrict,
+    phone             varchar(20),
     is_premium boolean not null default false
 );
 
-CREATE TYPE event_category AS ENUM ('workshop', 'conference', 'conference', 'exposition', 'other');
+CREATE TYPE event_category AS ENUM ('workshop', 'conference', 'meetups', 'exposition', 'other');
 CREATE TYPE event_status AS ENUM ('pending', 'approved', 'refused', 'cancelled');
 create table events
 (
@@ -90,8 +97,16 @@ create table events
     status       event_status   not null default 'pending', -- cancelled = deleted
     city         varchar(255)   not null,
     street       varchar(255)   not null,
+    postal_code  varchar(10)   not null,
     location_detail varchar(255),
     created_by   integer references accounts(id) on delete restrict,
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 CREATE INDEX idx_events_status ON events (status);
 CREATE INDEX idx_events_category ON events (category);
@@ -103,12 +118,13 @@ create table event_registrations
     id_event   integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_account),
     created_at timestamptz not null       default now(),
-    status     event_registrations_status default 'registered'
+    status     event_registrations_status not null default 'registered',
+    paid_price numeric(10,2) not null -- set at registration, prevent price change after registered
 );
 
 create table event_employee
 (
-		assigned_at timestamptz not null       default now(),
+	assigned_at timestamptz not null       default now(),
     id_employee integer references employees (id_account) on delete restrict,
     id_event    integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_employee)
@@ -171,15 +187,35 @@ create table saved_posts
     saved_at   timestamptz not null default now(),
     PRIMARY KEY (id_account, id_post)
 );
-CREATE TYPE ads_status AS ENUM ('pending', 'active', 'expired', 'cancelled');
+
+-- allow multiple views from same account 
+create table viewed_posts
+(
+    id         serial      primary key,
+    id_account integer     not null references accounts (id) on delete restrict,
+    id_post    integer     not null references posts (id) on delete restrict,
+    viewed_at  timestamptz not null default now()
+);
+
+create table liked_posts
+(
+    id_account integer     not null references account (id) on delete restrict,
+    id_post    integer     not null references posts (id) on delete restrict,
+    liked_at   timestamptz not null default now(),
+    PRIMARY KEY (id_account, id_post)
+);
+
+CREATE TYPE ads_status AS ENUM ('active', 'expired', 'cancelled');
 create table ads
 (
-    id_ads     serial primary key,
+    id     serial primary key,
     updated_at timestamptz not null default now(),
     start_date date        not null default now(),
     end_date   date        not null,
-    status     ads_status  not null default 'pending',
-    id_post    integer     not null references posts (id) on delete restrict
+    status     ads_status  not null default 'active',
+    id_post    integer     not null references posts (id) on delete restrict,
+    price_per_month numeric(10,2) not null, -- set at purchased to save price at the moment (avoid change in the price afterwards)
+    total_price numeric(10,2) not null -- set at purchased to save price at the moment (avoid change in the price afterwards)
 );
 CREATE INDEX idx_ads_status ON ads (status);
 
@@ -207,32 +243,41 @@ CREATE TABLE photos (
     );
 );
 
-CREATE TYPE item_state AS ENUM ('new', 'very_good', 'good', 'need_repair');
-CREATE TYPE material AS ENUM ('wood', 'metal', 'textile', 'glass', 'plastic', 'mixed', 'other');
-CREATE TYPE item_status AS ENUM ('pending', 'approved', 'refused', 'completed');
+CREATE TYPE item_state      AS ENUM ('new', 'very_good', 'good', 'need_repair');
+CREATE TYPE material        AS ENUM ('wood', 'metal', 'textile', 'glass', 'plastic', 'mixed', 'other');
+CREATE TYPE item_status     AS ENUM ('pending', 'approved', 'refused', 'completed');
 create table items
 (
-    id          serial primary key,
-    created_at  timestamptz  not null default now(),
-    title       varchar(255) not null,
+    id          serial          primary key,
+    created_at  timestamptz     not null default now(),
+    title       varchar(255)    not null,
     description text,
-    price       numeric(2)   not null default 0,
-    weight      numeric(2)   not null,                   -- in kg
-    material    material     not null default 'other',
-    status      item_status  not null default 'pending', -- workflow status
-    state       item_state   not null,                   -- new or needs to be repaired
-    is_deleted  boolean      not null default false,
-    id_user     integer      not null references users(id_account)  on delete restrict
+    price       numeric(8,2)    not null default 0,
+    weight      numeric(8,2)    not null,                   -- in kg
+    material    material        not null default 'other',
+    status      item_status     not null default 'pending', -- workflow status
+    state       item_state      not null,                   -- new or needs to be repaired
+    is_deleted  boolean         not null default false,
+    refuse_reason text,
+    id_user     integer         not null references users(id_account)  on delete restrict
 );
-CREATE INDEX idx_items_status ON items (status);
-CREATE INDEX idx_items_state ON items (state);
+CREATE INDEX idx_items_status   ON items (status);
+CREATE INDEX idx_items_state    ON items (state);
 CREATE INDEX idx_items_material ON items (material);
 
 create table listings
 (
     id_item     integer primary key references items (id) on delete cascade,
+    street      text             not null,
     city_name   varchar(255) not null,
-    postal_code varchar(10)  not null
+    postal_code varchar(10)  not null,
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+    
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 
 CREATE TYPE container_status AS ENUM ('ready', 'waiting', 'occupied', 'maintenance');
@@ -242,9 +287,16 @@ create table containers
     created_at  timestamptz      not null default now(),
     city_name   varchar(255)     not null,
     postal_code varchar(10)      not null,
-    -- TODO: add street field
+    street      text             not null,
     status      container_status not null default 'ready',
-    is_deleted  boolean          not null default false
+    is_deleted  boolean          not null default false,
+    lat         numeric(9,6)   not null,
+    lng         numeric(10,6)   not null,
+
+    CONSTRAINT check_coordinates CHECK (
+        (lat >= -90 AND lat <= 90) AND
+        (lng >= -180 AND lng <= 180)
+    )
 );
 CREATE INDEX idx_containers_status ON containers (status);
 CREATE INDEX idx_containers_postal_code ON containers (postal_code);
@@ -276,37 +328,44 @@ create table barcodes
 -- is_active: user can cancel subscription before end date (sub_to) and purchase a new subscription (stupid but possible)
 create table subscriptions
 (
-    id        serial primary key,
-    is_trial  boolean     not null,
-    is_active boolean     not null default true,
-    sub_from  timestamptz not null default now(),
-    sub_to    timestamptz not null,
-    CHECK ( sub_to>sub_from ),
-    id_pro    integer     not null references pros (id_account) on delete restrict,
-	cancel_reason  text   
+    id            serial          primary key,
+    is_trial      boolean         not null,
+    is_active     boolean         not null default true,
+    sub_from      timestamptz     not null default now(),
+    sub_to        timestamptz     not null,
+    CHECK ( sub_to > sub_from ),
+    id_pro        integer         not null references pros (id_account) on delete restrict,
+	cancel_reason text,
+    price         numeric(10,2)   not null -- set at purchased to save price at the moment (avoid change in the price afterwards)
 );
 
 create type transaction_action as enum('cancelled', 'purchased', 'expired', 'reserved');
 create table transactions(
-    id serial primary key ,
-    id_transaction uuid not null,
-    created_at timestamptz not null default now(),
-    action transaction_action not null,
-    id_item int not null references items(id) on delete cascade ,
-    id_pro int not null references pros(id_account) on delete cascade
+    id               serial             primary key,
+    id_transaction   uuid               not null,
+    created_at       timestamptz        not null default now(),
+    action           transaction_action not null,
+    id_item          int                not null references items(id) on delete cascade,
+    id_pro           int                not null references pros(id_account) on delete cascade,
     -- expiry time if not paid after reserved
-    reservation_expiry       timestamptz -- set +2 days when reserved    
+    reservation_expiry timestamptz, -- set +2 days when reserved   
+    item_price         numeric(10,2), -- set at purchased to save item price at the moment (avoid change in the price afterwards)
+    commission_rate    numeric(5,2), -- set at purchased to save commission rate at the moment (avoid change in the rate afterwards)
+    total_price        numeric(10,2), -- set at purchased to save total price (item's price + commission) at the moment (avoid change in the rate afterwards)
+    
+    -- set at purchased if is listing for pro to see and give user upon retrieval
+    confirm_code       char(6)         
 );
 CREATE INDEX idx_transactions_uuid ON transactions(id_transaction);
 
 CREATE TABLE project_steps (
-  id SERIAL PRIMARY KEY,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  title VARCHAR(255) NOT NULL,
-  description TEXT NOT NULL,
-  step_order INTEGER NOT NULL DEFAULT 1
-  id_post INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  id          SERIAL         PRIMARY KEY,
+  created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+  is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
+  title       VARCHAR(255)   NOT NULL,
+  description TEXT           NOT NULL,
+  step_order  INTEGER        NOT NULL DEFAULT 1
+  id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
 );
 
 -- a project step can have multiple items
@@ -315,4 +374,16 @@ CREATE TABLE step_items (
   id_step INTEGER NOT NULL REFERENCES project_steps(id) ON DELETE CASCADE,
   id_item INTEGER NOT NULL REFERENCES items(id) ON DELETE RESTRICT,
   PRIMARY KEY (id_step, id_item)
+);
+
+CREATE TYPE notification_entity_type AS ENUM ('profile', 'event', 'item');
+create table notifications (
+  id uuid primary key,
+  created_at timestamptz not null default now(),
+  read_at timestamptz,
+  deleted_at timestamptz,
+  type noti_setting not null,
+  entity_type notification_entity_type not null,
+  entity_id text not null,
+  id_account int not null references accounts(id) on delete cascade
 );

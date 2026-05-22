@@ -124,14 +124,14 @@ func validateUsername(username string, reqId int) (bool, error) {
 	// Check for existed username
 	usernameExists, err := db.CheckUsernameExists(username)
 	if err != nil {
-		return false, fmt.Errorf("An error occured while creating/updating an account for you.")
+		return false, fmt.Errorf("An error occurred while creating/updating an account for you.")
 	}
 	if usernameExists {
 		if reqId != 0 {
 			// check if same username as ANOTHER user
 			dupId, err := db.GetIdByUsernameByEmail(&username, nil)
 			if err != nil {
-				return false, fmt.Errorf("An error occured while creating/updating an account for you.")
+				return false, fmt.Errorf("An error occurred while creating/updating an account for you.")
 			}
 			if dupId != reqId {
 				return false, fmt.Errorf("'%s' has been taken, please choose another username.", username)
@@ -170,14 +170,14 @@ func validateEmail(email string, reqId int) (bool, error) {
 	}
 	emailExists, err := db.CheckEmailExists(email)
 	if err != nil {
-		return false, fmt.Errorf("An error occured while creating/updating an account for you.")
+		return false, fmt.Errorf("An error occurred while creating/updating an account for you.")
 	}
 	if emailExists {
 		if reqId != 0 {
 			// check if same username as ANOTHER user
 			dupId, err := db.GetIdByUsernameByEmail(nil, &email)
 			if err != nil {
-				return false, fmt.Errorf("An error occured while creating/updating an account for you.")
+				return false, fmt.Errorf("An error occurred while creating/updating an account for you.")
 			}
 			if dupId != reqId {
 				return false, fmt.Errorf("'%s' has been taken, please choose another email.", email)

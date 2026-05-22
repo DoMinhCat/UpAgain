@@ -4,7 +4,8 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	"backend/utils/helper"
+	"backend/utils/geocode"
+	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
 	"regexp"
@@ -75,6 +76,7 @@ func GetListingDetails(w http.ResponseWriter, r *http.Request) {
 // @Param        state            formData  string  true   "Item state (new, good, very_good, need_repair)"
 // @Param        material         formData  string  true   "Item material (wood, metal, textile, glass, plastic, other, mixed)"
 // @Param        price            formData  number  true   "Item price"
+// @Param        street           formData  string  true   "Street address"
 // @Param        city             formData  string  true   "City"
 // @Param        postal_code      formData  string  true   "Postal code (5-9 digits)"
 // @Param        existing_images  formData  string  false  "Paths of existing images to keep (multiple allowed)"
@@ -133,9 +135,24 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the deposit.")
 		return
 	}
-	if status == "completed" || status == "reserved" {
-		utils.RespondWithError(w, http.StatusBadRequest, "Listing is completed or reserved and cannot be updated.")
+	if status == "completed" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Listing is completed and cannot be updated.")
 		return
+	}
+
+	// if in an active transaction can't update
+	transaction, err := db.GetTransactionsByItemId(id, -1, -1)
+	if err != nil {
+		slog.Error("GetTransactionsByItemId() failed", "controller", "UpdateListing", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the listing.")
+		return
+	}
+	if len(transaction) != 0 {
+		latestTransaction := transaction[0]
+		if latestTransaction.Action == "reserved" || latestTransaction.Action == "purchased" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Listing is in an active transaction and cannot be updated.")
+			return
+		}
 	}
 
 	// get old version
@@ -167,6 +184,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		Material:    itemDetails.Material,
 		Price:       itemDetails.Price,
 		Status:      itemDetails.Status,
+		Street:      listingDetails.Street,
 		City:        listingDetails.City,
 		PostalCode:  listingDetails.PostalCode,
 		Photos:      old_photos,
@@ -217,6 +235,11 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid price.")
 		return
 	}
+	payload.Street = r.FormValue("street")
+	if strings.TrimSpace(payload.Street) == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Street is required.")
+		return
+	}
 	payload.City = r.FormValue("city")
 	if strings.TrimSpace(payload.City) == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "City is required.")
@@ -240,7 +263,53 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	finalPhotos, delErrs, err := helper.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
+	// check for any changes
+	hasChanges := false
+	if listingFullDetails.Title != payload.Title ||
+		listingFullDetails.Description != payload.Description ||
+		listingFullDetails.Weight != payload.Weight ||
+		listingFullDetails.State != payload.State ||
+		listingFullDetails.Material != payload.Material ||
+		listingFullDetails.Price != payload.Price ||
+		listingFullDetails.Street != payload.Street ||
+		listingFullDetails.City != payload.City ||
+		listingFullDetails.PostalCode != payload.PostalCode ||
+		len(keepImages) != len(currentImages) ||
+		newImg != nil {
+		hasChanges = true
+	}
+	if !hasChanges {
+		utils.RespondWithJSON(w, http.StatusNoContent, nil)
+		return
+	}
+
+	hasLocationChange := false
+	if listingFullDetails.Street != payload.Street ||
+		listingFullDetails.City != payload.City ||
+		listingFullDetails.PostalCode != payload.PostalCode {
+		hasLocationChange = true
+	}
+	if hasLocationChange {
+		addressToResolve := models.Address{
+			Street:     payload.Street,
+			PostalCode: payload.PostalCode,
+			City:       payload.City,
+		}
+		coordinates, err := geocode.AddressToCoor(addressToResolve)
+		if err != nil {
+			if err.Error() == "ZERO_RESULTS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
+			slog.Error("AddressToCoor() failed", "controller", "UpdateListing", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
+			return
+		}
+		payload.Lat = &coordinates.Lat
+		payload.Lng = &coordinates.Lng
+	}
+
+	finalPhotos, delErrs, err := helpers.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateListing", "error", delErr)
 	}
@@ -251,9 +320,13 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.Photos = finalPhotos
 
+	needValidation := false
+	if role == "user" && listingFullDetails.Status == "approved" {
+		needValidation = true
+	}
 	// if is user then require validation from admin again
-	if role == "user" {
-		err = db.UpdateItemStatusById(id, "pending")
+	if needValidation {
+		err = db.UpdateItemStatusById(id, "pending", "")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateListing", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
@@ -282,6 +355,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get pending listings
 // @Description  Get a paginated list of pending listings for admin
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
@@ -292,7 +366,7 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 // @Failure      500     {object}  nil                     "Internal server error"
 // @Router       /admin/validations/listings/ [get]
 func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
-	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
+	page, limit, filters, err := helpers.ParsePaginationAndFilters(r)
 	if err != nil {
 		slog.Error("ParsePaginationAndFilters failed", "controller", "GetPendingListingsAdmin", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
@@ -306,7 +380,7 @@ func GetPendingListingsAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := helper.BuildPaginatedResult(page, limit, total)
+	result := helpers.BuildPaginatedResult(page, limit, total)
 	result["listings"] = listings
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }

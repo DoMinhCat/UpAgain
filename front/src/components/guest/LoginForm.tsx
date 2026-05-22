@@ -9,11 +9,13 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { PATHS } from "../../routes/paths";
 import { useState } from "react";
 import { useLogin } from "../../hooks/authHooks";
 
 export function LoginForm() {
+  const { t } = useTranslation("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -24,10 +26,10 @@ export function LoginForm() {
   const validateEmail = (val: string) => {
     const regex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$/;
     if (!val) {
-      setEmailError("Email is required");
+      setEmailError(t("login.errors.email_required"));
       return false;
     } else if (!regex.test(val)) {
-      setEmailError("Invalid email format");
+      setEmailError(t("login.errors.email_invalid"));
       return false;
     }
     setEmailError(null);
@@ -36,13 +38,13 @@ export function LoginForm() {
 
   const validatePassword = (val: string) => {
     if (!val) {
-      setPasswordError("Password is required");
+      setPasswordError(t("login.errors.password_required"));
       return false;
     }
     setPasswordError(null);
     return true;
   };
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault(); // Prevents page reload
 
     if (!validateEmail(email)) return;
@@ -52,11 +54,11 @@ export function LoginForm() {
 
   return (
     <Container size={520} my={40}>
-      <Title ta="center">Welcome back!</Title>
+      <Title ta="center">{t("login.title")}</Title>
 
       <Text mt="sm" ta={"center"}>
-        Do not have an account yet?{" "}
-        <Anchor href={PATHS.GUEST.REGISTER}>Create account</Anchor>
+        {t("login.no_account")}{" "}
+        <Anchor href={PATHS.GUEST.REGISTER}>{t("login.create_account")}</Anchor>
       </Text>
 
       <Paper
@@ -70,8 +72,8 @@ export function LoginForm() {
         <form onSubmit={handleSubmit}>
           <TextInput
             variant="body-color"
-            label="Email"
-            placeholder="example@gmail.com"
+            label={t("login.email_label")}
+            placeholder={t("login.email_placeholder")}
             radius="md"
             error={emailError}
             mb="md"
@@ -86,8 +88,8 @@ export function LoginForm() {
           />
           <PasswordInput
             variant="body-color"
-            label="Password"
-            placeholder="Your secret"
+            label={t("login.password_label")}
+            placeholder={t("login.password_placeholder")}
             onChange={(event) => {
               const password = event.currentTarget.value;
               setPassword(password);
@@ -101,7 +103,7 @@ export function LoginForm() {
 
           <Group justify="center" mt="lg">
             <Anchor size="sm" href={PATHS.GUEST.FORGOT}>
-              Forgot password?
+              {t("login.forgot_password")}
             </Anchor>
           </Group>
           <Button
@@ -112,7 +114,7 @@ export function LoginForm() {
             disabled={loginMutation.isPending}
             loading={loginMutation.isPending}
           >
-            Sign in
+            {t("login.submit")}
           </Button>
         </form>
       </Paper>

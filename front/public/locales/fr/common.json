@@ -1,0 +1,86 @@
+{
+  "actions": {
+    "update": "Mettre à jour",
+    "summary": "Résumé",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "search": "Rechercher"
+  },
+  "materials": {
+    "all": "Tous les matériaux",
+    "wood": "Bois",
+    "metal": "Métal",
+    "textile": "Textile",
+    "glass": "Verre",
+    "plastic": "Plastique",
+    "mixed": "Mixte",
+    "other": "Autre"
+  },
+  "states": {
+    "new": "Neuf",
+    "very_good": "Très bon état",
+    "good": "Bon état",
+    "need_repair": "À réparer"
+  },
+  "status": {
+    "all": "Tous les statuts",
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "refused": "Refusé",
+    "reserved": "Réservé",
+    "sold": "Vendu",
+    "to_drop_off": "À déposer",
+    "bought": "Acheté",
+    "to_retrieve": "À récupérer",
+    "cancelled": "Annulé"
+  },
+  "categories": {
+    "all": "Toutes les catégories",
+    "listing": "Annonce",
+    "deposit": "Dépôt"
+  },
+  "units": {
+    "kg": "kg"
+  },
+  "notifications": {
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "free": "Gratuit",
+  "not_set": "Non défini",
+  "sort_by": "Trier par",
+  "type": "Type",
+  "pagination": {
+    "showing": "Affichage de",
+    "of": "sur",
+    "results_one": "résultat",
+    "results_other": "résultats",
+    "items_one": "objet",
+    "items_other": "objets",
+    "transactions_one": "transaction",
+    "transactions_other": "transactions"
+  },
+  "time": {
+    "just_now": "À l'instant",
+    "minutes_ago_one": "Il y a 1 minute",
+    "minutes_ago_other": "Il y a {{count}} minutes",
+    "hours_ago_one": "Il y a 1 heure",
+    "hours_ago_other": "Il y a {{count}} heures",
+    "yesterday": "Hier",
+    "days_ago_one": "Il y a 1 jour",
+    "days_ago_other": "Il y a {{count}} jours"
+  },
+  "footer": {
+    "description": "Donnez une seconde vie à vos objets. Une solution simple et écologique pour échanger et revaloriser vos ressources.",
+    "explore": "Explorer",
+    "browse_objects": "Parcourir les objets",
+    "smart_deposits": "Dépôts intelligents",
+    "community_articles": "Articles de la communauté",
+    "contact": "Contact",
+    "address": "123 Rue de l'Écologie, Paris, France",
+    "legal": "Mentions Légales",
+    "terms_conditions": "Conditions Générales d'Utilisation",
+    "privacy_policy": "Politique de Confidentialité",
+    "rights_reserved": "© {{year}} UpAgain. Tous droits réservés."
+  }
+}

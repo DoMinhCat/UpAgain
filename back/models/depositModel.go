@@ -1,0 +1,44 @@
+package models
+
+type DepositDetails struct {
+	ContainerId int     `json:"container_id"`
+	Street      string  `json:"street"`
+	City        string  `json:"city"`
+	PostalCode  string  `json:"postal_code"`
+	Lat         float64 `json:"lat"`
+	Lng         float64 `json:"lng"`
+}
+
+type UpdateDepositRequest struct {
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Weight      float64  `json:"weight"`
+	State       string   `json:"state"`
+	Material    string   `json:"material"`
+	Price       float64  `json:"price"`
+	Photos      []string `json:"photos"`
+}
+
+// for history audition
+type DepositFullDetails struct {
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Weight      float64  `json:"weight"`
+	State       string   `json:"state"`
+	IdUser      int      `json:"id_user"`
+	Material    string   `json:"material"`
+	Price       float64  `json:"price"`
+	Status      string   `json:"status"`
+	Photos      []string `json:"photos"`
+	IdContainer int      `json:"id_container"`
+}
+
+type TransferContainerRequest struct {
+	CurrentContainerId int `json:"current_container_id"`
+	NewContainerId     int `json:"new_container_id"`
+}
+
+type CreateDepositRequest struct {
+	IdItem      int `json:"id_item"`
+	IdContainer int `json:"id_container"`
+}

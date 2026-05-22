@@ -14,6 +14,7 @@ import (
 // @Summary      Get available employees
 // @Description  Get a list of employees not occupied during a specific time range.
 // @Tags         employee
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        start_at  query     string  true  "Start date (RFC3339 format, e.g., 2026-03-22T17:00:00Z)"
 // @Param        end_at    query     string  true  "End date (RFC3339 format, e.g., 2026-03-22T19:00:00Z)"
@@ -59,6 +60,19 @@ func GetAvailableEmployees(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, employees)
 }
 
+// GetEmployeeSchedule godoc
+// @Summary      Get employee schedule
+// @Description  Returns the list of events assigned to a specific employee. Admins can view any employee's schedule; employees can only view their own.
+// @Tags         employee
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_employee  path      int  true  "Employee account ID"
+// @Success      200          {object}  []models.Event  "List of assigned events"
+// @Failure      400          {object}  nil  "Invalid employee ID"
+// @Failure      401          {object}  nil  "Unauthorized"
+// @Failure      404          {object}  nil  "Employee not found"
+// @Failure      500          {object}  nil  "Internal server error"
+// @Router       /employees/{id_employee}/schedule/ [get]
 func GetEmployeeSchedule(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role != "admin" && role != "employee" {

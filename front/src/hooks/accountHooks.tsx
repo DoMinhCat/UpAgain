@@ -10,6 +10,7 @@ import {
   getAccountStats,
   updateAccount,
   getAccountCountStats,
+  updateAvatar,
 } from "../api/accountModule";
 import {
   type Account,
@@ -27,8 +28,8 @@ export const useRecoverAccount = () => {
   return useMutation({
     mutationFn: (accountId: number) => recoverAccount(accountId),
     meta: {
-      errorTitle: "Account recovery failed",
-      errorMessage: "Could not recover the account",
+      errorTitle: "admin:users.notifications.error_recovering",
+      errorMessage: "admin:users.notifications.error_recovering",
     },
     onSuccess: (response, accountId) => {
       if (response?.status === 204) {
@@ -39,8 +40,8 @@ export const useRecoverAccount = () => {
           queryKey: ["accountDetails", accountId],
         });
         showSuccessNotification(
-          "Account recovered",
-          "Account recovered successfully.",
+          "admin:users.notifications.recover_success_title",
+          "admin:users.notifications.recover_success_message",
         );
       }
     },
@@ -52,8 +53,8 @@ export const useDeleteAccount = () => {
   return useMutation({
     mutationFn: (accountId: number) => deleteAccount(accountId),
     meta: {
-      errorTitle: "Account deletion failed",
-      errorMessage: "Could not delete the account",
+      errorTitle: "admin:users.notifications.error_deleting",
+      errorMessage: "admin:users.notifications.error_deleting",
     },
     onSuccess: (response) => {
       if (response?.status === 204) {
@@ -61,8 +62,8 @@ export const useDeleteAccount = () => {
         queryClient.invalidateQueries({ queryKey: ["histories"] });
         queryClient.invalidateQueries({ queryKey: ["deletedAccounts"] });
         showSuccessNotification(
-          "Account deleted",
-          "Account deleted successfully.",
+          "admin:users.notifications.delete_success_title",
+          "admin:users.notifications.delete_success_message",
         );
       }
     },
@@ -79,8 +80,8 @@ export const useAccountDetails = (
     enabled,
     staleTime: 60 * 1000,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load account details",
+      errorTitle: "admin:users.notifications.error_loading_details",
+      errorMessage: "admin:users.notifications.error_loading_details",
     },
   });
 };
@@ -108,8 +109,8 @@ export const useGetAllAccounts = (
       getAllAccounts(isDeleted, page, limit, search, role, status, sort),
     staleTime: 1000 * 60,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load accounts list",
+      errorTitle: "admin:users.notifications.error_loading_accounts",
+      errorMessage: "admin:users.notifications.error_loading_accounts",
     },
   });
 };
@@ -119,14 +120,14 @@ export const useUpdatePassword = () => {
   return useMutation({
     mutationFn: (payload: updatePasswordPayload) => updatePassword(payload),
     meta: {
-      errorTitle: "Password update failed",
-      errorMessage: "Could not update the password",
+      errorTitle: "admin:users.notifications.error_updating_password",
+      errorMessage: "admin:users.notifications.error_updating_password",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
-        "Password updated",
-        "Password changed successfully.",
+        "admin:users.notifications.password_update_success_title",
+        "admin:users.notifications.password_update_success_message",
       );
     },
   });
@@ -137,16 +138,18 @@ export const useToggleBanAccount = () => {
   return useMutation({
     mutationFn: (payload: updateIsBannedPayload) => banAccount(payload),
     meta: {
-      errorTitle: "Account status update failed",
-      errorMessage: "Could not update the account ban status",
+      errorTitle: "admin:users.notifications.error_updating_status",
+      errorMessage: "admin:users.notifications.error_updating_status",
     },
     onSuccess: (response, variables) => {
       if (response?.status === 204) {
         showSuccessNotification(
-          variables.is_banned ? "Account banned" : "Account unbanned",
           variables.is_banned
-            ? "This account has been banned."
-            : "This account has been unbanned.",
+            ? "admin:users.notifications.ban_success_title"
+            : "admin:users.notifications.unban_success_title",
+          variables.is_banned
+            ? "admin:users.notifications.ban_success_message"
+            : "admin:users.notifications.unban_success_message",
         );
         queryClient.invalidateQueries({
           queryKey: ["accountDetails", variables.id],
@@ -163,14 +166,14 @@ export const useCreateAccount = () => {
   return useMutation({
     mutationFn: RegisterRequest,
     meta: {
-      errorTitle: "Account creation failed",
-      errorMessage: "Could not create the account",
+      errorTitle: "admin:users.notifications.error_creating",
+      errorMessage: "admin:users.notifications.error_creating",
     },
     onSuccess: (response) => {
       if (response?.status === 201) {
         showSuccessNotification(
-          "Account creation success",
-          "Account created successfully.",
+          "admin:users.notifications.create_success_title",
+          "admin:users.notifications.create_success_message",
         );
         queryClient.invalidateQueries({ queryKey: ["histories"] });
         queryClient.invalidateQueries({ queryKey: ["accounts"] });
@@ -186,8 +189,8 @@ export const useAccountStats = (accountId: number, enabled: boolean = true) => {
     enabled,
     staleTime: 60 * 1000,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load account stats",
+      errorTitle: "admin:users.notifications.error_loading_stats",
+      errorMessage: "admin:users.notifications.error_loading_stats",
     },
   });
 };
@@ -197,21 +200,19 @@ export const useUpdateAccount = () => {
   return useMutation({
     mutationFn: (payload: updateAccountPayload) => updateAccount(payload),
     meta: {
-      errorTitle: "Account update failed",
-      errorMessage: "Could not update the account",
+      errorTitle: "admin:users.notifications.error_updating",
+      errorMessage: "admin:users.notifications.error_updating",
     },
-    onSuccess: (response, variables) => {
-      if (response?.status === 204) {
-        showSuccessNotification(
-          "Account updated",
-          "Account updated successfully.",
-        );
-        queryClient.invalidateQueries({
-          queryKey: ["accountDetails", variables.id_account],
-        });
-        queryClient.invalidateQueries({ queryKey: ["histories"] });
-        queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      }
+    onSuccess: (_, variables) => {
+      showSuccessNotification(
+        "admin:users.notifications.update_success_title",
+        "admin:users.notifications.update_success_message",
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["accountDetails", variables.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
   });
 };
@@ -221,9 +222,29 @@ export const useAccountCountStats = () => {
     queryKey: ["accountCountStats"],
     queryFn: getAccountCountStats,
     meta: {
-      errorTitle: "Fetching Failed",
-      errorMessage: "Could not load account count stats",
+      errorTitle: "admin:users.notifications.error_loading_count_stats",
+      errorMessage: "admin:users.notifications.error_loading_count_stats",
     },
     staleTime: 1000 * 60, // refresh data every 1m
+  });
+};
+
+export const useUpdateAvatar = (account_id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: FormData) => updateAvatar(account_id, payload),
+    meta: {
+      errorTitle: "admin:users.notifications.error_updating_avatar",
+      errorMessage: "admin:users.notifications.error_updating_avatar",
+    },
+    onSuccess: () => {
+      showSuccessNotification(
+        "admin:users.notifications.avatar_update_success_title",
+        "admin:users.notifications.avatar_update_success_message",
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["accountDetails", account_id],
+      });
+    },
   });
 };

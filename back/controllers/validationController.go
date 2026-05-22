@@ -4,16 +4,18 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
-	helper "backend/utils/helper"
+	helpers "backend/utils/helpers"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // GetValidationStats godoc
 // @Summary      Get validation stats
 // @Description  Get counts of pending, approved, and refused for all entity types
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200  {object}  models.ValidationStats  "Validation stats"
 // @Failure      500  {object}  nil                     "Internal server error"
@@ -32,6 +34,7 @@ func GetValidationStats(w http.ResponseWriter, r *http.Request) {
 // @Summary      Process listing validation
 // @Description  Approve or refuse a listing
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Listing ID"
@@ -71,7 +74,7 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 
 	employeeID := claims.Id
 
-	payload, newStatus, err := helper.ParseValidationPayload(r)
+	payload, newStatus, err := helpers.ParseValidationPayload(r)
 	if err != nil {
 		slog.Error("ParseValidationPayload failed", "controller", "ProcessListingValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
@@ -107,6 +110,7 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 // @Summary      Process deposit validation
 // @Description  Approve or refuse a deposit
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Deposit ID"
@@ -143,15 +147,16 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, newStatus, err := helper.ParseValidationPayload(r) // remplacer le _ par une variable lors de l'integration de OneSignal
+	payload, newStatus, err := helpers.ParseValidationPayload(r)
 	if err != nil {
 		slog.Error("ParseValidationPayload failed", "controller", "ProcessDepositValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	reason := payload.Reason
 
 	oldStatus, _ := db.GetItemStatusByItemId(itemID)
-	err = db.UpdateItemStatusById(itemID, newStatus)
+	err = db.UpdateItemStatusById(itemID, newStatus, reason)
 	if err != nil {
 		slog.Error("UpdateItemStatusById() failed", "controller", "ProcessDepositValidation", "itemId", itemID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during deposit validation")
@@ -173,6 +178,7 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 // @Summary      Process event validation
 // @Description  Approve or refuse an event
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        id    path      int     true  "Event ID"
@@ -194,11 +200,24 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	exist, err := db.CheckEventExistsById(eventID)
 	if err != nil {
 		slog.Error("CheckEventExistsById() failed", "controller", "ProcessEventValidation", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching event.")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
 	if !exist {
-		utils.RespondWithError(w, http.StatusBadRequest, "Event not found.")
+		utils.RespondWithError(w, http.StatusBadRequest, "Event with ID "+idStr+" not found.")
+		return
+	}
+
+	event, err := db.GetEventDetailsById(eventID)
+	if err != nil {
+		slog.Error("GetEventDetailsById() failed", "controller", "ProcessEventValidation", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
+		return
+	}
+
+	// can't validate if event is in the past
+	if event.EndAt.Time.Before(time.Now()) {
+		utils.RespondWithError(w, http.StatusConflict, "This event has already ended.")
 		return
 	}
 
@@ -209,9 +228,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	employeeID := claims.Id
-
-	_, newStatus, err := helper.ParseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
+	_, newStatus, err := helpers.ParseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
 	if err != nil {
 		slog.Error("ParseValidationPayload failed", "controller", "ProcessEventValidation", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
@@ -219,7 +236,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldStatus, _ := db.GetEventStatusById(eventID)
-	err = db.UpdateEventStatusByEventId(eventID, newStatus, employeeID)
+	err = db.UpdateEventStatusByEventId(eventID, newStatus)
 	if err != nil {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
@@ -241,6 +258,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get items history
 // @Description  Get a paginated history of all items
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
@@ -266,7 +284,7 @@ func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page, limit, filters, err := helper.ParsePaginationAndFilters(r)
+	page, limit, filters, err := helpers.ParsePaginationAndFilters(r)
 	if err != nil {
 		slog.Error("ParsePaginationAndFilters failed", "controller", "GetItemsHistory", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid pagination parameters")
@@ -280,7 +298,7 @@ func GetItemsHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := helper.BuildPaginatedResult(page, limit, total)
+	result := helpers.BuildPaginatedResult(page, limit, total)
 	result["items"] = items
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }

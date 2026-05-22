@@ -35,6 +35,94 @@
     }
   }
 
+  &[data-variant="cta"] {
+    background-color: #e3b23c;
+    color: #f9f7f2;
+    border-radius: 100px;
+    border: none;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 10px 28px;
+
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      background-color: #43966c;
+      /* Increase the lift for more impact */
+      transform: translateY(-3px);
+      /* Multi-layered shadow for realistic depth */
+      box-shadow:
+        0 10px 20px rgba(67, 150, 108, 0.2),
+        0 6px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 10px rgba(67, 150, 108, 0.2);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #e3b23c, transparent);
+      transition: 0.5s;
+    }
+
+    &:hover::after {
+      left: 100%;
+    }
+  }
+
+  &[data-variant="cta-reverse"] {
+    background-color: #45a575;
+    color: #f9f7f2;
+    border-radius: 100px;
+    border: none;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 10px 28px;
+
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      background-color: #e3b23c;
+      /* Increase the lift for more impact */
+      transform: translateY(-3px);
+      /* Multi-layered shadow for realistic depth */
+      box-shadow:
+        0 10px 20px rgba(67, 150, 108, 0.2),
+        0 6px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 10px rgba(67, 150, 108, 0.2);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #45a575, transparent);
+      transition: 0.5s;
+    }
+
+    &:hover::after {
+      left: 100%;
+    }
+  }
+
   &[data-variant="edit"] {
     background-color: #e3b23c;
     color: var(--mantine-color-text);
@@ -68,6 +156,41 @@
     &:hover {
       transform: translateY(-1px);
     }
+  }
+
+  &[data-variant="subtle"] {
+    background-color: transparent; /* Invisible initially */
+    color: var(--mantine-color-text); /* Standard text color */
+    border-radius: 100px;
+    border: 1px solid rgba(69, 165, 117, 0.2); /* Very subtle brand border */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother brand transition */
+
+    &:hover {
+      background-color: #45a575; /* Fills with brand green */
+      color: #f9f7f2; /* Swaps text to off-white */
+      border-color: #45a575;
+      transform: translateY(-2px); /* Signature UpAgain lift */
+      box-shadow: 0 6px 15px rgba(69, 165, 117, 0.25); /* Elegant brand glow */
+    }
+
+    &:active {
+      transform: translateY(0); /* Tactile feedback */
+    }
+  }
+}
+
+.checkbox {
+  cursor: pointer;
+
+  /* When the checkbox is checked, fill it with your green */
+  &:checked {
+    background-color: var(--upagain-neutral-green) !important;
+    border-color: var(--upagain-neutral-green) !important;
+  }
+
+  /* Optional: change the border on hover when it's still empty */
+  &:hover {
+    border-color: var(--upagain-neutral-green);
   }
 }
 
@@ -105,11 +228,28 @@
 /* this is for custom mantine paper */
 .paper {
   /* Default styles for all papers using this class */
-  transition: transform 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   &[data-variant="primary"] {
-    background-color: var(--paper-border-color) !important;
+    background-color: var(--paper-color) !important;
     border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+
+    &:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  &[data-variant="brand"] {
+    background-color: var(--upagain-neutral-green);
+    color: white;
+    border: none;
+    box-shadow: 0 10px 30px rgba(69, 165, 117, 0.15);
+
+    &:hover {
+      background-color: #43966c;
+      transform: translateY(-2px);
+    }
   }
 }
 
@@ -135,7 +275,6 @@
 /* this is for custom mantine input */
 .input {
   border-radius: 100px;
-  padding-left: 20px;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -147,7 +286,6 @@
 
   &:hover {
     border-color: #45a575;
-    /* Your brand green */
   }
 
   &:focus {
@@ -243,11 +381,28 @@
 
   &[data-variant="yellow"] {
     color: var(--mantine-color-yellow-1);
-    background-color: var(--mantine-color-yellow-6);
+    background-color: var(--upagain-yellow);
   }
   &[data-variant="green"] {
     color: var(--mantine-color-green-1);
-    background-color: var(--mantine-color-green-6);
+    background-color: var(--upagain-neutral-green);
+  }
+  &[data-variant="violet"] {
+    color: var(--mantine-color-violet-1);
+    background-color: var(--mantine-color-violet-6);
+  }
+  &[data-variant="cyan"] {
+    color: var(--mantine-color-cyan-1);
+    background-color: var(--mantine-color-cyan-6);
+  }
+  &[data-variant="gradient"] {
+    background: linear-gradient(45deg, #45a575, #e3b23c);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 10px rgba(69, 165, 117, 0.2);
+    padding-right: 8px;
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -284,4 +439,94 @@
 .timelineTitle {
   color: var(--mantine-color-text);
   font-weight: 700;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: var(--pulse-opacity-start, 0.1);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: var(--pulse-opacity-mid, 0.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: var(--pulse-opacity-start, 0.1);
+  }
+}
+
+.segmented-control {
+  background-color: var(--mantine-color-body); /* Darker background */
+  border: 1px solid var(--border-color);
+  border-radius: 100px; /* Force the pill shape */
+  padding: 4px;
+
+  /* The floating active indicator */
+  & .mantine-SegmentedControl-indicator {
+    background-color: var(--upagain-neutral-green);
+    border-radius: 100px;
+    box-shadow: 0 4px 12px rgba(69, 165, 117, 0.2); /* Soft brand glow */
+  }
+
+  /* The text labels */
+  & .mantine-SegmentedControl-label {
+    font-weight: 600;
+    font-size: var(--mantine-font-size-sm);
+    transition: color 0.2s ease;
+    cursor: pointer;
+  }
+
+  /* Remove default Mantine separator lines for a cleaner look */
+  &::before {
+    display: none;
+  }
+}
+
+.alert {
+  width: 100%;
+  background-color: var(--paper-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  padding: var(--mantine-spacing-md);
+  border-radius: var(--mantine-radius-lg);
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid var(--upagain-neutral-green);
+
+  /* The Heading/Title container */
+  & .mantine-Alert-title {
+    font-weight: 800;
+    font-size: var(--mantine-font-size-sm);
+
+    /* FIX: Changed from text color to your system's dimmed variable */
+    color: var(--mantine-color-dimmed);
+
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  /* The Body message container */
+  & .mantine-Alert-message {
+    color: var(--mantine-color-dimmed);
+    font-size: var(--mantine-font-size-sm);
+    line-height: 1.5;
+  }
+
+  /* The Icon Wrapper */
+  & .mantine-Alert-icon {
+    margin-right: var(--mantine-spacing-sm);
+    color: var(--upagain-neutral-green) !important;
+  }
+
+  /* Close button customization */
+  & .mantine-Alert-closeButton {
+    color: var(--mantine-color-dimmed);
+    border-radius: 100px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+  }
 }

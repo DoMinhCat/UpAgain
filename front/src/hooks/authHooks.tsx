@@ -14,8 +14,8 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (payload: LoginPayload) => LoginRequest(payload),
     meta: {
-      errorTitle: "Login failed",
-      errorMessage: "Could not log in to your account",
+      errorTitle: "auth:notifications.login_failed_title",
+      errorMessage: "auth:notifications.login_failed_message",
     },
     onSuccess: (data) => {
       const user = login(data.token);
@@ -36,15 +36,15 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: (payload: RegisterPayload) => RegisterRequest(payload),
     meta: {
-      errorTitle: "Registration failed",
-      errorMessage: "Could not register your account",
+      errorTitle: "auth:notifications.register_failed_title",
+      errorMessage: "auth:notifications.register_failed_message",
     },
     onSuccess: (response) => {
       if (response?.status === 201) {
         navigate(PATHS.GUEST.LOGIN);
         showSuccessNotification(
-          "Registration Success",
-          "You have been registered successfully, log in to continue.",
+          "auth:notifications.register_success_title",
+          "auth:notifications.register_success_message",
         );
       }
     },

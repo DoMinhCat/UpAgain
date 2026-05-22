@@ -10,9 +10,17 @@ import {
   Modal,
   ThemeIcon,
   Select,
+  Anchor,
+  Center,
+  Loader,
+  HoverCard,
+  Indicator,
+  UnstyledButton,
+  TextInput,
 } from "@mantine/core";
+import { Calendar } from "@mantine/dates";
 import { PATHS } from "../../../routes/paths";
-import AdminBreadcrumbs from "../../../components/admin/AdminBreadcrumbs";
+import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import {
   Navigate,
   useLocation,
@@ -24,18 +32,21 @@ import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
 import { IconBox, IconTrash, IconEdit } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import { useTranslation } from "react-i18next";
 
 import {
   useContainerDetails,
   useUpdateStatus,
   useDeleteContainer,
-  useGetAllContainers,
   useUpdateLocation,
+  useGetContainerSchedule,
 } from "../../../hooks/containerHooks";
 
-// TODO: add street field to table containers
-// TODO: link to listing/deposit object if its currently occupied
+import { useState } from "react";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
+
 export default function AdminContainersDetails() {
+  const { t } = useTranslation("admin");
   const origin = useLocation().state;
   const navigate = useNavigate();
   const params = useParams();
@@ -43,11 +54,16 @@ export default function AdminContainersDetails() {
     useDisclosure(false);
   const [openedStatus, { open: openStatus, close: closeStatus }] =
     useDisclosure(false);
-  const [openedLocation, { open: openLocation, close: closeLocation}] =
+  const [openedLocation, { open: openLocation, close: closeLocation }] =
+    useDisclosure(false);
+  const [openedCalendar, { open: openCalendar, close: closeCalendar }] =
     useDisclosure(false);
 
   const containerId: number = params.id ? parseInt(params.id) : 0;
   const isValidId = !isNaN(containerId) && containerId > 0;
+  if (!isValidId) {
+    navigate(PATHS.ERROR.NOT_FOUND, { replace: true });
+  }
 
   const {
     data: container,
@@ -55,20 +71,84 @@ export default function AdminContainersDetails() {
     isError,
   } = useContainerDetails(containerId);
 
+  const { data: scheduleData, isLoading: isScheduleLoading } =
+    useGetContainerSchedule(containerId);
+
   //location
-  const { data: containersData } = useGetAllContainers();
+  const [locationCity, setLocationCity] = useState(container?.city_name || "");
+  const [locationStreet, setLocationStreet] = useState(container?.street || "");
+  const [locationPostalCode, setLocationPostalCode] = useState(
+    container?.postal_code || "",
+  );
+  const [errorCity, setErrorCity] = useState("");
+  const [errorStreet, setErrorStreet] = useState("");
+  const [errorPostalCode, setErrorPostalCode] = useState("");
+
+  const validateCity = (val: string) => {
+    if (!val) {
+      setErrorCity(t("events.create_modal.errors.city"));
+      return false;
+    }
+    setErrorCity("");
+    return true;
+  };
+
+  const validateStreet = (val: string) => {
+    if (!val) {
+      setErrorStreet(t("events.create_modal.errors.street"));
+      return false;
+    }
+    setErrorStreet("");
+    return true;
+  };
+
+  const validatePostalCode = (val: string) => {
+    if (!val) {
+      setErrorPostalCode(t("containers.create_modal.errors.postal_code"));
+      return false;
+    }
+    if (!/^\d{5}$/.test(val)) {
+      setErrorPostalCode(
+        t("containers.create_modal.errors.postal_code_invalid"),
+      );
+      return false;
+    }
+    setErrorPostalCode("");
+    return true;
+  };
+
   const locationMutation = useUpdateLocation();
 
-  const cityOptions = [
-  ...new Set(containersData?.containers?.map((c) => c.city_name) ?? []),
-].map((city) => ({ value: city, label: city }));
+  const handleLocationChange = (
+    city_name: string,
+    street: string,
+    postal_code: string,
+  ) => {
+    const isCityValid = validateCity(city_name);
+    const isStreetValid = validateStreet(street);
+    const isPostalValid = validatePostalCode(postal_code);
 
-  const handleLocationChange = (city_name: string) => {
-  locationMutation.mutate(
-    { id: containerId, city_name },
-    { onSuccess: () => closeLocation() },
-  );
-};
+    if (!isCityValid || !isStreetValid || !isPostalValid) return;
+
+    locationMutation.mutate(
+      { id: containerId, city_name, street, postal_code },
+      {
+        onSuccess: () => {
+          closeLocation();
+        },
+      },
+    );
+  };
+
+  const handleOpenLocation = () => {
+    setLocationCity(container?.city_name || "");
+    setLocationStreet(container?.street || "");
+    setLocationPostalCode(container?.postal_code || "");
+    setErrorCity("");
+    setErrorStreet("");
+    setErrorPostalCode("");
+    openLocation();
+  };
   //status
   const statusMutation = useUpdateStatus();
   const deleteMutation = useDeleteContainer();
@@ -87,48 +167,49 @@ export default function AdminContainersDetails() {
   };
 
   if (isLoading) return <FullScreenLoader />;
-  if (!isValidId || isError)
-    return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
+  if (isError) return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
 
   const statusColor =
     container?.status === "ready"
       ? "green"
-      : container?.status === "occupied"
-        ? "orange"
+      : container?.status === "occupied" || container?.status === "waiting"
+        ? "yellow"
         : "red";
 
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
-        Container's Details
+        {t("containers.details.title")}
       </Title>
-      <AdminBreadcrumbs
+      <MyBreadcrumbs
         breadcrumbs={[
           ...(origin?.from === "historyDetails"
             ? [
                 {
-                  title: "History Details",
-                  href: PATHS.ADMIN.HISTORY + "/" + origin.id_history,
+                  title: t("history.details.title"),
+                  href: PATHS.ADMIN.HISTORY.ALL + "/" + origin.id_history,
                 },
               ]
             : origin?.from === "listingDetails"
               ? [
                   {
-                    title: "Object Management",
+                    title: t("common:object_management", {
+                      defaultValue: "Object Management",
+                    }),
                     href: PATHS.ADMIN.LISTINGS,
                   },
                   {
-                    title: "Object's Details",
+                    title: t("listings.details.title"),
                     href: PATHS.ADMIN.LISTINGS + "/" + origin.id_listing,
                   },
                 ]
               : [
                   {
-                    title: "Container Management",
+                    title: t("containers.title"),
                     href: PATHS.ADMIN.CONTAINERS,
                   },
                 ]),
-          { title: `Container's Details`, href: "#" },
+          { title: t("containers.details.title"), href: "#" },
         ]}
       />
 
@@ -137,20 +218,25 @@ export default function AdminContainersDetails() {
           <ThemeIcon size={80} radius="xl" color={statusColor}>
             <IconBox size={45} />
           </ThemeIcon>
-          <Title order={2}>Container #{container?.id}</Title>
+          <Title order={2}>
+            {t("common:container")} #{container?.id}
+          </Title>
           <Text c="dimmed">
-            {container?.city_name} - {container?.postal_code}
+            {container?.street}, {container?.city_name} -{" "}
+            {container?.postal_code}
           </Text>
         </Stack>
 
         <Title order={3} ta="left" mt="xl">
-          Operational Information
+          {t("containers.details.general_info")}
         </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm">
-          <InfoField label="Current Status">
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
+          <InfoField label={t("containers.details.current_status")}>
             <Group mt="xs" mb="xl">
               <Text fw={700} c={statusColor}>
-                {container?.status.toUpperCase()}
+                {t(`status.${container?.status}` as any, {
+                  defaultValue: container?.status.toUpperCase(),
+                })}
               </Text>
               <Button
                 size="compact-xs"
@@ -158,48 +244,113 @@ export default function AdminContainersDetails() {
                 onClick={openStatus}
                 leftSection={<IconEdit size={14} />}
               >
-                Change Status
+                {t("containers.details.change_status")}
               </Button>
             </Group>
           </InfoField>
 
-          <InfoField label="Location">
+          <InfoField label={t("containers.details.location")}>
             <Group mt="xs" mb="xl">
               <Text fw={500}>
-                {container?.city_name} ({container?.postal_code})
+                {container?.street}, {container?.city_name} (
+                {container?.postal_code})
               </Text>
               <Button
                 size="compact-xs"
                 variant="light"
-                onClick={openLocation}
+                onClick={handleOpenLocation}
                 leftSection={<IconEdit size={14} />}
               >
-                Change Location
+                {t("containers.details.change_location")}
               </Button>
             </Group>
           </InfoField>
 
-          <InfoField label="Created On">
+          <InfoField label={t("containers.details.created_on")}>
             <Text ps="sm" mt="xs">
               {dayjs(container?.created_at).format("DD/MM/YYYY - HH:mm")}
             </Text>
           </InfoField>
+
+          {container?.lat && container?.lng && (
+            <Box mt="xl">
+              <EmbeddedMap
+                height={300}
+                locations={[
+                  {
+                    id: containerId,
+                    lat: container.lat,
+                    lng: container.lng,
+                    label: t("common:container") + ` #${containerId}`,
+                  },
+                ]}
+                centerOnId={containerId}
+                zoom={15}
+              />
+            </Box>
+          )}
+        </Paper>
+
+        <Title order={3} ta="left" mt="xl">
+          {t("containers.details.activities")}
+        </Title>
+        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
+          <InfoField label={t("containers.details.current_object")}>
+            {container?.status === "maintenance" ? (
+              <Text ps="sm" mt="xs" mb="lg">
+                {t("containers.details.under_maintenance")}
+              </Text>
+            ) : container?.current_deposit_id === 0 ? (
+              <Text ps="sm" mt="xs" mb="lg">
+                {t("containers.details.no_object")}
+              </Text>
+            ) : (
+              <Anchor
+                onClick={() =>
+                  navigate(
+                    PATHS.ADMIN.LISTINGS + "/" + container?.current_deposit_id,
+                    {
+                      state: {
+                        from: "containerDetails",
+                        idContainer: containerId,
+                      },
+                    },
+                  )
+                }
+                ps="sm"
+                mt="xs"
+                mb="lg"
+                c="var(--component-color-primary)"
+                display="block"
+                style={{ cursor: "pointer" }}
+              >
+                {container?.current_deposit_title}
+              </Anchor>
+            )}
+          </InfoField>
+
+          <InfoField label={t("common:schedule")}>
+            <Button mt="xs" variant="primary" size="sm" onClick={openCalendar}>
+              {t("containers.details.view_schedule")}
+            </Button>
+          </InfoField>
         </Paper>
 
         <Title order={3} ta="left" mt="xl" c="red">
-          Danger Zone
+          {t("containers.details.danger_zone")}
         </Title>
         <Paper
           variant="primary"
           px="lg"
           py="md"
           mt="sm"
+          radius="lg"
           style={{ border: "1px solid #ff000033" }}
         >
-          <InfoField label="Permanently Remove">
+          <InfoField label={t("containers.details.permanently_remove")}>
             <Box ps="sm">
               <Text c="dimmed" size="sm" mt="xs">
-                This will soft-delete the container from the active park.
+                {t("containers.details.permanently_remove_desc")}
               </Text>
               <Button
                 mt="xs"
@@ -207,7 +358,7 @@ export default function AdminContainersDetails() {
                 leftSection={<IconTrash size={16} />}
                 onClick={openDelete}
               >
-                Delete Container
+                {t("containers.details.delete_button")}
               </Button>
             </Box>
           </InfoField>
@@ -218,15 +369,16 @@ export default function AdminContainersDetails() {
       <Modal
         opened={openedStatus}
         onClose={closeStatus}
-        title="Update Container Status"
+        title={t("containers.details.change_status")}
         centered
       >
         <Select
-          label="New Status"
-          placeholder="Pick one"
+          label={t("history.filters.status")}
+          placeholder={t("history.filters.sort_placeholder")}
+          withAsterisk
           data={[
-            { value: "ready", label: "Ready" },
-            { value: "maintenance", label: "Maintenance" },
+            { value: "ready", label: t("status.ready") },
+            { value: "maintenance", label: t("status.maintenance") },
           ]}
           defaultValue={container?.status}
           onChange={(val) => val && handleStatusChange(val)}
@@ -236,40 +388,275 @@ export default function AdminContainersDetails() {
       <Modal
         opened={openedLocation}
         onClose={closeLocation}
-        title="Update Container Location"
+        title={t("containers.details.change_location")}
         centered
       >
-        <Select
-          label="New Location"
-          placeholder="Pick a city"
-          data={cityOptions}
-          defaultValue={container?.city_name}
-          onChange={(val) => val && handleLocationChange(val)}
-        />
+        <Stack>
+          <TextInput
+            label={t("containers.create_modal.city")}
+            withAsterisk
+            value={locationCity}
+            onChange={(e) => {
+              setLocationCity(e.target.value);
+              validateCity(e.target.value);
+            }}
+            error={errorCity}
+            onBlur={() => validateCity(locationCity)}
+            required
+          />
+          <TextInput
+            label={t("containers.create_modal.street")}
+            withAsterisk
+            value={locationStreet}
+            onChange={(e) => {
+              setLocationStreet(e.target.value);
+              validateStreet(e.target.value);
+            }}
+            error={errorStreet}
+            onBlur={() => validateStreet(locationStreet)}
+            required
+          />
+          <TextInput
+            label={t("containers.create_modal.postal_code")}
+            withAsterisk
+            value={locationPostalCode}
+            onChange={(e) => {
+              setLocationPostalCode(e.target.value);
+              validatePostalCode(e.target.value);
+            }}
+            error={errorPostalCode}
+            onBlur={() => validatePostalCode(locationPostalCode)}
+            required
+          />
+          <Group justify="flex-end" mt="md">
+            <Button variant="grey" onClick={closeLocation}>
+              {t("common:actions.cancel")}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() =>
+                handleLocationChange(
+                  locationCity,
+                  locationStreet,
+                  locationPostalCode,
+                )
+              }
+              loading={locationMutation.isPending}
+            >
+              {t("common:actions.confirm")}
+            </Button>
+          </Group>
+        </Stack>
       </Modal>
 
       <Modal
         opened={openedDelete}
         onClose={closeDelete}
-        title="Confirm Deletion"
+        title={t("containers.delete_modal.title")}
         centered
       >
         <Text size="sm">
-          Are you sure? This action will remove the container from the
-          monitoring dashboard.
+          {t("containers.delete_modal.text", {
+            id: container?.id,
+            city: container?.city_name,
+          })}
         </Text>
         <Group mt="xl" justify="flex-end">
           <Button variant="grey" onClick={closeDelete}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             variant="delete"
             loading={deleteMutation.isPending}
             onClick={handleDelete}
           >
-            Confirm Delete
+            {t("containers.delete_modal.confirm")}
           </Button>
         </Group>
+      </Modal>
+
+      <Modal
+        size="lg"
+        title={
+          <Text fw={700}>
+            {t("containers.details.schedule_title", { id: container?.id })}
+          </Text>
+        }
+        opened={openedCalendar}
+        onClose={closeCalendar}
+        centered
+        styles={{
+          body: {
+            paddingBottom: "var(--mantine-spacing-xl)",
+            overflowX: "hidden",
+          },
+        }}
+      >
+        <Center>
+          {isScheduleLoading ? (
+            <Loader />
+          ) : (
+            <Box px="sm" w="100%">
+              <Calendar
+                styles={{
+                  levelsGroup: { width: "100%" },
+                  month: { width: "100%" },
+                  weekday: { textAlign: "center" },
+                  day: { width: "100%" },
+                  calendarHeader: {
+                    maxWidth: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "var(--mantine-spacing-md)",
+                  },
+                }}
+                static
+                size="lg"
+                renderDay={(date) => {
+                  const day = dayjs(date).date();
+                  const userTasksOnDate =
+                    scheduleData?.user_range?.filter((event) => {
+                      const eventStartVal = dayjs(event.valid_from).valueOf();
+                      const eventEndVal = dayjs(event.valid_to).valueOf();
+                      const dayStartVal = dayjs(date).valueOf();
+                      const dayEndVal = dayjs(date).endOf("day").valueOf();
+
+                      return (
+                        eventStartVal <= dayEndVal && eventEndVal >= dayStartVal
+                      );
+                    }) || [];
+                  const proTasksOnDate =
+                    scheduleData?.pro_range?.filter((event) => {
+                      const eventStartVal = dayjs(event.valid_from).valueOf();
+                      const eventEndVal = dayjs(event.valid_to).valueOf();
+                      const dayStartVal = dayjs(date).valueOf();
+                      const dayEndVal = dayjs(date).endOf("day").valueOf();
+
+                      return (
+                        eventStartVal <= dayEndVal && eventEndVal >= dayStartVal
+                      );
+                    }) || [];
+
+                  const tasksOnDate = [
+                    ...userTasksOnDate.map((t) => ({ ...t, type: "user" })),
+                    ...proTasksOnDate.map((t) => ({ ...t, type: "pro" })),
+                  ];
+                  const hasTasks = tasksOnDate.length > 0;
+
+                  let indicatorColor = "var(--mantine-color-blue-6)";
+                  if (proTasksOnDate.length > 0)
+                    indicatorColor = "var(--mantine-color-yellow-6)";
+
+                  return (
+                    <HoverCard
+                      shadow="xl"
+                      disabled={!hasTasks}
+                      withinPortal
+                      withArrow
+                      openDelay={100}
+                      closeDelay={200}
+                    >
+                      <HoverCard.Target>
+                        <Indicator
+                          processing={
+                            hasTasks &&
+                            dayjs(date).endOf("day").isAfter(dayjs())
+                          }
+                          size={hasTasks && tasksOnDate.length > 1 ? 18 : 10}
+                          color={indicatorColor}
+                          offset={tasksOnDate.length > 1 ? 4 : 0}
+                          disabled={!hasTasks}
+                          label={
+                            tasksOnDate.length > 1
+                              ? `+${tasksOnDate.length}`
+                              : undefined
+                          }
+                          styles={{
+                            indicator: {
+                              fontSize: "10px",
+                              fontWeight: 700,
+                            },
+                          }}
+                          style={{ width: "100%", height: "100%" }}
+                        >
+                          <Center w="100%" h="100%">
+                            <Text size="sm" fw={hasTasks ? 700 : 400}>
+                              {day}
+                            </Text>
+                          </Center>
+                        </Indicator>
+                      </HoverCard.Target>
+
+                      <HoverCard.Dropdown p="sm">
+                        <Stack gap="xs">
+                          <Box
+                            style={{
+                              borderBottom: "1px solid var(--border-color)",
+                              paddingBottom: "4px",
+                            }}
+                          >
+                            <Text size="xs" c="dimmed" tt="uppercase">
+                              {dayjs(date).format("dddd")}
+                            </Text>
+                            <Text size="sm">
+                              {dayjs(date).format("DD MMM YYYY")}
+                            </Text>
+                          </Box>
+
+                          <Stack gap={4}>
+                            {tasksOnDate.map((task, i) => (
+                              <UnstyledButton
+                                key={`${task.type}-${task.deposit_id}-${i}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  closeCalendar();
+                                  navigate(
+                                    `${PATHS.ADMIN.LISTINGS}/${task.deposit_id}`,
+                                    {
+                                      state: {
+                                        from: "containerDetails",
+                                        idContainer: containerId,
+                                      },
+                                    },
+                                  );
+                                }}
+                                style={{
+                                  padding: "6px 8px",
+                                  borderRadius: "4px",
+                                  transition: "background 0.2s ease",
+                                }}
+                                onMouseEnter={(e) => (
+                                  (e.currentTarget.style.backgroundColor =
+                                    "var(--upagain-neutral-green)"),
+                                  (e.currentTarget.style.color =
+                                    "var(--text-color)")
+                                )}
+                                onMouseLeave={(e) =>
+                                  (e.currentTarget.style.backgroundColor =
+                                    "transparent")
+                                }
+                              >
+                                <Group gap="xs" wrap="nowrap">
+                                  <Text size="sm" truncate>
+                                    {task.type === "user"
+                                      ? t("containers.details.drop_off")
+                                      : t("containers.details.pick_up")}
+                                    {task.deposit_title}
+                                  </Text>
+                                </Group>
+                              </UnstyledButton>
+                            ))}
+                          </Stack>
+                        </Stack>
+                      </HoverCard.Dropdown>
+                    </HoverCard>
+                  );
+                }}
+              />
+            </Box>
+          )}
+        </Center>
       </Modal>
     </Container>
   );

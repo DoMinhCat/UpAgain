@@ -1,29 +1,30 @@
 import { notifications } from "@mantine/notifications";
+import type { AxiosError } from "axios";
+import type { ApiErrorData } from "../../api/axios";
+import i18n from "i18next";
 
 const autoCloseDuration = 5000;
+
 export const showErrorNotification = (
-  title = "Error",
+  title: string = "Error",
   errorMessage?: string,
-  error?: any,
+  error?: string | AxiosError<ApiErrorData>,
 ) => {
-  // default message is "An unexpected error occurred."
-  let message = "An unexpected error occurred.";
+  let message: string | Error;
+  message = "An unexpected error occurred.";
 
   if (error) {
     if (typeof error === "string") {
       message = error;
-    } else if (error?.response?.data) {
+    } else if (error.response?.data) {
       const data = error.response.data;
+
       if (typeof data === "string") {
         message = data;
-      } else if (typeof data === "object" && data.message) {
-        message = data.message;
-      } else if (typeof data === "object" && data.error) {
-        message = data.error;
       } else {
-        message = errorMessage || message;
+        message = data.message || data.error || errorMessage || message;
       }
-    } else if (error?.message) {
+    } else if (error.message) {
       message = error.message;
     } else {
       message = errorMessage || message;
@@ -32,31 +33,26 @@ export const showErrorNotification = (
     message = errorMessage;
   }
 
+  const translatedTitle = i18n.t(title, { defaultValue: title });
+  const translatedMessage = i18n.t(message.toString(), {
+    defaultValue: message.toString(),
+  });
+
   notifications.show({
-    title: title,
-    message: message,
+    title: translatedTitle,
+    message: translatedMessage,
     color: "red",
     autoClose: autoCloseDuration,
-    styles: {
-      root: {
-        border: "1px solid var(--border-color)",
-        borderRadius: "var(--mantine-radius-md)",
-        padding: "var(--mantine-spacing-lg)",
-        boxShadow: "var(--mantine-shadow-lg)",
-
-        "&::before": {
-          backgroundColor: "var(--mantine-color-red-6)",
-        },
-      },
-    },
   });
 };
 
 export const showInfoNotification = (title = "Info", message: string) => {
-  // default title is "Info" if not provided any title
+  const translatedTitle = i18n.t(title, { defaultValue: title });
+  const translatedMessage = i18n.t(message, { defaultValue: message });
+
   notifications.show({
-    title: title,
-    message: message,
+    title: translatedTitle,
+    message: translatedMessage,
     color: "blue",
     autoClose: autoCloseDuration,
     styles: {
@@ -75,10 +71,12 @@ export const showInfoNotification = (title = "Info", message: string) => {
 };
 
 export const showSuccessNotification = (title = "Success", message: string) => {
-  // default title is "Success" if not provided any title
+  const translatedTitle = i18n.t(title, { defaultValue: title });
+  const translatedMessage = i18n.t(message, { defaultValue: message });
+
   notifications.show({
-    title: title,
-    message: message,
+    title: translatedTitle,
+    message: translatedMessage,
     color: "green",
     autoClose: autoCloseDuration,
     styles: {
@@ -89,7 +87,7 @@ export const showSuccessNotification = (title = "Success", message: string) => {
         boxShadow: "var(--mantine-shadow-lg)",
 
         "&::before": {
-          backgroundColor: "var(--mantine-color-green-6)",
+          backgroundColor: "var(--upagain-neutral-green)",
         },
       },
     },

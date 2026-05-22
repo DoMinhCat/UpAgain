@@ -1,0 +1,82 @@
+{
+  "actions": {
+    "update": "Cập nhật",
+    "summary": "Tóm tắt",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "search": "Tìm kiếm"
+  },
+  "materials": {
+    "all": "Tất cả vật liệu",
+    "wood": "Gỗ",
+    "metal": "Kim loại",
+    "textile": "Vải",
+    "glass": "Thủy tinh",
+    "plastic": "Nhựa",
+    "mixed": "Hỗn hợp",
+    "other": "Khác"
+  },
+  "states": {
+    "new": "Mới",
+    "very_good": "Rất tốt",
+    "good": "Tốt",
+    "need_repair": "Cần sửa chữa"
+  },
+  "status": {
+    "all": "Tất cả trạng thái",
+    "pending": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "refused": "Từ chối",
+    "reserved": "Đã đặt",
+    "sold": "Đã bán",
+    "to_drop_off": "Chờ gửi hàng",
+    "bought": "Đã mua",
+    "to_retrieve": "Chờ nhận hàng"
+  },
+  "categories": {
+    "all": "Tất cả danh mục",
+    "listing": "Tin đăng",
+    "deposit": "Ký gửi"
+  },
+  "units": {
+    "kg": "kg"
+  },
+  "notifications": {
+    "error": "Lỗi",
+    "success": "Thành công"
+  },
+  "free": "Miễn phí",
+  "not_set": "Chưa đặt",
+  "sort_by": "Sắp xếp theo",
+  "type": "Loại",
+  "pagination": {
+    "showing": "Đang hiển thị",
+    "of": "trong tổng số",
+    "results_one": "kết quả",
+    "results_other": "kết quả",
+    "items_one": "món đồ",
+    "items_other": "món đồ",
+    "transactions_one": "giao dịch",
+    "transactions_other": "giao dịch"
+  },
+  "time": {
+    "just_now": "Vừa xong",
+    "minutes_ago_other": "{{count}} phút trước",
+    "hours_ago_other": "{{count}} giờ trước",
+    "yesterday": "Hôm qua",
+    "days_ago_other": "{{count}} ngày trước"
+  },
+  "footer": {
+    "description": "Mang lại cuộc đời thứ hai cho các món đồ của bạn. Phương thức trao đổi và tái chế tài nguyên đơn giản và thân thiện với môi trường.",
+    "explore": "Khám phá",
+    "browse_objects": "Xem các món đồ",
+    "smart_deposits": "Ký gửi thông minh",
+    "community_articles": "Bài viết cộng đồng",
+    "contact": "Liên hệ",
+    "address": "Số 123 Đường Sinh Thái, Paris, Pháp",
+    "legal": "Pháp lý",
+    "terms_conditions": "Điều khoản & Điều kiện",
+    "privacy_policy": "Chính sách Bảo mật",
+    "rights_reserved": "© {{year}} UpAgain. Bảo lưu mọi quyền."
+  }
+}

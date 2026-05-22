@@ -10,9 +10,9 @@ import (
 func CreatePro(newAccount models.CreateAccountRequest, insertedId int) error {
 	var err error
 	if newAccount.Phone != "" {
-		_, err = utils.Conn.Exec("INSERT INTO pros(id_account, phone) VALUES ($1, $2);", insertedId, newAccount.Phone)
+		_, err = utils.Conn.Exec("INSERT INTO pros(id_account, phone, is_premium) VALUES ($1, $2, $3);", insertedId, newAccount.Phone, newAccount.IsPremium)
 	} else {
-		_, err = utils.Conn.Exec("INSERT INTO pros(id_account) VALUES ($1);", insertedId)
+		_, err = utils.Conn.Exec("INSERT INTO pros(id_account, is_premium) VALUES ($1, $2);", insertedId, newAccount.IsPremium)
 	}
 	if err != nil {
 		err = DeleteAccount(insertedId)
@@ -20,6 +20,18 @@ func CreatePro(newAccount models.CreateAccountRequest, insertedId int) error {
 			return fmt.Errorf("error rolling back after failed insertion into 'pros': %w", err)
 		}
 		return fmt.Errorf("CreatePro() failed: %w", err)
+	}
+
+	//if premium, create a subscription
+	if *newAccount.IsPremium {
+		err = CreateSubscription(insertedId, *newAccount.IsTrial)
+		if err != nil {
+			err = DeleteAccount(insertedId)
+			if err != nil {
+				return fmt.Errorf("error rolling back after failed insertion into 'subscriptions': %w", err)
+			}
+			return fmt.Errorf("CreatePro() failed: %w", err)
+		}
 	}
 	return nil
 }
@@ -77,30 +89,30 @@ func GetProStatsById(id int) (models.ProStats, error) {
 	return stats, nil
 }
 
-func GetProTotalSpendingsById(id int) (int, error) {
-	total := 0
+func GetProTotalSpendingsById(id int) (float64, error) {
+	total := 0.0
 
 	subscription_total, err := GetTotalSubscriptionSpendingsById(id)
 	if err != nil {
-		return 0, fmt.Errorf("GetProTotalSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetProTotalSpendingsById() failed: %v", err.Error())
 	}
 	total += subscription_total
 
 	ads_total, err := GetTotalAdsSpendingsById(id)
 	if err != nil {
-		return 0, fmt.Errorf("GetProTotalSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetProTotalSpendingsById() failed: %v", err.Error())
 	}
 	total += ads_total
 
 	items_total, err := GetProTotalItemsSpendingsById(id)
 	if err != nil {
-		return 0, fmt.Errorf("GetProTotalSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetProTotalSpendingsById() failed: %v", err.Error())
 	}
 	total += items_total
 
 	events_total, err := GetTotalEventSpendingsById(id)
 	if err != nil {
-		return 0, fmt.Errorf("GetProTotalSpendingsById() failed: %v", err.Error())
+		return 0.0, fmt.Errorf("GetProTotalSpendingsById() failed: %v", err.Error())
 	}
 	total += events_total
 	return total, nil

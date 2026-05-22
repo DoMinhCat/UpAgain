@@ -1,7 +1,9 @@
 package db
 
 import (
+	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 )
 
@@ -31,4 +33,162 @@ func CheckEventHasParticipant(id_event int) (bool, error) {
 		return false, fmt.Errorf("CheckEventHasParticipant() failed: %v", err.Error())
 	}
 	return exists, nil
+}
+
+func GetAttendeesByEventId(id_event int) ([]models.Account, error) {
+	var attendees []models.Account
+	query := `
+		SELECT a.id, a.username, a.avatar
+		FROM event_registrations er
+		JOIN accounts a ON er.id_account=a.id
+		WHERE er.id_event=$1 and (er.status='registered' OR er.status='attended');
+	`
+	rows, err := utils.Conn.Query(query, id_event)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []models.Account{}, nil
+		}
+		return nil, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var attendee models.Account
+		err := rows.Scan(&attendee.Id, &attendee.Username, &attendee.Avatar)
+		if err != nil {
+			return nil, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
+		}
+		attendees = append(attendees, attendee)
+	}
+	return attendees, nil
+}
+
+func InsertEventRegistration(id_account int, event models.Event) error {
+	query := `
+		INSERT INTO event_registrations (id_account, id_event, paid_price)
+		VALUES ($1, $2, $3);
+	`
+	var paidPrice float64
+	if event.Price.Valid && event.Price.Float64 > 0 {
+		paidPrice = event.Price.Float64
+	} else {
+		paidPrice = 0.0
+	}
+	_, err := utils.Conn.Exec(query, id_account, event.Id, paidPrice)
+	if err != nil {
+		// try update
+		err = UpdateEventRegistrationStatus(id_account, event.Id, "registered")
+		if err != nil {
+			return fmt.Errorf("InsertEventRegistration() failed: %v", err.Error())
+		}
+	}
+	return nil
+}
+
+func CheckUserRegisteredToEvent(id_account int, id_event int) (bool, error) {
+	var exists bool
+	query := `
+		SELECT EXISTS(SELECT 1 FROM event_registrations WHERE id_account=$1 AND id_event=$2 AND status='registered');
+	`
+	err := utils.Conn.QueryRow(query, id_account, id_event).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("CheckUserRegisteredToEvent() failed: %v", err.Error())
+	}
+	return exists, nil
+}
+
+func UpdateEventRegistrationStatus(id_account int, id_event int, status string) error {
+	if status != "registered" && status != "cancelled" && status != "attended" {
+		return fmt.Errorf("invalid status: %s", status)
+	}
+	query := `
+		UPDATE event_registrations SET status=$1 WHERE id_account=$2 AND id_event=$3;
+	`
+	_, err := utils.Conn.Exec(query, status, id_account, id_event)
+	if err != nil {
+		return fmt.Errorf("UpdateEventRegistrationStatus() failed: %v", err.Error())
+	}
+	return nil
+}
+
+func GetEventRegistrationsByAccountId(id_account int) ([]models.Event, error) {
+	var events []models.Event
+	query := `
+		SELECT 
+    e.id AS event_id, 
+    e.created_at, 
+    e.title, 
+    e.description, 
+    e.start_at, 
+    e.end_at, 
+    e.price, 
+    e.category, 
+    e.capacity, 
+    e.status, 
+    e.city, 
+    e.street, 
+    e.postal_code,
+    e.location_detail, 
+    a.username AS creator_username, 
+    a.avatar AS creator_avatar, 
+    a.id AS creator_id,
+    -- Total people registered for this event
+    (SELECT count(*) 
+     FROM event_registrations er2 
+     WHERE er2.id_event = e.id 
+       AND er2.status != 'cancelled') AS total_registered
+FROM event_registrations er
+JOIN events e ON er.id_event = e.id
+JOIN accounts a ON e.created_by = a.id
+WHERE er.id_account = $1
+  AND er.status != 'cancelled'
+  AND e.status = 'approved'
+ORDER BY e.start_at ASC;
+	`
+	rows, err := utils.Conn.Query(query, id_account)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []models.Event{}, nil
+		}
+		return nil, fmt.Errorf("GetEventRegistrationsByAccountId() failed: %v", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event models.Event
+		var currentEventId int
+		err := rows.Scan(
+			&event.Id,
+			&event.CreatedAt,
+			&event.Title,
+			&event.Description,
+			&event.StartAt,
+			&event.EndAt,
+			&event.Price,
+			&event.Category,
+			&event.Capacity,
+			&event.Status,
+			&event.City,
+			&event.Street,
+			&event.PostalCode,
+			&event.LocationDetail,
+			&event.EmployeeName,
+			&event.EmployeeAvatar,
+			&event.EmployeeId,
+			&event.Registered,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("GetEventRegistrationsByAccountId() failed: %v", err.Error())
+		}
+
+		// get photos
+		currentEventId = event.Id
+		photos, err := GetPhotosPathsByObjectId(currentEventId, "event")
+		if err != nil {
+			return events, fmt.Errorf("GetPhotosPathsByObjectId() failed: %v", err.Error())
+		}
+		event.Images = photos
+		events = append(events, event)
+	}
+	return events, nil
 }
