@@ -1058,6 +1058,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			Id:            insertedTxId,
 			IdTransaction: txUuid,
 			UserType:      "u",
+			IdAccount:     sellerId,
 		})
 		if err != nil {
 			slog.Error("GenerateAndSaveBarcode() failed", "controller", "PurchaseItem", "error", err)

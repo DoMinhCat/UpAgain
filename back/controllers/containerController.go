@@ -675,11 +675,11 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id 
 
 	receivedBarcode := false
-	var dbCode models.Barcode
 	if payload.Code6Digit != "" {
 		receivedBarcode = true
 	}
-
+	
+	var dbCode models.Barcode
 	if receivedBarcode == false {
 		// check if 6 digit code is correct and valid
 		dbCode, err	= db.GetCodeBy6DigitCode(payload.Code6Digit)
@@ -710,10 +710,10 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 		// user dropped object
 		newContainerStatus = "occupied"
 
-		// create code for pro
-		tx, err := db.GetLatestTransactionOfPro(idRequestor, dbCode.IdDeposit)
+		// get pro id by id transaction (uuid)
+		tx, err := db.GetLatestTransactionByUuid(dbCode.IdTransaction)
 		if tx.Id == 0 {
-			utils.RespondWithError(w, http.StatusBadRequest, "No transaction found for this item you just retrieved.")
+			utils.RespondWithError(w, http.StatusBadRequest, "No transaction found for the item you just retrieved.")
 			return
 		}
 		if err != nil {
@@ -721,11 +721,13 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching transaction.")
 			return
 		}
+		// create code for pro
 		code6digit := helpers.GenerateRandom6CharCode()
 		barcodePath, err := helpers.GenerateAndSaveBarcode(models.BarCodeData{
 			Id:            tx.Id,
 			IdTransaction: tx.IdTransaction,
 			UserType:      "p",
+			IdAccount:     tx.IdPro,
 		})
 		if err != nil {
 			slog.Error("GenerateAndSaveBarcode() failed", "controller", "OpenContainer", "error", err)

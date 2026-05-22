@@ -202,6 +202,28 @@ func GetLatestTransactionOfPro(idPro int, idItem int) (models.Transaction, error
 	return transaction, nil
 }
 
+func GetLatestTransactionByUuid(uuid string) (models.Transaction, error) {
+	var transaction models.Transaction
+	query := `
+		SELECT t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username,
+		       t.reservation_expiry, t.item_price, t.commission_rate, t.total_price, t.confirm_code
+		FROM transactions t
+		JOIN accounts a on a.id = t.id_pro
+		WHERE t.id_transaction = $1
+		ORDER BY t.created_at desc
+		LIMIT 1
+	`
+	err := utils.Conn.QueryRow(query, uuid).Scan(&transaction.Id, &transaction.IdTransaction, &transaction.CreatedAt, &transaction.Action, &transaction.IdItem, &transaction.IdPro, &transaction.UsernamePro,
+		&transaction.ReservationExpiry, &transaction.ItemPrice, &transaction.CommissionRate, &transaction.TotalPrice, &transaction.ConfirmCode)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return transaction, nil
+		}
+		return transaction, fmt.Errorf("GetLatestTransactionByUuid() failed: %v", err.Error())
+	}
+	return transaction, nil
+}
+
 func GetTotalTransactionsByItemId(itemId int) (int, error) {
 	var total int
 	query := `select count(*) from transactions t where t.id_item = $1`
