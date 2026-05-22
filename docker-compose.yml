@@ -1,18 +1,33 @@
 services:
-  back:
-    image: back:v1.0.0
+  upcycle-back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
     container_name: upcycle-back
     restart: always
+    environment:
+      - APP_ENV=production
     volumes:
-      - /mnt/truenas-web/back/.env:/root/.env
-
-  front:
-    image: front:v1.0.0
+      - /mnt/truenas-web/back/.env.production:/root/.env.production
+      - /mnt/truenas-web/back/.env.production:/root/.env.development
+    working_dir: /root
+  upcycle-front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
     container_name: upcycle-front
     restart: always
     ports:
       - "80:80"
-    volumes:
-      - /mnt/truenas-web/front:/usr/share/nginx/html
     depends_on:
-      - back
+      - upcycle-back
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: always
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel run
+    depends_on:
+      - upcycle-front

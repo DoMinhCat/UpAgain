@@ -89,11 +89,6 @@ func SoftDeleteContainer(id int) error {
 	return err
 }
 
-// return total count of containers by status
-//
-// Available status: "active" => ("occupied" or "ready") and not deleted, "occupied", "maintenance", "ready", "deleted"
-//
-// return total of all records if status is nil
 func GetContainerCountByStatus(status *string) (int, error) {
 	var count int
 	param := ""
@@ -101,7 +96,7 @@ func GetContainerCountByStatus(status *string) (int, error) {
 	if status != nil {
 		switch *status {
 		case "active":
-			param = "WHERE (status='occupied' or status='ready') and is_deleted=false"
+			param = "WHERE (status='occupied' or status='ready' or status='waiting') and is_deleted=false"
 		case "occupied":
 			param = "WHERE status='occupied' and is_deleted=false"
 		case "maintenance":
@@ -125,7 +120,7 @@ func GetContainerCountByStatus(status *string) (int, error) {
 func InsertContainer(c models.Container) (int, error) {
 	var newId int
 	query := `INSERT INTO containers (city_name, postal_code, street, status, is_deleted, created_at, lat, lng)
-              VALUES ($1, $2, $3, $4, false, NOW(), $5, $6) RETURNING id`
+		  VALUES ($1, $2, $3, $4, false, NOW(), $5, $6) RETURNING id`
 
 	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, c.Street, "ready", c.Lat, c.Lng).Scan(&newId)
 
@@ -192,14 +187,11 @@ func UpdateLocationContainer(id int, payload models.UpdateLocationRequest) error
 	return err
 }
 
-// GetContainerScheduleById returns list of: deposit id, deposit title, date range of barcodes for that deposit (user code and pro code)
 func GetContainerScheduleByContainerId(id int) (models.ContainerSchedule, error) {
 	var result models.ContainerSchedule
 	var userRange []models.ContainerScheduleItem
 	var proRange []models.ContainerScheduleItem
-	// get 2 schedules : 1 for user codes, 1 for pro codes
 
-	// user codes
 	query := `
 	SELECT 
 		d.id_item AS deposit_id, i.title AS deposit_title,
@@ -226,7 +218,6 @@ func GetContainerScheduleByContainerId(id int) (models.ContainerSchedule, error)
 		userRange = append(userRange, c)
 	}
 
-	// pro codes
 	query = `
 	SELECT 
 		d.id_item AS deposit_id, i.title AS deposit_title,
