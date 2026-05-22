@@ -10,7 +10,7 @@ func GetItemRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /items/{item_id}/reserve", middleware.AuthMiddleware([]string{"user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ReserveItem))))
 	mux.Handle("POST /items/{item_id}/purchase", middleware.AuthMiddleware([]string{"user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.PurchaseItem))))
 	mux.Handle("POST /items/{item_id}/cancel", middleware.AuthMiddleware([]string{"user", "admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CancelItemReservation))))
-	mux.Handle("POST /items/{item_id}/transactions/{transaction_uuid}/cancel", middleware.AuthMiddleware([]string{"admin", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CancelTransaction))))
+	// mux.Handle("POST /items/{item_id}/transactions/{transaction_uuid}/cancel", middleware.AuthMiddleware([]string{"admin", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CancelTransaction))))
 
 	mux.Handle("GET /items", middleware.AuthMiddleware([]string{"admin", "user", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAllItems))))
 	mux.Handle("GET /items/count", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAllItemsStats))))

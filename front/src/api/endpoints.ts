@@ -84,8 +84,6 @@ export const ENDPOINTS = {
       DETAILS: (id_item: number) => `/items/${id_item}`,
       TRANSACTIONS: (id_item: number) => `/items/${id_item}/transactions`,
       CANCEL_RESERVATION: (id_item: number) => `/items/${id_item}/cancel`,
-      CANCEL_TRANSACTION: (id_item: number, transactionUuid: string) =>
-        `/items/${id_item}/transactions/${transactionUuid}/cancel`,
     },
     SUBSCRIPTIONS: {
       ALL: "/subscriptions",
@@ -133,6 +131,7 @@ export const ENDPOINTS = {
   },
 
   USER: {
+    GLOBAL_IMPACT: "/users/impact/global/",
     POSTS: {
       ALL: "/posts",
       DETAILS: (id_post: number) => `/posts/${id_post}`,

@@ -82,6 +82,47 @@ func GetTotalScore() (models.TotalScoreStats, error) {
 	return totalScoreStats, nil
 }
 
+func GetGlobalImpactStats() (models.UserImpactStats, error) {
+	rows, err := utils.Conn.Query(`
+		SELECT material::text, SUM(weight)
+		FROM items
+		WHERE status = 'completed' AND is_deleted = false
+		GROUP BY material
+	`)
+	if err != nil {
+		return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() query failed: %w", err)
+	}
+	defer rows.Close()
+
+	var stats models.UserImpactStats
+	for rows.Next() {
+		var material string
+		var totalWeight float64
+		if err := rows.Scan(&material, &totalWeight); err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() scan failed: %w", err)
+		}
+		co2, err := helpers.CalculateCO2(material, totalWeight)
+		if err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() CalculateCO2 failed: %w", err)
+		}
+		electricity, err := helpers.CalculateElectricitySaved(material, totalWeight)
+		if err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() CalculateElectricitySaved failed: %w", err)
+		}
+		water, err := helpers.CalculateWaterSaved(material, totalWeight)
+		if err != nil {
+			return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() CalculateWaterSaved failed: %w", err)
+		}
+		stats.CO2 += co2
+		stats.Electricity += electricity
+		stats.Water += water
+	}
+	if err := rows.Err(); err != nil {
+		return models.UserImpactStats{}, fmt.Errorf("GetGlobalImpactStats() rows error: %w", err)
+	}
+	return stats, nil
+}
+
 func GetUserImpactStats(idAccount int) (models.UserImpactStats, error) {
 	rows, err := utils.Conn.Query(`
 		SELECT material::text, SUM(weight)
