@@ -126,7 +126,7 @@ func GetCodeBy6DigitCode(code6digit string) (models.Barcode, error) {
 	JOIN deposits d ON c.id_deposit = d.id_item
 	WHERE c.code = $1
 	`
-	err := utils.Conn.QueryRow(query, code).Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction, &code.IdContainer)
+	err := utils.Conn.QueryRow(query, code6digit).Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction, &code.IdContainer)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return models.Barcode{}, nil
@@ -136,14 +136,14 @@ func GetCodeBy6DigitCode(code6digit string) (models.Barcode, error) {
 	return code, nil
 }
 
-func UpdateCodeStatusBy6DigitCode(code string, status string) error {
+func UpdateCodeStatusBy6DigitCode(code6digit string, status string) error {
 	if !slices.Contains(CODE_STATUS, status) {
 		return fmt.Errorf("Invalid status: %s", status)
 	}
 	query := `
 	UPDATE barcodes SET status = $1 WHERE code = $2
 	`
-	_, err := utils.Conn.Exec(query, status, code)
+	_, err := utils.Conn.Exec(query, status, code6digit)
 	if err != nil {
 		return fmt.Errorf("UpdateCodeStatus() failed: %v", err)
 	}
