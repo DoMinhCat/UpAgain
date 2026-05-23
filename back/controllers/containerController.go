@@ -723,7 +723,7 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		depositId, err := strconv.Atoi(parts[0])
+		txRowId, err := strconv.Atoi(parts[0])
 		if err != nil {
 			slog.Error("Invalid deposit ID in barcode", "controller", "OpenContainer", "id", parts[0], "error", err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid barcode.")
@@ -737,7 +737,14 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		dbCode, err = db.GetCodeByDepositIdAndAccountId(depositId, accountId)
+		// get deposit ID based on txRowId
+		tx, err := db.GetTransactionByRowId(txRowId)
+		if err != nil {
+			slog.Error("GetTransactionByRowId() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while verifying barcode.")
+			return
+		}
+		dbCode, err = db.GetCodeByDepositIdAndAccountId(tx.IdItem, accountId)
 		if err != nil {
 			slog.Error("GetCodeByDepositIdAndAccountId() failed", "controller", "OpenContainer", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while verifying barcode.")
