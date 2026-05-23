@@ -97,3 +97,27 @@ export const getNearestContainer = async (
   });
   return response.data;
 };
+
+export const openContainer = async (
+  id: number,
+  payload: { code6digit?: string; barcode?: File },
+) => {
+  const formData = new FormData();
+  if (payload.code6digit) {
+    formData.append("code6digit", payload.code6digit);
+  }
+  if (payload.barcode) {
+    formData.append("barcode", payload.barcode);
+  }
+
+  const response = await api.post(
+    ENDPOINTS.ADMIN.CONTAINERS.OPEN(id),
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+  return response.data;
+};

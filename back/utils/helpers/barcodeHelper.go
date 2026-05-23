@@ -4,11 +4,14 @@ import (
 	"backend/models"
 	"encoding/base64"
 	"fmt"
+	"image"
+	_ "image/jpeg"
 	"image/png"
 	"io"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/makiuchi-d/gozxing"
@@ -62,6 +65,9 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 func EncodeBarcodeToBase64(filepath string) (string, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
+		if strings.Contains(err.Error(), "The system cannot find the file specified"){
+			return "", nil
+		}
 		return "", fmt.Errorf("failed to open file: %v", err)
 	}
 	defer file.Close()
@@ -71,4 +77,42 @@ func EncodeBarcodeToBase64(filepath string) (string, error) {
 		return "", fmt.Errorf("failed to read file: %v", err)
 	}
 	return base64.StdEncoding.EncodeToString(data), nil	
+}
+
+func IsCodeValid(idUser int, idContainer int, code models.Barcode) bool {
+	if code.IdAccount != idUser {
+		return false
+	}
+	if code.IdContainer != idContainer {
+		return false
+	}
+	if code.Status != "active" {
+		return false
+	}
+	if code.ValidTo.Before(time.Now()) || code.ValidFrom.After(time.Now()) {
+		return false
+	}
+	return true
+}
+
+// DecodeBarcode decodes a barcode from the given image reader.
+func DecodeBarcode(imgReader io.Reader) (string, error) {
+	img, _, err := image.Decode(imgReader)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode image: %v", err)
+	}
+
+	bmp, err := gozxing.NewBinaryBitmapFromImage(img)
+	if err != nil {
+		return "", fmt.Errorf("failed to create binary bitmap: %v", err)
+	}
+
+	// Try reading as Code 128 (our generated barcode format)
+	reader := oned.NewCode128Reader()
+	result, err := reader.Decode(bmp, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode barcode: %v", err)
+	}
+
+	return result.GetText(), nil
 }
