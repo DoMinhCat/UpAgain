@@ -40,3 +40,8 @@ export interface ContainerListPagination {
 export interface ContainerEarliestAvailability {
   earliest_availability: string;
 }
+
+export interface OpenContainerPayload {
+  code6digit?: string;
+  barcode?: File;
+}

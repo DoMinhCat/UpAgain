@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"fmt"
 	"log/slog"
+	"slices"
 )
 
 func GetAllContainers(page int, limit int, filters models.ContainerFilters) ([]models.Container, int, error) {
@@ -78,6 +79,9 @@ func FindContainerByID(id int) (models.Container, error) {
 }
 
 func UpdateStatusContainer(id int, status string) error {
+	if !slices.Contains(CONTAINER_STATUS, status) {
+		return fmt.Errorf("Invalid status: %s", status)
+	}
 	query := `UPDATE containers SET status = $1 WHERE id = $2`
 	_, err := utils.Conn.Exec(query, status, id)
 	return err
