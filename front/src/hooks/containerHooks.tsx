@@ -11,12 +11,14 @@ import {
   getContainerSchedule,
   getContainerEarliestAvailability,
   getNearestContainer,
+  openContainer,
 } from "../api/containerModule";
 import {
   type ContainerCountStats,
   type Container,
   type ContainerSchedule,
   type ContainerEarliestAvailability,
+  type OpenContainerPayload,
 } from "../api/interfaces/container";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 import type { Coordinates } from "../api/interfaces/location";
@@ -216,5 +218,33 @@ export const useGetNearestContainer = (
       errorMessage: "marketplace:notifications.fetch_nearest_error",
     },
     staleTime: 1000 * 60 * 5, // refresh data every 5m
+  });
+};
+
+export const useOpenContainer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: OpenContainerPayload;
+    }) => openContainer(id, payload),
+    meta: {
+      errorTitle: "marketplace:notifications.open_container_error",
+      errorMessage: "marketplace:notifications.open_container_error",
+    },
+    onSuccess: (_data, variables) => {
+      showSuccessNotification(
+        "marketplace:open_container.success_title",
+        "marketplace:open_container.success_desc",
+      );
+      queryClient.invalidateQueries({ queryKey: ["containers"] });
+      queryClient.invalidateQueries({
+        queryKey: ["containerDetails", variables.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+    },
   });
 };
