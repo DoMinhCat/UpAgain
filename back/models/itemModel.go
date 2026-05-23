@@ -78,3 +78,8 @@ type ItemAdminStats struct {
 type ItemStatusUpdateRequest struct {
 	Status string `json:"status"`
 }
+
+type ItemPurchaseRequest struct {
+	OriginUrl string `json:"origin_url"`
+	Paid      bool   `json:"paid"`
+}

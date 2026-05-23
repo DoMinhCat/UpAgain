@@ -37,7 +37,7 @@ import { PATHS } from "../../routes/paths";
 import PostCard from "../../components/post/PostCard";
 import { EventCard } from "../../components/event/EventCard";
 import { DashboardCard } from "../../components/dashboard/DashboardCard";
-import { useHandleStripeEventRegistration } from "../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../hooks/stripeHooks";
 
 const WATER_MAX_L = 1000;
 const ELECTRICITY_MAX_KWH = 100;
@@ -64,7 +64,7 @@ export default function UserHome() {
   const scheme = useComputedColorScheme("light");
   const { user } = useAuth();
 
-  useHandleStripeEventRegistration();
+  useHandleVerifyStripeEventRegistration();
 
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);

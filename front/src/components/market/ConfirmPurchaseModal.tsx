@@ -12,6 +12,7 @@ interface ConfirmPurchaseModalProps {
   itemTitle?: string;
   price?: number;
   title?: string;
+  isVerifying: boolean;
 }
 
 export function ConfirmPurchaseModal({
@@ -21,21 +22,47 @@ export function ConfirmPurchaseModal({
   itemTitle,
   price,
   title,
+  isVerifying,
 }: ConfirmPurchaseModalProps) {
   const { t } = useTranslation(["marketplace", "common"]);
   const purchaseMutation = usePurchaseItem(idItem);
   const navigate = useNavigate();
 
   const handleConfirm = () => {
-    purchaseMutation.mutate(undefined, {
-      onSuccess: () => {
-        onClose();
-        navigate(PATHS.MARKETPLACE.ME + "/" + idItem);
-      },
-      onError: () => {
-        onClose();
-      },
-    });
+    // not free
+    if (price && price > 0) {
+      purchaseMutation.mutate(
+        {
+          origin_url: window.location.origin + window.location.pathname,
+        },
+        {
+          onSuccess: (data) => {
+            onClose();
+            if (data.checkout_url && data.checkout_url != "") {
+              // 1st phase: checkout to stripe
+              window.location.href = data.checkout_url;
+            }
+          },
+          onError: () => {
+            onClose();
+          },
+        },
+      );
+    } else {
+      // free
+      purchaseMutation.mutate(
+        {},
+        {
+          onSuccess: () => {
+            onClose();
+            navigate(PATHS.MARKETPLACE.ME + "/" + idItem);
+          },
+          onError: () => {
+            onClose();
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -91,7 +118,7 @@ export function ConfirmPurchaseModal({
           </Button>
           <Button
             variant="cta-reverse"
-            loading={purchaseMutation.isPending}
+            loading={purchaseMutation.isPending || isVerifying}
             onClick={handleConfirm}
             radius="md"
           >

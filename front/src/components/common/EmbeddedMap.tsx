@@ -31,7 +31,6 @@ interface EmbeddedMapProps {
   centerOnId?: number | null;
   /** Callback fired when a marker is clicked */
   onMarkerClick?: (id: number) => void;
-  /** Map container height — accepts any CSS value */
   height?: string | number;
   /** Default zoom level when showing a single location */
   zoom?: number;
@@ -211,6 +210,9 @@ export default function EmbeddedMap({
   });
 
   const apiKey = import.meta.env.VITE_JS_MAP_API;
+  if (apiKey == "") {
+    console.log("No API key for Google Map JS");
+  }
 
   // Fallback if API key is missing
   if (!apiKey) {

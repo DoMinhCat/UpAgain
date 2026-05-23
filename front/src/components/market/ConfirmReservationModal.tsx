@@ -26,6 +26,9 @@ export const ConfirmReservationModal = ({
       onSuccess: () => {
         onClose();
       },
+      onError: () => {
+        onClose();
+      },
     });
   };
 

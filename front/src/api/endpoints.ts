@@ -22,6 +22,7 @@ export const ENDPOINTS = {
         `/containers/${id_container}/schedule`,
       EARLIEST: (id: number) => `/containers/${id}/earliest`,
       NEAREST: "/containers/nearest",
+      OPEN: (id: number) => `/containers/${id}/open`,
     },
 
     FINANCE: {
@@ -46,8 +47,7 @@ export const ENDPOINTS = {
       ALL: "/events",
       STATS: "/events/count",
       ASSIGN: (id_event: number) => `/events/${id_event}/assign`,
-      ASSIGNED_EMPLOYEES: (id_event: number) =>
-        `/events/employees/${id_event}`,
+      ASSIGNED_EMPLOYEES: (id_event: number) => `/events/employees/${id_event}`,
       UNASSIGN: (id_event: number) => `/events/${id_event}/unassign`,
       CANCEL: (id_event: number) => `/events/${id_event}/status`,
       UPDATE: (id_event: number) => `/events/${id_event}/update`,
@@ -107,6 +107,7 @@ export const ENDPOINTS = {
     PURCHASE: (idItem: number) => `/items/${idItem}/purchase`,
     LATEST_TRANSACTION: (idItem: number) =>
       `/items/${idItem}/transactions/latest`,
+    CONFIRM: (idItem: number) => `/items/${idItem}/confirm`,
   },
 
   LISTINGS: {
@@ -131,7 +132,7 @@ export const ENDPOINTS = {
   },
 
   USER: {
-    GLOBAL_IMPACT: "/users/impact/global/",
+    GLOBAL_IMPACT: "/users/impact/global",
     POSTS: {
       ALL: "/posts",
       DETAILS: (id_post: number) => `/posts/${id_post}`,

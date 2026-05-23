@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   cancelItemReservation,
+  confirmItemRetrieval,
   createItem,
   deleteItem,
   getAllItems,
@@ -14,7 +15,11 @@ import {
   updateItemStatus,
 } from "../api/itemModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
-import type { CreateItemRequest } from "../api/interfaces/item";
+import type {
+  CreateItemRequest,
+  ItemPurchasePayload,
+} from "../api/interfaces/item";
+import type { ConfirmCodeRequest } from "../api/interfaces/barcode";
 const STALE_TIME = 60 * 1000;
 export const useGetAllItems = (
   page?: number,
@@ -27,9 +32,28 @@ export const useGetAllItems = (
   include_purchased?: boolean,
 ) => {
   return useQuery({
-    queryKey: ["items", page, limit, search, sort, status, material, category, include_purchased],
+    queryKey: [
+      "items",
+      page,
+      limit,
+      search,
+      sort,
+      status,
+      material,
+      category,
+      include_purchased,
+    ],
     queryFn: () =>
-      getAllItems(page, limit, search, sort, status, material, category, include_purchased),
+      getAllItems(
+        page,
+        limit,
+        search,
+        sort,
+        status,
+        material,
+        category,
+        include_purchased,
+      ),
     staleTime: STALE_TIME,
     meta: {
       errorTitle: "common:notifications.error",
@@ -220,7 +244,7 @@ export const useReserveItem = () => {
       queryClient.invalidateQueries({ queryKey: ["item-stats"] });
       queryClient.invalidateQueries({ queryKey: ["item-details", id] });
       queryClient.invalidateQueries({
-        queryKey: ["latest-transaction-of-pro", id],
+        queryKey: ["latest-transaction-of-pro"],
       });
       showSuccessNotification(
         "marketplace:notifications.reserve_success_title",
@@ -233,7 +257,7 @@ export const useReserveItem = () => {
 export const usePurchaseItem = (id: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => purchaseItem(id),
+    mutationFn: (payload: ItemPurchasePayload) => purchaseItem(id, payload),
     meta: {
       errorTitle: "Purchase failed",
       errorMessage: "Failed to purchase item, please try again later",
@@ -246,10 +270,29 @@ export const usePurchaseItem = (id: number) => {
       queryClient.invalidateQueries({
         queryKey: ["latest-transaction-of-pro", id],
       });
-      showSuccessNotification(
-        "Purchase success",
-        "Item purchased successfully",
-      );
+    },
+  });
+};
+
+export const useConfirmItemRetrieval = (id: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ConfirmCodeRequest) =>
+      confirmItemRetrieval(id, payload),
+    meta: {
+      errorTitle: "Retrieval confirmation failed",
+      errorMessage: "Failed to confirm item's retrieval",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["item-details", id] });
+      queryClient.invalidateQueries({ queryKey: ["my-items"] });
+      queryClient.invalidateQueries({
+        queryKey: ["latest-transaction-of-pro", id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["userImpactItems"] });
+      queryClient.invalidateQueries({ queryKey: ["userImpact"] });
+      showSuccessNotification("Retrieval confirmed", "You are all set");
     },
   });
 };
