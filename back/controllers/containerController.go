@@ -714,6 +714,7 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Failed to decode barcode image.")
 			return
 		}
+		slog.Debug("debug", "decoded text", decodedText)
 
 		parts := strings.Split(decodedText, "|")
 		if len(parts) != 3 {
@@ -787,7 +788,7 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			Code6Digit:    code6digit,
 			BarcodePath:   barcodePath,
 			UserType:      "pro",
-			IdAccount:     idRequestor,
+			IdAccount:     tx.IdPro,
 			IdDeposit:     dbCode.IdDeposit,
 			IdTransaction: tx.IdTransaction,
 			ValidFrom:     time.Now(), // pro can retrieve as soon as user dropped
