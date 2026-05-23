@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"fmt"
 	"log/slog"
+	"strconv"
 
 	"github.com/google/uuid"
 )
@@ -21,7 +22,8 @@ func HandleItemPurchasedNoti() {
 }
 
 // HandleDepositDroppedNoti sends push noti to pro to signifies that item is available in container for retrieval and save a record in DB
-func HandleDepositDroppedNoti() error {
+func HandleDepositDroppedNoti(payload HandleDepositDroppedNotiPayload) error {
+	// construct payload
 	apiPayload := NotificationRequest{
 		Headings: NotificationHeading{
 			En: "Item \"title of item\" ready for retrieval",
@@ -34,29 +36,39 @@ func HandleDepositDroppedNoti() error {
 			Vi: "Tieng Viet",
 		},
 		IncludeAliases: NotificationIncludeAliases{
-			ExternalIds: []string{"id1", "id2"},
+			ExternalIds: []string{strconv.Itoa(payload.ProId)},
 		},
-		ChromeWebImage: "path to item's thumbnail image (1st img)",
-	}
-	// TODO: call SendNotification
-	err := SendNotification(apiPayload)
-	if err != nil {
-		slog.Warn("Failed to send push notification via OneSignal API", "function", "HandleDepositDroppedNoti", "error", err.Error())
-		// failed to send push notification but still proceed 
-		// save to DB so that user is notified in their noti list
+		ChromeWebImage: payload.ItemThumbnailImg,
+		Url: payload.Url,
 	}
 
-	// TODO: save into DB
+	// send via SendNotification
+	err := SendNotification(apiPayload)
+	if err != nil {
+		// failed to send push notification but still attempt to save to DB so that user is notified in their noti list
+		slog.Warn("Failed to send push notification via OneSignal API", "function", "HandleDepositDroppedNoti", "error", err.Error())
+	}
+
+	// save into DB
 	dbPayload := models.NotificationInsert{
 		NotificationId: uuid.NewString(),
 		NotificationType: "pro_object_deposited",
 		EntityType: "item",
-		EntityId: 9999, // TODO: insert real item id
-		AccountId: 9999, // TODO: insert real pro id
+		EntityId: payload.ItemId, // TODO: insert real item id
+		AccountId: payload.ProId, // there is only 1 buyer
 	}
 	err = db.InsertNotification(dbPayload)
 	if err != nil {
 		return fmt.Errorf("failed to insert notification into DB: %w", err)
 	}
 	return nil
+}
+
+
+// payload structs for functions above
+type HandleDepositDroppedNotiPayload struct {
+	ItemId int
+	ProId int
+	ItemThumbnailImg string
+	Url string
 }
