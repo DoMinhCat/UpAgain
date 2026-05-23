@@ -393,8 +393,8 @@ export default function MyItemDetail() {
   }
 
   // deposit code helpers
-  const userDepositCode = depositCodes?.[0];
-  const proDepositCode = depositCodes?.[0];
+  const userDepositCode = depositCodes?.find((code) => code.user_type === "user");
+  const proDepositCode = depositCodes?.find((code) => code.user_type === "pro");
   // For pro, their code is the "pro" code; for user, it's the "user" code
   const myDepositCode: Barcode | undefined =
     role === "pro" ? proDepositCode : userDepositCode;
@@ -436,14 +436,46 @@ export default function MyItemDetail() {
               ) : myDepositCode &&
                 myDepositCode.code.length > 0 &&
                 myDepositCode.path.length > 0 ? (
-                <AccessCodeCard
-                  code={myDepositCode}
-                  label={t("admin:listings.details.buyer")}
-                  icon={<IconUserShield size={14} />}
-                  onDownload={() =>
-                    handleDownloadBarcode(myDepositCode.barcode_base64)
-                  }
-                />
+                <>
+                  <AccessCodeCard
+                    code={myDepositCode}
+                    label={t("admin:listings.details.buyer")}
+                    icon={<IconUserShield size={14} />}
+                    onDownload={() =>
+                      handleDownloadBarcode(myDepositCode.barcode_base64)
+                    }
+                  />
+                  {myDepositCode.status === "used" ? (
+                    <Alert
+                      icon={<IconCircleCheck size={16} />}
+                      color="teal"
+                      variant="light"
+                      mt="md"
+                    >
+                      {t("marketplace:my_item_detail.retrieved_from_container", {
+                        defaultValue: "You have retrieved this item from the container.",
+                      })}
+                    </Alert>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      mt="md"
+                      fullWidth
+                      onClick={() =>
+                        navigate(PATHS.CONTAINERS.OPEN, {
+                          state: {
+                            id_container: depositDetails?.container_id,
+                            item_title: item?.title,
+                            item_id: item?.id,
+                          },
+                        })
+                      }
+                    >
+                      {t("marketplace:open_container.open_now")}
+                    </Button>
+                  )}
+                </>
               ) : isPurchased ? (
                 <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
                   {t("marketplace:my_item_detail.waiting_for_dropoff")}
