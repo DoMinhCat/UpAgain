@@ -17,6 +17,10 @@ const (
 //
 // Should log error only and not block the whole operation/request
 func SendNotification(payload NotificationRequest) error {
+	// set default settings
+	payload.AppId = config.OnesignalAppId
+	payload.TargetChannel = "push"
+
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("SendNotification() JSON marshaling failed: %w", err)
