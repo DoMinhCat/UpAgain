@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/makiuchi-d/gozxing"
@@ -64,6 +65,9 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 func EncodeBarcodeToBase64(filepath string) (string, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
+		if strings.Contains(err.Error(), "The system cannot find the file specified"){
+			return "", nil
+		}
 		return "", fmt.Errorf("failed to open file: %v", err)
 	}
 	defer file.Close()
