@@ -403,7 +403,7 @@ export default function OpenContainerPage() {
 
                 <Button
                   size="md"
-                  color="blue"
+                  variant="primary"
                   fullWidth
                   mt="xl"
                   onClick={handleVerifyBarcode}
