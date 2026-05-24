@@ -43,7 +43,7 @@ export const deleteContainer = async (id: number) => {
 };
 
 export const getContainerDetails = async (id: number): Promise<Container> => {
-  const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}${id}/`);
+  const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}/${id}`);
   return response.data;
 };
 
