@@ -27,7 +27,7 @@ func CleanPathMiddleware(next http.Handler) http.Handler {
 
 		r.URL.Path = path
 
-		slog.Info("Path Cleaning", "method", r.Method, "from", oldPath, "to", path)
+		slog.Debug("Path Cleaning", "method", r.Method, "from", oldPath, "to", path)
 
 		next.ServeHTTP(w, r)
 	})
