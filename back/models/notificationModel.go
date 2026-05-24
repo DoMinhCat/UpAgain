@@ -2,7 +2,6 @@ package models
 
 // structure to insert into DB table "notifications"
 type NotificationInsert struct {
-	NotificationId   string
 	NotificationType string
 	EntityType       string
 	EntityId         int

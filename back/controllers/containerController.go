@@ -806,12 +806,18 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 			return
 		}
-		// TODO: Onesignal send notification to pro: hey go get your stuff, it is in container
-		err = onesignal.HandleDepositDroppedNoti() // TODO: what is the payload?
+		// Onesignal send notification to pro: hey go get your stuff, it is in container
+		notiPayload := onesignal.HandleDepositDroppedNotiPayload{
+			ItemId: tx.IdItem,
+			ProId: tx.IdPro,
+			Url: "/marketplace/me/" + strconv.Itoa(tx.IdItem),
+		}
+		err = onesignal.HandleDepositDroppedNoti(notiPayload)
 		if err != nil {
 			// failure to insert into DB, but do not block request, only log error as notification is not crucial
 			slog.Warn("HandleDepositDroppedNoti failed", "controller", "OpenContainer", "error", err)
 		}
+		
 		// update score for user
 		itemDetails, err := db.GetItemDetailsByItemId(dbCode.IdDeposit)
 		if err != nil {

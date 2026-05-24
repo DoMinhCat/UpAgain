@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
-
-	"github.com/google/uuid"
 )
 
 // helper functions that sends notification to user/pro regarding new status of items (approve, refuse, reserve, purchase, dropped ...)
@@ -23,17 +21,39 @@ func HandleItemPurchasedNoti() {
 
 // HandleDepositDroppedNoti sends push noti to pro to signifies that item is available in container for retrieval and save a record in DB
 func HandleDepositDroppedNoti(payload HandleDepositDroppedNotiPayload) error {
+	itemImgs, err := db.GetPhotosPathsByObjectId(payload.ItemId, "item")
+	if err != nil {
+		// no early return, if no image then no problem
+		slog.Warn("GetPhotosPathsByObjectId() failed", "called from", "HandleDepositDroppedNoti", "error", err)
+		// fallback to avoid null pointer
+		itemImgs = []string{""}
+	} else if len(itemImgs) == 0 {
+		itemImgs = []string{""}
+	}
+	payload.ItemThumbnailImg = itemImgs[0]
+
 	// construct payload
+	titlePrefixEn := "An item"
+	titlePrefixFr := "Un objet"
+	titlePrefixVi := "Một vật phẩm"
+	itemDetails, err := db.GetItemDetailsByItemId(payload.ItemId)
+	if err != nil {
+		slog.Warn("GetItemDetailsByItemId() failed", "called from", "HandleDepositDroppedNoti", "error", err)
+	} else {
+		titlePrefixEn = "Item \"" + itemDetails.Title + "\""
+		titlePrefixFr = "L'objet \"" + itemDetails.Title + "\""
+		titlePrefixVi = "Vật phẩm \"" + itemDetails.Title + "\""
+	}
 	apiPayload := NotificationRequest{
 		Headings: NotificationHeading{
-			En: "Item \"title of item\" ready for retrieval",
-			Fr: "L'objet prêt à récupérer",
-			Vi: "Tieng Viet",
+			En: titlePrefixEn + " is ready for retrieval",
+			Fr: titlePrefixFr + " est prêt à être récupéré.",
+			Vi: titlePrefixVi + " đã sẵn sàng để được lấy.",
 		},
 		Contents: NotificationContent{
-			En: "Item \"title of item\" ready for retrieval",
-			Fr: "L'objet prêt à récupérer",
-			Vi: "Tieng Viet",
+			En: "You will have 7 days to retrieve the item at the designated container",
+			Fr: "Vous avez 7 jours pour récupérer votre objet au containeur désigné.",
+			Vi: "Bạn có 7 ngày để lấy vật phẩm tại thùng chứa được chỉ định.",
 		},
 		IncludeAliases: NotificationIncludeAliases{
 			ExternalIds: []string{strconv.Itoa(payload.ProId)},
@@ -43,7 +63,7 @@ func HandleDepositDroppedNoti(payload HandleDepositDroppedNotiPayload) error {
 	}
 
 	// send via SendNotification
-	err := SendNotification(apiPayload)
+	err = SendNotification(apiPayload)
 	if err != nil {
 		// failed to send push notification but still attempt to save to DB so that user is notified in their noti list
 		slog.Warn("Failed to send push notification via OneSignal API", "function", "HandleDepositDroppedNoti", "error", err.Error())
@@ -51,11 +71,10 @@ func HandleDepositDroppedNoti(payload HandleDepositDroppedNotiPayload) error {
 
 	// save into DB
 	dbPayload := models.NotificationInsert{
-		NotificationId: uuid.NewString(),
 		NotificationType: "pro_object_deposited",
 		EntityType: "item",
-		EntityId: payload.ItemId, // TODO: insert real item id
-		AccountId: payload.ProId, // there is only 1 buyer
+		EntityId: payload.ItemId,
+		AccountId: payload.ProId,
 	}
 	err = db.InsertNotification(dbPayload)
 	if err != nil {
