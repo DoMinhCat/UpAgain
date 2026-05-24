@@ -5,6 +5,8 @@ import (
 	"backend/utils"
 	"fmt"
 	"slices"
+
+	"github.com/google/uuid"
 )
 
 // Insert a notification record into database after sending notification using OneSignal API
@@ -16,12 +18,12 @@ func InsertNotification(payload models.NotificationInsert) error {
 		return fmt.Errorf("invalid entity type: %v", payload.EntityType)
 	}
 
-	// TODO: Actually implement the notification insertion
+	uuidStr := uuid.NewString()
 	query := `
-		INSERT INTO notifications () 
-		VALUES ()
+		INSERT INTO notifications (id, type, entity_type, entity_id, id_account)
+		VALUES ($1, $2, $3, $4, $5)
 	`
-	_, err := utils.Conn.Exec(query)
+	_, err := utils.Conn.Exec(query, uuidStr, payload.NotificationType, payload.EntityType, payload.EntityId, payload.AccountId)
 	if err != nil {
 		return fmt.Errorf("InsertNotification failed: %w", err)
 	}
