@@ -9,10 +9,10 @@ var CONTAINER_STATUS = []string{"ready", "waiting", "occupied", "maintenance"}
 var NOTIFICATION_TYPES = []string{
 	"user_object_status",
 	"user_validation_status",
-	"user_object_retrieved",
+	"user_object_retrieved", // done, not tested
 	"user_event_updated",
 	"pro_material_available",
-	"pro_object_deposited",
+	"pro_object_deposited", // done
 	"pro_subscription_end",
 	"emp_event_updated",
 	"emp_event_assigned",
