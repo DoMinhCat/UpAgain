@@ -762,6 +762,12 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 	}
 	// code is ok, proceed to open container and update status based on role
 
+	itemDetails, err := db.GetItemDetailsByItemId(dbCode.IdDeposit)
+	if err != nil {
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "OpenContainer", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item details.")
+		return
+	}
 	var newContainerStatus string
 	if role == "user" {
 		// user dropped object
@@ -807,9 +813,9 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Onesignal send notification to pro: hey go get your stuff, it is in container
-		notiPayload := onesignal.HandleDepositDroppedNotiPayload{
+		notiPayload := onesignal.HandleDepositStatusNotiPayload{
 			ItemId: tx.IdItem,
-			ProId: tx.IdPro,
+			AccountId: tx.IdPro,
 			Url: "/marketplace/me/" + strconv.Itoa(tx.IdItem),
 		}
 		err = onesignal.HandleDepositDroppedNoti(notiPayload)
@@ -819,12 +825,6 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 		}
 		
 		// update score for user
-		itemDetails, err := db.GetItemDetailsByItemId(dbCode.IdDeposit)
-		if err != nil {
-			slog.Error("GetItemDetailsByItemId() failed", "controller", "OpenContainer", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item details.")
-			return
-		}
 		score, err := helpers.CalculateScore(itemDetails.Material, itemDetails.Weight)
 		if err != nil {
 			slog.Error("CalculateScore() failed", "controller", "OpenContainer", "error", err)
@@ -848,6 +848,18 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item status.")
 			return
 		}
+		// Onesignal send notification to user: object has been retrieved by pro
+		notiPayload := onesignal.HandleDepositStatusNotiPayload{
+			ItemId: dbCode.IdDeposit,
+			AccountId: itemDetails.IdUser,
+			Url: "/marketplace/me/" + strconv.Itoa(dbCode.IdDeposit),
+		}
+		err = onesignal.HandleDepositRetrievedNoti(notiPayload)
+		if err != nil {
+			// failure to insert into DB, but do not block request, only log error as notification is not crucial
+			slog.Warn("HandleDepositRetrievedNoti failed", "controller", "OpenContainer", "error", err)
+		}
+		
 	}
 
 	// finally update barcode status to used
