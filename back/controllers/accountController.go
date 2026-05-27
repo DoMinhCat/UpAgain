@@ -961,3 +961,28 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)	
 }
+
+// TODO: Swagger docs
+func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	isDel := false
+	exist, err := db.CheckAccountExistsById(idRequestor, &isDel)
+	if err != nil {
+		slog.Error("CheckAccountExistsById() failed", "controller", "UpdateOnboarding", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating onboarding.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", r.Context().Value("user").(models.AuthClaims).Id))
+		return
+	}
+	// TODO: update onboard in db to true
+	err = db.UpdateOnboardByIdAccount(idRequestor)
+	if err != nil {
+		slog.Error("UpdateOnboardByIdAccount() failed", "controller", "UpdateOnboarding", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating onboarding.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
