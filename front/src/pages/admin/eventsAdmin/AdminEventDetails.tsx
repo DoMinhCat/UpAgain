@@ -445,9 +445,9 @@ export default function AdminEventDetails() {
         </Grid>
 
         {/* Assigned employee List */}
-        <Divider my="xl" />
+        <Divider my="lg" />
         <Group justify="space-between">
-          <Title order={3} mb="lg">
+          <Title order={3} mb="md">
             {t("events.details.assigned_employees.title")}
           </Title>
           <Tooltip
@@ -535,6 +535,7 @@ export default function AdminEventDetails() {
           </Modal>
         </Group>
         <AdminTable
+          maxHeight="35vh"
           loading={isLoadingAssignedEmployees}
           error={errorAssignedEmployees}
           header={[
@@ -613,6 +614,99 @@ export default function AdminEventDetails() {
             <Table.Tr>
               <Table.Td ta="center" colSpan={5}>
                 {t("events.details.assigned_employees.no_assigned")}
+              </Table.Td>
+            </Table.Tr>
+          )}
+        </AdminTable>
+
+        {/* Registered attendees List */}
+        <Divider my="lg" />
+        <Title order={3} mb="md">
+          {t("events.details.registered_attendees.title", {
+            defaultValue: "Registered Attendees",
+          })}
+        </Title>
+        <AdminTable
+          maxHeight="35vh"
+          loading={isLoadingEventDetails}
+          header={[
+            t("users.table.id", { defaultValue: "ID" }),
+            t("users.table.username", { defaultValue: "Username" }),
+            t("users.table.email", { defaultValue: "Email" }),
+            t("users.table.role", { defaultValue: "Role" }),
+            t("users.table.actions", { defaultValue: "Actions" }),
+          ]}
+          footer={
+            <PaginationFooter
+              activePage={1}
+              setPage={() => {}}
+              total_records={eventDetails?.attendees?.length || 0}
+              last_page={1}
+              limit={eventDetails?.attendees?.length || 0}
+              loading={isLoadingEventDetails}
+              unit="attendees"
+            />
+          }
+        >
+          {(eventDetails?.attendees?.length ?? 0) > 0 ? (
+            eventDetails?.attendees?.map((attendee) => {
+              return (
+                <Table.Tr
+                  key={attendee?.id}
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    navigate(PATHS.ADMIN.USERS.ALL + "/" + attendee?.id, {
+                      state: {
+                        from: "eventDetails",
+                        id_event: id_event,
+                      },
+                    });
+                  }}
+                >
+                  <Table.Td ta="center">{attendee?.id}</Table.Td>
+                  <Table.Td ta="center">{attendee?.username}</Table.Td>
+                  <Table.Td ta="center">{attendee?.email}</Table.Td>
+                  <Table.Td ta="center">
+                    <Badge
+                      variant="light"
+                      color={
+                        attendee?.role === "pro" ? "var(--upagain-yellow)" : "blue"
+                      }
+                    >
+                      {t(`users.roles.${attendee?.role}` as any, {
+                        defaultValue: attendee?.role,
+                      })}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td ta="center">
+                    <Button
+                      variant="edit"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        navigate(PATHS.ADMIN.USERS.ALL + "/" + attendee?.id, {
+                          state: {
+                            from: "eventDetails",
+                            id_event: id_event,
+                          },
+                        });
+                      }}
+                    >
+                      {t("common:actions.view_profile", {
+                        defaultValue: "View Profile",
+                      })}
+                    </Button>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })
+          ) : (
+            <Table.Tr>
+              <Table.Td ta="center" colSpan={5}>
+                {t("events.details.registered_attendees.no_registered", {
+                  defaultValue: "No attendees registered yet.",
+                })}
               </Table.Td>
             </Table.Tr>
           )}
