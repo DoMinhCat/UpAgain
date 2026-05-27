@@ -59,7 +59,9 @@
     "pro_subscription_end": "Sắp kết thúc gói đăng ký",
     "pro_code_expiring": "Mã lấy đồ sắp hết hạn",
     "emp_event_updated": "Sự kiện được giao đã cập nhật",
-    "emp_event_assigned": "Sự kiện mới được giao"
+    "emp_event_assigned": "Sự kiện mới được giao",
+    "update_success_title": "Đã cập nhật cài đặt",
+    "update_success_message": "Tùy chọn thông báo của bạn đã được cập nhật rồi nha."
   },
   "billings": {
     "title": "Thanh toán & Đăng ký",

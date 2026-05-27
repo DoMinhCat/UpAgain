@@ -22,7 +22,7 @@ import (
 // @Success      201      {object}  models.Comment
 // @Failure      400      {string}  string  "Bad Request"
 // @Failure      500      {string}  string  "Internal Server Error"
-// @Router       /posts/{id_post}/comments [post]
+// @Router       /posts/{id_post}/comments/ [post]
 func CreateComment(w http.ResponseWriter, r *http.Request) {
 	idAccount := r.Context().Value("user").(models.AuthClaims).Id
 
@@ -74,7 +74,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 // @Failure      400         {object}  nil     "Invalid ID"
 // @Failure      401         {object}  nil     "Unauthorized"
 // @Failure      500         {object}  nil     "Internal server error"
-// @Router       /posts/comments/{id_comment}/ [delete]
+// @Router       /comments/{id_comment}/ [delete]
 func DeleteCommentById(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
 

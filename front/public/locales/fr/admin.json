@@ -100,6 +100,10 @@
       "ref_comment": "Commentaire #",
       "ref_listing": "Annonce #",
       "ref_deposit": "Dépôt #"
+    },
+    "notifications": {
+      "error_loading_history": "Impossible de récupérer l'historique admin.",
+      "error_loading_details": "Impossible de récupérer les détails de l'historique."
     }
   },
   "modules": {
@@ -276,6 +280,35 @@
         "deleted_at": "Supprimé le",
         "no_users": "Aucun utilisateur trouvé"
       }
+    },
+    "notifications": {
+      "recover_success_title": "Compte récupéré",
+      "recover_success_message": "Compte récupéré avec succès.",
+      "delete_success_title": "Compte supprimé",
+      "delete_success_message": "Compte supprimé avec succès.",
+      "password_update_success_title": "Mot de passe mis à jour",
+      "password_update_success_message": "Mot de passe modifié avec succès.",
+      "ban_success_title": "Compte banni",
+      "ban_success_message": "Ce compte a été banni.",
+      "unban_success_title": "Compte débanni",
+      "unban_success_message": "Ce compte a été débanni.",
+      "create_success_title": "Succès de la création",
+      "create_success_message": "Compte créé avec succès.",
+      "update_success_title": "Compte mis à jour",
+      "update_success_message": "Compte mis à jour avec succès.",
+      "avatar_update_success_title": "Avatar mis à jour",
+      "avatar_update_success_message": "Votre avatar a été mis à jour avec succès.",
+      "error_recovering": "Impossible de récupérer le compte",
+      "error_deleting": "Impossible de supprimer le compte",
+      "error_loading_details": "Impossible de charger les détails du compte",
+      "error_loading_accounts": "Impossible de charger la liste des comptes",
+      "error_updating_password": "Impossible de mettre à jour le mot de passe",
+      "error_updating_status": "Impossible de mettre à jour le statut de bannissement",
+      "error_creating": "Impossible de créer le compte",
+      "error_loading_stats": "Impossible de charger les statistiques du compte",
+      "error_updating": "Impossible de mettre à jour le compte",
+      "error_loading_count_stats": "Impossible de charger les statistiques de comptage",
+      "error_updating_avatar": "Impossible de mettre à jour l'avatar"
     }
   },
   "validations": {
@@ -309,6 +342,7 @@
       "container": "Conteneur",
       "material": "Matériau",
       "city": "Ville",
+      "location": "Localisation",
       "price": "Prix",
       "category": "Catégorie",
       "start_date": "Date de début",
@@ -336,6 +370,18 @@
       "confirm": "Refuser l'élément",
       "cancel": "Annuler"
     },
+    "notifications": {
+      "error_loading_deposits": "Impossible de charger les dépôts en attente",
+      "error_loading_listings": "Impossible de charger les annonces en attente",
+      "error_loading_events": "Impossible de charger les événements en attente",
+      "error_loading_stats": "Impossible de charger les statistiques de validation",
+      "error_loading_history": "Impossible de charger l'historique des articles",
+      "error_processing": "Impossible de traiter l'action de validation",
+      "approve_success_title": "Approuvé",
+      "approve_success_message": "Article approuvé avec succès",
+      "refuse_success_title": "Refusé",
+      "refuse_success_message": "Article refusé avec succès"
+    },
     "details": {
       "title": "Détails de la Validation",
       "types": {
@@ -343,7 +389,9 @@
         "deposits": "Dépôt",
         "events": "Événement"
       },
+      "title_suffix": "Détails",
       "waiting_validation": "En attente de validation",
+      "view_full_details": "Voir tous les détails",
       "general_info": "Informations Générales",
       "item_details": "Détails de l'Objet",
       "event_details": "Détails de l'Événement",
@@ -401,7 +449,12 @@
       "street": "Rue",
       "city": "Ville",
       "zip": "Code Postal",
-      "submit": "Déployer"
+      "postal_code": "Code Postal",
+      "submit": "Déployer",
+      "errors": {
+        "postal_code": "Le code postal est requis",
+        "postal_code_invalid": "Le code postal doit contenir 5 chiffres"
+      }
     },
     "delete_modal": {
       "title": "Confirmer l'archivage",
@@ -428,6 +481,25 @@
       "schedule_title": "Planning du conteneur #{{id}}",
       "drop_off": "[Dépôt] ",
       "pick_up": "[Retrait] "
+    },
+    "notifications": {
+      "create_success_title": "Succès",
+      "create_success_message": "Nouveau conteneur déployé",
+      "update_status_success_title": "Mis à jour",
+      "update_status_success_message": "Statut du conteneur modifié",
+      "delete_success_title": "Supprimé",
+      "delete_success_message": "Conteneur archivé avec succès",
+      "update_location_success_title": "Mis à jour",
+      "update_location_success_message": "Localisation du conteneur modifiée",
+      "error_loading_containers": "Impossible de charger les conteneurs.",
+      "error_creating": "Impossible de créer le nouveau conteneur.",
+      "error_updating_status": "Échec de la mise à jour de l'état du conteneur.",
+      "error_deleting": "Impossible de retirer le conteneur de l'inventaire.",
+      "error_loading_details": "Impossible de charger les informations de ce conteneur.",
+      "error_loading_stats": "Impossible de charger les statistiques de comptage des conteneurs.",
+      "error_loading_available": "Impossible de charger les conteneurs disponibles.",
+      "error_updating_location": "Échec de la mise à jour de la localisation du conteneur.",
+      "error_loading_schedule": "Échec du chargement du planning pour ce conteneur."
     }
   },
   "listings": {
@@ -482,19 +554,21 @@
       "no_access_code": "Aucun code d'accès généré pour ce dépôt pour le moment.",
       "owner": "Code Propriétaire",
       "buyer": "Code Acheteur",
+      "buyer_username": "Acheteur",
       "six_digits_code": "CODE À 6 CHIFFRES",
       "valid_from": "Valide à partir du : ",
       "valid_to": "Valide jusqu'au : ",
       "buyer_code_waiting": "En attente qu'un acheteur génère son code.",
       "posted_by": "Posté par",
-      "edit_item": "Modifier l'objet",
-      "reopen_item": "Réouvrir l'objet",
-      "approve_item": "Approuver l'objet",
-      "delete_item": "Supprimer l'objet",
+      "edit_item": "Modifier",
+      "reopen_item": "Réouvrir",
+      "approve_item": "Approuver",
+      "delete_item": "Supprimer",
       "transfer_container": "Transférer vers un autre conteneur",
       "edit_modal": {
         "title": "Modifier les détails de l'objet",
-        "description_label": "Description"
+        "description_label": "Description",
+        "validation_notice": "Note : Toute modification effectuée nécessitera une nouvelle validation par un administrateur avant d'apparaître sur le marché."
       },
       "transfer_modal": {
         "title": "Transférer vers un autre conteneur",
@@ -513,6 +587,13 @@
         "no_transactions": "Aucune transaction trouvée",
         "cancel_modal_title": "Annuler la transaction",
         "cancel_confirm": "Êtes-vous sûr de vouloir annuler la transaction #{{id}} ? Cette action est irréversible."
+      },
+      "notifications": {
+        "transfer_success_title": "Conteneur transféré",
+        "transfer_success_message": "Le conteneur a été transféré avec succès",
+        "transfer_error": "Échec du transfert du conteneur de dépôt",
+        "fetch_deposit_codes_error": "Échec de la récupération des codes de dépôt",
+        "fetch_deposit_details_error": "Échec de la récupération des détails du dépôt"
       }
     }
   },
@@ -654,7 +735,16 @@
       "created_title": "Article créé",
       "created_msg": "Le nouvel article a été créé avec succès",
       "deleted_title": "Article supprimé",
-      "deleted_msg": "L'article a été supprimé avec succès"
+      "deleted_msg": "L'article a été supprimé avec succès",
+      "ads_created_title": "Publicité créée",
+      "ads_created_msg": "La publicité a été créée avec succès",
+      "ads_deleted_title": "Publicité supprimée",
+      "ads_deleted_msg": "La publicité a été supprimée avec succès",
+      "ads_updated_title": "Publicité mise à jour",
+      "ads_updated_msg": "La publicité a été mise à jour avec succès",
+      "error_creating_ads": "Échec de la création de la publicité",
+      "error_deleting_ads": "Échec de la suppression de la publicité",
+      "error_updating_ads": "Échec de la mise à jour de la publicité"
     }
   },
   "events": {
@@ -674,6 +764,8 @@
       "street_placeholder": "21 rue Erard",
       "city_label": "Ville",
       "city_placeholder": "Paris",
+      "postal_code_label": "Code postal",
+      "postal_code_placeholder": "75001",
       "location_detail_label": "Détails supplémentaires sur le lieu",
       "location_detail_placeholder": "Salle 12, 2ème étage",
       "start_date_label": "Date de début",
@@ -690,6 +782,7 @@
         "price": "Le prix doit être supérieur ou égal à 0",
         "street": "La rue est requise",
         "city": "La ville est requise",
+        "postal_code": "Le code postal est requis",
         "category": "La catégorie est requise",
         "description": "Une description est requise",
         "start_date": "La date de début est requise",
@@ -753,7 +846,9 @@
         "no_assigned": "Aucun employé assigné",
         "table": {
           "assigned_on": "Assigné le"
-        }
+        },
+        "error_fetching_available": "Impossible de récupérer les employés.",
+        "error_fetching_schedule": "Impossible de récupérer le planning de l'employé."
       },
       "cancel_modal": {
         "reopen_title": "Rouvrir l'événement",
@@ -829,6 +924,22 @@
         "reason_placeholder": "Raison facultative...",
         "confirm": "Confirmer la révocation"
       }
+    },
+    "notifications": {
+      "revoke_success_title": "Révoquée",
+      "revoke_success_message": "L'abonnement a été révoqué",
+      "update_price_success_title": "Mis à jour",
+      "update_price_success_message": "Le prix de l'abonnement a été mis à jour",
+      "update_trial_success_title": "Mis à jour",
+      "update_trial_success_message": "La période d'essai a été mise à jour",
+      "error_loading_subscriptions": "Impossible de charger les abonnements.",
+      "error_loading_details": "Impossible de charger les détails de l'abonnement.",
+      "error_revoking": "Impossible d'annuler l'abonnement.",
+      "error_loading_price": "Impossible de charger le prix de l'abonnement.",
+      "error_updating_price": "Impossible de mettre à jour le prix de l'abonnement.",
+      "error_loading_trial": "Impossible de charger la période d'essai.",
+      "error_updating_trial": "Impossible de mettre à jour la période d'essai.",
+      "error_loading_stats": "Impossible de charger les statistiques d'abonnement."
     }
   },
   "finance": {
@@ -896,6 +1007,13 @@
       "success_title": "Paramètres mis à jour",
       "success_msg": "{{setting}} mis à jour avec succès.",
       "error_title": "Échec de la mise à jour"
+    },
+    "notifications": {
+      "error_loading_revenue": "Impossible de récupérer les données de revenus.",
+      "error_loading_settings": "Impossible de récupérer les paramètres financiers.",
+      "error_loading_users": "Impossible de récupérer les utilisateurs.",
+      "error_loading_invoices": "Impossible de récupérer les factures de l'utilisateur.",
+      "error_loading_setting": "Impossible de récupérer le paramètre financier."
     }
   },
   "status": {

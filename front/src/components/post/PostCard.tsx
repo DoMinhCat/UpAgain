@@ -164,18 +164,26 @@ export default function PostCard({
           {title}
         </Title>
 
-        <Text size="sm" c="dimmed" lineClamp={2} h={42}>
-          {description
-            .replace(/<[^>]*>/g, " ")
-            .replace(/\s+/g, " ")
-            .trim()}
-        </Text>
+        <Text
+          size="sm"
+          c="dimmed"
+          lineClamp={2}
+          h={42}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(
+              description
+                .replace(/<[^>]*>/g, " ")
+                .replace(/\s+/g, " ")
+                .trim(),
+            ),
+          }}
+        />
       </Stack>
 
       {/* Author & Time */}
       <Group mt="lg" gap="sm">
         <Avatar
-          src={authorAvatar}
+          src={resolveUrl(authorAvatar)}
           radius="xl"
           alt={authorName}
           name={authorName}

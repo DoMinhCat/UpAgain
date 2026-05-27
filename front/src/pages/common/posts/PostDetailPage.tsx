@@ -15,6 +15,7 @@ import {
   Loader,
   Paper,
   Box,
+  useComputedColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Carousel } from "@mantine/carousel";
@@ -76,6 +77,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 export default function PostDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useComputedColorScheme("light");
   const { t } = useTranslation(["post", "common", "admin"]);
   const { user } = useAuth();
   const role: string = user?.role || "";
@@ -293,7 +295,7 @@ export default function PostDetailPage() {
             <Box
               h={500}
               style={{
-                backgroundImage: "/banners/user-banner1-dark.png",
+                backgroundImage: `url("/banners/guest-banner1-${theme}.png")`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}

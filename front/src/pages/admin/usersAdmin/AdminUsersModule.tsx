@@ -41,7 +41,7 @@ import {
   validatePhone,
   validateUsername,
   validateRole,
-} from "../../../utils/accountValidation";
+} from "../../../utils/validations/accountValidation";
 
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
@@ -247,7 +247,7 @@ export default function AdminUsersModule() {
     if (selectedEditAcc?.id) {
       editMutation.mutate(
         {
-          id_account: selectedEditAcc.id,
+          id: selectedEditAcc.id,
           username: usernameEdit,
           email: emailEdit,
           phone: phoneEdit,
@@ -416,7 +416,7 @@ export default function AdminUsersModule() {
       </Table.Tr>
     );
 
-  // EXPORT CSV
+  // EXPORT/DOWNLOAD CSV
   const [isExporting, setIsExporting] = useState(false);
   const exportAccounts = async () => {
     try {

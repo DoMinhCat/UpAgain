@@ -8,6 +8,8 @@ export interface Container {
   is_deleted: boolean;
   current_deposit_id: number | null;
   current_deposit_title: string | null;
+  lat: number;
+  lng: number;
 }
 
 export interface ContainerScheduleItem {
@@ -33,4 +35,8 @@ export interface ContainerListPagination {
   last_page: number;
   limit: number;
   total_records: number;
+}
+
+export interface ContainerEarliestAvailability {
+  earliest_availability: string;
 }

@@ -58,6 +58,7 @@ import { resolveUrl } from "../../../utils/imageUtils";
 import dayjs from "dayjs";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
 import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function EventDetailPage() {
   const { t } = useTranslation(["events", "admin"]);
@@ -344,71 +345,82 @@ export default function EventDetailPage() {
                           {t("detail.organized_by")}
                         </Text>
                         <Group gap="sm">
-                          <Avatar.Group>
-                            {event.organizers?.slice(0, 3).map((org, i) => (
+                          {event.organizers && event.organizers.length > 0 ? (
+                            <>
+                              <Avatar.Group>
+                                {event.organizers.slice(0, 3).map((org, i) => (
+                                  <Avatar
+                                    key={i}
+                                    src={resolveUrl(org.avatar || "")}
+                                    name={org.username}
+                                    color="initials"
+                                    radius="xl"
+                                  />
+                                ))}
+                                {event.organizers.length > 3 && (
+                                  <Avatar radius="xl">
+                                    +{event.organizers.length - 3}
+                                  </Avatar>
+                                )}
+                              </Avatar.Group>
+                              <Group gap={4} wrap="wrap">
+                                {event.organizers.map((organizer, index) => (
+                                  <Group
+                                    key={organizer.username || index}
+                                    gap={4}
+                                  >
+                                    <Text
+                                      className="text"
+                                      size="sm"
+                                      fw={700}
+                                      onClick={() => navigate("#")}
+                                      style={{
+                                        color: "var(--mantine-color-text)",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s ease-in-out",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.textDecoration =
+                                          "underline";
+                                        e.currentTarget.style.color =
+                                          "var(--upagain-neutral-green)";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.textDecoration =
+                                          "none";
+                                        e.currentTarget.style.color =
+                                          "var(--mantine-color-text)";
+                                      }}
+                                    >
+                                      {organizer.username}
+                                    </Text>
+
+                                    {/* Add a comma if it's not the last organizer */}
+                                    {index < event.organizers!.length - 1 && (
+                                      <Text size="sm" c="dimmed">
+                                        ,{" "}
+                                      </Text>
+                                    )}
+                                  </Group>
+                                ))}
+                              </Group>
+                            </>
+                          ) : (
+                            <Group gap="sm">
                               <Avatar
-                                key={i}
-                                src={resolveUrl(org.avatar || "")}
-                                name={org.username}
+                                src={resolveUrl(event.employee_avatar || "")}
+                                name={event.employee_name || ""}
                                 color="initials"
                                 radius="xl"
                               />
-                            ))}
-                            {event.organizers?.length! > 3 && (
-                              <Avatar radius="xl">
-                                +{event.organizers?.length! - 3}
-                              </Avatar>
-                            )}
-                          </Avatar.Group>
-                          {/* <Anchor
-                          size="sm"
-                          fw={700}
-                          onClick={() => navigate("#")}
-                          style={{
-                            cursor: "pointer",
-                          }}
-                          c="var(--color-text)"
-                        >
-                          {event.organizers.map((o) => o.name).join(", ")}
-                        </Anchor> */}
-                          <Group gap={4} wrap="wrap">
-                            {event.organizers?.map((organizer, index) => (
-                              <Group key={organizer.username || index} gap={4}>
-                                <Text
-                                  className="text"
-                                  size="sm"
-                                  fw={700}
-                                  onClick={() => navigate("#")}
-                                  style={{
-                                    color: "var(--mantine-color-text)",
-                                    cursor: "pointer",
-                                    transition: "all 0.2s ease-in-out",
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.textDecoration =
-                                      "underline";
-                                    e.currentTarget.style.color =
-                                      "var(--upagain-neutral-green)"; // Added brand touch
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.textDecoration =
-                                      "none";
-                                    e.currentTarget.style.color =
-                                      "var(--mantine-color-text)";
-                                  }}
-                                >
-                                  {organizer.username}
-                                </Text>
-
-                                {/* Add a comma if it's not the last organizer */}
-                                {index < event.organizers!.length - 1 && (
-                                  <Text size="sm" c="dimmed">
-                                    ,{" "}
-                                  </Text>
-                                )}
-                              </Group>
-                            ))}
-                          </Group>
+                              <Text size="sm" fw={700}>
+                                {event.employee_name ||
+                                  t("common:not_set", {
+                                    defaultValue: "Not set",
+                                  })}
+                              </Text>
+                            </Group>
+                          )}
                         </Group>
                       </Stack>
                       <Stack gap={4} align="flex-end">
@@ -448,35 +460,52 @@ export default function EventDetailPage() {
                           color="var(--upagain-neutral-green)"
                         />
                         <Text size="lg" fw={500}>
-                          {event.street}, {event.city} {event.location_detail}
+                          {event.location_detail}, {event.street},{" "}
+                          {event.postal_code} {event.city}
                         </Text>
                       </Group>
                     </Stack>
 
                     {/* Google Maps Placeholder */}
-                    <Box
-                      h={300}
-                      bg="var(--mantine-color-gray-1)"
-                      style={{
-                        borderRadius: "var(--mantine-radius-lg)",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px dashed var(--mantine-color-gray-3)",
-                      }}
-                    >
-                      <IconMapPin
-                        size={48}
-                        color="var(--mantine-color-gray-4)"
+                    {event.lat && event.lng ? (
+                      <EmbeddedMap
+                        height={300}
+                        locations={[
+                          {
+                            id: idEvent,
+                            lat: event.lat,
+                            lng: event.lng,
+                            label: t("detail.location"),
+                          },
+                        ]}
+                        centerOnId={idEvent}
+                        zoom={15}
                       />
-                      <Text c="dimmed" fw={600} mt="sm">
-                        {t("detail.map_placeholder")}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t("detail.map_api_note")}
-                      </Text>
-                    </Box>
+                    ) : (
+                      <Box
+                        h={300}
+                        bg="var(--mantine-color-gray-1)"
+                        style={{
+                          borderRadius: "var(--mantine-radius-lg)",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          border: "2px dashed var(--mantine-color-gray-3)",
+                        }}
+                      >
+                        <IconMapPin
+                          size={48}
+                          color="var(--mantine-color-gray-4)"
+                        />
+                        <Text c="dimmed" fw={600} mt="sm">
+                          {t("detail.map_placeholder")}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {t("detail.map_api_note")}
+                        </Text>
+                      </Box>
+                    )}
                   </Stack>
 
                   <Divider />

@@ -18,6 +18,12 @@ import EventPlanning from "../pages/common/event/EventPlanning";
 import PostsPage from "../pages/common/posts/PostsPage";
 import MyPosts from "../pages/common/posts/MyPosts";
 import SavedPosts from "../pages/common/posts/SavedPosts";
+import MarketPage from "../pages/common/market/MarketPage";
+import MyItems from "../pages/common/market/MyItems";
+import ItemDetailPage from "../pages/common/market/ItemDetailPage";
+import NewItem from "../pages/common/market/NewItem";
+import MyItemDetail from "../pages/common/market/MyItemDetail";
+import OpenContainerPage from "../pages/common/container/OpenContainerPage";
 
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -99,6 +105,21 @@ export const userRoutes: RouteObject = {
     },
     { path: "profile", element: <Profile /> },
     {
+      path: "marketplace",
+      children: [
+        { index: true, element: <MarketPage /> },
+        {
+          path: "me",
+          children: [
+            { index: true, element: <MyItems /> },
+            { path: ":id", element: <MyItemDetail /> },
+          ],
+        },
+        { path: "new", element: <NewItem /> },
+        { path: ":id", element: <ItemDetailPage /> },
+      ],
+    },
+    {
       path: "events",
       children: [
         { index: true, element: <EventPage /> },
@@ -111,6 +132,10 @@ export const userRoutes: RouteObject = {
           ],
         },
       ],
+    },
+    {
+      path: "containers/open",
+      children: [{ index: true, element: <OpenContainerPage /> }],
     },
   ],
 };

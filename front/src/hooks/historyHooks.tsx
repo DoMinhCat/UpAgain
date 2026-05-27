@@ -13,8 +13,8 @@ export const useGetAdminHistory = (
     queryKey: ["histories", page, limit, search, sort, module, action],
     queryFn: () => getAllHistories(page, limit, search, sort, module, action),
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch admin history.",
+      errorTitle: "admin:history.notifications.error_loading_history",
+      errorMessage: "admin:history.notifications.error_loading_history",
     },
   });
 };
@@ -25,8 +25,8 @@ export const useGetHistoryDetails = (id_history: number, enabled: boolean) => {
     queryFn: () => getHistoryDetails(id_history),
     enabled: enabled,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch history details.",
+      errorTitle: "admin:history.notifications.error_loading_details",
+      errorMessage: "admin:history.notifications.error_loading_details",
     },
   });
 };
