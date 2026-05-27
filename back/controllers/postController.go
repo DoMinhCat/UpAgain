@@ -1062,3 +1062,54 @@ func CreatePostStep(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Step added to your project"})
 }
+
+// TODO: swagger doc
+func UpdateStep(w http.ResponseWriter, r *http.Request)  {
+	idStep, err := strconv.Atoi(r.PathValue("step_id"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid step ID")
+		return
+	}
+
+	exists, err := db.CheckProjectStepExistsById(idStep)
+	if err != nil {
+		slog.Error("db.CheckProjectStepExistsById() failed", "controller", "UpdateStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update project step")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Step ID "+strconv.Itoa(idStep)+" not found")
+		return
+	}
+
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		postDetails, err := db.GetPostDetailsByStepId(idStep)
+		if err != nil {
+			slog.Error("db.GetPostDetailsByStepId() failed", "controller", "UpdateStep", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update project step")
+			return
+		}
+		if postDetails.IdAccount != r.Context().Value("user").(models.AuthClaims).Id {
+			utils.RespondWithError(w, http.StatusForbidden, "You can onlt modify your own projects")
+			return
+		}
+	}
+
+	// decode payload (reuse the creation payload)
+	var dbPayload models.StepInsertPayload
+	err = json.NewDecoder(r.Body).Decode(&dbPayload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid payload")
+		return
+	}
+
+	err = db.UpdateStep(dbPayload, idStep)
+	if err != nil {
+		slog.Error("db.UpdateStep() failed", "controller", "UpdateStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update project step")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Step updated successfully"})
+}
