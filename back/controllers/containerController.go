@@ -715,7 +715,6 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Failed to decode barcode image.")
 			return
 		}
-		slog.Debug("debug", "decoded text", decodedText)
 
 		parts := strings.Split(decodedText, "|")
 		if len(parts) != 3 {

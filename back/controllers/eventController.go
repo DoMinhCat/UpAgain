@@ -533,7 +533,6 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	var payload models.AssignEmployeeRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -675,7 +674,6 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	var payload models.UnAssignEmployeeRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -771,7 +769,6 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	oldStatus, _ := db.GetEventStatusById(id_event)
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
