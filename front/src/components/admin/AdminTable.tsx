@@ -8,6 +8,7 @@ export interface AdminTableProps {
   footer?: React.ReactNode;
   loading?: boolean;
   error?: Error | null;
+  maxHeight?: string | number;
 }
 
 export default function AdminTable({
@@ -16,11 +17,12 @@ export default function AdminTable({
   footer,
   loading,
   error,
+  maxHeight = "70vh",
 }: AdminTableProps) {
   const [scrolled, setScrolled] = useState(false);
   return (
     <ScrollArea
-      h={"70vh"}
+      mah={maxHeight}
       onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
     >
       <Table

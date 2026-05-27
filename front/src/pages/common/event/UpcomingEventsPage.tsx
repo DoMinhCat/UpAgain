@@ -264,8 +264,8 @@ export default function UpcomingEventsPage() {
             defaultView="month"
             events={scheduleEvents}
             onDayClick={(date) => handleSlotClick(date)}
-            onAllDaySlotClick={(date) => handleSlotClick(date)}
-            onTimeSlotClick={(data) => handleSlotClick(data.slotStart)}
+            onAllDaySlotClick={(date) => handleSlotClick(date)} // here
+            onTimeSlotClick={(data) => handleSlotClick(data.slotStart)} // here
             onEventClick={(event) => {
               navigate(
                 `${PATHS.EVENTS.HOME}/${event.payload?.category === "meetups" ? event.payload.category : event.payload?.category + "s"}/${event.id}`,
