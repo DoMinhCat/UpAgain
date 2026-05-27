@@ -1,37 +1,31 @@
 package db
 
 import (
-	"backend/utils/onesignal"
+	"backend/models"
+	"backend/utils"
 	"fmt"
 	"slices"
+
+	"github.com/google/uuid"
 )
 
-// Interact with table "notifications"
-
-var allowedNotificationTypes = []string{
-    "user_object_status",
-    "user_validation_status",
-    "user_object_retrieved",
-    "user_event_updated",
-    "pro_material_available",
-    "pro_object_deposited",
-    "pro_subscription_end",
-    "emp_event_updated",
-    "emp_event_assigned",
-}
-var allowedNotificationEntityTypes = []string{
-	"profile", "event", "item",
-}
-
 // Insert a notification record into database after sending notification using OneSignal API
-func InsertNotification(payload onesignal.NotificationInsert) error {
-	if !slices.Contains(allowedNotificationTypes, payload.NotificationType) {
+func InsertNotification(payload models.NotificationInsert) error {
+	if !slices.Contains(NOTIFICATION_TYPES, payload.NotificationType) {
 		return fmt.Errorf("invalid notification type: %v", payload.NotificationType)
 	}
-	if !slices.Contains(allowedNotificationEntityTypes, payload.EntityType) {
+	if !slices.Contains(NOTIFICATION_ENTITY_TYPES, payload.EntityType) {
 		return fmt.Errorf("invalid entity type: %v", payload.EntityType)
 	}
 
-	// TODO: Actually implement the notification insertion
+	uuidStr := uuid.NewString()
+	query := `
+		INSERT INTO notifications (id, type, entity_type, entity_id, id_account)
+		VALUES ($1, $2, $3, $4, $5)
+	`
+	_, err := utils.Conn.Exec(query, uuidStr, payload.NotificationType, payload.EntityType, payload.EntityId, payload.AccountId)
+	if err != nil {
+		return fmt.Errorf("InsertNotification failed: %w", err)
+	}
 	return nil
 }

@@ -413,15 +413,15 @@ func CheckListingOrDepositByItemId(id int) (bool, error) {
 
 func UpdateItemStatusById(id int, new_status string, reason string) error {
 	var err error
-	if !slices.Contains(ITEM_STATUS, new_status) {
-		return fmt.Errorf("UpdateItemStatusById() failed: invalid new status '%s'", new_status)
-	}
 	if new_status == "deleted" {
 		err = DeleteItemById(id)
 		if err != nil {
 			return fmt.Errorf("UpdateItemStatusById() failed: %v", err)
 		}
 		return nil
+	}
+	if !slices.Contains(ITEM_STATUS, new_status) {
+		return fmt.Errorf("UpdateItemStatusById() failed: invalid new status '%s'", new_status)
 	}
 	_, err = utils.Conn.Exec("UPDATE items SET status = $1, refuse_reason = $2 WHERE id = $3", new_status, reason, id)
 	if err != nil {
