@@ -795,7 +795,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// onesignal notification to users participating in event about the status update / cancellation
-	onesignal.HandleEventUpdateNoti(id_event, "cancelled")
+	go onesignal.HandleEventUpdateNoti(id_event, "cancelled")
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -1032,7 +1032,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// onesignal notification to users participating in event about the details update
-	onesignal.HandleEventUpdateNoti(id_event, "updated")
+	go onesignal.HandleEventUpdateNoti(id_event, "updated")
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 

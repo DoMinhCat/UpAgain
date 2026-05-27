@@ -16,16 +16,6 @@ func HandleItemStatusChangeNoti(payload HandleItemNotiPayload) error {
 		return fmt.Errorf("invalid status: %s", payload.Status)
 	}
 
-	itemImgs, err := db.GetPhotosPathsByObjectId(payload.ItemId, "item")
-	if err != nil {
-		// no early return, if no image then no problem
-		slog.Warn("GetPhotosPathsByObjectId() failed", "called from", "HandleItemStatusChangeNoti", "error", err)
-		itemImgs = []string{""}
-	} else if len(itemImgs) == 0 {
-		itemImgs = []string{""}
-	}
-	thumbnail := itemImgs[0]
-
 	// construct payload
 	titlePrefixEn := "An item"
 	titlePrefixFr := "Un objet"
@@ -40,19 +30,24 @@ func HandleItemStatusChangeNoti(payload HandleItemNotiPayload) error {
 		titlePrefixVi = "Vật phẩm \"" + itemDetails.Title + "\""
 	}
 
-	var titleSuffixEn, titleSuffixFr, titleSuffixVi string
-	var contentEn, contentFr, contentVi string
-	var notiType string
+	titleSuffixEn := ""
+	titleSuffixFr := ""
+	titleSuffixVi := ""
+	contentEn := ""
+	contentFr := ""
+	contentVi := ""
+
+	notiType := "user_validation_status"
 
 	switch payload.Status {
 	case "approved":
 		titleSuffixEn = " has been approved"
 		titleSuffixFr = " a été approuvé"
 		titleSuffixVi = " đã được phê duyệt"
-		contentEn = "Your item is now available in the marketplace"
-		contentFr = "Votre objet est maintenant disponible sur le magasin"
-		contentVi = "Vật phẩm của bạn bây giờ đã có trên cửa hàng"
-		notiType = "user_validation_status"
+
+		contentEn = "An item you posted has been approved by admin and is now visible to everyone."
+		contentFr = "Un objet que vous avez posté a été approuvé par l'administrateur et est maintenant visible par tous."
+		contentVi = "Một vật phẩm bạn đăng đã được quản trị viên phê duyệt và hiện đã hiển thị với mọi người."
 
 	case "refused":
 		titleSuffixEn = " has been refused"
@@ -121,7 +116,6 @@ func HandleItemStatusChangeNoti(payload HandleItemNotiPayload) error {
 		IncludeAliases: NotificationIncludeAliases{
 			ExternalIds: []string{strconv.Itoa(payload.AccountId)},
 		},
-		ChromeWebImage: thumbnail,
 		Url:            url,
 	}
 
