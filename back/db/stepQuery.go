@@ -88,7 +88,7 @@ func CheckProjectStepExistsById(id_step int) (bool, error) {
 	return exists, err
 }
 
-func DeleteProjectStepByPostId(id_step int) error {
+func DeleteProjectStepByStepId(id_step int) error {
 	query := `
 	UPDATE project_steps
 	SET is_deleted = true
