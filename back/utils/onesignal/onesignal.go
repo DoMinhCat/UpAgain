@@ -2,10 +2,12 @@ package onesignal
 
 import (
 	"backend/config"
+	"backend/db"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 )
 
@@ -59,4 +61,21 @@ func SendNotification(payload NotificationRequest) error {
     }
 
 	return nil
+}
+
+// IsNotiEnabled checks if a specific notification type is enabled for an account
+func IsNotiEnabled(accountId int, notiType string) bool {
+	settings, err := db.GetNotiSettingsByAccountId(accountId)
+	if err != nil {
+		slog.Error("GetNotiSettingsByAccountId() failed in IsNotiEnabled", "accountId", accountId, "error", err)
+		return true // fallback to true to not miss important notifications
+	}
+
+	for _, setting := range settings {
+		if setting.NotiType == notiType {
+			return setting.IsEnabled
+		}
+	}
+
+	return true // default to true if setting is not found
 }

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log/slog"
 	"net/http"
 	"strings"
 )
@@ -24,11 +23,7 @@ func CleanPathMiddleware(next http.Handler) http.Handler {
 			!strings.Contains(path, "/images/") {
 			path = strings.TrimSuffix(path, "/")
 		}
-
 		r.URL.Path = path
-
-		slog.Debug("Path Cleaning", "method", r.Method, "from", oldPath, "to", path)
-
 		next.ServeHTTP(w, r)
 	})
 }

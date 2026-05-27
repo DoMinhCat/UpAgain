@@ -20,16 +20,25 @@ func HandleEventUpdateNoti(idEvent int, action string) {
 		return
 	}
 
-	// 1. Gather external IDs
+	// 1. Gather external IDs for enabled recipients
 	var externalIds []string
+	var enabledAttendees []models.Account
+	var enabledOrganizers []models.Account
+
 	for _, attendee := range eventDetails.Attendees {
-		externalIds = append(externalIds, strconv.Itoa(attendee.Id))
+		if IsNotiEnabled(attendee.Id, "user_event_updated") {
+			externalIds = append(externalIds, strconv.Itoa(attendee.Id))
+			enabledAttendees = append(enabledAttendees, attendee)
+		}
 	}
 	for _, organizer := range eventDetails.Organizers {
-		externalIds = append(externalIds, strconv.Itoa(organizer.Id))
+		if IsNotiEnabled(organizer.Id, "emp_event_updated") {
+			externalIds = append(externalIds, strconv.Itoa(organizer.Id))
+			enabledOrganizers = append(enabledOrganizers, organizer)
+		}
 	}
 
-	// If nobody is registered or assigned, we have no notification to send
+	// If nobody is registered or assigned (with settings enabled), we have no notification to send
 	if len(externalIds) == 0 {
 		return
 	}
@@ -98,7 +107,7 @@ func HandleEventUpdateNoti(idEvent int, action string) {
 	}
 
 	// 5. Save notification records in DB (user_event_updated for attendees, emp_event_updated for employees)
-	for _, attendee := range eventDetails.Attendees {
+	for _, attendee := range enabledAttendees {
 		dbPayload := models.NotificationInsert{
 			NotificationType: "user_event_updated",
 			EntityType:       "event",
@@ -111,7 +120,7 @@ func HandleEventUpdateNoti(idEvent int, action string) {
 		}
 	}
 
-	for _, organizer := range eventDetails.Organizers {
+	for _, organizer := range enabledOrganizers {
 		dbPayload := models.NotificationInsert{
 			NotificationType: "emp_event_updated",
 			EntityType:       "event",

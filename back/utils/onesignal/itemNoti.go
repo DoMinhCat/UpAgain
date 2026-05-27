@@ -100,6 +100,11 @@ func HandleItemStatusChangeNoti(payload HandleItemNotiPayload) error {
 		notiType = "user_object_retrieved"
 	}
 
+	// check if notification type is enabled for this account
+	if !IsNotiEnabled(payload.AccountId, notiType) {
+		return nil
+	}
+
 	url := "/marketplace/me/" + strconv.Itoa(payload.ItemId)
 
 	apiPayload := NotificationRequest{
