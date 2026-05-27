@@ -16,3 +16,10 @@ type ProjectStep struct {
 	Items       []StepItem `json:"items"`
 	Photos      []string   `json:"photos"`
 }
+
+type StepInsertPayload struct {
+	IdPost int `json:"id_post"`
+	Title string `json:"title"`
+	Description string `json:"description"`
+	ItemIds []int `json:"item_ids"`
+}

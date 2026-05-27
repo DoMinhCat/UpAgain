@@ -16,6 +16,7 @@ func GetPostRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /posts/{id_post}/steps/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetProjectStepsByPostId))))
 
 	mux.Handle("POST /posts/{$}", middleware.AuthMiddleware([]string{"admin", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CreatePost))))
+	mux.Handle("POST /posts/{id_post}/steps", middleware.AuthMiddleware([]string{"pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CreatePostStep))))
 	mux.Handle("POST /posts/{id_post}/view/{$}", middleware.AuthMiddleware([]string{"user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ViewPost))))
 	mux.Handle("POST /posts/{id_post}/like/{$}", middleware.AuthMiddleware([]string{"user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.LikePost))))
 	mux.Handle("POST /posts/{id_post}/save/{$}", middleware.AuthMiddleware([]string{"user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.SavePost))))

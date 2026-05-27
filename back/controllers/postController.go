@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	helpers "backend/utils/helpers"
 	validations "backend/utils/validations"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -993,4 +994,63 @@ func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, posts)
+}
+
+// TODO: swagger doc
+func CreatePostStep(w http.ResponseWriter, r *http.Request) {
+	idPost, err := strconv.Atoi(r.PathValue("id_post"))
+	if err != nil {
+		slog.Error("Atoi() failed", "controller", "CreatePostStep", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid post ID")
+		return
+	}
+
+	exists, err := db.CheckPostExistsById(idPost)
+	if err != nil {
+		slog.Error("db.CheckPostExistsById() failed", "controller", "CreatePostStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete post")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Post not found")
+		return
+	}
+
+	postDetails, err := db.GetPostDetailsById(idPost)
+	if err != nil {
+		slog.Error("GetPostDetailsById() failed", "controller", "CreatePostStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while adding the step to the project")
+		return
+	}
+	if postDetails.IdAccount != r.Context().Value("user").(models.AuthClaims).Id {
+		utils.RespondWithError(w, http.StatusForbidden, "You can only modify your own project")
+		return
+	}
+
+	// decode payload
+	var dbPayload models.StepInsertPayload
+	err = json.NewDecoder(r.Body).Decode(&dbPayload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid payload")
+		return
+	}
+	dbPayload.IdPost = idPost
+
+	// insert into project_steps
+	idStepInserted, err := db.InsertStep(dbPayload)
+	if err != nil {
+		slog.Error("InsertStep() failed", "controller", "CreatePostStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while adding the step to the project")
+		return
+	}
+
+	// insert into step_items
+	err = db.InsertItemsOfSteps(idStepInserted, dbPayload.ItemIds)
+	if err != nil {
+		slog.Error("InsertItemsOfSteps() failed", "controller", "CreatePostStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while adding the step to the project")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Step added to your project"})
 }

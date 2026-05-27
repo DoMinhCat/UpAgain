@@ -364,7 +364,6 @@ CREATE TABLE project_steps (
   is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
   title       VARCHAR(255)   NOT NULL,
   description TEXT           NOT NULL,
-  step_order  INTEGER        NOT NULL DEFAULT 1
   id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
 );
 
