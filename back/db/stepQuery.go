@@ -143,3 +143,82 @@ func InsertItemsOfSteps(idStep int, itemIds []int) error {
 
     return nil
 }
+
+func UpdateStep(payload models.StepInsertPayload, idStep int) error {
+	query := `
+		UPDATE project_steps SET title=$1, description=$2
+		WHERE id_post==$3
+	`
+	_, err := utils.Conn.Exec(query, payload.Title, payload.Description, payload.IdPost)
+	if err != nil {
+		return err
+	}
+
+	// update items of step
+	err = UpdateItemsOfSteps(idStep, payload.ItemIds)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateItemsOfSteps(idStep int, itemIds []int) error {
+	existingItemIds, err := GetItemIdsByStepId(idStep)
+	if err != nil {
+		return fmt.Errorf("UpdateItemsOfSteps failed to fetch existing items: %v", err)
+	}
+
+	// 2. Convert slices into maps for O(1) instant lookup sets
+	existingMap := make(map[int]bool)
+	for _, id := range existingItemIds {
+		existingMap[id] = true
+	}
+
+	newMap := make(map[int]bool)
+	for _, id := range itemIds {
+		newMap[id] = true
+	}
+
+	// 3. Find items to INSERT 
+	// (If it's in the new list but NOT in the database map -> Insert it)
+	var itemsToInsert []int
+	for _, id := range itemIds {
+		if !existingMap[id] {
+			itemsToInsert = append(itemsToInsert, id)
+		}
+	}
+
+	// 4. Find items to DELETE 
+	// (If it's in the database but NOT in the new incoming list -> Delete it)
+	var itemsToDelete []int
+	for _, id := range existingItemIds {
+		if !newMap[id] {
+			itemsToDelete = append(itemsToDelete, id)
+		}
+	}
+
+	// 5. Execute INSERTS
+	if len(itemsToInsert) > 0 {
+		err := InsertItemsOfSteps(idStep, itemsToInsert)
+		if err != nil {
+			return fmt.Errorf("UpdateItemsOfSteps failed to insert new step items: %v", err)
+		}
+	}
+
+	// 6. Execute DELETES
+	for _, idToDelete := range itemsToDelete {
+		err := DeleteItemOfStep(idStep, idToDelete)
+		if err != nil {
+			return fmt.Errorf("UpdateItemsOfSteps failed to delete step item %d: %v", idToDelete, err)
+		}
+	}
+	return nil
+}
+
+func DeleteItemOfStep(idStep int, itemId int) error {
+	_, err := utils.Conn.Exec("DELETE FROM step_items WHERE id_step=$1 AND id_item=$2", idStep, itemId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
