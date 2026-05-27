@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
+	"backend/utils/onesignal"
 	stripe "backend/utils/stripe"
 	validations "backend/utils/validations"
 	"encoding/json"
@@ -471,16 +472,23 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status, err := db.GetItemStatusByItemId(id_item)
+	itemDetails, err := db.GetItemDetailsByItemId(id_item)
 	if err != nil {
-		slog.Error("GetItemStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "DeleteItemById", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item's status.")
 		return
 	}
+	status := itemDetails.Status
+
 	statusLatestTx, err := db.GetTransactionLatestStatusByItemId(id_item)
 	if err != nil {
 		slog.Error("GetTransactionLatestStatusByItemId() failed", "controller", "DeleteItemById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
+		return
+	}
+	
+	if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
+		utils.RespondWithError(w, http.StatusConflict, "This item is already purchased or reserved.")
 		return
 	}
 
@@ -492,27 +500,15 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
 			return
 		}
-		if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
-			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
-			return
-		}
 
 	case "pending":
 		if status == "completed" {
 			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" has already been purchased.")
 			return
 		}
-		if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
-			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
-			return
-		}
 	case "approved":
 		if status != "refused" && status != "pending" {
 			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" can't be approved at the moment.")
-			return
-		}
-		if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
-			utils.RespondWithError(w, http.StatusConflict, "Item with ID "+idString+" is already purchased or reserved.")
 			return
 		}
 	}
@@ -523,6 +519,19 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 		slog.Error("UpdateItemStatusById() failed", "controller", "UpdateItemStatusById", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item.")
 		return
+	}
+
+	if payload.Status == "refused" || payload.Status == "approved" {
+		// onesignal to user about item status update
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    id_item,
+			AccountId: itemDetails.IdUser,
+			Status:    payload.Status,
+		}
+		err = onesignal.HandleItemStatusChangeNoti(notiPayload)
+		if err != nil {
+			slog.Warn("HandleItemStatusChangeNoti failed", "controller", "UpdateItemStatusById", "error", err)
+		}
 	}
 
 	if role == "admin" {
@@ -874,6 +883,23 @@ func ReserveItem(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
 		return
 	}
+
+	// onesignal to user about item reservation
+	itemDetails, err := db.GetItemDetailsByItemId(item_id)
+	if err != nil {
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "ReserveItem", "error", err)
+	} else {
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    item_id,
+			AccountId: itemDetails.IdUser,
+			Status:    "reserved",
+		}
+		errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+		if errNoti != nil {
+			slog.Warn("HandleItemStatusChangeNoti failed for reservation", "controller", "ReserveItem", "error", errNoti)
+		}
+	}
+
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item reserved successfully."})
 }
 
@@ -1090,7 +1116,16 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			// }
 		}
 	}
-	// TODO: OneSignal notify user that item is purchased
+	// onesignal to user about item purchase
+	notiPayload := onesignal.HandleItemNotiPayload{
+		ItemId:    item_id,
+		AccountId: sellerId,
+		Status:    "purchased",
+	}
+	errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+	if errNoti != nil {
+		slog.Warn("HandleItemStatusChangeNoti failed for purchase", "controller", "PurchaseItem", "error", errNoti)
+	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
 }

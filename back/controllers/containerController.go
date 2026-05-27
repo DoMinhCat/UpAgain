@@ -813,15 +813,15 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Onesignal send notification to pro: hey go get your stuff, it is in container
-		notiPayload := onesignal.HandleDepositStatusNotiPayload{
-			ItemId: tx.IdItem,
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    tx.IdItem,
 			AccountId: tx.IdPro,
-			Url: "/marketplace/me/" + strconv.Itoa(tx.IdItem),
+			Status:    "deposited",
 		}
-		err = onesignal.HandleDepositDroppedNoti(notiPayload)
+		err = onesignal.HandleItemStatusChangeNoti(notiPayload)
 		if err != nil {
 			// failure to insert into DB, but do not block request, only log error as notification is not crucial
-			slog.Warn("HandleDepositDroppedNoti failed", "controller", "OpenContainer", "error", err)
+			slog.Warn("HandleItemStatusChangeNoti failed for drop", "controller", "OpenContainer", "error", err)
 		}
 		
 		// update score for user
@@ -849,15 +849,15 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Onesignal send notification to user: object has been retrieved by pro
-		notiPayload := onesignal.HandleDepositStatusNotiPayload{
-			ItemId: dbCode.IdDeposit,
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    dbCode.IdDeposit,
 			AccountId: itemDetails.IdUser,
-			Url: "/marketplace/me/" + strconv.Itoa(dbCode.IdDeposit),
+			Status:    "retrieved",
 		}
-		err = onesignal.HandleDepositRetrievedNoti(notiPayload)
+		err = onesignal.HandleItemStatusChangeNoti(notiPayload)
 		if err != nil {
 			// failure to insert into DB, but do not block request, only log error as notification is not crucial
-			slog.Warn("HandleDepositRetrievedNoti failed", "controller", "OpenContainer", "error", err)
+			slog.Warn("HandleItemStatusChangeNoti failed for retrieval", "controller", "OpenContainer", "error", err)
 		}
 		
 	}

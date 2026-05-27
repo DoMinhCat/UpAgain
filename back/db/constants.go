@@ -7,12 +7,12 @@ var CODE_STATUS = []string{"active", "expired", "used"}
 var CONTAINER_STATUS = []string{"ready", "waiting", "occupied", "maintenance"}
 
 var NOTIFICATION_TYPES = []string{
-	"user_object_status",
-	"user_validation_status",
-	"user_object_retrieved", // done, not tested
+	"user_object_status",     // TODO: purchase or reserved
+	"user_validation_status", // TODO: item rejected or approved
+	"user_object_retrieved",  // done, not tested
 	"user_event_updated",
 	"pro_material_available",
-	"pro_object_deposited", // done
+	"pro_object_deposited", // done ok
 	"pro_subscription_end",
 	"emp_event_updated",
 	"emp_event_assigned",
