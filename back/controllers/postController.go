@@ -832,13 +832,8 @@ func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 // @Failure      401       {string}  string  "Unauthorized"
 // @Failure      500       {string}  string  "Internal Server Error"
 // @Router       /posts/steps/{step_id}/ [delete]
-func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
+func DeleteProjectStep(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" {
-		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action")
-		return
-	}
-
 	idStep, err := strconv.Atoi(r.PathValue("step_id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid step ID")
@@ -847,7 +842,7 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 
 	exists, err := db.CheckProjectStepExistsById(idStep)
 	if err != nil {
-		slog.Error("db.CheckProjectStepExistsById() failed", "controller", "DeleteProjectStepByPostId", "error", err)
+		slog.Error("db.CheckProjectStepExistsById() failed", "controller", "DeleteProjectStep", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete project step")
 		return
 	}
@@ -856,9 +851,22 @@ func DeleteProjectStepByPostId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.DeleteProjectStepByPostId(idStep)
+	if role != "admin" {
+		postDetails, err := db.GetPostDetailsByStepId(idStep)
+		if err != nil {
+			slog.Error("db.GetPostDetailsByStepId() failed", "controller", "DeleteProjectStep", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete project step")
+			return
+		}
+		if postDetails.IdAccount != r.Context().Value("user").(models.AuthClaims).Id {
+			utils.RespondWithError(w, http.StatusForbidden, "You can onlt modify your own projects")
+			return
+		}
+	}
+
+	err = db.DeleteProjectStepByStepId(idStep)
 	if err != nil {
-		slog.Error("db.DeleteProjectStepByPostId() failed", "controller", "DeleteProjectStepByPostId", "error", err)
+		slog.Error("db.DeleteProjectStepByStepId() failed", "controller", "DeleteProjectStep", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete project step")
 		return
 	}
