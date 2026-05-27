@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
+	onesignal "backend/utils/onesignal"
 	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
 	"encoding/json"
@@ -532,7 +533,6 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	var payload models.AssignEmployeeRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -604,6 +604,8 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go onesignal.HandleEventAssignedNoti(id_event, payload.IdsEmployee)
+
 	if role == "admin" {
 		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "assign_employees"}, payload)
 		if err != nil {
@@ -674,7 +676,6 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	var payload models.UnAssignEmployeeRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -770,7 +771,6 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	oldStatus, _ := db.GetEventStatusById(id_event)
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -794,7 +794,8 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: notify users participating in event about the update
+	// onesignal notification to users participating in event about the status update / cancellation
+	go onesignal.HandleEventUpdateNoti(id_event, "cancelled")
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -1030,7 +1031,8 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: notify users participating in event
+	// onesignal notification to users participating in event about the details update
+	go onesignal.HandleEventUpdateNoti(id_event, "updated")
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
@@ -1271,7 +1273,7 @@ func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
 	
 	var events []models.Event
 	if role == "employee" {
-		// TODO:
+		// TODO: get events of an employee by account id
 		// events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
 		// if err != nil {
 		// 	slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)

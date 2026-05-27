@@ -40,12 +40,12 @@ CREATE TYPE noti_setting AS ENUM (
     'user_validation_status', --deposit/posting posted by user is validated by admin
     'user_object_retrieved', -- object in container retrieved by pro
     'user_event_updated', -- my event is updated
-    'user_code_expiring', -- my code to deposit is expiring in 24h
+    'user_code_expiring', -- my code to deposit is expiring in 24h (cron)
     -- for pros:
-    'pro_material_available', --custom alert for new deposit/listing matching chosen material(s)
+    'pro_material_available', --custom alert for new deposit/listing matching chosen material(s) (premium subscription)
     'pro_object_deposited', -- object put in container by user
-    'pro_subscription_end', -- premium subscription ending in 1 week
-    'pro_code_expiring', -- my code to retrieve object is expiring in 24h
+    'pro_subscription_end', -- premium subscription ending in 1 week (cron)
+    'pro_code_expiring', -- my code to retrieve object is expiring in 24h (cron)
     -- for employees:
     'emp_event_updated', -- my event is updated by admin
     'emp_event_assigned' -- new event assigned to me by admin
