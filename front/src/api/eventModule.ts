@@ -75,7 +75,7 @@ export const createEvent = async (
 };
 
 export const getEventDetails = async (id_event: number): Promise<AppEvent> => {
-  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL + id_event);
+  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL + "/" + id_event);
   return response.data;
 };
 

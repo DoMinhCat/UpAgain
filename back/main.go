@@ -40,6 +40,7 @@ func main() {
 
 	config.GeoCodeAPIKey = utils.GetGeoCodeApiKey()
 	config.OnesignalAPIKEY = utils.GetOnesignalRestApiKey()
+	config.OnesignalAppId = utils.GetOnesignalAppId()
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)

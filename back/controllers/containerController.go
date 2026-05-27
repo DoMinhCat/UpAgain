@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
+	"backend/utils/onesignal"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -714,7 +715,6 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Failed to decode barcode image.")
 			return
 		}
-		slog.Debug("debug", "decoded text", decodedText)
 
 		parts := strings.Split(decodedText, "|")
 		if len(parts) != 3 {
@@ -761,6 +761,12 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 	}
 	// code is ok, proceed to open container and update status based on role
 
+	itemDetails, err := db.GetItemDetailsByItemId(dbCode.IdDeposit)
+	if err != nil {
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "OpenContainer", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item details.")
+		return
+	}
 	var newContainerStatus string
 	if role == "user" {
 		// user dropped object
@@ -805,15 +811,21 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 			return
 		}
-		// TODO: Onesignal send notification to pro: hey go get your stuff, it is in container
-
-		// update score for user
-		itemDetails, err := db.GetItemDetailsByItemId(dbCode.IdDeposit)
-		if err != nil {
-			slog.Error("GetItemDetailsByItemId() failed", "controller", "OpenContainer", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item details.")
-			return
+		// Onesignal send notification to pro: hey go get your stuff, it is in container
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    tx.IdItem,
+			AccountId: tx.IdPro,
+			Status:    "deposited",
 		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				// failure to insert into DB, but do not block request, only log error as notification is not crucial
+				slog.Warn("HandleItemStatusChangeNoti failed for drop", "controller", "OpenContainer", "error", errNoti)
+			}
+		}()
+		
+		// update score for user
 		score, err := helpers.CalculateScore(itemDetails.Material, itemDetails.Weight)
 		if err != nil {
 			slog.Error("CalculateScore() failed", "controller", "OpenContainer", "error", err)
@@ -837,6 +849,20 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item status.")
 			return
 		}
+		// Onesignal send notification to user: object has been retrieved by pro
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    dbCode.IdDeposit,
+			AccountId: itemDetails.IdUser,
+			Status:    "retrieved",
+		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				// failure to insert into DB, but do not block request, only log error as notification is not crucial
+				slog.Warn("HandleItemStatusChangeNoti failed for retrieval", "controller", "OpenContainer", "error", errNoti)
+			}
+		}()
+		
 	}
 
 	// finally update barcode status to used
