@@ -234,3 +234,11 @@ func GetUserImpactItems(idAccount, page, limit int) ([]models.UserImpactItem, in
 	}
 	return items, totalRecords, nil
 }
+
+func UpdateOnboardByIdAccount(id_account int) error {
+	_, err := utils.Conn.Exec("UPDATE users SET completed_onboard=true WHERE id_account=$1", id_account)
+	if err != nil {
+		return fmt.Errorf("UpdateOnboardByIdAccount() failed: %v", err.Error())
+	}
+	return nil
+}
