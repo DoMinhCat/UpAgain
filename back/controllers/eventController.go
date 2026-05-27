@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
+	onesignal "backend/utils/onesignal"
 	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
 	"encoding/json"
@@ -794,7 +795,8 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: notify users participating in event about the update
+	// onesignal notification to users participating in event about the status update / cancellation
+	onesignal.HandleEventUpdateNoti(id_event, "cancelled")
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -1030,7 +1032,8 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: notify users participating in event
+	// onesignal notification to users participating in event about the details update
+	onesignal.HandleEventUpdateNoti(id_event, "updated")
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
@@ -1271,7 +1274,7 @@ func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
 	
 	var events []models.Event
 	if role == "employee" {
-		// TODO:
+		// TODO: get events of an employee by account id
 		// events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
 		// if err != nil {
 		// 	slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
