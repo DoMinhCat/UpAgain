@@ -18,7 +18,7 @@ export default function EventPlanningPage() {
               },
               {
                 title: t("events", { defaultValue: "Events" }),
-                href: "/events",
+                href: PATHS.EVENTS.HOME,
               },
               { title: t("events:btn_event_planning"), href: "#" },
             ]}
