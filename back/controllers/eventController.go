@@ -604,6 +604,8 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go onesignal.HandleEventAssignedNoti(id_event, payload.IdsEmployee)
+
 	if role == "admin" {
 		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "assign_employees"}, payload)
 		if err != nil {

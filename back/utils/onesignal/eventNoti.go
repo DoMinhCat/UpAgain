@@ -7,6 +7,90 @@ import (
 	"strconv"
 )
 
+// HandleEventAssignedNoti sends notification to employees when they are assigned to an event
+func HandleEventAssignedNoti(idEvent int, employeeIds []int) {
+	if len(employeeIds) == 0 {
+		return
+	}
+
+	eventDetails, err := db.GetEventDetailsById(idEvent)
+	if err != nil {
+		slog.Error("GetEventDetailsById() failed in HandleEventAssignedNoti", "idEvent", idEvent, "error", err)
+		return
+	}
+
+	var externalIds []string
+	var enabledEmployeeIds []int
+
+	for _, empId := range employeeIds {
+		if IsNotiEnabled(empId, "emp_event_assigned") {
+			externalIds = append(externalIds, strconv.Itoa(empId))
+			enabledEmployeeIds = append(enabledEmployeeIds, empId)
+		}
+	}
+
+	if len(externalIds) == 0 {
+		return
+	}
+
+	titleEn := "You have been assigned to event \"" + eventDetails.Title + "\""
+	titleFr := "Vous avez été assigné à l'événement \"" + eventDetails.Title + "\""
+	titleVi := "Bạn đã được phân công vào sự kiện \"" + eventDetails.Title + "\""
+
+	contentEn := "You have been assigned to coordinate this event."
+	contentFr := "Vous avez été assigné pour coordonner cet événement."
+	contentVi := "Bạn đã được phân công điều phối sự kiện này."
+
+	categoryUrl := eventDetails.Category
+	if categoryUrl == "meetups" {
+		categoryUrl = "meetups"
+	} else if categoryUrl != "" {
+		categoryUrl = categoryUrl + "s"
+	} else {
+		categoryUrl = "others"
+	}
+	url := "/events/" + categoryUrl + "/" + strconv.Itoa(idEvent)
+
+	apiPayload := NotificationRequest{
+		Headings: NotificationHeading{
+			En: titleEn,
+			Fr: titleFr,
+			Vi: titleVi,
+		},
+		Contents: NotificationContent{
+			En: contentEn,
+			Fr: contentFr,
+			Vi: contentVi,
+		},
+		IncludeAliases: NotificationIncludeAliases{
+			ExternalIds: externalIds,
+		},
+		Url: url,
+	}
+
+	if len(eventDetails.Images) > 0 && eventDetails.Images[0] != "" {
+		apiPayload.ChromeWebImage = eventDetails.Images[0]
+	}
+
+	err = SendNotification(apiPayload)
+	if err != nil {
+		slog.Warn("Failed to send push notification via OneSignal API", "function", "HandleEventAssignedNoti", "error", err.Error())
+	}
+
+	for _, empId := range enabledEmployeeIds {
+		dbPayload := models.NotificationInsert{
+			NotificationType: "emp_event_assigned",
+			EntityType:       "event",
+			EntityId:         idEvent,
+			AccountId:        empId,
+		}
+		errDb := db.InsertNotification(dbPayload)
+		if errDb != nil {
+			slog.Warn("failed to insert emp_event_assigned notification in DB", "idEvent", idEvent, "empId", empId, "error", errDb)
+		}
+	}
+}
+
 // HandleEventUpdateNoti sends notification to participants and assigned employees when event is updated or cancelled
 func HandleEventUpdateNoti(idEvent int, action string) {
 	if action != "updated" && action != "cancelled" {
