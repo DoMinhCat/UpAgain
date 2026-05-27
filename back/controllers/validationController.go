@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	helpers "backend/utils/helpers"
+	"backend/utils/onesignal"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -96,11 +97,20 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//  TODO: Appel Fictif à l'API OneSignal pour notifier l'utilisateur
-	if newStatus == "refused" {
-		slog.Info("OneSignal Push: Listing refused", "reason", payload.Reason)
+	// onesignal notification to user about listing status update
+	itemDetails, errItem := db.GetItemDetailsByItemId(itemID)
+	if errItem != nil {
+		slog.Error("GetItemDetailsByItemId failed for notification", "controller", "ProcessListingValidation", "error", errItem)
 	} else {
-		slog.Info("OneSignal Push: Listing approved")
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    itemID,
+			AccountId: itemDetails.IdUser,
+			Status:    newStatus,
+		}
+		errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+		if errNoti != nil {
+			slog.Warn("HandleItemStatusChangeNoti failed", "controller", "ProcessListingValidation", "error", errNoti)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Listing status updated successfully"})
@@ -170,7 +180,21 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: Notification OneSignal (et envoi du code-barres par email/push si approved)
+	// onesignal notification to user about deposit status update
+	itemDetails, errItem := db.GetItemDetailsByItemId(itemID)
+	if errItem != nil {
+		slog.Error("GetItemDetailsByItemId failed for notification", "controller", "ProcessDepositValidation", "error", errItem)
+	} else {
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    itemID,
+			AccountId: itemDetails.IdUser,
+			Status:    newStatus,
+		}
+		errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+		if errNoti != nil {
+			slog.Warn("HandleItemStatusChangeNoti failed", "controller", "ProcessDepositValidation", "error", errNoti)
+		}
+	}
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Deposit status updated successfully"})
 }
 
