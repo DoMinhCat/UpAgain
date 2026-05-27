@@ -252,11 +252,11 @@ create table items
     created_at  timestamptz     not null default now(),
     title       varchar(255)    not null,
     description text,
-    price       numeric(8,2)    not null default 0,
+    price       numeric(8,2)    not null default 0,         -- in euro
     weight      numeric(8,2)    not null,                   -- in kg
     material    material        not null default 'other',
     status      item_status     not null default 'pending', -- workflow status
-    state       item_state      not null,                   -- new or needs to be repaired
+    state       item_state      not null,
     is_deleted  boolean         not null default false,
     refuse_reason text,
     id_user     integer         not null references users(id_account)  on delete restrict

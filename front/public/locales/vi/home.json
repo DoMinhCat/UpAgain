@@ -63,7 +63,7 @@
       "electricity": "Điện năng",
       "upcycling_score": "Điểm Upcycling",
       "score_rank": "Nằm trong Top {{percentage}}% cao thủ Upcycling tháng này!",
-      "altogether_saved": "Cả hội mình đã cùng nhau cứu được <span>{{amount}}</span> kg CO2"
+      "altogether_saved": "Cả hội mình đã cùng nhau cứu được <span>{{co2}}</span> kg CO2, <span>{{electricity}}</span> kWh, và <span>{{water}}</span> lít nước "
     },
     "manage": {
       "title": "Đồ đạc đang 'lên sóng'",
@@ -72,8 +72,8 @@
       "listings_status": "Bạn đang có <b>{{count}} món đồ</b> đang 'tìm chủ mới' ở <1>Cửa hàng</1>.",
       "manage_listings": "Quản lý tất cả tin đăng →",
       "deposits_title": "Ký gửi",
-      "deposits_status_one": "Còn 1 món đồ đang chờ bạn mang đến nè.",
-      "deposits_status_other": "Còn {{count}} món đồ đang chờ bạn mang đến nè.",
+      "deposits_status_one": "Còn 1 món đồ ở <1>Cửa hàng</1>.",
+      "deposits_status_other": "Còn {{count}} món đồ ở <1>Cửa hàng</1>.",
       "track_deposits": "Theo dõi lịch ký gửi →",
       "ready_to_do_more": "Muốn 'bung lụa' thêm không, {{username}} ơi?",
       "create_listing": "Đăng tin mới",
