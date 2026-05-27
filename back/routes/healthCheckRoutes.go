@@ -6,5 +6,5 @@ import (
 )
 
 func GetHealthCheckRoutes(mux *http.ServeMux) {
-	mux.Handle("GET /healthcheck/{$}", http.HandlerFunc(controllers.HealthCheck))
+	mux.Handle("GET /healthcheck", http.HandlerFunc(controllers.HealthCheck))
 }

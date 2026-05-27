@@ -34,12 +34,12 @@ import { useNavigate } from "react-router-dom";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { useAuth } from "../../../context/AuthContext";
 import { useGetAllEvents } from "../../../hooks/eventHooks";
-import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function EventCategoryPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  useHandleStripeEventRegistration();
+  useHandleVerifyStripeEventRegistration();
   const { category } = useParams<{ category: string }>();
   let event_category = category?.substring(0, category.length - 1);
   if (event_category === "meetup") {

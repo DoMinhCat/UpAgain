@@ -49,6 +49,7 @@ export default function MyItems() {
     { value: "textile", label: t("common:materials.textile") },
     { value: "glass", label: t("common:materials.glass") },
     { value: "plastic", label: t("common:materials.plastic") },
+    { value: "other", label: t("common:materials.other") },
   ];
 
   const STATUS_OPTIONS =

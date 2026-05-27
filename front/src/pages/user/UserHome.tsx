@@ -4,7 +4,6 @@ import {
   Button,
   Container,
   Group,
-  Image,
   useComputedColorScheme,
 } from "@mantine/core";
 import {
@@ -25,7 +24,10 @@ import {
   useSavePost,
   useGetAllPosts,
 } from "../../hooks/postHooks";
-import { useGetUserImpact } from "../../hooks/userHooks";
+import {
+  useGetUserImpact,
+  useGetGlobalImpact,
+} from "../../hooks/userHooks";
 import { useGetMyEvents } from "../../hooks/eventHooks";
 import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { useAuth } from "../../context/AuthContext";
@@ -35,7 +37,26 @@ import { PATHS } from "../../routes/paths";
 import PostCard from "../../components/post/PostCard";
 import { EventCard } from "../../components/event/EventCard";
 import { DashboardCard } from "../../components/dashboard/DashboardCard";
-import { useHandleStripeEventRegistration } from "../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../hooks/stripeHooks";
+
+const WATER_MAX_L = 1000;
+const ELECTRICITY_MAX_KWH = 100;
+
+interface CO2Comparison {
+  emoji: string;
+  key: string;
+}
+
+function getCO2Comparison(co2Kg: number): CO2Comparison {
+  if (co2Kg < 1) return { emoji: "🐹", key: "user.impact.animals.hamster" };
+  if (co2Kg < 5) return { emoji: "🐱", key: "user.impact.animals.cat" };
+  if (co2Kg < 15) return { emoji: "🐕", key: "user.impact.animals.dog" };
+  if (co2Kg < 50) return { emoji: "🐑", key: "user.impact.animals.sheep" };
+  if (co2Kg < 150) return { emoji: "🦁", key: "user.impact.animals.lion" };
+  if (co2Kg < 500) return { emoji: "🐴", key: "user.impact.animals.horse" };
+  if (co2Kg < 5000) return { emoji: "🐘", key: "user.impact.animals.elephant" };
+  return { emoji: "🐋", key: "user.impact.animals.whale" };
+}
 
 export default function UserHome() {
   const { t } = useTranslation("home");
@@ -43,30 +64,39 @@ export default function UserHome() {
   const scheme = useComputedColorScheme("light");
   const { user } = useAuth();
 
-  useHandleStripeEventRegistration();
+  useHandleVerifyStripeEventRegistration();
 
-  // GET ACCOUNT INFO
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);
 
   const { mutateAsync: likePostAsync } = useLikePost();
   const { mutateAsync: savePostAsync } = useSavePost();
 
-  const { data: impactData } = useGetUserImpact();
+  const { data: userImpactData } = useGetUserImpact();
+  const { data: globalImpactData } = useGetGlobalImpact();
   const { data: accountStats } = useAccountStats(user?.id || 0, !!user?.id);
   const { data: myEvents } = useGetMyEvents();
-  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like");
+
+  const myUpcomingEvents =
+    myEvents && myEvents.length > 0
+      ? myEvents.filter((event) => new Date(event.start_at) > new Date())
+      : [];
+
+  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like"); // TODO: backend need to add param to return sponsored results first
   const posts = postsData?.posts ?? [];
+
+  const co2Comparison = getCO2Comparison(userImpactData?.co2 ?? 0);
+
   if (isLoadingAccountDetails) {
     return <FullScreenLoader />;
   }
+
   return (
     <>
       <HeroBanner
         src={`/banners/user-banner1-${scheme}.png`}
         height="80vh"
         style={{
-          // We start the fade much later (at 85%) so it's only at the very edge
           maskImage:
             "linear-gradient(to bottom, black 0%, black 85%, rgba(0, 0, 0, 0.5) 92%, transparent 100%)",
           WebkitMaskImage:
@@ -78,7 +108,6 @@ export default function UserHome() {
           gap="xs"
           style={{
             animation: "fadeIn 1s ease-out",
-            // Moves content up by shifting the flex alignment or adding a bottom "spacer"
             marginTop: "-10vh",
           }}
         >
@@ -94,7 +123,6 @@ export default function UserHome() {
       {/* SECTION 2: YOUR IMPACT */}
       <Container px="md" py={50} size="xl">
         <Stack gap="xl">
-          {/* Section Header */}
           <Stack gap={0}>
             <Title order={2} size={32} c="var(--mantine-color-text)">
               {t("user.impact.title")}
@@ -114,7 +142,7 @@ export default function UserHome() {
             >
               <Stack gap={0} align="center">
                 <Text size="32px" fw={900} style={{ lineHeight: 1 }}>
-                  {impactData?.co2.toFixed(1) ?? "0"}{" "}
+                  {userImpactData?.co2.toFixed(1) ?? "0"}{" "}
                   <Text span size="xl" fw={500}>
                     kg
                   </Text>
@@ -122,13 +150,9 @@ export default function UserHome() {
               </Stack>
 
               <Box pos="relative" py="sm">
-                <Image
-                  src="/banners/user-banner1-light.png"
-                  height={80}
-                  width={80}
-                  style={{ filter: "grayscale(1) opacity(0.3)" }}
-                />
-                {/* Catchy Overlay Text */}
+                <Text size="3rem" ta="center" style={{ lineHeight: 1 }}>
+                  {co2Comparison.emoji}
+                </Text>
                 <Text
                   size="xs"
                   ta="center"
@@ -141,7 +165,7 @@ export default function UserHome() {
                     padding: "2px 8px",
                   }}
                 >
-                  {t("user.impact.elephant_comparison")}
+                  {t(co2Comparison.key)}
                 </Text>
               </Box>
             </DashboardCard>
@@ -158,11 +182,11 @@ export default function UserHome() {
                     {t("user.impact.water")}
                   </Text>
                   <Text size="sm" fw={700} c="var(--upagain-neutral-green)">
-                    {impactData?.water.toFixed(0) ?? "0"} L
+                    {userImpactData?.water.toFixed(0) ?? "0"} L
                   </Text>
                 </Group>
                 <Progress
-                  value={75}
+                  value={Math.min(((userImpactData?.water ?? 0) / WATER_MAX_L) * 100, 100)}
                   color="var(--upagain-neutral-green)"
                   size="sm"
                   radius="xl"
@@ -173,11 +197,11 @@ export default function UserHome() {
                     {t("user.impact.electricity")}
                   </Text>
                   <Text size="sm" fw={700} c="var(--upagain-yellow)">
-                    {impactData?.electricity.toFixed(1) ?? "0"} kWh
+                    {userImpactData?.electricity.toFixed(1) ?? "0"} kWh
                   </Text>
                 </Group>
                 <Progress
-                  value={40}
+                  value={Math.min(((userImpactData?.electricity ?? 0) / ELECTRICITY_MAX_KWH) * 100, 100)}
                   color="var(--upagain-yellow)"
                   size="sm"
                   radius="xl"
@@ -193,11 +217,20 @@ export default function UserHome() {
               align="center"
             >
               <Box pos="relative" my="sm">
-                <ScoreRing score={99} size={140} />
+                <ScoreRing score={accountDetails?.score ?? 0} size={140} />
               </Box>
-              <Text size="xs" c="dimmed" ta="center">
-                {t("user.impact.score_rank", { percentage: 99 })}
-              </Text>
+              {accountDetails?.score && accountDetails.score > 0 ? (
+                <Text size="xs" c="dimmed" ta="center">
+                  {t("user.impact.score_points", { score: accountDetails.score })}
+                </Text>
+              ) : (
+                <Button
+                  variant="cta-reverse"
+                  onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
+                >
+                  {t("user.impact.start_upcycling_cta")}
+                </Button>
+              )}
             </DashboardCard>
           </SimpleGrid>
         </Stack>
@@ -207,7 +240,11 @@ export default function UserHome() {
         <Trans
           i18nKey="user.impact.altogether_saved"
           ns="home"
-          values={{ amount: "123,456,789+" }}
+          values={{
+            co2: globalImpactData?.co2.toFixed(0) ?? "...",
+            electricity: globalImpactData?.electricity.toFixed(0) ?? "...",
+            water: globalImpactData?.water.toFixed(0) ?? "...",
+          }}
           components={{
             span: (
               <Text
@@ -218,18 +255,7 @@ export default function UserHome() {
               />
             ),
           }}
-        >
-          Altogether we saved{" "}
-          <Text
-            span
-            c="var(--upagain-yellow)"
-            inherit
-            style={{ textShadow: "0 0 15px rgba(252,186,3,0.3)" }}
-          >
-            123,456,789+
-          </Text>{" "}
-          kg of CO2
-        </Trans>
+        />
       </Title>
 
       {/* SECTION 3: MANAGE OBJECTS */}
@@ -262,13 +288,9 @@ export default function UserHome() {
               </Stack>
 
               <Group align="stretch" grow>
-                {" "}
-                {/* 1. Change align to stretch */}
                 {/* COLUMN 1 */}
                 <Stack gap="md" style={{ flex: 1 }}>
                   <Box style={{ flex: 1 }}>
-                    {" "}
-                    {/* 2. Wrap content in a flex-grow box */}
                     <Title
                       order={4}
                       size="sm"
@@ -291,14 +313,10 @@ export default function UserHome() {
                           1: <Anchor href={PATHS.MARKETPLACE.HOME} />,
                           b: <b />,
                         }}
-                      >
-                        You have <b>3 active</b> items in the{" "}
-                        <Anchor>Marketplace</Anchor>.
-                      </Trans>
+                      />
                     </Text>
                   </Box>
 
-                  {/* This link will now always sit at the bottom */}
                   <Text
                     className="text"
                     data-variant="primary"
@@ -309,11 +327,10 @@ export default function UserHome() {
                     {t("user.manage.manage_listings")}
                   </Text>
                 </Stack>
+
                 {/* COLUMN 2 */}
                 <Stack gap="md" style={{ flex: 1 }}>
                   <Box style={{ flex: 1 }}>
-                    {" "}
-                    {/* 2. Wrap content in a flex-grow box */}
                     <Title
                       order={4}
                       size="sm"
@@ -328,13 +345,18 @@ export default function UserHome() {
                       {t("user.manage.deposits_title")}
                     </Title>
                     <Text size="sm" mt="xs">
-                      {t("user.manage.deposits_status", {
-                        count: accountStats?.total_deposits ?? 0,
-                      })}
+                      <Trans
+                        i18nKey="user.manage.deposits_status"
+                        ns="home"
+                        values={{ count: accountStats?.total_deposits ?? 0 }}
+                        components={{
+                          1: <Anchor href={PATHS.MARKETPLACE.ME} />,
+                          b: <b />,
+                        }}
+                      />
                     </Text>
                   </Box>
 
-                  {/* This link will align horizontally with the one in Column 1 */}
                   <Text
                     className="text"
                     data-variant="primary"
@@ -425,11 +447,6 @@ export default function UserHome() {
               </Stack>
 
               <Box style={{ flex: 1 }}>
-                {/* 
-                  BACKEND LOGIC:
-                  The backend should ideally provide a 'featured' or 'community_selection' list.
-                  If the user has specific interests, this could be filtered by tags.
-                */}
                 {posts.length > 0 ? (
                   <Stack gap="md">
                     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
@@ -514,14 +531,9 @@ export default function UserHome() {
               </Stack>
 
               <Box style={{ flex: 1 }}>
-                {/* 
-                  BACKEND LOGIC:
-                  Render event cards if 'accountDetails.registeredEvents' (or similar) is not empty.
-                  Else, render the CTA below to encourage participation.
-                */}
-                {myEvents && myEvents.length > 0 ? (
+                {myUpcomingEvents.length > 0 ? (
                   <Stack gap="md">
-                    {myEvents?.slice(0, 2).map((event) => (
+                    {myUpcomingEvents?.slice(0, 2).map((event) => (
                       <EventCard
                         key={event.id}
                         onclick={() => navigate(`/events/${event.id}`)}
@@ -546,7 +558,7 @@ export default function UserHome() {
                       data-variant="primary"
                       size="sm"
                       fw={700}
-                      onClick={() => navigate(PATHS.EVENTS.HOME)}
+                      onClick={() => navigate(PATHS.EVENTS.PLANNING)}
                     >
                       {t("user.agenda.view_all")} →
                     </Text>
@@ -572,7 +584,6 @@ export default function UserHome() {
                         data-variant="cta"
                         size="md"
                         fullWidth
-                        onClick={() => navigate(PATHS.MARKETPLACE.HOME)} // Assuming event exploration is there
                       >
                         {t("user.agenda.explore_workshops")}
                       </Button>

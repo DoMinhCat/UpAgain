@@ -79,7 +79,8 @@
     "cancel_transaction_success_title": "Transaction Cancelled",
     "cancel_transaction_success_message": "The transaction has been cancelled.",
     "reserve_success_title": "Item Reserved",
-    "reserve_success_message": "The item has been successfully reserved. You can find it in your items."
+    "reserve_success_message": "The item has been successfully reserved. You can find it in your items.",
+    "open_container_error": "Error opening container"
   },
   "my_item_detail": {
     "not_found": "Item not found or you don't have access to it.",
