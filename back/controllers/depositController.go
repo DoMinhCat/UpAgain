@@ -16,6 +16,7 @@ import (
 // @Summary      Get deposit details by ID
 // @Description  Get details of a specific deposit
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        deposit_id  path      int  true  "Deposit ID"
 // @Success      200         {object}  models.DepositDetails
@@ -63,6 +64,7 @@ func GetDepositDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Summary      Update deposit details
 // @Description  Update the details of a specific deposit (only by owner or admin)
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Accept       multipart/form-data
 // @Produce      json
 // @Param        deposit_id       path      int     true   "Deposit ID"
@@ -82,6 +84,7 @@ func GetDepositDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Failure      500              {object}  nil     "Internal server error"
 // @Router       /deposits/{deposit_id}/ [put]
 func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
+	slog.Debug("UpdateDepositByDepositId() called", "controller", "UpdateDepositByDepositId")
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" || role == "pro" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
@@ -166,7 +169,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the deposit.")
 		return
 	}
-	// mapping for history insertion
+	// mapping for history insertion and comparison
 	depositFullDetails := models.DepositFullDetails{
 		Title:       itemDetails.Title,
 		Description: itemDetails.Description,
@@ -237,6 +240,23 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if no change then we stop here
+	hasChanges := false
+	if len(keepImages) != len(currentImages) ||
+		newImg != nil ||
+		depositFullDetails.Title != payload.Title ||
+		depositFullDetails.Description != payload.Description ||
+		depositFullDetails.Weight != payload.Weight ||
+		depositFullDetails.State != payload.State ||
+		depositFullDetails.Material != payload.Material ||
+		depositFullDetails.Price != payload.Price {
+		hasChanges = true
+	}
+	if !hasChanges {
+		utils.RespondWithJSON(w, http.StatusNoContent, nil)
+		return
+	}
+
 	finalPhotos, delErrs, err := helpers.ProcessPhotoUpdate("images/items", currentImages, keepImages, newImg)
 	for _, delErr := range delErrs {
 		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateDepositByDepositId", "error", delErr)
@@ -250,17 +270,17 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 
 	// if is user then require validation from admin again and invalidate barcode
 	if role == "user" {
-		err = db.UpdateItemStatusById(id, "pending")
+		slog.Debug("need validation again")
+		err = db.UpdateItemStatusById(id, "pending", "")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateDepositByDepositId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
 			return
 		}
-
-		// TODO: invalidate barcode of this deposit
 	}
 
 	// update
+	slog.Debug("updating")
 	err = db.UpdateDepositById(id, payload)
 	if err != nil {
 		slog.Error("db.UpdateDepositById() failed", "controller", "UpdateDepositByDepositId", "error", err)
@@ -281,6 +301,7 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 // @Summary      Get pending deposits
 // @Description  Get a paginated list of pending deposits for admin
 // @Tags         validation
+// @Security     ApiKeyAuth
 // @Produce      json
 // @Param        page    query     int     false  "Page number"
 // @Param        limit   query     int     false  "Limit"
@@ -310,43 +331,11 @@ func GetPendingDepositsAdmin(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-// GetDepositCodesOfLatestTransactionByDepositId godoc
-// @Summary      Get deposit codes for user and/or pro of the latest transaction
-// @Description  Get deposit code of pro and user of the latest transaction for a deposit
-// @Tags         deposit
-// @Produce      json
-// @Param        deposit_id    path     int     true  "Deposit ID"
-// @Success      200     {object}  []models.CodeForAdmin  "Deposit codes and their status"
-// @Failure      400     {object}  nil                     "Invalid deposit ID"
-// @Failure      500     {object}  nil                     "Internal server error"
-// @Router       /deposits/{deposit_id}/codes/ [get]
-func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *http.Request) {
-	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" {
-		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
-		return
-	}
-	depositId, err := strconv.Atoi(r.PathValue("deposit_id"))
-	if err != nil {
-		slog.Error("strconv.Atoi() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid deposit ID")
-		return
-	}
-
-	codes, err := db.GetCodesOfLatestTransactionByDepositId(depositId)
-	if err != nil {
-		slog.Error("db.GetCodesOfLatestTransactionByDepositId() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching deposit codes")
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusOK, codes)
-}
-
 // TransferContainerByDepositId godoc
 // @Summary      Transfer container by deposit ID
 // @Description  Change the container of a deposit to a another available container
 // @Tags         deposit
+// @Security     ApiKeyAuth
 // @Accept       json
 // @Produce      json
 // @Param        deposit_id  path      int                              true  "Deposit ID"
@@ -358,7 +347,7 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 // @Router       /deposits/{deposit_id}/transfer/ [patch]
 func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	if role != "admin" {
+	if role != "admin" && role != "user" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
 		return
 	}
@@ -433,7 +422,7 @@ func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 	err = db.UpdateContainerByDepositId(depositId, idNewContainer)
 	if err != nil {
 		slog.Error("db.UpdateContainerByDepositId() failed", "controller", "TransferContainerByDepositId", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transfering container")
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while transferring container")
 		return
 	}
 

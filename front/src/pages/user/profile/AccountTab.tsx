@@ -36,7 +36,7 @@ import { resolveUrl } from "../../../utils/imageUtils";
 import {
   validatePhone,
   validateUsername,
-} from "../../../utils/accountValidation";
+} from "../../../utils/validations/accountValidation";
 import { useTranslation } from "react-i18next";
 import ConfirmAccountUpdateModal from "../../../components/common/ConfirmAccountUpdateModal";
 

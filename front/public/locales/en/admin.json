@@ -100,6 +100,10 @@
       "ref_comment": "Comment #",
       "ref_listing": "Listing #",
       "ref_deposit": "Deposit #"
+    },
+    "notifications": {
+      "error_loading_history": "Failed to fetch admin history.",
+      "error_loading_details": "Failed to fetch history details."
     }
   },
   "modules": {
@@ -276,6 +280,35 @@
         "deleted_at": "Deleted at",
         "no_users": "No users found"
       }
+    },
+    "notifications": {
+      "recover_success_title": "Account recovered",
+      "recover_success_message": "Account recovered successfully.",
+      "delete_success_title": "Account deleted",
+      "delete_success_message": "Account deleted successfully.",
+      "password_update_success_title": "Password updated",
+      "password_update_success_message": "Password changed successfully.",
+      "ban_success_title": "Account banned",
+      "ban_success_message": "This account has been banned.",
+      "unban_success_title": "Account unbanned",
+      "unban_success_message": "This account has been unbanned.",
+      "create_success_title": "Account creation success",
+      "create_success_message": "Account created successfully.",
+      "update_success_title": "Account updated",
+      "update_success_message": "Account updated successfully.",
+      "avatar_update_success_title": "Avatar updated",
+      "avatar_update_success_message": "Your avatar has been updated successfully.",
+      "error_recovering": "Could not recover the account",
+      "error_deleting": "Could not delete the account",
+      "error_loading_details": "Could not load account details",
+      "error_loading_accounts": "Could not load accounts list",
+      "error_updating_password": "Could not update the password",
+      "error_updating_status": "Could not update the account ban status",
+      "error_creating": "Could not create the account",
+      "error_loading_stats": "Could not load account stats",
+      "error_updating": "Could not update the account",
+      "error_loading_count_stats": "Could not load account count stats",
+      "error_updating_avatar": "Could not update the avatar"
     }
   },
   "validations": {
@@ -309,6 +342,7 @@
       "container": "Container",
       "material": "Material",
       "city": "City",
+      "location": "Location",
       "price": "Price",
       "category": "Category",
       "start_date": "Start date",
@@ -336,6 +370,18 @@
       "confirm": "Refuse Item",
       "cancel": "Cancel"
     },
+    "notifications": {
+      "error_loading_deposits": "Could not load pending deposits",
+      "error_loading_listings": "Could not load pending listings",
+      "error_loading_events": "Could not load pending events",
+      "error_loading_stats": "Could not load validation statistics",
+      "error_loading_history": "Could not load items history",
+      "error_processing": "Could not process the validation action",
+      "approve_success_title": "Approved",
+      "approve_success_message": "Item approved successfully",
+      "refuse_success_title": "Refused",
+      "refuse_success_message": "Item refused successfully"
+    },
     "details": {
       "title": "Validation Details",
       "types": {
@@ -343,7 +389,9 @@
         "deposits": "Deposit",
         "events": "Event"
       },
+      "title_suffix": "'s Details",
       "waiting_validation": "Waiting for validation",
+      "view_full_details": "View full details",
       "general_info": "General Information",
       "item_details": "Item Details",
       "event_details": "Event Details",
@@ -401,7 +449,12 @@
       "street": "Street",
       "city": "City Name",
       "zip": "Postal Code",
-      "submit": "Deploy"
+      "postal_code": "Postal Code",
+      "submit": "Deploy",
+      "errors": {
+        "postal_code": "Postal code is required",
+        "postal_code_invalid": "Postal code must be 5 digits"
+      }
     },
     "delete_modal": {
       "title": "Confirm Archiving",
@@ -428,6 +481,25 @@
       "schedule_title": "Container #{{id}} schedule",
       "drop_off": "[Drop-off] ",
       "pick_up": "[Pick-up] "
+    },
+    "notifications": {
+      "create_success_title": "Success",
+      "create_success_message": "New container deployed",
+      "update_status_success_title": "Updated",
+      "update_status_success_message": "Container status modified",
+      "delete_success_title": "Deleted",
+      "delete_success_message": "Container archived successfully",
+      "update_location_success_title": "Updated",
+      "update_location_success_message": "Container location modified",
+      "error_loading_containers": "Unable to load containers.",
+      "error_creating": "Could not create the new container.",
+      "error_updating_status": "Failed to update container state.",
+      "error_deleting": "Could not remove container from inventory.",
+      "error_loading_details": "Could not load information for this container.",
+      "error_loading_stats": "Could not load container count stats.",
+      "error_loading_available": "Could not load available containers.",
+      "error_updating_location": "Failed to update container location.",
+      "error_loading_schedule": "Failed to load schedule for this container."
     }
   },
   "listings": {
@@ -482,19 +554,21 @@
       "no_access_code": "No access code generated for this deposit yet.",
       "owner": "Owner's Code",
       "buyer": "Buyer's Code",
+      "buyer_username": "Buyer",
       "six_digits_code": "6-DIGITS CODE",
       "valid_from": "Valid from: ",
       "valid_to": "Valid to: ",
       "buyer_code_waiting": "Waiting for a buyer to generate their code.",
       "posted_by": "Posted by",
-      "edit_item": "Edit item",
-      "reopen_item": "Re-open item",
-      "approve_item": "Approve item",
-      "delete_item": "Delete item",
+      "edit_item": "Edit",
+      "reopen_item": "Re-open",
+      "approve_item": "Approve",
+      "delete_item": "Delete",
       "transfer_container": "Transfer to another container",
       "edit_modal": {
         "title": "Edit Object's Details",
-        "description_label": "Description"
+        "description_label": "Description",
+        "validation_notice": "Note: Any changes made will require re-validation by an administrator before appearing on the marketplace."
       },
       "transfer_modal": {
         "title": "Transfer to another container",
@@ -513,6 +587,13 @@
         "no_transactions": "No transactions found",
         "cancel_modal_title": "Cancel transaction",
         "cancel_confirm": "Are you sure you want to cancel transaction #{{id}}? This action is irreversible."
+      },
+      "notifications": {
+        "transfer_success_title": "Container transferred",
+        "transfer_success_message": "Container transferred successfully",
+        "transfer_error": "Failed to transfer deposit container",
+        "fetch_deposit_codes_error": "Failed to fetch deposit codes",
+        "fetch_deposit_details_error": "Failed to fetch deposit details"
       }
     }
   },
@@ -654,7 +735,16 @@
       "created_title": "Post created",
       "created_msg": "A new post has been created successfully",
       "deleted_title": "Post deleted",
-      "deleted_msg": "The post has been deleted successfully"
+      "deleted_msg": "The post has been deleted successfully",
+      "ads_created_title": "Ad created",
+      "ads_created_msg": "Ad created successfully",
+      "ads_deleted_title": "Ad deleted",
+      "ads_deleted_msg": "Ad deleted successfully",
+      "ads_updated_title": "Ad updated",
+      "ads_updated_msg": "Ad updated successfully",
+      "error_creating_ads": "Failed to create ad",
+      "error_deleting_ads": "Failed to delete ad",
+      "error_updating_ads": "Failed to update ad"
     }
   },
   "events": {
@@ -674,6 +764,8 @@
       "street_placeholder": "21 Erard street",
       "city_label": "City",
       "city_placeholder": "Paris",
+      "postal_code_label": "Postal Code",
+      "postal_code_placeholder": "75001",
       "location_detail_label": "Additional location details",
       "location_detail_placeholder": "Room 12, 2nd floor",
       "start_date_label": "Start date",
@@ -690,6 +782,7 @@
         "price": "Price must be greater than or equal to 0",
         "street": "Street is required",
         "city": "City is required",
+        "postal_code": "Postal code is required",
         "category": "Category is required",
         "description": "A description is required",
         "start_date": "Start date is required",
@@ -753,7 +846,9 @@
         "no_assigned": "No employees assigned",
         "table": {
           "assigned_on": "Assigned on"
-        }
+        },
+        "error_fetching_available": "Unable to fetch employees.",
+        "error_fetching_schedule": "Unable to fetch employee's schedule."
       },
       "cancel_modal": {
         "reopen_title": "Reopen Event",
@@ -829,6 +924,22 @@
         "reason_placeholder": "Optional reason...",
         "confirm": "Confirm Cancellation"
       }
+    },
+    "notifications": {
+      "revoke_success_title": "Revoked",
+      "revoke_success_message": "Subscription has been revoked",
+      "update_price_success_title": "Updated",
+      "update_price_success_message": "Subscription price updated",
+      "update_trial_success_title": "Updated",
+      "update_trial_success_message": "Trial days updated",
+      "error_loading_subscriptions": "Unable to load subscriptions.",
+      "error_loading_details": "Could not load subscription details.",
+      "error_revoking": "Could not cancel the subscription.",
+      "error_loading_price": "Could not load subscription price.",
+      "error_updating_price": "Could not update subscription price.",
+      "error_loading_trial": "Could not load trial days.",
+      "error_updating_trial": "Could not update trial days.",
+      "error_loading_stats": "Could not load subscription stats."
     }
   },
   "finance": {
@@ -896,6 +1007,13 @@
       "success_title": "Settings updated",
       "success_msg": "{{setting}} updated successfully.",
       "error_title": "Update failed"
+    },
+    "notifications": {
+      "error_loading_revenue": "Failed to fetch revenue data.",
+      "error_loading_settings": "Failed to fetch finance settings.",
+      "error_loading_users": "Failed to fetch users.",
+      "error_loading_invoices": "Failed to fetch user's invoices.",
+      "error_loading_setting": "Failed to fetch finance setting."
     }
   },
   "status": {

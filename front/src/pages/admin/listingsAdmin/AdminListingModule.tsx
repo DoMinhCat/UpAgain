@@ -12,7 +12,6 @@ import {
   Stack,
   Pill,
   Loader,
-  Modal,
 } from "@mantine/core";
 import { AdminCardInfo } from "../../../components/dashboard/AdminCardInfo";
 import { StatsCardDesc } from "../../../components/dashboard/AdminCardInfo";
@@ -41,6 +40,7 @@ import type { Item } from "../../../api/interfaces/item";
 import { useDisclosure } from "@mantine/hooks";
 import { ChartLegend } from "../../../components/chart/ChartLegend";
 import { useTranslation } from "react-i18next";
+import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 
 export function AdminListingModule() {
   const { t } = useTranslation("admin");
@@ -103,6 +103,7 @@ export function AdminListingModule() {
     appliedFilters.statusValue || undefined,
     appliedFilters.materialValue || undefined,
     appliedFilters.categoryValue || undefined,
+    true, // include_purchased
   );
   const allItems = items?.items || [];
 
@@ -639,7 +640,7 @@ export function AdminListingModule() {
               <Table.Td ta="center">{item.price}</Table.Td>
               <Table.Td ta="center">
                 {item.status === "pending" ? (
-                  <Badge variant="blue">{t("status.pending")}</Badge>
+                  <Badge variant="yellow">{t("status.pending")}</Badge>
                 ) : item.status === "approved" ? (
                   <Badge variant="green">{t("status.approved")}</Badge>
                 ) : item.status === "refused" ? (
@@ -672,27 +673,14 @@ export function AdminListingModule() {
           </Table.Tr>
         )}
       </AdminTable>
-      <Modal
-        title={t("listings.delete_modal.title")}
+      <DeleteItemModal
         opened={openedDelete}
         onClose={closeDelete}
-      >
-        {t("listings.delete_modal.text")}
-        <Group mt="lg" justify="flex-end">
-          <Button onClick={closeDelete} variant="grey">
-            {t("users.delete_modal.cancel")}
-          </Button>
-          <Button
-            onClick={(e) => {
-              handleDeleteItem(e);
-            }}
-            variant="delete"
-            loading={deleteItemMutation.isPending}
-          >
-            {t("actions.delete")}
-          </Button>
-        </Group>
-      </Modal>
+        onConfirm={(e: any) => handleDeleteItem(e)}
+        loading={deleteItemMutation.isPending}
+        title={t("listings.delete_modal.title")}
+        text={t("listings.delete_modal.text")}
+      />
     </Container>
   );
 }

@@ -23,4 +23,9 @@ export interface PaginatedDepositsResponse {
 
 export interface DepositDetails {
   container_id: number;
+  street: string;
+  city: string;
+  postal_code: string;
+  lat: number;
+  lng: number;
 }

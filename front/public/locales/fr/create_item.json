@@ -1,0 +1,56 @@
+{
+  "title": "Publier un objet",
+  "subtitle": "Donnez une seconde vie à vos matériaux. Choisissez comment vous souhaitez vous séparer de votre objet.",
+  "sections": {
+    "basic_info": "Informations de base",
+    "attributes": "Détails de l'objet",
+    "retrieval": "Méthode de récupération"
+  },
+  "fields": {
+    "title": "Titre de l'objet",
+    "title_placeholder": "ex: Planches de chêne massif, ferraille...",
+    "description": "Description",
+    "description_placeholder": "Décrivez les dimensions, l'histoire ou les caractéristiques de l'objet...",
+    "price": "Prix (€)",
+    "price_free": "Laissez à 0 si c'est gratuit",
+    "weight": "Poids (kg)",
+    "material": "Matériau",
+    "state": "État",
+    "upcycling_score": "Score d'upcycling estimé",
+    "upcycling_score_note": "Points gagnés pour votre contribution écologique"
+  },
+  "methods": {
+    "deposit": {
+      "title": "Dépôt en conteneur intelligent",
+      "description": "Déposez votre objet dans un conteneur sécurisé. Un professionnel viendra le récupérer plus tard.",
+      "select_container": "Sélectionner un conteneur",
+      "closest": "Trouver le plus proche",
+      "view_map": "Voir sur la carte",
+      "map_placeholder": "Vue Carte (La carte interactive sera intégrée ici)",
+      "closest_retrieved_title": "Conteneur le plus proche trouvé !",
+      "closest_retrieved_message": "Nous avons sélectionné le Conteneur #{{id}} pour vous."
+    },
+    "listing": {
+      "title": "Remise en main propre",
+      "description": "Listez votre objet et coordonnez directement avec l'acheteur pour une récupération à votre domicile.",
+      "address_info": "Adresse de collecte",
+      "current_location": "Utiliser ma position actuelle",
+      "street": "Rue",
+      "city": "Ville",
+      "postal_code": "Code Postal",
+      "address_retrieved_title": "Est-ce la bonne adresse ?",
+      "address_retrieved_message": "Veuillez vérifier à nouveau, l'adresse récupérée peut être imprécise."
+    }
+  },
+  "submit": "Publier l'annonce",
+  "success": "Votre objet a été publié avec succès !",
+  "validation_notice": "Remarque : Toute modification devra être validée à nouveau par un administrateur avant d'apparaître sur la boutique.",
+  "validation": {
+    "required": "Ce champ est obligatoire",
+    "min_weight": "Le poids doit être au moins de 0.1 kg",
+    "min_length": "Doit faire au moins {{count}} caractères",
+    "max_length": "Ne doit pas dépasser {{count}} caractères",
+    "select_container": "Veuillez sélectionner un conteneur",
+    "invalid_postal_code": "Code postal invalide"
+  }
+}

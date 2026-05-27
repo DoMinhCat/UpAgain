@@ -36,6 +36,7 @@ type PendingListingResponse struct {
 	Weight      float64    `json:"weight"`
 	Price       null.Float `json:"price"`
 	CreatedAt   time.Time  `json:"created_at"`
+	Street      string     `json:"street"`
 	CityName    string     `json:"city_name"`
 	PostalCode  string     `json:"postal_code"`
 	UserID      int        `json:"id_user"`

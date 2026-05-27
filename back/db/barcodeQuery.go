@@ -3,11 +3,12 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	"database/sql"
 	"fmt"
 )
 
-func GetAllCodesByContainerId(id_container int) ([]models.CodeForAdmin, error) {
-	var barcodes []models.CodeForAdmin
+func GetAllCodesByContainerId(id_container int) ([]models.Barcode, error) {
+	var barcodes []models.Barcode
 
 	query := `
 		SELECT path, code, valid_from, valid_to, status, user_type, id_account, id_deposit, id_transaction, d.id_container 
@@ -23,7 +24,7 @@ func GetAllCodesByContainerId(id_container int) ([]models.CodeForAdmin, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var bc models.CodeForAdmin
+		var bc models.Barcode
 		if err := rows.Scan(
 			&bc.Path,
 			&bc.Code,
@@ -48,8 +49,8 @@ func GetAllCodesByContainerId(id_container int) ([]models.CodeForAdmin, error) {
 	return barcodes, nil
 }
 
-func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.CodeForAdmin, error) {
-	var codes []models.CodeForAdmin
+func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.Barcode, error) {
+	var codes []models.Barcode
 	query := `
 	SELECT c.path, c.code, c.valid_from, c.valid_to, c.status, 
        c.user_type, c.id_account, c.id_deposit, c.id_transaction, d.id_container
@@ -66,11 +67,14 @@ func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.CodeForAdmi
 	`
 	rows, err := utils.Conn.Query(query, depositId)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return []models.Barcode{}, nil
+		}
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var code models.CodeForAdmin
+		var code models.Barcode
 		err = rows.Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction, &code.IdContainer)
 		if err != nil {
 			return nil, err
@@ -78,4 +82,36 @@ func GetCodesOfLatestTransactionByDepositId(depositId int) ([]models.CodeForAdmi
 		codes = append(codes, code)
 	}
 	return codes, nil
+}
+
+func InsertBarcode(payload models.BarCodeInsert) error {
+	query := `
+		INSERT INTO barcodes (path, code, valid_from, valid_to, user_type, id_account, id_deposit, id_transaction)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`
+	_, err := utils.Conn.Exec(query, payload.BarcodePath, payload.Code6Digit, payload.ValidFrom, payload.ValidFrom.AddDate(0, 0, 7), payload.UserType, payload.IdAccount, payload.IdDeposit, payload.IdTransaction)
+	if err != nil {
+		return fmt.Errorf("InsertBarcode() failed: %v", err)
+	}
+	return nil
+}
+
+// get 1 barcode info for user or pro for a deposit
+func GetCodeByDepositIdAndAccountId(depositId int, accountId int) (models.Barcode, error) {
+	var code models.Barcode
+	query := `
+	SELECT c.path, c.code, c.valid_from, c.valid_to, c.status, 
+       c.user_type, c.id_account, c.id_deposit, c.id_transaction, d.id_container
+	FROM barcodes c
+	JOIN deposits d ON c.id_deposit = d.id_item
+	WHERE d.id_item = $1 AND c.id_account = $2
+	`
+	err := utils.Conn.QueryRow(query, depositId, accountId).Scan(&code.Path, &code.Code, &code.ValidFrom, &code.ValidTo, &code.Status, &code.UserType, &code.IdAccount, &code.IdDeposit, &code.IdTransaction, &code.IdContainer)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.Barcode{}, nil
+		}
+		return models.Barcode{}, err
+	}
+	return code, nil
 }

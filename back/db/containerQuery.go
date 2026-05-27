@@ -124,10 +124,10 @@ func GetContainerCountByStatus(status *string) (int, error) {
 
 func InsertContainer(c models.Container) (int, error) {
 	var newId int
-	query := `INSERT INTO containers (city_name, postal_code, street, status, is_deleted, created_at)
-              VALUES ($1, $2, $3, $4, false, NOW()) RETURNING id`
+	query := `INSERT INTO containers (city_name, postal_code, street, status, is_deleted, created_at, lat, lng)
+              VALUES ($1, $2, $3, $4, false, NOW(), $5, $6) RETURNING id`
 
-	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, c.Street, "ready").Scan(&newId)
+	err := utils.Conn.QueryRow(query, c.CityName, c.PostalCode, c.Street, "ready", c.Lat, c.Lng).Scan(&newId)
 
 	if err != nil {
 		slog.Error("CRITICAL SQL ERROR", "msg", err.Error())
@@ -145,7 +145,11 @@ func GetContainerStatusById(id int) (string, error) {
 
 func GetAvailableContainers() ([]models.Container, error) {
 	var containers []models.Container
-	query := `SELECT id FROM containers WHERE status != 'maintenance' AND is_deleted = false`
+	query := `
+	SELECT id, city_name, postal_code, street, lat, lng 
+	FROM containers 
+	WHERE status != 'maintenance' AND is_deleted = false
+	`
 	rows, err := utils.Conn.Query(query)
 	if err != nil {
 		return nil, err
@@ -153,7 +157,7 @@ func GetAvailableContainers() ([]models.Container, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var c models.Container
-		if err := rows.Scan(&c.ID); err != nil {
+		if err := rows.Scan(&c.ID, &c.CityName, &c.PostalCode, &c.Street, &c.Lat, &c.Lng); err != nil {
 			return nil, err
 		}
 		containers = append(containers, c)
@@ -168,9 +172,23 @@ func CheckContainerExistById(id int) (bool, error) {
 	return exist, err
 }
 
-func UpdateLocationContainer(id int, cityName string, street string) error {
-	query := `UPDATE containers SET city_name = $1, street = $2 WHERE id = $3`
-	_, err := utils.Conn.Exec(query, cityName, street, id)
+func UpdateLocationContainer(id int, payload models.UpdateLocationRequest) error {
+	var query string
+	if payload.Lat != nil && payload.Lng != nil {
+		query = `
+		UPDATE containers 
+		SET city_name = $1, street = $2, postal_code = $3, lat = $4, lng = $5
+		WHERE id = $6
+		`
+		_, err := utils.Conn.Exec(query, payload.CityName, payload.Street, payload.PostalCode, *payload.Lat, *payload.Lng, id)
+		return err
+	}
+	query = `
+	UPDATE containers 
+	SET city_name = $1, street = $2, postal_code = $3
+	WHERE id = $4
+	`
+	_, err := utils.Conn.Exec(query, payload.CityName, payload.Street, payload.PostalCode, id)
 	return err
 }
 

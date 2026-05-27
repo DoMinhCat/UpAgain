@@ -86,3 +86,11 @@ func GetOnesignalAppId() string {
 	}
 	return id
 }
+
+func GetGeoCodeApiKey() string {
+	key := os.Getenv("GEOCODE_API_KEY")
+	if key == "" {
+		log.Panic("GEOCODE_API_KEY not find in .env")
+	}
+	return key
+}

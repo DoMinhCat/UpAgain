@@ -25,6 +25,7 @@ export const PATHS = {
       DETAILS: "/admin/history/:id",
     },
     LISTINGS: "/admin/listings",
+    LISTINGS_DETAILS: (id: number) => `/admin/listings/${id}`,
     SUBSCRIPTIONS: {
       ALL: "/admin/subscriptions",
       DETAILS: "/admin/subscriptions/:id",
@@ -59,8 +60,8 @@ export const PATHS = {
   },
   MARKETPLACE: {
     HOME: "/marketplace",
-    LISTINGS: "/marketplace/listings",
-    DEPOSITS: "/marketplace/deposits",
+    ME: "/marketplace/me",
+    NEW: "/marketplace/new",
   },
   EVENTS: {
     HOME: "/events",
@@ -70,5 +71,8 @@ export const PATHS = {
     HOME: "/community",
     MY_POSTS: "/community/me",
     SAVED_POSTS: "/community/saved",
+  },
+  CONTAINERS: {
+    OPEN: "/containers/open",
   },
 } as const;

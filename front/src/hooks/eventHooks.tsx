@@ -64,8 +64,8 @@ export const useGetAllEvents = (
       ),
     staleTime: 60 * 1000,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch events.",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_fetching_events",
     },
   });
 };
@@ -76,8 +76,8 @@ export const useGetEventStats = (time?: string) => {
     queryFn: () => getEventStats(time),
     staleTime: 60 * 1000,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch event stats.",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_fetching_stats",
     },
   });
 };
@@ -87,13 +87,16 @@ export const useCreateEvent = () => {
   return useMutation({
     mutationFn: (event: EventCreationPayload) => createEvent(event),
     onSuccess: () => {
-      showSuccessNotification("Success", "New event created");
+      showSuccessNotification(
+        "events:notifications.create_success_title",
+        "events:notifications.create_success_message",
+      );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
-      errorTitle: "Event creation failed",
-      errorMessage: "An error occured while creating new event",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_creating_event",
     },
   });
 };
@@ -115,8 +118,8 @@ export const useAssignEmployeeToEvent = () => {
     }) => assignEmployeeToEvent(id_event, employee_ids, start_at, end_at),
     onSuccess: () => {
       showSuccessNotification(
-        "Assignation successful",
-        "Employee(s) assigned to event",
+        "events:notifications.assign_success_title",
+        "events:notifications.assign_success_message",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
@@ -125,8 +128,8 @@ export const useAssignEmployeeToEvent = () => {
       queryClient.invalidateQueries({ queryKey: ["employeeSchedule"] });
     },
     meta: {
-      errorTitle: "Employee assignation failed",
-      errorMessage: "An error occured while assigning employee(s) to event",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_assigning_employee",
     },
   });
 };
@@ -141,8 +144,8 @@ export const useGetEventDetails = (
     queryFn: () => getEventDetails(id_event),
     staleTime: 60 * 1000,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch event details.",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_fetching_details",
     },
   });
 };
@@ -153,8 +156,8 @@ export const useGetAssignedEmployees = (id_event: number) => {
     queryFn: () => getAssignedEmployees(id_event),
     staleTime: 60 * 1000,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch assigned employees.",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_fetching_employees",
     },
   });
 };
@@ -166,8 +169,8 @@ export const useUnAssignEmployee = (id_event: number) => {
       unassignEmployee(id_event, id_employee),
     onSuccess: () => {
       showSuccessNotification(
-        "Unassignation successful",
-        "Employee unassigned from event",
+        "events:notifications.unassign_success_title",
+        "events:notifications.unassign_success_message",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
@@ -176,8 +179,8 @@ export const useUnAssignEmployee = (id_event: number) => {
       queryClient.invalidateQueries({ queryKey: ["employeeSchedule"] });
     },
     meta: {
-      errorTitle: "Employee unassignation failed",
-      errorMessage: "An error occured while unassigning employee from event",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_unassigning_employee",
     },
   });
 };
@@ -189,15 +192,15 @@ export const useUpdateEventStatus = (id_event: number, status: string) => {
     onSuccess: () => {
       showSuccessNotification(
         status === "cancelled"
-          ? "Cancellation successful"
+          ? "events:notifications.cancel_success_title"
           : status === "pending"
-            ? "Approval successful"
-            : "Event updated successfully",
+            ? "events:notifications.approve_success_title"
+            : "events:notifications.update_success_title",
         status === "cancelled"
-          ? "Event cancelled successfully"
+          ? "events:notifications.cancel_success_message"
           : status === "pending"
-            ? "Event approved successfully"
-            : "Event updated successfully",
+            ? "events:notifications.approve_success_message"
+            : "events:notifications.update_success_message",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["event", id_event] });
@@ -205,8 +208,8 @@ export const useUpdateEventStatus = (id_event: number, status: string) => {
       queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
-      errorTitle: "Event status update failed",
-      errorMessage: "An error occured while updating event status",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_updating_status",
     },
   });
 };
@@ -218,8 +221,8 @@ export const useUpdateEvent = (id_event: number) => {
       updateEvent(id_event, event),
     onSuccess: () => {
       showSuccessNotification(
-        "Event updated successfully",
-        "Event has been updated",
+        "events:notifications.update_success_title",
+        "events:notifications.update_success_message",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["event", id_event] });
@@ -227,8 +230,8 @@ export const useUpdateEvent = (id_event: number) => {
       queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
-      errorTitle: "Event update failed",
-      errorMessage: "An error occured while updating event",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_updating_event",
     },
   });
 };
@@ -245,10 +248,12 @@ export const useApproveRefuseEvent = () => {
     }): Promise<void> => updateEventStatus(id, status),
     onSuccess: (_data, { status }) => {
       showSuccessNotification(
-        status === "approved" ? "Event approved" : "Event refused",
         status === "approved"
-          ? "Event has been approved successfully"
-          : "Event has been refused successfully",
+          ? "events:notifications.approve_success_title"
+          : "events:notifications.refuse_success_title",
+        status === "approved"
+          ? "events:notifications.approve_success_message"
+          : "events:notifications.refuse_success_message",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["validationStats"] });
@@ -256,8 +261,8 @@ export const useApproveRefuseEvent = () => {
       queryClient.invalidateQueries({ queryKey: ["histories"] });
     },
     meta: {
-      errorTitle: "Event action failed",
-      errorMessage: "Could not update the event status",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_updating_status",
     },
   });
 };
@@ -277,8 +282,8 @@ export const useRegisterToEvent = () => {
       queryClient.invalidateQueries({ queryKey: ["myEvents"] });
     },
     meta: {
-      errorTitle: "Event registration failed",
-      errorMessage: "An error occured while registering to event",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_registering",
     },
   });
 };
@@ -290,8 +295,8 @@ export const useCancelRegistration = () => {
       cancelRegistration(payload),
     onSuccess: (_data, payload) => {
       showSuccessNotification(
-        "Registration cancelled successfully",
-        "Registration to event has been cancelled",
+        "events:notifications.cancel_registration_success_title",
+        "events:notifications.cancel_registration_success_message",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({
@@ -301,8 +306,8 @@ export const useCancelRegistration = () => {
       queryClient.invalidateQueries({ queryKey: ["myEvents"] });
     },
     meta: {
-      errorTitle: "Registration cancellation failed",
-      errorMessage: "An error occured while cancelling registration to event",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_cancelling_registration",
     },
   });
 };
@@ -313,8 +318,8 @@ export const useGetMyEvents = () => {
     queryFn: () => getMyEvents(),
     staleTime: 60 * 1000,
     meta: {
-      errorTitle: "Error",
-      errorMessage: "Failed to fetch account's events.",
+      errorTitle: "common:notifications.error",
+      errorMessage: "events:notifications.error_fetching_my_events",
     },
   });
 };

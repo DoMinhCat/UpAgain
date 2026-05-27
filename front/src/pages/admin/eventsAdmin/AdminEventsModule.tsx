@@ -9,7 +9,6 @@ import {
   Button,
   Stack,
   Table,
-  Pill,
   Text,
   Badge,
 } from "@mantine/core";
@@ -151,10 +150,10 @@ export default function AdminEventsModule() {
               : t("common:not_set", { defaultValue: "Not set" })}
           </Table.Td>
           <Table.Td ta="center">
-            <Pill
+            <Badge
               variant={
                 event.status === "pending"
-                  ? "var(--upagain-yellow)"
+                  ? "yellow"
                   : event.status === "approved"
                     ? "var(--upagain-neutral-green)"
                     : event.status === "refused"
@@ -166,7 +165,7 @@ export default function AdminEventsModule() {
                 defaultValue:
                   event.status.charAt(0).toUpperCase() + event.status.slice(1),
               })}
-            </Pill>
+            </Badge>
           </Table.Td>
         </Table.Tr>
       ))
@@ -342,7 +341,7 @@ export default function AdminEventsModule() {
         <Grid align="flex-end">
           <Grid.Col span={{ base: 12, md: 3 }}>
             <TextInput
-              label={t("common:search")}
+              label={t("common:actions.search")}
               placeholder={t("events.filters.search_placeholder")}
               disabled={isLoadingEvents}
               rightSection={<IconSearch size={14} />}
