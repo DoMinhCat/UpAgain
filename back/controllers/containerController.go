@@ -817,11 +817,13 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			AccountId: tx.IdPro,
 			Status:    "deposited",
 		}
-		err = onesignal.HandleItemStatusChangeNoti(notiPayload)
-		if err != nil {
-			// failure to insert into DB, but do not block request, only log error as notification is not crucial
-			slog.Warn("HandleItemStatusChangeNoti failed for drop", "controller", "OpenContainer", "error", err)
-		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				// failure to insert into DB, but do not block request, only log error as notification is not crucial
+				slog.Warn("HandleItemStatusChangeNoti failed for drop", "controller", "OpenContainer", "error", errNoti)
+			}
+		}()
 		
 		// update score for user
 		score, err := helpers.CalculateScore(itemDetails.Material, itemDetails.Weight)
@@ -853,11 +855,13 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			AccountId: itemDetails.IdUser,
 			Status:    "retrieved",
 		}
-		err = onesignal.HandleItemStatusChangeNoti(notiPayload)
-		if err != nil {
-			// failure to insert into DB, but do not block request, only log error as notification is not crucial
-			slog.Warn("HandleItemStatusChangeNoti failed for retrieval", "controller", "OpenContainer", "error", err)
-		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				// failure to insert into DB, but do not block request, only log error as notification is not crucial
+				slog.Warn("HandleItemStatusChangeNoti failed for retrieval", "controller", "OpenContainer", "error", errNoti)
+			}
+		}()
 		
 	}
 

@@ -107,10 +107,12 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 			AccountId: itemDetails.IdUser,
 			Status:    newStatus,
 		}
-		errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
-		if errNoti != nil {
-			slog.Warn("HandleItemStatusChangeNoti failed", "controller", "ProcessListingValidation", "error", errNoti)
-		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				slog.Warn("HandleItemStatusChangeNoti failed", "controller", "ProcessListingValidation", "error", errNoti)
+			}
+		}()
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Listing status updated successfully"})
@@ -190,10 +192,12 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 			AccountId: itemDetails.IdUser,
 			Status:    newStatus,
 		}
-		errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
-		if errNoti != nil {
-			slog.Warn("HandleItemStatusChangeNoti failed", "controller", "ProcessDepositValidation", "error", errNoti)
-		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				slog.Warn("HandleItemStatusChangeNoti failed", "controller", "ProcessDepositValidation", "error", errNoti)
+			}
+		}()
 	}
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Deposit status updated successfully"})
 }

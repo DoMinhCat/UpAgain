@@ -528,10 +528,12 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 			AccountId: itemDetails.IdUser,
 			Status:    payload.Status,
 		}
-		err = onesignal.HandleItemStatusChangeNoti(notiPayload)
-		if err != nil {
-			slog.Warn("HandleItemStatusChangeNoti failed", "controller", "UpdateItemStatusById", "error", err)
-		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				slog.Warn("HandleItemStatusChangeNoti failed", "controller", "UpdateItemStatusById", "error", errNoti)
+			}
+		}()
 	}
 
 	if role == "admin" {
@@ -894,10 +896,12 @@ func ReserveItem(w http.ResponseWriter, r *http.Request) {
 			AccountId: itemDetails.IdUser,
 			Status:    "reserved",
 		}
-		errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
-		if errNoti != nil {
-			slog.Warn("HandleItemStatusChangeNoti failed for reservation", "controller", "ReserveItem", "error", errNoti)
-		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				slog.Warn("HandleItemStatusChangeNoti failed for reservation", "controller", "ReserveItem", "error", errNoti)
+			}
+		}()
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item reserved successfully."})
@@ -1122,10 +1126,12 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		AccountId: sellerId,
 		Status:    "purchased",
 	}
-	errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
-	if errNoti != nil {
-		slog.Warn("HandleItemStatusChangeNoti failed for purchase", "controller", "PurchaseItem", "error", errNoti)
-	}
+	go func() {
+		errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+		if errNoti != nil {
+			slog.Warn("HandleItemStatusChangeNoti failed for purchase", "controller", "PurchaseItem", "error", errNoti)
+		}
+	}()
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
 }

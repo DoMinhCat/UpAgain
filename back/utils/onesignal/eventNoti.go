@@ -68,9 +68,7 @@ func HandleEventAssignedNoti(idEvent int, employeeIds []int) {
 		Url: url,
 	}
 
-	if len(eventDetails.Images) > 0 && eventDetails.Images[0] != "" {
-		apiPayload.ChromeWebImage = eventDetails.Images[0]
-	}
+
 
 	err = SendNotification(apiPayload)
 	if err != nil {
@@ -179,10 +177,7 @@ func HandleEventUpdateNoti(idEvent int, action string) {
 		Url: url,
 	}
 
-	// Include ChromeWebImage only if the event has an image
-	if len(eventDetails.Images) > 0 && eventDetails.Images[0] != "" {
-		apiPayload.ChromeWebImage = eventDetails.Images[0]
-	}
+
 
 	// 4. Send push notification via OneSignal API
 	err = SendNotification(apiPayload)

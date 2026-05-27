@@ -8,8 +8,6 @@ type NotificationRequest struct {
 	Headings	   NotificationHeading		  `json:"headings"` // title of noti
 	Contents       NotificationContent        `json:"contents"` // message of the noti
 	IncludeAliases NotificationIncludeAliases `json:"include_aliases"` // use external id (account id) to send notification to specific account(s)
-	ChromeWebImage string                     `json:"chrome_web_image"` // large image
-	ChromeWebIcon  string                     `json:"chrome_web_icon"` // use our UpAgain brand icon
 	Url            string                     `json:"url"` // redirect user to this URL if click on noti
 }
 
