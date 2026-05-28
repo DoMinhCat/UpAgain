@@ -146,6 +146,18 @@ export default function PostDetailPage() {
   const totalComments = commentsData?.total_comments ?? 0;
   const lastPage = commentsData?.last_page ?? 1;
 
+  useEffect(() => {
+    if (comments.length > 0) {
+      const initialLiked = new Set<number>();
+      comments.forEach((c) => {
+        if (c.is_liked) {
+          initialLiked.add(c.id);
+        }
+      });
+      setLikedComments(initialLiked);
+    }
+  }, [commentsData]);
+
   // Fire view increment once after 10 seconds after opened
   useEffect(() => {
     if (
@@ -594,7 +606,11 @@ export default function PostDetailPage() {
                           ...comment,
                           like_count:
                             comment.like_count +
-                            (likedComments.has(comment.id) ? 1 : 0),
+                            (likedComments.has(comment.id) && !comment.is_liked
+                              ? 1
+                              : !likedComments.has(comment.id) && comment.is_liked
+                                ? -1
+                                : 0),
                         }}
                         onLike={handleLikeComment}
                         onDelete={handleOpenDelete}

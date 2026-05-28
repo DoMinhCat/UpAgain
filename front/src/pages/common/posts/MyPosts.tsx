@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import PostCard from "../../../components/post/PostCard";
-import { IconLeaf } from "@tabler/icons-react";
+import { IconLeaf, IconPlus } from "@tabler/icons-react";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import {
   useGetMyPosts,
@@ -108,7 +108,12 @@ export default function MyPosts() {
               {(user?.role === "employee" ||
                 user?.role === "admin" ||
                 user?.role === "pro") && (
-                <Button onClick={openCreate} variant="cta-reverse">
+                <Button
+                  onClick={openCreate}
+                  variant="cta"
+                  leftSection={<IconPlus stroke={2} />}
+                  ta="center"
+                >
                   {t("admin:posts.new_post")}
                 </Button>
               )}

@@ -741,6 +741,8 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
 	for i, comment := range comments {
 		avatar, err := db.GetPhotosPathsByObjectId(comment.IdAccount, "avatar")
 		if err != nil {
@@ -759,6 +761,16 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		comments[i].UserName = username
+
+		if idAccount != 0 {
+			isLiked, err := db.IsCommentLikedByUser(comment.Id, idAccount)
+			if err != nil {
+				slog.Error("db.IsCommentLikedByUser() failed", "controller", "GetPostCommentsByPostId", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get post comments")
+				return
+			}
+			comments[i].IsLiked = isLiked
+		}
 	}
 
 	lastPage := 1
