@@ -87,7 +87,13 @@ func DeleteCommentById(w http.ResponseWriter, r *http.Request) {
 
 	// only admin or emp can delete all comments
 	if role != "admin" && role != "employee" {
-		if r.Context().Value("user").(models.AuthClaims).Id != id_comment {
+		commentDetails, err := db.GetCommentDetails(id_comment)
+		if err != nil {
+			slog.Error("db.GetCommentDetails() failed", "controller", "DeleteCommentById", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete comment.")
+			return
+		}
+		if r.Context().Value("user").(models.AuthClaims).Id != commentDetails.IdAccount {
 			utils.RespondWithError(w, http.StatusUnauthorized, "You can only delete your own comment.")
 			return
 		}
