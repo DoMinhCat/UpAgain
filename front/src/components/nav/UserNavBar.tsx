@@ -189,12 +189,6 @@ export function UserNavBar() {
                 <Menu.Label>{accountDetails?.username}</Menu.Label>
                 <Menu.Item
                   leftSection={<IconUser size={14} />}
-                  onClick={() => window.dispatchEvent(new CustomEvent("start-onboarding-test"))}
-                >
-                  Test Onboarding
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<IconUser size={14} />}
                   onClick={() => navigate(PATHS.USER.PROFILE)}
                 >
                   My Profile
