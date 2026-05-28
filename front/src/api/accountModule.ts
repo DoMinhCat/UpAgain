@@ -98,3 +98,8 @@ export const updateAvatar = async (id_account: number, payload: FormData) => {
   );
   return response.data;
 };
+
+export const completeOnboarding = async () => {
+  const response = await api.post(ENDPOINTS.ACCOUNTS.ONBOARDING);
+  return response.data;
+};

@@ -2,6 +2,7 @@ import { Box } from "@mantine/core";
 import { Outlet } from "react-router-dom";
 import PageFooter from "../components/chart/PageFooter";
 import { UserNavBar } from "../components/nav/UserNavBar";
+import OnboardingTour from "../components/common/OnboardingTour";
 
 export default function UserLayout({
   children,
@@ -13,6 +14,7 @@ export default function UserLayout({
 
   return (
     <Box>
+      <OnboardingTour />
       {/* 1. The Header Container */}
       <Box
         component="header"

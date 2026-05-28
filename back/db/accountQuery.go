@@ -234,6 +234,7 @@ func GetAccountDetailsById(id_account int) (models.AccountDetails, error) {
 		}
 		account.Phone = userDetail.Phone
 		account.Score = userDetail.Score
+		account.CompletedOnboard = &userDetail.CompletedOnboard
 	}
 	return account, nil
 }

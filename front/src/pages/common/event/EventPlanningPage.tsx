@@ -7,7 +7,7 @@ export default function EventPlanningPage() {
   const { t } = useTranslation();
 
   return (
-    <Container size="xl" py={40} w="100%">
+    <Container id="onboard-events-planning" size="xl" py={40} w="100%">
       <Stack gap="xl">
         <Stack gap="xs">
           <MyBreadcrumbs
