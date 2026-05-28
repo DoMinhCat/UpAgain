@@ -205,6 +205,15 @@ create table liked_posts
     PRIMARY KEY (id_account, id_post)
 );
 
+create table liked_comments
+(
+    id_account integer     not null references accounts (id) on delete cascade,
+    id_comment integer     not null references comments (id) on delete cascade,
+    liked_at   timestamptz not null default now(),
+    PRIMARY KEY (id_account, id_comment)
+);
+
+
 CREATE TYPE ads_status AS ENUM ('active', 'expired', 'cancelled');
 create table ads
 (
