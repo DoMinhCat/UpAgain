@@ -159,6 +159,10 @@ function AccessCodeCard({
             fallbackSrc="https://placehold.co/400x200?text=Barcode"
           />
           <Text size="xs" c="dimmed" ta="center">
+            {t("valid_from", { defaultValue: "Valid from:" })}{" "}
+            {dayjs(code.valid_from).format("DD/MM/YYYY HH:mm")}
+          </Text>
+          <Text size="xs" c="dimmed" ta="center">
             {t("valid_to", { defaultValue: "Valid to:" })}{" "}
             {dayjs(code.valid_to).format("DD/MM/YYYY HH:mm")}
           </Text>
@@ -462,6 +466,7 @@ export default function MyItemDetail() {
                       size="lg"
                       mt="md"
                       fullWidth
+                      disabled={dayjs().isBefore(dayjs(myDepositCode.valid_from))}
                       onClick={() =>
                         navigate(PATHS.CONTAINERS.OPEN, {
                           state: {
@@ -539,6 +544,7 @@ export default function MyItemDetail() {
                       <Button
                         variant="primary"
                         size="lg"
+                        disabled={dayjs().isBefore(dayjs(userDepositCode.valid_from))}
                         onClick={() =>
                           navigate(PATHS.CONTAINERS.OPEN, {
                             state: {

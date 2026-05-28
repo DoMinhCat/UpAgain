@@ -152,6 +152,7 @@ export default function EventPage() {
           />
           {user?.role !== "admin" && (
             <Button
+              id="onboard-events-my"
               className="button"
               data-variant="primary"
               onClick={() =>
@@ -166,7 +167,7 @@ export default function EventPage() {
           )}
         </Group>
 
-        <Stack gap={60}>
+        <Stack id="onboard-events-list" gap={60}>
           {/* 2. CATEGORY SECTIONS */}
           {eventsByCategory.map(({ name, items }) => (
             <Stack key={name} gap="xl">
