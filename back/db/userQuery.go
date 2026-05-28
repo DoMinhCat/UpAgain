@@ -27,7 +27,7 @@ func CreateUser(newAccount models.CreateAccountRequest, accountID int) error {
 
 func GetUserDetailsById(id_account int) (models.UserDetails, error) {
 	var userDetails models.UserDetails
-	err := utils.Conn.QueryRow("SELECT phone, up_score FROM users WHERE id_account=$1", id_account).Scan(&userDetails.Phone, &userDetails.Score)
+	err := utils.Conn.QueryRow("SELECT phone, up_score, completed_onboard FROM users WHERE id_account=$1", id_account).Scan(&userDetails.Phone, &userDetails.Score, &userDetails.CompletedOnboard)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return models.UserDetails{}, nil
@@ -233,4 +233,12 @@ func GetUserImpactItems(idAccount, page, limit int) ([]models.UserImpactItem, in
 		return nil, 0, fmt.Errorf("GetUserImpactItems() rows error: %w", err)
 	}
 	return items, totalRecords, nil
+}
+
+func UpdateOnboardByIdAccount(id_account int) error {
+	_, err := utils.Conn.Exec("UPDATE users SET completed_onboard=true WHERE id_account=$1", id_account)
+	if err != nil {
+		return fmt.Errorf("UpdateOnboardByIdAccount() failed: %v", err.Error())
+	}
+	return nil
 }

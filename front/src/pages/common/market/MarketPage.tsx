@@ -114,6 +114,7 @@ export default function MarketPage() {
               )}
               {role === "user" && (
                 <Button
+                  id="onboard-market-post"
                   leftSection={<IconPlus stroke={2} />}
                   variant="primary"
                   onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
@@ -182,7 +183,7 @@ export default function MarketPage() {
             </Stack>
           </Center>
         ) : (
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+          <SimpleGrid id="onboard-market-list" cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
             {items.map((item) => (
               <ItemCard key={item.id} item={item} />
             ))}

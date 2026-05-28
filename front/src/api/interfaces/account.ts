@@ -52,6 +52,7 @@ export interface Account {
   is_premium?: boolean;
   avatar?: string;
   deleted_at?: string;
+  completed_onboard?: boolean;
 }
 
 export interface AccountsListPagination {
