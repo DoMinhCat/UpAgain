@@ -123,3 +123,14 @@ func ToggleLikeComment(id_comment int, id_account int) (bool, error) {
 	}
 	return true, nil
 }
+
+func GetCommentDetails(id_comment int) (models.Comment, error) {
+	var comment models.Comment
+	query := `SELECT c.id, c.content, c.created_at, c.like_count, c.id_post, c.id_account 
+	FROM comments c WHERE c.id = $1 AND is_deleted=false;`
+	err := utils.Conn.QueryRow(query, id_comment).Scan(&comment.Id, &comment.Content, &comment.CreatedAt, &comment.LikeCount, &comment.IdPost, &comment.IdAccount)
+	if err != nil {
+		return models.Comment{}, fmt.Errorf("GetCommentDetails() failed: '%v'", err)
+	}
+	return comment, nil
+}
