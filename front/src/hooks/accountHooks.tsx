@@ -11,6 +11,7 @@ import {
   updateAccount,
   getAccountCountStats,
   updateAvatar,
+  completeOnboarding,
 } from "../api/accountModule";
 import {
   type Account,
@@ -244,6 +245,18 @@ export const useUpdateAvatar = (account_id: number) => {
       );
       queryClient.invalidateQueries({
         queryKey: ["accountDetails", account_id],
+      });
+    },
+  });
+};
+
+export const useCompleteOnboarding = (accountId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => completeOnboarding(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["accountDetails", accountId],
       });
     },
   });

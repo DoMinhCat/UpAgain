@@ -46,9 +46,10 @@ type AccountDetails struct {
 	LastActive null.Time   `json:"last_active"`
 	Phone      null.String `json:"phone" swaggertype:"string"`
 	Score      int         `json:"score"`
-	IsPremium  bool        `json:"is_premium"`
-	Avatar     null.String `json:"avatar" swaggertype:"string"`
-	DeletedAt  null.Time   `json:"deleted_at"`
+	IsPremium        bool        `json:"is_premium"`
+	Avatar           null.String `json:"avatar" swaggertype:"string"`
+	DeletedAt        null.Time   `json:"deleted_at"`
+	CompletedOnboard *bool       `json:"completed_onboard,omitempty"`
 }
 
 type UpdatePasswordRequest struct {
