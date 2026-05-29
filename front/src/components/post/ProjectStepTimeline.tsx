@@ -23,6 +23,7 @@ interface ProjectStepTimelineProps {
   projectSteps?: Step[];
   onDeleteStep?: (id: number) => void;
   postId?: number;
+  postTitle?: string;
 }
 
 export const ProjectStepTimeline = ({
@@ -31,6 +32,7 @@ export const ProjectStepTimeline = ({
   projectSteps,
   onDeleteStep,
   postId,
+  postTitle,
 }: ProjectStepTimelineProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation("post");
@@ -119,6 +121,7 @@ export const ProjectStepTimeline = ({
                           state: {
                             from: "postDetails",
                             id_post: postId,
+                            post_title: postTitle,
                           },
                         });
                       } else {
@@ -126,6 +129,7 @@ export const ProjectStepTimeline = ({
                           state: {
                             from: "postDetails",
                             id_post: postId,
+                            post_title: postTitle,
                           },
                         });
                       }

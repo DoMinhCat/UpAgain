@@ -12,7 +12,8 @@
     "view_count_plural": "{{count}} views",
     "save_label": "Save for later",
     "unsave_label": "Unsave",
-    "project_steps": "Project Steps"
+    "project_steps": "Project Steps",
+    "title": "Post Details"
   },
   "comments": {
     "title": "Comment",
