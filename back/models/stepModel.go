@@ -18,8 +18,9 @@ type ProjectStep struct {
 }
 
 type StepInsertPayload struct {
-	IdPost int `json:"id_post"`
-	Title string `json:"title"`
-	Description string `json:"description"`
-	ItemIds []int `json:"item_ids"`
+	IdPost      int      `json:"id_post"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	ItemIds     []int    `json:"item_ids"`
+	Images      []string `json:"images"`
 }

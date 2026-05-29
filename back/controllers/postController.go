@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -142,9 +143,9 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var payload models.CreatePostRequest
-	payload.Title = r.FormValue("title")
-	payload.Content = r.FormValue("content")
-	payload.Category = r.FormValue("category")
+	payload.Title = strings.TrimSpace(r.FormValue("title"))
+	payload.Content = strings.TrimSpace(r.FormValue("content"))
+	payload.Category = strings.TrimSpace(r.FormValue("category"))
 	files := r.MultipartForm.File["images"]
 	for _, file := range files {
 		path, err := helpers.SaveUploadedFile(file, "images/posts")
@@ -1048,10 +1049,52 @@ func CreatePostStep(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// decode payload
-	var dbPayload models.StepInsertPayload
-	err = json.NewDecoder(r.Body).Decode(&dbPayload)
+	err = r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid payload")
+		slog.Error("r.ParseMultipartForm() failed", "controller", "CreatePostStep", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+		return
+	}
+	var dbPayload models.StepInsertPayload
+
+	dbPayload.Title = strings.TrimSpace(r.FormValue("title"))
+	dbPayload.Description = strings.TrimSpace(r.FormValue("description"))
+	itemIdsStrings := r.MultipartForm.Value["item_ids"]
+	for _, itemIdStr := range itemIdsStrings {
+		itemId, err := strconv.Atoi(itemIdStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "CreatePostStep", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID")
+			return
+		}
+		exists, err := db.CheckItemExistByItemId(itemId)
+		if err != nil {
+			slog.Error("db.CheckItemExistByItemId() failed", "controller", "CreatePostStep", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create step")
+			return
+		}
+		if !exists {
+			utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(itemId)+" not found")
+			return
+		}
+		dbPayload.ItemIds = append(dbPayload.ItemIds, itemId)
+	}
+
+	files := r.MultipartForm.File["images"]
+	for _, file := range files {
+		path, err := helpers.SaveUploadedFile(file, "images/posts")
+		if err != nil {
+			slog.Error("SaveUploadedFile() failed", "controller", "CreatePostStep", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
+			return
+		}
+		dbPayload.Images = append(dbPayload.Images, path)
+	}
+
+	// validate
+	validation := validations.ValidateProjectStepCreation(dbPayload)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
 		return
 	}
 	dbPayload.IdPost = idPost
@@ -1070,6 +1113,22 @@ func CreatePostStep(w http.ResponseWriter, r *http.Request) {
 		slog.Error("InsertItemsOfSteps() failed", "controller", "CreatePostStep", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while adding the step to the project")
 		return
+	}
+
+	// insert images
+	for i, imgPath := range dbPayload.Images {
+		imagePayload := models.PhotoInsertRequest{
+			Path:       imgPath,
+			IsPrimary:  i == 0,
+			ObjectType: "step",
+			FkId:       idStepInserted,
+		}
+		err = db.InsertImage(imagePayload)
+		if err != nil {
+			slog.Error("db.InsertImage() failed", "controller", "CreatePostStep", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to save images.")
+			return
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Step added to your project"})
@@ -1103,12 +1162,13 @@ func UpdateStep(w http.ResponseWriter, r *http.Request)  {
 			return
 		}
 		if postDetails.IdAccount != r.Context().Value("user").(models.AuthClaims).Id {
-			utils.RespondWithError(w, http.StatusForbidden, "You can onlt modify your own projects")
+			utils.RespondWithError(w, http.StatusForbidden, "You can only modify your own projects")
 			return
 		}
 	}
 
 	// decode payload (reuse the creation payload)
+	// TODO: integrate order update logic (float division)
 	var dbPayload models.StepInsertPayload
 	err = json.NewDecoder(r.Body).Decode(&dbPayload)
 	if err != nil {
