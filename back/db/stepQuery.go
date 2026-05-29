@@ -101,8 +101,9 @@ func DeleteProjectStepByStepId(id_step int) error {
 func InsertStep(payload models.StepInsertPayload) (int, error) {
 	var idStep int
 	query := `
-		INSERT INTO project_steps (title, description, id_post)
-		VALUES ($1, $2, $3) RETURNING id
+		INSERT INTO project_steps (title, description, id_post, "order")
+		VALUES ($1, $2, $3, COALESCE((SELECT MAX("order") FROM project_steps WHERE id_post = $3), 0) + 1)
+		RETURNING id
 	`
 	err := utils.Conn.QueryRow(query, payload.Title, payload.Description, payload.IdPost).Scan(&idStep)
 	if err != nil {
@@ -147,9 +148,9 @@ func InsertItemsOfSteps(idStep int, itemIds []int) error {
 func UpdateStep(payload models.StepInsertPayload, idStep int) error {
 	query := `
 		UPDATE project_steps SET title=$1, description=$2
-		WHERE id_post==$3
+		WHERE id=$3
 	`
-	_, err := utils.Conn.Exec(query, payload.Title, payload.Description, payload.IdPost)
+	_, err := utils.Conn.Exec(query, payload.Title, payload.Description, idStep)
 	if err != nil {
 		return err
 	}

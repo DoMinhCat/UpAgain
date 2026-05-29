@@ -1017,7 +1017,24 @@ func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, posts)
 }
 
-// TODO: swagger doc
+// CreatePostStep godoc
+// @Summary      Create a new step for a post
+// @Description  Add a new project step with title, description, associated items, and images. Only available for the post owner (pro).
+// @Tags         Posts
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        id_post      path      int      true   "Post ID"
+// @Param        title        formData  string   true   "Step Title"
+// @Param        description  formData  string   true   "Step Description"
+// @Param        item_ids     formData  []int    false  "Associated Item IDs"
+// @Param        images       formData  file     false  "Step Images"
+// @Success      200          {object}  map[string]string "Step added to your project"
+// @Failure      400          {string}  string   "Bad Request"
+// @Failure      401          {string}  string   "Unauthorized"
+// @Failure      403          {string}  string   "Forbidden"
+// @Failure      500          {string}  string   "Internal Server Error"
+// @Router       /posts/{id_post}/steps [post]
 func CreatePostStep(w http.ResponseWriter, r *http.Request) {
 	idPost, err := strconv.Atoi(r.PathValue("id_post"))
 	if err != nil {
@@ -1029,7 +1046,7 @@ func CreatePostStep(w http.ResponseWriter, r *http.Request) {
 	exists, err := db.CheckPostExistsById(idPost)
 	if err != nil {
 		slog.Error("db.CheckPostExistsById() failed", "controller", "CreatePostStep", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete post")
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to check post existence")
 		return
 	}
 	if !exists {
@@ -1041,6 +1058,10 @@ func CreatePostStep(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("GetPostDetailsById() failed", "controller", "CreatePostStep", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occured while adding the step to the project")
+		return
+	}
+	if postDetails.Category != "project" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Steps can only be added to posts in the 'project' category")
 		return
 	}
 	if postDetails.IdAccount != r.Context().Value("user").(models.AuthClaims).Id {

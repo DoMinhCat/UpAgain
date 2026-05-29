@@ -166,3 +166,14 @@ export const GetMyPosts = async (
   });
   return response.data;
 };
+
+export const CreateProjectStep = async (
+  id_post: number,
+  payload: FormData,
+) => {
+  const response = await api.post(
+    ENDPOINTS.ADMIN.POSTS.STEPS(id_post),
+    payload,
+  );
+  return response.data;
+};

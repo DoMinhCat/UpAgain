@@ -3814,59 +3814,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/items/{item_id}/transactions/{transaction_uuid}/cancel/": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Cancel an active reserved transaction for an item",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "transaction"
-                ],
-                "summary": "Cancel transaction",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Item ID",
-                        "name": "item_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Transaction UUID",
-                        "name": "transaction_uuid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Transaction cancelled successfully"
-                    },
-                    "400": {
-                        "description": "Invalid parameters"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Transaction or item not found"
-                    },
-                    "409": {
-                        "description": "Transaction cannot be cancelled"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
         "/listings/{listing_id}/": {
             "get": {
                 "security": [
@@ -4967,6 +4914,100 @@ const docTemplate = `{
                 }
             }
         },
+        "/posts/{id_post}/steps": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Add a new project step with title, description, associated items, and images. Only available for the post owner (pro).",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Create a new step for a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Step Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Step Description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Associated Item IDs",
+                        "name": "item_ids",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Step Images",
+                        "name": "images",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Step added to your project",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/posts/{id_post}/steps/": {
             "get": {
                 "security": [
@@ -5455,6 +5496,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/impact/global/": {
+            "get": {
+                "description": "Returns the total CO2 saved by all users across all completed items on the platform.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get global environmental impact",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved global impact stats",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserImpactStats"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/users/items/": {
             "get": {
                 "security": [
@@ -5722,6 +5786,9 @@ const docTemplate = `{
         "models.Barcode": {
             "type": "object",
             "properties": {
+                "barcode_base64": {
+                    "type": "string"
+                },
                 "code": {
                     "type": "string"
                 },
@@ -5773,6 +5840,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "is_deleted": {
+                    "type": "boolean"
+                },
+                "is_liked": {
                     "type": "boolean"
                 },
                 "like_count": {
@@ -6773,6 +6843,9 @@ const docTemplate = `{
                 },
                 "commission_rate": {
                     "type": "number"
+                },
+                "confirm_code": {
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"

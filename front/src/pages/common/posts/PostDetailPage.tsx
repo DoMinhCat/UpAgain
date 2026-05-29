@@ -28,6 +28,7 @@ import {
   IconMessageCircle,
   IconRouteSquare,
   IconCrownFilled,
+  IconPlus,
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -64,6 +65,7 @@ import { resolveUrl } from "../../../utils/imageUtils";
 import DOMPurify from "dompurify";
 import { EditPostModal } from "../../../components/post/EditPostModal";
 import { DeletePostModal } from "../../../components/post/DeletePostModal";
+import { CreatePostStepModal } from "../../../components/post/CreatePostStepModal";
 
 const CATEGORY_COLOR: Record<string, string> = {
   tutorial: "blue",
@@ -78,7 +80,7 @@ export default function PostDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useComputedColorScheme("light");
-  const { t } = useTranslation(["post", "common", "admin"]);
+  const { t } = useTranslation(["post", "common", "admin", "marketplace"]);
   const { user } = useAuth();
   const role: string = user?.role || "";
   const { id } = useParams<{ id: string }>();
@@ -123,6 +125,8 @@ export default function PostDetailPage() {
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
   const [openedDelete, { open: openDelete, close: closeDelete }] =
+    useDisclosure(false);
+  const [openedAddStep, { open: openAddStep, close: closeAddStep }] =
     useDisclosure(false);
 
   const handleOpenDelete = (id: number) => {
@@ -522,12 +526,29 @@ export default function PostDetailPage() {
                 <>
                   <Divider my="md" />
                   <Stack gap="xl">
-                    <Group gap="sm">
-                      <IconRouteSquare
-                        color="var(--upagain-neutral-green)"
-                        size={32}
-                      />
-                      <Title order={3}>{t("post:details.project_steps")}</Title>
+                    <Group justify="space-between" align="center">
+                      <Group gap="sm">
+                        <IconRouteSquare
+                          color="var(--upagain-neutral-green)"
+                          size={32}
+                        />
+                        <Title order={3}>
+                          {t("post:details.project_steps")}
+                        </Title>
+                      </Group>
+                      {user?.role === "pro" &&
+                        user?.id === post?.creator_id && (
+                          <Button
+                            variant="primary"
+                            onClick={openAddStep}
+                            leftSection={<IconPlus size={16} />}
+                          >
+                            {t(
+                              "marketplace:my_item_detail.project_steps.add_button",
+                              { defaultValue: "Add Step" },
+                            )}
+                          </Button>
+                        )}
                     </Group>
 
                     {isLoadingProjectSteps ? (
@@ -608,7 +629,8 @@ export default function PostDetailPage() {
                             comment.like_count +
                             (likedComments.has(comment.id) && !comment.is_liked
                               ? 1
-                              : !likedComments.has(comment.id) && comment.is_liked
+                              : !likedComments.has(comment.id) &&
+                                  comment.is_liked
                                 ? -1
                                 : 0),
                         }}
@@ -672,6 +694,11 @@ export default function PostDetailPage() {
         onSuccess={() =>
           navigate(PATHS.POSTS.MY_POSTS, { state: { from: "communityIndex" } })
         }
+      />
+      <CreatePostStepModal
+        opened={openedAddStep}
+        onClose={closeAddStep}
+        postId={postId}
       />
     </>
   );
