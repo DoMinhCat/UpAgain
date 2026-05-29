@@ -1189,7 +1189,6 @@ func UpdateStep(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	// decode payload (reuse the creation payload)
-	// TODO: integrate order update logic (float division)
 	var dbPayload models.StepInsertPayload
 	err = json.NewDecoder(r.Body).Decode(&dbPayload)
 	if err != nil {
@@ -1197,11 +1196,81 @@ func UpdateStep(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
+	// validate
+	validation := validations.ValidateProjectStepCreation(dbPayload)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+		return
+	}
+
+	// validate item IDs
+	for _, itemId := range dbPayload.ItemIds {
+		exists, err := db.CheckItemExistByItemId(itemId)
+		if err != nil {
+			slog.Error("db.CheckItemExistByItemId() failed", "controller", "UpdateStep", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update step")
+			return
+		}
+		if !exists {
+			utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(itemId)+" not found")
+			return
+		}
+	}
+
+	// update project steps (including order calculation)
 	err = db.UpdateStep(dbPayload, idStep)
 	if err != nil {
 		slog.Error("db.UpdateStep() failed", "controller", "UpdateStep", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update project step")
 		return
+	}
+
+	// diff and update images
+	existingImages, err := db.GetPhotosPathsByObjectId(idStep, "step")
+	if err != nil {
+		slog.Error("db.GetPhotosPathsByObjectId() failed", "controller", "UpdateStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update step")
+		return
+	}
+
+	existingImgMap := make(map[string]bool)
+	for _, img := range existingImages {
+		existingImgMap[img] = true
+	}
+
+	newImgMap := make(map[string]bool)
+	for _, img := range dbPayload.Images {
+		newImgMap[img] = true
+	}
+
+	// delete removed images
+	for _, img := range existingImages {
+		if !newImgMap[img] {
+			err = db.DeleteImageByPath(img)
+			if err != nil {
+				slog.Error("db.DeleteImageByPath() failed", "controller", "UpdateStep", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update step images")
+				return
+			}
+		}
+	}
+
+	// insert new images
+	for i, img := range dbPayload.Images {
+		if !existingImgMap[img] {
+			imagePayload := models.PhotoInsertRequest{
+				Path:       img,
+				IsPrimary:  i == 0 && len(existingImages) == 0,
+				ObjectType: "step",
+				FkId:       idStep,
+			}
+			err = db.InsertImage(imagePayload)
+			if err != nil {
+				slog.Error("db.InsertImage() failed", "controller", "UpdateStep", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "Failed to insert step images")
+				return
+			}
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Step updated successfully"})
