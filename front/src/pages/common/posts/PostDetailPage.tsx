@@ -43,6 +43,7 @@ import {
   useLikeComment,
   useGetProjectStepsByPostId,
   useDeleteComment,
+  useDeleteProjectStep,
 } from "../../../hooks/postHooks";
 import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimeline";
 import type { Step } from "../../../api/interfaces/step";
@@ -59,6 +60,7 @@ import { NotFoundPage } from "../../error/404";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
+import { DeleteProjectStepModal } from "../../../components/post/DeleteProjectStepModal";
 import { useTranslation } from "react-i18next";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { resolveUrl } from "../../../utils/imageUtils";
@@ -80,7 +82,13 @@ export default function PostDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useComputedColorScheme("light");
-  const { t } = useTranslation(["post", "common", "admin", "marketplace", "community"]);
+  const { t } = useTranslation([
+    "post",
+    "common",
+    "admin",
+    "marketplace",
+    "community",
+  ]);
   const { user } = useAuth();
   const role: string = user?.role || "";
   const { id } = useParams<{ id: string }>();
@@ -140,6 +148,30 @@ export default function PostDetailPage() {
         onSuccess: () => {
           closeDeleteModal();
           setCommentToDelete(null);
+        },
+      });
+    }
+  };
+
+  // DELETE STEP MODAL STATE
+  const [idStepToDelete, setIdStepToDelete] = useState<number | null>(null);
+  const [
+    openedDeleteStep,
+    { open: openDeleteStep, close: closeDeleteStep },
+  ] = useDisclosure(false);
+
+  const handleOpenDeleteStep = (id: number) => {
+    setIdStepToDelete(id);
+    openDeleteStep();
+  };
+
+  const deleteStepMutation = useDeleteProjectStep();
+  const confirmDeleteStep = () => {
+    if (idStepToDelete) {
+      deleteStepMutation.mutate(idStepToDelete, {
+        onSuccess: () => {
+          closeDeleteStep();
+          setIdStepToDelete(null);
         },
       });
     }
@@ -371,7 +403,8 @@ export default function PostDetailPage() {
                 mt="md"
                 breadcrumbs={[
                   { title: t("home:title"), href: PATHS.HOME },
-                  ...(location.state?.from === "itemDetails" || location.state?.from === "communityIndex"
+                  ...(location.state?.from === "itemDetails" ||
+                  location.state?.from === "communityIndex"
                     ? [
                         {
                           title: t("community:community"),
@@ -559,8 +592,11 @@ export default function PostDetailPage() {
                       <ProjectStepTimeline
                         role={role === "admin" ? "admin" : "user"}
                         enableDeleteStep={
-                          user?.role === "admin" || user?.role === "employee"
+                          user?.role === "admin" ||
+                          (user?.role === "pro" &&
+                            user?.id === post?.creator_id)
                         }
+                        onDeleteStep={handleOpenDeleteStep}
                         projectSteps={projectSteps as Step[]}
                         postId={post.id}
                         postTitle={post.title}
@@ -704,6 +740,13 @@ export default function PostDetailPage() {
           postId={postId}
         />
       )}
+
+      <DeleteProjectStepModal
+        opened={openedDeleteStep}
+        onClose={closeDeleteStep}
+        onConfirm={confirmDeleteStep}
+        loading={deleteStepMutation.isPending}
+      />
     </>
   );
 }

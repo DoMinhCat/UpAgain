@@ -42,6 +42,7 @@ import {
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
+import { DeleteProjectStepModal } from "../../../components/post/DeleteProjectStepModal";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { EditPostModal } from "../../../components/post/EditPostModal";
@@ -130,8 +131,7 @@ export const AdminPostDetails = () => {
     openDeleteStep();
   };
   const deleteStep = useDeleteProjectStep();
-  const handleDeleteStep = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDeleteStep = () => {
     if (idStepToDelete) {
       deleteStep.mutate(idStepToDelete, {
         onSuccess: () => {
@@ -713,30 +713,12 @@ export const AdminPostDetails = () => {
         </Grid>
       </Container>
 
-      <Modal
-        title={t("posts.delete_step_modal.title")}
+      <DeleteProjectStepModal
         opened={openedDeleteStep}
         onClose={closeDeleteStep}
-        size="md"
-      >
-        <Stack>
-          <Text>{t("posts.delete_step_modal.text")}</Text>
-        </Stack>
-        <Group mt="lg" justify="center">
-          <Button onClick={closeDeleteStep} variant="grey">
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            onClick={(e: React.FormEvent) => {
-              handleDeleteStep(e);
-            }}
-            variant="delete"
-            loading={deleteStep.isPending}
-          >
-            {t("common:actions.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+        onConfirm={handleDeleteStep}
+        loading={deleteStep.isPending}
+      />
     </Container>
   );
 };

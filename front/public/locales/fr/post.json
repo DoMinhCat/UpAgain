@@ -6,6 +6,8 @@
   },
   "delete_comment_modal_title": "Supprimer le commentaire",
   "delete_comment_modal_text": "Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action est irréversible.",
+  "delete_step_modal_title": "Supprimer l'étape du projet",
+  "delete_step_modal_text": "Êtes-vous sûr de vouloir supprimer cette étape ? Cette action est irréversible.",
   "details": {
     "sponsored": "Ce post est sponsorisé",
     "view_count": "{{count}} vue",
