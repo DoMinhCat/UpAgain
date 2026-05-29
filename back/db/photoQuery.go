@@ -22,6 +22,10 @@ func InsertImage(payload models.PhotoInsertRequest) error {
 		query = `
 			insert into photos (path, is_primary, object_type, item_id) values ($1, $2, $3, $4);
 		`
+	case "step":
+		query = `
+			insert into photos (path, is_primary, object_type, step_id) values ($1, $2, $3, $4);
+		`
 	default:
 		return fmt.Errorf("InsertImage() failed: invalid object type '%v'", payload.ObjectType)
 	}

@@ -374,6 +374,7 @@ CREATE TABLE project_steps (
   title       VARCHAR(255)   NOT NULL,
   description TEXT           NOT NULL,
   id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  order       FLOAT          NOT NULL
 );
 
 -- a project step can have multiple items
