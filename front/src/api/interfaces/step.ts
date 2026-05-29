@@ -11,4 +11,5 @@ export interface Step {
   created_at: string;
   photos: string[];
   items: StepItem[];
+  order: number;
 }

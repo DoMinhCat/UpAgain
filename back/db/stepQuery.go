@@ -4,15 +4,16 @@ import (
 	"backend/models"
 	"backend/utils"
 	"fmt"
+	"log/slog"
 	"strings"
 )
 
 func GetProjectStepsByPostId(id_post int) ([]models.ProjectStep, error) {
 	query := `
-	SELECT s.id, s.created_at, s.title, s.description, s.id_post
+	SELECT s.id, s.created_at, s.title, s.description, s.id_post, s.order
 	FROM project_steps s
 	WHERE s.id_post = $1 AND s.is_deleted = false
-	ORDER BY s.created_at DESC;
+	ORDER BY s."order" ASC;
 	`
 
 	rows, err := utils.Conn.Query(query, id_post)
@@ -23,7 +24,7 @@ func GetProjectStepsByPostId(id_post int) ([]models.ProjectStep, error) {
 	var steps []models.ProjectStep
 	for rows.Next() {
 		var step models.ProjectStep
-		if err := rows.Scan(&step.Id, &step.CreatedAt, &step.Title, &step.Description, &step.IdPost); err != nil {
+		if err := rows.Scan(&step.Id, &step.CreatedAt, &step.Title, &step.Description, &step.IdPost, &step.Order); err != nil {
 			return nil, err
 		}
 
@@ -146,11 +147,64 @@ func InsertItemsOfSteps(idStep int, itemIds []int) error {
 }
 
 func UpdateStep(payload models.StepInsertPayload, idStep int) error {
-	query := `
-		UPDATE project_steps SET title=$1, description=$2
-		WHERE id=$3
-	`
-	_, err := utils.Conn.Exec(query, payload.Title, payload.Description, idStep)
+	var err error
+	var newOrder *float64
+
+	if payload.PrevStepId != nil || payload.NextStepId != nil {
+		var prevOrder, nextOrder float64
+		hasPrev := false
+		hasNext := false
+
+		if payload.PrevStepId != nil {
+			err = utils.Conn.QueryRow(`SELECT "order" FROM project_steps WHERE id = $1 AND is_deleted = false`, *payload.PrevStepId).Scan(&prevOrder)
+			if err == nil {
+				hasPrev = true
+			} else {
+				slog.Warn("Failed to get step order", "function", "UpdateStep", "error", err)
+			}
+		}
+
+		if payload.NextStepId != nil {
+			err = utils.Conn.QueryRow(`SELECT "order" FROM project_steps WHERE id = $1 AND is_deleted = false`, *payload.NextStepId).Scan(&nextOrder)
+			if err == nil {
+				hasNext = true
+			} else {
+				slog.Warn("Failed to get step order", "function", "UpdateStep", "error", err)
+			}
+		}
+
+		if hasPrev && hasNext {
+			// step placed in between
+			calculated := (prevOrder + nextOrder) / 2.0
+			newOrder = &calculated
+		} else if hasPrev {
+			// step placed in last
+			calculated := prevOrder + 1.0
+			newOrder = &calculated
+		} else if hasNext {
+			// step placed in first
+			calculated := nextOrder / 2.0
+			newOrder = &calculated
+		}
+	}
+
+	var query string
+	var args []interface{}
+	if newOrder != nil {
+		query = `
+			UPDATE project_steps SET title=$1, description=$2, "order"=$3
+			WHERE id=$4
+		`
+		args = []interface{}{payload.Title, payload.Description, *newOrder, idStep}
+	} else {
+		query = `
+			UPDATE project_steps SET title=$1, description=$2
+			WHERE id=$3
+		`
+		args = []interface{}{payload.Title, payload.Description, idStep}
+	}
+
+	_, err = utils.Conn.Exec(query, args...)
 	if err != nil {
 		return err
 	}
