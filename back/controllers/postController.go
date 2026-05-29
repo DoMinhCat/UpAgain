@@ -872,7 +872,7 @@ func DeleteProjectStep(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if postDetails.IdAccount != r.Context().Value("user").(models.AuthClaims).Id {
-			utils.RespondWithError(w, http.StatusForbidden, "You can onlt modify your own projects")
+			utils.RespondWithError(w, http.StatusForbidden, "You can only modify your own projects")
 			return
 		}
 	}

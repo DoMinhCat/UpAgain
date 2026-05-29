@@ -12,7 +12,8 @@
     "view_count_plural": "{{count}} lượt xem",
     "save_label": "Lưu để xem sau",
     "unsave_label": "Bỏ lưu",
-    "project_steps": "Các bước dự án"
+    "project_steps": "Các bước dự án",
+    "title": "Chi tiết bài viết"
   },
   "comments": {
     "title": "Bình luận",

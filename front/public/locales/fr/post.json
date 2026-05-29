@@ -12,7 +12,8 @@
     "view_count_plural": "{{count}} vues",
     "save_label": "Enregistrer pour plus tard",
     "unsave_label": "Désenregistrer",
-    "project_steps": "Étapes du projet"
+    "project_steps": "Étapes du projet",
+    "title": "Détails du post"
   },
   "comments": {
     "title": "Commentaire",

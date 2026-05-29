@@ -80,7 +80,7 @@ export default function PostDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useComputedColorScheme("light");
-  const { t } = useTranslation(["post", "common", "admin", "marketplace"]);
+  const { t } = useTranslation(["post", "common", "admin", "marketplace", "community"]);
   const { user } = useAuth();
   const role: string = user?.role || "";
   const { id } = useParams<{ id: string }>();
@@ -371,7 +371,7 @@ export default function PostDetailPage() {
                 mt="md"
                 breadcrumbs={[
                   { title: t("home:title"), href: PATHS.HOME },
-                  ...(location.state?.from === "communityIndex"
+                  ...(location.state?.from === "itemDetails" || location.state?.from === "communityIndex"
                     ? [
                         {
                           title: t("community:community"),
@@ -563,6 +563,7 @@ export default function PostDetailPage() {
                         }
                         projectSteps={projectSteps as Step[]}
                         postId={post.id}
+                        postTitle={post.title}
                       />
                     )}
                   </Stack>
@@ -695,11 +696,14 @@ export default function PostDetailPage() {
           navigate(PATHS.POSTS.MY_POSTS, { state: { from: "communityIndex" } })
         }
       />
-      <CreatePostStepModal
-        opened={openedAddStep}
-        onClose={closeAddStep}
-        postId={postId}
-      />
+
+      {role === "pro" && (
+        <CreatePostStepModal
+          opened={openedAddStep}
+          onClose={closeAddStep}
+          postId={postId}
+        />
+      )}
     </>
   );
 }
