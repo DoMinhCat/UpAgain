@@ -6,6 +6,8 @@
   },
   "delete_comment_modal_title": "Xóa bình luận",
   "delete_comment_modal_text": "Bạn có chắc chắn muốn xóa bình luận này không? Hành động này không thể hoàn tác.",
+  "delete_step_modal_title": "Xóa bước dự án",
+  "delete_step_modal_text": "Bạn có chắc chắn muốn xóa bước dự án này không? Hành động này không thể hoàn tác.",
   "details": {
     "sponsored": "Bài viết này được tài trợ",
     "view_count": "{{count}} lượt xem",

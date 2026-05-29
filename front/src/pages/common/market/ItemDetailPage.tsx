@@ -63,7 +63,13 @@ import EmbeddedMap from "../../../components/common/EmbeddedMap";
 import { useHandleVerifyItemPurchase } from "../../../hooks/stripeHooks";
 
 export default function ItemDetailPage() {
-  const { t } = useTranslation(["marketplace", "home", "common", "post", "community"]);
+  const { t } = useTranslation([
+    "marketplace",
+    "home",
+    "common",
+    "post",
+    "community",
+  ]);
   const theme = useComputedColorScheme("light");
   const { user } = useAuth();
   const role = user?.role;
@@ -177,13 +183,24 @@ export default function ItemDetailPage() {
                       href: PATHS.USER.POSTS.ALL,
                     },
                     {
-                      title: origin?.post_title || t("post:details.title", { defaultValue: "Post Details" }),
+                      title:
+                        origin?.post_title ||
+                        t("post:details.title", {
+                          defaultValue: "Post Details",
+                        }),
                       href: `${PATHS.POSTS.HOME}/${origin.id_post}`,
-                      state: { from: "itemDetails", id_item: id_item, item_title: item.title },
+                      state: {
+                        from: "itemDetails",
+                        id_item: id_item,
+                        item_title: item.title,
+                      },
                     },
                   ]
                 : [
-                    { title: t("marketplace:market"), href: PATHS.MARKETPLACE.HOME },
+                    {
+                      title: t("marketplace:market"),
+                      href: PATHS.MARKETPLACE.HOME,
+                    },
                   ]),
               { title: item.title, href: "#" },
             ]}

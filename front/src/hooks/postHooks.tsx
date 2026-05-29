@@ -201,6 +201,7 @@ export const useDeleteProjectStep = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
         "community:notifications.delete_step_success_title",
