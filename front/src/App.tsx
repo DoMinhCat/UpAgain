@@ -17,6 +17,7 @@ import {
   Checkbox,
   SegmentedControl,
   Alert,
+  MultiSelect,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -36,6 +37,14 @@ const UpAgainTheme = createTheme({
 
   components: {
     Select: Select.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.input,
+          label: classes.label,
+        },
+      },
+    }),
+    MultiSelect: MultiSelect.extend({
       defaultProps: {
         classNames: {
           input: classes.input,

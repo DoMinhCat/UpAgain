@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AddComment,
   CreatePost,
+  CreateProjectStep,
   DeleteComment,
   DeletePost,
   DeleteProjectStep,
@@ -360,6 +361,26 @@ export const useGetMyPosts = (
     meta: {
       errorTitle: "common:notifications.error",
       errorMessage: "community:notifications.error_fetching_posts",
+    },
+  });
+};
+
+export const useCreateProjectStep = (id_post: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: FormData) => CreateProjectStep(id_post, payload),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:my_item_detail.project_steps.notifications.error_creating",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projectSteps", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      showSuccessNotification(
+        "marketplace:my_item_detail.project_steps.notifications.created_title",
+        "marketplace:my_item_detail.project_steps.notifications.created_msg",
+      );
     },
   });
 };
