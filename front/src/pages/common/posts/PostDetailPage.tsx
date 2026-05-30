@@ -61,6 +61,8 @@ import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
 import { DeleteProjectStepModal } from "../../../components/post/DeleteProjectStepModal";
+import { BookAdsModal } from "../../../components/post/BookAdsModal";
+import { useHandleVerifyAdsPayment } from "../../../hooks/stripeHooks";
 import { useTranslation } from "react-i18next";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { resolveUrl } from "../../../utils/imageUtils";
@@ -136,6 +138,13 @@ export default function PostDetailPage() {
     useDisclosure(false);
   const [openedAddStep, { open: openAddStep, close: closeAddStep }] =
     useDisclosure(false);
+  
+  // BOOK ADS MODAL STATE
+  const [openedBookAds, { open: openBookAds, close: closeBookAds }] =
+    useDisclosure(false);
+
+  // VERIFY PAYMENT IF REDIRECTED BACK FROM STRIPE
+  const { isVerifying: isVerifyingPayment } = useHandleVerifyAdsPayment(postId);
 
   const handleOpenDelete = (id: number) => {
     setCommentToDelete(id);
@@ -273,12 +282,8 @@ export default function PostDetailPage() {
     likeComment(id_comment);
   };
 
-  if (isLoadingPost) {
-    return (
-      <Center py={120}>
-        <Loader color="var(--upagain-neutral-green)" />
-      </Center>
-    );
+  if (isLoadingPost || isVerifyingPayment) {
+    return <FullScreenLoader />;
   }
 
   if (!post) {
@@ -430,6 +435,14 @@ export default function PostDetailPage() {
                 ((user?.role === "employee" || user?.role === "pro") &&
                   user?.id === post?.creator_id && (
                     <Group gap={"xs"}>
+                      {user?.role === "pro" &&
+                        user?.id === post?.creator_id &&
+                        !post?.ads_id &&
+                        post?.category === "project" && (
+                          <Button variant="primary" onClick={openBookAds}>
+                            {t("admin:posts.details.create_ads", { defaultValue: "Book Ad" })}
+                          </Button>
+                        )}
                       <Button variant="edit" onClick={openEdit}>
                         {t("admin:posts.details.edit_post")}
                       </Button>
@@ -752,6 +765,16 @@ export default function PostDetailPage() {
         onConfirm={confirmDeleteStep}
         loading={deleteStepMutation.isPending}
       />
+
+      {role === "pro" && (
+        <BookAdsModal
+          opened={openedBookAds}
+          onClose={closeBookAds}
+          postId={postId}
+          role="pro"
+          postTitle={post?.title}
+        />
+      )}
     </>
   );
 }
