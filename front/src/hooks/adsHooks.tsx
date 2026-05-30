@@ -13,10 +13,6 @@ export const useCreateAds = () => {
   return useMutation({
     mutationFn: (payload: CreateAdsRequest) => createAds(payload),
     onSuccess: (variables) => {
-      showSuccessNotification(
-        "admin:posts.notifications.ads_created_title",
-        "admin:posts.notifications.ads_created_msg",
-      );
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({

@@ -24,7 +24,7 @@ func ValidateCreateAdsRequest(payload models.CreateAdsRequest) models.Validation
 		}
 	}
 
-	if payload.From.Before(time.Now()) {
+	if payload.From.Before(time.Now().Add(-24 * time.Hour)) {
 		return models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("Start date must be in the future"),

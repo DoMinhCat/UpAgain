@@ -11,6 +11,7 @@ import {
 } from "../components/common/NotificationToast";
 import { useTranslation } from "react-i18next";
 import { usePurchaseItem } from "./itemHooks";
+import { useCreateAds } from "./adsHooks";
 import { PATHS } from "../routes/paths";
 
 export const useVerifyStripeSession = () => {
@@ -168,5 +169,76 @@ export const useHandleVerifyItemPurchase = (id_item: number) => {
   return {
     isVerifying:
       verifyStripeSessionMutation.isPending || purchaseItem.isPending,
+  };
+};
+
+export const useHandleVerifyAdsPayment = (postId: number) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifyStripeSessionMutation = useVerifyStripeSession();
+  const createAdsMutation = useCreateAds();
+  const queryClient = useQueryClient();
+  const { t } = useTranslation(["admin", "common"]);
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+    const adsFromStr = searchParams.get("ads_from");
+    const adsDurationStr = searchParams.get("ads_duration");
+
+    if (status === "success" && sessionId && !isNaN(postId) && postId > 0 && adsFromStr && adsDurationStr) {
+      verifyStripeSessionMutation.mutate(
+        { session_id: sessionId },
+        {
+          onSuccess: (data) => {
+            if (data.is_paid) {
+              createAdsMutation.mutate(
+                {
+                  id_post: postId,
+                  from: new Date(adsFromStr),
+                  duration: parseInt(adsDurationStr, 10),
+                  paid: true,
+                },
+                {
+                  onSuccess: () => {
+                    searchParams.delete("payment");
+                    searchParams.delete("sessionid");
+                    searchParams.delete("ads_from");
+                    searchParams.delete("ads_duration");
+                    setSearchParams(searchParams);
+                    queryClient.invalidateQueries({ queryKey: ["posts"] });
+                    queryClient.invalidateQueries({ queryKey: ["postDetails", postId] });
+                  },
+                },
+              );
+            } else {
+              showErrorNotification(
+                t("admin:posts.notifications.error_creating_ads", { defaultValue: "Payment Failed" }),
+                "Payment was not successfully completed.",
+              );
+              searchParams.delete("payment");
+              searchParams.delete("sessionid");
+              searchParams.delete("ads_from");
+              searchParams.delete("ads_duration");
+              setSearchParams(searchParams);
+            }
+          },
+        },
+      );
+    } else if (status === "cancelled" || status === "cancel") {
+      showInfoNotification(
+        t("admin:posts.notifications.ads_cancelled_title", { defaultValue: "Payment Cancelled" }),
+        "You cancelled the payment process.",
+      );
+      searchParams.delete("payment");
+      searchParams.delete("sessionid");
+      if (searchParams.has("ads_from")) searchParams.delete("ads_from");
+      if (searchParams.has("ads_duration")) searchParams.delete("ads_duration");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  return {
+    isVerifying:
+      verifyStripeSessionMutation.isPending || createAdsMutation.isPending,
   };
 };
