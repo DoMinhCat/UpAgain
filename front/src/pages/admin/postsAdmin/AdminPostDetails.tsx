@@ -415,6 +415,7 @@ export const AdminPostDetails = () => {
                     <ProjectStepTimeline
                       role="admin"
                       enableDeleteStep={true}
+                      enableEditStep={true}
                       projectSteps={projectSteps as Step[]}
                       onDeleteStep={handleOpenDeleteStep}
                       postId={postDetails?.id}

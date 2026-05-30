@@ -70,6 +70,7 @@ export const ENDPOINTS = {
       DELETE_COMMENT: (id_comment: number) => `/comments/${id_comment}`,
       STEPS: (id_post: number) => `/posts/${id_post}/steps`,
       DELETE_STEP: (id_step: number) => `/posts/steps/${id_step}`,
+      UPDATE_STEP: (id_step: number) => `/posts/steps/${id_step}`,
     },
 
     HISTORIES: {

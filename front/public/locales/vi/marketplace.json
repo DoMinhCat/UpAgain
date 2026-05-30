@@ -86,6 +86,7 @@
       "description": "Thêm món đồ này vào một trong các bước dự án của bạn để ghi lại sự tái sử dụng.",
       "add_button": "Thêm bước",
       "modal_title": "Thêm bước vào dự án",
+      "edit_modal_title": "Chỉnh sửa bước dự án",
       "items_label": "Món đồ sử dụng",
       "items_placeholder": "Chọn món đồ được sử dụng",
       "title_label": "Tiêu đề bước",
