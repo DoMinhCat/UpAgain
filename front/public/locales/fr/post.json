@@ -3,7 +3,10 @@
     "no_step": "Aucune étape n'a été trouvée",
     "delete_step_tooltip": "Supprimer cette étape",
     "edit_step_tooltip": "Modifier cette étape",
-    "items_used": "Articles utilisés dans cette étape"
+    "items_used": "Articles utilisés dans cette étape",
+    "reorder_steps_button": "Réorganiser les étapes",
+    "reorder_modal_title": "Réorganiser les étapes du projet",
+    "reorder_instructions": "Glissez-déposez les étapes pour modifier leur ordre. L'ordre sera enregistré automatiquement."
   },
   "delete_comment_modal_title": "Supprimer le commentaire",
   "delete_comment_modal_text": "Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action est irréversible.",

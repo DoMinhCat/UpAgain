@@ -23,6 +23,7 @@ func GetPostRoutes(mux *http.ServeMux) {
 
 	mux.Handle("PUT /posts/{id_post}", middleware.AuthMiddleware([]string{"admin", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdatePostById))))
 	mux.Handle("PUT /posts/steps/{step_id}", middleware.AuthMiddleware([]string{"admin", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateStep))))
+	mux.Handle("PUT /posts/steps/{step_id}/reorder", middleware.AuthMiddleware([]string{"pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ReorderStep))))
 
 	mux.Handle("DELETE /posts/{id_post}", middleware.AuthMiddleware([]string{"admin", "pro", "employee", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.DeletePost))))
 	mux.Handle("DELETE /posts/steps/{step_id}", middleware.AuthMiddleware([]string{"admin", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.DeleteProjectStep))))

@@ -108,7 +108,6 @@ export default function ItemDetailPage() {
   const { data: transactionsData } = useGetItemTransactions(id_item, isValidId);
   const latestTransaction = transactionsData?.transactions?.[0];
   const isReserved = latestTransaction?.action === "reserved";
-  const isPurchased = latestTransaction?.action === "purchased";
 
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
