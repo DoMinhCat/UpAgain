@@ -530,3 +530,49 @@
     }
   }
 }
+
+.treeRoot {
+  width: 100%;
+}
+
+.treeNode {
+  padding: 4px 0 !important;
+  margin: 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--mantine-color-text) !important;
+  width: 100%;
+  list-style-type: none !important;
+}
+
+.treeCard {
+  padding: 12px 16px !important;
+  margin: 6px 0 !important;
+  background-color: var(--paper-color, var(--mantine-color-body)) !important;
+  border: 1px solid var(--border-color, var(--mantine-color-default-border)) !important;
+  border-radius: var(--mantine-radius-md) !important;
+  cursor: grab;
+  user-select: none;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: var(--mantine-spacing-sm) !important;
+  color: var(--mantine-color-text) !important;
+  width: 100%;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--mantine-color-default-hover) !important;
+    border-color: var(--upagain-neutral-green) !important;
+  }
+
+  &:active {
+    cursor: grabbing !important;
+  }
+}
+
+.treeLabel {
+  font-weight: 600 !important;
+  font-size: var(--mantine-font-size-md) !important;
+  color: var(--mantine-color-text) !important;
+}

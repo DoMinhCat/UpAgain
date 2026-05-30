@@ -244,7 +244,7 @@ export const useReorderProjectStep = () => {
       payload,
     }: {
       id_step: number;
-      payload: { prev_step_id: number | null; next_step_id: number | null };
+      payload: { step_ids: number[] };
     }) => ReorderProjectStep(id_step, payload),
     meta: {
       errorTitle: "common:notifications.error",

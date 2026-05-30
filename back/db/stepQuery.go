@@ -278,48 +278,12 @@ func DeleteItemOfStep(idStep int, itemId int) error {
 	return nil
 }
 
-func UpdateStepOrder(idStep int, prevStepId *int, nextStepId *int) error {
-	var err error
-	var newOrder *float64
-
-	if prevStepId != nil || nextStepId != nil {
-		var prevOrder, nextOrder float64
-		hasPrev := false
-		hasNext := false
-
-		if prevStepId != nil {
-			err = utils.Conn.QueryRow(`SELECT "order" FROM project_steps WHERE id = $1 AND is_deleted = false`, *prevStepId).Scan(&prevOrder)
-			if err == nil {
-				hasPrev = true
-			} else {
-				slog.Warn("Failed to get step order", "function", "UpdateStepOrder", "error", err)
-			}
+func UpdateStepsOrder(stepIds []int) error {
+	for index, id := range stepIds {
+		_, err := utils.Conn.Exec(`UPDATE project_steps SET "order"=$1 WHERE id=$2`, float64(index+1), id)
+		if err != nil {
+			return err
 		}
-
-		if nextStepId != nil {
-			err = utils.Conn.QueryRow(`SELECT "order" FROM project_steps WHERE id = $1 AND is_deleted = false`, *nextStepId).Scan(&nextOrder)
-			if err == nil {
-				hasNext = true
-			} else {
-				slog.Warn("Failed to get step order", "function", "UpdateStepOrder", "error", err)
-			}
-		}
-
-		if hasPrev && hasNext {
-			calculated := (prevOrder + nextOrder) / 2.0
-			newOrder = &calculated
-		} else if hasPrev {
-			calculated := prevOrder + 1.0
-			newOrder = &calculated
-		} else if hasNext {
-			calculated := nextOrder / 2.0
-			newOrder = &calculated
-		}
-	}
-
-	if newOrder != nil {
-		_, err = utils.Conn.Exec(`UPDATE project_steps SET "order"=$1 WHERE id=$2`, *newOrder, idStep)
-		return err
 	}
 	return nil
 }
