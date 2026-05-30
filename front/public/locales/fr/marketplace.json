@@ -116,6 +116,7 @@
       "description": "Ajoutez cet objet à l'une des étapes de votre projet pour documenter sa réutilisation.",
       "add_button": "Ajouter l'étape",
       "modal_title": "Ajouter l'étape au projet",
+      "edit_modal_title": "Modifier l'étape du projet",
       "items_label": "Objets utilisés",
       "items_placeholder": "Sélectionner les objets utilisés",
       "title_label": "Titre de l'étape",

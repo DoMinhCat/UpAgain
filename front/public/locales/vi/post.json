@@ -2,6 +2,7 @@
   "project": {
     "no_step": "Chưa có bước nào cho dự án này",
     "delete_step_tooltip": "Xóa bước này",
+    "edit_step_tooltip": "Chỉnh sửa bước này",
     "items_used": "Các mặt hàng được sử dụng trong bước này"
   },
   "delete_comment_modal_title": "Xóa bình luận",

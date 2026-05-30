@@ -2,6 +2,7 @@
   "project": {
     "no_step": "Aucune étape n'a été trouvée",
     "delete_step_tooltip": "Supprimer cette étape",
+    "edit_step_tooltip": "Modifier cette étape",
     "items_used": "Articles utilisés dans cette étape"
   },
   "delete_comment_modal_title": "Supprimer le commentaire",

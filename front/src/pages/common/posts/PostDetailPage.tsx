@@ -596,6 +596,11 @@ export default function PostDetailPage() {
                           (user?.role === "pro" &&
                             user?.id === post?.creator_id)
                         }
+                        enableEditStep={
+                          user?.role === "admin" ||
+                          (user?.role === "pro" &&
+                            user?.id === post?.creator_id)
+                        }
                         onDeleteStep={handleOpenDeleteStep}
                         projectSteps={projectSteps as Step[]}
                         postId={post.id}
