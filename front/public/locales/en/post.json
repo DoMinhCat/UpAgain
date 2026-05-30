@@ -3,7 +3,10 @@
     "no_step": "No steps found",
     "delete_step_tooltip": "Delete this step",
     "edit_step_tooltip": "Edit this step",
-    "items_used": "Items used in this step"
+    "items_used": "Items used in this step",
+    "reorder_steps_button": "Reorder steps",
+    "reorder_modal_title": "Reorder Project Steps",
+    "reorder_instructions": "Drag and drop the steps to change their ordering. The order will save automatically."
   },
   "delete_comment_modal_title": "Delete comment",
   "delete_comment_modal_text": "Are you sure you want to delete this comment? This action cannot be undone.",

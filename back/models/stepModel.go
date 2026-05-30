@@ -27,3 +27,8 @@ type StepInsertPayload struct {
 	PrevStepId  *int     `json:"prev_step_id,omitempty"`
 	NextStepId  *int     `json:"next_step_id,omitempty"`
 }
+
+type ReorderStepPayload struct {
+	PrevStepId *int `json:"prev_step_id"`
+	NextStepId *int `json:"next_step_id"`
+}

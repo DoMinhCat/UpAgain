@@ -10,15 +10,17 @@ import {
   Box,
   Anchor,
   Center,
+  Button,
 } from "@mantine/core";
 import DOMPurify from "dompurify";
-import { IconTrash, IconLink, IconEdit } from "@tabler/icons-react";
+import { IconTrash, IconLink, IconEdit, IconArrowsSort } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../photo/PhotosCarousel";
 import { useNavigate } from "react-router-dom";
 import type { Step } from "../../api/interfaces/step";
 import { useTranslation } from "react-i18next";
 import { EditProjectStepModal } from "./EditProjectStepModal";
+import { ReorderProjectStepsModal } from "./ReorderProjectStepsModal";
 
 interface ProjectStepTimelineProps {
   role: "admin" | "user";
@@ -46,6 +48,8 @@ export const ProjectStepTimeline = ({
   );
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
+  const [openedReorder, { open: openReorder, close: closeReorder }] =
+    useDisclosure(false);
 
   const handleOpenEdit = (step: Step) => {
     setSelectedStepForEdit(step);
@@ -64,8 +68,21 @@ export const ProjectStepTimeline = ({
 
   return (
     <>
-      <Timeline mt="xl" lineWidth={4} active={1} bulletSize={24}>
-        {projectSteps.map((step, index) => (
+      <Stack gap="md" mt="xl">
+        {enableEditStep && projectSteps && projectSteps.length > 1 && (
+          <Group justify="flex-end">
+            <Button
+              leftSection={<IconArrowsSort size={16} />}
+              variant="subtle"
+              onClick={openReorder}
+            >
+              {t("project.reorder_steps_button", { defaultValue: "Reorder Steps" })}
+            </Button>
+          </Group>
+        )}
+
+        <Timeline lineWidth={4} active={1} bulletSize={24}>
+          {projectSteps.map((step, index) => (
           <Timeline.Item
             key={step.id}
             title={
@@ -178,6 +195,7 @@ export const ProjectStepTimeline = ({
           </Timeline.Item>
         ))}
       </Timeline>
+      </Stack>
       {selectedStepForEdit && (
         <EditProjectStepModal
           opened={openedEdit}
@@ -186,6 +204,13 @@ export const ProjectStepTimeline = ({
             setSelectedStepForEdit(null);
           }}
           step={selectedStepForEdit}
+        />
+      )}
+      {projectSteps && projectSteps.length > 1 && (
+        <ReorderProjectStepsModal
+          opened={openedReorder}
+          onClose={closeReorder}
+          steps={projectSteps}
         />
       )}
     </>

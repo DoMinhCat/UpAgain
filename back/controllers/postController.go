@@ -1155,8 +1155,25 @@ func CreatePostStep(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Step added to your project"})
 }
 
-// TODO: swagger doc
-func UpdateStep(w http.ResponseWriter, r *http.Request)  {
+// UpdateStep godoc
+// @Summary      Update a project step
+// @Description  Allows a user (pro or admin) to update a step in their project timeline.
+// @Tags         posts
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        step_id      path      int      true   "Step ID"
+// @Param        title        formData  string   true   "Step Title"
+// @Param        description  formData  string   true   "Step Description"
+// @Param        item_ids     formData  []int    false  "Associated Item IDs"
+// @Param        existing_images formData []string false "Existing image paths to keep"
+// @Param        new_images   formData  file     false  "New Step Images"
+// @Success      200          {object}  map[string]string "Step updated successfully"
+// @Failure      400          {string}  string   "Bad Request"
+// @Failure      401          {string}  string   "Unauthorized"
+// @Failure      403          {string}  string   "Forbidden"
+// @Failure      500          {string}  string   "Internal Server Error"
+// @Router       /posts/steps/{step_id} [put]
+func UpdateStep(w http.ResponseWriter, r *http.Request) {
 	idStep, err := strconv.Atoi(r.PathValue("step_id"))
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid step ID")
@@ -1188,23 +1205,24 @@ func UpdateStep(w http.ResponseWriter, r *http.Request)  {
 		}
 	}
 
-	// decode payload (reuse the creation payload)
-	var dbPayload models.StepInsertPayload
-	err = json.NewDecoder(r.Body).Decode(&dbPayload)
+	err = r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid payload")
+		slog.Error("r.ParseMultipartForm() failed", "controller", "UpdateStep", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
 		return
 	}
 
-	// validate
-	validation := validations.ValidateProjectStepCreation(dbPayload)
-	if !validation.Success {
-		utils.RespondWithError(w, validation.Error, validation.Message.Error())
-		return
-	}
-
-	// validate item IDs
-	for _, itemId := range dbPayload.ItemIds {
+	var dbPayload models.StepInsertPayload
+	dbPayload.Title = strings.TrimSpace(r.FormValue("title"))
+	dbPayload.Description = strings.TrimSpace(r.FormValue("description"))
+	itemIdsStrings := r.MultipartForm.Value["item_ids"]
+	for _, itemIdStr := range itemIdsStrings {
+		itemId, err := strconv.Atoi(itemIdStr)
+		if err != nil {
+			slog.Error("Atoi() failed", "controller", "UpdateStep", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid item ID")
+			return
+		}
 		exists, err := db.CheckItemExistByItemId(itemId)
 		if err != nil {
 			slog.Error("db.CheckItemExistByItemId() failed", "controller", "UpdateStep", "error", err)
@@ -1215,9 +1233,17 @@ func UpdateStep(w http.ResponseWriter, r *http.Request)  {
 			utils.RespondWithError(w, http.StatusBadRequest, "Item with ID "+strconv.Itoa(itemId)+" not found")
 			return
 		}
+		dbPayload.ItemIds = append(dbPayload.ItemIds, itemId)
 	}
 
-	// update project steps (including order calculation)
+	// validate text fields
+	validation := validations.ValidateProjectStepCreation(dbPayload)
+	if !validation.Success {
+		utils.RespondWithError(w, validation.Error, validation.Message.Error())
+		return
+	}
+
+	// update project steps
 	err = db.UpdateStep(dbPayload, idStep)
 	if err != nil {
 		slog.Error("db.UpdateStep() failed", "controller", "UpdateStep", "error", err)
@@ -1225,53 +1251,120 @@ func UpdateStep(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	// diff and update images
-	existingImages, err := db.GetPhotosPathsByObjectId(idStep, "step")
+	// Photo update management
+	keepImages := r.MultipartForm.Value["existing_images"]
+	newImg := r.MultipartForm.File["new_images"]
+
+	currentImages, err := db.GetPhotosPathsByObjectId(idStep, "step")
 	if err != nil {
 		slog.Error("db.GetPhotosPathsByObjectId() failed", "controller", "UpdateStep", "error", err)
-		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update step")
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update step.")
 		return
 	}
 
-	existingImgMap := make(map[string]bool)
-	for _, img := range existingImages {
-		existingImgMap[img] = true
+	keepSet := make(map[string]struct{}, len(keepImages))
+	for _, p := range keepImages {
+		keepSet[p] = struct{}{}
 	}
-
-	newImgMap := make(map[string]bool)
-	for _, img := range dbPayload.Images {
-		newImgMap[img] = true
-	}
-
-	// delete removed images
-	for _, img := range existingImages {
-		if !newImgMap[img] {
-			err = db.DeleteImageByPath(img)
-			if err != nil {
+	for _, dbImg := range currentImages {
+		if _, kept := keepSet[dbImg]; !kept {
+			if err = db.DeleteImageByPath(dbImg); err != nil {
 				slog.Error("db.DeleteImageByPath() failed", "controller", "UpdateStep", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update step images")
+				utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update step.")
 				return
 			}
 		}
 	}
 
-	// insert new images
-	for i, img := range dbPayload.Images {
-		if !existingImgMap[img] {
-			imagePayload := models.PhotoInsertRequest{
-				Path:       img,
-				IsPrimary:  i == 0 && len(existingImages) == 0,
-				ObjectType: "step",
-				FkId:       idStep,
-			}
-			err = db.InsertImage(imagePayload)
-			if err != nil {
-				slog.Error("db.InsertImage() failed", "controller", "UpdateStep", "error", err)
-				utils.RespondWithError(w, http.StatusInternalServerError, "Failed to insert step images")
-				return
-			}
+	// Handle physical files + collect final path list using ProcessPhotoUpdate helper
+	finalImages, delErrs, err := helpers.ProcessPhotoUpdate("images/posts", currentImages, keepImages, newImg)
+	for _, delErr := range delErrs {
+		slog.Error("ProcessPhotoUpdate() deletion failed", "controller", "UpdateStep", "error", delErr)
+	}
+	if err != nil {
+		slog.Error("ProcessPhotoUpdate() save failed", "controller", "UpdateStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Unable to save images to server.")
+		return
+	}
+
+	// Insert newly-added images into the DB
+	newPathsStart := len(keepImages) // finalImages[:newPathsStart] are kept; rest are new
+	for i, path := range finalImages[newPathsStart:] {
+		imagePayload := models.PhotoInsertRequest{
+			Path:       path,
+			IsPrimary:  i == 0 && len(keepImages) == 0,
+			ObjectType: "step",
+			FkId:       idStep,
+		}
+		if err = db.InsertImage(imagePayload); err != nil {
+			slog.Error("db.InsertImage() failed", "controller", "UpdateStep", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update step.")
+			return
 		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Step updated successfully"})
+}
+
+// ReorderStep godoc
+// @Summary      Reorder a project step
+// @Description  Allows a user (pro) to reorder a step in their project timeline.
+// @Tags         posts
+// @Accept       json
+// @Produce      json
+// @Param        step_id  path      int  true  "Step ID"
+// @Param        payload  body      models.ReorderStepPayload true "Reorder details"
+// @Success      200      {object}  map[string]string "Step reordered successfully"
+// @Failure      400      {string}  string   "Bad Request"
+// @Failure      401      {string}  string   "Unauthorized"
+// @Failure      403      {string}  string   "Forbidden"
+// @Failure      500      {string}  string   "Internal Server Error"
+// @Router       /posts/steps/{step_id}/reorder [put]
+func ReorderStep(w http.ResponseWriter, r *http.Request) {
+	idStep, err := strconv.Atoi(r.PathValue("step_id"))
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid step ID")
+		return
+	}
+
+	exists, err := db.CheckProjectStepExistsById(idStep)
+	if err != nil {
+		slog.Error("db.CheckProjectStepExistsById() failed", "controller", "ReorderStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to reorder project step")
+		return
+	}
+	if !exists {
+		utils.RespondWithError(w, http.StatusBadRequest, "Step not found")
+		return
+	}
+
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	if role != "admin" {
+		postDetails, err := db.GetPostDetailsByStepId(idStep)
+		if err != nil {
+			slog.Error("db.GetPostDetailsByStepId() failed", "controller", "ReorderStep", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to reorder project step")
+			return
+		}
+		if postDetails.IdAccount != r.Context().Value("user").(models.AuthClaims).Id {
+			utils.RespondWithError(w, http.StatusForbidden, "You can only reorder steps of your own projects")
+			return
+		}
+	}
+
+	var payload models.ReorderStepPayload
+	err = json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid payload")
+		return
+	}
+
+	err = db.UpdateStepOrder(idStep, payload.PrevStepId, payload.NextStepId)
+	if err != nil {
+		slog.Error("db.UpdateStepOrder() failed", "controller", "ReorderStep", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to reorder project step")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Step order updated successfully"})
 }

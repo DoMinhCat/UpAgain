@@ -22,12 +22,13 @@ import {
   SavePost,
   UpdatePost,
   UpdateProjectStep,
+  ReorderProjectStep,
 } from "../api/postModule";
 import type {
   AddCommentPayload,
   PostsListPagination,
 } from "../api/interfaces/post";
-import type { UpdateStepPayload } from "../api/interfaces/step";
+
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
@@ -216,13 +217,13 @@ export const useDeleteProjectStep = () => {
 export const useUpdateProjectStep = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id_step, payload }: { id_step: number; payload: UpdateStepPayload }) =>
+    mutationFn: ({ id_step, payload }: { id_step: number; payload: FormData }) =>
       UpdateProjectStep(id_step, payload),
     meta: {
       errorTitle: "common:notifications.error",
       errorMessage: "community:notifications.error_updating_step",
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
       queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
@@ -230,6 +231,33 @@ export const useUpdateProjectStep = () => {
       showSuccessNotification(
         "community:notifications.update_step_success_title",
         "community:notifications.update_step_success_message",
+      );
+    },
+  });
+};
+
+export const useReorderProjectStep = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id_step,
+      payload,
+    }: {
+      id_step: number;
+      payload: { prev_step_id: number | null; next_step_id: number | null };
+    }) => ReorderProjectStep(id_step, payload),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_reordering_step",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "community:notifications.reorder_step_success_title",
+        "community:notifications.reorder_step_success_message",
       );
     },
   });

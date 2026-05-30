@@ -3,7 +3,10 @@
     "no_step": "Chưa có bước nào cho dự án này",
     "delete_step_tooltip": "Xóa bước này",
     "edit_step_tooltip": "Chỉnh sửa bước này",
-    "items_used": "Các mặt hàng được sử dụng trong bước này"
+    "items_used": "Các mặt hàng được sử dụng trong bước này",
+    "reorder_steps_button": "Sắp xếp lại các bước",
+    "reorder_modal_title": "Sắp xếp lại các bước dự án",
+    "reorder_instructions": "Kéo và thả các bước để thay đổi thứ tự. Thứ tự sẽ được lưu tự động."
   },
   "delete_comment_modal_title": "Xóa bình luận",
   "delete_comment_modal_text": "Bạn có chắc chắn muốn xóa bình luận này không? Hành động này không thể hoàn tác.",

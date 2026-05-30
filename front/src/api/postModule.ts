@@ -8,7 +8,7 @@ import type {
   PostsListPagination,
   PostStats,
 } from "./interfaces/post";
-import type { Step, UpdateStepPayload } from "./interfaces/step";
+import type { Step } from "./interfaces/step";
 
 export const GetPostsStats = async (): Promise<PostStats> => {
   const response = await api.get(ENDPOINTS.ADMIN.POSTS.STATS);
@@ -81,8 +81,16 @@ export const DeleteProjectStep = async (id_step: number) => {
   return response.data;
 };
 
-export const UpdateProjectStep = async (id_step: number, payload: UpdateStepPayload) => {
+export const UpdateProjectStep = async (id_step: number, payload: FormData) => {
   const response = await api.put(ENDPOINTS.ADMIN.POSTS.UPDATE_STEP(id_step), payload);
+  return response.data;
+};
+
+export const ReorderProjectStep = async (
+  id_step: number,
+  payload: { prev_step_id: number | null; next_step_id: number | null }
+) => {
+  const response = await api.put(ENDPOINTS.ADMIN.POSTS.REORDER_STEP(id_step), payload);
   return response.data;
 };
 

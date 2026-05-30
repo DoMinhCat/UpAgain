@@ -6,18 +6,12 @@ import {
   MultiSelect,
   Group,
   Button,
-  SimpleGrid,
-  Box,
-  Image,
-  ActionIcon,
-  Text,
 } from "@mantine/core";
-import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useUpdateProjectStep } from "../../hooks/postHooks";
 import { useGetMyItems } from "../../hooks/itemHooks";
+import ImageDropzone from "../input/ImageDropzone";
 import { TextEditor } from "../input/TextEditor";
-import { resolveUrl } from "../../utils/imageUtils";
 import type { Step } from "../../api/interfaces/step";
 
 interface EditProjectStepModalProps {
@@ -35,7 +29,7 @@ export function EditProjectStepModal({
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [itemIds, setItemIds] = useState<string[]>([]);
-  const [images, setImages] = useState<string[]>([]);
+  const [fileEdit, setFileEdit] = useState<any[]>([]);
   const [errorTitle, setErrorTitle] = useState<string>("");
   const [errorDescription, setErrorDescription] = useState<string>("");
 
@@ -44,7 +38,10 @@ export function EditProjectStepModal({
       setTitle(step.title);
       setDescription(step.description);
       setItemIds(step.items ? step.items.map((item) => String(item.id)) : []);
-      setImages(step.photos || []);
+      const photos = step.photos?.map((path: string) => {
+        return { path: path };
+      }) || [];
+      setFileEdit(photos);
       setErrorTitle("");
       setErrorDescription("");
     }
@@ -108,6 +105,7 @@ export function EditProjectStepModal({
   const handleClose = () => {
     setErrorTitle("");
     setErrorDescription("");
+    setFileEdit([]);
     onClose();
   };
 
@@ -122,16 +120,26 @@ export function EditProjectStepModal({
       return;
     }
 
+    const formData = new FormData();
+    formData.append("title", title.trim());
+    formData.append("description", description.trim());
+
+    itemIds.forEach((id) => {
+      formData.append("item_ids", id);
+    });
+
+    fileEdit.forEach((obj) => {
+      if (obj instanceof File) {
+        formData.append("new_images", obj);
+      } else if (obj.path) {
+        formData.append("existing_images", obj.path);
+      }
+    });
+
     updateStepMutation.mutate(
       {
         id_step: step.id,
-        payload: {
-          id_post: step.id_post,
-          title: title.trim(),
-          description: description.trim(),
-          item_ids: itemIds.map(Number),
-          images: images,
-        },
+        payload: formData,
       },
       {
         onSuccess: () => {
@@ -221,40 +229,11 @@ export function EditProjectStepModal({
           }}
         />
 
-        {images.length > 0 && (
-          <Box>
-            <Text size="sm" fw={500} mb="xs">
-              {t("marketplace:my_item_detail.no_photos", { defaultValue: "Step Photos" })}
-            </Text>
-            <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
-              {images.map((url, idx) => (
-                <Box
-                  key={idx}
-                  pos="relative"
-                  style={{
-                    borderRadius: "var(--mantine-radius-md)",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Image src={resolveUrl(url)} h={100} style={{ objectFit: "cover" }} />
-                  <ActionIcon
-                    variant="filled"
-                    color="red"
-                    pos="absolute"
-                    top={5}
-                    right={5}
-                    size="sm"
-                    onClick={() => {
-                      setImages((prev) => prev.filter((_, i) => i !== idx));
-                    }}
-                  >
-                    <IconTrash size={14} />
-                  </ActionIcon>
-                </Box>
-              ))}
-            </SimpleGrid>
-          </Box>
-        )}
+        <ImageDropzone
+          loading={updateStepMutation.isPending}
+          files={fileEdit}
+          setFiles={setFileEdit}
+        />
       </Stack>
 
       <Group mt="lg" justify="center">
