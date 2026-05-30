@@ -1359,9 +1359,9 @@ func ReorderStep(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.UpdateStepOrder(idStep, payload.PrevStepId, payload.NextStepId)
+	err = db.UpdateStepsOrder(payload.StepIds)
 	if err != nil {
-		slog.Error("db.UpdateStepOrder() failed", "controller", "ReorderStep", "error", err)
+		slog.Error("db.UpdateStepsOrder() failed", "controller", "ReorderStep", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to reorder project step")
 		return
 	}

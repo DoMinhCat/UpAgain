@@ -18,6 +18,7 @@ import {
   SegmentedControl,
   Alert,
   MultiSelect,
+  Tree,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -183,6 +184,15 @@ const UpAgainTheme = createTheme({
         radius: "xl",
         // Set a smooth transition duration
         transitionDuration: 300,
+      },
+    }),
+    Tree: Tree.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.treeRoot,
+          node: classes.treeNode,
+          label: classes.treeLabel,
+        },
       },
     }),
   },

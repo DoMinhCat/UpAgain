@@ -88,7 +88,7 @@ export const UpdateProjectStep = async (id_step: number, payload: FormData) => {
 
 export const ReorderProjectStep = async (
   id_step: number,
-  payload: { prev_step_id: number | null; next_step_id: number | null }
+  payload: { step_ids: number[] }
 ) => {
   const response = await api.put(ENDPOINTS.ADMIN.POSTS.REORDER_STEP(id_step), payload);
   return response.data;
