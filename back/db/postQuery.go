@@ -236,23 +236,23 @@ func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int)
 		return nil, 0, fmt.Errorf("GetAllPosts() count failed: %v", err)
 	}
 
-	orderBy := "ORDER BY p.id ASC" // Default sorting
+	orderBy := "ORDER BY (ad.id IS NOT NULL) DESC, p.id ASC" // Default sorting
 	if filters.Sort != "" {
 		switch filters.Sort {
 		case "highest_view":
-			orderBy = "ORDER BY p.view_count DESC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.view_count DESC"
 		case "lowest_view":
-			orderBy = "ORDER BY p.view_count ASC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.view_count ASC"
 		case "most_recent_creation":
-			orderBy = "ORDER BY p.created_at DESC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.created_at DESC"
 		case "oldest_creation":
-			orderBy = "ORDER BY p.created_at ASC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.created_at ASC"
 		case "highest_like":
-			orderBy = "ORDER BY p.like_count DESC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.like_count DESC"
 		case "lowest_like":
-			orderBy = "ORDER BY p.like_count ASC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.like_count ASC"
 		default:
-			orderBy = "ORDER BY p.id ASC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.id ASC"
 		}
 	}
 
