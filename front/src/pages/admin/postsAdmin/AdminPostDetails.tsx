@@ -52,6 +52,7 @@ import CommentCard from "../../../components/post/CommentCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
 import { BookAdsModal } from "../../../components/post/BookAdsModal";
+import { ConfirmAdsCancelModal } from "../../../components/post/ConfirmAdsCancelModal";
 import {
   useDeleteAds,
   useUpdateAds,
@@ -228,8 +229,7 @@ export const AdminPostDetails = () => {
   const [openedRemoveAds, { open: openRemoveAds, close: closeRemoveAds }] =
     useDisclosure(false);
   const deleteAdsMutate = useDeleteAds();
-  const handleRemoveAds = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRemoveAds = () => {
     deleteAdsMutate.mutate(postDetails?.ads_id ?? 0, {
       onSuccess: () => {
         closeRemoveAds();
@@ -589,32 +589,12 @@ export const AdminPostDetails = () => {
                   </Button>
                 </Group>
               </Modal>
-              {/* Confirm remove ads modal */}
-              <Modal
-                title={t("posts.ads_modal.remove_title")}
+              <ConfirmAdsCancelModal
                 opened={openedRemoveAds}
                 onClose={closeRemoveAds}
-                centered
-                size="md"
-              >
-                <Stack>
-                  <Text>{t("posts.ads_modal.remove_text")}</Text>
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={closeRemoveAds} variant="grey">
-                    {t("posts.ads_modal.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleRemoveAds(e);
-                    }}
-                    loading={deleteAdsMutate.isPending}
-                    variant="delete"
-                  >
-                    {t("posts.ads_modal.remove_confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+                onConfirm={handleRemoveAds}
+                loading={deleteAdsMutate.isPending}
+              />
             </Card>
           </Grid.Col>
         </Grid>
