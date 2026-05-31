@@ -93,6 +93,7 @@ export const useCreateEvent = () => {
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["myEvents"] });
     },
     meta: {
       errorTitle: "common:notifications.error",

@@ -15,8 +15,9 @@
     "schedule_title": "Mon calendrier",
     "no_proposals": "Aucune proposition d'événement en attente ou refusée.",
     "explore_events": "Aller aux événements",
-    "status_pending": "En attente d'approbation",
-    "status_refused": "Refusé"
+    "status_pending": "En attente",
+    "status_refused": "Refusé",
+    "propose_event": "Proposer un événement"
   },
   "hero": {
     "title": "Événements & Ateliers Durables",
