@@ -111,7 +111,7 @@ export default function MyItems() {
   }
 
   return (
-    <Container px="md" py={50} size="xl">
+    <Container id="onboard-myitems" px="md" py={50} size="xl">
       <Stack gap="xl">
         {/* Navigation */}
         <MyBreadcrumbs

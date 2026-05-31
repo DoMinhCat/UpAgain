@@ -112,6 +112,7 @@ export default function UserPostsPage() {
 
               {(user?.role === "user" || user?.role === "pro") && (
                 <Button
+                  id="onboard-posts-saved"
                   leftSection={<IconBookmarkFilled stroke={2} />}
                   variant="primary"
                   onClick={() => {
@@ -184,7 +185,7 @@ export default function UserPostsPage() {
             </Stack>
           </Center>
         ) : (
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+          <SimpleGrid id="onboard-posts-list" cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
             {posts.map((post) => (
               <PostCard
                 currentRole={role}
