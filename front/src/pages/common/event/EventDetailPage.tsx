@@ -322,9 +322,9 @@ export default function EventDetailPage() {
                 ...(location.state?.from === "upcomingEvents"
                   ? [
                       {
-                        title: t("events:my_events.title", {
-                          defaultValue: "My Events",
-                        }),
+                        title: role === "employee"
+                          ? t("events:employee_planning.title", { defaultValue: "Organizer Planning" })
+                          : t("events:my_events.title", { defaultValue: "My Events" }),
                         href: PATHS.EVENTS.PLANNING,
                       },
                     ]

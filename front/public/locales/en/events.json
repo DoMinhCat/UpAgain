@@ -15,8 +15,9 @@
     "schedule_title": "My Schedule",
     "no_proposals": "No pending or refused event proposals.",
     "explore_events": "Go to Events",
-    "status_pending": "Pending Approval",
-    "status_refused": "Refused"
+    "status_pending": "Pending",
+    "status_refused": "Refused",
+    "propose_event": "Propose Event"
   },
   "hero": {
     "title": "Sustainable Events & Workshops",

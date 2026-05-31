@@ -10,6 +10,7 @@ import {
   Center,
   Badge,
   Box,
+  Button,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -18,12 +19,14 @@ import { useTranslation } from "react-i18next";
 import { PATHS } from "../../../routes/paths";
 import { Schedule, type ScheduleEventData } from "@mantine/schedule";
 import { EventCard } from "../../../components/event/EventCard";
+import { CreateEventModal } from "../../../components/event/CreateEventModal";
 import {
   IconChevronRight,
   IconChevronLeft,
   IconCalendarOff,
   IconClock,
   IconX,
+  IconPlus,
 } from "@tabler/icons-react";
 import { useAuth } from "../../../context/AuthContext";
 import { NotFoundPage } from "../../error/404";
@@ -49,6 +52,8 @@ export default function EmployeeEventsPlanning() {
 
   // MODAL STATE
   const [openedModal, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
+  const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [modalEvents, setModalEvents] = useState<AppEvent[]>([]);
@@ -109,7 +114,8 @@ export default function EmployeeEventsPlanning() {
   const [currentUpcomingPage, setCurrentUpcomingPage] = useState(1);
   const itemsPerUpcomingPage = 3;
   const upcomingEvents = myEvents?.filter(
-    (e: AppEvent) => e.status === "approved" && new Date(e.start_at) > new Date(),
+    (e: AppEvent) =>
+      e.status === "approved" && new Date(e.start_at) > new Date(),
   );
   const totalUpcomingPages = Math.ceil(
     (upcomingEvents?.length || 0) / itemsPerUpcomingPage,
@@ -149,7 +155,8 @@ export default function EmployeeEventsPlanning() {
     setCurrentProposalsPage((prev) => Math.min(prev + 1, totalProposalsPages));
   };
 
-  const proposalsStartIndex = (currentProposalsPage - 1) * itemsPerProposalsPage;
+  const proposalsStartIndex =
+    (currentProposalsPage - 1) * itemsPerProposalsPage;
   const visibleProposedEvents = proposedEvents?.slice(
     proposalsStartIndex,
     proposalsStartIndex + itemsPerProposalsPage,
@@ -286,42 +293,54 @@ export default function EmployeeEventsPlanning() {
         <Stack gap="md">
           <Group justify="space-between" align="end">
             <Stack gap={4}>
-              <Title order={2} size={28} fw={800}>
-                {t("events:employee_planning.my_proposals_title")}
-              </Title>
+              <Group gap="md" align="center" justify="space-between">
+                <Title order={2} size={28} fw={800}>
+                  {t("events:employee_planning.my_proposals_title")}
+                </Title>
+              </Group>
               <Text c="dimmed" size="sm">
                 {t("events:employee_planning.my_proposals_desc")}
               </Text>
             </Stack>
-            {totalProposalsPages >= 1 && (
-              <Group gap={"sm"}>
-                <ActionIcon
-                  size="lg"
-                  variant="filled"
-                  color="var(--upagain-neutral-green)"
-                  radius="xl"
-                  aria-label="Previous"
-                  onClick={handleProposalsPrevious}
-                  disabled={currentProposalsPage === 1}
-                >
-                  <IconChevronLeft size={18} stroke={1.5} />
-                </ActionIcon>
-                <Text size="lg" fw={700}>
-                  {currentProposalsPage} / {totalProposalsPages}
-                </Text>
-                <ActionIcon
-                  size="lg"
-                  variant="filled"
-                  color="var(--upagain-neutral-green)"
-                  radius="xl"
-                  aria-label="Next"
-                  onClick={handleProposalsNext}
-                  disabled={currentProposalsPage === totalProposalsPages}
-                >
-                  <IconChevronRight size={18} stroke={1.5} />
-                </ActionIcon>
-              </Group>
-            )}
+            <Stack>
+              <Button
+                variant="primary"
+                onClick={openCreate}
+                leftSection={<IconPlus size={14} />}
+                radius="md"
+              >
+                {t("events:employee_planning.propose_event")}
+              </Button>
+              {totalProposalsPages >= 1 && (
+                <Group gap={"sm"}>
+                  <ActionIcon
+                    size="lg"
+                    variant="filled"
+                    color="var(--upagain-neutral-green)"
+                    radius="xl"
+                    aria-label="Previous"
+                    onClick={handleProposalsPrevious}
+                    disabled={currentProposalsPage === 1}
+                  >
+                    <IconChevronLeft size={18} stroke={1.5} />
+                  </ActionIcon>
+                  <Text size="lg" fw={700}>
+                    {currentProposalsPage} / {totalProposalsPages}
+                  </Text>
+                  <ActionIcon
+                    size="lg"
+                    variant="filled"
+                    color="var(--upagain-neutral-green)"
+                    radius="xl"
+                    aria-label="Next"
+                    onClick={handleProposalsNext}
+                    disabled={currentProposalsPage === totalProposalsPages}
+                  >
+                    <IconChevronRight size={18} stroke={1.5} />
+                  </ActionIcon>
+                </Group>
+              )}
+            </Stack>
           </Group>
 
           {visibleProposedEvents && visibleProposedEvents.length > 0 ? (
@@ -356,7 +375,13 @@ export default function EmployeeEventsPlanning() {
                     color={e.status === "pending" ? "yellow" : "red"}
                     variant="filled"
                     style={{ zIndex: 5, boxShadow: "var(--mantine-shadow-md)" }}
-                    leftSection={e.status === "pending" ? <IconClock size={12} /> : <IconX size={12} />}
+                    leftSection={
+                      e.status === "pending" ? (
+                        <IconClock size={12} />
+                      ) : (
+                        <IconX size={12} />
+                      )
+                    }
                   >
                     {e.status === "pending"
                       ? t("events:employee_planning.status_pending")
@@ -414,6 +439,7 @@ export default function EmployeeEventsPlanning() {
           selectedDate ? dayjs(selectedDate).format("MMMM D, YYYY") : ""
         }
       />
+      <CreateEventModal opened={openedCreate} onClose={closeCreate} />
     </Container>
   );
 }
