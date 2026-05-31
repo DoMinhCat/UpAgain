@@ -100,7 +100,8 @@
     "register_failed_msg": "Paiement non complété",
     "register_cancelled_title": "Inscription annulée",
     "register_cancelled_msg": "Le paiement a été annulé",
-    "edit_approval_warning": "Note : La modification de cet événement nécessitera l'approbation d'un administrateur avant d'être à nouveau publiée."
+    "edit_approval_warning": "Note : La modification de cet événement nécessitera l'approbation d'un administrateur avant d'être à nouveau publiée.",
+    "self_assign": "Se porter volontaire pour l'événement"
   },
   "no_event": "Aucun {{event_type}} trouvé",
   "empty_state": {

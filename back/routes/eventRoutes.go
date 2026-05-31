@@ -9,7 +9,7 @@ import (
 func GetEventRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /events", middleware.AuthMiddleware([]string{"admin", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.CreateEvent))))
 	mux.Handle("POST /events/register", middleware.AuthMiddleware([]string{"user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.RegisterToEventByEventId))))
-	mux.Handle("POST /events/{id}/assign", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.AssignEmployeeToEventByEventId))))
+	mux.Handle("POST /events/{id}/assign", middleware.AuthMiddleware([]string{"admin", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.AssignEmployeeToEventByEventId))))
 
 	mux.Handle("GET /events", middleware.AuthMiddleware([]string{"admin", "employee", "user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAllEvents))))
 	mux.Handle("GET /events/count", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetEventStats))))
