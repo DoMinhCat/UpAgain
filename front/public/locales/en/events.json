@@ -6,6 +6,18 @@
     "schedule_description": "All your events in one simple schedule",
     "events_on": "Events on"
   },
+  "employee_planning": {
+    "title": "Organizer Planning",
+    "upcoming_events_title": "My Upcoming Events",
+    "upcoming_events_desc": "Events you are assigned to host that have been approved.",
+    "my_proposals_title": "My Proposals",
+    "my_proposals_desc": "Track the status of your proposed events (pending approval or refused).",
+    "schedule_title": "My Schedule",
+    "no_proposals": "No pending or refused event proposals.",
+    "explore_events": "Go to Events",
+    "status_pending": "Pending Approval",
+    "status_refused": "Refused"
+  },
   "hero": {
     "title": "Sustainable Events & Workshops",
     "subtitle": "Join our community of eco-conscious creators. Learn, share, and impact the world through meaningful experiences."
