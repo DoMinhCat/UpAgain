@@ -52,6 +52,7 @@ import {
   useRegisterToEvent,
   useCancelRegistration,
   useUpdateEventStatus,
+  useAssignEmployeeToEvent,
 } from "../../../hooks/eventHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { resolveUrl } from "../../../utils/imageUtils";
@@ -187,6 +188,18 @@ export default function EventDetailPage() {
       },
     });
   };
+  const assignEmployeeMutation = useAssignEmployeeToEvent();
+  const handleSelfAssign = () => {
+    if (user?.id && event) {
+      assignEmployeeMutation.mutate({
+        id_event: idEvent,
+        employee_ids: [user.id],
+        start_at: event.start_at,
+        end_at: event.end_at,
+      });
+    }
+  };
+
 
   const isRegistered = event?.attendees?.some((a) => a.id === user?.id);
   const isPast = dayjs(event?.end_at).isBefore(dayjs());
@@ -859,6 +872,21 @@ export default function EventDetailPage() {
                               rightSection={<IconX size={18} />}
                             >
                               {t("admin:events.details.cancel_event")}
+                            </Button>
+                          )}
+                          {isEmployee && !canEditOrCancel && event.status === "approved" && (
+                            <Button
+                              radius="md"
+                              variant="primary"
+                              disabled={
+                                dayjs(event.start_at) < dayjs().startOf("day")
+                              }
+                              fullWidth
+                              onClick={handleSelfAssign}
+                              loading={assignEmployeeMutation.isPending}
+                              rightSection={<IconCheck size={18} />}
+                            >
+                              {t("detail.self_assign", { defaultValue: "Volunteer for event" })}
                             </Button>
                           )}
                         </Group>

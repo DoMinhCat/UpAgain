@@ -506,7 +506,7 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// can't edit an event that has already ended
+	// can't asign to an event that has already ended
 	event, err := db.GetEventDetailsById(id_event)
 	if err != nil {
 		slog.Error("GetEventDetailsById() failed", "controller", "UnAssignEmployeeByEventId", "error", err)

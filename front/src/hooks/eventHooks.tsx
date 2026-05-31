@@ -118,12 +118,15 @@ export const useAssignEmployeeToEvent = () => {
       start_at: string;
       end_at: string;
     }) => assignEmployeeToEvent(id_event, employee_ids, start_at, end_at),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       showSuccessNotification(
         "events:notifications.assign_success_title",
         "events:notifications.assign_success_message",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["event", variables.id_event],
+      });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
