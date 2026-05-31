@@ -722,6 +722,8 @@
       "date_placeholder": "Pick date and time",
       "cancel": "Cancel",
       "confirm": "Confirm",
+      "remove_confirm": "Remove",
+      "refund_warning": "No refund is possible.",
       "errors": {
         "start_required": "Start date is required",
         "start_future": "Start date must be in the future",

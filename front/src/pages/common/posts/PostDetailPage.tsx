@@ -62,7 +62,9 @@ import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
 import { DeleteProjectStepModal } from "../../../components/post/DeleteProjectStepModal";
 import { BookAdsModal } from "../../../components/post/BookAdsModal";
+import { ConfirmAdsCancelModal } from "../../../components/post/ConfirmAdsCancelModal";
 import { useHandleVerifyAdsPayment } from "../../../hooks/stripeHooks";
+import { useDeleteAds } from "../../../hooks/adsHooks";
 import { useTranslation } from "react-i18next";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { resolveUrl } from "../../../utils/imageUtils";
@@ -142,6 +144,20 @@ export default function PostDetailPage() {
   // BOOK ADS MODAL STATE
   const [openedBookAds, { open: openBookAds, close: closeBookAds }] =
     useDisclosure(false);
+
+  // CANCEL ADS MODAL STATE
+  const [openedCancelAds, { open: openCancelAds, close: closeCancelAds }] =
+    useDisclosure(false);
+  const deleteAdsMutate = useDeleteAds();
+  const handleCancelAds = () => {
+    if (post?.ads_id) {
+      deleteAdsMutate.mutate(post.ads_id, {
+        onSuccess: () => {
+          closeCancelAds();
+        },
+      });
+    }
+  };
 
   // VERIFY PAYMENT IF REDIRECTED BACK FROM STRIPE
   const { isVerifying: isVerifyingPayment } = useHandleVerifyAdsPayment(postId);
@@ -441,6 +457,14 @@ export default function PostDetailPage() {
                         post?.category === "project" && (
                           <Button variant="primary" onClick={openBookAds}>
                             {t("admin:posts.details.create_ads", { defaultValue: "Book Ad" })}
+                          </Button>
+                        )}
+                      {user?.role === "pro" &&
+                        user?.id === post?.creator_id &&
+                        post?.ads_id &&
+                        post?.category === "project" && (
+                          <Button variant="delete" onClick={openCancelAds}>
+                            {t("admin:posts.details.remove_ads", { defaultValue: "Cancel Ad" })}
                           </Button>
                         )}
                       <Button variant="edit" onClick={openEdit}>
@@ -773,6 +797,18 @@ export default function PostDetailPage() {
           postId={postId}
           role="pro"
           postTitle={post?.title}
+        />
+      )}
+
+      {role === "pro" && (
+        <ConfirmAdsCancelModal
+          opened={openedCancelAds}
+          onClose={closeCancelAds}
+          onConfirm={handleCancelAds}
+          loading={deleteAdsMutate.isPending}
+          warningMessage={t("admin:posts.ads_modal.refund_warning", {
+            defaultValue: "Warning: No refund is possible for cancelled advertisements.",
+          })}
         />
       )}
     </>
