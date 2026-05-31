@@ -157,9 +157,13 @@ export default function PostCard({
             pos="absolute"
             top={12}
             left={12}
-            leftSection={<IconCrownFilled size={10} style={{ display: "block" }} />}
+            leftSection={
+              <IconCrownFilled size={10} style={{ display: "block" }} />
+            }
           >
-            {t("admin:posts.categories.sponsored", { defaultValue: "Sponsored" })}
+            {t("admin:posts.categories.sponsored", {
+              defaultValue: "Sponsored",
+            })}
           </Badge>
         )}
         <Badge
@@ -228,69 +232,62 @@ export default function PostCard({
 
           <Group gap="sm">
             <Group gap={4}>
-              <Tooltip
-                withArrow
-                label={
-                  currentRole !== "user" && currentRole !== "pro"
-                    ? "You are not allowed to interact with this post"
-                    : displayLiked
-                      ? "Unlike"
-                      : "Like post"
-                }
-              >
-                <ActionIcon
-                  disabled={currentRole !== "user" && currentRole !== "pro"}
-                  className="actionIcon"
-                  data-variant="primary"
-                  variant="subtle"
-                  radius="xl"
-                  aria-label="Like post"
-                  loading={isLiking}
-                  onClick={handleLikeClick}
+              {(currentRole === "user" || currentRole === "pro") && (
+                <Tooltip
+                  withArrow
+                  label={displayLiked ? "Unlike" : "Like post"}
                 >
-                  {displayLiked ? (
-                    <IconHeartFilled
-                      size={18}
-                      color="var(--mantine-color-red-6)"
-                    />
-                  ) : (
-                    <IconHeart size={18} color="var(--mantine-color-red-6)" />
-                  )}
-                </ActionIcon>
-              </Tooltip>
+                  <ActionIcon
+                    className="actionIcon"
+                    data-variant="primary"
+                    variant="subtle"
+                    radius="xl"
+                    aria-label="Like post"
+                    loading={isLiking}
+                    onClick={handleLikeClick}
+                  >
+                    {displayLiked ? (
+                      <IconHeartFilled
+                        size={18}
+                        color="var(--mantine-color-red-6)"
+                      />
+                    ) : (
+                      <IconHeart size={18} color="var(--mantine-color-red-6)" />
+                    )}
+                  </ActionIcon>
+                </Tooltip>
+              )}
               <Text size="xs" fw={600} c="var(--mantine-color-text)">
                 {displayLikes}
               </Text>
             </Group>
 
-            <Tooltip
-              label={
-                currentRole !== "user" && currentRole !== "pro"
-                  ? "You are not allowed to interact with this post"
-                  : displaySaved
-                    ? "Unsave post"
-                    : "Save post"
-              }
-              position="top"
-              withArrow
-            >
-              <ActionIcon
-                disabled={currentRole !== "user" && currentRole !== "pro"}
-                className="actionIcon"
-                data-variant="primary"
-                variant="subtle"
-                radius="xl"
-                aria-label="Save post"
-                loading={isSaving}
-                onClick={handleSaveClick}
+            {(currentRole === "user" || currentRole === "pro") && (
+              <Tooltip
+                label={displaySaved ? "Unsave post" : "Save post"}
+                position="top"
+                withArrow
               >
-                {displaySaved ? (
-                  <IconBookmarkFilled size={18} color="var(--upagain-yellow)" />
-                ) : (
-                  <IconBookmark size={18} color="var(--upagain-yellow)" />
-                )}
-              </ActionIcon>
-            </Tooltip>
+                <ActionIcon
+                  className="actionIcon"
+                  data-variant="primary"
+                  variant="subtle"
+                  radius="xl"
+                  aria-label="Save post"
+                  loading={isSaving}
+                  onClick={handleSaveClick}
+                >
+                  {displaySaved ? (
+                    <IconBookmarkFilled
+                      size={18}
+                      color="var(--upagain-yellow)"
+                    />
+                  ) : (
+                    <IconBookmark size={18} color="var(--upagain-yellow)" />
+                  )}
+                </ActionIcon>
+              </Tooltip>
+            )}
           </Group>
         </Group>
       </Card.Section>
