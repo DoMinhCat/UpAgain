@@ -201,6 +201,7 @@ export default function UserPostsPage() {
                 likes={post.like_count}
                 isLiked={post.is_liked}
                 isSaved={post.is_saved}
+                isSponsored={post.ads_id !== null}
                 onLike={() => likePostAsync(post.id)}
                 onSave={() => savePostAsync(post.id)}
                 onClick={() =>

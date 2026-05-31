@@ -2,17 +2,24 @@
   "project": {
     "no_step": "Aucune étape n'a été trouvée",
     "delete_step_tooltip": "Supprimer cette étape",
-    "items_used": "Articles utilisés dans cette étape"
+    "edit_step_tooltip": "Modifier cette étape",
+    "items_used": "Articles utilisés dans cette étape",
+    "reorder_steps_button": "Réorganiser les étapes",
+    "reorder_modal_title": "Réorganiser les étapes du projet",
+    "reorder_instructions": "Glissez-déposez les étapes pour modifier leur ordre. L'ordre sera enregistré automatiquement."
   },
   "delete_comment_modal_title": "Supprimer le commentaire",
   "delete_comment_modal_text": "Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action est irréversible.",
+  "delete_step_modal_title": "Supprimer l'étape du projet",
+  "delete_step_modal_text": "Êtes-vous sûr de vouloir supprimer cette étape ? Cette action est irréversible.",
   "details": {
     "sponsored": "Ce post est sponsorisé",
     "view_count": "{{count}} vue",
     "view_count_plural": "{{count}} vues",
     "save_label": "Enregistrer pour plus tard",
     "unsave_label": "Désenregistrer",
-    "project_steps": "Étapes du projet"
+    "project_steps": "Étapes du projet",
+    "title": "Détails du post"
   },
   "comments": {
     "title": "Commentaire",

@@ -1,9 +1,10 @@
-import { Button, Group, Modal, Stack, Text, ThemeIcon } from "@mantine/core";
-import { IconShoppingCart } from "@tabler/icons-react";
+import { Button, Group, Modal, Stack, Text, ThemeIcon, Card, Divider, Loader } from "@mantine/core";
+import { IconShoppingCart, IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { usePurchaseItem } from "../../hooks/itemHooks";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
+import { useGetFinanceSettingByKey } from "../../hooks/financeHooks";
 
 interface ConfirmPurchaseModalProps {
   opened: boolean;
@@ -24,9 +25,19 @@ export function ConfirmPurchaseModal({
   title,
   isVerifying,
 }: ConfirmPurchaseModalProps) {
-  const { t } = useTranslation(["marketplace", "common"]);
+  const { t } = useTranslation(["marketplace", "common", "admin"]);
   const purchaseMutation = usePurchaseItem(idItem);
   const navigate = useNavigate();
+
+  const { data: commissionRate, isLoading: isLoadingCommission } =
+    useGetFinanceSettingByKey("commission_rate");
+
+  const isPaid = price !== undefined && price > 0;
+  const basePrice = price || 0;
+  const upAgainCommission = isPaid && commissionRate ? basePrice * (commissionRate / 100) : 0;
+  const vat = isPaid ? basePrice * 0.2 : 0;
+  const processingFee = isPaid ? basePrice * 0.015 + 0.25 : 0;
+  const totalPrice = basePrice + upAgainCommission + vat + processingFee;
 
   const handleConfirm = () => {
     // not free
@@ -112,6 +123,83 @@ export function ConfirmPurchaseModal({
           })}
         </Text>
 
+        {isPaid && (
+          <Card withBorder radius="md" padding="md">
+            <Text fw={700} size="sm" mb="xs" c="var(--upagain-dark-green)">
+              {t("admin:finance.settings_modal.title", {
+                defaultValue: "Financial breakdown",
+              })}
+            </Text>
+            {isLoadingCommission ? (
+              <Group justify="center" py="xs">
+                <Loader size="xs" />
+              </Group>
+            ) : (
+              <Stack gap="xs">
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">
+                    {t("common:price_details.item_price", {
+                      defaultValue: "Item Price",
+                    })}
+                  </Text>
+                  <Text size="xs" fw={600}>
+                    {basePrice.toFixed(2)} €
+                  </Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">
+                    {t("common:price_details.commission", {
+                      defaultValue: "UpAgain Commission",
+                    })}{" "}
+                    ({commissionRate}%)
+                  </Text>
+                  <Text size="xs" fw={600}>
+                    {upAgainCommission.toFixed(2)} €
+                  </Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">
+                    VAT (20%)
+                  </Text>
+                  <Text size="xs" fw={600}>
+                    {vat.toFixed(2)} €
+                  </Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">
+                    {t("common:price_details.processing_fee", {
+                      defaultValue: "Processing Fee",
+                    })}
+                  </Text>
+                  <Text size="xs" fw={600}>
+                    {processingFee.toFixed(2)} €
+                  </Text>
+                </Group>
+                <Divider my={2} />
+                <Group justify="space-between">
+                  <Text fw={700} size="sm">
+                    {t("common:price_details.total", { defaultValue: "Total" })}
+                  </Text>
+                  <Text fw={700} size="sm" c="var(--upagain-neutral-green)">
+                    {totalPrice.toFixed(2)} €
+                  </Text>
+                </Group>
+              </Stack>
+            )}
+            <Group gap="xs" mt="sm" align="center" wrap="nowrap">
+              <ThemeIcon size="xs">
+                <IconInfoCircle size={12} />
+              </ThemeIcon>
+              <Text size="10px" c="dimmed" style={{ lineHeight: 1.3 }}>
+                {t("common:price_details.stripe_disclaimer", {
+                  defaultValue:
+                    "You will be redirected to Stripe to make a secure payment.",
+                })}
+              </Text>
+            </Group>
+          </Card>
+        )}
+
         <Group justify="flex-end" gap="sm" mt="lg">
           <Button variant="secondary" onClick={onClose} radius="md">
             {t("common:actions.cancel")}
@@ -122,9 +210,13 @@ export function ConfirmPurchaseModal({
             onClick={handleConfirm}
             radius="md"
           >
-            {t("marketplace:detail.buy", {
-              defaultValue: "Buy",
-            })}
+            {isPaid
+              ? t("marketplace:detail.pay_stripe", {
+                  defaultValue: "Pay with Stripe",
+                })
+              : t("marketplace:detail.buy", {
+                  defaultValue: "Buy",
+                })}
           </Button>
         </Group>
       </Stack>

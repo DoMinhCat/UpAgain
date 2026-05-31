@@ -53,7 +53,7 @@ import { NotFoundPage } from "../../error/404";
 import { useDisclosure } from "@mantine/hooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import { ConfirmReservationModal } from "../../../components/market/ConfirmReservationModal";
 import { ConfirmPurchaseModal } from "../../../components/market/ConfirmPurchaseModal";
@@ -63,7 +63,13 @@ import EmbeddedMap from "../../../components/common/EmbeddedMap";
 import { useHandleVerifyItemPurchase } from "../../../hooks/stripeHooks";
 
 export default function ItemDetailPage() {
-  const { t } = useTranslation(["marketplace", "home", "common"]);
+  const { t } = useTranslation([
+    "marketplace",
+    "home",
+    "common",
+    "post",
+    "community",
+  ]);
   const theme = useComputedColorScheme("light");
   const { user } = useAuth();
   const role = user?.role;
@@ -72,6 +78,7 @@ export default function ItemDetailPage() {
   const id = params.id;
   const id_item = Number(id);
   const isValidId = !isNaN(id_item) && id_item > 0;
+  const origin = useLocation().state;
 
   // VERIFY ITEM PURCHASE
   const { isVerifying } = useHandleVerifyItemPurchase(id_item);
@@ -101,7 +108,6 @@ export default function ItemDetailPage() {
   const { data: transactionsData } = useGetItemTransactions(id_item, isValidId);
   const latestTransaction = transactionsData?.transactions?.[0];
   const isReserved = latestTransaction?.action === "reserved";
-  const isPurchased = latestTransaction?.action === "purchased";
 
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
@@ -156,7 +162,7 @@ export default function ItemDetailPage() {
     return <FullScreenLoader />;
   }
 
-  if (!item || item.status !== "approved" || isPurchased) {
+  if (!item || (item.status !== "approved" && item.status !== "completed")) {
     return <NotFoundPage />;
   }
 
@@ -169,7 +175,32 @@ export default function ItemDetailPage() {
             mt="md"
             breadcrumbs={[
               { title: t("home:title"), href: PATHS.HOME },
-              { title: t("marketplace:market"), href: PATHS.MARKETPLACE.HOME },
+              ...(origin?.from === "postDetails" && origin?.id_post
+                ? [
+                    {
+                      title: t("community:community"),
+                      href: PATHS.USER.POSTS.ALL,
+                    },
+                    {
+                      title:
+                        origin?.post_title ||
+                        t("post:details.title", {
+                          defaultValue: "Post Details",
+                        }),
+                      href: `${PATHS.POSTS.HOME}/${origin.id_post}`,
+                      state: {
+                        from: "itemDetails",
+                        id_item: id_item,
+                        item_title: item.title,
+                      },
+                    },
+                  ]
+                : [
+                    {
+                      title: t("marketplace:market"),
+                      href: PATHS.MARKETPLACE.HOME,
+                    },
+                  ]),
               { title: item.title, href: "#" },
             ]}
           />

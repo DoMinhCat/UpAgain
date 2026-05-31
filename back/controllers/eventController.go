@@ -1119,11 +1119,11 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	if isPaid {
 		// user click on register and not redirected to stripe yet (1st call), then give user checkout link to stripe
 		if !payload.Paid {
-			// add stripe commission rate
-			stripeCommTotalInCents := int64(stripe.StripeCommissionRatePercentEU * (event.Price.Float64)) * 100 + int64(stripe.StripeCommissionFixedInCentsEU)
+			eventPriceInCents := int64(event.Price.Float64 * 100)
+			stripeCommTotalInCents := int64(float64(eventPriceInCents) * stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
 			// vat
-			vatTotalInCents := int64(event.Price.Float64*100 * stripe.VatRate)
-			finalPriceInCents := stripeCommTotalInCents + int64(event.Price.Float64 * 100) + vatTotalInCents
+			vatTotalInCents := int64(float64(eventPriceInCents) * stripe.VatRate)
+			finalPriceInCents := stripeCommTotalInCents + eventPriceInCents + vatTotalInCents
 
 			frontendOrigin := utils.GetFrontOrigin()
 			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AddComment,
   CreatePost,
+  CreateProjectStep,
   DeleteComment,
   DeletePost,
   DeleteProjectStep,
@@ -20,11 +21,14 @@ import {
   LikePost,
   SavePost,
   UpdatePost,
+  UpdateProjectStep,
+  ReorderProjectStep,
 } from "../api/postModule";
 import type {
   AddCommentPayload,
   PostsListPagination,
 } from "../api/interfaces/post";
+
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
 const STALE_TIME = 60 * 1000;
@@ -200,10 +204,60 @@ export const useDeleteProjectStep = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
         "community:notifications.delete_step_success_title",
         "community:notifications.delete_step_success_message",
+      );
+    },
+  });
+};
+
+export const useUpdateProjectStep = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id_step, payload }: { id_step: number; payload: FormData }) =>
+      UpdateProjectStep(id_step, payload),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_updating_step",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "community:notifications.update_step_success_title",
+        "community:notifications.update_step_success_message",
+      );
+    },
+  });
+};
+
+export const useReorderProjectStep = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id_step,
+      payload,
+    }: {
+      id_step: number;
+      payload: { step_ids: number[] };
+    }) => ReorderProjectStep(id_step, payload),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "community:notifications.error_reordering_step",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projectSteps"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["histories"] });
+      showSuccessNotification(
+        "community:notifications.reorder_step_success_title",
+        "community:notifications.reorder_step_success_message",
       );
     },
   });
@@ -360,6 +414,26 @@ export const useGetMyPosts = (
     meta: {
       errorTitle: "common:notifications.error",
       errorMessage: "community:notifications.error_fetching_posts",
+    },
+  });
+};
+
+export const useCreateProjectStep = (id_post: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: FormData) => CreateProjectStep(id_post, payload),
+    meta: {
+      errorTitle: "common:notifications.error",
+      errorMessage: "marketplace:my_item_detail.project_steps.notifications.error_creating",
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projectSteps", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      showSuccessNotification(
+        "marketplace:my_item_detail.project_steps.notifications.created_title",
+        "marketplace:my_item_detail.project_steps.notifications.created_msg",
+      );
     },
   });
 };

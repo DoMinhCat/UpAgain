@@ -15,7 +15,6 @@ import {
   Anchor,
   Loader,
   Center,
-  NumberInput,
 } from "@mantine/core";
 import DOMPurify from "dompurify";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -42,6 +41,7 @@ import {
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
+import { DeleteProjectStepModal } from "../../../components/post/DeleteProjectStepModal";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { EditPostModal } from "../../../components/post/EditPostModal";
@@ -51,8 +51,9 @@ import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimelin
 import CommentCard from "../../../components/post/CommentCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
+import { BookAdsModal } from "../../../components/post/BookAdsModal";
+import { ConfirmAdsCancelModal } from "../../../components/post/ConfirmAdsCancelModal";
 import {
-  useCreateAds,
   useDeleteAds,
   useUpdateAds,
 } from "../../../hooks/adsHooks";
@@ -130,8 +131,7 @@ export const AdminPostDetails = () => {
     openDeleteStep();
   };
   const deleteStep = useDeleteProjectStep();
-  const handleDeleteStep = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDeleteStep = () => {
     if (idStepToDelete) {
       deleteStep.mutate(idStepToDelete, {
         onSuccess: () => {
@@ -144,61 +144,6 @@ export const AdminPostDetails = () => {
   // CREATE ADS MODAL
   const [openedAddSponsor, { open: openAddSponsor, close: closeAddSponsor }] =
     useDisclosure(false);
-  const [startDateNewAds, setStartDateNewAds] = useState<string | null>(null);
-  const [durationNewAds, setDurationNewAds] = useState<number | string>(1);
-  const [errorStartDateNewAds, setErrorStartDateNewAds] = useState<
-    string | null
-  >(null);
-  const [errordurationNewAds, setErrordurationNewAds] = useState<string | null>(
-    null,
-  );
-
-  const validateStartDateNewAds = () => {
-    if (!startDateNewAds) {
-      setErrorStartDateNewAds(t("posts.ads_modal.errors.start_date_req"));
-      return false;
-    }
-    if (startDateNewAds < new Date().toISOString()) {
-      setErrorStartDateNewAds(t("posts.ads_modal.errors.start_date_future"));
-      return false;
-    }
-    setErrorStartDateNewAds(null);
-    return true;
-  };
-  const validatedurationNewAds = () => {
-    if (!durationNewAds) {
-      setErrordurationNewAds(t("posts.ads_modal.errors.duration_req"));
-      return false;
-    }
-    if (typeof durationNewAds === "number" && durationNewAds <= 0) {
-      setErrordurationNewAds(t("posts.ads_modal.errors.duration_min"));
-      return false;
-    }
-    setErrordurationNewAds(null);
-    return true;
-  };
-
-  const createAdsMutate = useCreateAds();
-  const handleAddSponsor = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateStartDateNewAds() || !validatedurationNewAds()) {
-      return;
-    }
-    createAdsMutate.mutate(
-      {
-        id_post: postId,
-        from: new Date(startDateNewAds || ""),
-        duration: Number(durationNewAds),
-      },
-      {
-        onSuccess: () => {
-          setStartDateNewAds(null);
-          setDurationNewAds(1);
-          closeAddSponsor();
-        },
-      },
-    );
-  };
 
   // EDIT ADS MODAL
   const [
@@ -274,8 +219,6 @@ export const AdminPostDetails = () => {
       },
       {
         onSuccess: () => {
-          setStartDateNewAds(null);
-          setDurationNewAds(1);
           closeEditSponsor();
         },
       },
@@ -286,8 +229,7 @@ export const AdminPostDetails = () => {
   const [openedRemoveAds, { open: openRemoveAds, close: closeRemoveAds }] =
     useDisclosure(false);
   const deleteAdsMutate = useDeleteAds();
-  const handleRemoveAds = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRemoveAds = () => {
     deleteAdsMutate.mutate(postDetails?.ads_id ?? 0, {
       onSuccess: () => {
         closeRemoveAds();
@@ -415,6 +357,7 @@ export const AdminPostDetails = () => {
                     <ProjectStepTimeline
                       role="admin"
                       enableDeleteStep={true}
+                      enableEditStep={true}
                       projectSteps={projectSteps as Step[]}
                       onDeleteStep={handleOpenDeleteStep}
                       postId={postDetails?.id}
@@ -595,49 +538,13 @@ export const AdminPostDetails = () => {
                 loading={deleteComment.isPending}
               />
 
-              {/* Add sponsor status modal */}
-              <Modal
-                title={t("posts.ads_modal.create_title")}
+              <BookAdsModal
                 opened={openedAddSponsor}
                 onClose={closeAddSponsor}
-                centered
-                size="lg"
-              >
-                <Group justify="space-between" gap="md" grow>
-                  <DatePickerInput
-                    label={t("posts.ads_modal.start_date")}
-                    withAsterisk
-                    placeholder={t("posts.ads_modal.start_date_placeholder")}
-                    value={startDateNewAds}
-                    onChange={setStartDateNewAds}
-                    onBlur={() => validateStartDateNewAds()}
-                    error={errorStartDateNewAds}
-                  />
-                  <NumberInput
-                    label={t("posts.ads_modal.duration")}
-                    min={1}
-                    withAsterisk
-                    value={durationNewAds}
-                    onChange={setDurationNewAds}
-                    onBlur={() => validatedurationNewAds()}
-                    error={errordurationNewAds}
-                  />
-                </Group>
-                <Group mt="lg" justify="center">
-                  <Button onClick={closeAddSponsor} variant="grey">
-                    {t("posts.ads_modal.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleAddSponsor(e);
-                    }}
-                    loading={createAdsMutate.isPending}
-                    variant="primary"
-                  >
-                    {t("posts.ads_modal.confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+                postId={postId}
+                role="admin"
+                postTitle={postDetails?.title}
+              />
 
               {/* Edit sponsor status modal */}
               <Modal
@@ -682,61 +589,23 @@ export const AdminPostDetails = () => {
                   </Button>
                 </Group>
               </Modal>
-              {/* Confirm remove ads modal */}
-              <Modal
-                title={t("posts.ads_modal.remove_title")}
+              <ConfirmAdsCancelModal
                 opened={openedRemoveAds}
                 onClose={closeRemoveAds}
-                centered
-                size="md"
-              >
-                <Stack>
-                  <Text>{t("posts.ads_modal.remove_text")}</Text>
-                </Stack>
-                <Group mt="lg" justify="center">
-                  <Button onClick={closeRemoveAds} variant="grey">
-                    {t("posts.ads_modal.cancel")}
-                  </Button>
-                  <Button
-                    onClick={(e: React.FormEvent) => {
-                      handleRemoveAds(e);
-                    }}
-                    loading={deleteAdsMutate.isPending}
-                    variant="delete"
-                  >
-                    {t("posts.ads_modal.remove_confirm")}
-                  </Button>
-                </Group>
-              </Modal>
+                onConfirm={handleRemoveAds}
+                loading={deleteAdsMutate.isPending}
+              />
             </Card>
           </Grid.Col>
         </Grid>
       </Container>
 
-      <Modal
-        title={t("posts.delete_step_modal.title")}
+      <DeleteProjectStepModal
         opened={openedDeleteStep}
         onClose={closeDeleteStep}
-        size="md"
-      >
-        <Stack>
-          <Text>{t("posts.delete_step_modal.text")}</Text>
-        </Stack>
-        <Group mt="lg" justify="center">
-          <Button onClick={closeDeleteStep} variant="grey">
-            {t("common:actions.cancel")}
-          </Button>
-          <Button
-            onClick={(e: React.FormEvent) => {
-              handleDeleteStep(e);
-            }}
-            variant="delete"
-            loading={deleteStep.isPending}
-          >
-            {t("common:actions.confirm")}
-          </Button>
-        </Group>
-      </Modal>
+        onConfirm={handleDeleteStep}
+        loading={deleteStep.isPending}
+      />
     </Container>
   );
 };
