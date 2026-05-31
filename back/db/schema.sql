@@ -102,6 +102,7 @@ create table events
     created_by   integer references accounts(id) on delete restrict,
     lat         numeric(9,6)   not null,
     lng         numeric(10,6)   not null,
+    refuse_reason text,
 
     CONSTRAINT check_coordinates CHECK (
         (lat >= -90 AND lat <= 90) AND

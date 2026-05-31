@@ -175,3 +175,14 @@ export const getMyEvents = async (): Promise<AppEvent[]> => {
   const response = await api.get(ENDPOINTS.EVENTS.MY_EVENTS);
   return response.data;
 };
+
+export const refuseEvent = async (
+  id_event: number,
+  reason: string,
+): Promise<void> => {
+  const response = await api.patch(ENDPOINTS.ADMIN.EVENTS.REFUSE(id_event), {
+    action: "refuse",
+    reason,
+  });
+  return response.data;
+};

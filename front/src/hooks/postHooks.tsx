@@ -127,6 +127,7 @@ export const useUpdatePost = (id_post: number) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails", id_post] });
       queryClient.invalidateQueries({ queryKey: ["userPostDetails", id_post] });
+      queryClient.invalidateQueries({ queryKey: ["myPosts"] });
 
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       showSuccessNotification(
@@ -217,8 +218,13 @@ export const useDeleteProjectStep = () => {
 export const useUpdateProjectStep = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id_step, payload }: { id_step: number; payload: FormData }) =>
-      UpdateProjectStep(id_step, payload),
+    mutationFn: ({
+      id_step,
+      payload,
+    }: {
+      id_step: number;
+      payload: FormData;
+    }) => UpdateProjectStep(id_step, payload),
     meta: {
       errorTitle: "common:notifications.error",
       errorMessage: "community:notifications.error_updating_step",
@@ -424,7 +430,8 @@ export const useCreateProjectStep = (id_post: number) => {
     mutationFn: (payload: FormData) => CreateProjectStep(id_post, payload),
     meta: {
       errorTitle: "common:notifications.error",
-      errorMessage: "marketplace:my_item_detail.project_steps.notifications.error_creating",
+      errorMessage:
+        "marketplace:my_item_detail.project_steps.notifications.error_creating",
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projectSteps", id_post] });

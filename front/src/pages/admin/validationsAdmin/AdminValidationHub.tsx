@@ -705,7 +705,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
   const handleConfirmRefuse = () => {
     if (pendingRefuseId !== null && refuseReason.trim().length > 0) {
       statusMutation.mutate(
-        { id: pendingRefuseId, status: "refused" },
+        { id: pendingRefuseId, status: "refused", reason: refuseReason },
         {
           onSuccess: () => {
             closeRefuse();

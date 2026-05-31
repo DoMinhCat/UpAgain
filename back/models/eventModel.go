@@ -46,6 +46,7 @@ type Event struct {
 	Images         []string    `json:"images"`
 	Lat            float64     `json:"lat"`
 	Lng            float64     `json:"lng"`
+	RefuseReason   null.String `json:"refuse_reason" swaggertype:"string"`
 	Attendees      []Account   `json:"attendees"`
 	Organizers     []Account   `json:"organizers"`
 }

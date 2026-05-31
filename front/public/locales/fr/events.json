@@ -17,7 +17,9 @@
     "explore_events": "Aller aux événements",
     "status_pending": "En attente",
     "status_refused": "Refusé",
-    "propose_event": "Proposer un événement"
+    "status_approved": "Approuvé",
+    "propose_event": "Proposer un événement",
+    "refuse_reason_title": "Motif du refus :"
   },
   "hero": {
     "title": "Événements & Ateliers Durables",
