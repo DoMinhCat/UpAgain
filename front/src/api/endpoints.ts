@@ -158,6 +158,7 @@ export const ENDPOINTS = {
     UPDATE_AVATAR: (id_account: number) => `/accounts/${id_account}/avatar`,
     NOTIFICATIONS: (id_account: number) =>
       `/accounts/${id_account}/notifications`,
+    ONBOARDING: "/accounts/onboarding",
   },
 
   // external providers

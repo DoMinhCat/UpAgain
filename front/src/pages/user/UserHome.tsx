@@ -121,7 +121,7 @@ export default function UserHome() {
       </HeroBanner>
 
       {/* SECTION 2: YOUR IMPACT */}
-      <Container px="md" py={50} size="xl">
+      <Container id="onboard-impact" px="md" py={50} size="xl">
         <Stack gap="xl">
           <Stack gap={0}>
             <Title order={2} size={32} c="var(--mantine-color-text)">
@@ -259,7 +259,7 @@ export default function UserHome() {
       </Title>
 
       {/* SECTION 3: MANAGE OBJECTS */}
-      <Container px="md" py={50} size="xl">
+      <Container id="onboard-manage" px="md" py={50} size="xl">
         <Paper
           className="paper"
           data-variant="primary"
@@ -416,7 +416,7 @@ export default function UserHome() {
       </Container>
 
       {/* SECTION 4: COMMUNITY & AGENDA */}
-      <Container px="md" py={50} size="xl" mb="xl">
+      <Container id="onboard-community-events" px="md" py={50} size="xl" mb="xl">
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
           {/* 4.1 COMMUNITY INSIGHTS */}
           <Paper
