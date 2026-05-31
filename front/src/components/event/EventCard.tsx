@@ -273,7 +273,10 @@ export function EventCard({
                 data-variant="primary"
                 radius="xl"
                 size="sm"
-                disabled={isRegistered}
+                disabled={
+                  isRegistered ||
+                  (user?.role !== "pro" && user?.role !== "user")
+                }
                 onClick={(e) => {
                   e.stopPropagation();
                   if (fullEvent) {
