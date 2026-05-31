@@ -6,6 +6,18 @@
     "schedule_description": "Tous vos événements dans un planning simple",
     "events_on": "Événements le"
   },
+  "employee_planning": {
+    "title": "Planning de l'organisateur",
+    "upcoming_events_title": "Mes événements à venir",
+    "upcoming_events_desc": "Événements que vous devez animer et qui ont été approuvés.",
+    "my_proposals_title": "Mes propositions",
+    "my_proposals_desc": "Suivez le statut de vos propositions d'événements (en attente d'approbation ou refusées).",
+    "schedule_title": "Mon calendrier",
+    "no_proposals": "Aucune proposition d'événement en attente ou refusée.",
+    "explore_events": "Aller aux événements",
+    "status_pending": "En attente d'approbation",
+    "status_refused": "Refusé"
+  },
   "hero": {
     "title": "Événements & Ateliers Durables",
     "subtitle": "Rejoignez notre communauté de créateurs éco-responsables. Apprenez, partagez et impactez le monde à travers des expériences enrichissantes."
