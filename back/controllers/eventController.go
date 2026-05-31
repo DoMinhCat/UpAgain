@@ -780,7 +780,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.UpdateEventStatusByEventId(id_event, payload.Status)
+	err = db.UpdateEventStatusByEventId(id_event, payload.Status, nil)
 	if err != nil {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event status.")
@@ -1009,7 +1009,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	// require validation again if employee
 	if role == "employee" {
-		err = db.UpdateEventStatusByEventId(id_event, "pending")
+		err = db.UpdateEventStatusByEventId(id_event, "pending", nil)
 		if err != nil {
 			slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")

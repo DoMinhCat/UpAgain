@@ -17,7 +17,9 @@
     "explore_events": "Go to Events",
     "status_pending": "Pending",
     "status_refused": "Refused",
-    "propose_event": "Propose Event"
+    "status_approved": "Approved",
+    "propose_event": "Propose Event",
+    "refuse_reason_title": "Reason for refusal:"
   },
   "hero": {
     "title": "Sustainable Events & Workshops",

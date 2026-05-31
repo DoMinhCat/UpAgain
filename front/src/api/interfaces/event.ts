@@ -23,6 +23,7 @@ export interface AppEvent {
   lat: number;
   lng: number;
   images?: string[];
+  refuse_reason?: string;
   attendees?: Account[];
   organizers?: Account[];
 }

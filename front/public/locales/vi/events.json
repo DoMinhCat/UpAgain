@@ -17,7 +17,9 @@
     "explore_events": "Xem danh sách sự kiện",
     "status_pending": "Đang chờ duyệt",
     "status_refused": "Bị từ chối",
-    "propose_event": "Đề xuất sự kiện"
+    "status_approved": "Đã duyệt",
+    "propose_event": "Đề xuất sự kiện",
+    "refuse_reason_title": "Lý do từ chối:"
   },
   "hero": {
     "title": "Sự kiện & Workshop Tái Chế",

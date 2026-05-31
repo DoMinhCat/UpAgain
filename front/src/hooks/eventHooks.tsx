@@ -12,6 +12,7 @@ import {
   registerToEvent,
   cancelRegistration,
   getMyEvents,
+  refuseEvent,
 } from "../api/eventModule";
 import {
   type EventCreationPayload,
@@ -243,10 +244,17 @@ export const useApproveRefuseEvent = () => {
     mutationFn: ({
       id,
       status,
+      reason,
     }: {
       id: number;
       status: string;
-    }): Promise<void> => updateEventStatus(id, status),
+      reason?: string;
+    }): Promise<void> => {
+      if (status === "refused") {
+        return refuseEvent(id, reason || "");
+      }
+      return updateEventStatus(id, status);
+    },
     onSuccess: (_data, { status }) => {
       showSuccessNotification(
         status === "approved"

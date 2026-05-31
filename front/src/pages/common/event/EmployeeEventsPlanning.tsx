@@ -291,7 +291,7 @@ export default function EmployeeEventsPlanning() {
 
         {/* 3. MY PROPOSALS */}
         <Stack gap="md">
-          <Group justify="space-between" align="end">
+          <Group justify="space-between" align="start">
             <Stack gap={4}>
               <Group gap="md" align="center" justify="space-between">
                 <Title order={2} size={28} fw={800}>
@@ -346,48 +346,28 @@ export default function EmployeeEventsPlanning() {
           {visibleProposedEvents && visibleProposedEvents.length > 0 ? (
             <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="xl">
               {visibleProposedEvents?.map((e) => (
-                <Box pos="relative" key={e.id}>
-                  <EventCard
-                    orientation="horizontal"
-                    onclick={() =>
-                      navigate(
-                        `${PATHS.EVENTS.HOME}/${e.category === "meetups" ? e.category : e.category + "s"}/${e.id}`,
-                        { state: { from: "upcomingEvents" } },
-                      )
-                    }
-                    category={e.category}
-                    title={e.title}
-                    description={e.description}
-                    authorName={e.employee_name || "Unknown"}
-                    authorAvatar={e.employee_avatar || ""}
-                    createdAt={e.created_at}
-                    eventDate={e.start_at}
-                    image={e.images?.[0] || ""}
-                    price={e.price}
-                    city={e.city}
-                    registeredCount={e.registered}
-                    fullEvent={e}
-                  />
-                  <Badge
-                    pos="absolute"
-                    top={12}
-                    right={12}
-                    color={e.status === "pending" ? "yellow" : "red"}
-                    variant="filled"
-                    style={{ zIndex: 5, boxShadow: "var(--mantine-shadow-md)" }}
-                    leftSection={
-                      e.status === "pending" ? (
-                        <IconClock size={12} />
-                      ) : (
-                        <IconX size={12} />
-                      )
-                    }
-                  >
-                    {e.status === "pending"
-                      ? t("events:employee_planning.status_pending")
-                      : t("events:employee_planning.status_refused")}
-                  </Badge>
-                </Box>
+                <EventCard
+                  key={e.id}
+                  orientation="horizontal"
+                  onclick={() =>
+                    navigate(
+                      `${PATHS.EVENTS.HOME}/${e.category === "meetups" ? e.category : e.category + "s"}/${e.id}`,
+                      { state: { from: "upcomingEvents" } },
+                    )
+                  }
+                  category={e.category}
+                  title={e.title}
+                  description={e.description}
+                  authorName={e.employee_name || "Unknown"}
+                  authorAvatar={e.employee_avatar || ""}
+                  createdAt={e.created_at}
+                  eventDate={e.start_at}
+                  image={e.images?.[0] || ""}
+                  price={e.price}
+                  city={e.city}
+                  registeredCount={e.registered}
+                  fullEvent={e}
+                />
               ))}
             </SimpleGrid>
           ) : (

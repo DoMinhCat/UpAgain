@@ -50,6 +50,7 @@ export const ENDPOINTS = {
       ASSIGNED_EMPLOYEES: (id_event: number) => `/events/employees/${id_event}`,
       UNASSIGN: (id_event: number) => `/events/${id_event}/unassign`,
       CANCEL: (id_event: number) => `/events/${id_event}/status`,
+      REFUSE: (id_event: number) => `/events/${id_event}/refuse`,
       UPDATE: (id_event: number) => `/events/${id_event}/update`,
       REGISTER: "/events/register",
       CANCEL_REGISTRATION: "/events/cancel",
