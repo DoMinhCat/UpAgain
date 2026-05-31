@@ -84,7 +84,8 @@
     "register_failed_title": "Registration failed",
     "register_failed_msg": "Payment not completed",
     "register_cancelled_title": "Registration cancelled",
-    "register_cancelled_msg": "Payment was cancelled"
+    "register_cancelled_msg": "Payment was cancelled",
+    "edit_approval_warning": "Note: Editing this event will require an administrator's approval before it is published again."
   },
   "no_event": "No {{event_type}} found",
   "empty_state": {

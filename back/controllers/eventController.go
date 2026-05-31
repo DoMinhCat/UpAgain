@@ -871,7 +871,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// only creator or assigned employee
+	// only creator or assigned employee(s) can edit eventx
 	if role != "admin" {
 		isValid, err := db.CheckIsCreatorOrAssignedEmployee(id_event, idUpdater)
 		if err != nil {

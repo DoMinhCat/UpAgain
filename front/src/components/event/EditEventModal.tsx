@@ -7,6 +7,7 @@ import {
   Select,
   Button,
   Group,
+  Alert,
 } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
 import { useState, useEffect } from "react";
@@ -25,6 +26,11 @@ import {
   validateEventDescription,
   validateEventPostalCode,
 } from "../../utils/validations/eventValidation";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "../../routes/paths";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../../context/AuthContext";
+import { IconAlertCircle } from "@tabler/icons-react";
 
 interface EditEventModalProps {
   opened: boolean;
@@ -61,8 +67,11 @@ export function EditEventModal({
   const [errorCategory, setErrorCategory] = useState<string | null>(null);
   const [errorDescription, setErrorDescription] = useState<string | null>(null);
   const [fileEdit, setFileEdit] = useState<any[]>([]);
-
+  const navigate = useNavigate();
   const updateEvent = useUpdateEvent(id_event);
+  const { t } = useTranslation("events");
+  const { user } = useAuth();
+  const isEmployee = user?.role === "employee";
 
   useEffect(() => {
     if (opened && eventDetails) {
@@ -219,6 +228,7 @@ export function EditEventModal({
       {
         onSuccess: () => {
           handleClose();
+          navigate(PATHS.EVENTS.PLANNING);
         },
       },
     );
@@ -413,6 +423,14 @@ export function EditEventModal({
           files={fileEdit}
           setFiles={setFileEdit}
         />
+        {isEmployee && (
+          <Alert
+            color="yellow"
+            title={t("detail.edit_approval_warning")}
+            icon={<IconAlertCircle size={18} />}
+            radius="md"
+          />
+        )}
       </Stack>
       <Group mt="lg" justify="center">
         <Button onClick={handleClose} variant="grey">
