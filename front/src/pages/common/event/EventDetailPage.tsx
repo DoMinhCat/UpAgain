@@ -119,6 +119,11 @@ export default function EventDetailPage() {
     isValidId,
   );
 
+  const isOrganizer =
+    event?.organizers?.some((org) => org.id === user?.id) || false;
+  const isCreator = event?.employee_id === user?.id;
+  const canEditOrCancel = isAdmin || isOrganizer || isCreator;
+
   // GET RANDOM SUGGESTED EVENTS
   const SUGGESTED_EVENT_LIMIT = 4;
   const { data: suggestedEventsData, isLoading: isLoadingSuggestedEvents } =
@@ -751,36 +756,40 @@ export default function EventDetailPage() {
                           >
                             {t("detail.see_attendees")}
                           </Button>
-                          <Button
-                            radius="md"
-                            variant="edit"
-                            disabled={
-                              dayjs(event.start_at) < dayjs().startOf("day")
-                            }
-                            fullWidth
-                            onClick={openEdit}
-                            rightSection={<IconEdit size={18} />}
-                          >
-                            {t("detail.edit_event")}
-                          </Button>
-                          <Button
-                            radius="md"
-                            variant={
-                              ["cancelled", "pending", "refused"].includes(
-                                event.status ?? "",
-                              )
-                                ? "primary"
-                                : "delete"
-                            }
-                            disabled={
-                              dayjs(event.start_at) < dayjs().startOf("day")
-                            }
-                            fullWidth
-                            onClick={openCancel}
-                            rightSection={<IconX size={18} />}
-                          >
-                            {t("admin:events.details.cancel_event")}
-                          </Button>
+                          {canEditOrCancel && (
+                            <Button
+                              radius="md"
+                              variant="edit"
+                              disabled={
+                                dayjs(event.start_at) < dayjs().startOf("day")
+                              }
+                              fullWidth
+                              onClick={openEdit}
+                              rightSection={<IconEdit size={18} />}
+                            >
+                              {t("detail.edit_event")}
+                            </Button>
+                          )}
+                          {isAdmin && (
+                            <Button
+                              radius="md"
+                              variant={
+                                ["cancelled", "pending", "refused"].includes(
+                                  event.status ?? "",
+                                )
+                                  ? "primary"
+                                  : "delete"
+                              }
+                              disabled={
+                                dayjs(event.start_at) < dayjs().startOf("day")
+                              }
+                              fullWidth
+                              onClick={openCancel}
+                              rightSection={<IconX size={18} />}
+                            >
+                              {t("admin:events.details.cancel_event")}
+                            </Button>
+                          )}
                         </Group>
                       )}
 
@@ -815,28 +824,35 @@ export default function EventDetailPage() {
           </Stack>
         </Container>
 
-        <EditEventModal
-          opened={openedEdit}
-          onClose={closeEdit}
-          id_event={idEvent}
-          eventDetails={event}
-        />
-        <EventAttendeesModal
-          opened={openedAttendees}
-          onClose={closeAttendees}
-          attendees={event.attendees || []}
-        />
-        <CancelEventModal
-          opened={openedCancel}
-          onClose={closeCancel}
-          onConfirm={() => {
-            handleCancel();
-          }}
-          title={t("admin:events.details.cancel_modal.cancel_title")}
-          message={t("admin:events.details.cancel_modal.cancel_msg")}
-          confirmLabel={t("admin:events.details.cancel_modal.confirm_cancel")}
-        />
-
+        {canEditOrCancel && (
+          <>
+            <EditEventModal
+              opened={openedEdit}
+              onClose={closeEdit}
+              id_event={idEvent}
+              eventDetails={event}
+            />
+            <CancelEventModal
+              opened={openedCancel}
+              onClose={closeCancel}
+              onConfirm={() => {
+                handleCancel();
+              }}
+              title={t("admin:events.details.cancel_modal.cancel_title")}
+              message={t("admin:events.details.cancel_modal.cancel_msg")}
+              confirmLabel={t(
+                "admin:events.details.cancel_modal.confirm_cancel",
+              )}
+            />
+          </>
+        )}
+        {(isEmployee || isAdmin) && (
+          <EventAttendeesModal
+            opened={openedAttendees}
+            onClose={closeAttendees}
+            attendees={event.attendees || []}
+          />
+        )}
         <EventRegistrationModal
           opened={openedRegister}
           onClose={closeRegister}
