@@ -137,13 +137,13 @@ func GetEventRegistrationsByAccountId(id_account int) ([]models.Event, error) {
      FROM event_registrations er2 
      WHERE er2.id_event = e.id 
        AND er2.status != 'cancelled') AS total_registered
-FROM event_registrations er
-JOIN events e ON er.id_event = e.id
-JOIN accounts a ON e.created_by = a.id
-WHERE er.id_account = $1
-  AND er.status != 'cancelled'
-  AND e.status = 'approved'
-ORDER BY e.start_at ASC;
+	FROM event_registrations er
+	JOIN events e ON er.id_event = e.id
+	JOIN accounts a ON e.created_by = a.id
+	WHERE er.id_account = $1
+	AND er.status != 'cancelled'
+	AND e.status = 'approved'
+	ORDER BY e.start_at ASC;
 	`
 	rows, err := utils.Conn.Query(query, id_account)
 	if err != nil {
