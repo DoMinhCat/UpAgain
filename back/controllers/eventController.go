@@ -1273,13 +1273,12 @@ func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
 	
 	var events []models.Event
 	if role == "employee" {
-		// TODO: get events of an employee by account id
-		// events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
-		// if err != nil {
-		// 	slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
-		// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
-		// 	return
-		// }
+		events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
+		if err != nil {
+			slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+			return
+		}
 	} else {
 		// user or pro
 		events, err = db.GetEventRegistrationsByAccountId(idRequestor)
