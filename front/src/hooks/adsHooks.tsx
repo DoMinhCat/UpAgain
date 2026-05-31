@@ -13,14 +13,14 @@ export const useCreateAds = () => {
   return useMutation({
     mutationFn: (payload: CreateAdsRequest) => createAds(payload),
     onSuccess: (variables) => {
-      showSuccessNotification(
-        "admin:posts.notifications.ads_created_title",
-        "admin:posts.notifications.ads_created_msg",
-      );
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({
         queryKey: ["postDetails", variables.id_post],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["userPostDetails", variables.id_post],
       });
     },
     meta: {
@@ -41,8 +41,10 @@ export const useDeleteAds = () => {
         "admin:posts.notifications.ads_deleted_msg",
       );
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({ queryKey: ["postDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["userPostDetails"] });
     },
     meta: {
       errorTitle: "admin:posts.notifications.error_deleting_ads",
@@ -68,9 +70,13 @@ export const useUpdateAds = () => {
         "admin:posts.notifications.ads_updated_msg",
       );
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
       queryClient.invalidateQueries({
         queryKey: ["postDetails", variables.id_post],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["userPostDetails", variables.id_post],
       });
     },
     meta: {

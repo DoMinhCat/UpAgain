@@ -110,7 +110,30 @@
     "cancelled_title": "Réservation annulée",
     "cancelled_on": "Annulée le {{date}}",
     "waiting_for_dropoff": "En attente du dépôt de l'objet dans le conteneur par le vendeur. Une fois déposé, votre code de retrait et code-barres seront générés ici.",
-    "download_barcode": "Télécharger le code-barres"
+    "download_barcode": "Télécharger le code-barres",
+    "project_steps": {
+      "title": "Étapes du projet",
+      "description": "Ajoutez cet objet à l'une des étapes de votre projet pour documenter sa réutilisation.",
+      "add_button": "Ajouter l'étape",
+      "modal_title": "Ajouter l'étape au projet",
+      "edit_modal_title": "Modifier l'étape du projet",
+      "items_label": "Objets utilisés",
+      "items_placeholder": "Sélectionner les objets utilisés",
+      "title_label": "Titre de l'étape",
+      "title_placeholder": "ex : Préparation du bois",
+      "description_label": "Description de l'étape",
+      "description_placeholder": "Décrivez ce que vous avez fait lors de cette étape...",
+      "nothing_found": "Aucun objet trouvé",
+      "errors": {
+        "title": "Le titre est requis",
+        "description": "La description est requise"
+      },
+      "notifications": {
+        "created_title": "Étape ajoutée",
+        "created_msg": "L'étape a été ajoutée avec succès à votre projet.",
+        "error_creating": "Échec de l'ajout de l'étape au projet."
+      }
+    }
   },
   "open_container": {
     "title": "Ouvrir le conteneur",

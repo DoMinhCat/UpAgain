@@ -20,6 +20,7 @@ import {
   IconEye,
   IconHeart,
   IconBookmark,
+  IconCrownFilled,
 } from "@tabler/icons-react";
 import { getTimeAgo } from "../../utils/timeUtils";
 import { resolveUrl } from "../../utils/imageUtils";
@@ -37,6 +38,7 @@ interface PostCardProps {
   likes: number;
   isLiked?: boolean;
   isSaved?: boolean;
+  isSponsored?: boolean;
   onClick?: () => void;
   onLike?: (e: React.MouseEvent) => Promise<any> | void;
   onSave?: (e: React.MouseEvent) => Promise<any> | void;
@@ -65,11 +67,12 @@ export default function PostCard({
   likes,
   isLiked,
   isSaved,
+  isSponsored,
   onClick,
   onLike,
   onSave,
 }: PostCardProps) {
-  const { t } = useTranslation(["post", "common"]);
+  const { t } = useTranslation(["post", "common", "admin"]);
   const theme = useComputedColorScheme("light");
 
   const [localLiked, setLocalLiked] = useState<boolean | undefined>(undefined);
@@ -147,6 +150,18 @@ export default function PostCard({
           height={200}
           fit="cover"
         />
+        {isSponsored && (
+          <Badge
+            variant="gradient"
+            gradient={{ from: "var(--upagain-yellow)", to: "orange" }}
+            pos="absolute"
+            top={12}
+            left={12}
+            leftSection={<IconCrownFilled size={10} style={{ display: "block" }} />}
+          >
+            {t("admin:posts.categories.sponsored", { defaultValue: "Sponsored" })}
+          </Badge>
+        )}
         <Badge
           className="badge"
           variant={CATEGORY_COLOR[category] ?? "gray"}

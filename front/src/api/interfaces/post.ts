@@ -58,6 +58,7 @@ export interface PostComment {
   user_name: string;
   user_avatar: string;
   is_deleted: boolean;
+  is_liked?: boolean;
 }
 
 export interface PostCommentsResponse {

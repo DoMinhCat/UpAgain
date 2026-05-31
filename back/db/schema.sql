@@ -205,6 +205,15 @@ create table liked_posts
     PRIMARY KEY (id_account, id_post)
 );
 
+create table liked_comments
+(
+    id_account integer     not null references accounts (id) on delete cascade,
+    id_comment integer     not null references comments (id) on delete cascade,
+    liked_at   timestamptz not null default now(),
+    PRIMARY KEY (id_account, id_comment)
+);
+
+
 CREATE TYPE ads_status AS ENUM ('active', 'expired', 'cancelled');
 create table ads
 (
@@ -364,8 +373,8 @@ CREATE TABLE project_steps (
   is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
   title       VARCHAR(255)   NOT NULL,
   description TEXT           NOT NULL,
-  step_order  INTEGER        NOT NULL DEFAULT 1
   id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  order       FLOAT          NOT NULL
 );
 
 -- a project step can have multiple items

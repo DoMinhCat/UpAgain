@@ -468,6 +468,7 @@ export default function UserHome() {
                           likes={post.like_count}
                           isLiked={post.is_liked ?? false}
                           isSaved={post.is_saved ?? false}
+                          isSponsored={post.ads_id !== null}
                           onLike={() => likePostAsync(post.id)}
                           onSave={() => savePostAsync(post.id)}
                         />

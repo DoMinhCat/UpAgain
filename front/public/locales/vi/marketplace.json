@@ -80,7 +80,30 @@
     "cancelled_title": "Đặt chỗ đã bị hủy",
     "cancelled_on": "Đã hủy lúc {{date}}",
     "waiting_for_dropoff": "Đang chờ người bán gửi mặt hàng vào thùng chứa trước. Sau khi gửi, mã nhận hàng và mã vạch của bạn sẽ được hiển thị tại đây.",
-    "download_barcode": "Tải xuống mã vạch"
+    "download_barcode": "Tải xuống mã vạch",
+    "project_steps": {
+      "title": "Các bước dự án",
+      "description": "Thêm món đồ này vào một trong các bước dự án của bạn để ghi lại sự tái sử dụng.",
+      "add_button": "Thêm bước",
+      "modal_title": "Thêm bước vào dự án",
+      "edit_modal_title": "Chỉnh sửa bước dự án",
+      "items_label": "Món đồ sử dụng",
+      "items_placeholder": "Chọn món đồ được sử dụng",
+      "title_label": "Tiêu đề bước",
+      "title_placeholder": "ví dụ: Chuẩn bị gỗ",
+      "description_label": "Mô tả bước",
+      "description_placeholder": "Mô tả những gì bạn đã làm trong bước này...",
+      "nothing_found": "Không tìm thấy món đồ nào",
+      "errors": {
+        "title": "Tiêu đề là bắt buộc",
+        "description": "Mô tả là bắt buộc"
+      },
+      "notifications": {
+        "created_title": "Đã thêm bước",
+        "created_msg": "Bước này đã được thêm thành công vào dự án của bạn.",
+        "error_creating": "Không thể thêm bước vào dự án."
+      }
+    }
   },
   "open_container": {
     "title": "Mở thùng chứa",
