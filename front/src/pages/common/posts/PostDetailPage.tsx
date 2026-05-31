@@ -140,7 +140,7 @@ export default function PostDetailPage() {
     useDisclosure(false);
   const [openedAddStep, { open: openAddStep, close: closeAddStep }] =
     useDisclosure(false);
-  
+
   // BOOK ADS MODAL STATE
   const [openedBookAds, { open: openBookAds, close: closeBookAds }] =
     useDisclosure(false);
@@ -180,10 +180,8 @@ export default function PostDetailPage() {
 
   // DELETE STEP MODAL STATE
   const [idStepToDelete, setIdStepToDelete] = useState<number | null>(null);
-  const [
-    openedDeleteStep,
-    { open: openDeleteStep, close: closeDeleteStep },
-  ] = useDisclosure(false);
+  const [openedDeleteStep, { open: openDeleteStep, close: closeDeleteStep }] =
+    useDisclosure(false);
 
   const handleOpenDeleteStep = (id: number) => {
     setIdStepToDelete(id);
@@ -456,7 +454,9 @@ export default function PostDetailPage() {
                         !post?.ads_id &&
                         post?.category === "project" && (
                           <Button variant="primary" onClick={openBookAds}>
-                            {t("admin:posts.details.create_ads", { defaultValue: "Book Ad" })}
+                            {t("admin:posts.details.create_ads", {
+                              defaultValue: "Book Ad",
+                            })}
                           </Button>
                         )}
                       {user?.role === "pro" &&
@@ -464,7 +464,9 @@ export default function PostDetailPage() {
                         post?.ads_id &&
                         post?.category === "project" && (
                           <Button variant="delete" onClick={openCancelAds}>
-                            {t("admin:posts.details.remove_ads", { defaultValue: "Cancel Ad" })}
+                            {t("admin:posts.details.remove_ads", {
+                              defaultValue: "Cancel Ad",
+                            })}
                           </Button>
                         )}
                       <Button variant="edit" onClick={openEdit}>
@@ -513,65 +515,69 @@ export default function PostDetailPage() {
                       </Text>
                     </Group>
 
-                    <Group gap={4}>
-                      <ActionIcon
-                        className="actionIcon"
-                        disabled={role !== "user" && role !== "pro"}
-                        data-variant="primary"
-                        variant="subtle"
-                        radius="xl"
-                        aria-label="Like post"
-                        onClick={handleLike}
-                        loading={isLiking}
-                      >
-                        {isLiked ? (
-                          <IconHeartFilled
-                            size={20}
-                            color="var(--mantine-color-red-6)"
-                          />
-                        ) : (
-                          <IconHeart
-                            size={20}
-                            color="var(--mantine-color-red-6)"
-                          />
-                        )}
-                      </ActionIcon>
-                      <Text size="sm" fw={600}>
-                        {likeCount}
-                      </Text>
-                    </Group>
+                    {role === "user" ||
+                      (role === "pro" && (
+                        <Group gap={4}>
+                          <ActionIcon
+                            className="actionIcon"
+                            data-variant="primary"
+                            variant="subtle"
+                            radius="xl"
+                            aria-label="Like post"
+                            onClick={handleLike}
+                            loading={isLiking}
+                          >
+                            {isLiked ? (
+                              <IconHeartFilled
+                                size={20}
+                                color="var(--mantine-color-red-6)"
+                              />
+                            ) : (
+                              <IconHeart
+                                size={20}
+                                color="var(--mantine-color-red-6)"
+                              />
+                            )}
+                          </ActionIcon>
+                          <Text size="sm" fw={600}>
+                            {likeCount}
+                          </Text>
+                        </Group>
+                      ))}
 
-                    <Tooltip
-                      label={
-                        isSaved
-                          ? t("post:details.unsave_label")
-                          : t("post:details.save_label")
-                      }
-                      withArrow
-                    >
-                      <ActionIcon
-                        disabled={role !== "user" && role !== "pro"}
-                        className="actionIcon"
-                        data-variant="primary"
-                        variant="subtle"
-                        radius="xl"
-                        aria-label="Save post"
-                        onClick={handleSave}
-                        loading={isSaving}
-                      >
-                        {isSaved ? (
-                          <IconBookmarkFilled
-                            size={20}
-                            color="var(--upagain-yellow)"
-                          />
-                        ) : (
-                          <IconBookmark
-                            size={20}
-                            color="var(--upagain-yellow)"
-                          />
-                        )}
-                      </ActionIcon>
-                    </Tooltip>
+                    {role === "user" ||
+                      (role === "pro" && (
+                        <Tooltip
+                          label={
+                            isSaved
+                              ? t("post:details.unsave_label")
+                              : t("post:details.save_label")
+                          }
+                          withArrow
+                        >
+                          <ActionIcon
+                            className="actionIcon"
+                            data-variant="primary"
+                            variant="subtle"
+                            radius="xl"
+                            aria-label="Save post"
+                            onClick={handleSave}
+                            loading={isSaving}
+                          >
+                            {isSaved ? (
+                              <IconBookmarkFilled
+                                size={20}
+                                color="var(--upagain-yellow)"
+                              />
+                            ) : (
+                              <IconBookmark
+                                size={20}
+                                color="var(--upagain-yellow)"
+                              />
+                            )}
+                          </ActionIcon>
+                        </Tooltip>
+                      ))}
                   </Group>
                 </Group>
               </Paper>
@@ -660,32 +666,28 @@ export default function PostDetailPage() {
                 </Group>
 
                 {/* Add comment */}
-                <Stack gap="sm" mb="md">
-                  <Textarea
-                    disabled={role !== "user" && role !== "pro"}
-                    placeholder={t("post:comments.placeholder")}
-                    value={commentText}
-                    radius="lg"
-                    onChange={(e) => setCommentText(e.currentTarget.value)}
-                    minRows={3}
-                    autosize
-                  />
-                  <Group justify="flex-end">
-                    <Button
-                      className="button"
-                      data-variant="primary"
-                      onClick={handleAddComment}
-                      loading={isPosting}
-                      disabled={
-                        !commentText.trim() ||
-                        (role !== "user" && role !== "pro")
-                      }
-                    >
-                      {t("post:comments.submit")}
-                    </Button>
-                  </Group>
-                </Stack>
-
+                {(role === "user" || role === "pro") && (
+                  <Stack gap="sm" mb="md">
+                    <Textarea
+                      placeholder={t("post:comments.placeholder")}
+                      value={commentText}
+                      radius="lg"
+                      onChange={(e) => setCommentText(e.currentTarget.value)}
+                      minRows={3}
+                      autosize
+                    />
+                    <Group justify="flex-end">
+                      <Button
+                        className="button"
+                        data-variant="primary"
+                        onClick={handleAddComment}
+                        loading={isPosting}
+                      >
+                        {t("post:comments.submit")}
+                      </Button>
+                    </Group>
+                  </Stack>
+                )}
                 {/* Comments list */}
                 {isLoadingComments ? (
                   // TODO: replace with skeleton loading
@@ -807,7 +809,8 @@ export default function PostDetailPage() {
           onConfirm={handleCancelAds}
           loading={deleteAdsMutate.isPending}
           warningMessage={t("admin:posts.ads_modal.refund_warning", {
-            defaultValue: "Warning: No refund is possible for cancelled advertisements.",
+            defaultValue:
+              "Warning: No refund is possible for cancelled advertisements.",
           })}
         />
       )}

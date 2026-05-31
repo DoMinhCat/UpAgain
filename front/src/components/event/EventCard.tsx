@@ -9,7 +9,6 @@ import {
   ActionIcon,
   Box,
   Title,
-  Tooltip,
   useComputedColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -179,18 +178,29 @@ export function EventCard({
           >
             {t("events:detail.registered", { count: registeredCount })}
           </Badge>
-          {fullEvent?.status && ["pending", "refused"].includes(fullEvent.status) && (
-            <Badge
-              color={fullEvent.status === "pending" ? "yellow" : "red"}
-              variant="filled"
-              size="sm"
-              leftSection={fullEvent.status === "pending" ? <IconClock size={12} /> : <IconX size={12} />}
-            >
-              {fullEvent.status === "pending"
-                ? t("events:employee_planning.status_pending", { defaultValue: "Pending" })
-                : t("events:employee_planning.status_refused", { defaultValue: "Refused" })}
-            </Badge>
-          )}
+          {fullEvent?.status &&
+            ["pending", "refused"].includes(fullEvent.status) && (
+              <Badge
+                color={fullEvent.status === "pending" ? "yellow" : "red"}
+                variant="filled"
+                size="sm"
+                leftSection={
+                  fullEvent.status === "pending" ? (
+                    <IconClock size={12} />
+                  ) : (
+                    <IconX size={12} />
+                  )
+                }
+              >
+                {fullEvent.status === "pending"
+                  ? t("events:employee_planning.status_pending", {
+                      defaultValue: "Pending",
+                    })
+                  : t("events:employee_planning.status_refused", {
+                      defaultValue: "Refused",
+                    })}
+              </Badge>
+            )}
         </Stack>
       </Box>
 
@@ -272,24 +282,13 @@ export function EventCard({
               </Text>
             </Group>
 
-            <Tooltip
-              label={
-                isRegistered
-                  ? t("events:detail.already_registered", {
-                      defaultValue: "Already registered",
-                    })
-                  : "Register for this event"
-              }
-            >
+            {(user?.role === "pro" || user?.role === "user") && (
               <ActionIcon
                 className="actionIcon"
                 data-variant="primary"
                 radius="xl"
                 size="sm"
-                disabled={
-                  isRegistered ||
-                  (user?.role !== "pro" && user?.role !== "user")
-                }
+                disabled={isRegistered}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (fullEvent) {
@@ -299,7 +298,7 @@ export function EventCard({
               >
                 <IconCalendarEvent size={16} />
               </ActionIcon>
-            </Tooltip>
+            )}
           </Group>
         </Stack>
       </Stack>
