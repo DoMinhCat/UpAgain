@@ -231,8 +231,8 @@ export default function PostCard({
           </Tooltip>
 
           <Group gap="sm">
-            <Group gap={4}>
-              {(currentRole === "user" || currentRole === "pro") && (
+            {(currentRole === "user" || currentRole === "pro") && (
+              <Group gap={4}>
                 <Tooltip
                   withArrow
                   label={displayLiked ? "Unlike" : "Like post"}
@@ -256,11 +256,11 @@ export default function PostCard({
                     )}
                   </ActionIcon>
                 </Tooltip>
-              )}
-              <Text size="xs" fw={600} c="var(--mantine-color-text)">
-                {displayLikes}
-              </Text>
-            </Group>
+                <Text size="xs" fw={600} c="var(--mantine-color-text)">
+                  {displayLikes}
+                </Text>
+              </Group>
+            )}
 
             {(currentRole === "user" || currentRole === "pro") && (
               <Tooltip

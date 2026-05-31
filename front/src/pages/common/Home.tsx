@@ -1,6 +1,7 @@
 import { useAuth } from "../../context/AuthContext";
 import GuestHome from "../guest/GuestHome";
-import UserHome from "../user/UserHome";
+import EmployeeHome from "../home/EmployeeHome";
+import UserHome from "../home/UserHome";
 
 const Home = () => {
   const { user } = useAuth();
@@ -11,13 +12,13 @@ const Home = () => {
   } else {
     // Render component based on role
     switch (user.role) {
-      // admin can move freely between admin space and user space
-
       // TODO:
       // case "pro":
       //   return <ProHome />;
       case "user":
         return <UserHome />;
+      case "employee":
+        return <EmployeeHome />;
       case "admin":
         return <GuestHome />;
       default:
