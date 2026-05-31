@@ -185,7 +185,14 @@ export const useHandleVerifyAdsPayment = (postId: number) => {
     const adsFromStr = searchParams.get("ads_from");
     const adsDurationStr = searchParams.get("ads_duration");
 
-    if (status === "success" && sessionId && !isNaN(postId) && postId > 0 && adsFromStr && adsDurationStr) {
+    if (
+      status === "success" &&
+      sessionId &&
+      !isNaN(postId) &&
+      postId > 0 &&
+      adsFromStr &&
+      adsDurationStr
+    ) {
       verifyStripeSessionMutation.mutate(
         { session_id: sessionId },
         {
@@ -206,13 +213,25 @@ export const useHandleVerifyAdsPayment = (postId: number) => {
                     searchParams.delete("ads_duration");
                     setSearchParams(searchParams);
                     queryClient.invalidateQueries({ queryKey: ["posts"] });
-                    queryClient.invalidateQueries({ queryKey: ["postDetails", postId] });
+                    queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+                    queryClient.invalidateQueries({
+                      queryKey: ["postDetails", postId],
+                    });
+                    queryClient.invalidateQueries({
+                      queryKey: ["userPostDetails", postId],
+                    });
+                    showSuccessNotification(
+                      "admin:posts.notifications.ads_created_title",
+                      "admin:posts.notifications.ads_created_msg",
+                    );
                   },
                 },
               );
             } else {
               showErrorNotification(
-                t("admin:posts.notifications.error_creating_ads", { defaultValue: "Payment Failed" }),
+                t("admin:posts.notifications.error_creating_ads", {
+                  defaultValue: "Payment Failed",
+                }),
                 "Payment was not successfully completed.",
               );
               searchParams.delete("payment");
@@ -226,7 +245,9 @@ export const useHandleVerifyAdsPayment = (postId: number) => {
       );
     } else if (status === "cancelled" || status === "cancel") {
       showInfoNotification(
-        t("admin:posts.notifications.ads_cancelled_title", { defaultValue: "Payment Cancelled" }),
+        t("admin:posts.notifications.ads_cancelled_title", {
+          defaultValue: "Payment Cancelled",
+        }),
         "You cancelled the payment process.",
       );
       searchParams.delete("payment");

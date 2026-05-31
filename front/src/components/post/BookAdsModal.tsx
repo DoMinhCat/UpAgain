@@ -37,7 +37,7 @@ export function BookAdsModal({
   const createAdsMutate = useCreateAds();
 
   // State
-  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [duration, setDuration] = useState<number | string>(1);
   const [errorStartDate, setErrorStartDate] = useState<string | null>(null);
   const [errorDuration, setErrorDuration] = useState<string | null>(null);
