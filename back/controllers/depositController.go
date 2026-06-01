@@ -429,8 +429,5 @@ func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 			slog.Error("db.InsertHistory() failed", "controller", "TransferContainerByDepositId", "error", err)
 		}
 	}
-
-	// TODO: notification to user and pro (if pro reserved, since if purchased code will be generated therefore cant trasnfer container) that container is changed
-
 	utils.RespondWithJSON(w, http.StatusOK, "Transfer succeeded.")
 }

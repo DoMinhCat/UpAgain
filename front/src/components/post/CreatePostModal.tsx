@@ -138,11 +138,6 @@ export function CreatePostModal({
             },
             ...(role !== "pro"
               ? [
-                  {
-                    value: "project",
-                    label: t("admin:posts.categories.project"),
-                    disabled: role !== "pro",
-                  },
                   { value: "tips", label: t("admin:posts.categories.tips") },
                   { value: "news", label: t("admin:posts.categories.news") },
                   {

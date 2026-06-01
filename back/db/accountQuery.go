@@ -12,7 +12,7 @@ import (
 func GetAccountCredsByEmail(email string) (*models.AccountCreds, error) {
 	var user models.AccountCreds
 
-	row := utils.Conn.QueryRow("SELECT id, email, password, role, is_banned, username FROM accounts WHERE email=$1", email)
+	row := utils.Conn.QueryRow("SELECT id, email, password, role, is_banned, username FROM accounts WHERE email=$1 AND deleted_at IS NULL", email)
 	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.Role, &user.IsBanned, &user.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {

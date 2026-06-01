@@ -506,7 +506,7 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// can't edit an event that has already ended
+	// can't asign to an event that has already ended
 	event, err := db.GetEventDetailsById(id_event)
 	if err != nil {
 		slog.Error("GetEventDetailsById() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
@@ -780,7 +780,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.UpdateEventStatusByEventId(id_event, payload.Status)
+	err = db.UpdateEventStatusByEventId(id_event, payload.Status, nil)
 	if err != nil {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event status.")
@@ -871,7 +871,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// only creator or assigned employee
+	// only creator or assigned employee(s) can edit eventx
 	if role != "admin" {
 		isValid, err := db.CheckIsCreatorOrAssignedEmployee(id_event, idUpdater)
 		if err != nil {
@@ -1009,7 +1009,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	// require validation again if employee
 	if role == "employee" {
-		err = db.UpdateEventStatusByEventId(id_event, "pending")
+		err = db.UpdateEventStatusByEventId(id_event, "pending", nil)
 		if err != nil {
 			slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
@@ -1273,13 +1273,12 @@ func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
 	
 	var events []models.Event
 	if role == "employee" {
-		// TODO: get events of an employee by account id
-		// events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
-		// if err != nil {
-		// 	slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
-		// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
-		// 	return
-		// }
+		events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
+		if err != nil {
+			slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+			return
+		}
 	} else {
 		// user or pro
 		events, err = db.GetEventRegistrationsByAccountId(idRequestor)

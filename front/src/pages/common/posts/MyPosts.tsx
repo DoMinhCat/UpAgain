@@ -28,6 +28,7 @@ import { useDisclosure } from "@mantine/hooks";
 
 export default function MyPosts() {
   const { user } = useAuth();
+  const role = user?.role;
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -179,11 +180,14 @@ export default function MyPosts() {
           loading={isLoadingMyPosts}
         />
       </Stack>
-      <CreatePostModal
-        role={user?.role || ""}
-        opened={openedCreate}
-        onClose={closeCreate}
-      />
+
+      {(role === "employee" || role === "pro" || role === "admin") && (
+        <CreatePostModal
+          role={role}
+          opened={openedCreate}
+          onClose={closeCreate}
+        />
+      )}
     </Container>
   );
 }

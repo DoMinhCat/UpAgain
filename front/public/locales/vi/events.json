@@ -6,6 +6,21 @@
     "description": "Sẵn sàng cho các sự kiện sắp tới của bạn chưa nè?",
     "events_on": "Sự kiện vào ngày"
   },
+  "employee_planning": {
+    "title": "Lịch trình người tổ chức",
+    "upcoming_events_title": "Sự kiện sắp tới của tôi",
+    "upcoming_events_desc": "Các sự kiện bạn được phân công tổ chức và đã được phê duyệt.",
+    "my_proposals_title": "Đề xuất của tôi",
+    "my_proposals_desc": "Theo dõi trạng thái các đề xuất sự kiện của bạn (đang chờ duyệt hoặc bị từ chối).",
+    "schedule_title": "Lịch làm việc của tôi",
+    "no_proposals": "Không có đề xuất sự kiện nào đang chờ duyệt hoặc bị từ chối.",
+    "explore_events": "Xem danh sách sự kiện",
+    "status_pending": "Đang chờ duyệt",
+    "status_refused": "Bị từ chối",
+    "status_approved": "Đã duyệt",
+    "propose_event": "Đề xuất sự kiện",
+    "refuse_reason_title": "Lý do từ chối:"
+  },
   "hero": {
     "title": "Sự kiện & Workshop Tái Chế",
     "subtitle": "Gia nhập cộng đồng những người kiến tạo xanh. Cùng học hỏi, chia sẻ và lan tỏa những trải nghiệm ý nghĩa."
@@ -84,7 +99,8 @@
     "register_failed_title": "Đăng ký thất bại",
     "register_failed_msg": "Thanh toán chưa hoàn tất",
     "register_cancelled_title": "Đã hủy đăng ký",
-    "register_cancelled_msg": "Giao dịch thanh toán đã bị hủy"
+    "register_cancelled_msg": "Giao dịch thanh toán đã bị hủy",
+    "edit_approval_warning": "Lưu ý: Việc chỉnh sửa sự kiện này sẽ cần quản trị viên duyệt lại trước khi được hiển thị trở lại nha."
   },
   "no_event": "Chưa có {{event_type}} nào cả",
   "empty_state": {

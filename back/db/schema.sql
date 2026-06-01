@@ -102,6 +102,7 @@ create table events
     created_by   integer references accounts(id) on delete restrict,
     lat         numeric(9,6)   not null,
     lng         numeric(10,6)   not null,
+    refuse_reason text,
 
     CONSTRAINT check_coordinates CHECK (
         (lat >= -90 AND lat <= 90) AND
@@ -334,7 +335,6 @@ create table barcodes
 );
 
 -- sub_from will not change, sub_to will be updated if renew/trial to official
--- is_active: user can cancel subscription before end date (sub_to) and purchase a new subscription (stupid but possible)
 create table subscriptions
 (
     id            serial          primary key,
