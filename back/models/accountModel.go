@@ -49,6 +49,7 @@ type AccountDetails struct {
 	Phone      null.String `json:"phone" swaggertype:"string"`
 	Score      int         `json:"score"`
 	IsPremium        bool        `json:"is_premium"`
+	IsTrial          bool        `json:"is_trial"`
 	Avatar           null.String `json:"avatar" swaggertype:"string"`
 	DeletedAt        null.Time   `json:"deleted_at"`
 	CompletedOnboard *bool       `json:"completed_onboard,omitempty"`

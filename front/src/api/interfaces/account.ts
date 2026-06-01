@@ -52,6 +52,7 @@ export interface Account {
   phone?: string;
   score?: number;
   is_premium?: boolean;
+  is_trial?: boolean;
   avatar?: string;
   deleted_at?: string;
   completed_onboard?: boolean;
