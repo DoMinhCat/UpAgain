@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { usePurchaseItem } from "./itemHooks";
 import { useCreateAds } from "./adsHooks";
 import { PATHS } from "../routes/paths";
+import { useRegister } from "./authHooks";
 
 export const useVerifyStripeSession = () => {
   const { t } = useTranslation(["common"]);
@@ -261,5 +262,113 @@ export const useHandleVerifyAdsPayment = (postId: number) => {
   return {
     isVerifying:
       verifyStripeSessionMutation.isPending || createAdsMutation.isPending,
+  };
+};
+
+export const useHandleVerifyStripePremiumRegistration = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifyStripeSessionMutation = useVerifyStripeSession();
+  const registerMutation = useRegister();
+  const { t } = useTranslation(["auth", "common"]);
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+
+    if (status === "success" && sessionId) {
+      const pendingPayloadStr = sessionStorage.getItem(
+        "pending_register_payload",
+      );
+
+      if (pendingPayloadStr) {
+        try {
+          const payload = JSON.parse(pendingPayloadStr);
+          verifyStripeSessionMutation.mutate(
+            { session_id: sessionId },
+            {
+              onSuccess: (data) => {
+                if (data.is_paid) {
+                  registerMutation.mutate(
+                    { ...payload, paid: true },
+                    {
+                      onSuccess: () => {
+                        sessionStorage.removeItem("pending_register_payload");
+                        searchParams.delete("payment");
+                        searchParams.delete("sessionid");
+                        setSearchParams(searchParams);
+                      },
+                      onError: () => {
+                        searchParams.delete("payment");
+                        searchParams.delete("sessionid");
+                        setSearchParams(searchParams);
+                      },
+                    },
+                  );
+                } else {
+                  showErrorNotification(
+                    t("auth:notifications.payment_failed_title", {
+                      defaultValue: "Payment verification failed",
+                    }),
+                    t("auth:notifications.payment_failed_msg", {
+                      defaultValue: "Payment was not completed.",
+                    }),
+                  );
+                  searchParams.delete("payment");
+                  searchParams.delete("sessionid");
+                  setSearchParams(searchParams);
+                }
+              },
+              onError: () => {
+                searchParams.delete("payment");
+                searchParams.delete("sessionid");
+                setSearchParams(searchParams);
+              },
+            },
+          );
+        } catch (e) {
+          showErrorNotification(
+            t("auth:notifications.invalid_payload_title", {
+              defaultValue: "Registration failed",
+            }),
+            t("auth:notifications.invalid_payload_msg", {
+              defaultValue: "Could not restore registration details.",
+            }),
+          );
+          searchParams.delete("payment");
+          searchParams.delete("sessionid");
+          setSearchParams(searchParams);
+        }
+      } else {
+        showErrorNotification(
+          t("auth:notifications.missing_payload_title", {
+            defaultValue: "Registration failed",
+          }),
+          t("auth:notifications.missing_payload_msg", {
+            defaultValue:
+              "Could not find registration details. Please try again.",
+          }),
+        );
+        searchParams.delete("payment");
+        searchParams.delete("sessionid");
+        setSearchParams(searchParams);
+      }
+    } else if (status === "cancelled" || status === "cancel") {
+      showInfoNotification(
+        t("auth:notifications.register_cancelled_title", {
+          defaultValue: "Registration cancelled",
+        }),
+        t("auth:notifications.register_cancelled_msg", {
+          defaultValue: "You have cancelled the subscription process.",
+        }),
+      );
+      searchParams.delete("payment");
+      searchParams.delete("sessionid");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  return {
+    isVerifying:
+      verifyStripeSessionMutation.isPending || registerMutation.isPending,
   };
 };

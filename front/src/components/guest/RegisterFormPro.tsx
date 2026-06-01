@@ -32,17 +32,45 @@ export default function RegisterFormPro() {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();
 
+  const getPendingField = (key: string) => {
+    try {
+      const pending = sessionStorage.getItem("pending_register_payload");
+      if (pending) {
+        const parsed = JSON.parse(pending);
+        return parsed[key] || "";
+      }
+    } catch (e) {
+      // ignore
+    }
+    return "";
+  };
+
+  const getPendingPlan = (): "freemium" | "premium" | "trial" | null => {
+    try {
+      const pending = sessionStorage.getItem("pending_register_payload");
+      if (pending) {
+        const parsed = JSON.parse(pending);
+        if (parsed.is_trial) return "trial";
+        if (parsed.is_premium) return "premium";
+        return "freemium";
+      }
+    } catch (e) {
+      // ignore
+    }
+    return null;
+  };
+
   // SUB MODAL
   const [openedPremium, { open: openPremium, close: closePremium }] =
     useDisclosure(false);
   const [selectedPlan, setSelectedPlan] = useState<
     "freemium" | "premium" | "trial" | null
-  >(null);
+  >(() => getPendingPlan());
 
   const { data: trialDays } = useGetFinanceSettingByKey("trial_days");
 
   // password
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(() => getPendingField("password"));
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const validatePassword = (val: string) => {
     if (!val) {
@@ -66,7 +94,9 @@ export default function RegisterFormPro() {
   };
 
   // confirm password
-  const [ConfirmPassword, setConfirmPassword] = useState("");
+  const [ConfirmPassword, setConfirmPassword] = useState(() =>
+    getPendingField("password"),
+  );
   const [ConfirmPasswordError, setConfirmPasswordError] = useState<
     string | null
   >(null);
@@ -83,7 +113,7 @@ export default function RegisterFormPro() {
   };
 
   // email
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => getPendingField("email"));
   const [emailError, setEmailError] = useState<string | null>(null);
 
   const registerMutation = useRegister();
@@ -102,7 +132,7 @@ export default function RegisterFormPro() {
   };
 
   // username
-  const [Username, setUsername] = useState("");
+  const [Username, setUsername] = useState(() => getPendingField("username"));
   const [UsernameError, setUsernameError] = useState<string | null>(null);
   const validateUsername = (val: string) => {
     if (!val) {
@@ -122,7 +152,7 @@ export default function RegisterFormPro() {
   };
 
   // phone
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(() => getPendingField("phone"));
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const validatePhone = (val: string) => {
     if (!val) {
@@ -145,7 +175,7 @@ export default function RegisterFormPro() {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault(); // Prevents page reload
 
     if (
@@ -157,7 +187,10 @@ export default function RegisterFormPro() {
     )
       return;
     if (selectedPlan == null) {
-      showErrorNotification(t("register.errors.failed"), t("register.errors.plan_required"));
+      showErrorNotification(
+        t("register.errors.failed"),
+        t("register.errors.plan_required"),
+      );
       return;
     }
 
@@ -169,6 +202,7 @@ export default function RegisterFormPro() {
       role: "pro",
       is_trial: selectedPlan === "trial",
       is_premium: selectedPlan === "premium" || selectedPlan === "trial",
+      origin_url: window.location.origin + PATHS.GUEST.REGISTER,
     });
   };
 
@@ -190,7 +224,10 @@ export default function RegisterFormPro() {
         variant="primary"
       >
         <form onSubmit={handleSubmit}>
-          <Fieldset legend={t("register.credentials_legend")} variant="unstyled">
+          <Fieldset
+            legend={t("register.credentials_legend")}
+            variant="unstyled"
+          >
             <TextInput
               variant="body-color"
               label={t("login.email_label")}
@@ -279,7 +316,10 @@ export default function RegisterFormPro() {
           </Fieldset>
           <Divider my="xl" color="var(--border-color)" />
 
-          <Fieldset legend={t("register.subscription_legend")} variant="unstyled">
+          <Fieldset
+            legend={t("register.subscription_legend")}
+            variant="unstyled"
+          >
             <Group justify="center">
               <Button
                 variant={

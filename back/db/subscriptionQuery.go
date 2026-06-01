@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	stripe "backend/utils/stripe"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -212,12 +213,19 @@ func GetSubscriptionStats(timeframe *string) (models.SubscriptionStats, error) {
 func CreateSubscription(id_pro int, is_trial bool) error {
 	sub_to := time.Now().AddDate(0, 1, 0)
 	current_price, err := GetFinanceSettingByKey("subscription_price")
+	currentPriceInCents := int64(current_price*100)
+
+	vat := int64(float64(currentPriceInCents)*stripe.VatRate)
+	stripeComm := int64(float64(currentPriceInCents) * stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+
+	finalPrice := (currentPriceInCents + vat + stripeComm)/100
+
 	if err != nil {
 		return err
 	}
 	query := `
 	INSERT INTO subscriptions (is_trial, sub_to, id_pro, price) 
 	VALUES ($1, $2, $3, $4);`
-	_, err = utils.Conn.Exec(query, is_trial, sub_to, id_pro, current_price)
+	_, err = utils.Conn.Exec(query, is_trial, sub_to, id_pro, finalPrice)
 	return err
 }

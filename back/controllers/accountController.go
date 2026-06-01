@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	helpers "backend/utils/helpers"
+	stripe "backend/utils/stripe"
 	validations "backend/utils/validations"
 	"encoding/csv"
 	"encoding/json"
@@ -59,6 +60,48 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Stripe handling for premium subscription
+	if newAccount.Role == "pro" && newAccount.IsPremium != nil && *newAccount.IsPremium && (newAccount.IsTrial == nil || !*newAccount.IsTrial) {
+		if !newAccount.Paid {
+			current_price, err := db.GetFinanceSettingByKey("subscription_price")
+			if err != nil {
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
+				slog.Error("GetFinanceSettingByKey() failed", "controller", "CreateAccount", "error", err)
+				return
+			}
+			currentPriceInCents := int64(current_price * 100)
+
+			vat := int64(float64(currentPriceInCents) * stripe.VatRate)
+			stripeComm := int64(float64(currentPriceInCents) * stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+
+			finalPrice := (currentPriceInCents + vat + stripeComm)
+			
+			frontendOrigin := utils.GetFrontOrigin()
+			originUrl := newAccount.OriginUrl
+			if originUrl == "" || !strings.HasPrefix(originUrl, frontendOrigin) {
+				originUrl = frontendOrigin + "/login"
+			}
+
+			successUrlSeparator := "?"
+			if strings.Contains(originUrl, "?") {
+				successUrlSeparator = "&"
+			}
+			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+				EntityName:    "Premium Subscription",
+				PriceInCents:  finalPrice,
+				SuccessURL:    originUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+				CancelURL:     originUrl + successUrlSeparator + "payment=cancel",
+			})
+			if err != nil {
+				slog.Error("CreateStripeSession() failed", "controller", "CreateAccount", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
+			return
+		}
+	}
+
 	id_inserted, err := db.CreateAccount(newAccount)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
@@ -76,9 +119,11 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("InsertDefaultNotiSetting() failed", "controller", "CreateAccount", "error", err)
 	}
 
-	err = db.InsertHistory(roleToInsert, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
-	if err != nil {
-		slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
+	if role == "admin" {
+		err = db.InsertHistory(roleToInsert, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
