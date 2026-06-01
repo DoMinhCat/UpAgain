@@ -8,6 +8,7 @@ import (
 
 func GetAccountRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /register", middleware.UpdateLastActive(http.HandlerFunc(controllers.CreateAccount)))
+	mux.Handle("POST /upgrade", middleware.AuthMiddleware([]string{"pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpgradeAccount))))
 	mux.Handle("POST /accounts/onboarding", middleware.AuthMiddleware([]string{"user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateOnboarding))))
 	mux.Handle("POST /accounts/{id_account}/avatar", middleware.AuthMiddleware([]string{"user", "pro", "admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateAvatar))))
 
