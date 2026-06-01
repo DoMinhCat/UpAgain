@@ -60,7 +60,9 @@ export function GuestNavBar() {
         >
           <Menu.Target>
             <Tooltip
-              label="Change language"
+              label={t("common:change_language", {
+                defaultValue: "Change language",
+              })}
               position="bottom"
               transitionProps={{ duration: 0 }}
             >
@@ -75,7 +77,9 @@ export function GuestNavBar() {
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Menu.Label>Languages</Menu.Label>
+            <Menu.Label>
+              {t("common:languages", { defaultValue: "Languages" })}
+            </Menu.Label>
             {LANGUAGES.map((language) => (
               <Menu.Item
                 key={language.path}
@@ -124,7 +128,7 @@ export function GuestNavBar() {
         onClose={closeDrawer}
         size="100%"
         padding="md"
-        title="Navigation"
+        title={t("common:navigation", { defaultValue: "Navigation" })}
         hiddenFrom="sm"
         zIndex={1000000}
       >
@@ -157,7 +161,7 @@ export function GuestNavBar() {
                 closeDrawer();
               }}
             >
-              {t("auth:login.login")}
+              {t("auth:login.login_btn")}
             </Button>
             <Button
               variant="primary"
@@ -166,7 +170,7 @@ export function GuestNavBar() {
                 closeDrawer();
               }}
             >
-              {t("auth:login.register")}
+              {t("auth:login.register_btn")}
             </Button>
           </Group>
         </Stack>
