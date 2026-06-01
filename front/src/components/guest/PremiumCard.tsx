@@ -19,6 +19,8 @@ interface PremiumCardProps {
   onClick?: () => void;
   selectedTrial?: boolean;
   onTrialClick?: () => void;
+  showTrialButton?: boolean;
+  showButton?: boolean;
 }
 
 export function PremiumCard({
@@ -26,6 +28,8 @@ export function PremiumCard({
   onClick,
   selectedTrial,
   onTrialClick,
+  showTrialButton = true,
+  showButton = true,
 }: PremiumCardProps) {
   const { t } = useTranslation("auth");
   const { data: trialDays, isLoading: isTrialDaysLoading } =
@@ -186,23 +190,25 @@ export function PremiumCard({
             </Text>
           </Group>
 
-          <Button
-            data-variant="cta"
-            size="md"
-            fullWidth
-            radius="xl"
-            mt="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onClick) onClick();
-            }}
-          >
-            {selected && !selectedTrial
-              ? t("plans.premium.selected")
-              : t("plans.premium.select")}
-          </Button>
+          {showButton && (
+            <Button
+              data-variant="cta"
+              size="md"
+              fullWidth
+              radius="xl"
+              mt="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onClick) onClick();
+              }}
+            >
+              {selected && !selectedTrial
+                ? t("plans.premium.selected")
+                : t("plans.premium.select")}
+            </Button>
+          )}
 
-          {trialDays && trialDays > 0 && (
+          {showTrialButton && trialDays && trialDays > 0 && (
             <Button
               variant={selectedTrial ? "primary" : "secondary"}
               size="md"
