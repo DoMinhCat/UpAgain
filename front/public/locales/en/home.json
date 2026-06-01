@@ -144,5 +144,40 @@
       "no_posts_desc": "Share your upcycling tips and case studies with the community today.",
       "view_all": "View all my posts"
     }
+  },
+  "pro": {
+    "hero": {
+      "title": "Hi {{username}}, let's Grow Your Craft and Upcycle Together.",
+      "subtitle": "Source raw materials, show your circular projects, and manage your artisan presence.",
+      "premium_badge": "Free Partner",
+      "premium_cta": "Upgrade to Premium to unlock sponsorship ads, detailed statistics, and priority sourcing!"
+    },
+    "stats": {
+      "published_projects": "Published Projects",
+      "registered_events": "Registered Events",
+      "marketplace_items": "Marketplace Items"
+    },
+    "manage": {
+      "title": "Your Circular Business",
+      "subtitle": "Track your publications and community presence.",
+      "events_title": "My Events",
+      "events_status": "You are registered to <b>{{count}} upcoming events</b>.",
+      "manage_events": "Discover more workshops →",
+      "posts_title": "My Projects",
+      "posts_status": "You have published <b>{{count}} project guides</b>.",
+      "manage_posts": "Manage all projects →",
+      "ready_to_do_more": "Ready to showcase your craft, {{username}}?",
+      "create_post": "Publish a Project",
+      "explore_community": "Explore materials",
+      "materials_marketplace": "Materials Marketplace",
+      "registered_events_list": "Registered Events",
+      "discover_more_events": "Explore Workshops"
+    },
+    "marketplace": {
+      "title": "Sourced Materials for You",
+      "subtitle": "High-quality upcycled items and raw materials available in your area.",
+      "quiet_marketplace": "No items found in the marketplace. Check back soon for fresh arrivals!",
+      "discover_marketplace": "Explore Marketplace →"
+    }
   }
 }

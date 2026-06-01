@@ -132,5 +132,40 @@
       "no_posts_desc": "Chia sẻ các mẹo tái chế và nghiên cứu điển hình của bạn với cộng đồng ngay hôm nay.",
       "view_all": "Xem tất cả bài viết →"
     }
+  },
+  "pro": {
+    "hero": {
+      "title": "Chào {{username}} nè, hãy cùng nâng tầm tay nghề và tái chế nhé.",
+      "subtitle": "Tìm kiếm nguyên liệu thô, khoe các dự án tái chế sáng tạo và quản lý hồ sơ nghệ nhân của bạn.",
+      "premium_badge": "Đối tác miễn phí",
+      "premium_cta": "Nâng cấp lên Premium để mở khóa quảng cáo tài trợ, thống kê chi tiết và ưu tiên săn vật liệu!"
+    },
+    "stats": {
+      "published_projects": "Dự án đã đăng",
+      "registered_events": "Sự kiện tham gia",
+      "marketplace_items": "Sản phẩm chợ đồ"
+    },
+    "manage": {
+      "title": "Góc Kinh Doanh Xanh",
+      "subtitle": "Quản lý bài đăng và sự hiện diện của bạn trong cộng đồng.",
+      "events_title": "Sự kiện của tôi",
+      "events_status": "Bạn đã đăng ký tham gia <b>{{count}} sự kiện sắp tới</b>.",
+      "manage_events": "Tìm thêm workshop →",
+      "posts_title": "Dự án của tôi",
+      "posts_status": "Bạn đã đăng tải <b>{{count}} bài hướng dẫn dự án</b>.",
+      "manage_posts": "Quản lý dự án →",
+      "ready_to_do_more": "Sẵn sàng khoe tay nghề tài hoa, {{username}}?",
+      "create_post": "Đăng dự án mới",
+      "explore_community": "Săn tìm nguyên liệu",
+      "materials_marketplace": "Chợ vật liệu",
+      "registered_events_list": "Sự kiện đã tham gia",
+      "discover_more_events": "Khám phá workshop"
+    },
+    "marketplace": {
+      "title": "Vật liệu dành riêng cho bạn",
+      "subtitle": "Nguyên liệu thô và đồ tái chế cực xịn đang chờ bạn rước về.",
+      "quiet_marketplace": "Chưa có vật liệu mới nào... Hãy quay lại sau nhé!",
+      "discover_marketplace": "Khám phá chợ đồ →"
+    }
   }
 }
