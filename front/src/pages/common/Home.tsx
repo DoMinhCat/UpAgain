@@ -1,6 +1,7 @@
 import { useAuth } from "../../context/AuthContext";
 import GuestHome from "../guest/GuestHome";
 import EmployeeHome from "../home/EmployeeHome";
+import ProHome from "../home/ProHome";
 import UserHome from "../home/UserHome";
 
 const Home = () => {
@@ -12,9 +13,8 @@ const Home = () => {
   } else {
     // Render component based on role
     switch (user.role) {
-      // TODO:
-      // case "pro":
-      //   return <ProHome />;
+      case "pro":
+        return <ProHome />;
       case "user":
         return <UserHome />;
       case "employee":
