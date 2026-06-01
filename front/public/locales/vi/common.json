@@ -66,6 +66,12 @@
     "yesterday": "Hôm qua",
     "days_ago_other": "{{count}} ngày trước"
   },
+  "change_language": "Thay đổi ngôn ngữ",
+  "languages": "Ngôn ngữ",
+  "navigation": "Điều hướng",
+  "about_us": "Về chúng tôi",
+  "pricing": "Bảng giá",
+  "contact": "Liên hệ",
   "footer": {
     "description": "Mang lại cuộc đời thứ hai cho các món đồ của bạn. Phương thức trao đổi và tái chế tài nguyên đơn giản và thân thiện với môi trường.",
     "explore": "Khám phá",
