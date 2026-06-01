@@ -1031,3 +1031,28 @@ func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
+
+// TODO: swagger docs
+func UpgradeAccount(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+	
+	// TODO: decode payload
+
+	accountDetails, err := db.GetAccountDetailsById(idAccount)
+	if err != nil {
+		slog.Error("GetAccountDetailsById() failed", "controller", "UpgradeAccount", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while upgrading account.")
+		return
+	}
+
+	if accountDetails.Role != "pro" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Account is not a pro account.")
+		return
+	}
+	
+	// TODO: can't trial again if current is_trial is true
+	
+	utils.RespondWithJSON(w, http.StatusOK, map[string]interface{}{
+		"message": "Subscription upgraded successfully",
+	})
+}
