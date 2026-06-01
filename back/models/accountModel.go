@@ -14,6 +14,8 @@ type CreateAccountRequest struct {
 	Phone     string `json:"phone"`
 	IsTrial   *bool  `json:"is_trial,omitempty"`
 	IsPremium *bool  `json:"is_premium,omitempty"`
+	Paid      bool   `json:"paid,omitempty"`
+	OriginUrl string `json:"origin_url,omitempty"`
 }
 
 type Account struct {

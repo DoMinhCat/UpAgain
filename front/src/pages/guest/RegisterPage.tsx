@@ -8,12 +8,18 @@ import RegisterForm from "../../components/guest/RegisterForm";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import RegisterFormPro from "../../components/guest/RegisterFormPro";
+import { useHandleVerifyStripePremiumRegistration } from "../../hooks/stripeHooks";
+import FullScreenLoader from "../../components/common/FullScreenLoader";
 
 export default function Register() {
   const location = useLocation();
   const registerRole = location.state?.role;
   const { user, isInitializing } = useAuth();
   const navigate = useNavigate();
+
+  const { isVerifying } = useHandleVerifyStripePremiumRegistration();
+  const pendingPayload = sessionStorage.getItem("pending_register_payload");
+  const isPro = registerRole === "pro" || !!pendingPayload;
 
   useEffect(() => {
     if (!isInitializing && user && !isTokenExpired()) {
@@ -25,11 +31,15 @@ export default function Register() {
     }
   }, [user, isInitializing]);
 
+  if (isVerifying) {
+    return <FullScreenLoader />;
+  }
+
   return (
     <div className={classes.main}>
       <Grid justify="center" align="center" style={{ width: "100%" }}>
         <Grid.Col span={{ base: 12, sm: 6, lg: 4 }}>
-          {registerRole === "pro" ? <RegisterFormPro /> : <RegisterForm />}
+          {isPro ? <RegisterFormPro /> : <RegisterForm />}
         </Grid.Col>
       </Grid>
     </div>

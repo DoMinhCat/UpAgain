@@ -37,6 +37,8 @@ export interface RegisterPayload {
   role: string;
   is_trial?: boolean;
   is_premium?: boolean;
+  paid?: boolean;
+  origin_url?: string;
 }
 
 export interface Account {
