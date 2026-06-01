@@ -107,5 +107,42 @@
       "no_events_desc": "Prêt à apprendre une nouvelle compétence en upcycling ? Rejoignez un atelier aujourd'hui.",
       "explore_workshops": "Explorer nos ateliers et événements"
     }
+  },
+  "employee": {
+    "hero": {
+      "title": "Bienvenue, {{username}} !",
+      "subtitle": "Inspirer le changement, coordonner les événements et guider notre communauté vers le réemploi."
+    },
+    "stats": {
+      "title": "Votre Tableau de Bord",
+      "subtitle": "Aperçu de vos événements proposés et de votre contenu communautaire publié.",
+      "upcoming_workshops": "Événements à animer",
+      "pending_proposals": "Propositions d'événements",
+      "my_guides": "Guides et articles"
+    },
+    "actions": {
+      "ready": "Prêt à inspirer ?",
+      "propose_title": "Proposer un nouvel événement",
+      "propose_desc": "Une idée de cours d'upcycling, de table ronde ou de rencontre ? Soumettez une proposition.",
+      "propose_button": "Proposer un événement",
+      "write_title": "Partagez votre expertise circulaire",
+      "write_desc": "Rédigez des guides, des conseils ou des études de cas pour éduquer la communauté UpAgain.",
+      "write_button": "Écrire un guide",
+      "planning_button": "Accéder au planning & calendrier →"
+    },
+    "agenda": {
+      "title": "Calendrier des événements à animer",
+      "subtitle": "Vos prochains événements approuvés que vous devez animer.",
+      "no_events_title": "Aucun événement prévu",
+      "no_events_desc": "Vous n'avez aucun événement prévu à animer. Proposez-en un ou portez-vous volontaire !",
+      "view_planning": "Voir tout le planning"
+    },
+    "posts": {
+      "title": "Vos guides et articles",
+      "subtitle": "Conseils, guides et actualités récents que vous avez partagés avec la communauté.",
+      "no_posts_title": "Aucun guide rédigé pour le moment",
+      "no_posts_desc": "Partagez vos astuces d'upcycling et vos études de cas avec la communauté dès aujourd'hui.",
+      "view_all": "Voir toutes mes publications"
+    }
   }
 }

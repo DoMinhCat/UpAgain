@@ -95,5 +95,42 @@
       "no_events_desc": "Đang rảnh tay hả? Đăng ký ngay một Workshop để học chiêu mới đi nào.",
       "explore_workshops": "Khám phá Workshop & Sự kiện"
     }
+  },
+  "employee": {
+    "hero": {
+      "title": "Chào mừng, {{username}}!",
+      "subtitle": "Truyền cảm hứng thay đổi, điều phối sự kiện và hướng dẫn cộng đồng hướng tới lối sống tái chế."
+    },
+    "stats": {
+      "title": "Bảng điều khiển của bạn",
+      "subtitle": "Tổng quan về các sự kiện được đề xuất và nội dung cộng đồng đã xuất bản của bạn.",
+      "upcoming_workshops": "Sự kiện sắp tới",
+      "pending_proposals": "Sự kiện đề xuất",
+      "my_guides": "Guides và bài viết"
+    },
+    "actions": {
+      "ready": "Sẵn sàng truyền cảm hứng?",
+      "propose_title": "Đề xuất sự kiện mới",
+      "propose_desc": "Bạn có ý tưởng cho một lớp học tái chế, thảo luận hoặc gặp gỡ? Gửi đề xuất tới quản trị viên.",
+      "propose_button": "Đề xuất sự kiện",
+      "write_title": "Chia sẻ chuyên môn tái chế của bạn",
+      "write_desc": "Viết hướng dẫn, mẹo hoặc nghiên cứu điển hình để giáo dục cộng đồng UpAgain.",
+      "write_button": "Viết bài hướng dẫn",
+      "planning_button": "Đi tới Lịch trình & Kế hoạch →"
+    },
+    "agenda": {
+      "title": "Lịch trình tổ chức sắp tới",
+      "subtitle": "Các sự kiện đã được phê duyệt tiếp theo mà bạn được lên lịch tổ chức.",
+      "no_events_title": "Chưa có sự kiện nào",
+      "no_events_desc": "Bạn chưa có sự kiện tổ chức sắp tới nào. Hãy đề xuất một sự kiện hoặc tự đăng ký nhé!",
+      "view_planning": "Xem toàn bộ lịch trình →"
+    },
+    "posts": {
+      "title": "Guides và bài viết của bạn",
+      "subtitle": "Các mẹo, hướng dẫn và tin tức gần đây bạn chia sẻ với cộng đồng.",
+      "no_posts_title": "Chưa viết hướng dẫn nào",
+      "no_posts_desc": "Chia sẻ các mẹo tái chế và nghiên cứu điển hình của bạn với cộng đồng ngay hôm nay.",
+      "view_all": "Xem tất cả bài viết →"
+    }
   }
 }

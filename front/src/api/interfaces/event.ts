@@ -18,10 +18,12 @@ export interface AppEvent {
   location_detail: string;
   employee_name: string | null;
   employee_avatar: string | null;
+  employee_id: number;
   registered: number;
   lat: number;
   lng: number;
   images?: string[];
+  refuse_reason?: string;
   attendees?: Account[];
   organizers?: Account[];
 }

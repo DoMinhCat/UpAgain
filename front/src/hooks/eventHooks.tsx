@@ -12,6 +12,7 @@ import {
   registerToEvent,
   cancelRegistration,
   getMyEvents,
+  refuseEvent,
 } from "../api/eventModule";
 import {
   type EventCreationPayload,
@@ -93,6 +94,7 @@ export const useCreateEvent = () => {
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
+      queryClient.invalidateQueries({ queryKey: ["myEvents"] });
     },
     meta: {
       errorTitle: "common:notifications.error",
@@ -116,12 +118,15 @@ export const useAssignEmployeeToEvent = () => {
       start_at: string;
       end_at: string;
     }) => assignEmployeeToEvent(id_event, employee_ids, start_at, end_at),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       showSuccessNotification(
         "events:notifications.assign_success_title",
         "events:notifications.assign_success_message",
       );
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["event", variables.id_event],
+      });
       queryClient.invalidateQueries({ queryKey: ["availableEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["assignedEmployees"] });
       queryClient.invalidateQueries({ queryKey: ["histories"] });
@@ -242,10 +247,17 @@ export const useApproveRefuseEvent = () => {
     mutationFn: ({
       id,
       status,
+      reason,
     }: {
       id: number;
       status: string;
-    }): Promise<void> => updateEventStatus(id, status),
+      reason?: string;
+    }): Promise<void> => {
+      if (status === "refused") {
+        return refuseEvent(id, reason || "");
+      }
+      return updateEventStatus(id, status);
+    },
     onSuccess: (_data, { status }) => {
       showSuccessNotification(
         status === "approved"

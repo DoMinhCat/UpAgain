@@ -107,5 +107,42 @@
       "no_events_desc": "Ready to learn a new upcycling skill? Join a workshop today.",
       "explore_workshops": "Explore our workshops and events"
     }
+  },
+  "employee": {
+    "hero": {
+      "title": "Welcome, {{username}}!",
+      "subtitle": "Inspire change, coordinate events, and guide our community toward zero waste."
+    },
+    "stats": {
+      "title": "Your Dashboard",
+      "subtitle": "Overview of your proposed events and published community content.",
+      "upcoming_workshops": "Upcoming Events",
+      "pending_proposals": "Proposed Events",
+      "my_guides": "Guides and articles"
+    },
+    "actions": {
+      "ready": "Ready to inspire?",
+      "propose_title": "Propose a New Event",
+      "propose_desc": "Got an idea for an upcycling class, panel, or meetup? Submit a proposal to the admin.",
+      "propose_button": "Propose Event",
+      "write_title": "Share Your Circular Expertise",
+      "write_desc": "Write guides, tips, or case studies to educate the UpAgain community.",
+      "write_button": "Write a Guide",
+      "planning_button": "Go to Planning & Schedule →"
+    },
+    "agenda": {
+      "title": "Upcoming Hosting Schedule",
+      "subtitle": "Your next approved events that you are scheduled to host.",
+      "no_events_title": "No upcoming events",
+      "no_events_desc": "You have no upcoming hosted events. Propose one or volunteer to get started!",
+      "view_planning": "View entire planning"
+    },
+    "posts": {
+      "title": "Your Guides and Articles",
+      "subtitle": "Recent tips, guides, and news you shared with the community.",
+      "no_posts_title": "No guides written yet",
+      "no_posts_desc": "Share your upcycling tips and case studies with the community today.",
+      "view_all": "View all my posts"
+    }
   }
 }

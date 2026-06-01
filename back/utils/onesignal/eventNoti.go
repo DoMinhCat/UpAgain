@@ -147,6 +147,15 @@ func HandleEventUpdateNoti(idEvent int, action string) {
 		contentEn = "An event you are participating in or assigned to has been cancelled."
 		contentFr = "Un événement auquel vous participez ou êtes assigné a été annulé."
 		contentVi = "Một sự kiện bạn đang tham gia hoặc được phân công đã bị hủy."
+
+	case "refused":
+		titleEn = "Event \"" + eventDetails.Title + "\" has been refused"
+		titleFr = "L'événement \"" + eventDetails.Title + "\" a été refusé"
+		titleVi = "Sự kiện \"" + eventDetails.Title + "\" đã bị từ chối"
+
+		contentEn = "An event you are participating in or assigned to has been refused."
+		contentFr = "Un événement auquel vous participez ou êtes assigné a été refusé."
+		contentVi = "Một sự kiện bạn đang tham gia hoặc được phân công đã bị từ chối."
 	}
 
 	categoryUrl := eventDetails.Category

@@ -52,6 +52,7 @@ import {
   useRegisterToEvent,
   useCancelRegistration,
   useUpdateEventStatus,
+  useAssignEmployeeToEvent,
 } from "../../../hooks/eventHooks";
 import FullScreenLoader from "../../../components/common/FullScreenLoader";
 import { resolveUrl } from "../../../utils/imageUtils";
@@ -119,6 +120,11 @@ export default function EventDetailPage() {
     isValidId,
   );
 
+  const isOrganizer =
+    event?.organizers?.some((org) => org.id === user?.id) || false;
+  const isCreator = event?.employee_id === user?.id;
+  const canEditOrCancel = isAdmin || isOrganizer || isCreator;
+
   // GET RANDOM SUGGESTED EVENTS
   const SUGGESTED_EVENT_LIMIT = 4;
   const { data: suggestedEventsData, isLoading: isLoadingSuggestedEvents } =
@@ -182,6 +188,18 @@ export default function EventDetailPage() {
       },
     });
   };
+  const assignEmployeeMutation = useAssignEmployeeToEvent();
+  const handleSelfAssign = () => {
+    if (user?.id && event) {
+      assignEmployeeMutation.mutate({
+        id_event: idEvent,
+        employee_ids: [user.id],
+        start_at: event.start_at,
+        end_at: event.end_at,
+      });
+    }
+  };
+
 
   const isRegistered = event?.attendees?.some((a) => a.id === user?.id);
   const isPast = dayjs(event?.end_at).isBefore(dayjs());
@@ -189,7 +207,11 @@ export default function EventDetailPage() {
   if (isLoadingEvent || isLoadingSuggestedEvents) {
     return <FullScreenLoader />;
   }
-  if (!isValidId || !event || event.status !== "approved") {
+  if (
+    !isValidId ||
+    !event ||
+    (event.status !== "approved" && role != "admin" && role !== "employee")
+  ) {
     return <NotFoundPage />;
   }
   return (
@@ -317,9 +339,14 @@ export default function EventDetailPage() {
                 ...(location.state?.from === "upcomingEvents"
                   ? [
                       {
-                        title: t("events:my_events.title", {
-                          defaultValue: "My Events",
-                        }),
+                        title:
+                          role === "employee"
+                            ? t("events:employee_planning.title", {
+                                defaultValue: "Organizer Planning",
+                              })
+                            : t("events:my_events.title", {
+                                defaultValue: "My Events",
+                              }),
                         href: PATHS.EVENTS.PLANNING,
                       },
                     ]
@@ -460,8 +487,10 @@ export default function EventDetailPage() {
                           color="var(--upagain-neutral-green)"
                         />
                         <Text size="lg" fw={500}>
-                          {event.location_detail}, {event.street},{" "}
-                          {event.postal_code} {event.city}
+                          {event.location_detail
+                            ? `${event.location_detail}, `
+                            : ""}
+                          {event.street}, {event.postal_code} {event.city}
                         </Text>
                       </Group>
                     </Stack>
@@ -507,62 +536,72 @@ export default function EventDetailPage() {
                       </Box>
                     )}
                   </Stack>
-
-                  <Divider />
-
-                  {/* 6. EXPLORE RELEVANT EVENTS SECTION */}
-                  <Stack gap="xl">
-                    <Group justify="space-between" align="center">
-                      <Title order={3}>{t("detail.relevant_events")}</Title>
-                      <Button
-                        variant="subtle"
-                        color="var(--upagain-neutral-green)"
-                        rightSection={<IconChevronRight size={14} />}
-                      >
-                        {t("categories.see_all", {
-                          category: t(`categories.${event.category}_plural`),
-                        })}
-                      </Button>
-                    </Group>
-                    {suggestedEvents.length > 0 ? (
-                      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-                        {suggestedEvents.map((event) => (
-                          <EventCard
-                            key={event.id}
-                            onclick={() =>
-                              navigate(`/events/${event.category}s/${event.id}`)
-                            }
-                            category={event.category}
-                            title={event.title}
-                            description={event.description}
-                            authorName={event.employee_name || "Unknown"}
-                            authorAvatar={event.employee_avatar || ""}
-                            createdAt={event.created_at}
-                            eventDate={event.start_at}
-                            image={event.images?.[0] || ""}
-                            price={event.price}
-                            city={event.city}
-                            registeredCount={event.registered}
-                            fullEvent={event}
-                          />
-                        ))}
-                      </SimpleGrid>
-                    ) : (
-                      <Center mt="lg" w="100%" style={{ gridColumn: "1 / -1" }}>
-                        <Stack align="center" gap="xs">
-                          <IconCalendarOff
-                            size={40}
-                            stroke={1.5}
-                            color="var(--mantine-color-dimmed)"
-                            style={{ opacity: 0.6 }}
-                          />
-                          <Text c="dimmed" fw={500} size="sm" ta="center">
-                            {t("events:detail.no_relevant_events")}
-                          </Text>
-                        </Stack>
-                      </Center>
-                    )}
-                  </Stack>
+                  {role !== "employee" && (
+                    <>
+                      <Divider my="xl" />
+                      {/* 6. EXPLORE RELEVANT EVENTS SECTION */}
+                      <Stack gap="xl">
+                        <Group justify="space-between" align="center">
+                          <Title order={3}>{t("detail.relevant_events")}</Title>
+                          <Button
+                            variant="subtle"
+                            color="var(--upagain-neutral-green)"
+                            rightSection={<IconChevronRight size={14} />}
+                          >
+                            {t("categories.see_all", {
+                              category: t(
+                                `categories.${event.category}_plural`,
+                              ),
+                            })}
+                          </Button>
+                        </Group>
+                        {suggestedEvents.length > 0 ? (
+                          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
+                            {suggestedEvents.map((event) => (
+                              <EventCard
+                                key={event.id}
+                                onclick={() =>
+                                  navigate(
+                                    `/events/${event.category}s/${event.id}`,
+                                  )
+                                }
+                                category={event.category}
+                                title={event.title}
+                                description={event.description}
+                                authorName={event.employee_name || "Unknown"}
+                                authorAvatar={event.employee_avatar || ""}
+                                createdAt={event.created_at}
+                                eventDate={event.start_at}
+                                image={event.images?.[0] || ""}
+                                price={event.price}
+                                city={event.city}
+                                registeredCount={event.registered}
+                                fullEvent={event}
+                              />
+                            ))}
+                          </SimpleGrid>
+                        ) : (
+                          <Center
+                            mt="lg"
+                            w="100%"
+                            style={{ gridColumn: "1 / -1" }}
+                          >
+                            <Stack align="center" gap="xs">
+                              <IconCalendarOff
+                                size={40}
+                                stroke={1.5}
+                                color="var(--mantine-color-dimmed)"
+                                style={{ opacity: 0.6 }}
+                              />
+                              <Text c="dimmed" fw={500} size="sm" ta="center">
+                                {t("events:detail.no_relevant_events")}
+                              </Text>
+                            </Stack>
+                          </Center>
+                        )}
+                      </Stack>
+                    </>
+                  )}
                 </Stack>
               </Grid.Col>
 
@@ -577,6 +616,57 @@ export default function EventDetailPage() {
                     withBorder
                   >
                     <Stack gap="lg">
+                      {role === "employee" && (
+                        <Stack gap="xs">
+                          <Group justify="space-between" align="center">
+                            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                              Status
+                            </Text>
+                            <Badge
+                              color={
+                                event.status === "approved"
+                                  ? "var(--upagain-neutral-green)"
+                                  : event.status === "pending"
+                                    ? "yellow"
+                                    : "red"
+                              }
+                              variant="filled"
+                              size="lg"
+                            >
+                              {event.status === "approved"
+                                ? t("events:employee_planning.status_approved", {
+                                    defaultValue: "Approved",
+                                  })
+                                : event.status === "pending"
+                                  ? t("events:employee_planning.status_pending", {
+                                      defaultValue: "Pending",
+                                    })
+                                  : t("events:employee_planning.status_refused", {
+                                      defaultValue: "Refused",
+                                    })}
+                            </Badge>
+                          </Group>
+                          {event.status === "refused" && event.refuse_reason && (
+                            <Paper
+                              p="xs"
+                              bg="var(--mantine-color-red-0)"
+                              style={{
+                                borderRadius: "8px",
+                                border: "1px solid var(--mantine-color-red-1)",
+                              }}
+                            >
+                              <Text size="xs" fw={700} c="red.8" mb={2}>
+                                {t("events:employee_planning.refuse_reason_title", {
+                                  defaultValue: "Reason for refusal:",
+                                })}
+                              </Text>
+                              <Text size="xs" c="red.7">
+                                {event.refuse_reason}
+                              </Text>
+                            </Paper>
+                          )}
+                        </Stack>
+                      )}
                       {/* Price */}
                       <Group gap="sm">
                         <Title order={2} c="var(--upagain-neutral-green)">
@@ -719,7 +809,6 @@ export default function EventDetailPage() {
                               rightSection={<IconChevronRight size={18} />}
                               onClick={openRegister}
                               loading={registerToEvent.isPending || isVerifying}
-                              // TODO: hint Stripe's commission rate and VAT not applied yet, final price visible in stripe checkout page
                             >
                               {t("detail.register_now")}
                             </Button>
@@ -751,61 +840,76 @@ export default function EventDetailPage() {
                           >
                             {t("detail.see_attendees")}
                           </Button>
-                          <Button
-                            radius="md"
-                            variant="edit"
-                            disabled={
-                              dayjs(event.start_at) < dayjs().startOf("day")
-                            }
-                            fullWidth
-                            onClick={openEdit}
-                            rightSection={<IconEdit size={18} />}
-                          >
-                            {t("detail.edit_event")}
-                          </Button>
-                          <Button
-                            radius="md"
-                            variant={
-                              ["cancelled", "pending", "refused"].includes(
-                                event.status ?? "",
-                              )
-                                ? "primary"
-                                : "delete"
-                            }
-                            disabled={
-                              dayjs(event.start_at) < dayjs().startOf("day")
-                            }
-                            fullWidth
-                            onClick={openCancel}
-                            rightSection={<IconX size={18} />}
-                          >
-                            {t("admin:events.details.cancel_event")}
-                          </Button>
+                          {canEditOrCancel && (
+                            <Button
+                              radius="md"
+                              variant="edit"
+                              disabled={
+                                dayjs(event.start_at) < dayjs().startOf("day")
+                              }
+                              fullWidth
+                              onClick={openEdit}
+                              rightSection={<IconEdit size={18} />}
+                            >
+                              {t("detail.edit_event")}
+                            </Button>
+                          )}
+                          {isAdmin && (
+                            <Button
+                              radius="md"
+                              variant={
+                                ["cancelled", "pending", "refused"].includes(
+                                  event.status ?? "",
+                                )
+                                  ? "primary"
+                                  : "delete"
+                              }
+                              disabled={
+                                dayjs(event.start_at) < dayjs().startOf("day")
+                              }
+                              fullWidth
+                              onClick={openCancel}
+                              rightSection={<IconX size={18} />}
+                            >
+                              {t("admin:events.details.cancel_event")}
+                            </Button>
+                          )}
+                          {isEmployee && !canEditOrCancel && event.status === "approved" && (
+                            <Button
+                              radius="md"
+                              variant="primary"
+                              disabled={
+                                dayjs(event.start_at) < dayjs().startOf("day")
+                              }
+                              fullWidth
+                              onClick={handleSelfAssign}
+                              loading={assignEmployeeMutation.isPending}
+                              rightSection={<IconCheck size={18} />}
+                            >
+                              {t("detail.self_assign", { defaultValue: "Volunteer for event" })}
+                            </Button>
+                          )}
                         </Group>
                       )}
 
                       {/* Footer */}
                       <Group justify="center" gap={4} c="dimmed">
-                        {(isUser || isPro) &&
-                          //  TODO: not registered to this event &&
-                          true && (
-                            <>
-                              <IconShieldCheck size={14} />
-                              <Text size="xs" fw={500}>
-                                {t("detail.secure_payment")}
-                              </Text>
-                            </>
-                          )}
-                        {(isUser || isPro) &&
-                          //  TODO: already registered to this event &&
-                          false && (
-                            <>
-                              <IconCheck size={14} />
-                              <Text size="xs" fw={500}>
-                                {t("detail.already_registered")}
-                              </Text>
-                            </>
-                          )}
+                        {(isUser || isPro) && !isRegistered && (
+                          <>
+                            <IconShieldCheck size={14} />
+                            <Text size="xs" fw={500}>
+                              {t("detail.secure_payment")}
+                            </Text>
+                          </>
+                        )}
+                        {(isUser || isPro) && isRegistered && (
+                          <>
+                            <IconCheck size={14} />
+                            <Text size="xs" fw={500}>
+                              {t("detail.already_registered")}
+                            </Text>
+                          </>
+                        )}
                       </Group>
                     </Stack>
                   </Paper>
@@ -815,28 +919,35 @@ export default function EventDetailPage() {
           </Stack>
         </Container>
 
-        <EditEventModal
-          opened={openedEdit}
-          onClose={closeEdit}
-          id_event={idEvent}
-          eventDetails={event}
-        />
-        <EventAttendeesModal
-          opened={openedAttendees}
-          onClose={closeAttendees}
-          attendees={event.attendees || []}
-        />
-        <CancelEventModal
-          opened={openedCancel}
-          onClose={closeCancel}
-          onConfirm={() => {
-            handleCancel();
-          }}
-          title={t("admin:events.details.cancel_modal.cancel_title")}
-          message={t("admin:events.details.cancel_modal.cancel_msg")}
-          confirmLabel={t("admin:events.details.cancel_modal.confirm_cancel")}
-        />
-
+        {canEditOrCancel && (
+          <>
+            <EditEventModal
+              opened={openedEdit}
+              onClose={closeEdit}
+              id_event={idEvent}
+              eventDetails={event}
+            />
+            <CancelEventModal
+              opened={openedCancel}
+              onClose={closeCancel}
+              onConfirm={() => {
+                handleCancel();
+              }}
+              title={t("admin:events.details.cancel_modal.cancel_title")}
+              message={t("admin:events.details.cancel_modal.cancel_msg")}
+              confirmLabel={t(
+                "admin:events.details.cancel_modal.confirm_cancel",
+              )}
+            />
+          </>
+        )}
+        {(isEmployee || isAdmin) && (
+          <EventAttendeesModal
+            opened={openedAttendees}
+            onClose={closeAttendees}
+            attendees={event.attendees || []}
+          />
+        )}
         <EventRegistrationModal
           opened={openedRegister}
           onClose={closeRegister}
