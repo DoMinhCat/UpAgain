@@ -335,7 +335,6 @@ create table barcodes
 );
 
 -- sub_from will not change, sub_to will be updated if renew/trial to official
--- is_active: user can cancel subscription before end date (sub_to) and purchase a new subscription (stupid but possible)
 create table subscriptions
 (
     id            serial          primary key,
