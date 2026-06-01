@@ -12,6 +12,7 @@ import {
   Divider,
   Group,
   Modal,
+  Stack,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconLock } from "@tabler/icons-react";
@@ -68,6 +69,18 @@ export default function RegisterFormPro() {
   >(() => getPendingPlan());
 
   const { data: trialDays } = useGetFinanceSettingByKey("trial_days");
+  const { data: subscriptionPrice } = useGetFinanceSettingByKey("subscription_price");
+
+  const priceVal = subscriptionPrice || 0;
+  const currentPriceInCents = Math.round(priceVal * 100);
+  const vatInCents = Math.floor(currentPriceInCents * 0.20);
+  const stripeCommInCents = Math.floor(currentPriceInCents * 0.015) + 25;
+  const totalInCents = currentPriceInCents + vatInCents + stripeCommInCents;
+
+  const basePriceStr = (currentPriceInCents / 100).toFixed(2);
+  const vatStr = (vatInCents / 100).toFixed(2);
+  const stripeFeeStr = (stripeCommInCents / 100).toFixed(2);
+  const totalStr = (totalInCents / 100).toFixed(2);
 
   // password
   const [password, setPassword] = useState(() => getPendingField("password"));
@@ -342,6 +355,28 @@ export default function RegisterFormPro() {
                       : t("register.pro.see_subscriptions")}
               </Button>
             </Group>
+
+            {selectedPlan === "premium" && subscriptionPrice && (
+              <Stack gap={4} mt="md" style={{ border: "1px solid var(--border-color)", borderRadius: 8, padding: 12 }}>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">{t("plans.premium.breakdown.base")}</Text>
+                  <Text size="xs" fw={500}>{basePriceStr}€</Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">{t("plans.premium.breakdown.vat")}</Text>
+                  <Text size="xs" fw={500}>{vatStr}€</Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">{t("plans.premium.breakdown.stripe")}</Text>
+                  <Text size="xs" fw={500}>{stripeFeeStr}€</Text>
+                </Group>
+                <Divider my={2} color="var(--border-color)" />
+                <Group justify="space-between">
+                  <Text size="sm" fw={700}>{t("plans.premium.breakdown.total")}</Text>
+                  <Text size="sm" fw={700} c="var(--upagain-primary)">{totalStr}€</Text>
+                </Group>
+              </Stack>
+            )}
           </Fieldset>
           <Checkbox
             mt="lg"
