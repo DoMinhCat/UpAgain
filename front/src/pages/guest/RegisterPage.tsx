@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import RegisterFormPro from "../../components/guest/RegisterFormPro";
 import { useHandleVerifyStripePremiumRegistration } from "../../hooks/stripeHooks";
-import FullScreenLoader from "../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../components/common/FullScreenSkeleton";
 
 export default function Register() {
   const location = useLocation();
@@ -32,7 +32,7 @@ export default function Register() {
   }, [user, isInitializing]);
 
   if (isVerifying) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (

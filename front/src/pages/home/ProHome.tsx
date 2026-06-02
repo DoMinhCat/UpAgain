@@ -2,7 +2,7 @@ import { useAccountDetails } from "../../hooks/accountHooks";
 import { useAuth } from "../../context/AuthContext";
 import ProHomeFree from "./ProHomeFree";
 import ProHomePremium from "./ProHomePremium";
-import FullScreenLoader from "../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../components/common/FullScreenSkeleton";
 
 export default function ProHome() {
   const { user } = useAuth();
@@ -10,7 +10,7 @@ export default function ProHome() {
     useAccountDetails(user?.id || 0);
 
   if (isLoadingAccountDetails) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   if (accountDetails?.is_premium) {

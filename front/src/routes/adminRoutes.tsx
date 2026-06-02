@@ -4,7 +4,7 @@ import AdminHome from "../pages/admin/AdminHome.tsx";
 import AdminUsersDeleted from "../pages/admin/usersAdmin/AdminUsersDeleted.tsx";
 import { PATHS } from "./paths.ts";
 import { useAuth } from "../context/AuthContext.tsx";
-import FullScreenLoader from "../components/common/FullScreenLoader.tsx";
+import FullScreenSkeleton from "../components/common/FullScreenSkeleton.tsx";
 import AdminUsersModule from "../pages/admin/usersAdmin/AdminUsersModule.tsx";
 import AdminUserDetails from "../pages/admin/usersAdmin/AdminUserDetails.tsx";
 import AdminValidationHub from "../pages/admin/validationsAdmin/AdminValidationHub.tsx";
@@ -38,7 +38,7 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   }, [unauthorized, isInitializing, navigate, location]);
 
   if (isInitializing) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
   if (unauthorized) return null;
 

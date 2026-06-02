@@ -13,8 +13,7 @@ import {
   Card,
   SimpleGrid,
   Anchor,
-  Loader,
-  Center,
+  Skeleton,
 } from "@mantine/core";
 import DOMPurify from "dompurify";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -42,7 +41,7 @@ import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
 import { DeleteProjectStepModal } from "../../../components/post/DeleteProjectStepModal";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { CardStatsItem } from "../../../components/dashboard/CardStatsItem";
 import { EditPostModal } from "../../../components/post/EditPostModal";
 import { DeletePostModal } from "../../../components/post/DeletePostModal";
@@ -53,10 +52,7 @@ import PaginationFooter from "../../../components/common/PaginationFooter";
 import { DatePickerInput } from "@mantine/dates";
 import { BookAdsModal } from "../../../components/post/BookAdsModal";
 import { ConfirmAdsCancelModal } from "../../../components/post/ConfirmAdsCancelModal";
-import {
-  useDeleteAds,
-  useUpdateAds,
-} from "../../../hooks/adsHooks";
+import { useDeleteAds, useUpdateAds } from "../../../hooks/adsHooks";
 import type { Step } from "../../../api/interfaces/step";
 import { useTranslation } from "react-i18next";
 
@@ -238,7 +234,7 @@ export const AdminPostDetails = () => {
   };
 
   if (isLoadingPostDetails || isLoadingComments) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (
@@ -350,9 +346,18 @@ export const AdminPostDetails = () => {
                   </Group>
 
                   {isLoadingProjectSteps ? (
-                    <Center mt="xl">
-                      <Loader />
-                    </Center>
+                    <Stack gap="lg" mt="xl">
+                      {[1, 2, 3].map((i) => (
+                        <Group key={i} gap="md" align="flex-start">
+                          <Skeleton height={32} width={32} radius="xl" />
+                          <Stack gap="xs" style={{ flex: 1 }}>
+                            <Skeleton height={16} width="40%" />
+                            <Skeleton height={12} width="80%" />
+                            <Skeleton height={12} width="60%" />
+                          </Stack>
+                        </Group>
+                      ))}
+                    </Stack>
                   ) : (
                     <ProjectStepTimeline
                       role="admin"

@@ -1,4 +1,4 @@
-import { Center, Loader, ScrollArea, Table, Text } from "@mantine/core";
+import { Center, Skeleton, ScrollArea, Table, Text } from "@mantine/core";
 import type React from "react";
 import { useState } from "react";
 
@@ -55,7 +55,7 @@ export default function AdminTable({
             <Table.Tr>
               <Table.Td colSpan={header.length}>
                 <Center py="sm">
-                  <Loader size="sm" />
+                  <Skeleton height={20} width="100%" />
                 </Center>
               </Table.Td>
             </Table.Tr>

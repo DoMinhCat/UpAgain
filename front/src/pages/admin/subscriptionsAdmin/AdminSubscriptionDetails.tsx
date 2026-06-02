@@ -17,7 +17,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { IconCrown, IconX } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import InfoField from "../../../components/common/InfoField";
 import { PATHS } from "../../../routes/paths";
 import {
@@ -93,7 +93,7 @@ export default function AdminSubscriptionDetails() {
     );
   };
 
-  if (isLoading) return <FullScreenLoader />;
+  if (isLoading) return <FullScreenSkeleton />;
   if (!isValidId || isError)
     return <Navigate to={PATHS.ADMIN.SUBSCRIPTIONS.ALL} replace />;
 
