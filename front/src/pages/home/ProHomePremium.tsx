@@ -10,6 +10,7 @@ import {
   Button,
   Table,
   Badge,
+  Skeleton,
 } from "@mantine/core";
 import {
   IconLeaf,
@@ -26,91 +27,86 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import { useAuth } from "../../context/AuthContext";
+import { useGetProAnalytics } from "../../hooks/proHooks";
 
 export default function ProHomePremium() {
   const { t } = useTranslation("home");
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Mock data for Inventory Analytics
-  const inventoryData = [
-    {
-      material: t("pro.materials.wood"),
-      [t("pro.premium.available")]: 15,
-      [t("pro.premium.added")]: 30,
-      [t("pro.premium.recycled")]: 25,
-    },
-    {
-      material: t("pro.materials.metal"),
-      [t("pro.premium.available")]: 8,
-      [t("pro.premium.added")]: 18,
-      [t("pro.premium.recycled")]: 14,
-    },
-    {
-      material: t("pro.materials.plastic"),
-      [t("pro.premium.available")]: 22,
-      [t("pro.premium.added")]: 35,
-      [t("pro.premium.recycled")]: 40,
-    },
-    {
-      material: t("pro.materials.glass"),
-      [t("pro.premium.available")]: 12,
-      [t("pro.premium.added")]: 25,
-      [t("pro.premium.recycled")]: 20,
-    },
-    {
-      material: t("pro.materials.textile"),
-      [t("pro.premium.available")]: 19,
-      [t("pro.premium.added")]: 32,
-      [t("pro.premium.recycled")]: 28,
-    },
-    {
-      material: t("pro.materials.cardboard"),
-      [t("pro.premium.available")]: 30,
-      [t("pro.premium.added")]: 50,
-      [t("pro.premium.recycled")]: 45,
-    },
-  ];
+  const { data, isLoading } = useGetProAnalytics(user?.id);
 
-  // Mock data for Donut Chart of materials used (Kg)
-  const impactDonutData = [
-    {
-      name: t("pro.materials.wood"),
-      value: 120,
-      color: "var(--mantine-color-orange-6)",
-    },
-    {
-      name: t("pro.materials.metal"),
-      value: 85,
-      color: "var(--mantine-color-gray-6)",
-    },
-    {
-      name: t("pro.materials.plastic"),
-      value: 45,
-      color: "var(--mantine-color-blue-6)",
-    },
-    {
-      name: t("pro.materials.glass"),
-      value: 60,
-      color: "var(--mantine-color-teal-6)",
-    },
-    {
-      name: t("pro.materials.textile"),
-      value: 75,
-      color: "var(--mantine-color-indigo-6)",
-    },
-    {
-      name: t("pro.materials.cardboard"),
-      value: 110,
-      color: "var(--mantine-color-yellow-6)",
-    },
-  ];
+  if (isLoading) {
+    return (
+      <Container size="xl" py={40}>
+        <Stack gap="xl">
+          <Skeleton height={140} radius="lg" />
+          <Paper withBorder p="xl" radius="lg" variant="primary">
+            <Stack gap="md">
+              <Group justify="space-between">
+                <Skeleton height={30} width={250} />
+                <Skeleton height={40} width={40} radius="md" />
+              </Group>
+              <Grid gap="xl">
+                <Grid.Col span={{ base: 12, md: 7 }}>
+                  <Skeleton height={320} />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, md: 5 }}>
+                  <Skeleton height={320} />
+                </Grid.Col>
+              </Grid>
+            </Stack>
+          </Paper>
+          <Grid gap="xl">
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <Skeleton height={300} radius="lg" />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <Skeleton height={300} radius="lg" />
+            </Grid.Col>
+          </Grid>
+          <Paper withBorder p="xl" radius="lg" variant="primary">
+            <Skeleton height={200} />
+          </Paper>
+        </Stack>
+      </Container>
+    );
+  }
 
-  // Calculated totals
-  const totalUpcycledKg = impactDonutData.reduce(
-    (acc, curr) => acc + curr.value,
-    0,
-  );
+  const MATERIAL_COLORS: Record<string, string> = {
+    wood: "var(--mantine-color-orange-6)",
+    metal: "var(--mantine-color-gray-6)",
+    plastic: "var(--mantine-color-blue-6)",
+    glass: "var(--mantine-color-teal-6)",
+    textile: "var(--mantine-color-indigo-6)",
+    mixed: "var(--mantine-color-yellow-6)",
+    other: "var(--mantine-color-grape-6)",
+  };
+
+  const inventoryData = (data?.inventory || []).map((item) => ({
+    material: t(
+      `pro.materials.${item.material}`,
+      item.material.charAt(0).toUpperCase() + item.material.slice(1),
+    ),
+    [t("pro.premium.available")]: item.available,
+    [t("pro.premium.added")]: item.added,
+    [t("pro.premium.recycled")]: item.recycled,
+  }));
+
+  const impactDonutData = (data?.impact?.material_usage || []).map((item) => ({
+    name: t(
+      `pro.materials.${item.material}`,
+      item.material.charAt(0).toUpperCase() + item.material.slice(1),
+    ),
+    value: item.weight,
+    color: MATERIAL_COLORS[item.material] || "var(--mantine-color-gray-6)",
+  }));
+
+  const totalUpcycledKg =
+    data?.impact?.material_usage?.reduce((acc, item) => acc + item.weight, 0) ??
+    0;
+  const totalCO2 = data?.impact?.total_co2 ?? 0;
+  const equivalentTrees = Math.round(totalCO2 / 24) || 0;
 
   return (
     <Container size="xl" py={40}>
@@ -154,7 +150,7 @@ export default function ProHomePremium() {
         </Paper>
 
         {/* 1. Inventory Analytics */}
-        <Paper withBorder p="xl" radius="lg" shadow="sm">
+        <Paper withBorder p="xl" radius="lg" shadow="sm" variant="primary">
           <Stack gap="md">
             <Group justify="space-between">
               <div>
@@ -235,6 +231,7 @@ export default function ProHomePremium() {
         <Grid gap="xl">
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Paper
+              variant="primary"
               withBorder
               p="xl"
               radius="lg"
@@ -306,6 +303,7 @@ export default function ProHomePremium() {
 
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Paper
+              variant="primary"
               withBorder
               p="xl"
               radius="lg"
@@ -336,7 +334,11 @@ export default function ProHomePremium() {
                     {t("pro.premium.co2_desc")}
                   </Text>
                   <Title size={48} fw={900} c="blue.7">
-                    1,420.5 Kg
+                    {totalCO2.toLocaleString(undefined, {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })}{" "}
+                    Kg
                   </Title>
                   <Badge
                     size="lg"
@@ -344,7 +346,11 @@ export default function ProHomePremium() {
                     variant="light"
                     leftSection={<IconLeaf size={12} />}
                   >
-                    Equivalent to 58 trees planted
+                    {t(
+                      "pro.premium.trees_equivalent",
+                      "Equivalent to {{count}} trees planted",
+                      { count: equivalentTrees },
+                    )}
                   </Badge>
                 </Stack>
 
@@ -366,7 +372,7 @@ export default function ProHomePremium() {
         </Grid>
 
         {/* 3. Financial Dashboard */}
-        <Paper withBorder p="xl" radius="lg" shadow="sm">
+        <Paper withBorder p="xl" radius="lg" shadow="sm" variant="primary">
           <Stack gap="xl">
             <Group justify="space-between">
               <Title order={3}>{t("pro.premium.finance_title")}</Title>
@@ -388,7 +394,7 @@ export default function ProHomePremium() {
                     />
                   </Group>
                   <Title order={4} size={28} fw={900}>
-                    35
+                    {data?.finance?.total_purchases ?? 0}
                   </Title>
                   <Text size="xs" c="dimmed" mt={4}>
                     Free & Paid materials sourced
@@ -413,7 +419,7 @@ export default function ProHomePremium() {
                     fw={900}
                     c="var(--upagain-primary)"
                   >
-                    18
+                    {data?.finance?.paid_purchases ?? 0}
                   </Title>
                   <Text size="xs" c="dimmed" mt={4}>
                     Transactions processed via Stripe
@@ -433,7 +439,11 @@ export default function ProHomePremium() {
                     />
                   </Group>
                   <Title order={4} size={28} fw={900}>
-                    1,250.00 €
+                    {(data?.finance?.total_spent ?? 0).toLocaleString(
+                      undefined,
+                      { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+                    )}{" "}
+                    €
                   </Title>
                   <Text size="xs" c="dimmed" mt={4}>
                     VAT and commissions included
@@ -445,6 +455,7 @@ export default function ProHomePremium() {
             {/* Invoices Redirection Panel */}
             <Paper
               p="md"
+              variant="primary"
               radius="md"
               style={{
                 backgroundColor: "var(--mantine-color-gray-0)",

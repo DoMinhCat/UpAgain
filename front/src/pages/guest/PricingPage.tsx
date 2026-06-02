@@ -21,7 +21,6 @@ export default function PricingPage() {
   const { isVerifying } = useHandleVerifyStripePremiumUpgrade(user?.id || 0);
 
   const isPendingUpgrade = upgradeMutation.isPending || isVerifying;
-  const isLoading = (isPro && isLoadingAccountDetails) || isPendingUpgrade;
 
   if (isPro && isLoadingAccountDetails) {
     return (
