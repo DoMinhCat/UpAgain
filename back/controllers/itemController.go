@@ -553,6 +553,17 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if payload.Status == "approved" && itemDetails.Category == "listing" {
+		// Notify premium pros subscribed to this material
+		// Error should not block the status update, log a warning if it fails
+		go func() {
+			errNoti := onesignal.HandleSmartAlertsNoti(id_item)
+			if errNoti != nil {
+				slog.Warn("HandleSmartAlertsNoti failed", "controller", "UpdateItemStatusById", "error", errNoti)
+			}
+		}()
+	}
+
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item status updated successfully."})
 }
 

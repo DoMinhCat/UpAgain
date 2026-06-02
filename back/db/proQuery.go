@@ -324,3 +324,43 @@ func IsProSubscriptionActive(idPro int) (bool, error) {
 	}
 	return active, nil
 }
+
+func GetMatchingAlertProIds(itemId int) ([]int, error) {
+	query := `
+		SELECT pam.id_pro 
+		FROM pro_alert_materials pam
+		JOIN items i ON i.id = $1
+		WHERE pam.material = i.material
+		  AND EXISTS (
+			  SELECT 1 FROM noti_settings ns
+			  WHERE ns.id_account = pam.id_pro 
+			    AND ns.noti_type = 'pro_material_available' 
+			    AND ns.is_enabled = true
+		  )
+		  AND EXISTS (
+			  SELECT 1 FROM subscriptions s
+			  WHERE s.id_pro = pam.id_pro 
+			    AND s.is_active = true 
+			    AND s.sub_to > now()
+		  )
+	`
+	rows, err := utils.Conn.Query(query, itemId)
+	if err != nil {
+		return nil, fmt.Errorf("GetMatchingAlertProIds() query failed: %w", err)
+	}
+	defer rows.Close()
+
+	var proIds []int
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			return nil, fmt.Errorf("GetMatchingAlertProIds() scan failed: %w", err)
+		}
+		proIds = append(proIds, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("GetMatchingAlertProIds() rows check failed: %w", err)
+	}
+	return proIds, nil
+}
+

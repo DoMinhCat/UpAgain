@@ -115,6 +115,16 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 		}()
 	}
 
+	// Notify premium pros subscribed to this material when a listing is approved
+	if newStatus == "approved" {
+		go func() {
+			errNoti := onesignal.HandleSmartAlertsNoti(itemID)
+			if errNoti != nil {
+				slog.Warn("HandleSmartAlertsNoti failed", "controller", "ProcessListingValidation", "error", errNoti)
+			}
+		}()
+	}
+
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Listing status updated successfully"})
 }
 
