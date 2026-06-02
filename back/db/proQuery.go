@@ -263,3 +263,65 @@ func GetProFinancialStats(idPro int) (int, int, float64, error) {
 
 	return totalPurchases, paidPurchases, totalSpent, nil
 }
+
+func GetProAlertMaterials(idPro int) ([]string, error) {
+	rows, err := utils.Conn.Query("SELECT material::text FROM pro_alert_materials WHERE id_pro = $1", idPro)
+	if err != nil {
+		return nil, fmt.Errorf("GetProAlertMaterials() query failed: %w", err)
+	}
+	defer rows.Close()
+
+	materials := []string{}
+	for rows.Next() {
+		var mat string
+		if err := rows.Scan(&mat); err != nil {
+			return nil, fmt.Errorf("GetProAlertMaterials() scan failed: %w", err)
+		}
+		materials = append(materials, mat)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("GetProAlertMaterials() rows check failed: %w", err)
+	}
+	return materials, nil
+}
+
+func UpdateProAlertMaterials(idPro int, materials []string) error {
+	tx, err := utils.Conn.Begin()
+	if err != nil {
+		return fmt.Errorf("UpdateProAlertMaterials() transaction start failed: %w", err)
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec("DELETE FROM pro_alert_materials WHERE id_pro = $1", idPro)
+	if err != nil {
+		return fmt.Errorf("UpdateProAlertMaterials() delete failed: %w", err)
+	}
+
+	for _, mat := range materials {
+		_, err = tx.Exec("INSERT INTO pro_alert_materials (id_pro, material) VALUES ($1, $2)", idPro, mat)
+		if err != nil {
+			return fmt.Errorf("UpdateProAlertMaterials() insert failed for material '%s': %w", mat, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("UpdateProAlertMaterials() commit failed: %w", err)
+	}
+	return nil
+}
+
+func IsProSubscriptionActive(idPro int) (bool, error) {
+	var active bool
+	query := `
+		SELECT EXISTS (
+			SELECT 1 FROM subscriptions
+			WHERE id_pro = $1 AND is_active = true AND sub_to > now()
+		)
+	`
+	err := utils.Conn.QueryRow(query, idPro).Scan(&active)
+	if err != nil {
+		return false, fmt.Errorf("IsProSubscriptionActive() failed: %w", err)
+	}
+	return active, nil
+}
+

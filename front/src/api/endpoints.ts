@@ -162,6 +162,7 @@ export const ENDPOINTS = {
     ONBOARDING: "/accounts/onboarding",
     UPGRADE: "/upgrade",
     PRO_ANALYTICS: (id_account: number) => `/accounts/${id_account}/pro-analytics`,
+    PRO_ALERT_MATERIALS: (id_account: number) => `/accounts/${id_account}/pro-analytics/alerts`,
   },
 
   // external providers

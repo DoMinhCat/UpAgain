@@ -19,7 +19,8 @@ func GetAccountRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /accounts/{id_account}/stats", middleware.AuthMiddleware([]string{"admin", "employee", "user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAccountStats))))
 	mux.Handle("GET /accounts/{id_account}/notifications", middleware.AuthMiddleware([]string{"user", "pro", "admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetNotiSettings))))
 	mux.Handle("GET /accounts/{id_account}/pro-analytics", middleware.AuthMiddleware([]string{"pro", "admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetProAnalytics))))
-
+	mux.Handle("GET /accounts/{id_account}/pro-analytics/alerts", middleware.AuthMiddleware([]string{"pro", "admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetProAlertMaterials))))
+	mux.Handle("PUT /accounts/{id_account}/pro-analytics/alerts", middleware.AuthMiddleware([]string{"pro", "admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateProAlertMaterials))))
 
 	mux.Handle("PATCH /accounts/{id_account}/password", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdatePassword))))
 	mux.Handle("PATCH /accounts/{id_account}/ban", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ToggleBanAccount))))
