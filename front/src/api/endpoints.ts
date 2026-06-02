@@ -160,6 +160,7 @@ export const ENDPOINTS = {
     NOTIFICATIONS: (id_account: number) =>
       `/accounts/${id_account}/notifications`,
     ONBOARDING: "/accounts/onboarding",
+    UPGRADE: "/upgrade",
   },
 
   // external providers

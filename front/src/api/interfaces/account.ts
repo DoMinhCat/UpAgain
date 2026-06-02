@@ -65,3 +65,14 @@ export interface AccountsListPagination {
   limit: number;
   total_records: number;
 }
+
+export interface UpgradePayload {
+  is_trial: boolean;
+  paid: boolean;
+  origin_url?: string;
+}
+
+export interface UpgradeResponse {
+  checkout_url?: string;
+  message?: string;
+}

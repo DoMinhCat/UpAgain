@@ -9,6 +9,8 @@ import {
   type updateAccountPayload,
   type AccountCountStats,
   type RegisterPayload,
+  type UpgradePayload,
+  type UpgradeResponse,
 } from "./interfaces/account";
 
 // get active or deleted accounts
@@ -101,5 +103,10 @@ export const updateAvatar = async (id_account: number, payload: FormData) => {
 
 export const completeOnboarding = async () => {
   const response = await api.post(ENDPOINTS.ACCOUNTS.ONBOARDING);
+  return response.data;
+};
+
+export const upgradeAccount = async (payload: UpgradePayload): Promise<UpgradeResponse> => {
+  const response = await api.post(ENDPOINTS.ACCOUNTS.UPGRADE, payload);
   return response.data;
 };

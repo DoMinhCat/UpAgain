@@ -128,13 +128,7 @@ export default function ProHomeFree() {
             marginTop: "-8vh",
           }}
         >
-          <Badge
-            variant="gradient"
-            gradient={{ from: "teal", to: "blue", deg: 45 }}
-            size="lg"
-            radius="xl"
-            mb="xs"
-          >
+          <Badge variant="primary" size="lg" radius="xl" mb="xs">
             {t("pro.hero.premium_badge")}
           </Badge>
           <Title size={48} ta="center" style={{ lineHeight: 1.15 }}>

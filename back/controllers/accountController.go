@@ -1032,11 +1032,28 @@ func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-// TODO: swagger docs
+// UpgradeAccount godoc
+// @Summary      Upgrade account to premium
+// @Description  Upgrades a pro account to premium (trial or standard paid subscription)
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        payload body models.UpgradeAccountRequest true "Upgrade options"
+// @Success      200  {object}  models.UpgradeAccountResponse "Subscription upgraded or checkout link generated"
+// @Failure      400  {object}  nil  "Invalid request or user already premium"
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /upgrade [post]
 func UpgradeAccount(w http.ResponseWriter, r *http.Request) {
 	idAccount := r.Context().Value("user").(models.AuthClaims).Id
-	
-	// TODO: decode payload
+
+	var payload models.UpgradeAccountRequest
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+		return
+	}
 
 	accountDetails, err := db.GetAccountDetailsById(idAccount)
 	if err != nil {
@@ -1049,10 +1066,101 @@ func UpgradeAccount(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Account is not a pro account.")
 		return
 	}
-	
-	// TODO: can't trial again if current is_trial is true
-	
-	utils.RespondWithJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Subscription upgraded successfully",
-	})
+
+	if accountDetails.IsPremium {
+		utils.RespondWithError(w, http.StatusBadRequest, "You are already subscribed to a premium plan.")
+		return
+	}
+
+	if payload.IsTrial {
+		// Can't trial again if database shows hasTrial (already registered trial in past)
+		if accountDetails.IsTrial {
+			utils.RespondWithError(w, http.StatusBadRequest, "You have already used your trial period.")
+			return
+		}
+
+		err = db.UpdateProPremium(idAccount, true)
+		if err != nil {
+			slog.Error("UpdateProPremium() failed", "controller", "UpgradeAccount", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to activate trial.")
+			return
+		}
+
+		err = db.CreateSubscription(idAccount, true)
+		if err != nil {
+			slog.Error("CreateSubscription() failed", "controller", "UpgradeAccount", "error", err)
+			// rollback premium status
+			db.UpdateProPremium(idAccount, false)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to activate trial subscription.")
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, models.UpgradeAccountResponse{
+			Message: "Trial activated successfully.",
+		})
+		return
+	}
+
+	// Paid subscription
+	if !payload.Paid {
+		// Phase 1: Create Stripe Session
+		current_price, err := db.GetFinanceSettingByKey("subscription_price")
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "Could not fetch subscription price.")
+			slog.Error("GetFinanceSettingByKey() failed", "controller", "UpgradeAccount", "error", err)
+			return
+		}
+		currentPriceInCents := int64(current_price * 100)
+
+		vat := int64(float64(currentPriceInCents) * stripe.VatRate)
+		stripeComm := int64(float64(currentPriceInCents) * stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+		finalPrice := currentPriceInCents + vat + stripeComm
+
+		frontendOrigin := utils.GetFrontOrigin()
+		originUrl := payload.OriginUrl
+		if originUrl == "" || !strings.HasPrefix(originUrl, frontendOrigin) {
+			originUrl = frontendOrigin + "/pricing"
+		}
+
+		successUrlSeparator := "?"
+		if strings.Contains(originUrl, "?") {
+			successUrlSeparator = "&"
+		}
+
+		checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+			EntityName:    "Premium Subscription Upgrade",
+			PriceInCents:  finalPrice,
+			SuccessURL:    originUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+			CancelURL:     originUrl + successUrlSeparator + "payment=cancel",
+		})
+		if err != nil {
+			slog.Error("CreateStripeSession() failed", "controller", "UpgradeAccount", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, models.UpgradeAccountResponse{CheckoutUrl: checkoutUrl})
+		return
+	} else {
+		// Phase 2: Stripe checkout success redirection handler
+		err = db.UpdateProPremium(idAccount, true)
+		if err != nil {
+			slog.Error("UpdateProPremium() failed", "controller", "UpgradeAccount", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to upgrade subscription.")
+			return
+		}
+
+		err = db.CreateSubscription(idAccount, false)
+		if err != nil {
+			slog.Error("CreateSubscription() failed", "controller", "UpgradeAccount", "error", err)
+			db.UpdateProPremium(idAccount, false)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create premium subscription.")
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, models.UpgradeAccountResponse{
+			Message: "Subscription upgraded to Premium successfully.",
+		})
+		return
+	}
 }
