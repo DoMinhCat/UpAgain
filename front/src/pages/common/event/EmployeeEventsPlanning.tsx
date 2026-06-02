@@ -8,8 +8,6 @@ import {
   ActionIcon,
   Divider,
   Center,
-  Badge,
-  Box,
   Button,
 } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -24,8 +22,6 @@ import {
   IconChevronRight,
   IconChevronLeft,
   IconCalendarOff,
-  IconClock,
-  IconX,
   IconPlus,
 } from "@tabler/icons-react";
 import { useAuth } from "../../../context/AuthContext";
