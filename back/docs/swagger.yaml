@@ -32,6 +32,8 @@ definitions:
     properties:
       avatar:
         type: string
+      completed_onboard:
+        type: boolean
       created_at:
         type: string
       deleted_at:
@@ -43,6 +45,8 @@ definitions:
       is_banned:
         type: boolean
       is_premium:
+        type: boolean
+      is_trial:
         type: boolean
       last_active:
         type: string
@@ -168,6 +172,11 @@ definitions:
       user_name:
         type: string
     type: object
+  models.ConfirmCodeRequest:
+    properties:
+      confirm_code:
+        type: string
+    type: object
   models.Container:
     properties:
       city_name:
@@ -252,6 +261,10 @@ definitions:
         type: boolean
       is_trial:
         type: boolean
+      origin_url:
+        type: string
+      paid:
+        type: boolean
       password:
         type: string
       phone:
@@ -269,6 +282,10 @@ definitions:
         type: string
       id_post:
         type: integer
+      origin_url:
+        type: string
+      paid:
+        type: boolean
     type: object
   models.CreateCommentRequest:
     properties:
@@ -335,6 +352,8 @@ definitions:
         type: string
       price:
         type: number
+      refuse_reason:
+        type: string
       registered:
         type: integer
       start_at:
@@ -554,6 +573,13 @@ definitions:
       total_records:
         type: integer
     type: object
+  models.ItemPurchaseRequest:
+    properties:
+      origin_url:
+        type: string
+      paid:
+        type: boolean
+    type: object
   models.ItemStatusUpdateRequest:
     properties:
       status:
@@ -578,6 +604,24 @@ definitions:
         type: string
       password:
         type: string
+    type: object
+  models.MaterialInventoryStats:
+    properties:
+      added:
+        type: integer
+      available:
+        type: integer
+      material:
+        type: string
+      recycled:
+        type: integer
+    type: object
+  models.MaterialUsageStats:
+    properties:
+      material:
+        type: string
+      weight:
+        type: number
     type: object
   models.NotiSetting:
     properties:
@@ -689,6 +733,31 @@ definitions:
       total_records:
         type: integer
     type: object
+  models.ProAnalyticsResponse:
+    properties:
+      finance:
+        properties:
+          paid_purchases:
+            type: integer
+          total_purchases:
+            type: integer
+          total_spent:
+            type: number
+        type: object
+      impact:
+        properties:
+          material_usage:
+            items:
+              $ref: '#/definitions/models.MaterialUsageStats'
+            type: array
+          total_co2:
+            type: number
+        type: object
+      inventory:
+        items:
+          $ref: '#/definitions/models.MaterialInventoryStats'
+        type: array
+    type: object
   models.ProjectStep:
     properties:
       created_at:
@@ -703,12 +772,21 @@ definitions:
         items:
           $ref: '#/definitions/models.StepItem'
         type: array
+      order:
+        type: number
       photos:
         items:
           type: string
         type: array
       title:
         type: string
+    type: object
+  models.ReorderStepPayload:
+    properties:
+      step_ids:
+        items:
+          type: integer
+        type: array
     type: object
   models.RevenueMonthData:
     properties:
@@ -917,6 +995,13 @@ definitions:
       password:
         type: string
     type: object
+  models.UpdateProAlertMaterialsRequest:
+    properties:
+      materials:
+        items:
+          type: string
+        type: array
+    type: object
   models.UpdateStatusRequest:
     properties:
       status:
@@ -932,6 +1017,22 @@ definitions:
     properties:
       trial_days:
         type: integer
+    type: object
+  models.UpgradeAccountRequest:
+    properties:
+      is_trial:
+        type: boolean
+      origin_url:
+        type: string
+      paid:
+        type: boolean
+    type: object
+  models.UpgradeAccountResponse:
+    properties:
+      checkout_url:
+        type: string
+      message:
+        type: string
     type: object
   models.UserImpactItem:
     properties:
@@ -1391,6 +1492,102 @@ paths:
       summary: Update password
       tags:
       - account
+  /accounts/{id_account}/pro-analytics:
+    get:
+      description: Returns statistics including inventory, material impact (CO2 and
+        weights), and financial transactions.
+      parameters:
+      - description: Account ID of the Professional
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ProAnalyticsResponse'
+        "400":
+          description: Invalid ID
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get professional premium analytics
+      tags:
+      - pro
+  /accounts/{id_account}/pro-analytics/alerts:
+    get:
+      description: Returns a list of materials selected by the pro to receive alerts
+        for.
+      parameters:
+      - description: Account ID of the Professional
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Invalid ID
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get professional alert materials
+      tags:
+      - pro
+    put:
+      consumes:
+      - application/json
+      description: Saves the list of materials to receive alerts for.
+      parameters:
+      - description: Account ID
+        in: path
+        name: id_account
+        required: true
+        type: integer
+      - description: List of materials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProAlertMaterialsRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Update professional alert materials
+      tags:
+      - pro
   /accounts/{id_account}/recover/:
     patch:
       description: Restore a soft-deleted account
@@ -1516,6 +1713,28 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Export accounts to CSV
+      tags:
+      - account
+  /accounts/onboarding:
+    post:
+      description: Marks the onboarding process as completed for the current authenticated
+        user account.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Onboarding updated successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "404":
+          description: Account not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Update onboarding status
       tags:
       - account
   /admin/items/history/:
@@ -1886,6 +2105,35 @@ paths:
       summary: Delete a comment
       tags:
       - comment
+  /comments/{id_comment}/like:
+    post:
+      description: Toggles the liked status of a comment for the current user.
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id_comment
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Returns the new liked status e.g., {''is_liked'': true}'
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Invalid comment ID or Comment not found
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Like or unlike a comment
+      tags:
+      - comment
   /containers/:
     get:
       description: Get a list of all containers
@@ -2098,6 +2346,50 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update container location
+      tags:
+      - container
+  /containers/{id}/open:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Opens a specific container using either a 6-digit code or barcode
+        image file. If the requestor is a user, it registers the drop-off and prepares
+        a retrieval code/barcode for a professional. If the requestor is a professional,
+        it registers the retrieval and completes the item transaction.
+      parameters:
+      - description: Container ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 6-digit access code
+        in: formData
+        name: code6digit
+        type: string
+      - description: Barcode image file
+        in: formData
+        name: barcode
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request parameter or code
+        "401":
+          description: Unauthorized
+        "404":
+          description: Container not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Open a container
       tags:
       - container
   /containers/{id}/schedule/:
@@ -3436,6 +3728,144 @@ paths:
       summary: Update item status
       tags:
       - item
+  /items/{item_id}/cancel:
+    post:
+      description: Allows a professional or an admin to cancel a previously held item
+        reservation.
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request or item does not exist
+        "409":
+          description: Item is not reserved
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Cancel an item reservation
+      tags:
+      - item
+  /items/{item_id}/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Verifies the confirmation code provided by a user upon retrieving
+        a purchased listing item and completes the transaction status.
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      - description: Confirmation code payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ConfirmCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid payload or item does not exist
+        "403":
+          description: Incorrect confirmation code
+        "409":
+          description: Item not purchased or transaction cancelled
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Confirm listing retrieval
+      tags:
+      - item
+  /items/{item_id}/purchase:
+    post:
+      consumes:
+      - application/json
+      description: Initiates or confirms purchase of an item. For paid items, it generates
+        a Stripe checkout URL on the first call, and registers the transaction details
+        on the second call once paid.
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      - description: Stripe verification / checkout details
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/models.ItemPurchaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Checkout URL for payment page redirect or confirmation message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid requests or validation errors
+        "409":
+          description: Item already purchased
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Purchase an item
+      tags:
+      - item
+  /items/{item_id}/reserve:
+    post:
+      description: Allows a professional to reserve an item if it is approved and
+        not already reserved/purchased.
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Item not found, invalid status, or already reserved/purchased
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Reserve an item
+      tags:
+      - item
   /items/{item_id}/transactions/:
     get:
       description: Get paginated transactions for a specific item (admin/user)
@@ -3471,6 +3901,34 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get transactions for an item
+      tags:
+      - transaction
+  /items/{item_id}/transactions/latest:
+    get:
+      description: Returns the latest transaction record associated with a professional
+        and a specific item.
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Transaction'
+        "400":
+          description: Invalid ID
+        "404":
+          description: Item not found
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get latest transaction of a pro for an item
       tags:
       - transaction
   /items/count/:
@@ -4357,6 +4815,74 @@ paths:
       summary: Get saved posts
       tags:
       - Posts
+  /posts/steps/{step_id}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Allows a user (pro or admin) to update a step in their project
+        timeline.
+      parameters:
+      - description: Step ID
+        in: path
+        name: step_id
+        required: true
+        type: integer
+      - description: Step Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Step Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Associated Item IDs
+        in: formData
+        items:
+          type: integer
+        name: item_ids
+        type: array
+      - collectionFormat: csv
+        description: Existing image paths to keep
+        in: formData
+        items:
+          type: string
+        name: existing_images
+        type: array
+      - description: New Step Images
+        in: formData
+        name: new_images
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Step updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update a project step
+      tags:
+      - posts
   /posts/steps/{step_id}/:
     delete:
       description: Deletes a specific project step by its ID. Admin only.
@@ -4393,6 +4919,51 @@ paths:
       summary: Delete a project step
       tags:
       - Posts
+  /posts/steps/{step_id}/reorder:
+    put:
+      consumes:
+      - application/json
+      description: Allows a user (pro) to reorder a step in their project timeline.
+      parameters:
+      - description: Step ID
+        in: path
+        name: step_id
+        required: true
+        type: integer
+      - description: Reorder details
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReorderStepPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Step reordered successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Reorder a project step
+      tags:
+      - posts
   /refresh/:
     post:
       description: Refresh the JWT token using the refresh token cookie
@@ -4626,6 +5197,36 @@ paths:
       summary: Update trial days
       tags:
       - subscription
+  /upgrade:
+    post:
+      consumes:
+      - application/json
+      description: Upgrades a pro account to premium (trial or standard paid subscription)
+      parameters:
+      - description: Upgrade options
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpgradeAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subscription upgraded or checkout link generated
+          schema:
+            $ref: '#/definitions/models.UpgradeAccountResponse'
+        "400":
+          description: Invalid request or user already premium
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Upgrade account to premium
+      tags:
+      - account
   /users/impact/:
     get:
       description: Returns the total CO2, water, and electricity saved by the authenticated

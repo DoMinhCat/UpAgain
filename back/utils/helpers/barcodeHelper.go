@@ -39,7 +39,7 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 
 	// shorten the payload
 	toEncode := fmt.Sprintf("%d|%s|%d", data.Id, data.UserType, data.IdAccount)
-	
+
 	// encode data into barcode
 	img, err := writer.Encode(toEncode, gozxing.BarcodeFormat_CODE_128, 250, 50, nil)
 	if err != nil {
@@ -47,7 +47,7 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 	}
 
 	// save barcode in images/barcodes/
-	filename := fmt.Sprintf("%s-%s-%d.png",data.IdTransaction, data.UserType, time.Now().UnixNano())
+	filename := fmt.Sprintf("%s-%s-%d.png", data.IdTransaction, data.UserType, time.Now().UnixNano())
 	destPath := filepath.Join("images/barcodes/", filename)
 	file, err := os.Create(destPath)
 	if err != nil {
@@ -65,7 +65,7 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 func EncodeBarcodeToBase64(filepath string) (string, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
-		if strings.Contains(err.Error(), "The system cannot find the file specified"){
+		if strings.Contains(err.Error(), "The system cannot find the file specified") {
 			return "", nil
 		}
 		return "", fmt.Errorf("failed to open file: %v", err)
@@ -76,7 +76,7 @@ func EncodeBarcodeToBase64(filepath string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to read file: %v", err)
 	}
-	return base64.StdEncoding.EncodeToString(data), nil	
+	return base64.StdEncoding.EncodeToString(data), nil
 }
 
 func IsCodeValid(idUser int, idContainer int, code models.Barcode) bool {

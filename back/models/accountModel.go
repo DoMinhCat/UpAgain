@@ -39,15 +39,15 @@ type AccountsListPagination struct {
 }
 
 type AccountDetails struct {
-	Id         int         `json:"id"`
-	Email      string      `json:"email"`
-	Username   string      `json:"username"`
-	Role       string      `json:"role"`
-	IsBanned   bool        `json:"is_banned"`
-	CreatedAt  time.Time   `json:"created_at"`
-	LastActive null.Time   `json:"last_active"`
-	Phone      null.String `json:"phone" swaggertype:"string"`
-	Score      int         `json:"score"`
+	Id               int         `json:"id"`
+	Email            string      `json:"email"`
+	Username         string      `json:"username"`
+	Role             string      `json:"role"`
+	IsBanned         bool        `json:"is_banned"`
+	CreatedAt        time.Time   `json:"created_at"`
+	LastActive       null.Time   `json:"last_active"`
+	Phone            null.String `json:"phone" swaggertype:"string"`
+	Score            int         `json:"score"`
 	IsPremium        bool        `json:"is_premium"`
 	IsTrial          bool        `json:"is_trial"`
 	Avatar           null.String `json:"avatar" swaggertype:"string"`

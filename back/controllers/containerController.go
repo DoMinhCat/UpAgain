@@ -645,7 +645,22 @@ func GetNearestAvailableContainer(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, closestContainer)
 }
 
-// TODO: swagger doc
+// OpenContainer godoc
+// @Summary      Open a container
+// @Description  Opens a specific container using either a 6-digit code or barcode image file. If the requestor is a user, it registers the drop-off and prepares a retrieval code/barcode for a professional. If the requestor is a professional, it registers the retrieval and completes the item transaction.
+// @Tags         container
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        id          path      int     true   "Container ID"
+// @Param        code6digit  formData  string  false  "6-digit access code"
+// @Param        barcode     formData  file    false  "Barcode image file"
+// @Success      200         {object}  map[string]string  "Returns success message"
+// @Failure      400         {object}  nil                "Invalid request parameter or code"
+// @Failure      401         {object}  nil                "Unauthorized"
+// @Failure      404         {object}  nil                "Container not found"
+// @Failure      500         {object}  nil                "Internal server error"
+// @Router       /containers/{id}/open [post]
 func OpenContainer(w http.ResponseWriter, r *http.Request) {
 	id_container, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
@@ -671,16 +686,16 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
 		return
 	}
-	
+
 	payload.Code6Digit = r.FormValue("code6digit")
 	role := r.Context().Value("user").(models.AuthClaims).Role
-	idRequestor := r.Context().Value("user").(models.AuthClaims).Id 
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
 	receivedBarcode := false
 	if payload.Code6Digit == "" {
 		receivedBarcode = true
 	}
-	
+
 	var dbCode models.Barcode
 	if !receivedBarcode {
 		// check if 6 digit code is correct and valid
@@ -698,9 +713,9 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 		if !helpers.IsCodeValid(idRequestor, id_container, dbCode) {
 			utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect or invalid code.")
 			return
-		}		
+		}
 	} else {
-		// check if barcode is correct and valid		
+		// check if barcode is correct and valid
 		file, _, err := r.FormFile("barcode")
 		if err != nil {
 			slog.Error("r.FormFile() failed", "controller", "OpenContainer", "error", err)
@@ -729,7 +744,7 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid barcode.")
 			return
 		}
-		
+
 		accountId, err := strconv.Atoi(parts[2])
 		if err != nil {
 			slog.Error("Invalid account ID in barcode", "controller", "OpenContainer", "id", parts[2], "error", err)
@@ -824,7 +839,7 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 				slog.Warn("HandleItemStatusChangeNoti failed for drop", "controller", "OpenContainer", "error", errNoti)
 			}
 		}()
-		
+
 		// update score for user
 		score, err := helpers.CalculateScore(itemDetails.Material, itemDetails.Weight)
 		if err != nil {
@@ -862,7 +877,7 @@ func OpenContainer(w http.ResponseWriter, r *http.Request) {
 				slog.Warn("HandleItemStatusChangeNoti failed for retrieval", "controller", "OpenContainer", "error", errNoti)
 			}
 		}()
-		
+
 	}
 
 	// finally update barcode status to used

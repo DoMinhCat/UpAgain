@@ -938,7 +938,7 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	category := query.Get("category")
-	if category != "" && !slices.Contains(db.PostCategories, category){
+	if category != "" && !slices.Contains(db.PostCategories, category) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid category")
 	}
 
@@ -1002,10 +1002,9 @@ func GetSavedPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	category := query.Get("category")
-	if category != "" && !slices.Contains(db.PostCategories, category){
+	if category != "" && !slices.Contains(db.PostCategories, category) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid category")
 	}
-
 
 	posts, err := db.GetSavedPosts(idRequestor, page, limit, category)
 	if err != nil {

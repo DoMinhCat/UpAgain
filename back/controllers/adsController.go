@@ -115,9 +115,9 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 		totalPriceBase := adsPrice * float64(payload.Duration)
 
 		// calculate stripe commission and VAT
-		stripeCommTotalInCents := int64(stripe.StripeCommissionRatePercentEU * totalPriceBase * 100) + int64(stripe.StripeCommissionFixedInCentsEU)
+		stripeCommTotalInCents := int64(stripe.StripeCommissionRatePercentEU*totalPriceBase*100) + int64(stripe.StripeCommissionFixedInCentsEU)
 		vatTotalInCents := int64(totalPriceBase * 100 * stripe.VatRate)
-		finalPriceInCents := stripeCommTotalInCents + int64(totalPriceBase * 100) + vatTotalInCents
+		finalPriceInCents := stripeCommTotalInCents + int64(totalPriceBase*100) + vatTotalInCents
 
 		if !payload.Paid {
 			frontendOrigin := utils.GetFrontOrigin()

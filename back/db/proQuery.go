@@ -324,4 +324,3 @@ func IsProSubscriptionActive(idPro int) (bool, error) {
 	}
 	return active, nil
 }
-

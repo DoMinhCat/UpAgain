@@ -940,19 +940,19 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasChanges := false
-	if payload.Title != oldEvent.Title || 
-	payload.Description != oldEvent.Description || 
-	payload.Category != oldEvent.Category || 
-	payload.Capacity.Int64 != oldEvent.Capacity.Int64 || 
-	payload.StartAt.Time != oldEvent.StartAt.Time || 
-	payload.EndAt.Time != oldEvent.EndAt.Time || 
-	payload.Price.Float64 != oldEvent.Price.Float64 || 
-	payload.City != oldEvent.City || 
-	payload.Street != oldEvent.Street || 
-	payload.PostalCode != oldEvent.PostalCode || 
-	payload.LocationDetail.String != oldEvent.LocationDetail.String || 
-	len(keepImages) != len(currentImages) ||
-	newImg != nil {
+	if payload.Title != oldEvent.Title ||
+		payload.Description != oldEvent.Description ||
+		payload.Category != oldEvent.Category ||
+		payload.Capacity.Int64 != oldEvent.Capacity.Int64 ||
+		payload.StartAt.Time != oldEvent.StartAt.Time ||
+		payload.EndAt.Time != oldEvent.EndAt.Time ||
+		payload.Price.Float64 != oldEvent.Price.Float64 ||
+		payload.City != oldEvent.City ||
+		payload.Street != oldEvent.Street ||
+		payload.PostalCode != oldEvent.PostalCode ||
+		payload.LocationDetail.String != oldEvent.LocationDetail.String ||
+		len(keepImages) != len(currentImages) ||
+		newImg != nil {
 		hasChanges = true
 	}
 	if !hasChanges {
@@ -961,20 +961,20 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasLocationChanged := false
-	if payload.City != oldEvent.City || 
-	   payload.Street != oldEvent.Street || 
-	   payload.PostalCode != oldEvent.PostalCode || 
-	   payload.LocationDetail.String != oldEvent.LocationDetail.String {
+	if payload.City != oldEvent.City ||
+		payload.Street != oldEvent.Street ||
+		payload.PostalCode != oldEvent.PostalCode ||
+		payload.LocationDetail.String != oldEvent.LocationDetail.String {
 		hasLocationChanged = true
 	}
 
 	if hasLocationChanged {
 		addressToResolve := models.Address{
-			City: payload.City,
-			Street: payload.Street,
+			City:       payload.City,
+			Street:     payload.Street,
 			PostalCode: payload.PostalCode,
 		}
-		
+
 		coordinates, err := geocode.AddressToCoor(addressToResolve)
 		if err != nil {
 			if err.Error() == "ZERO_RESULTS" {
@@ -1120,7 +1120,7 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		// user click on register and not redirected to stripe yet (1st call), then give user checkout link to stripe
 		if !payload.Paid {
 			eventPriceInCents := int64(event.Price.Float64 * 100)
-			stripeCommTotalInCents := int64(float64(eventPriceInCents) * stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+			stripeCommTotalInCents := int64(float64(eventPriceInCents)*stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
 			// vat
 			vatTotalInCents := int64(float64(eventPriceInCents) * stripe.VatRate)
 			finalPriceInCents := stripeCommTotalInCents + eventPriceInCents + vatTotalInCents
@@ -1135,7 +1135,7 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 				successUrlSeparator = "&"
 			}
 			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
-				EntityName:    event.Title,
+				EntityName:   event.Title,
 				PriceInCents: finalPriceInCents,
 				// return to the origin URL with param, frontend will check for that params to handle next steps
 				SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
@@ -1149,7 +1149,7 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
 			return
 		} else {
-			// 2nd call: user got redirected back after having paid in stripe 
+			// 2nd call: user got redirected back after having paid in stripe
 			err = db.InsertEventRegistration(requestorId, event)
 			if err != nil {
 				slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
@@ -1270,7 +1270,7 @@ func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Account not found.")
 		return
 	}
-	
+
 	var events []models.Event
 	if role == "employee" {
 		events, err = db.GetAssignedEventsByEmployeeId(idRequestor)

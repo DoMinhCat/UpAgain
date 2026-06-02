@@ -72,10 +72,10 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 			currentPriceInCents := int64(current_price * 100)
 
 			vat := int64(float64(currentPriceInCents) * stripe.VatRate)
-			stripeComm := int64(float64(currentPriceInCents) * stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+			stripeComm := int64(float64(currentPriceInCents)*stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
 
 			finalPrice := (currentPriceInCents + vat + stripeComm)
-			
+
 			frontendOrigin := utils.GetFrontOrigin()
 			originUrl := newAccount.OriginUrl
 			if originUrl == "" || !strings.HasPrefix(originUrl, frontendOrigin) {
@@ -87,10 +87,10 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 				successUrlSeparator = "&"
 			}
 			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
-				EntityName:    "Premium Subscription",
-				PriceInCents:  finalPrice,
-				SuccessURL:    originUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
-				CancelURL:     originUrl + successUrlSeparator + "payment=cancel",
+				EntityName:   "Premium Subscription",
+				PriceInCents: finalPrice,
+				SuccessURL:   originUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+				CancelURL:    originUrl + successUrlSeparator + "payment=cancel",
 			})
 			if err != nil {
 				slog.Error("CreateStripeSession() failed", "controller", "CreateAccount", "error", err)
@@ -1004,10 +1004,20 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusNoContent, nil)	
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-// TODO: Swagger docs
+// UpdateOnboarding godoc
+// @Summary      Update onboarding status
+// @Description  Marks the onboarding process as completed for the current authenticated user account.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Success      200      {string}  string  "Onboarding updated successfully"
+// @Failure      401      {object}  nil     "Unauthorized"
+// @Failure      404      {object}  nil     "Account not found"
+// @Failure      500      {object}  nil     "Internal server error"
+// @Router       /accounts/onboarding [post]
 func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 	isDel := false
@@ -1113,7 +1123,7 @@ func UpgradeAccount(w http.ResponseWriter, r *http.Request) {
 		currentPriceInCents := int64(current_price * 100)
 
 		vat := int64(float64(currentPriceInCents) * stripe.VatRate)
-		stripeComm := int64(float64(currentPriceInCents) * stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+		stripeComm := int64(float64(currentPriceInCents)*stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
 		finalPrice := currentPriceInCents + vat + stripeComm
 
 		frontendOrigin := utils.GetFrontOrigin()
@@ -1128,10 +1138,10 @@ func UpgradeAccount(w http.ResponseWriter, r *http.Request) {
 		}
 
 		checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
-			EntityName:    "Premium Subscription Upgrade",
-			PriceInCents:  finalPrice,
-			SuccessURL:    originUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
-			CancelURL:     originUrl + successUrlSeparator + "payment=cancel",
+			EntityName:   "Premium Subscription Upgrade",
+			PriceInCents: finalPrice,
+			SuccessURL:   originUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+			CancelURL:    originUrl + successUrlSeparator + "payment=cancel",
 		})
 		if err != nil {
 			slog.Error("CreateStripeSession() failed", "controller", "UpgradeAccount", "error", err)
