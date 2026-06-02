@@ -70,6 +70,12 @@
     "days_ago_one": "1 day ago",
     "days_ago_other": "{{count}} days ago"
   },
+  "change_language": "Change language",
+  "languages": "Languages",
+  "navigation": "Navigation",
+  "about_us": "About us",
+  "pricing": "Pricing",
+  "contact": "Contact",
   "footer": {
     "description": "Give your objects a second life. A simple and eco-friendly way to trade and upcycle resources.",
     "explore": "Explore",

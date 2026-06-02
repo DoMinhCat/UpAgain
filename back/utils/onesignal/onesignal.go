@@ -36,7 +36,7 @@ func SendNotification(payload NotificationRequest) error {
 
 	// Set Headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Key " + config.OnesignalAPIKEY)
+	req.Header.Set("Authorization", "Key "+config.OnesignalAPIKEY)
 
 	// Execute Request
 	resp, err := http.DefaultClient.Do(req)
@@ -48,17 +48,17 @@ func SendNotification(payload NotificationRequest) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("SendNotification() HTTP request failed: %d", resp.StatusCode)
 	}
-	
+
 	body, _ := io.ReadAll(resp.Body)
 
 	var result OneSignalResponse
-    if err := json.Unmarshal(body, &result); err != nil {
-        return fmt.Errorf("SendNotification() failed to parse OneSignal response: %s", string(body))
-    }
+	if err := json.Unmarshal(body, &result); err != nil {
+		return fmt.Errorf("SendNotification() failed to parse OneSignal response: %s", string(body))
+	}
 
-    if result.Errors != nil {
-        return fmt.Errorf("SendNotification() errors returned from OneSignal: %v", result.Errors)
-    }
+	if result.Errors != nil {
+		return fmt.Errorf("SendNotification() errors returned from OneSignal: %v", result.Errors)
+	}
 
 	return nil
 }

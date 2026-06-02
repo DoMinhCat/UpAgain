@@ -87,6 +87,12 @@ export function UserNavBar() {
             path={PATHS.GUEST.POSTS}
           />
           <HeaderLink label={t("events:events")} path={PATHS.EVENTS.HOME} />
+          {user?.role === "pro" && (
+            <HeaderLink
+              label={t("common:pricing")}
+              path={PATHS.GUEST.PRICING}
+            />
+          )}
         </Group>
 
         {/* User Actions - Desktop */}

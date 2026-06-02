@@ -46,7 +46,7 @@ import {
 } from "../../../hooks/eventHooks";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { useGetAvailableEmployees } from "../../../hooks/employeeHooks";
 import type { AssignedEmployee } from "../../../api/interfaces/event";
 import { useLocation } from "react-router-dom";
@@ -184,7 +184,7 @@ export default function AdminEventDetails() {
       },
     });
   };
-  if (isLoadingEventDetails) return <FullScreenLoader />;
+  if (isLoadingEventDetails) return <FullScreenSkeleton />;
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="xs" mb="sm">
@@ -304,7 +304,11 @@ export default function AdminEventDetails() {
               <Title order={3}>{t("containers.details.location")}</Title>
             </Group>
             <Text mt="md">
-              {eventDetails?.street + " · " + eventDetails?.postal_code + " " + eventDetails?.city}
+              {eventDetails?.street +
+                " · " +
+                eventDetails?.postal_code +
+                " " +
+                eventDetails?.city}
               {eventDetails?.location_detail && <br />}
               {eventDetails?.location_detail}
             </Text>
@@ -392,7 +396,6 @@ export default function AdminEventDetails() {
                   color="green"
                   value={`${eventDetails?.street}, ${eventDetails?.postal_code} ${eventDetails?.city}`}
                 />
-
               </SimpleGrid>
 
               {/* Footer Actions */}
@@ -672,7 +675,9 @@ export default function AdminEventDetails() {
                     <Badge
                       variant="light"
                       color={
-                        attendee?.role === "pro" ? "var(--upagain-yellow)" : "blue"
+                        attendee?.role === "pro"
+                          ? "var(--upagain-yellow)"
+                          : "blue"
                       }
                     >
                       {t(`users.roles.${attendee?.role}` as any, {

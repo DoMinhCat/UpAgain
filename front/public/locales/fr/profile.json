@@ -46,7 +46,15 @@
     "theme": "Thème",
     "language": "Langue",
     "dark_mode": "Mode sombre",
-    "light_mode": "Mode clair"
+    "light_mode": "Mode clair",
+    "save_alerts": "Enregistrer les préférences",
+    "modal_title": "Configuration des Alertes Intelligentes",
+    "modal_subtitle": "Recevez des notifications lorsque ces matériaux sont mis en ligne",
+    "alert_for": "Alerte pour tout nouveau dépôt de type {{name}}",
+    "configure_alerts": "Configurer les Matériaux d'Alerte",
+    "configure_alerts_desc": "Sélectionnez les types de matériaux à suivre dans l'application.",
+    "selected_materials": "Matériaux Sélectionnés",
+    "no_materials_selected": "Aucun matériau sélectionné. Vous ne recevrez pas d'alertes automatiques."
   },
   "notifications": {
     "user_object_status": "Mise à jour du statut de l'objet",

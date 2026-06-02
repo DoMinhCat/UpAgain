@@ -26,7 +26,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { NotFoundPage } from "../../error/404";
 import { useGetMyEvents } from "../../../hooks/eventHooks";
 import type { AppEvent } from "../../../api/interfaces/event";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { useDisclosure } from "@mantine/hooks";
 import { EventListModal } from "../../../components/event/EventListModal";
 import dayjs from "dayjs";
@@ -130,7 +130,7 @@ export default function UpcomingEventsPage() {
   }
 
   if (myEventsLoading) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (

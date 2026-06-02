@@ -37,6 +37,8 @@ export interface RegisterPayload {
   role: string;
   is_trial?: boolean;
   is_premium?: boolean;
+  paid?: boolean;
+  origin_url?: string;
 }
 
 export interface Account {
@@ -50,6 +52,7 @@ export interface Account {
   phone?: string;
   score?: number;
   is_premium?: boolean;
+  is_trial?: boolean;
   avatar?: string;
   deleted_at?: string;
   completed_onboard?: boolean;
@@ -61,4 +64,15 @@ export interface AccountsListPagination {
   last_page: number;
   limit: number;
   total_records: number;
+}
+
+export interface UpgradePayload {
+  is_trial: boolean;
+  paid: boolean;
+  origin_url?: string;
+}
+
+export interface UpgradeResponse {
+  checkout_url?: string;
+  message?: string;
 }

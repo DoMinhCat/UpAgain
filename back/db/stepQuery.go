@@ -115,35 +115,35 @@ func InsertStep(payload models.StepInsertPayload) (int, error) {
 
 func InsertItemsOfSteps(idStep int, itemIds []int) error {
 	if len(itemIds) == 0 {
-        return nil
-    }
+		return nil
+	}
 
-    // 1. Build the value placeholders dynamically
-    valueStrings := make([]string, 0, len(itemIds))
-    valueArgs := make([]interface{}, 0, len(itemIds)*2)
-    
-    placeholderCounter := 1
+	// 1. Build the value placeholders dynamically
+	valueStrings := make([]string, 0, len(itemIds))
+	valueArgs := make([]interface{}, 0, len(itemIds)*2)
 
-    for _, itemID := range itemIds {
-        // Generates strings like "($1, $2)"
-        valueStrings = append(valueStrings, fmt.Sprintf("($%d, $%d)", placeholderCounter, placeholderCounter+1))
-        
-        // Append the actual arguments in matching positional pairs
-        valueArgs = append(valueArgs, idStep, itemID)
-        
-        placeholderCounter += 2
-    }
+	placeholderCounter := 1
 
-    // 2. Join the parts into a single query layout string
-    query := fmt.Sprintf("INSERT INTO step_items (id_step, id_item) VALUES %s", strings.Join(valueStrings, ", "))
+	for _, itemID := range itemIds {
+		// Generates strings like "($1, $2)"
+		valueStrings = append(valueStrings, fmt.Sprintf("($%d, $%d)", placeholderCounter, placeholderCounter+1))
 
-    // 3. Execute the dynamically compiled SQL string block
-    _, err := utils.Conn.Exec(query, valueArgs...)
-    if err != nil {
-        return fmt.Errorf("InsertItemsOfSteps() failed dynamically: %v", err)
-    }
+		// Append the actual arguments in matching positional pairs
+		valueArgs = append(valueArgs, idStep, itemID)
 
-    return nil
+		placeholderCounter += 2
+	}
+
+	// 2. Join the parts into a single query layout string
+	query := fmt.Sprintf("INSERT INTO step_items (id_step, id_item) VALUES %s", strings.Join(valueStrings, ", "))
+
+	// 3. Execute the dynamically compiled SQL string block
+	_, err := utils.Conn.Exec(query, valueArgs...)
+	if err != nil {
+		return fmt.Errorf("InsertItemsOfSteps() failed dynamically: %v", err)
+	}
+
+	return nil
 }
 
 func UpdateStep(payload models.StepInsertPayload, idStep int) error {
@@ -234,7 +234,7 @@ func UpdateItemsOfSteps(idStep int, itemIds []int) error {
 		newMap[id] = true
 	}
 
-	// 3. Find items to INSERT 
+	// 3. Find items to INSERT
 	// (If it's in the new list but NOT in the database map -> Insert it)
 	var itemsToInsert []int
 	for _, id := range itemIds {
@@ -243,7 +243,7 @@ func UpdateItemsOfSteps(idStep int, itemIds []int) error {
 		}
 	}
 
-	// 4. Find items to DELETE 
+	// 4. Find items to DELETE
 	// (If it's in the database but NOT in the new incoming list -> Delete it)
 	var itemsToDelete []int
 	for _, id := range existingItemIds {

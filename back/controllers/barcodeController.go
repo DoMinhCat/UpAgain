@@ -31,7 +31,7 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 	}
 
 	var codes []models.Barcode
-	
+
 	if role == "admin" {
 		codes, err = db.GetCodesOfLatestTransactionByDepositId(depositId)
 		if err != nil {

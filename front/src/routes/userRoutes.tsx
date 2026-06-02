@@ -2,7 +2,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 import { type RouteObject, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { PATHS } from "./paths";
-import FullScreenLoader from "../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../components/common/FullScreenSkeleton";
 import UserLayout from "../layouts/UserLayout";
 import GuestLayout from "../layouts/GuestLayout";
 import GuestHome from "../pages/guest/GuestHome";
@@ -54,7 +54,7 @@ const UserGuard = ({ children }: { children: ReactNode }) => {
   }, [isInitializing, user, location.pathname]);
 
   if (isInitializing) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   if (!user) {

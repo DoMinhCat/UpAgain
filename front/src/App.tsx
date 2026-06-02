@@ -26,7 +26,7 @@ import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
 import { DateTimePicker, DatePickerInput } from "@mantine/dates";
 import React, { useEffect } from "react";
-import FullScreenLoader from "./components/common/FullScreenLoader";
+import FullScreenSkeleton from "./components/common/FullScreenSkeleton";
 import OneSignal from "react-onesignal";
 ("use client");
 
@@ -260,7 +260,7 @@ function App() {
         },
       })}
     >
-      <React.Suspense fallback={<FullScreenLoader />}>
+      <React.Suspense fallback={<FullScreenSkeleton />}>
         <Notifications
           limit={3}
           zIndex={1000}

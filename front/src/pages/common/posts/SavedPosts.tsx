@@ -18,7 +18,7 @@ import {
   useLikePost,
   useSavePost,
 } from "../../../hooks/postHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { IconLeaf } from "@tabler/icons-react";
 import PostCard from "../../../components/post/PostCard";
@@ -54,7 +54,7 @@ export default function SavedPosts() {
   const { mutateAsync: savePostAsync } = useSavePost();
 
   if (isLoadingSavedPosts) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
   return (
     <Container size="xl" pb={40} my="xl" pt={24} w="100%">

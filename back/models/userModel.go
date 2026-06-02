@@ -36,7 +36,7 @@ type UserImpactItem struct {
 	BuyerName   string   `json:"buyer_name"`
 	CO2         float64  `json:"co2"`
 	Water       float64  `json:"water"`
-	Electricity float64 `json:"electricity"`
+	Electricity float64  `json:"electricity"`
 }
 
 type UserImpactItemsPagination struct {
