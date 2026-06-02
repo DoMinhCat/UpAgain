@@ -81,3 +81,14 @@ type AccountFilters struct {
 	Role   string
 	Status string
 }
+
+type UpgradeAccountRequest struct {
+	IsTrial   bool   `json:"is_trial"`
+	Paid      bool   `json:"paid"`
+	OriginUrl string `json:"origin_url,omitempty"`
+}
+
+type UpgradeAccountResponse struct {
+	CheckoutUrl string `json:"checkout_url,omitempty"`
+	Message     string `json:"message,omitempty"`
+}

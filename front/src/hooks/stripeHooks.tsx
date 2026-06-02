@@ -14,6 +14,7 @@ import { usePurchaseItem } from "./itemHooks";
 import { useCreateAds } from "./adsHooks";
 import { PATHS } from "../routes/paths";
 import { useRegister } from "./authHooks";
+import { useUpgradeAccount } from "./accountHooks";
 
 export const useVerifyStripeSession = () => {
   const { t } = useTranslation(["common"]);
@@ -370,5 +371,86 @@ export const useHandleVerifyStripePremiumRegistration = () => {
   return {
     isVerifying:
       verifyStripeSessionMutation.isPending || registerMutation.isPending,
+  };
+};
+
+export const useHandleVerifyStripePremiumUpgrade = (accountId: number) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifyStripeSessionMutation = useVerifyStripeSession();
+  const upgradeMutation = useUpgradeAccount(accountId);
+  const { t } = useTranslation(["auth", "common"]);
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+
+    if (status === "success" && sessionId) {
+      verifyStripeSessionMutation.mutate(
+        { session_id: sessionId },
+        {
+          onSuccess: (data) => {
+            if (data.is_paid) {
+              upgradeMutation.mutate(
+                { is_trial: false, paid: true },
+                {
+                  onSuccess: () => {
+                    showSuccessNotification(
+                      t("auth:notifications.upgrade_success_title", {
+                        defaultValue: "Upgrade successful",
+                      }),
+                      t("auth:notifications.upgrade_success_msg", {
+                        defaultValue: "Your subscription has been upgraded to Premium!",
+                      }),
+                    );
+                    searchParams.delete("payment");
+                    searchParams.delete("sessionid");
+                    setSearchParams(searchParams);
+                  },
+                  onError: () => {
+                    searchParams.delete("payment");
+                    searchParams.delete("sessionid");
+                    setSearchParams(searchParams);
+                  },
+                },
+              );
+            } else {
+              showErrorNotification(
+                t("auth:notifications.payment_failed_title", {
+                  defaultValue: "Payment verification failed",
+                }),
+                t("auth:notifications.payment_failed_msg", {
+                  defaultValue: "Payment was not completed.",
+                }),
+              );
+              searchParams.delete("payment");
+              searchParams.delete("sessionid");
+              setSearchParams(searchParams);
+            }
+          },
+          onError: () => {
+            searchParams.delete("payment");
+            searchParams.delete("sessionid");
+            setSearchParams(searchParams);
+          },
+        },
+      );
+    } else if (status === "cancelled" || status === "cancel") {
+      showInfoNotification(
+        t("auth:notifications.upgrade_cancelled_title", {
+          defaultValue: "Upgrade cancelled",
+        }),
+        t("auth:notifications.upgrade_cancelled_msg", {
+          defaultValue: "You have cancelled the subscription upgrade process.",
+        }),
+      );
+      searchParams.delete("payment");
+      searchParams.delete("sessionid");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  return {
+    isVerifying:
+      verifyStripeSessionMutation.isPending || upgradeMutation.isPending,
   };
 };

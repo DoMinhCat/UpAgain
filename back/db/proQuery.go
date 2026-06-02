@@ -117,3 +117,11 @@ func GetProTotalSpendingsById(id int) (float64, error) {
 	total += events_total
 	return total, nil
 }
+
+func UpdateProPremium(id_account int, is_premium bool) error {
+	_, err := utils.Conn.Exec("UPDATE pros SET is_premium=$1 WHERE id_account=$2;", is_premium, id_account)
+	if err != nil {
+		return fmt.Errorf("UpdateProPremium() failed: %w", err)
+	}
+	return nil
+}
