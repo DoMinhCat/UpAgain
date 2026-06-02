@@ -3,6 +3,7 @@ package db
 import (
 	"backend/models"
 	"backend/utils"
+	helpers "backend/utils/helpers"
 	"database/sql"
 	"fmt"
 )
@@ -124,4 +125,141 @@ func UpdateProPremium(id_account int, is_premium bool) error {
 		return fmt.Errorf("UpdateProPremium() failed: %w", err)
 	}
 	return nil
+}
+
+func GetProInventoryAnalytics() ([]models.MaterialInventoryStats, error) {
+	query := `
+		SELECT 
+			m.mat::text AS material,
+			COALESCE(avail.cnt, 0) AS available,
+			COALESCE(add_cnt.cnt, 0) AS added,
+			COALESCE(recy.cnt, 0) AS recycled
+		FROM (
+			SELECT unnest(enum_range(NULL::material)) AS mat
+		) m
+		LEFT JOIN (
+			SELECT material, COUNT(*) AS cnt
+			FROM items i
+			WHERE i.is_deleted = false
+			  AND i.status = 'approved'
+			  AND NOT EXISTS (
+				  SELECT 1 FROM transactions t
+				  WHERE t.id_item = i.id AND t.action = 'purchased'
+			  )
+			GROUP BY material
+		) avail ON m.mat = avail.material
+		LEFT JOIN (
+			SELECT material, COUNT(*) AS cnt
+			FROM items i
+			WHERE i.is_deleted = false
+			  AND i.created_at >= date_trunc('month', now())
+			GROUP BY material
+		) add_cnt ON m.mat = add_cnt.material
+		LEFT JOIN (
+			SELECT i.material, COUNT(*) AS cnt
+			FROM items i
+			JOIN transactions t ON i.id = t.id_item
+			WHERE i.is_deleted = false
+			  AND t.action = 'purchased'
+			  AND t.created_at >= date_trunc('month', now())
+			GROUP BY i.material
+		) recy ON m.mat = recy.material
+		ORDER BY m.mat;
+	`
+	rows, err := utils.Conn.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("GetProInventoryAnalytics() query failed: %w", err)
+	}
+	defer rows.Close()
+
+	var stats []models.MaterialInventoryStats
+	for rows.Next() {
+		var s models.MaterialInventoryStats
+		if err := rows.Scan(&s.Material, &s.Available, &s.Added, &s.Recycled); err != nil {
+			return nil, fmt.Errorf("GetProInventoryAnalytics() scan failed: %w", err)
+		}
+		stats = append(stats, s)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("GetProInventoryAnalytics() rows check failed: %w", err)
+	}
+	return stats, nil
+}
+
+func GetProImpactTracking(idPro int) (float64, []models.MaterialUsageStats, error) {
+	materialsList := []string{"wood", "metal", "textile", "glass", "plastic", "mixed", "other"}
+	usageMap := make(map[string]float64)
+	for _, m := range materialsList {
+		usageMap[m] = 0.0
+	}
+
+	query := `
+		SELECT 
+			i.material::text, 
+			COALESCE(SUM(i.weight), 0.0)
+		FROM items i
+		JOIN transactions t ON i.id = t.id_item
+		WHERE t.id_pro = $1
+		  AND t.action = 'purchased'
+		  AND i.is_deleted = false
+		GROUP BY i.material
+	`
+	rows, err := utils.Conn.Query(query, idPro)
+	if err != nil {
+		return 0, nil, fmt.Errorf("GetProImpactTracking() query failed: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var material string
+		var weight float64
+		if err := rows.Scan(&material, &weight); err != nil {
+			return 0, nil, fmt.Errorf("GetProImpactTracking() scan failed: %w", err)
+		}
+		usageMap[material] = weight
+	}
+	if err := rows.Err(); err != nil {
+		return 0, nil, fmt.Errorf("GetProImpactTracking() rows check failed: %w", err)
+	}
+
+	var totalCO2 float64
+	var stats []models.MaterialUsageStats
+	for _, m := range materialsList {
+		weight := usageMap[m]
+		stats = append(stats, models.MaterialUsageStats{
+			Material: m,
+			Weight:   weight,
+		})
+
+		if weight > 0 {
+			co2, err := helpers.CalculateCO2(m, weight)
+			if err != nil {
+				return 0, nil, fmt.Errorf("GetProImpactTracking() CalculateCO2 failed: %w", err)
+			}
+			totalCO2 += co2
+		}
+	}
+
+	return totalCO2, stats, nil
+}
+
+func GetProFinancialStats(idPro int) (int, int, float64, error) {
+	var totalPurchases int
+	var paidPurchases int
+	var totalSpent float64
+
+	query := `
+		SELECT 
+			COUNT(*), 
+			COUNT(*) FILTER (WHERE total_price > 0),
+			COALESCE(SUM(total_price), 0.0)::float8
+		FROM transactions
+		WHERE id_pro = $1 AND action = 'purchased'
+	`
+	err := utils.Conn.QueryRow(query, idPro).Scan(&totalPurchases, &paidPurchases, &totalSpent)
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("GetProFinancialStats() failed: %w", err)
+	}
+
+	return totalPurchases, paidPurchases, totalSpent, nil
 }
