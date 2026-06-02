@@ -178,6 +178,33 @@
       "subtitle": "Matériaux bruts et articles upcyclés disponibles près de chez vous.",
       "quiet_marketplace": "Aucun article trouvé sur le marché. Revenez bientôt pour voir les nouveautés !",
       "discover_marketplace": "Explorer le marché →"
+    },
+    "premium": {
+      "title": "Salut {{username}}, bienvenue sur votre Tableau de Bord Premium",
+      "subtitle": "Suivez vos analyses de stock, votre impact écologique et vos performances financières.",
+      "inventory_title": "Analyse des Stocks",
+      "inventory_desc": "Aperçu des articles disponibles, ajoutés et recyclés par type de matériau ce mois-ci.",
+      "available": "Disponibles",
+      "added": "Ajoutés ce mois",
+      "recycled": "Recyclés ce mois",
+      "material": "Matériau",
+      "impact_title": "Impact Environnemental",
+      "co2_saved": "CO₂ Économisé",
+      "co2_desc": "Équivalent de l'empreinte carbone évitée par vos projets",
+      "materials_used": "Matériaux Recyclés (Kg)",
+      "finance_title": "Tableau de Bord Financier",
+      "total_purchases": "Nombre d'achats",
+      "paid_purchases": "Achats payants",
+      "total_spent": "Total des dépenses",
+      "view_invoices": "Voir l'historique des factures"
+    },
+    "materials": {
+      "wood": "Bois",
+      "metal": "Métal",
+      "plastic": "Plastique",
+      "glass": "Verre",
+      "textile": "Textile",
+      "cardboard": "Carton"
     }
   }
 }
