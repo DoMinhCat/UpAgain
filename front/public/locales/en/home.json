@@ -178,6 +178,33 @@
       "subtitle": "High-quality upcycled items and raw materials available in your area.",
       "quiet_marketplace": "No items found in the marketplace. Check back soon for fresh arrivals!",
       "discover_marketplace": "Explore Marketplace →"
+    },
+    "premium": {
+      "title": "Hi {{username}}, welcome to your Premium Dashboard",
+      "subtitle": "Track your inventory analytics, environmental impact, and financial performance.",
+      "inventory_title": "Inventory Analytics",
+      "inventory_desc": "Overview of available, added, and recycled items per material class this month.",
+      "available": "Available",
+      "added": "Added This Month",
+      "recycled": "Recycled This Month",
+      "material": "Material",
+      "impact_title": "Environmental Impact",
+      "co2_saved": "CO₂ Saved",
+      "co2_desc": "Equivalent carbon footprint avoided by your projects",
+      "materials_used": "Materials Upcycled (Kg)",
+      "finance_title": "Financial Dashboard",
+      "total_purchases": "Total Purchases",
+      "paid_purchases": "Paid Purchases",
+      "total_spent": "Total Spendings",
+      "view_invoices": "View Invoice History"
+    },
+    "materials": {
+      "wood": "Wood",
+      "metal": "Metal",
+      "plastic": "Plastic",
+      "glass": "Glass",
+      "textile": "Textile",
+      "cardboard": "Cardboard"
     }
   }
 }

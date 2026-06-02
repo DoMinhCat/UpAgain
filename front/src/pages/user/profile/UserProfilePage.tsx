@@ -1,5 +1,6 @@
 import { Container, Tabs, Stack } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import AccountTab from "./AccountTab";
 import PreferencesTab from "./PreferencesTab";
 import SecurityTab from "./SecurityTab";
@@ -7,10 +8,19 @@ import BillingsTab from "./BillingsTab";
 
 export default function UserProfilePage() {
   const { t } = useTranslation("profile");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "account";
+
+  const handleTabChange = (value: string | null) => {
+    if (value) {
+      setSearchParams({ tab: value });
+    }
+  };
+
   return (
     <Container size="md" py={60}>
       <Stack gap="xl">
-        <Tabs defaultValue="account" color="var(--upagain-neutral-green)">
+        <Tabs value={activeTab} onChange={handleTabChange} color="var(--upagain-neutral-green)">
           <Tabs.List justify="center">
             <Tabs.Tab value="account">{t("account.title")}</Tabs.Tab>
             <Tabs.Tab value="preferences">{t("preferences.title")}</Tabs.Tab>

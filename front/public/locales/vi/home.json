@@ -166,6 +166,33 @@
       "subtitle": "Nguyên liệu thô và đồ tái chế cực xịn đang chờ bạn rước về.",
       "quiet_marketplace": "Chưa có vật liệu mới nào... Hãy quay lại sau nhé!",
       "discover_marketplace": "Khám phá chợ đồ →"
+    },
+    "premium": {
+      "title": "Chào {{username}}, chào mừng đến với Trang quản trị Premium",
+      "subtitle": "Theo dõi số liệu kho hàng, đóng góp môi trường và hiệu quả tài chính của bạn.",
+      "inventory_title": "Phân Tích Kho Hàng",
+      "inventory_desc": "Tổng quan số vật liệu có sẵn, đã thêm và đã thu hồi/tái chế trong tháng này.",
+      "available": "Có sẵn",
+      "added": "Đã thêm trong tháng",
+      "recycled": "Đã thu hồi",
+      "material": "Vật liệu",
+      "impact_title": "Đóng Góp Môi Trường",
+      "co2_saved": "Lượng CO₂ giảm thiểu",
+      "co2_desc": "Tổng lượng khí thải carbon tránh được từ các dự án của bạn",
+      "materials_used": "Vật liệu đã tái sinh (Kg)",
+      "finance_title": "Quản Lý Tài Chính",
+      "total_purchases": "Tổng lượt mua",
+      "paid_purchases": "Lượt mua có phí",
+      "total_spent": "Tổng chi tiêu",
+      "view_invoices": "Xem lịch sử hóa đơn"
+    },
+    "materials": {
+      "wood": "Gỗ",
+      "metal": "Kim loại",
+      "plastic": "Nhựa",
+      "glass": "Thủy tinh",
+      "textile": "Vải/Sợi",
+      "cardboard": "Giấy/Carton"
     }
   }
 }
