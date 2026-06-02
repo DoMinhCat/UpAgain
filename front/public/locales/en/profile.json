@@ -46,7 +46,15 @@
     "theme": "Theme",
     "language": "Language",
     "dark_mode": "Dark Mode",
-    "light_mode": "Light Mode"
+    "light_mode": "Light Mode",
+    "save_alerts": "Save Preferences",
+    "modal_title": "Smart Alert Settings",
+    "modal_subtitle": "Receive notifications when these materials are listed",
+    "alert_for": "Get alert when new {{name}} is listed",
+    "configure_alerts": "Configure Alert Materials",
+    "configure_alerts_desc": "Select the materials you want to track in the marketplace.",
+    "selected_materials": "Selected Materials",
+    "no_materials_selected": "No materials selected. You will not receive any automated alerts."
   },
   "notifications": {
     "user_object_status": "Object Status Update",

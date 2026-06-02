@@ -46,7 +46,15 @@
     "theme": "Chủ đề",
     "language": "Ngôn ngữ",
     "dark_mode": "Chế độ tối",
-    "light_mode": "Chế độ sáng"
+    "light_mode": "Chế độ sáng",
+    "save_alerts": "Lưu các tùy chọn",
+    "modal_title": "Cài Đặt Thông Báo Thông Minh",
+    "modal_subtitle": "Nhận thông báo ngay khi các vật liệu này được đăng trên chợ",
+    "alert_for": "Nhận thông báo khi có {{name}} mới",
+    "configure_alerts": "Cấu Hình Vật Liệu Thông Báo",
+    "configure_alerts_desc": "Chọn loại vật liệu bạn muốn theo dõi trên hệ thống.",
+    "selected_materials": "Vật liệu đang theo dõi",
+    "no_materials_selected": "Chưa chọn vật liệu nào. Bạn sẽ không nhận được thông báo tự động."
   },
   "notifications": {
     "user_object_status": "Cập nhật trạng thái đối tượng",

@@ -21,6 +21,7 @@ import {
   IconArrowUpRight,
   IconShoppingCart,
   IconTrendingUp,
+  IconBell,
 } from "@tabler/icons-react";
 import { BarChart, DonutChart } from "@mantine/charts";
 import { useTranslation } from "react-i18next";
@@ -28,11 +29,28 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import { useAuth } from "../../context/AuthContext";
 import { useGetProAnalytics } from "../../hooks/proHooks";
+import { useState, useEffect } from "react";
+import MaterialAlertModal from "../../components/common/MaterialAlertModal";
 
 export default function ProHomePremium() {
   const { t } = useTranslation("home");
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const [alertMaterials, setAlertMaterials] = useState<string[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("upagain_alert_materials");
+    if (saved) {
+      setAlertMaterials(JSON.parse(saved));
+    }
+  }, []);
+
+  const handleSaveAlerts = (materials: string[]) => {
+    setAlertMaterials(materials);
+    localStorage.setItem("upagain_alert_materials", JSON.stringify(materials));
+  };
 
   const { data, isLoading } = useGetProAnalytics(user?.id);
 
@@ -133,6 +151,16 @@ export default function ProHomePremium() {
                 >
                   Premium Partner
                 </Badge>
+                <Button
+                  size="xs"
+                  variant="white"
+                  color="teal"
+                  onClick={() => setModalOpen(true)}
+                  leftSection={<IconBell size={14} />}
+                  style={{ color: "var(--upagain-neutral-green)", fontWeight: 700 }}
+                >
+                  {t("preferences.configure_alerts", "Configure Alerts")}
+                </Button>
               </Group>
               <Title order={2} size={32} fw={900}>
                 {t("pro.premium.title", {
@@ -488,6 +516,12 @@ export default function ProHomePremium() {
           </Stack>
         </Paper>
       </Stack>
+      <MaterialAlertModal
+        opened={modalOpen}
+        onClose={() => setModalOpen(false)}
+        selectedMaterials={alertMaterials}
+        onSave={handleSaveAlerts}
+      />
     </Container>
   );
 }
