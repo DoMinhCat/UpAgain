@@ -52,7 +52,10 @@ export default function PreferencesTab() {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("light");
 
-  const { data: alertMaterialsData } = useGetProAlertMaterials(user?.id);
+  const { data: alertMaterialsData } = useGetProAlertMaterials(
+    user?.id,
+    user?.role || "",
+  );
   const updateAlertMaterials = useUpdateProAlertMaterials(user?.id);
 
   const alertMaterials = alertMaterialsData || [];
@@ -288,7 +291,10 @@ export default function PreferencesTab() {
                       variant="light"
                       size="lg"
                     >
-                      {t(`home:pro.materials.${mat}`, mat.charAt(0).toUpperCase() + mat.slice(1))}
+                      {t(
+                        `home:pro.materials.${mat}`,
+                        mat.charAt(0).toUpperCase() + mat.slice(1),
+                      )}
                     </Badge>
                   ))}
                 </Group>

@@ -15,11 +15,14 @@ export const useGetProAnalytics = (idAccount: number | undefined) => {
   });
 };
 
-export const useGetProAlertMaterials = (idAccount: number | undefined) => {
+export const useGetProAlertMaterials = (
+  idAccount: number | undefined,
+  role: string,
+) => {
   return useQuery({
     queryKey: ["proAlertMaterials", idAccount],
     queryFn: () => getProAlertMaterials(idAccount!),
-    enabled: idAccount !== undefined && !isNaN(idAccount),
+    enabled: idAccount !== undefined && !isNaN(idAccount) && role === "pro",
     staleTime: 5 * 60 * 1000,
   });
 };
