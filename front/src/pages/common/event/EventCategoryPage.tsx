@@ -31,7 +31,7 @@ import { useState } from "react";
 import { PATHS } from "../../../routes/paths";
 import { NotFoundPage } from "../../error/404";
 import { useNavigate } from "react-router-dom";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { useAuth } from "../../../context/AuthContext";
 import { useGetAllEvents } from "../../../hooks/eventHooks";
 import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
@@ -101,7 +101,7 @@ export default function EventCategoryPage() {
     category: t(`categories.${baseCat}`),
   });
   if (isLoadingEvents) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
   return (
     <Stack gap={0} mb="xl">

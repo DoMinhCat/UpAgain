@@ -11,7 +11,7 @@ import {
   Button,
   Stack,
   Pill,
-  Loader,
+  Skeleton,
 } from "@mantine/core";
 import { AdminCardInfo } from "../../../components/dashboard/AdminCardInfo";
 import { StatsCardDesc } from "../../../components/dashboard/AdminCardInfo";
@@ -274,7 +274,7 @@ export function AdminListingModule() {
                   {t("listings.analytics.by_material")}
                 </Text>
                 {isItemStatsLoading ? (
-                  <Loader size="xl" />
+                  <Skeleton height={280} width={280} radius="xl" mx="auto" />
                 ) : (itemStats?.total_wood || 0) +
                     (itemStats?.total_metal || 0) +
                     (itemStats?.total_textile || 0) +
@@ -401,7 +401,7 @@ export function AdminListingModule() {
                   {t("listings.analytics.by_type")}
                 </Text>
                 {isItemStatsLoading ? (
-                  <Loader size="xl" />
+                  <Skeleton height={280} width={280} radius="xl" mx="auto" />
                 ) : (itemStats?.total_listings || 0) +
                     (itemStats?.total_deposits || 0) ===
                   0 ? (

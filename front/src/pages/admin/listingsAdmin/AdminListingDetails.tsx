@@ -69,7 +69,7 @@ import {
   useGetDepositDetails,
   useTransferDepositContainer,
 } from "../../../hooks/depositHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useProcessValidation } from "../../../hooks/validationHooks";
 import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
@@ -82,7 +82,12 @@ import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function AdminListingDetails() {
-  const { t } = useTranslation(["admin", "create_item", "common", "marketplace"]);
+  const { t } = useTranslation([
+    "admin",
+    "create_item",
+    "common",
+    "marketplace",
+  ]);
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();
@@ -239,11 +244,21 @@ export default function AdminListingDetails() {
         <Stack gap="sm">
           <Group justify="space-between">
             <Group gap="sm">
-              <ThemeIcon variant="light" size="md" color={isOwner ? "var(--upagain-neutral-green)" : "blue"}>
-                {isOwner ? <IconUserShield size={18} /> : <IconBasketCheck size={18} />}
+              <ThemeIcon
+                variant="light"
+                size="md"
+                color={isOwner ? "var(--upagain-neutral-green)" : "blue"}
+              >
+                {isOwner ? (
+                  <IconUserShield size={18} />
+                ) : (
+                  <IconBasketCheck size={18} />
+                )}
               </ThemeIcon>
               <Text fw={700}>
-                {isOwner ? t("listings.details.owner") : t("listings.details.buyer")}
+                {isOwner
+                  ? t("listings.details.owner")
+                  : t("listings.details.buyer")}
               </Text>
             </Group>
             <Badge
@@ -260,7 +275,7 @@ export default function AdminListingDetails() {
               {code.status.toUpperCase()}
             </Badge>
           </Group>
-          
+
           <Stack gap={4} align="center" mt="xs">
             <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
               {t("listings.details.six_digits_code")}
@@ -275,7 +290,9 @@ export default function AdminListingDetails() {
                     label={
                       copied
                         ? t("common:actions.copied", { defaultValue: "Copied" })
-                        : t("common:actions.copy", { defaultValue: "Copy code" })
+                        : t("common:actions.copy", {
+                            defaultValue: "Copy code",
+                          })
                     }
                     withArrow
                   >
@@ -284,13 +301,17 @@ export default function AdminListingDetails() {
                       variant="subtle"
                       onClick={copy}
                     >
-                      {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                      {copied ? (
+                        <IconCheck size={16} />
+                      ) : (
+                        <IconCopy size={16} />
+                      )}
                     </ActionIcon>
                   </Tooltip>
                 )}
               </CopyButton>
             </Group>
-            
+
             <Image
               src={`${import.meta.env.VITE_API_BASE_URL}/${code.path}`}
               radius="md"
@@ -300,17 +321,21 @@ export default function AdminListingDetails() {
               mt="md"
               onClick={() => handleCodeClick([code.path || ""])}
             />
-            
+
             <Divider my="sm" style={{ width: "100%" }} />
-            
+
             <Group justify="space-between" style={{ width: "100%" }} gap="xs">
               <Text size="xs" c="dimmed">
                 {t("listings.details.valid_from")}{" "}
-                <Text span fw={600}>{dayjs(code.valid_from).format("DD/MM/YYYY HH:mm A")}</Text>
+                <Text span fw={600}>
+                  {dayjs(code.valid_from).format("DD/MM/YYYY HH:mm A")}
+                </Text>
               </Text>
               <Text size="xs" c="dimmed">
                 {t("listings.details.valid_to")}{" "}
-                <Text span fw={600}>{dayjs(code.valid_to).format("DD/MM/YYYY HH:mm A")}</Text>
+                <Text span fw={600}>
+                  {dayjs(code.valid_to).format("DD/MM/YYYY HH:mm A")}
+                </Text>
               </Text>
             </Group>
 
@@ -321,7 +346,9 @@ export default function AdminListingDetails() {
                 mt="sm"
                 fullWidth
                 leftSection={<IconDownload size={14} />}
-                onClick={() => handleDownloadBarcode(code.barcode_base64, userType)}
+                onClick={() =>
+                  handleDownloadBarcode(code.barcode_base64, userType)
+                }
               >
                 {t("marketplace:my_item_detail.download_barcode")}
               </Button>
@@ -337,7 +364,7 @@ export default function AdminListingDetails() {
     isListingDetailsLoading ||
     isItemDetailsLoading
   )
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   return (
     <Container px="md" size="xl">
       <Title order={2} mt="lg">
@@ -517,15 +544,36 @@ export default function AdminListingDetails() {
                   {userCode && renderAccessCard(userCode, "owner")}
                   {proCode && renderAccessCard(proCode, "buyer")}
                   {userCode && !proCode && (
-                    <Paper variant="primary" p="xl" radius="lg" withBorder shadow="sm" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Paper
+                      variant="primary"
+                      p="xl"
+                      radius="lg"
+                      withBorder
+                      shadow="sm"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
                       <Stack justify="center" align="center" gap="xs">
-                        <ThemeIcon color="blue" size="xl" radius="md" variant="light">
+                        <ThemeIcon
+                          color="blue"
+                          size="xl"
+                          radius="md"
+                          variant="light"
+                        >
                           <IconBasketCheck size={24} />
                         </ThemeIcon>
                         <Text fw={700} size="sm" ta="center">
                           {t("listings.details.buyer")}
                         </Text>
-                        <Text size="xs" c="dimmed" ta="center" style={{ maxWidth: "200px" }}>
+                        <Text
+                          size="xs"
+                          c="dimmed"
+                          ta="center"
+                          style={{ maxWidth: "200px" }}
+                        >
                           {t("listings.details.buyer_code_waiting")}
                         </Text>
                       </Stack>

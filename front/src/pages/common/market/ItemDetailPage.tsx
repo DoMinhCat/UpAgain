@@ -41,7 +41,7 @@ import {
   useGetItemTransactions,
   useGetLatestTransactionOfPro,
 } from "../../../hooks/itemHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import DOMPurify from "dompurify";
 import { useGetListingDetails } from "../../../hooks/listingHooks";
@@ -159,7 +159,7 @@ export default function ItemDetailPage() {
   };
 
   if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   if (!item || (item.status !== "approved" && item.status !== "completed")) {

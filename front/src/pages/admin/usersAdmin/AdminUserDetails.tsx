@@ -14,6 +14,7 @@ import {
   Tooltip,
   Modal,
   Indicator,
+  Skeleton,
   Loader,
   TextInput,
   HoverCard,
@@ -42,7 +43,7 @@ import {
   useParams,
 } from "react-router-dom";
 
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
 import PasswordStrengthInput from "../../../components/input/PasswordStrengthInput";
@@ -276,7 +277,7 @@ export default function AdminUserDetails() {
     useDisclosure(false);
 
   if (isAccountDetailsLoading) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
   if (errorAccountDetails) {
     return <Navigate to={PATHS.ADMIN.USERS.ALL} replace />;
@@ -503,7 +504,7 @@ export default function AdminUserDetails() {
                     mt="xl"
                   >
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
@@ -520,7 +521,7 @@ export default function AdminUserDetails() {
                   </InfoField>
                   <InfoField label={t("users.details.fields.total_listings")}>
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
@@ -537,7 +538,7 @@ export default function AdminUserDetails() {
                   </InfoField>
                   <InfoField label="Total spendings">
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
@@ -556,7 +557,7 @@ export default function AdminUserDetails() {
                     mt="xl"
                   >
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
@@ -573,7 +574,7 @@ export default function AdminUserDetails() {
                   </InfoField>
                   <InfoField label={t("users.details.fields.total_posts")}>
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
@@ -607,7 +608,7 @@ export default function AdminUserDetails() {
                     mt="xl"
                   >
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
@@ -626,7 +627,7 @@ export default function AdminUserDetails() {
                     label={t("users.details.fields.total_deposits_purchased")}
                   >
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
@@ -643,7 +644,7 @@ export default function AdminUserDetails() {
                   </InfoField>
                   <InfoField label={t("users.details.fields.total_projects")}>
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails
@@ -660,7 +661,7 @@ export default function AdminUserDetails() {
                   </InfoField>
                   <InfoField label="Total spendings">
                     {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
+                      <Skeleton height={16} width="60%" mb="xl" mt="xs" />
                     ) : (
                       <Text ps="sm" mt="xs" mb="xl">
                         {!errorAccountDetails

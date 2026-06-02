@@ -26,7 +26,7 @@ import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
 import { useGetAllEvents } from "../../../hooks/eventHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import type { AppEvent } from "../../../api/interfaces/event";
 import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
 
@@ -117,7 +117,7 @@ export default function EventPage() {
     isLoadingExposition ||
     isLoadingOther
   ) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (

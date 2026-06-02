@@ -60,7 +60,7 @@ import {
   useGetItemTransactions,
   useGetLatestTransactionOfPro,
 } from "../../../hooks/itemHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import DOMPurify from "dompurify";
 import { useGetListingDetails } from "../../../hooks/listingHooks";
 import {
@@ -390,14 +390,16 @@ export default function MyItemDetail() {
     isContainerDetailsLoading ||
     isLoadingProTransaction
   )
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
 
   if (isItemError || (role === "pro" && (!latestTx || latestTx.id_pro === 0))) {
     return <NotFoundPage />;
   }
 
   // deposit code helpers
-  const userDepositCode = depositCodes?.find((code) => code.user_type === "user");
+  const userDepositCode = depositCodes?.find(
+    (code) => code.user_type === "user",
+  );
   const proDepositCode = depositCodes?.find((code) => code.user_type === "pro");
   // For pro, their code is the "pro" code; for user, it's the "user" code
   const myDepositCode: Barcode | undefined =
@@ -456,9 +458,13 @@ export default function MyItemDetail() {
                       variant="light"
                       mt="md"
                     >
-                      {t("marketplace:my_item_detail.retrieved_from_container", {
-                        defaultValue: "You have retrieved this item from the container.",
-                      })}
+                      {t(
+                        "marketplace:my_item_detail.retrieved_from_container",
+                        {
+                          defaultValue:
+                            "You have retrieved this item from the container.",
+                        },
+                      )}
                     </Alert>
                   ) : (
                     <Button
@@ -466,7 +472,9 @@ export default function MyItemDetail() {
                       size="lg"
                       mt="md"
                       fullWidth
-                      disabled={dayjs().isBefore(dayjs(myDepositCode.valid_from))}
+                      disabled={dayjs().isBefore(
+                        dayjs(myDepositCode.valid_from),
+                      )}
                       onClick={() =>
                         navigate(PATHS.CONTAINERS.OPEN, {
                           state: {
@@ -544,7 +552,9 @@ export default function MyItemDetail() {
                       <Button
                         variant="primary"
                         size="lg"
-                        disabled={dayjs().isBefore(dayjs(userDepositCode.valid_from))}
+                        disabled={dayjs().isBefore(
+                          dayjs(userDepositCode.valid_from),
+                        )}
                         onClick={() =>
                           navigate(PATHS.CONTAINERS.OPEN, {
                             state: {
