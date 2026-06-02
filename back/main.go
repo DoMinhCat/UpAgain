@@ -49,6 +49,9 @@ func main() {
 		defer utils.Conn.Close()
 	}
 
+	// Start cron jobs
+	// cron.StartCronJobs()
+
 	mux := routes.GetAllRoutes()
 	// CORS configuration
 	allowedOrigins := []string{utils.GetFrontOrigin(), "http://localhost:5173", "http://localhost:5174", "http://upcycleconnect.org", "https://upcycleconnect.org"}
