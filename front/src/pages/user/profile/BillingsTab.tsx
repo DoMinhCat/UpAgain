@@ -92,7 +92,7 @@ export default function BillingsTab() {
                       <Badge
                         variant="light"
                         color={TYPE_COLORS[inv.type] ?? "gray"}
-                        size="lg"
+                        size="sm"
                       >
                         {inv.type}
                       </Badge>
@@ -113,8 +113,8 @@ export default function BillingsTab() {
                         position="top"
                       >
                         <ActionIcon
-                          variant="light"
-                          color="blue"
+                          variant="subtle"
+                          color="var(--upagain-light-green)"
                           size="lg"
                           radius="md"
                           onClick={() =>
