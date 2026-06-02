@@ -273,7 +273,6 @@ func GetTransactionLatestStatusByItemId(item_id int) (string, error) {
 	return status, nil
 }
 
-
 func InsertTransaction(transaction models.TransactionInsert) (int, error) {
 	var transactionUuid string
 	var query string
@@ -357,7 +356,7 @@ func GetLatestConfirmCodeByItemId(item_id int) (string, error) {
 	return code, nil
 }
 
-func GetTransactionByRowId(id int ) (models.Transaction, error) {
+func GetTransactionByRowId(id int) (models.Transaction, error) {
 	var transaction models.Transaction
 	query := `
 		SELECT t.id, t.id_transaction, t.created_at, t.action, t.id_item, t.id_pro, a.username,

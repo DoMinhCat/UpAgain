@@ -7,5 +7,5 @@ import (
 )
 
 func GetStripeRoutes(mux *http.ServeMux) {
-	mux.Handle("POST /payments/verify", middleware.AuthMiddleware([]string{"user","pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.VerifyPayment))))
+	mux.Handle("POST /payments/verify", middleware.AuthMiddleware([]string{"user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.VerifyPayment))))
 }

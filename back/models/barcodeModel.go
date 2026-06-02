@@ -38,6 +38,6 @@ type ConfirmCodeRequest struct {
 }
 
 type OpenContainerPayload struct {
-	Barcode string `json:"barcode"`
+	Barcode    string `json:"barcode"`
 	Code6Digit string `json:"code6digit"`
 }

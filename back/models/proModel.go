@@ -44,4 +44,3 @@ type ProAnalyticsResponse struct {
 type UpdateProAlertMaterialsRequest struct {
 	Materials []string `json:"materials"`
 }
-

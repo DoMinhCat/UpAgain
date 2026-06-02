@@ -336,7 +336,7 @@ func GetTotalItemsByMaterialSince(material string, since *time.Time) (int, error
 	}
 	var count int
 	var err error
-	
+
 	if since == nil {
 		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE material = $1 AND is_deleted = false", material).Scan(&count)
 	} else {
