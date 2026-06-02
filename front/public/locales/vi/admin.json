@@ -270,7 +270,8 @@
         "unban_text": "Bỏ chặn cho người ta nha? Họ sẽ vào lại được bình thường nè.",
         "password_title": "Đổi Mật Khẩu",
         "password_placeholder": "Mật khẩu mới nè",
-        "password_confirm_placeholder": "Nhập lại mật khẩu mới nha"
+        "password_confirm_placeholder": "Nhập lại mật khẩu mới nha",
+        "password_text": "Bạn có chắc muốn đổi mật khẩu cho tài khoản này không? Mật khẩu cũ sẽ được thay thế bằng mật khẩu mới."
       }
     },
     "deleted": {
