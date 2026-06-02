@@ -24,9 +24,9 @@ func HandleSmartAlertsNoti(itemId int) error {
 		titleFr := "Nouvel objet disponible: " + itemDetails.Title
 		titleVi := "Vật phẩm mới có sẵn: " + itemDetails.Title
 
-		contentEn := "An item matching your alert has been posted"
-		contentFr := "Un objet correspondant à votre alerte a été posté"
-		contentVi := "Một vật phẩm phù hợp với cảnh báo của bạn đã được đăng"
+		contentEn := "An item of material" + itemDetails.Material + "has been posted"
+		contentFr := "Un objet de matériel" + itemDetails.Material + "a été posté"
+		contentVi := "Một vật phẩm của vật liệu" + itemDetails.Material + "đã được đăng"
 
 		url := "/marketplace/" + strconv.Itoa(itemId)
 

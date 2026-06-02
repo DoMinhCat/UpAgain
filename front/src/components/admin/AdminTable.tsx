@@ -17,7 +17,7 @@ export default function AdminTable({
   footer,
   loading,
   error,
-  maxHeight = "70vh",
+  maxHeight = "90vh",
 }: AdminTableProps) {
   const [scrolled, setScrolled] = useState(false);
   return (
