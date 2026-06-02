@@ -40,3 +40,8 @@ type ProAnalyticsResponse struct {
 		TotalSpent     float64 `json:"total_spent"`
 	} `json:"finance"`
 }
+
+type UpdateProAlertMaterialsRequest struct {
+	Materials []string `json:"materials"`
+}
+

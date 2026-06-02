@@ -247,61 +247,61 @@ export function EventCard({
           />
         </Box>
 
-        <Stack gap="sm">
-          {/* Metadata: Location & Date */}
-          <Group gap="md">
-            <Group gap={4}>
-              <IconMapPin size={14} />
-              <Text size="xs" fw={600}>
-                {city}
-              </Text>
-            </Group>
-            <Group gap={4}>
-              <IconCalendarEvent
-                size={14}
-                color="var(--upagain-neutral-green)"
-              />
-              <Text size="xs" fw={600}>
-                {new Date(eventDate).toLocaleDateString()}
-              </Text>
-            </Group>
+        {/* Metadata: Location & Date */}
+        <Group gap="md">
+          <Group gap={4}>
+            <IconMapPin size={14} />
+            <Text size="xs" fw={600}>
+              {city}
+            </Text>
           </Group>
-
-          {/* Footer: Creator info */}
-          <Group justify="space-between">
-            <Group gap={8}>
-              <Avatar
-                size="sm"
-                src={authorAvatar}
-                radius="xl"
-                name={authorName}
-                color="initials"
-              />
-              <Text size="xs" fw={700} c="var(--mantine-color-text)">
-                {authorName}
-              </Text>
-            </Group>
-
-            {(user?.role === "pro" || user?.role === "user") && (
-              <ActionIcon
-                className="actionIcon"
-                data-variant="primary"
-                radius="xl"
-                size="sm"
-                disabled={isRegistered}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (fullEvent) {
-                    openRegisterModal();
-                  }
-                }}
-              >
-                <IconCalendarEvent size={16} />
-              </ActionIcon>
-            )}
+          <Group gap={4}>
+            <IconCalendarEvent
+              size={14}
+              color="var(--upagain-neutral-green)"
+            />
+            <Text size="xs" fw={600}>
+              {new Date(eventDate).toLocaleDateString()}
+            </Text>
           </Group>
-        </Stack>
+        </Group>
       </Stack>
+
+      {/* Footer: Creator info */}
+      <Card.Section px="md" py="sm" withBorder>
+        <Group justify="space-between">
+          <Group gap={8}>
+            <Avatar
+              size="sm"
+              src={authorAvatar}
+              radius="xl"
+              name={authorName}
+              color="initials"
+            />
+            <Text size="xs" fw={700} c="var(--mantine-color-text)">
+              {authorName}
+            </Text>
+          </Group>
+
+          {(user?.role === "pro" || user?.role === "user") && (
+            <ActionIcon
+              className="actionIcon"
+              data-variant="primary"
+              radius="xl"
+              size="sm"
+              disabled={isRegistered}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (fullEvent) {
+                  openRegisterModal();
+                }
+              }}
+            >
+              <IconCalendarEvent size={16} />
+            </ActionIcon>
+          )}
+        </Group>
+      </Card.Section>
 
       <div onClick={(e) => e.stopPropagation()}>
         <EventRegistrationModal

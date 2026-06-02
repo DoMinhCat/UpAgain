@@ -25,8 +25,12 @@ import { useTranslation } from "react-i18next";
 import { IconMoon, IconSun } from "@tabler/icons-react";
 import { LANGUAGES } from "../../../i18n/index";
 import { changeLanguage } from "../../../utils/langUtils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MaterialAlertModal from "../../../components/common/MaterialAlertModal";
+import {
+  useGetProAlertMaterials,
+  useUpdateProAlertMaterials,
+} from "../../../hooks/proHooks";
 
 const MATERIAL_COLORS: Record<string, string> = {
   wood: "orange",
@@ -48,19 +52,14 @@ export default function PreferencesTab() {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("light");
 
-  const [alertMaterials, setAlertMaterials] = useState<string[]>([]);
+  const { data: alertMaterialsData } = useGetProAlertMaterials(user?.id);
+  const updateAlertMaterials = useUpdateProAlertMaterials(user?.id);
+
+  const alertMaterials = alertMaterialsData || [];
   const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("upagain_alert_materials");
-    if (saved) {
-      setAlertMaterials(JSON.parse(saved));
-    }
-  }, []);
-
   const handleSaveAlerts = (materials: string[]) => {
-    setAlertMaterials(materials);
-    localStorage.setItem("upagain_alert_materials", JSON.stringify(materials));
+    updateAlertMaterials.mutate(materials);
   };
 
   const toggleColorScheme = () => {

@@ -28,8 +28,12 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "../../routes/paths";
 import { useAuth } from "../../context/AuthContext";
-import { useGetProAnalytics } from "../../hooks/proHooks";
-import { useState, useEffect } from "react";
+import {
+  useGetProAnalytics,
+  useGetProAlertMaterials,
+  useUpdateProAlertMaterials,
+} from "../../hooks/proHooks";
+import { useState } from "react";
 import MaterialAlertModal from "../../components/common/MaterialAlertModal";
 
 export default function ProHomePremium() {
@@ -37,19 +41,14 @@ export default function ProHomePremium() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [alertMaterials, setAlertMaterials] = useState<string[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("upagain_alert_materials");
-    if (saved) {
-      setAlertMaterials(JSON.parse(saved));
-    }
-  }, []);
+  const { data: alertMaterialsData } = useGetProAlertMaterials(user?.id);
+  const updateAlertMaterials = useUpdateProAlertMaterials(user?.id);
+  const alertMaterials = alertMaterialsData || [];
 
   const handleSaveAlerts = (materials: string[]) => {
-    setAlertMaterials(materials);
-    localStorage.setItem("upagain_alert_materials", JSON.stringify(materials));
+    updateAlertMaterials.mutate(materials);
   };
 
   const { data, isLoading } = useGetProAnalytics(user?.id);
@@ -157,7 +156,10 @@ export default function ProHomePremium() {
                   color="teal"
                   onClick={() => setModalOpen(true)}
                   leftSection={<IconBell size={14} />}
-                  style={{ color: "var(--upagain-neutral-green)", fontWeight: 700 }}
+                  style={{
+                    color: "var(--upagain-neutral-green)",
+                    fontWeight: 700,
+                  }}
                 >
                   {t("preferences.configure_alerts", "Configure Alerts")}
                 </Button>
@@ -291,6 +293,7 @@ export default function ProHomePremium() {
                     thickness={20}
                     data={impactDonutData}
                     withTooltip
+                    tooltipDataSource="segment"
                   />
                   <Stack gap="xs">
                     {impactDonutData.map((item) => (
