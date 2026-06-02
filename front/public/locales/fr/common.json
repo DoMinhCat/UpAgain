@@ -70,6 +70,12 @@
     "days_ago_one": "Il y a 1 jour",
     "days_ago_other": "Il y a {{count}} jours"
   },
+  "change_language": "Changer de langue",
+  "languages": "Langues",
+  "navigation": "Navigation",
+  "about_us": "À propos",
+  "pricing": "Tarifs",
+  "contact": "Contact",
   "footer": {
     "description": "Donnez une seconde vie à vos objets. Une solution simple et écologique pour échanger et revaloriser vos ressources.",
     "explore": "Explorer",

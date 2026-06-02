@@ -14,9 +14,14 @@ import { IconCheck, IconStar } from "@tabler/icons-react";
 interface FreemiumCardProps {
   selected?: boolean;
   onClick?: () => void;
+  showButton?: boolean;
 }
 
-export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
+export function FreemiumCard({
+  selected,
+  onClick,
+  showButton = true,
+}: FreemiumCardProps) {
   const { t } = useTranslation("auth");
   return (
     <Paper
@@ -131,17 +136,36 @@ export function FreemiumCard({ selected, onClick }: FreemiumCardProps) {
             </Text>
           </Group>
 
-          <Button
-            variant={selected ? "primary" : "secondary"}
-            size="md"
-            fullWidth
-            radius="xl"
-            mt="sm"
-          >
-            {selected
-              ? t("plans.freemium.selected")
-              : t("plans.freemium.select")}
-          </Button>
+          {showButton ? (
+            <Button
+              variant={selected ? "primary" : "secondary"}
+              size="md"
+              fullWidth
+              radius="xl"
+              mt="sm"
+            >
+              {selected
+                ? t("plans.freemium.selected")
+                : t("plans.freemium.select")}
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              size="md"
+              fullWidth
+              radius="xl"
+              mt="sm"
+              disabled
+              style={{
+                borderColor: "var(--border-color)",
+                color: "var(--mantine-color-dimmed)",
+              }}
+            >
+              {t("plans.freemium.current_plan", {
+                defaultValue: "Your Current Plan",
+              })}
+            </Button>
+          )}
 
           <Text size="xs" c="var(--mantine-color-dimmed)" ta="center">
             {t("plans.freemium.free_forever")}

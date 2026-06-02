@@ -9,11 +9,11 @@ import (
 
 // Stripe commission = StripeCommissionRateEU + StripeCommissionFixedInCentsEU
 var StripeCommissionRatePercentEU = 0.015 // 1.5%
-var StripeCommissionFixedInCentsEU = 25 // 25 cents = 0.25 euro
-var VatRate = 0.2 // 20% VAT in France
+var StripeCommissionFixedInCentsEU = 25   // 25 cents = 0.25 euro
+var VatRate = 0.2                         // 20% VAT in France
 
 type CheckoutRequest struct {
-	EntityName    string
+	EntityName   string
 	PriceInCents int64
 	SuccessURL   string
 	CancelURL    string

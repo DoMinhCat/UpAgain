@@ -13,6 +13,7 @@ import {
   Select,
   Text,
   Box,
+  Skeleton,
   Loader,
   Group,
   Badge,
@@ -425,13 +426,17 @@ export default function AdminHome() {
           }
         >
           {isLoadingHistory ? (
-            <Table.Tr>
-              <Table.Td colSpan={5}>
-                <Flex justify="center" py="md">
-                  <Loader />
-                </Flex>
-              </Table.Td>
-            </Table.Tr>
+            <>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Table.Tr key={i}>
+                  <Table.Td><Skeleton height={14} width="70%" mx="auto" /></Table.Td>
+                  <Table.Td><Skeleton height={14} width="55%" mx="auto" /></Table.Td>
+                  <Table.Td><Skeleton height={14} width="45%" mx="auto" /></Table.Td>
+                  <Table.Td><Skeleton height={14} width="30%" mx="auto" /></Table.Td>
+                  <Table.Td><Skeleton height={20} width={60} radius="xl" mx="auto" /></Table.Td>
+                </Table.Tr>
+              ))}
+            </>
           ) : historyData?.histories.length === 0 ? (
             <Table.Tr>
               <Table.Td colSpan={5}>

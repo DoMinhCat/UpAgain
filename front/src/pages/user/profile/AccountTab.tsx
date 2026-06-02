@@ -10,7 +10,7 @@ import {
   Title,
   Text,
   Badge,
-  Loader,
+  Skeleton,
 } from "@mantine/core";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ import {
   useUpdateAccount,
   useUpdateAvatar,
 } from "../../../hooks/accountHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { useState, useEffect } from "react";
 import {
   IconLeaf,
@@ -138,7 +138,7 @@ export default function AccountTab() {
     );
   };
 
-  if (isLoadingAccountDetails || !accountDetails) return <FullScreenLoader />;
+  if (isLoadingAccountDetails || !accountDetails) return <FullScreenSkeleton />;
 
   return (
     <Stack gap={40}>
@@ -270,7 +270,17 @@ export default function AccountTab() {
           </Anchor>
 
           {isLoadingStats ? (
-            <Loader />
+            <Stack gap="md">
+              {[1, 2].map((i) => (
+                <Stack key={i} gap="md">
+                  <Group gap={6}>
+                    <Skeleton height={24} width={24} radius="sm" />
+                    <Skeleton height={20} width="50%" />
+                  </Group>
+                  <Skeleton height={16} width="70%" />
+                </Stack>
+              ))}
+            </Stack>
           ) : (
             <>
               <Stack gap="md">

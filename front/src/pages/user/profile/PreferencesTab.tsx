@@ -11,6 +11,8 @@ import {
   Image,
   useMantineColorScheme,
   useComputedColorScheme,
+  Button,
+  Badge,
 } from "@mantine/core";
 import EnableNotiCheckBox from "../../../components/common/EnableNotiCheckBox";
 import { useAuth } from "../../../context/AuthContext";
@@ -23,6 +25,22 @@ import { useTranslation } from "react-i18next";
 import { IconMoon, IconSun } from "@tabler/icons-react";
 import { LANGUAGES } from "../../../i18n/index";
 import { changeLanguage } from "../../../utils/langUtils";
+import { useState } from "react";
+import MaterialAlertModal from "../../../components/common/MaterialAlertModal";
+import {
+  useGetProAlertMaterials,
+  useUpdateProAlertMaterials,
+} from "../../../hooks/proHooks";
+
+const MATERIAL_COLORS: Record<string, string> = {
+  wood: "orange",
+  metal: "gray",
+  plastic: "blue",
+  glass: "teal",
+  textile: "indigo",
+  mixed: "yellow",
+  other: "grape",
+};
 
 export default function PreferencesTab() {
   const { user } = useAuth();
@@ -33,6 +51,19 @@ export default function PreferencesTab() {
 
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("light");
+
+  const { data: alertMaterialsData } = useGetProAlertMaterials(
+    user?.id,
+    user?.role || "",
+  );
+  const updateAlertMaterials = useUpdateProAlertMaterials(user?.id);
+
+  const alertMaterials = alertMaterialsData || [];
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleSaveAlerts = (materials: string[]) => {
+    updateAlertMaterials.mutate(materials);
+  };
 
   const toggleColorScheme = () => {
     setColorScheme(computedColorScheme === "dark" ? "light" : "dark");
@@ -229,6 +260,65 @@ export default function PreferencesTab() {
           )}
         </Stack>
       </Paper>
+
+      {/* SMART ALERT SETTINGS (ONLY FOR PRO) */}
+      {user?.role === "pro" && (
+        <Paper variant="primary" p={30} radius="lg">
+          <Stack gap="xl">
+            <Stack gap="xs">
+              <Title order={3} size={22}>
+                {t("preferences.configure_alerts")}
+              </Title>
+              <Text size="sm" c="dimmed">
+                {t("preferences.configure_alerts_desc")}
+              </Text>
+            </Stack>
+
+            <Divider />
+
+            <Stack gap="sm">
+              <Text fw={600}>{t("preferences.selected_materials")}</Text>
+              {alertMaterials.length === 0 ? (
+                <Text size="sm" c="dimmed" fs="italic">
+                  {t("preferences.no_materials_selected")}
+                </Text>
+              ) : (
+                <Group gap="xs">
+                  {alertMaterials.map((mat) => (
+                    <Badge
+                      key={mat}
+                      color={MATERIAL_COLORS[mat] || "gray"}
+                      variant="light"
+                      size="lg"
+                    >
+                      {t(
+                        `home:pro.materials.${mat}`,
+                        mat.charAt(0).toUpperCase() + mat.slice(1),
+                      )}
+                    </Badge>
+                  ))}
+                </Group>
+              )}
+              <Button
+                variant="outline"
+                color="teal"
+                onClick={() => setModalOpen(true)}
+                style={{ alignSelf: "flex-start" }}
+                mt="xs"
+              >
+                {t("preferences.configure_alerts")}
+              </Button>
+            </Stack>
+          </Stack>
+        </Paper>
+      )}
+
+      <MaterialAlertModal
+        opened={modalOpen}
+        onClose={() => setModalOpen(false)}
+        selectedMaterials={alertMaterials}
+        onSave={handleSaveAlerts}
+      />
     </Stack>
   );
 }

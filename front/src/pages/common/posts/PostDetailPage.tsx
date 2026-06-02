@@ -12,7 +12,7 @@ import {
   Textarea,
   Button,
   Center,
-  Loader,
+  Skeleton,
   Paper,
   Box,
   useComputedColorScheme,
@@ -57,7 +57,7 @@ import type { Post, PostComment } from "../../../api/interfaces/post";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import { useAuth } from "../../../context/AuthContext";
 import { NotFoundPage } from "../../error/404";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
 import { DeleteProjectStepModal } from "../../../components/post/DeleteProjectStepModal";
@@ -297,14 +297,14 @@ export default function PostDetailPage() {
   };
 
   if (isLoadingPost || isVerifyingPayment) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   if (!post) {
     return <NotFoundPage />;
   }
   if (isLoadingPost) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (
@@ -628,9 +628,18 @@ export default function PostDetailPage() {
                     </Group>
 
                     {isLoadingProjectSteps ? (
-                      <Center mt="xl">
-                        <Loader color="var(--upagain-neutral-green)" />
-                      </Center>
+                      <Stack gap="lg" mt="xl">
+                        {[1, 2, 3].map((i) => (
+                          <Group key={i} gap="md" align="flex-start">
+                            <Skeleton height={32} width={32} radius="xl" />
+                            <Stack gap="xs" style={{ flex: 1 }}>
+                              <Skeleton height={16} width="40%" />
+                              <Skeleton height={12} width="80%" />
+                              <Skeleton height={12} width="60%" />
+                            </Stack>
+                          </Group>
+                        ))}
+                      </Stack>
                     ) : (
                       <ProjectStepTimeline
                         role={role === "admin" ? "admin" : "user"}
@@ -690,10 +699,18 @@ export default function PostDetailPage() {
                 )}
                 {/* Comments list */}
                 {isLoadingComments ? (
-                  // TODO: replace with skeleton loading
-                  <Center py={40}>
-                    <Loader color="var(--upagain-neutral-green)" size="sm" />
-                  </Center>
+                  <Stack gap="md" py="md">
+                    {[1, 2, 3].map((i) => (
+                      <Group key={i} gap="sm" align="flex-start">
+                        <Skeleton height={36} width={36} radius="xl" />
+                        <Stack gap="xs" style={{ flex: 1 }}>
+                          <Skeleton height={14} width="25%" />
+                          <Skeleton height={12} width="90%" />
+                          <Skeleton height={12} width="70%" />
+                        </Stack>
+                      </Group>
+                    ))}
+                  </Stack>
                 ) : comments.length === 0 ? (
                   <Text c="dimmed" ta="center" py="xl">
                     {t("post:comments.empty")}

@@ -31,7 +31,7 @@ import { CreatePostModal } from "../../components/post/CreatePostModal";
 import { EventCard } from "../../components/event/EventCard";
 import PostCard from "../../components/post/PostCard";
 import { DashboardCard } from "../../components/dashboard/DashboardCard";
-import FullScreenLoader from "../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../components/common/FullScreenSkeleton";
 
 export default function EmployeeHome() {
   const { t } = useTranslation("home");
@@ -70,7 +70,7 @@ export default function EmployeeHome() {
   const myPosts = myPostsData?.posts || [];
 
   if (isLoadingEvents || isLoadingPosts) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (

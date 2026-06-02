@@ -112,7 +112,18 @@ func GetItemTransactions(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
-// TODO: swagger doc
+// GetLatestTransaction godoc
+// @Summary      Get latest transaction of a pro for an item
+// @Description  Returns the latest transaction record associated with a professional and a specific item.
+// @Tags         transaction
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        item_id  path      int  true  "Item ID"
+// @Success      200      {object}  models.Transaction
+// @Failure      400      {object}  nil   "Invalid ID"
+// @Failure      404      {object}  nil   "Item not found"
+// @Failure      500      {object}  nil   "Internal server error"
+// @Router       /items/{item_id}/transactions/latest [get]
 func GetLatestTransaction(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 	itemId, err := strconv.Atoi(r.PathValue("item_id"))

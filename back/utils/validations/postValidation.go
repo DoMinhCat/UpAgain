@@ -74,5 +74,5 @@ func ValidateProjectStepCreation(newStep models.StepInsertPayload) models.Valida
 		Success: true,
 		Message: nil,
 		Error:   http.StatusOK,
-	}	
+	}
 }

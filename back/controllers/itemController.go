@@ -486,7 +486,7 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while deleting item.")
 		return
 	}
-	
+
 	if statusLatestTx == "reserved" || statusLatestTx == "purchased" {
 		utils.RespondWithError(w, http.StatusConflict, "This item is already purchased or reserved.")
 		return
@@ -551,6 +551,17 @@ func UpdateItemStatusById(w http.ResponseWriter, r *http.Request) {
 				db.InsertHistory(entityType, id_item, "delete", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"is_deleted": false}, map[string]interface{}{"is_deleted": true})
 			}
 		}
+	}
+
+	if payload.Status == "approved" && itemDetails.Category == "listing" {
+		// Notify premium pros subscribed to this material
+		// Error should not block the status update, log a warning if it fails
+		go func() {
+			errNoti := onesignal.HandleSmartAlertsNoti(id_item)
+			if errNoti != nil {
+				slog.Warn("HandleSmartAlertsNoti failed", "controller", "UpdateItemStatusById", "error", errNoti)
+			}
+		}()
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item status updated successfully."})
@@ -829,7 +840,18 @@ func GetMyItems(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, result)
 }
 
-// TODO: swagger doc
+// ReserveItem godoc
+// @Summary      Reserve an item
+// @Description  Allows a professional to reserve an item if it is approved and not already reserved/purchased.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        item_id  path      int  true  "Item ID"
+// @Success      200      {object}  map[string]string  "Returns success message"
+// @Failure      400      {object}  nil                "Item not found, invalid status, or already reserved/purchased"
+// @Failure      401      {object}  nil                "Unauthorized"
+// @Failure      500      {object}  nil                "Internal server error"
+// @Router       /items/{item_id}/reserve [post]
 func ReserveItem(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 	item_id, err := strconv.Atoi(r.PathValue("item_id"))
@@ -907,7 +929,20 @@ func ReserveItem(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item reserved successfully."})
 }
 
-// TODO: swagger doc
+// PurchaseItem godoc
+// @Summary      Purchase an item
+// @Description  Initiates or confirms purchase of an item. For paid items, it generates a Stripe checkout URL on the first call, and registers the transaction details on the second call once paid.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        item_id  path      int  true  "Item ID"
+// @Param        body     body      models.ItemPurchaseRequest  false  "Stripe verification / checkout details"
+// @Success      200      {object}  map[string]string  "Checkout URL for payment page redirect or confirmation message"
+// @Failure      400      {object}  nil                "Invalid requests or validation errors"
+// @Failure      409      {object}  nil                "Item already purchased"
+// @Failure      500      {object}  nil                "Internal server error"
+// @Router       /items/{item_id}/purchase [post]
 func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	item_id, err := strconv.Atoi(r.PathValue("item_id"))
 	if err != nil {
@@ -1136,7 +1171,18 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item purchased successfully."})
 }
 
-// TODO: swagger doc
+// CancelItemReservation godoc
+// @Summary      Cancel an item reservation
+// @Description  Allows a professional or an admin to cancel a previously held item reservation.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        item_id  path      int  true  "Item ID"
+// @Success      200      {object}  map[string]string  "Returns success message"
+// @Failure      400      {object}  nil                "Invalid request or item does not exist"
+// @Failure      409      {object}  nil                "Item is not reserved"
+// @Failure      500      {object}  nil                "Internal server error"
+// @Router       /items/{item_id}/cancel [post]
 func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 	item_id, err := strconv.Atoi(r.PathValue("item_id"))
@@ -1198,7 +1244,21 @@ func CancelItemReservation(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Item cancelled successfully."})
 }
 
-// TODO: swagger doc
+// ConfirmListingRetrieval godoc
+// @Summary      Confirm listing retrieval
+// @Description  Verifies the confirmation code provided by a user upon retrieving a purchased listing item and completes the transaction status.
+// @Tags         item
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        item_id  path      int  true  "Item ID"
+// @Param        body     body      models.ConfirmCodeRequest  true  "Confirmation code payload"
+// @Success      200      {object}  map[string]string  "Returns success message"
+// @Failure      400      {object}  nil                "Invalid payload or item does not exist"
+// @Failure      403      {object}  nil                "Incorrect confirmation code"
+// @Failure      409      {object}  nil                "Item not purchased or transaction cancelled"
+// @Failure      500      {object}  nil                "Internal server error"
+// @Router       /items/{item_id}/confirm [post]
 func ConfirmListingRetrieval(w http.ResponseWriter, r *http.Request) {
 	item_id, err := strconv.Atoi(r.PathValue("item_id"))
 	if err != nil {
@@ -1244,7 +1304,7 @@ func ConfirmListingRetrieval(w http.ResponseWriter, r *http.Request) {
 	payload.ConfirmCode = strings.TrimSpace(payload.ConfirmCode)
 
 	dbCode, err := db.GetLatestConfirmCodeByItemId(item_id)
-	if err!= nil {
+	if err != nil {
 		slog.Error("GetLatestConfirmCodeByItemId() failed", "controller", "ConfirmListingRetrieval", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while confirming retrieval.")
 		return
@@ -1253,15 +1313,15 @@ func ConfirmListingRetrieval(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusForbidden, "Incorrect confirm code, please try again.")
 		return
 	}
-	
+
 	// all passed, change item's status to completed
 	err = db.UpdateItemStatusById(item_id, "completed", "")
-	if err!= nil {
+	if err != nil {
 		slog.Error("UpdateItemStatusById() failed", "controller", "ConfirmListingRetrieval", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while confirming retrieval.")
 		return
 	}
-	
+
 	// update item owner's score
 	item, err := db.GetItemDetailsByItemId(item_id)
 	if err != nil {

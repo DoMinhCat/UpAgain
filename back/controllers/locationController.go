@@ -84,19 +84,19 @@ func GetCoorFromAddress(w http.ResponseWriter, r *http.Request) {
 	city := query.Get("city")
 
 	// validate
-	if street == "" || postal_code == "" || city == ""{
+	if street == "" || postal_code == "" || city == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
 		return
 	}
 
 	params := models.Address{
-		Street: street,
+		Street:     street,
 		PostalCode: postal_code,
-		City: city,
+		City:       city,
 	}
 
 	coordinates, err := geocode.AddressToCoor(params)
-	if err != nil{
+	if err != nil {
 		slog.Error("AddressToCoor() failed", "controller", "GetCoorFromAddress", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve coordinates from given address")
 		return

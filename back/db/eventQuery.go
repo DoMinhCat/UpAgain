@@ -371,12 +371,12 @@ func CheckEventExistsById(id_event int) (bool, error) {
 }
 
 func UpdateEventStatusByEventId(eventID int, newStatus string, refuseReason *string) error {
-	if !slices.Contains(EVENT_STATUS, newStatus){
+	if !slices.Contains(EVENT_STATUS, newStatus) {
 		return fmt.Errorf("invalid event status: %s", newStatus)
 	}
 	query := "UPDATE events SET status = $1 WHERE id = $2"
 	params := []any{newStatus, eventID}
-	
+
 	if newStatus == "refused" && refuseReason != nil {
 		query = "UPDATE events SET status = $1, refuse_reason=$2 WHERE id = $3"
 		params = []any{newStatus, *refuseReason, eventID}

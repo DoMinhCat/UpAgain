@@ -8,7 +8,7 @@ import {
   Paper,
   Table,
   TextInput,
-  Loader,
+  Skeleton,
   Center,
   Badge,
   Pill,
@@ -196,9 +196,18 @@ export default function AdminFinance() {
         </Group>
 
         {isLoadingRevenue ? (
-          <Center h={300}>
-            <Loader />
-          </Center>
+          <Stack gap="sm" p="md">
+            <Group gap="xs">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <Skeleton key={i} height={Math.random() * 180 + 60} width={`calc((100% - ${11 * 8}px) / 12)`} radius="sm" style={{ alignSelf: 'flex-end' }} />
+              ))}
+            </Group>
+            <Group gap="xs" justify="center">
+              {[1,2,3,4].map(i => (
+                <Group key={i} gap={4}><Skeleton height={12} width={12} radius="xl" /><Skeleton height={12} width={60} /></Group>
+              ))}
+            </Group>
+          </Stack>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
@@ -415,9 +424,23 @@ export default function AdminFinance() {
         size="xl"
       >
         {isLoadingInvoices ? (
-          <Center h={200}>
-            <Loader />
-          </Center>
+          <Stack gap="xs" p="md">
+            <Group justify="space-between" mb="xs">
+              {["20%", "12%", "25%", "18%", "12%", "5%"].map((w, i) => (
+                <Skeleton key={i} height={14} width={w} />
+              ))}
+            </Group>
+            {[1, 2, 3, 4].map((i) => (
+              <Group key={i} justify="space-between" py="xs">
+                <Skeleton height={16} width="18%" />
+                <Skeleton height={20} width={60} radius="xl" />
+                <Skeleton height={16} width="22%" />
+                <Skeleton height={16} width="16%" />
+                <Skeleton height={16} width="10%" />
+                <Skeleton height={28} width={28} radius="md" />
+              </Group>
+            ))}
+          </Stack>
         ) : invoicesData && !invoicesData.invoices?.length ? (
           <Center py="xl">
             <Stack align="center" gap="xs">
@@ -569,9 +592,20 @@ function FinanceSettingsModal({
       size="md"
     >
       {isLoading ? (
-        <Center h={200}>
-          <Loader />
-        </Center>
+          <Stack gap="md" p="md">
+            {[1, 2, 3].map(i => (
+              <Group key={i} justify="space-between" align="flex-end">
+                <Stack gap={2} style={{ flex: 1 }}>
+                  <Skeleton height={16} width="55%" />
+                  <Skeleton height={12} width="40%" />
+                </Stack>
+                <Group gap="xs">
+                  <Skeleton height={36} width={130} radius="sm" />
+                  <Skeleton height={36} width={36} radius="sm" />
+                </Group>
+              </Group>
+            ))}
+          </Stack>
       ) : (
         <Stack gap="md">
           <Text c="dimmed" size="sm">

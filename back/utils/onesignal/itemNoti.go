@@ -116,7 +116,7 @@ func HandleItemStatusChangeNoti(payload HandleItemNotiPayload) error {
 		IncludeAliases: NotificationIncludeAliases{
 			ExternalIds: []string{strconv.Itoa(payload.AccountId)},
 		},
-		Url:            url,
+		Url: url,
 	}
 
 	// send via SendNotification

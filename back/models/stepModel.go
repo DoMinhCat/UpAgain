@@ -15,7 +15,7 @@ type ProjectStep struct {
 	IdPost      int        `json:"id_post"`
 	Items       []StepItem `json:"items"`
 	Photos      []string   `json:"photos"`
-	Order float64 `json:"order"`
+	Order       float64    `json:"order"`
 }
 
 type StepInsertPayload struct {

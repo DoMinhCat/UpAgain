@@ -3,12 +3,12 @@ package onesignal
 // JSON structures to send to OneSignal API
 
 type NotificationRequest struct {
-	AppId          string                     `json:"app_id"` // env variable
-	TargetChannel  string                     `json:"target_channel"` // push
-	Headings	   NotificationHeading		  `json:"headings"` // title of noti
-	Contents       NotificationContent        `json:"contents"` // message of the noti
+	AppId          string                     `json:"app_id"`          // env variable
+	TargetChannel  string                     `json:"target_channel"`  // push
+	Headings       NotificationHeading        `json:"headings"`        // title of noti
+	Contents       NotificationContent        `json:"contents"`        // message of the noti
 	IncludeAliases NotificationIncludeAliases `json:"include_aliases"` // use external id (account id) to send notification to specific account(s)
-	Url            string                     `json:"url"` // redirect user to this URL if click on noti
+	Url            string                     `json:"url"`             // redirect user to this URL if click on noti
 }
 
 type NotificationContent struct {

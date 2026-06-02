@@ -68,8 +68,6 @@ func HandleEventAssignedNoti(idEvent int, employeeIds []int) {
 		Url: url,
 	}
 
-
-
 	err = SendNotification(apiPayload)
 	if err != nil {
 		slog.Warn("Failed to send push notification via OneSignal API", "function", "HandleEventAssignedNoti", "error", err.Error())
@@ -185,8 +183,6 @@ func HandleEventUpdateNoti(idEvent int, action string) {
 		},
 		Url: url,
 	}
-
-
 
 	// 4. Send push notification via OneSignal API
 	err = SendNotification(apiPayload)

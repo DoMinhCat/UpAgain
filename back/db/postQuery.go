@@ -523,9 +523,9 @@ func GetPostsByAccountId(id_account int, page int, limit int, category string) (
 	params = append(params, limit)
 	params = append(params, offset)
 
-	paramIndex := []int{2,3}
+	paramIndex := []int{2, 3}
 	if category != "" {
-		paramIndex = []int{3,4}
+		paramIndex = []int{3, 4}
 	}
 
 	query := fmt.Sprintf(`

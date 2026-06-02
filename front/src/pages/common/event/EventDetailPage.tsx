@@ -54,7 +54,7 @@ import {
   useUpdateEventStatus,
   useAssignEmployeeToEvent,
 } from "../../../hooks/eventHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { resolveUrl } from "../../../utils/imageUtils";
 import dayjs from "dayjs";
 import { showSuccessNotification } from "../../../components/common/NotificationToast";
@@ -200,12 +200,11 @@ export default function EventDetailPage() {
     }
   };
 
-
   const isRegistered = event?.attendees?.some((a) => a.id === user?.id);
   const isPast = dayjs(event?.end_at).isBefore(dayjs());
 
   if (isLoadingEvent || isLoadingSuggestedEvents) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
   if (
     !isValidId ||
@@ -634,37 +633,51 @@ export default function EventDetailPage() {
                               size="lg"
                             >
                               {event.status === "approved"
-                                ? t("events:employee_planning.status_approved", {
-                                    defaultValue: "Approved",
-                                  })
+                                ? t(
+                                    "events:employee_planning.status_approved",
+                                    {
+                                      defaultValue: "Approved",
+                                    },
+                                  )
                                 : event.status === "pending"
-                                  ? t("events:employee_planning.status_pending", {
-                                      defaultValue: "Pending",
-                                    })
-                                  : t("events:employee_planning.status_refused", {
-                                      defaultValue: "Refused",
-                                    })}
+                                  ? t(
+                                      "events:employee_planning.status_pending",
+                                      {
+                                        defaultValue: "Pending",
+                                      },
+                                    )
+                                  : t(
+                                      "events:employee_planning.status_refused",
+                                      {
+                                        defaultValue: "Refused",
+                                      },
+                                    )}
                             </Badge>
                           </Group>
-                          {event.status === "refused" && event.refuse_reason && (
-                            <Paper
-                              p="xs"
-                              bg="var(--mantine-color-red-0)"
-                              style={{
-                                borderRadius: "8px",
-                                border: "1px solid var(--mantine-color-red-1)",
-                              }}
-                            >
-                              <Text size="xs" fw={700} c="red.8" mb={2}>
-                                {t("events:employee_planning.refuse_reason_title", {
-                                  defaultValue: "Reason for refusal:",
-                                })}
-                              </Text>
-                              <Text size="xs" c="red.7">
-                                {event.refuse_reason}
-                              </Text>
-                            </Paper>
-                          )}
+                          {event.status === "refused" &&
+                            event.refuse_reason && (
+                              <Paper
+                                p="xs"
+                                bg="var(--mantine-color-red-0)"
+                                style={{
+                                  borderRadius: "8px",
+                                  border:
+                                    "1px solid var(--mantine-color-red-1)",
+                                }}
+                              >
+                                <Text size="xs" fw={700} c="red.8" mb={2}>
+                                  {t(
+                                    "events:employee_planning.refuse_reason_title",
+                                    {
+                                      defaultValue: "Reason for refusal:",
+                                    },
+                                  )}
+                                </Text>
+                                <Text size="xs" c="red.7">
+                                  {event.refuse_reason}
+                                </Text>
+                              </Paper>
+                            )}
                         </Stack>
                       )}
                       {/* Price */}
@@ -874,21 +887,25 @@ export default function EventDetailPage() {
                               {t("admin:events.details.cancel_event")}
                             </Button>
                           )}
-                          {isEmployee && !canEditOrCancel && event.status === "approved" && (
-                            <Button
-                              radius="md"
-                              variant="primary"
-                              disabled={
-                                dayjs(event.start_at) < dayjs().startOf("day")
-                              }
-                              fullWidth
-                              onClick={handleSelfAssign}
-                              loading={assignEmployeeMutation.isPending}
-                              rightSection={<IconCheck size={18} />}
-                            >
-                              {t("detail.self_assign", { defaultValue: "Volunteer for event" })}
-                            </Button>
-                          )}
+                          {isEmployee &&
+                            !canEditOrCancel &&
+                            event.status === "approved" && (
+                              <Button
+                                radius="md"
+                                variant="primary"
+                                disabled={
+                                  dayjs(event.start_at) < dayjs().startOf("day")
+                                }
+                                fullWidth
+                                onClick={handleSelfAssign}
+                                loading={assignEmployeeMutation.isPending}
+                                rightSection={<IconCheck size={18} />}
+                              >
+                                {t("detail.self_assign", {
+                                  defaultValue: "Volunteer for event",
+                                })}
+                              </Button>
+                            )}
                         </Group>
                       )}
 

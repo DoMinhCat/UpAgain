@@ -396,3 +396,9 @@ create table notifications (
   entity_id text not null,
   id_account int not null references accounts(id) on delete cascade
 );
+
+CREATE TABLE IF NOT EXISTS pro_alert_materials (
+    id_pro INTEGER NOT NULL REFERENCES pros(id_account) ON DELETE CASCADE,
+    material material NOT NULL,
+    PRIMARY KEY (id_pro, material)
+);

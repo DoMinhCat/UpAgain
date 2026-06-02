@@ -9,6 +9,7 @@ import {
   Button,
   Badge,
   Loader,
+  Divider,
 } from "@mantine/core";
 import { useTranslation, Trans } from "react-i18next";
 import { IconCheck, IconStar } from "@tabler/icons-react";
@@ -19,6 +20,8 @@ interface PremiumCardProps {
   onClick?: () => void;
   selectedTrial?: boolean;
   onTrialClick?: () => void;
+  showTrialButton?: boolean;
+  showButton?: boolean;
 }
 
 export function PremiumCard({
@@ -26,6 +29,8 @@ export function PremiumCard({
   onClick,
   selectedTrial,
   onTrialClick,
+  showTrialButton = true,
+  showButton = true,
 }: PremiumCardProps) {
   const { t } = useTranslation("auth");
   const { data: trialDays, isLoading: isTrialDaysLoading } =
@@ -36,6 +41,17 @@ export function PremiumCard({
   if (isTrialDaysLoading || isSubscriptionPriceLoading) {
     return <Loader />;
   }
+
+  const priceVal = subscriptionPrice || 0;
+  const currentPriceInCents = Math.round(priceVal * 100);
+  const vatInCents = Math.floor(currentPriceInCents * 0.20);
+  const stripeCommInCents = Math.floor(currentPriceInCents * 0.015) + 25;
+  const totalInCents = currentPriceInCents + vatInCents + stripeCommInCents;
+
+  const basePrice = (currentPriceInCents / 100).toFixed(2);
+  const vat = (vatInCents / 100).toFixed(2);
+  const stripeFee = (stripeCommInCents / 100).toFixed(2);
+  const total = (totalInCents / 100).toFixed(2);
   return (
     <Paper
       withBorder
@@ -186,23 +202,45 @@ export function PremiumCard({
             </Text>
           </Group>
 
-          <Button
-            data-variant="cta"
-            size="md"
-            fullWidth
-            radius="xl"
-            mt="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onClick) onClick();
-            }}
-          >
-            {selected && !selectedTrial
-              ? t("plans.premium.selected")
-              : t("plans.premium.select")}
-          </Button>
+          <Stack gap={4} mt="xs" style={{ borderTop: "1px solid var(--border-color)", paddingTop: 8 }}>
+            <Group justify="space-between">
+              <Text size="xs" c="dimmed">{t("plans.premium.breakdown.base")}</Text>
+              <Text size="xs" fw={500}>{basePrice}€</Text>
+            </Group>
+            <Group justify="space-between">
+              <Text size="xs" c="dimmed">{t("plans.premium.breakdown.vat")}</Text>
+              <Text size="xs" fw={500}>{vat}€</Text>
+            </Group>
+            <Group justify="space-between">
+              <Text size="xs" c="dimmed">{t("plans.premium.breakdown.stripe")}</Text>
+              <Text size="xs" fw={500}>{stripeFee}€</Text>
+            </Group>
+            <Divider my={2} color="var(--border-color)" />
+            <Group justify="space-between">
+              <Text size="sm" fw={700}>{t("plans.premium.breakdown.total")}</Text>
+              <Text size="sm" fw={700} c="var(--upagain-primary)">{total}€</Text>
+            </Group>
+          </Stack>
 
-          {trialDays && trialDays > 0 && (
+          {showButton && (
+            <Button
+              data-variant="cta"
+              size="md"
+              fullWidth
+              radius="xl"
+              mt="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onClick) onClick();
+              }}
+            >
+              {selected && !selectedTrial
+                ? t("plans.premium.selected")
+                : t("plans.premium.select")}
+            </Button>
+          )}
+
+          {showTrialButton && trialDays && trialDays > 0 && (
             <Button
               variant={selectedTrial ? "primary" : "secondary"}
               size="md"

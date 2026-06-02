@@ -9,7 +9,7 @@ import {
   TextInput,
   Select,
   Center,
-  Loader,
+  Skeleton,
   Button,
 } from "@mantine/core";
 import {
@@ -168,9 +168,19 @@ export default function UserPostsPage() {
 
         {/* Grid */}
         {isLoading ? (
-          <Center py={80}>
-            <Loader color="var(--upagain-neutral-green)" />
-          </Center>
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <Stack key={i} gap="xs">
+                <Skeleton height={180} radius="md" />
+                <Skeleton height={16} width="80%" />
+                <Skeleton height={12} width="55%" />
+                <Group gap="xs">
+                  <Skeleton height={12} width={50} />
+                  <Skeleton height={12} width={40} />
+                </Group>
+              </Stack>
+            ))}
+          </SimpleGrid>
         ) : posts.length === 0 ? (
           <Center py={80}>
             <Stack align="center" gap="xs">
