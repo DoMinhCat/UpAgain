@@ -77,7 +77,7 @@ func HandleEventAssignedNoti(idEvent int, employeeIds []int) {
 		dbPayload := models.NotificationInsert{
 			NotificationType: "emp_event_assigned",
 			EntityType:       "event",
-			EntityId:         idEvent,
+			EntityId:         strconv.Itoa(idEvent),
 			AccountId:        empId,
 		}
 		errDb := db.InsertNotification(dbPayload)
@@ -195,7 +195,7 @@ func HandleEventUpdateNoti(idEvent int, action string) {
 		dbPayload := models.NotificationInsert{
 			NotificationType: "user_event_updated",
 			EntityType:       "event",
-			EntityId:         idEvent,
+			EntityId:         strconv.Itoa(idEvent),
 			AccountId:        attendee.Id,
 		}
 		errDb := db.InsertNotification(dbPayload)
@@ -208,7 +208,7 @@ func HandleEventUpdateNoti(idEvent int, action string) {
 		dbPayload := models.NotificationInsert{
 			NotificationType: "emp_event_updated",
 			EntityType:       "event",
-			EntityId:         idEvent,
+			EntityId:         strconv.Itoa(idEvent),
 			AccountId:        organizer.Id,
 		}
 		errDb := db.InsertNotification(dbPayload)

@@ -44,7 +44,22 @@
   },
   "notifications": {
     "error": "Erreur",
-    "success": "Succès"
+    "success": "Succès",
+    "mark_all_read": "Tout marquer comme lu",
+    "no_new": "Aucune nouvelle notification",
+    "title": "Notifications",
+    "see_all": "Voir tout",
+    "types": {
+      "user_object_status": "Le statut de l'objet \"{{title}}\" a changé",
+      "user_validation_status": "Statut de validation mis à jour pour \"{{title}}\"",
+      "user_object_retrieved": "L'objet \"{{title}}\" a été récupéré",
+      "user_event_updated": "L'événement \"{{title}}\" a été mis à jour",
+      "pro_material_available": "Nouveau matériau disponible : {{title}}",
+      "pro_object_deposited": "L'objet \"{{title}}\" a été déposé et est prêt",
+      "pro_subscription_end": "L'abonnement se termine bientôt",
+      "emp_event_updated": "L'événement \"{{title}}\" a été mis à jour",
+      "emp_event_assigned": "Assigné à l'événement \"{{title}}\""
+    }
   },
   "free": "Gratuit",
   "not_set": "Non défini",
