@@ -3,6 +3,8 @@ import { ENDPOINTS } from "./endpoints";
 import type {
   NotiSetting,
   UpdateNotiSettingPayload,
+  NotificationDetail,
+  MarkNotificationsReadPayload,
 } from "./interfaces/notification";
 
 export const getNotiSettings = async (
@@ -17,4 +19,19 @@ export const updateNotiSetting = async (
   payload: UpdateNotiSettingPayload,
 ) => {
   return await api.patch(ENDPOINTS.ACCOUNTS.NOTIFICATIONS(id_account), payload);
+};
+
+export const getNotifications = async (): Promise<NotificationDetail[]> => {
+  const response = await api.get(ENDPOINTS.NOTIFICATIONS.ALL);
+  return response.data;
+};
+
+export const markNotificationsAsRead = async (
+  payload: MarkNotificationsReadPayload,
+) => {
+  return await api.patch(ENDPOINTS.NOTIFICATIONS.READ, payload);
+};
+
+export const deleteNotification = async (notiId: string) => {
+  return await api.delete(ENDPOINTS.NOTIFICATIONS.DELETE(notiId));
 };

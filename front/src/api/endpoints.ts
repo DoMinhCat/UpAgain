@@ -165,6 +165,12 @@ export const ENDPOINTS = {
     PRO_ALERT_MATERIALS: (id_account: number) => `/accounts/${id_account}/pro-analytics/alerts`,
   },
 
+  NOTIFICATIONS: {
+    ALL: "/notifications",
+    READ: "/notifications/read",
+    DELETE: (noti_id: string) => `/notifications/${noti_id}`,
+  },
+
   // external providers
   STRIPE: {
     VERIFY: "/payments/verify",
