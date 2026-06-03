@@ -44,7 +44,22 @@
   },
   "notifications": {
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "mark_all_read": "Mark all as read",
+    "no_new": "No new notifications",
+    "title": "Notifications",
+    "see_all": "See all",
+    "types": {
+      "user_object_status": "Object \"{{title}}\" status updated",
+      "user_validation_status": "Validation status updated for \"{{title}}\"",
+      "user_object_retrieved": "Object \"{{title}}\" retrieved",
+      "user_event_updated": "Event \"{{title}}\" updated",
+      "pro_material_available": "New material available: {{title}}",
+      "pro_object_deposited": "Object \"{{title}}\" is deposited and ready",
+      "pro_subscription_end": "Subscription ending soon",
+      "emp_event_updated": "Event \"{{title}}\" updated",
+      "emp_event_assigned": "Assigned to event \"{{title}}\""
+    }
   },
   "free": "Free",
   "not_set": "Not set",

@@ -25,3 +25,7 @@ type NotificationDetail struct {
 	IdAccount        int       `json:"id_account"`
 	EntityTitle      string    `json:"entity_title"`
 }
+
+type MarkNotificationsReadRequest struct {
+	Ids []string `json:"ids"`
+}
