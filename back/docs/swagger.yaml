@@ -630,6 +630,27 @@ definitions:
       noti_type:
         type: string
     type: object
+  models.NotificationDetail:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      entity_id:
+        type: integer
+      entity_title:
+        type: string
+      entity_type:
+        type: string
+      id_account:
+        type: integer
+      read_at:
+        type: string
+      type:
+        type: string
+      uuid:
+        type: string
+    type: object
   models.PaginatedHistoryResponse:
     properties:
       current_page:
@@ -4220,6 +4241,81 @@ paths:
       summary: Login
       tags:
       - auth
+  /notifications:
+    get:
+      description: Get all notifications associated with the logged-in account
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NotificationDetail'
+            type: array
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Get notifications of an account
+      tags:
+      - notifications
+  /notifications/{noti_id}:
+    delete:
+      description: Delete an existing notification by its UUID
+      parameters:
+      - description: Notification UUID
+        in: path
+        name: noti_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid Notification ID
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a notification
+      tags:
+      - notifications
+  /notifications/{noti_id}/read:
+    patch:
+      description: Mark an existing notification as read by its UUID
+      parameters:
+      - description: Notification UUID
+        in: path
+        name: noti_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid Notification ID
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Mark a notification as read
+      tags:
+      - notifications
   /payments/verify/:
     post:
       consumes:
