@@ -80,7 +80,7 @@ export default function NotificationsPage() {
         <Title order={2}>{t("common:notifications.title")}</Title>
         {hasUnread && (
           <Button
-            variant="light"
+            variant="secondary"
             color="var(--upagain-neutral-green)"
             leftSection={<IconCheck size={16} />}
             onClick={handleMarkAllAsRead}
