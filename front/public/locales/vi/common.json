@@ -43,7 +43,22 @@
   },
   "notifications": {
     "error": "Lỗi",
-    "success": "Thành công"
+    "success": "Thành công",
+    "mark_all_read": "Đánh dấu tất cả là đã đọc",
+    "no_new": "Không có thông báo mới",
+    "title": "Thông báo",
+    "see_all": "Xem tất cả",
+    "types": {
+      "user_object_status": "Trạng thái của vật phẩm \"{{title}}\" đã cập nhật",
+      "user_validation_status": "Trạng thái phê duyệt của \"{{title}}\" đã cập nhật",
+      "user_object_retrieved": "Vật phẩm \"{{title}}\" đã được lấy",
+      "user_event_updated": "Sự kiện \"{{title}}\" đã được cập nhật",
+      "pro_material_available": "Vật liệu mới có sẵn: {{title}}",
+      "pro_object_deposited": "Vật phẩm \"{{title}}\" đã được gửi và sẵn sàng",
+      "pro_subscription_end": "Gói đăng ký sắp kết thúc",
+      "emp_event_updated": "Sự kiện phân công \"{{title}}\" đã cập nhật",
+      "emp_event_assigned": "Được phân công vào sự kiện \"{{title}}\""
+    }
   },
   "free": "Miễn phí",
   "not_set": "Chưa đặt",

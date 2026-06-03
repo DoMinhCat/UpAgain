@@ -24,6 +24,7 @@ import ItemDetailPage from "../pages/common/market/ItemDetailPage";
 import NewItem from "../pages/common/market/NewItem";
 import MyItemDetail from "../pages/common/market/MyItemDetail";
 import OpenContainerPage from "../pages/common/container/OpenContainerPage";
+import NotificationsPage from "../pages/common/notification/NotificationsPage";
 
 const UserGuard = ({ children }: { children: ReactNode }) => {
   const { user, isInitializing } = useAuth();
@@ -104,6 +105,7 @@ export const userRoutes: RouteObject = {
       ],
     },
     { path: "profile", element: <Profile /> },
+    { path: "notifications", element: <NotificationsPage /> },
     {
       path: "marketplace",
       children: [

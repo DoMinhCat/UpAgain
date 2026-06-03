@@ -4675,7 +4675,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get all notifications associated with the logged-in account",
+                "description": "Get all active notifications associated with the logged-in account",
                 "produces": [
                     "application/json"
                 ],
@@ -4702,6 +4702,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/notifications/read": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mark one or more notifications as read by their UUIDs in a JSON body list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Mark notifications as read",
+                "parameters": [
+                    {
+                        "description": "Mark Read Payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MarkNotificationsReadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid request body or ID format"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/notifications/{noti_id}": {
             "delete": {
                 "security": [
@@ -4717,49 +4765,6 @@ const docTemplate = `{
                     "notifications"
                 ],
                 "summary": "Delete a notification",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Notification UUID",
-                        "name": "noti_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Invalid Notification ID"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    },
-                    "500": {
-                        "description": "Internal server error"
-                    }
-                }
-            }
-        },
-        "/notifications/{noti_id}/read": {
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Mark an existing notification as read by its UUID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "notifications"
-                ],
-                "summary": "Mark a notification as read",
                 "parameters": [
                     {
                         "type": "string",
@@ -7401,6 +7406,17 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "models.MarkNotificationsReadRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
