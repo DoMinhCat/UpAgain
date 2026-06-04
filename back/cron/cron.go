@@ -5,8 +5,11 @@ import (
 )
 
 func StartCronJobs() {
-	c := c.New()
-	// c.AddFunc
+	scheduler := c.New()
 
-	c.Start()	
+	scheduler.AddFunc("@every 30s", func() {
+		UpdateEventRegistrationStatus()
+	})
+
+	scheduler.Start()
 }
