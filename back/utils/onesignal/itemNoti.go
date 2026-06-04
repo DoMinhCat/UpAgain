@@ -129,7 +129,7 @@ func HandleItemStatusChangeNoti(payload HandleItemNotiPayload) error {
 	dbPayload := models.NotificationInsert{
 		NotificationType: notiType,
 		EntityType:       "item",
-		EntityId:         strconv.Itoa(payload.ItemId),
+		EntityId:         payload.ItemId,
 		AccountId:        payload.AccountId,
 	}
 	err = db.InsertNotification(dbPayload)
