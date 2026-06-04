@@ -34,6 +34,9 @@ func UpdateExpiredSubscription() {
         slog.Error("UpdateExpiredSubscription failed", "error", err)
         return
     }
+
+	// TODO: notify pros that their sub expired
+	// type = profile
     
     slog.Info("UpdateExpiredSubscription completed")
 }

@@ -15,6 +15,7 @@ var notiSettingTypes = []string{
 	"user_code_expiring",
 	"pro_material_available",
 	"pro_object_deposited",
+	"pro_object_expired",
 	"pro_subscription_end",
 	"pro_code_expiring",
 	"emp_event_updated",
