@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/config"
+	"backend/cron"
 	"backend/middleware"
 	"backend/routes"
 	"backend/utils"
@@ -50,7 +51,7 @@ func main() {
 	}
 
 	// Start cron jobs
-	// cron.StartCronJobs()
+	cron.StartCronJobs()
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration
