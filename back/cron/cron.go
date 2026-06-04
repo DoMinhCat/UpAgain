@@ -15,5 +15,9 @@ func StartCronJobs() {
 		UpdateExpiredAds()
 	})
 
+	scheduler.AddFunc("@every 1h", func() {
+		UpdateExpiredSubscription()
+	})
+
 	scheduler.Start()
 }
