@@ -19,5 +19,17 @@ func StartCronJobs() {
 		UpdateExpiredSubscription()
 	})
 
+	scheduler.AddFunc("@every 1h", func() {
+		UpdateExpiredReservation()
+	})
+
+	scheduler.AddFunc("@every 30m", func() {
+		UpdateExpiredCode()
+	})
+
+	scheduler.AddFunc("@every 30m", func() {
+		UpdateActiveCode()
+	})
+
 	scheduler.Start()
 }
