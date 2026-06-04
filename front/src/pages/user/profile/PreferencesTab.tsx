@@ -105,6 +105,10 @@ export default function PreferencesTab() {
         label: t("notifications.pro_object_deposited"),
       },
       {
+        key: "pro_object_expired",
+        label: t("notifications.pro_object_expired"),
+      },
+      {
         key: "pro_subscription_end",
         label: t("notifications.pro_subscription_end"),
       },

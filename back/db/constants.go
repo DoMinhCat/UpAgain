@@ -14,6 +14,7 @@ var NOTIFICATION_TYPES = []string{
 	"user_event_updated",
 	"pro_material_available",
 	"pro_object_deposited", // done ok
+	"pro_object_expired",
 	"pro_subscription_end",
 	"emp_event_updated",
 	"emp_event_assigned",
