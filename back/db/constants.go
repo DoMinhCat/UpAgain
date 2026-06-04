@@ -12,10 +12,12 @@ var NOTIFICATION_TYPES = []string{
 	"user_validation_status", // TODO: item rejected or approved
 	"user_object_retrieved",  // done, not tested
 	"user_event_updated",
+	"user_code_expiring",
 	"pro_material_available",
 	"pro_object_deposited", // done ok
 	"pro_object_expired",
 	"pro_subscription_end",
+	"pro_code_expiring",
 	"emp_event_updated",
 	"emp_event_assigned",
 }
