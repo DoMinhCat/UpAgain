@@ -31,7 +31,7 @@ create table accounts
     avatar     varchar(255)
 );
 -- create index on role for faster query
-CREATE INDEX idx_account_role ON account (role);
+CREATE INDEX idx_account_role ON accounts (role);
 
 -- syntax: [account type]_[entity]_[action/event]
 CREATE TYPE noti_setting AS ENUM (
@@ -56,12 +56,12 @@ create table noti_settings
     PRIMARY KEY (id_account, noti_type),
     noti_type  noti_setting not null,
     is_enabled boolean      not null default true,
-    id_account integer      not null references account (id) on delete cascade
+    id_account integer      not null references accounts (id) on delete cascade
 );
 
 create table users
 (
-    id_account        integer primary key references account (id) on delete restrict,
+    id_account        integer primary key references accounts (id) on delete restrict,
     country_code      varchar(3),
     phone             varchar(20),
     up_score          numeric(2) not null default 0,
@@ -71,13 +71,13 @@ create table users
 
 create table employees
 (
-    id_account integer primary key references account (id) on delete restrict,
+    id_account integer primary key references accounts (id) on delete restrict,
     is_admin   boolean not null default false
 );
 
 create table pros
 (
-    id_account integer primary key references account (id) on delete restrict,
+    id_account integer primary key references accounts (id) on delete restrict,
     phone             varchar(20),
     is_premium boolean not null default false,
     completed_onboard boolean not null default false
@@ -117,7 +117,7 @@ CREATE INDEX idx_events_category ON events (category);
 CREATE TYPE event_registrations_status AS ENUM ('registered', 'cancelled', 'attended');
 create table event_registrations
 (
-    id_account integer references account (id) on delete restrict, -- role of this account can't be employee
+    id_account integer references accounts (id) on delete restrict, -- role of this account can't be employee
     id_event   integer references events (id) on delete restrict,
     PRIMARY KEY (id_event, id_account),
     created_at timestamptz not null       default now(),
@@ -167,7 +167,7 @@ create table posts
     view_count integer       not null default 0,
     like_count integer       not null default 0,
     is_deleted boolean       not null default false,
-    id_account integer       not null references account (id) on delete restrict -- this account's role must be pro or employee
+    id_account integer       not null references accounts (id) on delete restrict -- this account's role must be pro or employee
 );
 CREATE INDEX idx_posts_category ON posts (category);
 CREATE INDEX idx_posts_created_at ON posts (created_at);
@@ -179,13 +179,13 @@ create table comments
     created_at timestamptz not null default now(),
     is_deleted boolean       not null default false,
     like_count integer     not null default 0,
-    id_post    integer     not null references posts (id) on delete cascade
+    id_post    integer     not null references posts (id) on delete cascade,
     id_account integer     not null references accounts (id) on delete cascade
 );
 
 create table saved_posts
 (
-    id_account integer     not null references account (id) on delete restrict, -- this account's role must be pro or user
+    id_account integer     not null references accounts (id) on delete restrict, -- this account's role must be pro or user
     id_post    integer     not null references posts (id) on delete restrict,   -- remember to check is_deleted of post to decide whether to show to user or not
     saved_at   timestamptz not null default now(),
     PRIMARY KEY (id_account, id_post)
@@ -202,7 +202,7 @@ create table viewed_posts
 
 create table liked_posts
 (
-    id_account integer     not null references account (id) on delete restrict,
+    id_account integer     not null references accounts (id) on delete restrict,
     id_post    integer     not null references posts (id) on delete restrict,
     liked_at   timestamptz not null default now(),
     PRIMARY KEY (id_account, id_post)
@@ -231,30 +231,6 @@ create table ads
 );
 CREATE INDEX idx_ads_status ON ads (status);
 
-CREATE TYPE photo_object_type AS ENUM ('item', 'post', 'step', 'event', 'avatar');
-CREATE TABLE photos (
-    id          serial PRIMARY KEY,
-    created_at  timestamptz NOT NULL DEFAULT now(),
-    is_primary  boolean NOT NULL DEFAULT false,
-    path        varchar(255) NOT NULL UNIQUE,
-    object_type photo_object_type NOT NULL,
-    
-    -- Specific FK columns
-    item_id     integer REFERENCES items(id) ON DELETE CASCADE,
-    post_id     integer REFERENCES posts(id) ON DELETE CASCADE,
-    step_id     integer REFERENCES project_steps(id) ON DELETE CASCADE,
-    event_id    integer REFERENCES events(id) ON DELETE CASCADE,
-    account_id  integer REFERENCES accounts(id) ON DELETE CASCADE, --for avatar
-
-    -- Ensure only one is populated and matches the ENUM
-    CONSTRAINT check_single_source CHECK (
-        (object_type = 'item'   AND item_id IS NOT NULL    AND post_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
-        (object_type = 'post'   AND post_id IS NOT NULL    AND item_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
-        (object_type = 'event'  AND event_id IS NOT NULL   AND item_id IS NULL      AND post_id IS NULL     AND account_id IS NULL) OR
-        (object_type = 'avatar' AND account_id IS NOT NULL AND item_id IS NULL      AND post_id IS NULL     AND event_id IS NULL)
-    );
-);
-
 CREATE TYPE item_state      AS ENUM ('new', 'very_good', 'good', 'need_repair');
 CREATE TYPE material        AS ENUM ('wood', 'metal', 'textile', 'glass', 'plastic', 'mixed', 'other');
 CREATE TYPE item_status     AS ENUM ('pending', 'approved', 'refused', 'completed');
@@ -276,6 +252,40 @@ create table items
 CREATE INDEX idx_items_status   ON items (status);
 CREATE INDEX idx_items_state    ON items (state);
 CREATE INDEX idx_items_material ON items (material);
+
+CREATE TABLE project_steps (
+  id          SERIAL         PRIMARY KEY,
+  created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+  is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
+  title       VARCHAR(255)   NOT NULL,
+  description TEXT           NOT NULL,
+  id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  "order"       FLOAT          NOT NULL
+);
+
+CREATE TYPE photo_object_type AS ENUM ('item', 'post', 'step', 'event', 'avatar');
+CREATE TABLE photos (
+    id          serial PRIMARY KEY,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    is_primary  boolean NOT NULL DEFAULT false,
+    path        varchar(255) NOT NULL UNIQUE,
+    object_type photo_object_type NOT NULL,
+    
+    -- Specific FK columns
+    item_id     integer REFERENCES items(id) ON DELETE CASCADE,
+    post_id     integer REFERENCES posts(id) ON DELETE CASCADE,
+    step_id     integer REFERENCES project_steps(id) ON DELETE CASCADE,
+    event_id    integer REFERENCES events(id) ON DELETE CASCADE,
+    account_id  integer REFERENCES accounts(id) ON DELETE CASCADE, --for avatar
+
+    -- Ensure only one is populated and matches the ENUM
+    CONSTRAINT check_single_source CHECK (
+        (object_type = 'item'   AND item_id IS NOT NULL    AND post_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'post'   AND post_id IS NOT NULL    AND item_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'event'  AND event_id IS NOT NULL   AND item_id IS NULL      AND post_id IS NULL     AND account_id IS NULL) OR
+        (object_type = 'avatar' AND account_id IS NOT NULL AND item_id IS NULL      AND post_id IS NULL     AND event_id IS NULL)
+    )
+);
 
 create table listings
 (
@@ -331,7 +341,7 @@ create table barcodes
     valid_to     timestamptz       not null,
     status       barcode_status    not null default 'active',
     user_type    barcode_user_type not null, -- this code is for user or pro?
-    id_account   integer           not null references account (id) on delete cascade,
+    id_account   integer           not null references accounts (id) on delete cascade,
     id_deposit   integer           not null references deposits (id_item) on delete cascade,
     id_transaction uuid            not null
 );
@@ -369,15 +379,7 @@ create table transactions(
 );
 CREATE INDEX idx_transactions_uuid ON transactions(id_transaction);
 
-CREATE TABLE project_steps (
-  id          SERIAL         PRIMARY KEY,
-  created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
-  is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
-  title       VARCHAR(255)   NOT NULL,
-  description TEXT           NOT NULL,
-  id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  order       FLOAT          NOT NULL
-);
+
 
 -- a project step can have multiple items
 -- an item can be in multiple project steps
@@ -399,7 +401,7 @@ create table notifications (
   id_account int not null references accounts(id) on delete cascade
 );
 
-CREATE TABLE IF NOT EXISTS pro_alert_materials (
+CREATE TABLE pro_alert_materials (
     id_pro INTEGER NOT NULL REFERENCES pros(id_account) ON DELETE CASCADE,
     material material NOT NULL,
     PRIMARY KEY (id_pro, material)
