@@ -79,7 +79,8 @@ create table pros
 (
     id_account integer primary key references account (id) on delete restrict,
     phone             varchar(20),
-    is_premium boolean not null default false
+    is_premium boolean not null default false,
+    completed_onboard boolean not null default false
 );
 
 CREATE TYPE event_category AS ENUM ('workshop', 'conference', 'meetups', 'exposition', 'other');
