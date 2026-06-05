@@ -131,5 +131,13 @@
     "step_events_list_pro": "Explore and participate in events organized by our employees.",
     "step_events_my": "Manage your event registrations here.",
     "step_events_planning": "See all the events you are registered for in one place."
+  },
+  "chatbot": {
+    "button_label": "Ask Arnaud",
+    "title": "Gemini Upcycling Assistant",
+    "intro": "Hello! I am your Upcycling Assistant. Ask me for DIY ideas, recycling tips, or details about the platform!",
+    "thinking": "Thinking...",
+    "placeholder": "Ask me anything about upcycling...",
+    "error_message": "Sorry, I encountered an issue. Please try again later."
   }
 }
