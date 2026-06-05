@@ -129,13 +129,57 @@ func HandleItemStatusChangeNoti(payload HandleItemNotiPayload) error {
 	dbPayload := models.NotificationInsert{
 		NotificationType: notiType,
 		EntityType:       "item",
-		EntityId:         strconv.Itoa(payload.ItemId),
+		EntityId:         payload.ItemId,
 		AccountId:        payload.AccountId,
 	}
 	err = db.InsertNotification(dbPayload)
 	if err != nil {
 		return fmt.Errorf("failed to insert notification into DB: %w", err)
 	}
+	return nil
+}
+
+func HandleExpiredReservationNoti(itemId int, proId int, itemTitle string) error {
+	notiType := "pro_object_expired"
+	if !IsNotiEnabled(proId, notiType) {
+		return nil
+	}
+
+	url := "/marketplace/me/" + strconv.Itoa(itemId)
+
+	apiPayload := NotificationRequest{
+		Headings: NotificationHeading{
+			En: "Reservation expired: " + itemTitle,
+			Fr: "Réservation expirée: " + itemTitle,
+			Vi: "Đơn đặt trước hết hạn: " + itemTitle,
+		},
+		Contents: NotificationContent{
+			En: "Your reservation for the item \"" + itemTitle + "\" has expired.",
+			Fr: "Votre réservation pour l'objet \"" + itemTitle + "\" a expiré.",
+			Vi: "Đơn đặt trước của bạn cho vật phẩm \"" + itemTitle + "\" đã hết hạn.",
+		},
+		IncludeAliases: NotificationIncludeAliases{
+			ExternalIds: []string{strconv.Itoa(proId)},
+		},
+		Url: url,
+	}
+
+	err := SendNotification(apiPayload)
+	if err != nil {
+		slog.Warn("Failed to send push notification via OneSignal API", "function", "HandleExpiredReservationNoti", "error", err.Error())
+	}
+
+	dbPayload := models.NotificationInsert{
+		NotificationType: notiType,
+		EntityType:       "item",
+		EntityId:         itemId,
+		AccountId:        proId,
+	}
+	err = db.InsertNotification(dbPayload)
+	if err != nil {
+		return fmt.Errorf("failed to insert notification into DB: %w", err)
+	}
+
 	return nil
 }
 

@@ -43,7 +43,10 @@ export default function ProHomePremium() {
 
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { data: alertMaterialsData } = useGetProAlertMaterials(user?.id);
+  const { data: alertMaterialsData } = useGetProAlertMaterials(
+    user?.id,
+    user?.role || "",
+  );
   const updateAlertMaterials = useUpdateProAlertMaterials(user?.id);
   const alertMaterials = alertMaterialsData || [];
 

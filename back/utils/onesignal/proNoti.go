@@ -55,7 +55,7 @@ func HandleSmartAlertsNoti(itemId int) error {
 		dbPayload := models.NotificationInsert{
 			NotificationType: "pro_material_available",
 			EntityType:       "item",
-			EntityId:         strconv.Itoa(itemId),
+			EntityId:         itemId,
 			AccountId:        proId,
 		}
 		err = db.InsertNotification(dbPayload)

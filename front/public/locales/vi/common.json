@@ -55,6 +55,7 @@
       "user_event_updated": "Sự kiện \"{{title}}\" đã được cập nhật",
       "pro_material_available": "Vật liệu mới có sẵn: {{title}}",
       "pro_object_deposited": "Vật phẩm \"{{title}}\" đã được gửi và sẵn sàng",
+      "pro_object_expired": "Đơn đặt trước cho \"{{title}}\" đã hết hạn",
       "pro_subscription_end": "Gói đăng ký sắp kết thúc",
       "emp_event_updated": "Sự kiện phân công \"{{title}}\" đã cập nhật",
       "emp_event_assigned": "Được phân công vào sự kiện \"{{title}}\""
