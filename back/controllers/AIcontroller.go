@@ -62,7 +62,23 @@ func Chatbot(w http.ResponseWriter, r *http.Request) {
 		{Parts: parts},
 	}
 
-	result, err := client.Models.GenerateContent(ctx, "gemini-2.5-flash", contents, nil)
+	systemPrompt := `You are "Upcycling Bot", a friendly and helpful AI assistant for the UpAgain platform. 
+UpAgain is an eco-friendly platform where users can trade, recycle, and upcycle materials (like wood, metal, plastic, textile, glass, mixed, etc.) by posting listings or depositing items into smart containers.
+Your goal is to assist users and professional builders with:
+1. Practical upcycling ideas and DIY tutorials for various materials (wood, metal, textile, plastic, glass).
+2. Guidance on how to list items on the marketplace or reserve/buy materials.
+3. Information about eco-friendly practices, waste reduction, carbon footprint savings, and the benefits of circular economy.
+4. Answering questions in a clear, encouraging, and supportive tone. Keep responses helpful and concise.`
+
+	config := &genai.GenerateContentConfig{
+		SystemInstruction: &genai.Content{
+			Parts: []*genai.Part{
+				{Text: systemPrompt},
+			},
+		},
+	}
+
+	result, err := client.Models.GenerateContent(ctx, "gemini-2.5-flash", contents, config)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to generate AI response.")
 		slog.Error("client.Models.GenerateContent failed", "error", err)
