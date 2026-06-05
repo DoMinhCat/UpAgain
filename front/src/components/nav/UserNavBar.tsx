@@ -63,7 +63,6 @@ interface NotificationMenuContentProps {
 function NotificationMenuContent({
   setOpenedMenu,
   notificationsData,
-  unreadNotifications,
   hasUnread,
   handleMarkAsRead,
   handleMarkAllAsRead,
