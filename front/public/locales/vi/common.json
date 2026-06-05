@@ -100,5 +100,30 @@
     "terms_conditions": "Điều khoản & Điều kiện",
     "privacy_policy": "Chính sách Bảo mật",
     "rights_reserved": "© {{year}} UpAgain. Bảo lưu mọi quyền."
+  },
+  "onboarding": {
+    "last": "Hoàn tất",
+    "next": "Tiếp theo",
+    "skip": "Bỏ qua",
+    "back": "Quay lại",
+    "finished_title": "Đã hoàn thành hướng dẫn! 🎉",
+    "congrats": "Chúc mừng!",
+    "finished_message": "Bạn đã hoàn thành chuyến tham quan hướng dẫn. Bây giờ bạn đã sẵn sàng khám phá và sử dụng tất cả các tính năng của UpAgain!",
+    "get_started": "Bắt đầu thôi!",
+    "step_impact": "Đây là tổng quan về tác động của bạn. Bạn có thể thấy lượng CO2, nước và điện mà bạn đã tiết kiệm được!",
+    "step_manage": "Quản lý tin đăng và ký gửi của bạn một cách dễ dàng từ phần này.",
+    "step_quick_nav": "Điều hướng nhanh đến các sự kiện và cộng đồng tại đây.",
+    "step_market_list": "Tại chợ, bạn có thể xem các món đồ được đăng bởi những người dùng khác.",
+    "step_market_list_pro": "Chào mừng đến với chợ! Tại đây, bạn có thể mua vật liệu cho các dự án của mình.",
+    "step_market_post": "Sẵn sàng đóng góp? Nhấp vào đây để đăng món đồ đầu tiên của bạn!",
+    "step_myitems": "Theo dõi trạng thái, đơn đặt trước và giao dịch mua của tất cả các tin đăng của bạn ở cùng một nơi.",
+    "step_myitems_pro": "Quản lý các lượt đặt trước và giao dịch mua của bạn tại mục Món đồ của tôi.",
+    "step_posts_list": "Khám phá các bài viết và dự án thú vị từ các chuyên gia trong cộng đồng của chúng tôi.",
+    "step_posts_list_pro": "Xem các bài viết, hướng dẫn, danh sách đã lưu và tự đăng dự án của riêng bạn tại đây.",
+    "step_posts_saved": "Xem tất cả các bài viết đã lưu yêu thích của bạn tại đây.",
+    "step_events_list": "Tham gia vào các sự kiện và hội thảo hấp dẫn của chúng tôi.",
+    "step_events_list_pro": "Khám phá và tham gia các sự kiện do nhân viên của chúng tôi tổ chức.",
+    "step_events_my": "Quản lý đăng ký sự kiện của bạn tại đây.",
+    "step_events_planning": "Xem tất cả các sự kiện bạn đã đăng ký tham gia ở cùng một nơi."
   }
 }

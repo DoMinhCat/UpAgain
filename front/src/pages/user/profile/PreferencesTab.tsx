@@ -304,8 +304,7 @@ export default function PreferencesTab() {
                 </Group>
               )}
               <Button
-                variant="outline"
-                color="teal"
+                variant="secondary"
                 onClick={() => setModalOpen(true)}
                 style={{ alignSelf: "flex-start" }}
                 mt="xs"
@@ -316,6 +315,31 @@ export default function PreferencesTab() {
           </Stack>
         </Paper>
       )}
+
+      {/* ONBOARDING TOUR */}
+      <Paper variant="primary" p={30} radius="lg">
+        <Stack gap="xl">
+          <Stack gap="xs">
+            <Title order={3} size={22}>
+              {t("preferences.onboarding_tour")}
+            </Title>
+            <Text size="sm" c="dimmed">
+              {t("preferences.onboarding_tour_desc")}
+            </Text>
+          </Stack>
+          <Divider />
+          <Button
+            variant="secondary"
+            color="var(--upagain-neutral-green)"
+            onClick={() => {
+              window.dispatchEvent(new Event("start-onboarding-test"));
+            }}
+            style={{ alignSelf: "flex-start" }}
+          >
+            {t("preferences.start_tour")}
+          </Button>
+        </Stack>
+      </Paper>
 
       <MaterialAlertModal
         opened={modalOpen}

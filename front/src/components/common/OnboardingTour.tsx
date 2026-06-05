@@ -37,7 +37,10 @@ export default function OnboardingTour() {
   const pendingStepRef = useRef<number | null>(null);
   const isNavigatingRef = useRef(false);
 
-  const steps: Step[] = [
+  const isPro = accountDetails?.role === "pro";
+  const startPath = isPro ? PATHS.MARKETPLACE.HOME : PATHS.HOME;
+
+  const userSteps: Step[] = [
     // 1. UserHome (steps 0–2)
     {
       target: "#onboard-impact",
@@ -129,8 +132,64 @@ export default function OnboardingTour() {
     },
   ];
 
+  const proSteps: Step[] = [
+    // 1. Marketplace (step 0)
+    {
+      target: "#onboard-market-list",
+      content: t("common:onboarding.step_market_list_pro", {
+        defaultValue:
+          "Welcome to the marketplace! Here, you can buy materials for your projects.",
+      }),
+      placement: "top",
+    },
+    // 2. MyItems (step 1)
+    {
+      target: "#onboard-myitems",
+      content: t("common:onboarding.step_myitems_pro", {
+        defaultValue:
+          "Manage your reservations and purchases in one place under My Items.",
+      }),
+      placement: "center",
+    },
+    // 3. PostsPage (step 2)
+    {
+      target: "#onboard-posts-list",
+      content: t("common:onboarding.step_posts_list_pro", {
+        defaultValue:
+          "Explore the posts and tutorials, view your saved posts, and post your own projects here.",
+      }),
+      placement: "top",
+    },
+    // 4. EventPage (step 3)
+    {
+      target: "#onboard-events-list",
+      content: t("common:onboarding.step_events_list_pro", {
+        defaultValue: "Explore and participate in events organized by our employees.",
+      }),
+      placement: "top",
+    },
+    // 5. EventPlanningPage (step 4)
+    {
+      target: "#onboard-events-planning",
+      content: t("common:onboarding.step_events_planning", {
+        defaultValue: "See all the events you are registered for in one place.",
+      }),
+      placement: "top",
+    },
+  ];
+
+  const steps = isPro ? proSteps : userSteps;
+
   /** Returns the target route path for a given step index */
   function getRouteForStep(stepIndex: number): string {
+    if (isPro) {
+      if (stepIndex === 0) return PATHS.MARKETPLACE.HOME;
+      if (stepIndex === 1) return PATHS.MARKETPLACE.ME;
+      if (stepIndex === 2) return PATHS.USER.POSTS.ALL;
+      if (stepIndex === 3) return PATHS.EVENTS.HOME;
+      return PATHS.EVENTS.PLANNING;
+    }
+    // User route mapping
     if (stepIndex <= 2) return PATHS.HOME;
     if (stepIndex <= 4) return PATHS.MARKETPLACE.HOME;
     if (stepIndex === 5) return PATHS.MARKETPLACE.ME;
@@ -150,7 +209,7 @@ export default function OnboardingTour() {
         setShowFinishedModal(true);
       } else if (status === STATUS.SKIPPED) {
         await completeOnboardingAsync();
-        navigate(PATHS.HOME);
+        navigate(startPath);
       }
       return;
     }
@@ -238,8 +297,8 @@ export default function OnboardingTour() {
         accountDetails.completed_onboard === false &&
         state.status === "idle"
       ) {
-        if (location.pathname !== PATHS.HOME) {
-          navigate(PATHS.HOME);
+        if (location.pathname !== startPath) {
+          navigate(startPath);
           setTimeout(() => {
             controls.start(0);
           }, 600);
@@ -250,14 +309,14 @@ export default function OnboardingTour() {
         }
       }
     }
-  }, [user, isLoading, accountDetails]);
+  }, [user, isLoading, accountDetails, isPro, startPath]);
 
   // Expose method to manually trigger onboarding (for testing button)
   useEffect(() => {
     const handleTestOnboard = () => {
       controls.reset(false);
-      if (location.pathname !== PATHS.HOME) {
-        navigate(PATHS.HOME);
+      if (location.pathname !== startPath) {
+        navigate(startPath);
         setTimeout(() => {
           controls.start(0);
         }, 600);
@@ -270,7 +329,7 @@ export default function OnboardingTour() {
     window.addEventListener("start-onboarding-test", handleTestOnboard);
     return () =>
       window.removeEventListener("start-onboarding-test", handleTestOnboard);
-  }, [controls, navigate, location.pathname]);
+  }, [controls, navigate, location.pathname, isPro, startPath]);
 
   if (!user || isLoading) return null;
 
@@ -281,7 +340,7 @@ export default function OnboardingTour() {
         opened={showFinishedModal}
         onClose={() => {
           setShowFinishedModal(false);
-          navigate(PATHS.HOME);
+          navigate(startPath);
         }}
         title={t("common:onboarding.finished_title", {
           defaultValue: "Onboarding Completed! 🎉",
@@ -310,7 +369,7 @@ export default function OnboardingTour() {
             color="var(--upagain-neutral-green, #5a9e6f)"
             onClick={() => {
               setShowFinishedModal(false);
-              navigate(PATHS.HOME);
+              navigate(startPath);
             }}
             fullWidth
             radius="md"
