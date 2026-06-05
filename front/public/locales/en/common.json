@@ -184,5 +184,13 @@
     "pro": "Pro",
     "employee": "Employee",
     "admin": "Admin"
+  },
+  "chatbot": {
+    "button_label": "Ask Arnaud",
+    "title": "Gemini Upcycling Assistant",
+    "intro": "Hello! I am your Upcycling Assistant. Ask me for DIY ideas, recycling tips, or details about the platform!",
+    "thinking": "Thinking...",
+    "placeholder": "Ask me anything about upcycling...",
+    "error_message": "Sorry, I encountered an issue. Please try again later."
   }
 }

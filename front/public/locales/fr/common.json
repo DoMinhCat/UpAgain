@@ -184,5 +184,13 @@
     "pro": "Pro",
     "employee": "Employé",
     "admin": "Admin"
+  },
+  "chatbot": {
+    "button_label": "Demander à Arnaud",
+    "title": "Assistant d'Upcycling Gemini",
+    "intro": "Bonjour ! Je suis votre assistant d'upcycling. Demandez-moi des idées de bricolage, des conseils de recyclage ou des détails sur la plateforme !",
+    "thinking": "Réflexion...",
+    "placeholder": "Posez-moi une question sur l'upcycling...",
+    "error_message": "Désolé, j'ai rencontré un problème. Veuillez réessayer plus tard."
   }
 }
