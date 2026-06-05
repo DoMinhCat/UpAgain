@@ -49,6 +49,8 @@
     "no_new": "No new notifications",
     "title": "Notifications",
     "see_all": "See all",
+    "btn_push_noti": "Enable push notifications on this device",
+    "blocked_desc": "Notifications are blocked by your browser settings. Please enable them in your browser to receive updates.",
     "types": {
       "user_object_status": "Object \"{{title}}\" status updated",
       "user_validation_status": "Validation status updated for \"{{title}}\"",
