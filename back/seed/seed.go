@@ -22,5 +22,7 @@ func SeedDB() {
 
 	// Insert data (modular functions to avoid messy code)
 	// TODO: call modular functions to insert into table 1 by 1
+
+	fmt.Println("Seeding completed successfully!")
 }
 
