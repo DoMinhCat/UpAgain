@@ -48,6 +48,8 @@
     "no_new": "Không có thông báo mới",
     "title": "Thông báo",
     "see_all": "Xem tất cả",
+    "btn_push_noti": "Bật thông báo đẩy trên thiết bị này",
+    "blocked_desc": "Thông báo đang bị chặn bởi cài đặt trình duyệt của bạn. Vui lòng bật lại trong cài đặt trình duyệt để nhận thông báo.",
     "types": {
       "user_object_status": "Trạng thái của vật phẩm \"{{title}}\" đã cập nhật",
       "user_validation_status": "Trạng thái phê duyệt của \"{{title}}\" đã cập nhật",

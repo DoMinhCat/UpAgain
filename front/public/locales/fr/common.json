@@ -49,6 +49,8 @@
     "no_new": "Aucune nouvelle notification",
     "title": "Notifications",
     "see_all": "Voir tout",
+    "btn_push_noti": "Activer les notifications push sur cet appareil",
+    "blocked_desc": "Les notifications sont bloquées par les paramètres de votre navigateur. Veuillez les activer dans votre navigateur pour recevoir les mises à jour.",
     "types": {
       "user_object_status": "Le statut de l'objet \"{{title}}\" a changé",
       "user_validation_status": "Statut de validation mis à jour pour \"{{title}}\"",
