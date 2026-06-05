@@ -68,7 +68,7 @@ const getTimeframeLabel = (t: any, key: string) => {
 };
 
 export default function AdminSubscriptions() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const { data: price } = useGetSubscriptionPrice();
   const priceMutation = useUpdateSubscriptionPrice();
   const [openedPrice, { open: openPrice, close: closePrice }] =

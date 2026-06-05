@@ -4,7 +4,19 @@
     "summary": "Tóm tắt",
     "cancel": "Hủy",
     "confirm": "Xác nhận",
-    "search": "Tìm kiếm"
+    "search": "Tìm kiếm",
+    "delete": "Xóa",
+    "unassign": "Hủy phân công",
+    "view_profile": "Xem trang cá nhân",
+    "apply_filters": "Áp dụng bộ lọc",
+    "reset": "Đặt lại",
+    "copied": "Đã sao chép",
+    "copy": "Sao chép mã",
+    "title": "Tiêu đề",
+    "reopen": "Mở lại",
+    "approve": "Duyệt",
+    "edit": "Chỉnh sửa",
+    "type": "Loại"
   },
   "materials": {
     "all": "Tất cả vật liệu",
@@ -61,10 +73,12 @@
       "pro_subscription_end": "Gói đăng ký sắp kết thúc",
       "emp_event_updated": "Sự kiện phân công \"{{title}}\" đã cập nhật",
       "emp_event_assigned": "Được phân công vào sự kiện \"{{title}}\""
-    }
+    },
+    "loading": "Đang tải...",
+    "not_found": "Không tìm thấy"
   },
   "free": "Miễn phí",
-  "not_set": "Chưa đặt",
+  "not_set": "Chưa thiết lập",
   "sort_by": "Sắp xếp theo",
   "type": "Loại",
   "pagination": {
@@ -82,7 +96,9 @@
     "minutes_ago_other": "{{count}} phút trước",
     "hours_ago_other": "{{count}} giờ trước",
     "yesterday": "Hôm qua",
-    "days_ago_other": "{{count}} ngày trước"
+    "days_ago_other": "{{count}} ngày trước",
+    "days": "ngày",
+    "day": "ngày"
   },
   "change_language": "Thay đổi ngôn ngữ",
   "languages": "Ngôn ngữ",
@@ -127,5 +143,42 @@
     "step_events_list_pro": "Khám phá và tham gia các sự kiện do nhân viên của chúng tôi tổ chức.",
     "step_events_my": "Quản lý đăng ký sự kiện của bạn tại đây.",
     "step_events_planning": "Xem tất cả các sự kiện bạn đã đăng ký tham gia ở cùng một nơi."
+  },
+  "object_management": "Quản lý đồ vật",
+  "container": "Thùng thu gom",
+  "schedule": "Lịch trình",
+  "confirm": "Xác nhận",
+  "employee": "Nhân viên",
+  "not_assigned": "Chưa phân công",
+  "all_status": "Tất cả trạng thái",
+  "search": "Tìm kiếm",
+  "timeframe": {
+    "all": "Tất cả thời gian",
+    "today": "Hôm nay",
+    "last_3_days": "3 ngày qua",
+    "last_week": "Tuần trước",
+    "last_month": "Tháng trước",
+    "last_year": "Năm trước",
+    "title": "Khoảng thời gian"
+  },
+  "timeframe_options": {
+    "today": "Hôm nay",
+    "last_3_days": "3 ngày qua",
+    "last_week": "Tuần trước",
+    "last_month": "Tháng trước",
+    "last_year": "Năm trước"
+  },
+  "event_categories": {
+    "workshop": "Hội thảo",
+    "conference": "Hội nghị",
+    "meetups": "Gặp mặt",
+    "exposition": "Triển lãm",
+    "other": "Khác"
+  },
+  "roles": {
+    "user": "Người dùng",
+    "pro": "Pro",
+    "employee": "Nhân viên",
+    "admin": "Admin"
   }
 }

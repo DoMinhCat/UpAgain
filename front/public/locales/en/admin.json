@@ -257,7 +257,8 @@
       },
       "tooltips": {
         "edit_admin": "Cannot edit another admin's account",
-        "password_admin": "Cannot change password of another admin"
+        "password_admin": "Cannot change password of another admin",
+        "ban_admin": "Cannot ban an administrator"
       },
       "modals": {
         "recover_title": "Recover account",
@@ -271,7 +272,8 @@
         "password_title": "Change password",
         "password_placeholder": "New password",
         "password_confirm_placeholder": "Confirm new password",
-        "password_text": "Are you sure you change password for this account? The old password will be replaced by the new one."
+        "password_text": "Are you sure you change password for this account? The old password will be replaced by the new one.",
+        "calendar_title": "Schedule Calendar"
       }
     },
     "deleted": {
@@ -566,6 +568,7 @@
       "approve_item": "Approve",
       "delete_item": "Delete",
       "transfer_container": "Transfer to another container",
+      "location": "Location",
       "edit_modal": {
         "title": "Edit Object's Details",
         "description_label": "Description",
@@ -731,8 +734,14 @@
         "duration_required": "Duration is required",
         "duration_min": "Duration must be at least 1 month",
         "end_required": "End date is required",
-        "end_after_start": "End date must be after start date"
-      }
+        "end_after_start": "End date must be after start date",
+        "start_date_req": "Start date is required",
+        "start_date_future": "Start date must be in the future",
+        "end_date_req": "End date is required",
+        "end_date_after": "End date must be after start date"
+      },
+      "start_date_placeholder": "Pick start date",
+      "end_date_placeholder": "Pick end date"
     },
     "notifications": {
       "created_title": "Post created",
@@ -817,7 +826,8 @@
         "highest_price": "Highest price",
         "lowest_price": "Lowest price",
         "earliest_start_date": "Earliest start date",
-        "latest_start_date": "Latest start date"
+        "latest_start_date": "Latest start date",
+        "most_popular": "Most popular"
       }
     },
     "table": {
@@ -863,6 +873,10 @@
         "confirm_reopen": "Confirm Reopen",
         "confirm_approve": "Confirm Approval",
         "confirm_cancel": "Confirm Cancellation"
+      },
+      "registered_attendees": {
+        "title": "Registered Attendees",
+        "no_registered": "No attendees registered yet."
       }
     }
   },
@@ -926,6 +940,10 @@
         "reason_label": "Reason for cancellation",
         "reason_placeholder": "Optional reason...",
         "confirm": "Confirm Cancellation"
+      },
+      "notifications": {
+        "invoice_loading_error": "Failed to load invoice.",
+        "invoice_not_found": "Invoice not found."
       }
     },
     "notifications": {
@@ -1036,5 +1054,14 @@
     "create": "Create",
     "update": "Update",
     "delete": "Delete"
+  },
+  "subscription": {
+    "title": "Subscription Management",
+    "details": {
+      "title": "Subscription Details"
+    }
+  },
+  "fields": {
+    "upcycling_score": "Upcycling Score"
   }
 }

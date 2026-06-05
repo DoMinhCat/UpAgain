@@ -257,7 +257,8 @@
       },
       "tooltips": {
         "edit_admin": "Impossible de modifier le compte d'un autre admin",
-        "password_admin": "Impossible de changer le mot de passe d'un autre admin"
+        "password_admin": "Impossible de changer le mot de passe d'un autre admin",
+        "ban_admin": "Impossible de bannir un administrateur"
       },
       "modals": {
         "recover_title": "Récupérer le compte",
@@ -271,7 +272,8 @@
         "password_title": "Changer le mot de passe",
         "password_placeholder": "Nouveau mot de passe",
         "password_confirm_placeholder": "Confirmer le nouveau mot de passe",
-        "password_text": "Êtes-vous sûr de vouloir changer le mot de passe de ce compte ? L'ancien mot de passe sera remplacé par le nouveau."
+        "password_text": "Êtes-vous sûr de vouloir changer le mot de passe de ce compte ? L'ancien mot de passe sera remplacé par le nouveau.",
+        "calendar_title": "Calendrier des horaires"
       }
     },
     "deleted": {
@@ -566,6 +568,7 @@
       "approve_item": "Approuver",
       "delete_item": "Supprimer",
       "transfer_container": "Transférer vers un autre conteneur",
+      "location": "Localisation",
       "edit_modal": {
         "title": "Modifier les détails de l'objet",
         "description_label": "Description",
@@ -731,8 +734,14 @@
         "duration_required": "La durée est requise",
         "duration_min": "La durée doit être d'au moins 1 mois",
         "end_required": "La date de fin est requise",
-        "end_after_start": "La date de fin doit être après la date de début"
-      }
+        "end_after_start": "La date de fin doit être après la date de début",
+        "start_date_req": "La date de début est requise",
+        "start_date_future": "La date de début doit être dans le futur",
+        "end_date_req": "La date de fin est requise",
+        "end_date_after": "La date de fin doit être postérieure à la date de début"
+      },
+      "start_date_placeholder": "Choisir la date de début",
+      "end_date_placeholder": "Choisir la date de fin"
     },
     "notifications": {
       "created_title": "Article créé",
@@ -817,7 +826,8 @@
         "highest_price": "Prix le plus élevé",
         "lowest_price": "Prix le plus bas",
         "earliest_start_date": "Date de début la plus proche",
-        "latest_start_date": "Date de début la plus lointaine"
+        "latest_start_date": "Date de début la plus lointaine",
+        "most_popular": "Le plus populaire"
       }
     },
     "table": {
@@ -863,6 +873,10 @@
         "confirm_reopen": "Confirmer la réouverture",
         "confirm_approve": "Confirmer l'approbation",
         "confirm_cancel": "Confirmer l'annulation"
+      },
+      "registered_attendees": {
+        "title": "Participants inscrits",
+        "no_registered": "Aucun participant inscrit pour le moment."
       }
     }
   },
@@ -926,6 +940,10 @@
         "reason_label": "Raison de l'annulation",
         "reason_placeholder": "Raison facultative...",
         "confirm": "Confirmer la révocation"
+      },
+      "notifications": {
+        "invoice_loading_error": "Échec du chargement de la facture.",
+        "invoice_not_found": "Facture introuvable."
       }
     },
     "notifications": {
@@ -1036,5 +1054,14 @@
     "create": "Créer",
     "update": "Modifier",
     "delete": "Supprimer"
+  },
+  "subscription": {
+    "title": "Gestion des abonnements",
+    "details": {
+      "title": "Détails de l'abonnement"
+    }
+  },
+  "fields": {
+    "upcycling_score": "Score d'upcycling"
   }
 }
