@@ -97,7 +97,7 @@ const TYPE_COLORS: Record<string, string> = {
 // --- Page ---
 
 export default function AdminFinance() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const navigate = useNavigate();
   const [year, setYear] = useState<string>(String(CURRENT_YEAR));
   const [search, setSearch] = useState("");
@@ -541,7 +541,7 @@ function FinanceSettingsModal({
   settings,
   isLoading,
 }: FinanceSettingsModalProps) {
-  const { t, i18n } = useTranslation("admin");
+  const { t, i18n } = useTranslation(["admin", "common"]);
   const [values, setValues] = useState<Record<string, number>>({});
   const { mutateAsync: updateSetting, isPending } = useUpdateFinanceSetting();
 

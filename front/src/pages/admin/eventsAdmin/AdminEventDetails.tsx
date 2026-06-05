@@ -56,7 +56,7 @@ import { EditEventModal } from "../../../components/event/EditEventModal";
 import { CancelEventModal } from "../../../components/event/CancelEventModal";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
 export default function AdminEventDetails() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const location = useLocation();
   const origin = location.state;
   const navigate = useNavigate();

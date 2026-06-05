@@ -37,7 +37,7 @@ import { RefuseItemModal } from "../../../components/admin/RefuseItemModal";
 import DOMPurify from "dompurify";
 
 export default function AdminValidationDetails() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const navigate = useNavigate();
   const { state } = useLocation();
   const { type, id } = useParams<{

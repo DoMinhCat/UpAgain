@@ -27,7 +27,7 @@ import {
 import PaginationFooter from "../../../components/common/PaginationFooter";
 
 export default function AdminUsersDeleted() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   // hooks
   const { mutate: recover, isPending: isPendingRecover } = useRecoverAccount();
   const handleRecover = () => {

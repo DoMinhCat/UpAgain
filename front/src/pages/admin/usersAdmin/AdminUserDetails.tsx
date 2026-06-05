@@ -76,7 +76,7 @@ import {
 import { resolveUrl } from "../../../utils/imageUtils";
 
 export default function AdminUserDetails() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   // for breadcrumbs
   const location = useLocation();
   const origin = location.state;

@@ -33,7 +33,7 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 export default function AdminSubscriptionDetails() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const location = useLocation();
   const origin = location.state;
 
