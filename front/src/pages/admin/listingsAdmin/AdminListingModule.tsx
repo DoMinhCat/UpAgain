@@ -43,7 +43,7 @@ import { useTranslation } from "react-i18next";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
 
 export function AdminListingModule() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const navigate = useNavigate();
 
   // Get table data

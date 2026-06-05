@@ -90,7 +90,7 @@ const defaultFilters: FiltersState = {
 // ─── Overview Tab ────────────────────────────────────────────────────────────
 
 function OverviewTab() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const { data: stats, isLoading, isError } = useValidationStats();
 
   const totalPending =
@@ -308,7 +308,7 @@ function FilterBar({
   showStatus = false,
   showType = false,
 }: FilterBarProps) {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   // Always total to 12 columns to ensure consistent length across all tabs
   const searchSpan = 12 - (showStatus ? 2 : 0) - (showType ? 2 : 0) - 2 - 3;
 
@@ -404,7 +404,7 @@ interface ActionHandlers {
 }
 
 function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
   const [appliedFilters, setAppliedFilters] =
@@ -539,7 +539,7 @@ function DepositsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 // ─── Listings Tab ────────────────────────────────────────────────────────────
 
 function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
   const [appliedFilters, setAppliedFilters] =
@@ -678,7 +678,7 @@ function ListingsTab({ onApprove, onOpenRefuse, navigate }: ActionHandlers) {
 // ─── Events Tab ──────────────────────────────────────────────────────────────
 
 function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
   const [appliedFilters, setAppliedFilters] =
@@ -908,7 +908,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
 // ─── History Tab ─────────────────────────────────────────────────────────────
 
 function HistoryTab() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const navigate = useNavigate();
   const [activePage, setPage] = useState(1);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
@@ -1064,7 +1064,7 @@ function HistoryTab() {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function AdminValidationHub() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const navigate = useNavigate();
   const processMutation = useProcessValidation();
 

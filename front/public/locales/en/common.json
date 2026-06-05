@@ -4,7 +4,19 @@
     "search": "Search",
     "summary": "Summary",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "unassign": "Unassign",
+    "view_profile": "View Profile",
+    "apply_filters": "Apply Filters",
+    "reset": "Reset",
+    "copied": "Copied",
+    "copy": "Copy code",
+    "title": "Title",
+    "reopen": "Reopen",
+    "approve": "Approve",
+    "edit": "Edit",
+    "type": "Type"
   },
   "materials": {
     "all": "All Materials",
@@ -62,7 +74,9 @@
       "pro_subscription_end": "Subscription ending soon",
       "emp_event_updated": "Event \"{{title}}\" updated",
       "emp_event_assigned": "Assigned to event \"{{title}}\""
-    }
+    },
+    "loading": "Loading...",
+    "not_found": "Not found"
   },
   "free": "Free",
   "not_set": "Not set",
@@ -86,7 +100,9 @@
     "hours_ago_other": "{{count}} hours ago",
     "yesterday": "Yesterday",
     "days_ago_one": "1 day ago",
-    "days_ago_other": "{{count}} days ago"
+    "days_ago_other": "{{count}} days ago",
+    "days": "days",
+    "day": "day"
   },
   "change_language": "Change language",
   "languages": "Languages",
@@ -131,6 +147,43 @@
     "step_events_list_pro": "Explore and participate in events organized by our employees.",
     "step_events_my": "Manage your event registrations here.",
     "step_events_planning": "See all the events you are registered for in one place."
+  },
+  "object_management": "Object Management",
+  "container": "Container",
+  "schedule": "Schedule",
+  "confirm": "Confirm",
+  "employee": "Employee",
+  "not_assigned": "Not assigned",
+  "all_status": "All Statuses",
+  "search": "Search",
+  "timeframe": {
+    "all": "All time",
+    "today": "Today",
+    "last_3_days": "Last 3 days",
+    "last_week": "Last week",
+    "last_month": "Last month",
+    "last_year": "Last year",
+    "title": "Timeframe"
+  },
+  "timeframe_options": {
+    "today": "Today",
+    "last_3_days": "Last 3 days",
+    "last_week": "Last week",
+    "last_month": "Last month",
+    "last_year": "Last year"
+  },
+  "event_categories": {
+    "workshop": "Workshop",
+    "conference": "Conference",
+    "meetups": "Meetup",
+    "exposition": "Exhibition",
+    "other": "Other"
+  },
+  "roles": {
+    "user": "User",
+    "pro": "Pro",
+    "employee": "Employee",
+    "admin": "Admin"
   },
   "chatbot": {
     "button_label": "Ask Arnaud",

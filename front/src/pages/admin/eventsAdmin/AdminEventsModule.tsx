@@ -38,7 +38,7 @@ import PaginationFooter from "../../../components/common/PaginationFooter";
 import { CreateEventModal } from "../../../components/event/CreateEventModal";
 
 export default function AdminEventsModule() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const navigate = useNavigate();
 
   // get all events
