@@ -4,7 +4,19 @@
     "summary": "Résumé",
     "cancel": "Annuler",
     "confirm": "Confirmer",
-    "search": "Rechercher"
+    "search": "Rechercher",
+    "delete": "Supprimer",
+    "unassign": "Désassigner",
+    "view_profile": "Voir le profil",
+    "apply_filters": "Appliquer les filtres",
+    "reset": "Réinitialiser",
+    "copied": "Copié",
+    "copy": "Copier le code",
+    "title": "Titre",
+    "reopen": "Rouvrir",
+    "approve": "Approuver",
+    "edit": "Modifier",
+    "type": "Type"
   },
   "materials": {
     "all": "Tous les matériaux",
@@ -62,7 +74,9 @@
       "pro_subscription_end": "L'abonnement se termine bientôt",
       "emp_event_updated": "L'événement \"{{title}}\" a été mis à jour",
       "emp_event_assigned": "Assigné à l'événement \"{{title}}\""
-    }
+    },
+    "loading": "Chargement...",
+    "not_found": "Introuvable"
   },
   "free": "Gratuit",
   "not_set": "Non défini",
@@ -86,7 +100,9 @@
     "hours_ago_other": "Il y a {{count}} heures",
     "yesterday": "Hier",
     "days_ago_one": "Il y a 1 jour",
-    "days_ago_other": "Il y a {{count}} jours"
+    "days_ago_other": "Il y a {{count}} jours",
+    "days": "jours",
+    "day": "jour"
   },
   "change_language": "Changer de langue",
   "languages": "Langues",
@@ -131,6 +147,43 @@
     "step_events_list_pro": "Explorez et participez aux événements organisés par nos collaborateurs.",
     "step_events_my": "Gérez vos inscriptions aux événements ici.",
     "step_events_planning": "Consultez tous les événements auxquels vous êtes inscrit au même endroit."
+  },
+  "object_management": "Gestion des objets",
+  "container": "Conteneur",
+  "schedule": "Planning",
+  "confirm": "Confirmer",
+  "employee": "Employé",
+  "not_assigned": "Non assigné",
+  "all_status": "Tous les statuts",
+  "search": "Rechercher",
+  "timeframe": {
+    "all": "Tout le temps",
+    "today": "Aujourd'hui",
+    "last_3_days": "3 derniers jours",
+    "last_week": "Semaine dernière",
+    "last_month": "Mois dernier",
+    "last_year": "Année dernière",
+    "title": "Période"
+  },
+  "timeframe_options": {
+    "today": "Aujourd'hui",
+    "last_3_days": "3 derniers jours",
+    "last_week": "Semaine dernière",
+    "last_month": "Mois dernier",
+    "last_year": "Année dernière"
+  },
+  "event_categories": {
+    "workshop": "Atelier",
+    "conference": "Conférence",
+    "meetups": "Rencontre",
+    "exposition": "Exposition",
+    "other": "Autre"
+  },
+  "roles": {
+    "user": "Utilisateur",
+    "pro": "Pro",
+    "employee": "Employé",
+    "admin": "Admin"
   },
   "chatbot": {
     "button_label": "Demander à Arnaud",

@@ -46,7 +46,7 @@ import { useState } from "react";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
 
 export default function AdminContainersDetails() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const origin = useLocation().state;
   const navigate = useNavigate();
   const params = useParams();

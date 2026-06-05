@@ -42,7 +42,7 @@ import { useAuth } from "../../../context/AuthContext";
 
 export const AdminPostsModule = () => {
   const { user } = useAuth();
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const navigate = useNavigate();
 
   // STATS CARD

@@ -257,7 +257,8 @@
       },
       "tooltips": {
         "edit_admin": "Hổng cho sửa tài khoản admin khác đâu nha",
-        "password_admin": "Hổng cho đổi mật khẩu admin khác đâu nha"
+        "password_admin": "Hổng cho đổi mật khẩu admin khác đâu nha",
+        "ban_admin": "Hổng có chặn tài khoản admin khác được đâu nha"
       },
       "modals": {
         "recover_title": "Khôi Phục Tài Khoản",
@@ -271,7 +272,8 @@
         "password_title": "Đổi Mật Khẩu",
         "password_placeholder": "Mật khẩu mới nè",
         "password_confirm_placeholder": "Nhập lại mật khẩu mới nha",
-        "password_text": "Bạn có chắc muốn đổi mật khẩu cho tài khoản này không? Mật khẩu cũ sẽ được thay thế bằng mật khẩu mới."
+        "password_text": "Bạn có chắc muốn đổi mật khẩu cho tài khoản này không? Mật khẩu cũ sẽ được thay thế bằng mật khẩu mới.",
+        "calendar_title": "Lịch làm việc chi tiết"
       }
     },
     "deleted": {
@@ -562,6 +564,7 @@
       "approve_item": "Duyệt món này",
       "delete_item": "Xóa món này",
       "transfer_container": "Chuyển sang thùng khác",
+      "location": "Vị trí",
       "edit_modal": {
         "title": "Sửa Thông Tin Món Đồ",
         "description_label": "Mô tả",
@@ -727,8 +730,14 @@
         "duration_required": "Thời gian là bắt buộc",
         "duration_min": "Tối thiểu 1 tháng nha",
         "end_required": "Ngày kết thúc là bắt buộc",
-        "end_after_start": "Ngày kết thúc phải sau ngày bắt đầu"
-      }
+        "end_after_start": "Ngày kết thúc phải sau ngày bắt đầu",
+        "start_date_req": "Ngày bắt đầu là bắt buộc nha",
+        "start_date_future": "Ngày bắt đầu phải ở tương lai nè",
+        "end_date_req": "Ngày kết thúc là bắt buộc nha",
+        "end_date_after": "Ngày kết thúc phải sau ngày bắt đầu chứ"
+      },
+      "start_date_placeholder": "Chọn ngày bắt đầu",
+      "end_date_placeholder": "Chọn ngày kết thúc"
     },
     "notifications": {
       "created_title": "Bài viết được tạo",
@@ -813,7 +822,8 @@
         "highest_price": "Giá cao ngất ngưỡng",
         "lowest_price": "Giá rẻ bèo nhèo",
         "earliest_start_date": "Bắt đầu sớm nhất",
-        "latest_start_date": "Bắt đầu trễ nhất"
+        "latest_start_date": "Bắt đầu trễ nhất",
+        "most_popular": "Phổ biến nhất"
       }
     },
     "table": {
@@ -859,6 +869,10 @@
         "confirm_reopen": "Xác nhận mở lại",
         "confirm_approve": "Xác nhận duyệt",
         "confirm_cancel": "Xác nhận hủy"
+      },
+      "registered_attendees": {
+        "title": "Danh sách đăng ký",
+        "no_registered": "Chưa có ai đăng ký tham gia hết nè."
       }
     }
   },
@@ -922,6 +936,10 @@
         "reason_label": "Lý do hủy nè",
         "reason_placeholder": "Ghi lý do vô đây (hổng bắt buộc)...",
         "confirm": "Hủy luôn cho rồi"
+      },
+      "notifications": {
+        "invoice_loading_error": "Tải hóa đơn thất bại rồi.",
+        "invoice_not_found": "Hông tìm thấy hóa đơn đâu hết."
       }
     },
     "notifications": {
@@ -1032,5 +1050,14 @@
     "create": "Tạo mới",
     "update": "Cập nhật",
     "delete": "Xóa"
+  },
+  "subscription": {
+    "title": "Quản lý gói hội viên",
+    "details": {
+      "title": "Chi tiết gói hội viên"
+    }
+  },
+  "fields": {
+    "upcycling_score": "Điểm Upcycling"
   }
 }

@@ -40,7 +40,7 @@ import { PATHS } from "../../../routes/paths";
 import type { Container as ContainerInterface } from "../../../api/interfaces/container";
 
 export default function AdminContainersModule() {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation(["admin", "common"]);
   const navigate = useNavigate();
   const [openedCreate, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);

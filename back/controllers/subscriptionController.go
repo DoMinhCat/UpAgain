@@ -257,7 +257,6 @@ func UpdateSubscriptionPriceHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
-// TODO: refactor this to finance route that get all finance settings based on query param ?key=key1/2/3/...
 // GetSubscriptionPriceHandler godoc
 // @Summary      Get subscription price
 // @Description  Get the current price of the premium subscription
