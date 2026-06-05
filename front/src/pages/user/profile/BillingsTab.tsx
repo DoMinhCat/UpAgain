@@ -1,5 +1,6 @@
 import {
   Stack,
+  Group,
   Text,
   Title,
   Table,
@@ -7,7 +8,7 @@ import {
   ActionIcon,
   Tooltip,
   Center,
-  Loader,
+  Skeleton,
   Paper,
   ScrollArea,
 } from "@mantine/core";
@@ -57,9 +58,25 @@ export default function BillingsTab() {
 
       <Paper withBorder radius="md" p="md">
         {isLoading ? (
-          <Center h={200}>
-            <Loader />
-          </Center>
+          <Stack gap="xs" p="md">
+            {/* Table header skeleton */}
+            <Group justify="space-between" mb="xs">
+              {["20%", "12%", "25%", "20%", "10%", "5%"].map((w, i) => (
+                <Skeleton key={i} height={14} width={w} />
+              ))}
+            </Group>
+            {/* Table rows skeleton */}
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Group key={i} justify="space-between" py="xs">
+                <Skeleton height={16} width="18%" />
+                <Skeleton height={20} width={70} radius="xl" />
+                <Skeleton height={16} width="22%" />
+                <Skeleton height={16} width="18%" />
+                <Skeleton height={16} width="8%" />
+                <Skeleton height={28} width={28} radius="md" />
+              </Group>
+            ))}
+          </Stack>
         ) : !invoicesData?.invoices?.length ? (
           <Center py="xl">
             <Stack align="center" gap="xs">
@@ -92,7 +109,7 @@ export default function BillingsTab() {
                       <Badge
                         variant="light"
                         color={TYPE_COLORS[inv.type] ?? "gray"}
-                        size="lg"
+                        size="sm"
                       >
                         {inv.type}
                       </Badge>
@@ -113,8 +130,8 @@ export default function BillingsTab() {
                         position="top"
                       >
                         <ActionIcon
-                          variant="light"
-                          color="blue"
+                          variant="subtle"
+                          color="var(--upagain-light-green)"
                           size="lg"
                           radius="md"
                           onClick={() =>

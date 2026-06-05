@@ -1,4 +1,4 @@
-import { Center, Loader, ScrollArea, Table, Text } from "@mantine/core";
+import { Center, Skeleton, ScrollArea, Table, Text } from "@mantine/core";
 import type React from "react";
 import { useState } from "react";
 
@@ -8,6 +8,7 @@ export interface AdminTableProps {
   footer?: React.ReactNode;
   loading?: boolean;
   error?: Error | null;
+  maxHeight?: string | number;
 }
 
 export default function AdminTable({
@@ -16,11 +17,12 @@ export default function AdminTable({
   footer,
   loading,
   error,
+  maxHeight = "90vh",
 }: AdminTableProps) {
   const [scrolled, setScrolled] = useState(false);
   return (
     <ScrollArea
-      h={"70vh"}
+      mah={maxHeight}
       onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
     >
       <Table
@@ -53,7 +55,7 @@ export default function AdminTable({
             <Table.Tr>
               <Table.Td colSpan={header.length}>
                 <Center py="sm">
-                  <Loader size="sm" />
+                  <Skeleton height={20} width="100%" />
                 </Center>
               </Table.Td>
             </Table.Tr>

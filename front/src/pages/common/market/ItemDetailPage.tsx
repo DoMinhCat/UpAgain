@@ -41,7 +41,7 @@ import {
   useGetItemTransactions,
   useGetLatestTransactionOfPro,
 } from "../../../hooks/itemHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import DOMPurify from "dompurify";
 import { useGetListingDetails } from "../../../hooks/listingHooks";
@@ -53,16 +53,23 @@ import { NotFoundPage } from "../../error/404";
 import { useDisclosure } from "@mantine/hooks";
 import { EditItemModal } from "../../../components/marketplace/EditItemModal";
 import { DeleteItemModal } from "../../../components/marketplace/DeleteItemModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TransferContainerModal } from "../../../components/market/TransferContainerModal";
 import { ConfirmReservationModal } from "../../../components/market/ConfirmReservationModal";
 import { ConfirmPurchaseModal } from "../../../components/market/ConfirmPurchaseModal";
 import dayjs from "dayjs";
 import { useGetContainerEarliestAvailability } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
+import { useHandleVerifyItemPurchase } from "../../../hooks/stripeHooks";
 
 export default function ItemDetailPage() {
-  const { t } = useTranslation(["marketplace", "home", "common"]);
+  const { t } = useTranslation([
+    "marketplace",
+    "home",
+    "common",
+    "post",
+    "community",
+  ]);
   const theme = useComputedColorScheme("light");
   const { user } = useAuth();
   const role = user?.role;
@@ -71,6 +78,10 @@ export default function ItemDetailPage() {
   const id = params.id;
   const id_item = Number(id);
   const isValidId = !isNaN(id_item) && id_item > 0;
+  const origin = useLocation().state;
+
+  // VERIFY ITEM PURCHASE
+  const { isVerifying } = useHandleVerifyItemPurchase(id_item);
 
   // PHOTO CAROUSEL MODAL
   const [lightboxOpened, setLightboxOpened] = useState(false);
@@ -97,7 +108,6 @@ export default function ItemDetailPage() {
   const { data: transactionsData } = useGetItemTransactions(id_item, isValidId);
   const latestTransaction = transactionsData?.transactions?.[0];
   const isReserved = latestTransaction?.action === "reserved";
-  const isPurchased = latestTransaction?.action === "purchased";
 
   const [openedEdit, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
@@ -149,10 +159,10 @@ export default function ItemDetailPage() {
   };
 
   if (isLoadingItem || isListingDetailsLoading || isDepositDetailsLoading) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
-  if (!item || item.status !== "approved" || isPurchased) {
+  if (!item || (item.status !== "approved" && item.status !== "completed")) {
     return <NotFoundPage />;
   }
 
@@ -165,7 +175,32 @@ export default function ItemDetailPage() {
             mt="md"
             breadcrumbs={[
               { title: t("home:title"), href: PATHS.HOME },
-              { title: t("marketplace:market"), href: PATHS.MARKETPLACE.HOME },
+              ...(origin?.from === "postDetails" && origin?.id_post
+                ? [
+                    {
+                      title: t("community:community"),
+                      href: PATHS.USER.POSTS.ALL,
+                    },
+                    {
+                      title:
+                        origin?.post_title ||
+                        t("post:details.title", {
+                          defaultValue: "Post Details",
+                        }),
+                      href: `${PATHS.POSTS.HOME}/${origin.id_post}`,
+                      state: {
+                        from: "itemDetails",
+                        id_item: id_item,
+                        item_title: item.title,
+                      },
+                    },
+                  ]
+                : [
+                    {
+                      title: t("marketplace:market"),
+                      href: PATHS.MARKETPLACE.HOME,
+                    },
+                  ]),
               { title: item.title, href: "#" },
             ]}
           />
@@ -613,6 +648,7 @@ export default function ItemDetailPage() {
                             color="var(--upagain-neutral-green)"
                             rightSection={<IconChevronRight size={18} />}
                             onClick={openPurchase}
+                            // TODO: show hint Stripe's commission and VAT not included yet
                           >
                             {t("marketplace:detail.buy")}
                           </Button>
@@ -773,6 +809,7 @@ export default function ItemDetailPage() {
             idItem={id_item}
             itemTitle={item?.title}
             price={item?.price}
+            isVerifying={isVerifying}
           />
         </>
       )}

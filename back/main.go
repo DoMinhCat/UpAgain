@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/config"
+	"backend/cron"
 	"backend/middleware"
 	"backend/routes"
 	"backend/utils"
@@ -40,6 +41,7 @@ func main() {
 
 	config.GeoCodeAPIKey = utils.GetGeoCodeApiKey()
 	config.OnesignalAPIKEY = utils.GetOnesignalRestApiKey()
+	config.OnesignalAppId = utils.GetOnesignalAppId()
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)
@@ -47,6 +49,9 @@ func main() {
 		slog.Info("connected to database successfully")
 		defer utils.Conn.Close()
 	}
+
+	// Start cron jobs
+	cron.StartCronJobs()
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration

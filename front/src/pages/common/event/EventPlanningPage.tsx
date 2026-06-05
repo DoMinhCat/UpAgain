@@ -7,7 +7,7 @@ export default function EventPlanningPage() {
   const { t } = useTranslation();
 
   return (
-    <Container size="xl" py={40} w="100%">
+    <Container id="onboard-events-planning" size="xl" py={40} w="100%">
       <Stack gap="xl">
         <Stack gap="xs">
           <MyBreadcrumbs
@@ -18,7 +18,7 @@ export default function EventPlanningPage() {
               },
               {
                 title: t("events", { defaultValue: "Events" }),
-                href: "/events",
+                href: PATHS.EVENTS.HOME,
               },
               { title: t("events:btn_event_planning"), href: "#" },
             ]}

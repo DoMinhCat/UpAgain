@@ -236,23 +236,23 @@ func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int)
 		return nil, 0, fmt.Errorf("GetAllPosts() count failed: %v", err)
 	}
 
-	orderBy := "ORDER BY p.id ASC" // Default sorting
+	orderBy := "ORDER BY (ad.id IS NOT NULL) DESC, p.id ASC" // Default sorting
 	if filters.Sort != "" {
 		switch filters.Sort {
 		case "highest_view":
-			orderBy = "ORDER BY p.view_count DESC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.view_count DESC"
 		case "lowest_view":
-			orderBy = "ORDER BY p.view_count ASC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.view_count ASC"
 		case "most_recent_creation":
-			orderBy = "ORDER BY p.created_at DESC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.created_at DESC"
 		case "oldest_creation":
-			orderBy = "ORDER BY p.created_at ASC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.created_at ASC"
 		case "highest_like":
-			orderBy = "ORDER BY p.like_count DESC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.like_count DESC"
 		case "lowest_like":
-			orderBy = "ORDER BY p.like_count ASC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.like_count ASC"
 		default:
-			orderBy = "ORDER BY p.id ASC"
+			orderBy = "ORDER BY (ad.id IS NOT NULL) DESC, p.id ASC"
 		}
 	}
 
@@ -384,6 +384,26 @@ func GetPostDetailsById(id int, id_account ...int) (models.Post, error) {
 	return post, nil
 }
 
+func GetPostDetailsByStepId(step_id int) (models.Post, error) {
+	var post models.Post
+	query := `
+	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id, ad.start_date, ad.end_date
+	from posts p 
+	join accounts a on p.id_account=a.id 
+	left join ads ad on p.id=ad.id_post and ad.status = 'active'
+	JOIN project_steps ps on ps.id_post = p.id
+	where ps.id = $1 and p.is_deleted = false;
+	`
+	err := utils.Conn.QueryRow(query, step_id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId, &post.AdsId, &post.AdsFrom, &post.AdsTo)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.Post{}, nil
+		}
+		return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
+	}
+	return post, nil
+}
+
 // returns true if view was counted, once account can increase view count many times
 func IncrementPostView(id_post int, id_account int) (bool, error) {
 	_, err := utils.Conn.Exec(`INSERT INTO viewed_posts (id_account, id_post) VALUES ($1, $2);`, id_account, id_post)
@@ -503,9 +523,9 @@ func GetPostsByAccountId(id_account int, page int, limit int, category string) (
 	params = append(params, limit)
 	params = append(params, offset)
 
-	paramIndex := []int{2,3}
+	paramIndex := []int{2, 3}
 	if category != "" {
-		paramIndex = []int{3,4}
+		paramIndex = []int{3, 4}
 	}
 
 	query := fmt.Sprintf(`

@@ -10,6 +10,10 @@ import {
   Stack,
   Badge,
   Tooltip,
+  ScrollArea,
+  Text,
+  Divider,
+  Box,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import classes from "../../styles/Guest.module.css";
@@ -23,6 +27,7 @@ import {
   IconChevronRight,
   IconLeaf,
   IconDeviceDesktopCode,
+  IconX,
 } from "@tabler/icons-react";
 import { useAuth } from "../../context/AuthContext";
 import { HeaderLink } from "./NavBarComponents";
@@ -34,16 +39,231 @@ import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "../../utils/langUtils";
 import { resolveUrl } from "../../utils/imageUtils";
+import {
+  useGetNotifications,
+  useMarkNotificationsAsRead,
+  useDeleteNotification,
+} from "../../hooks/notificationHooks";
+import { getTimeAgo } from "../../utils/timeUtils";
+import { useState } from "react";
+
+interface NotificationMenuContentProps {
+  setOpenedMenu: (value: boolean) => void;
+  notificationsData: any[];
+  unreadNotifications: any[];
+  hasUnread: boolean;
+  handleMarkAsRead: (ids: string[]) => void;
+  handleMarkAllAsRead: () => void;
+  handleDeleteNoti: (uuid: string) => void;
+  navigate: any;
+  t: any;
+  scheme: "light" | "dark";
+}
+
+function NotificationMenuContent({
+  setOpenedMenu,
+  notificationsData,
+  hasUnread,
+  handleMarkAsRead,
+  handleMarkAllAsRead,
+  handleDeleteNoti,
+  navigate,
+  t,
+  scheme,
+}: NotificationMenuContentProps) {
+  const notifications = notificationsData || [];
+  return (
+    <Menu.Dropdown style={{ padding: 0 }}>
+      <Menu.Label style={{ padding: "8px 12px", fontWeight: 600 }}>
+        {t("common:notifications.title")}
+      </Menu.Label>
+      <Divider />
+
+      {notifications && notifications.length === 0 ? (
+        <Box style={{ padding: "16px 12px", textAlign: "center" }}>
+          <Text size="sm" color="dimmed">
+            {t("common:notifications.no_new")}
+          </Text>
+        </Box>
+      ) : (
+        <>
+          <ScrollArea.Autosize mah={300}>
+            {notifications.map((noti) => {
+              const isUnread = !noti.read_at;
+              const borderCol =
+                scheme === "dark"
+                  ? "var(--mantine-color-dark-4)"
+                  : "var(--mantine-color-gray-2)";
+              return (
+                <Box
+                  key={noti.uuid}
+                  style={{
+                    padding: "10px 12px",
+                    borderBottom: `1px solid ${borderCol}`,
+                    cursor: "pointer",
+                    backgroundColor: isUnread
+                      ? "var(--mantine-color-green-light)"
+                      : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    transition: "background-color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isUnread
+                      ? "var(--mantine-color-green-light-hover)"
+                      : scheme === "dark"
+                        ? "var(--mantine-color-dark-6)"
+                        : "var(--mantine-color-gray-0)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = isUnread
+                      ? "var(--mantine-color-green-light)"
+                      : "transparent";
+                  }}
+                  onClick={() => {
+                    if (isUnread) {
+                      handleMarkAsRead([noti.uuid]);
+                    }
+                    if (noti.entity_type === "item") {
+                      navigate(PATHS.MARKETPLACE.HOME + "/" + noti.entity_id);
+                    } else if (noti.entity_type === "event") {
+                      navigate(PATHS.EVENTS.HOME + "/" + noti.entity_id);
+                    } else if (noti.entity_type === "profile") {
+                      navigate(PATHS.USER.PROFILE);
+                    }
+                    setOpenedMenu(false);
+                  }}
+                >
+                  <Box style={{ flex: 1 }}>
+                    <Text
+                      size="sm"
+                      lineClamp={2}
+                      style={{
+                        whiteSpace: "normal",
+                        color: "var(--mantine-color-text)",
+                      }}
+                    >
+                      {t(`common:notifications.types.${noti.type}`, {
+                        title: noti.entity_title,
+                      })}
+                    </Text>
+                    <Text size="xs" color="dimmed" style={{ marginTop: "2px" }}>
+                      {getTimeAgo(noti.created_at, t)}
+                    </Text>
+                  </Box>
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteNoti(noti.uuid);
+                    }}
+                  >
+                    <IconX size={14} />
+                  </ActionIcon>
+                </Box>
+              );
+            })}
+          </ScrollArea.Autosize>
+
+          <Divider />
+          <Group justify="space-between" p="xs" gap="xs">
+            {hasUnread ? (
+              <UnstyledButton
+                onClick={handleMarkAllAsRead}
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: "var(--upagain-neutral-green)",
+                  cursor: "pointer",
+                  padding: "4px 8px",
+                  borderRadius: "var(--mantine-radius-sm)",
+                  transition: "background-color 0.2s ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    scheme === "dark"
+                      ? "var(--mantine-color-dark-6)"
+                      : "var(--mantine-color-gray-0)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "transparent")
+                }
+              >
+                {t("common:notifications.mark_all_read")}
+              </UnstyledButton>
+            ) : (
+              <Box />
+            )}
+            <UnstyledButton
+              onClick={() => {
+                navigate(PATHS.NOTIFICATIONS);
+                setOpenedMenu(false);
+              }}
+              style={{
+                fontSize: "13px",
+                fontWeight: 500,
+                color: "var(--upagain-neutral-green)",
+                cursor: "pointer",
+                padding: "4px 8px",
+                borderRadius: "var(--mantine-radius-sm)",
+                transition: "background-color 0.2s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  scheme === "dark"
+                    ? "var(--mantine-color-dark-6)"
+                    : "var(--mantine-color-gray-0)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              {t("common:notifications.see_all")}
+            </UnstyledButton>
+          </Group>
+        </>
+      )}
+    </Menu.Dropdown>
+  );
+}
 
 export function UserNavBar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
+  const [openedMenu, setOpenedMenu] = useState(false);
   const currentLanguage =
     LANGUAGES.find((lang) => lang.lng === i18n.language)?.path ||
     "united-kingdom";
   const { data: accountDetails, error: errorAccountDetails } =
     useAccountDetails(user?.id || 0, true);
+
+  const { data: notifications = [] } = useGetNotifications(!!user?.id);
+  const markAsReadMutation = useMarkNotificationsAsRead();
+  const deleteNotiMutation = useDeleteNotification();
+
+  const unreadNotifications = notifications
+    ? notifications.filter((n) => !n.read_at)
+    : [];
+  const hasUnread = unreadNotifications.length > 0;
+
+  const handleMarkAsRead = (ids: string[]) => {
+    markAsReadMutation.mutate({ ids });
+  };
+
+  const handleMarkAllAsRead = () => {
+    const unreadIds = unreadNotifications.map((n) => n.uuid);
+    if (unreadIds.length > 0) {
+      handleMarkAsRead(unreadIds);
+    }
+  };
+
+  const handleDeleteNoti = (uuid: string) => {
+    deleteNotiMutation.mutate(uuid);
+  };
 
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
@@ -87,45 +307,61 @@ export function UserNavBar() {
             path={PATHS.GUEST.POSTS}
           />
           <HeaderLink label={t("events:events")} path={PATHS.EVENTS.HOME} />
+          {user?.role === "pro" && (
+            <HeaderLink
+              label={t("common:pricing")}
+              path={PATHS.GUEST.PRICING}
+            />
+          )}
         </Group>
 
         {/* User Actions - Desktop */}
         <Group gap="md" visibleFrom="sm">
           {user?.role === "user" && (
-            <>
-              <Tooltip label="Upcycling Score">
-                <Badge
-                  onClick={() => navigate(PATHS.USER.SCORE)}
+            <Tooltip label="Upcycling Score">
+              <Badge
+                onClick={() => navigate(PATHS.USER.SCORE)}
+                size="lg"
+                radius="xl"
+                color="var(--upagain-neutral-green)"
+                leftSection={<IconLeaf size={16} />}
+                style={{ padding: "0 10px", cursor: "pointer" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = "translateY(-2px)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "translateY(0)")
+                }
+              >
+                {accountDetails?.score ?? 0} pts
+              </Badge>
+            </Tooltip>
+          )}
+
+          {user && (
+            <Menu
+              shadow="md"
+              width={300}
+              position="bottom-end"
+              opened={openedMenu}
+              onChange={setOpenedMenu}
+            >
+              <Menu.Target>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
                   size="lg"
-                  radius="xl"
-                  color="var(--upagain-neutral-green)"
-                  leftSection={<IconLeaf size={16} />}
-                  style={{ padding: "0 10px", cursor: "pointer" }}
+                  style={{ backgroundColor: "transparent" }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.transform = "translateY(-2px)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.transform = "translateY(0)")
                   }
+                  radius="md"
+                  onClick={() => setOpenedMenu(true)}
                 >
-                  {accountDetails?.score ?? 0} pts
-                </Badge>
-              </Tooltip>
-              <Menu shadow="md" width={300} position="bottom-end">
-                <Menu.Target>
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    size="lg"
-                    style={{ backgroundColor: "transparent" }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.transform = "translateY(-2px)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.transform = "translateY(0)")
-                    }
-                    radius="md"
-                  >
+                  {hasUnread ? (
                     <Indicator color="red" size={8} offset={2} processing>
                       <IconBellFilled
                         size={24}
@@ -133,14 +369,28 @@ export function UserNavBar() {
                         color="var(--upagain-yellow)"
                       />
                     </Indicator>
-                  </ActionIcon>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Label>Notifications</Menu.Label>
-                  <Menu.Item>No new notifications</Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </>
+                  ) : (
+                    <IconBellFilled
+                      size={24}
+                      stroke={1.5}
+                      color="var(--upagain-yellow)"
+                    />
+                  )}
+                </ActionIcon>
+              </Menu.Target>
+              <NotificationMenuContent
+                setOpenedMenu={setOpenedMenu}
+                notificationsData={notifications}
+                unreadNotifications={unreadNotifications}
+                hasUnread={hasUnread}
+                handleMarkAsRead={handleMarkAsRead}
+                handleMarkAllAsRead={handleMarkAllAsRead}
+                handleDeleteNoti={handleDeleteNoti}
+                navigate={navigate}
+                t={t}
+                scheme={scheme}
+              />
+            </Menu>
           )}
 
           {accountDetails?.role === "admin" && (
@@ -316,21 +566,25 @@ export function UserNavBar() {
           />
 
           <Stack gap="md">
-            {user?.role === "user" && (
+            {user && (
               <Group justify="space-between">
-                <Badge
-                  onClick={() => {
-                    navigate(PATHS.USER.SCORE);
-                    closeDrawer();
-                  }}
-                  size="lg"
-                  radius="xl"
-                  color="var(--upagain-neutral-green)"
-                  leftSection={<IconLeaf size={16} />}
-                  style={{ padding: "0 10px", cursor: "pointer" }}
-                >
-                  {accountDetails?.score ?? 0} pts
-                </Badge>
+                {user.role === "user" ? (
+                  <Badge
+                    onClick={() => {
+                      navigate(PATHS.USER.SCORE);
+                      closeDrawer();
+                    }}
+                    size="lg"
+                    radius="xl"
+                    color="var(--upagain-neutral-green)"
+                    leftSection={<IconLeaf size={16} />}
+                    style={{ padding: "0 10px", cursor: "pointer" }}
+                  >
+                    {accountDetails?.score ?? 0} pts
+                  </Badge>
+                ) : (
+                  <div />
+                )}
 
                 <Menu
                   shadow="md"
@@ -345,19 +599,35 @@ export function UserNavBar() {
                       size="lg"
                       radius="md"
                     >
-                      <Indicator color="red" size={8} offset={2} processing>
+                      {hasUnread ? (
+                        <Indicator color="red" size={8} offset={2} processing>
+                          <IconBellFilled
+                            size={24}
+                            stroke={1.5}
+                            color="var(--upagain-yellow)"
+                          />
+                        </Indicator>
+                      ) : (
                         <IconBellFilled
                           size={24}
                           stroke={1.5}
                           color="var(--upagain-yellow)"
                         />
-                      </Indicator>
+                      )}
                     </ActionIcon>
                   </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Label>Notifications</Menu.Label>
-                    <Menu.Item>No new notifications</Menu.Item>
-                  </Menu.Dropdown>
+                  <NotificationMenuContent
+                    setOpenedMenu={setOpenedMenu}
+                    notificationsData={notifications}
+                    unreadNotifications={unreadNotifications}
+                    hasUnread={hasUnread}
+                    handleMarkAsRead={handleMarkAsRead}
+                    handleMarkAllAsRead={handleMarkAllAsRead}
+                    handleDeleteNoti={handleDeleteNoti}
+                    navigate={navigate}
+                    t={t}
+                    scheme={scheme}
+                  />
                 </Menu>
               </Group>
             )}

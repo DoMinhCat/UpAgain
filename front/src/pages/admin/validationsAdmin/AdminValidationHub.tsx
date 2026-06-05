@@ -17,7 +17,8 @@ import {
   Stack,
   Paper,
   SimpleGrid,
-  Loader,
+  Skeleton,
+  Box,
   Pill,
 } from "@mantine/core";
 import {
@@ -158,9 +159,14 @@ function OverviewTab() {
               {t("validations.overview.distribution")}
             </Text>
             {isLoading ? (
-              <Group justify="center" py="xl">
-                <Loader />
-              </Group>
+              <Stack gap="md" align="center" py="md">
+                <Skeleton height={280} width={280} radius="xl" mx="auto" />
+                <Stack gap="xs" w="100%">
+                  <Skeleton height={16} width="60%" />
+                  <Skeleton height={16} width="45%" />
+                  <Skeleton height={16} width="50%" />
+                </Stack>
+              </Stack>
             ) : (
               <PieChart
                 data={chartData}
@@ -190,9 +196,18 @@ function OverviewTab() {
               {t("validations.overview.breakdown")}
             </Text>
             {isLoading ? (
-              <Group justify="center" py="xl">
-                <Loader />
-              </Group>
+              <Box>
+                <Stack gap="xs" mb="sm">
+                  {[1, 2, 3].map((i) => (
+                    <Group key={i} justify="space-between">
+                      <Skeleton height={20} width="30%" />
+                      <Skeleton height={20} width={50} radius="xl" />
+                      <Skeleton height={20} width={50} radius="xl" />
+                      <Skeleton height={20} width={50} radius="xl" />
+                    </Group>
+                  ))}
+                </Stack>
+              </Box>
             ) : (
               <Table>
                 <Table.Thead>
@@ -705,7 +720,7 @@ function EventsTab({ navigate }: Pick<ActionHandlers, "navigate">) {
   const handleConfirmRefuse = () => {
     if (pendingRefuseId !== null && refuseReason.trim().length > 0) {
       statusMutation.mutate(
-        { id: pendingRefuseId, status: "refused" },
+        { id: pendingRefuseId, status: "refused", reason: refuseReason },
         {
           onSuccess: () => {
             closeRefuse();

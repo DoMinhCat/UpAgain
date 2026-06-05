@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	helpers "backend/utils/helpers"
+	stripe "backend/utils/stripe"
 	validations "backend/utils/validations"
 	"encoding/csv"
 	"encoding/json"
@@ -59,6 +60,48 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Stripe handling for premium subscription
+	if newAccount.Role == "pro" && newAccount.IsPremium != nil && *newAccount.IsPremium && (newAccount.IsTrial == nil || !*newAccount.IsTrial) {
+		if !newAccount.Paid {
+			current_price, err := db.GetFinanceSettingByKey("subscription_price")
+			if err != nil {
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
+				slog.Error("GetFinanceSettingByKey() failed", "controller", "CreateAccount", "error", err)
+				return
+			}
+			currentPriceInCents := int64(current_price * 100)
+
+			vat := int64(float64(currentPriceInCents) * stripe.VatRate)
+			stripeComm := int64(float64(currentPriceInCents)*stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+
+			finalPrice := (currentPriceInCents + vat + stripeComm)
+
+			frontendOrigin := utils.GetFrontOrigin()
+			originUrl := newAccount.OriginUrl
+			if originUrl == "" || !strings.HasPrefix(originUrl, frontendOrigin) {
+				originUrl = frontendOrigin + "/login"
+			}
+
+			successUrlSeparator := "?"
+			if strings.Contains(originUrl, "?") {
+				successUrlSeparator = "&"
+			}
+			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+				EntityName:   "Premium Subscription",
+				PriceInCents: finalPrice,
+				SuccessURL:   originUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+				CancelURL:    originUrl + successUrlSeparator + "payment=cancel",
+			})
+			if err != nil {
+				slog.Error("CreateStripeSession() failed", "controller", "CreateAccount", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
+			return
+		}
+	}
+
 	id_inserted, err := db.CreateAccount(newAccount)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an account for you.")
@@ -76,9 +119,11 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		slog.Error("InsertDefaultNotiSetting() failed", "controller", "CreateAccount", "error", err)
 	}
 
-	err = db.InsertHistory(roleToInsert, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
-	if err != nil {
-		slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
+	if role == "admin" {
+		err = db.InsertHistory(roleToInsert, id_inserted, "create", r.Context().Value("user").(models.AuthClaims).Id, nil, newAccount)
+		if err != nil {
+			slog.Error("InsertHistory() failed", "controller", "CreateAccount", "error", err)
+		}
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, nil)
@@ -959,5 +1004,179 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusNoContent, nil)	
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+// UpdateOnboarding godoc
+// @Summary      Update onboarding status
+// @Description  Marks the onboarding process as completed for the current authenticated user account.
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Success      200      {string}  string  "Onboarding updated successfully"
+// @Failure      401      {object}  nil     "Unauthorized"
+// @Failure      404      {object}  nil     "Account not found"
+// @Failure      500      {object}  nil     "Internal server error"
+// @Router       /accounts/onboarding [post]
+func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value("user").(models.AuthClaims)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	idRequestor := claims.Id
+	role := claims.Role
+	isDel := false
+	exist, err := db.CheckAccountExistsById(idRequestor, &isDel)
+	if err != nil {
+		slog.Error("CheckAccountExistsById() failed", "controller", "UpdateOnboarding", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating onboarding.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", idRequestor))
+		return
+	}
+	// TODO: update onboard in db to true
+	err = db.UpdateOnboardByIdAccount(idRequestor, role)
+	if err != nil {
+		slog.Error("UpdateOnboardByIdAccount() failed", "controller", "UpdateOnboarding", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating onboarding.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
+}
+
+// UpgradeAccount godoc
+// @Summary      Upgrade account to premium
+// @Description  Upgrades a pro account to premium (trial or standard paid subscription)
+// @Tags         account
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        payload body models.UpgradeAccountRequest true "Upgrade options"
+// @Success      200  {object}  models.UpgradeAccountResponse "Subscription upgraded or checkout link generated"
+// @Failure      400  {object}  nil  "Invalid request or user already premium"
+// @Failure      401  {object}  nil  "Unauthorized"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /upgrade [post]
+func UpgradeAccount(w http.ResponseWriter, r *http.Request) {
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
+	var payload models.UpgradeAccountRequest
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload.")
+		return
+	}
+
+	accountDetails, err := db.GetAccountDetailsById(idAccount)
+	if err != nil {
+		slog.Error("GetAccountDetailsById() failed", "controller", "UpgradeAccount", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while upgrading account.")
+		return
+	}
+
+	if accountDetails.Role != "pro" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Account is not a pro account.")
+		return
+	}
+
+	if accountDetails.IsPremium {
+		utils.RespondWithError(w, http.StatusBadRequest, "You are already subscribed to a premium plan.")
+		return
+	}
+
+	if payload.IsTrial {
+		// Can't trial again if database shows hasTrial (already registered trial in past)
+		if accountDetails.IsTrial {
+			utils.RespondWithError(w, http.StatusBadRequest, "You have already used your trial period.")
+			return
+		}
+
+		err = db.UpdateProPremium(idAccount, true)
+		if err != nil {
+			slog.Error("UpdateProPremium() failed", "controller", "UpgradeAccount", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to activate trial.")
+			return
+		}
+
+		err = db.CreateSubscription(idAccount, true)
+		if err != nil {
+			slog.Error("CreateSubscription() failed", "controller", "UpgradeAccount", "error", err)
+			// rollback premium status
+			db.UpdateProPremium(idAccount, false)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to activate trial subscription.")
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, models.UpgradeAccountResponse{
+			Message: "Trial activated successfully.",
+		})
+		return
+	}
+
+	// Paid subscription
+	if !payload.Paid {
+		// Phase 1: Create Stripe Session
+		current_price, err := db.GetFinanceSettingByKey("subscription_price")
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "Could not fetch subscription price.")
+			slog.Error("GetFinanceSettingByKey() failed", "controller", "UpgradeAccount", "error", err)
+			return
+		}
+		currentPriceInCents := int64(current_price * 100)
+
+		vat := int64(float64(currentPriceInCents) * stripe.VatRate)
+		stripeComm := int64(float64(currentPriceInCents)*stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+		finalPrice := currentPriceInCents + vat + stripeComm
+
+		frontendOrigin := utils.GetFrontOrigin()
+		originUrl := payload.OriginUrl
+		if originUrl == "" || !strings.HasPrefix(originUrl, frontendOrigin) {
+			originUrl = frontendOrigin + "/pricing"
+		}
+
+		successUrlSeparator := "?"
+		if strings.Contains(originUrl, "?") {
+			successUrlSeparator = "&"
+		}
+
+		checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+			EntityName:   "Premium Subscription Upgrade",
+			PriceInCents: finalPrice,
+			SuccessURL:   originUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+			CancelURL:    originUrl + successUrlSeparator + "payment=cancel",
+		})
+		if err != nil {
+			slog.Error("CreateStripeSession() failed", "controller", "UpgradeAccount", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, models.UpgradeAccountResponse{CheckoutUrl: checkoutUrl})
+		return
+	} else {
+		// Phase 2: Stripe checkout success redirection handler
+		err = db.UpdateProPremium(idAccount, true)
+		if err != nil {
+			slog.Error("UpdateProPremium() failed", "controller", "UpgradeAccount", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to upgrade subscription.")
+			return
+		}
+
+		err = db.CreateSubscription(idAccount, false)
+		if err != nil {
+			slog.Error("CreateSubscription() failed", "controller", "UpgradeAccount", "error", err)
+			db.UpdateProPremium(idAccount, false)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to create premium subscription.")
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, models.UpgradeAccountResponse{
+			Message: "Subscription upgraded to Premium successfully.",
+		})
+		return
+	}
 }

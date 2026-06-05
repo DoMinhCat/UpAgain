@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	helpers "backend/utils/helpers"
+	"backend/utils/onesignal"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -96,11 +97,32 @@ func ProcessListingValidation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//  TODO: Appel Fictif à l'API OneSignal pour notifier l'utilisateur
-	if newStatus == "refused" {
-		slog.Info("OneSignal Push: Listing refused", "reason", payload.Reason)
+	// onesignal notification to user about listing status update
+	itemDetails, errItem := db.GetItemDetailsByItemId(itemID)
+	if errItem != nil {
+		slog.Error("GetItemDetailsByItemId failed for notification", "controller", "ProcessListingValidation", "error", errItem)
 	} else {
-		slog.Info("OneSignal Push: Listing approved")
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    itemID,
+			AccountId: itemDetails.IdUser,
+			Status:    newStatus,
+		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				slog.Warn("HandleItemStatusChangeNoti failed", "controller", "ProcessListingValidation", "error", errNoti)
+			}
+		}()
+	}
+
+	// Notify premium pros subscribed to this material when a listing is approved
+	if newStatus == "approved" {
+		go func() {
+			errNoti := onesignal.HandleSmartAlertsNoti(itemID)
+			if errNoti != nil {
+				slog.Warn("HandleSmartAlertsNoti failed", "controller", "ProcessListingValidation", "error", errNoti)
+			}
+		}()
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Listing status updated successfully"})
@@ -170,7 +192,23 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: Notification OneSignal (et envoi du code-barres par email/push si approved)
+	// onesignal notification to user about deposit status update
+	itemDetails, errItem := db.GetItemDetailsByItemId(itemID)
+	if errItem != nil {
+		slog.Error("GetItemDetailsByItemId failed for notification", "controller", "ProcessDepositValidation", "error", errItem)
+	} else {
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    itemID,
+			AccountId: itemDetails.IdUser,
+			Status:    newStatus,
+		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				slog.Warn("HandleItemStatusChangeNoti failed", "controller", "ProcessDepositValidation", "error", errNoti)
+			}
+		}()
+	}
 	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Deposit status updated successfully"})
 }
 
@@ -188,18 +226,18 @@ func ProcessDepositValidation(w http.ResponseWriter, r *http.Request) {
 // @Failure      404   {object}  nil                "Event not found"
 // @Failure      500   {object}  nil                "Internal server error"
 // @Router       /admin/validations/events/{id}/ [put]
-func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
+func RefuseEvent(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	eventID, err := strconv.Atoi(idStr)
 	if err != nil {
-		slog.Error("Atoi failed", "controller", "ProcessEventValidation", "error", err)
+		slog.Error("Atoi failed", "controller", "RefuseEvent", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid event ID")
 		return
 	}
 
 	exist, err := db.CheckEventExistsById(eventID)
 	if err != nil {
-		slog.Error("CheckEventExistsById() failed", "controller", "ProcessEventValidation", "error", err)
+		slog.Error("CheckEventExistsById() failed", "controller", "RefuseEvent", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
@@ -210,7 +248,7 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 
 	event, err := db.GetEventDetailsById(eventID)
 	if err != nil {
-		slog.Error("GetEventDetailsById() failed", "controller", "ProcessEventValidation", "error", err)
+		slog.Error("GetEventDetailsById() failed", "controller", "RefuseEvent", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
@@ -223,22 +261,22 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 
 	claims, ok := r.Context().Value("user").(models.AuthClaims)
 	if !ok {
-		slog.Error("r.Context().Value failed", "controller", "ProcessEventValidation")
+		slog.Error("r.Context().Value failed", "controller", "RefuseEvent")
 		utils.RespondWithError(w, http.StatusInternalServerError, "Unable to authenticate request")
 		return
 	}
 
-	_, newStatus, err := helpers.ParseValidationPayload(r) // remplacer le _ lors de l'integration de OneSignal
+	payload, newStatus, err := helpers.ParseValidationPayload(r)
 	if err != nil {
-		slog.Error("ParseValidationPayload failed", "controller", "ProcessEventValidation", "error", err)
+		slog.Error("ParseValidationPayload failed", "controller", "RefuseEvent", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	oldStatus, _ := db.GetEventStatusById(eventID)
-	err = db.UpdateEventStatusByEventId(eventID, newStatus)
+	err = db.UpdateEventStatusByEventId(eventID, newStatus, &payload.Reason)
 	if err != nil {
-		slog.Error("UpdateEventStatusByEventId() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
+		slog.Error("UpdateEventStatusByEventId() failed", "controller", "RefuseEvent", "eventId", eventID, "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred during event validation")
 		return
 	}
@@ -246,12 +284,13 @@ func ProcessEventValidation(w http.ResponseWriter, r *http.Request) {
 	if claims.Role == "admin" {
 		err = db.InsertHistory("event", eventID, "update", claims.Id, map[string]interface{}{"status": oldStatus}, map[string]interface{}{"status": newStatus})
 		if err != nil {
-			slog.Error("InsertHistory() failed", "controller", "ProcessEventValidation", "eventId", eventID, "error", err)
+			slog.Error("InsertHistory() failed", "controller", "RefuseEvent", "eventId", eventID, "error", err)
 		}
 	}
 
-	// TODO: Notification OneSignal au salarié qui a proposé l'atelier
-	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Event status updated successfully"})
+	go onesignal.HandleEventUpdateNoti(eventID, newStatus)
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Event refused successfully"})
 }
 
 // GetItemsHistory godoc

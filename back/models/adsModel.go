@@ -3,9 +3,11 @@ package models
 import "time"
 
 type CreateAdsRequest struct {
-	From     time.Time `json:"from"`
-	Duration int       `json:"duration"`
-	IdPost   int       `json:"id_post"`
+	From      time.Time `json:"from"`
+	Duration  int       `json:"duration"`
+	IdPost    int       `json:"id_post"`
+	OriginUrl string    `json:"origin_url"`
+	Paid      bool      `json:"paid"`
 }
 
 type UpdateAdsRequest struct {

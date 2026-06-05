@@ -154,6 +154,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/accounts/onboarding": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Marks the onboarding process as completed for the current authenticated user account.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Update onboarding status",
+                "responses": {
+                    "200": {
+                        "description": "Onboarding updated successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Account not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/accounts/{id_account}/": {
             "get": {
                 "security": [
@@ -544,6 +578,154 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Account not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/accounts/{id_account}/pro-analytics": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns statistics including inventory, material impact (CO2 and weights), and financial transactions.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pro"
+                ],
+                "summary": "Get professional premium analytics",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID of the Professional",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProAnalyticsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/accounts/{id_account}/pro-analytics/alerts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns a list of materials selected by the pro to receive alerts for.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pro"
+                ],
+                "summary": "Get professional alert materials",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID of the Professional",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Saves the list of materials to receive alerts for.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pro"
+                ],
+                "summary": "Update professional alert materials",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id_account",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "List of materials",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateProAlertMaterialsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -1267,6 +1449,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/comments/{id_comment}/like": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Toggles the liked status of a comment for the current user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comment"
+                ],
+                "summary": "Like or unlike a comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Comment ID",
+                        "name": "id_comment",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the new liked status e.g., {'is_liked': true}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid comment ID or Comment not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/containers/": {
             "get": {
                 "security": [
@@ -1724,6 +1952,70 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    }
+                }
+            }
+        },
+        "/containers/{id}/open": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Opens a specific container using either a 6-digit code or barcode image file. If the requestor is a user, it registers the drop-off and prepares a retrieval code/barcode for a professional. If the requestor is a professional, it registers the retrieval and completes the item transaction.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "container"
+                ],
+                "summary": "Open a container",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Container ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "6-digit access code",
+                        "name": "code6digit",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Barcode image file",
+                        "name": "barcode",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameter or code"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Container not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }
@@ -3756,6 +4048,216 @@ const docTemplate = `{
                 }
             }
         },
+        "/items/{item_id}/cancel": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Allows a professional or an admin to cancel a previously held item reservation.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Cancel an item reservation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or item does not exist"
+                    },
+                    "409": {
+                        "description": "Item is not reserved"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/items/{item_id}/confirm": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Verifies the confirmation code provided by a user upon retrieving a purchased listing item and completes the transaction status.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Confirm listing retrieval",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Confirmation code payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ConfirmCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payload or item does not exist"
+                    },
+                    "403": {
+                        "description": "Incorrect confirmation code"
+                    },
+                    "409": {
+                        "description": "Item not purchased or transaction cancelled"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/items/{item_id}/purchase": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Initiates or confirms purchase of an item. For paid items, it generates a Stripe checkout URL on the first call, and registers the transaction details on the second call once paid.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Purchase an item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Stripe verification / checkout details",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.ItemPurchaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Checkout URL for payment page redirect or confirmation message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid requests or validation errors"
+                    },
+                    "409": {
+                        "description": "Item already purchased"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/items/{item_id}/reserve": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Allows a professional to reserve an item if it is approved and not already reserved/purchased.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "item"
+                ],
+                "summary": "Reserve an item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Item not found, invalid status, or already reserved/purchased"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/items/{item_id}/transactions/": {
             "get": {
                 "security": [
@@ -3814,21 +4316,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/items/{item_id}/transactions/{transaction_uuid}/cancel/": {
-            "post": {
+        "/items/{item_id}/transactions/latest": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Cancel an active reserved transaction for an item",
+                "description": "Returns the latest transaction record associated with a professional and a specific item.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "transaction"
                 ],
-                "summary": "Cancel transaction",
+                "summary": "Get latest transaction of a pro for an item",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3836,30 +4338,20 @@ const docTemplate = `{
                         "name": "item_id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Transaction UUID",
-                        "name": "transaction_uuid",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Transaction cancelled successfully"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Transaction"
+                        }
                     },
                     "400": {
-                        "description": "Invalid parameters"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
+                        "description": "Invalid ID"
                     },
                     "404": {
-                        "description": "Transaction or item not found"
-                    },
-                    "409": {
-                        "description": "Transaction cannot be cancelled"
+                        "description": "Item not found"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -4169,6 +4661,131 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Incorrect email or password"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/notifications": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all active notifications associated with the logged-in account",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Get notifications of an account",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NotificationDetail"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/notifications/read": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mark one or more notifications as read by their UUIDs in a JSON body list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Mark notifications as read",
+                "parameters": [
+                    {
+                        "description": "Mark Read Payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MarkNotificationsReadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid request body or ID format"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/notifications/{noti_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete an existing notification by its UUID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Delete a notification",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notification UUID",
+                        "name": "noti_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid Notification ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -4517,6 +5134,105 @@ const docTemplate = `{
                 }
             }
         },
+        "/posts/steps/{step_id}": {
+            "put": {
+                "description": "Allows a user (pro or admin) to update a step in their project timeline.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Update a project step",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Step Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Step Description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Associated Item IDs",
+                        "name": "item_ids",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Existing image paths to keep",
+                        "name": "existing_images",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "New Step Images",
+                        "name": "new_images",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Step updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/posts/steps/{step_id}/": {
             "delete": {
                 "security": [
@@ -4560,6 +5276,74 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/steps/{step_id}/reorder": {
+            "put": {
+                "description": "Allows a user (pro) to reorder a step in their project timeline.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Reorder a project step",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reorder details",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ReorderStepPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Step reordered successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "type": "string"
                         }
@@ -4954,6 +5738,100 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id_post}/steps": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Add a new project step with title, description, associated items, and images. Only available for the post owner (pro).",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Create a new step for a post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Step Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Step Description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Associated Item IDs",
+                        "name": "item_ids",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Step Images",
+                        "name": "images",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Step added to your project",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "type": "string"
                         }
@@ -5424,6 +6302,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/upgrade": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Upgrades a pro account to premium (trial or standard paid subscription)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Upgrade account to premium",
+                "parameters": [
+                    {
+                        "description": "Upgrade options",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpgradeAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subscription upgraded or checkout link generated",
+                        "schema": {
+                            "$ref": "#/definitions/models.UpgradeAccountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or user already premium"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/users/impact/": {
             "get": {
                 "security": [
@@ -5448,6 +6374,29 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/users/impact/global/": {
+            "get": {
+                "description": "Returns the total CO2 saved by all users across all completed items on the platform.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get global environmental impact",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved global impact stats",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserImpactStats"
+                        }
                     },
                     "500": {
                         "description": "Internal server error"
@@ -5585,6 +6534,9 @@ const docTemplate = `{
                 "avatar": {
                     "type": "string"
                 },
+                "completed_onboard": {
+                    "type": "boolean"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -5601,6 +6553,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "is_premium": {
+                    "type": "boolean"
+                },
+                "is_trial": {
                     "type": "boolean"
                 },
                 "last_active": {
@@ -5722,6 +6677,9 @@ const docTemplate = `{
         "models.Barcode": {
             "type": "object",
             "properties": {
+                "barcode_base64": {
+                    "type": "string"
+                },
                 "code": {
                     "type": "string"
                 },
@@ -5775,6 +6733,9 @@ const docTemplate = `{
                 "is_deleted": {
                     "type": "boolean"
                 },
+                "is_liked": {
+                    "type": "boolean"
+                },
                 "like_count": {
                     "type": "integer"
                 },
@@ -5782,6 +6743,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ConfirmCodeRequest": {
+            "type": "object",
+            "properties": {
+                "confirm_code": {
                     "type": "string"
                 }
             }
@@ -5915,6 +6884,12 @@ const docTemplate = `{
                 "is_trial": {
                     "type": "boolean"
                 },
+                "origin_url": {
+                    "type": "string"
+                },
+                "paid": {
+                    "type": "boolean"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -5940,6 +6915,12 @@ const docTemplate = `{
                 },
                 "id_post": {
                     "type": "integer"
+                },
+                "origin_url": {
+                    "type": "string"
+                },
+                "paid": {
+                    "type": "boolean"
                 }
             }
         },
@@ -6040,6 +7021,9 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "number"
+                },
+                "refuse_reason": {
+                    "type": "string"
                 },
                 "registered": {
                     "type": "integer"
@@ -6375,6 +7359,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ItemPurchaseRequest": {
+            "type": "object",
+            "properties": {
+                "origin_url": {
+                    "type": "string"
+                },
+                "paid": {
+                    "type": "boolean"
+                }
+            }
+        },
         "models.ItemStatusUpdateRequest": {
             "type": "object",
             "properties": {
@@ -6414,6 +7409,45 @@ const docTemplate = `{
                 }
             }
         },
+        "models.MarkNotificationsReadRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "models.MaterialInventoryStats": {
+            "type": "object",
+            "properties": {
+                "added": {
+                    "type": "integer"
+                },
+                "available": {
+                    "type": "integer"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "recycled": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.MaterialUsageStats": {
+            "type": "object",
+            "properties": {
+                "material": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
         "models.NotiSetting": {
             "type": "object",
             "properties": {
@@ -6421,6 +7455,38 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "noti_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.NotificationDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "entity_id": {
+                    "type": "integer"
+                },
+                "entity_title": {
+                    "type": "string"
+                },
+                "entity_type": {
+                    "type": "string"
+                },
+                "id_account": {
+                    "type": "integer"
+                },
+                "read_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uuid": {
                     "type": "string"
                 }
             }
@@ -6582,6 +7648,45 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ProAnalyticsResponse": {
+            "type": "object",
+            "properties": {
+                "finance": {
+                    "type": "object",
+                    "properties": {
+                        "paid_purchases": {
+                            "type": "integer"
+                        },
+                        "total_purchases": {
+                            "type": "integer"
+                        },
+                        "total_spent": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "impact": {
+                    "type": "object",
+                    "properties": {
+                        "material_usage": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.MaterialUsageStats"
+                            }
+                        },
+                        "total_co2": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "inventory": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.MaterialInventoryStats"
+                    }
+                }
+            }
+        },
         "models.ProjectStep": {
             "type": "object",
             "properties": {
@@ -6603,6 +7708,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.StepItem"
                     }
                 },
+                "order": {
+                    "type": "number"
+                },
                 "photos": {
                     "type": "array",
                     "items": {
@@ -6611,6 +7719,17 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "models.ReorderStepPayload": {
+            "type": "object",
+            "properties": {
+                "step_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
@@ -6774,6 +7893,9 @@ const docTemplate = `{
                 "commission_rate": {
                     "type": "number"
                 },
+                "confirm_code": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -6931,6 +8053,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateProAlertMaterialsRequest": {
+            "type": "object",
+            "properties": {
+                "materials": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "models.UpdateStatusRequest": {
             "type": "object",
             "properties": {
@@ -6953,6 +8086,31 @@ const docTemplate = `{
             "properties": {
                 "trial_days": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.UpgradeAccountRequest": {
+            "type": "object",
+            "properties": {
+                "is_trial": {
+                    "type": "boolean"
+                },
+                "origin_url": {
+                    "type": "string"
+                },
+                "paid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.UpgradeAccountResponse": {
+            "type": "object",
+            "properties": {
+                "checkout_url": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         },

@@ -6,6 +6,21 @@
     "schedule_description": "All your events in one simple schedule",
     "events_on": "Events on"
   },
+  "employee_planning": {
+    "title": "Organizer Planning",
+    "upcoming_events_title": "My Upcoming Events",
+    "upcoming_events_desc": "Events you are assigned to host that have been approved.",
+    "my_proposals_title": "My Proposals",
+    "my_proposals_desc": "Track the status of your proposed events (pending approval or refused).",
+    "schedule_title": "My Schedule",
+    "no_proposals": "No pending or refused event proposals.",
+    "explore_events": "Go to Events",
+    "status_pending": "Pending",
+    "status_refused": "Refused",
+    "status_approved": "Approved",
+    "propose_event": "Propose Event",
+    "refuse_reason_title": "Reason for refusal:"
+  },
   "hero": {
     "title": "Sustainable Events & Workshops",
     "subtitle": "Join our community of eco-conscious creators. Learn, share, and impact the world through meaningful experiences."
@@ -84,7 +99,9 @@
     "register_failed_title": "Registration failed",
     "register_failed_msg": "Payment not completed",
     "register_cancelled_title": "Registration cancelled",
-    "register_cancelled_msg": "Payment was cancelled"
+    "register_cancelled_msg": "Payment was cancelled",
+    "edit_approval_warning": "Note: Editing this event will require an administrator's approval before it is published again.",
+    "self_assign": "Volunteer for Event"
   },
   "no_event": "No {{event_type}} found",
   "empty_state": {

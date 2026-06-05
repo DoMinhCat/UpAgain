@@ -7,44 +7,44 @@ import (
 )
 
 type ItemFilters struct {
-	Search   string `json:"search"`
-	Sort     string `json:"sort"`
-	Category string `json:"category"`
+	Search           string `json:"search"`
+	Sort             string `json:"sort"`
+	Category         string `json:"category"`
 	Status           string `json:"status"`
 	Material         string `json:"material"`
 	IncludePurchased string `json:"include_purchased"`
 }
 
 type Item struct {
-	CreatedAt       time.Time `json:"created_at"`
-	Id              int       `json:"id"`
-	Title           string    `json:"title"`
-	Description     string    `json:"description"`
-	Weight          float64   `json:"weight"`
-	State           string    `json:"state"`
-	IdUser          int       `json:"id_user"`
-	Username        string    `json:"username"`
-	CreatorAvatar   null.String `json:"creator_avatar" swaggertype:"string"`
-	Category        string    `json:"category"` // listing or deposit
-	Material        string    `json:"material"`
-	Price           float64   `json:"price"`
-	Status          string    `json:"status"`
-	RefuseReason    null.String `json:"refuse_reason" swaggertype:"string"`
-	Photos          []string  `json:"images"`
-	Street          string    `json:"street"`
-	Score           int       `json:"score"`
+	CreatedAt     time.Time   `json:"created_at"`
+	Id            int         `json:"id"`
+	Title         string      `json:"title"`
+	Description   string      `json:"description"`
+	Weight        float64     `json:"weight"`
+	State         string      `json:"state"`
+	IdUser        int         `json:"id_user"`
+	Username      string      `json:"username"`
+	CreatorAvatar null.String `json:"creator_avatar" swaggertype:"string"`
+	Category      string      `json:"category"` // listing or deposit
+	Material      string      `json:"material"`
+	Price         float64     `json:"price"`
+	Status        string      `json:"status"`
+	RefuseReason  null.String `json:"refuse_reason" swaggertype:"string"`
+	Photos        []string    `json:"images"`
+	Street        string      `json:"street"`
+	Score         int         `json:"score"`
 }
 
 type ItemCreateRequest struct {
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Price       float64   `json:"price"`
-	Weight      float64  `json:"weight"`
-	Material    string   `json:"material"`
-	State       string   `json:"state"`
-	Category    string   `json:"category"` // listing or deposit
-	Photos      []string  `json:"images"`
-	IdUser      int      `json:"id_user"`
+	Title       string               `json:"title"`
+	Description string               `json:"description"`
+	Price       float64              `json:"price"`
+	Weight      float64              `json:"weight"`
+	Material    string               `json:"material"`
+	State       string               `json:"state"`
+	Category    string               `json:"category"` // listing or deposit
+	Photos      []string             `json:"images"`
+	IdUser      int                  `json:"id_user"`
 	ListingInfo CreateListingRequest `json:"listing_info"`
 	DepositInfo CreateDepositRequest `json:"deposit_info"`
 }
@@ -77,4 +77,9 @@ type ItemAdminStats struct {
 
 type ItemStatusUpdateRequest struct {
 	Status string `json:"status"`
+}
+
+type ItemPurchaseRequest struct {
+	OriginUrl string `json:"origin_url"`
+	Paid      bool   `json:"paid"`
 }

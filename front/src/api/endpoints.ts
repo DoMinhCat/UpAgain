@@ -22,6 +22,7 @@ export const ENDPOINTS = {
         `/containers/${id_container}/schedule`,
       EARLIEST: (id: number) => `/containers/${id}/earliest`,
       NEAREST: "/containers/nearest",
+      OPEN: (id: number) => `/containers/${id}/open`,
     },
 
     FINANCE: {
@@ -46,10 +47,10 @@ export const ENDPOINTS = {
       ALL: "/events",
       STATS: "/events/count",
       ASSIGN: (id_event: number) => `/events/${id_event}/assign`,
-      ASSIGNED_EMPLOYEES: (id_event: number) =>
-        `/events/employees/${id_event}`,
+      ASSIGNED_EMPLOYEES: (id_event: number) => `/events/employees/${id_event}`,
       UNASSIGN: (id_event: number) => `/events/${id_event}/unassign`,
       CANCEL: (id_event: number) => `/events/${id_event}/status`,
+      REFUSE: (id_event: number) => `/events/${id_event}/refuse`,
       UPDATE: (id_event: number) => `/events/${id_event}/update`,
       REGISTER: "/events/register",
       CANCEL_REGISTRATION: "/events/cancel",
@@ -70,6 +71,8 @@ export const ENDPOINTS = {
       DELETE_COMMENT: (id_comment: number) => `/comments/${id_comment}`,
       STEPS: (id_post: number) => `/posts/${id_post}/steps`,
       DELETE_STEP: (id_step: number) => `/posts/steps/${id_step}`,
+      UPDATE_STEP: (id_step: number) => `/posts/steps/${id_step}`,
+      REORDER_STEP: (id_step: number) => `/posts/steps/${id_step}/reorder`,
     },
 
     HISTORIES: {
@@ -107,6 +110,7 @@ export const ENDPOINTS = {
     PURCHASE: (idItem: number) => `/items/${idItem}/purchase`,
     LATEST_TRANSACTION: (idItem: number) =>
       `/items/${idItem}/transactions/latest`,
+    CONFIRM: (idItem: number) => `/items/${idItem}/confirm`,
   },
 
   LISTINGS: {
@@ -131,7 +135,7 @@ export const ENDPOINTS = {
   },
 
   USER: {
-    GLOBAL_IMPACT: "/users/impact/global/",
+    GLOBAL_IMPACT: "/users/impact/global",
     POSTS: {
       ALL: "/posts",
       DETAILS: (id_post: number) => `/posts/${id_post}`,
@@ -155,6 +159,16 @@ export const ENDPOINTS = {
     UPDATE_AVATAR: (id_account: number) => `/accounts/${id_account}/avatar`,
     NOTIFICATIONS: (id_account: number) =>
       `/accounts/${id_account}/notifications`,
+    ONBOARDING: "/accounts/onboarding",
+    UPGRADE: "/upgrade",
+    PRO_ANALYTICS: (id_account: number) => `/accounts/${id_account}/pro-analytics`,
+    PRO_ALERT_MATERIALS: (id_account: number) => `/accounts/${id_account}/pro-analytics/alerts`,
+  },
+
+  NOTIFICATIONS: {
+    ALL: "/notifications",
+    READ: "/notifications/read",
+    DELETE: (noti_id: string) => `/notifications/${noti_id}`,
   },
 
   // external providers

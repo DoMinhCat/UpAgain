@@ -3,8 +3,9 @@ package models
 import "github.com/guregu/null"
 
 type UserDetails struct {
-	Phone null.String `json:"phone" swaggertype:"string"`
-	Score int         `json:"score"`
+	Phone            null.String `json:"phone" swaggertype:"string"`
+	Score            int         `json:"score"`
+	CompletedOnboard bool        `json:"completed_onboard"`
 }
 
 type UserStats struct {
@@ -35,7 +36,7 @@ type UserImpactItem struct {
 	BuyerName   string   `json:"buyer_name"`
 	CO2         float64  `json:"co2"`
 	Water       float64  `json:"water"`
-	Electricity float64 `json:"electricity"`
+	Electricity float64  `json:"electricity"`
 }
 
 type UserImpactItemsPagination struct {

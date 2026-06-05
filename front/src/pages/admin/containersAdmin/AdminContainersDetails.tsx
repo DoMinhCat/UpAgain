@@ -27,7 +27,7 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import InfoField from "../../../components/common/InfoField";
 import dayjs from "dayjs";
 import { IconBox, IconTrash, IconEdit } from "@tabler/icons-react";
@@ -166,7 +166,7 @@ export default function AdminContainersDetails() {
     });
   };
 
-  if (isLoading) return <FullScreenLoader />;
+  if (isLoading) return <FullScreenSkeleton />;
   if (isError) return <Navigate to={PATHS.ADMIN.CONTAINERS} replace />;
 
   const statusColor =

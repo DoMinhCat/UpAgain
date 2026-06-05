@@ -183,7 +183,7 @@ func UpdateListingById(listingID int, listing models.UpdateListingRequest) error
 		UPDATE items 
 		SET 
 			title = $1, description = $2, price = $3, weight = $4, state = $5,  material = $6 
-		WHERE id = $7`, 
+		WHERE id = $7`,
 		listing.Title, listing.Description, listing.Price, listing.Weight, listing.State, listing.Material, listingID)
 
 	if err != nil {
@@ -213,7 +213,7 @@ func UpdateListingById(listingID int, listing models.UpdateListingRequest) error
 		if err != nil {
 			return fmt.Errorf("error updating listing details in tx: %v", err)
 		}
-	} 
+	}
 
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("error committing item transaction: %v", err)

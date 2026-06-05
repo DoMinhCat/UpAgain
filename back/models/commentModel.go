@@ -18,6 +18,7 @@ type Comment struct {
 	Avatar    string    `json:"user_avatar"`
 	UserName  string    `json:"user_name"`
 	IsDeleted bool      `json:"is_deleted"`
+	IsLiked   bool      `json:"is_liked"`
 }
 
 type PostCommentsResponse struct {

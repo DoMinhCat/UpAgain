@@ -87,7 +87,13 @@ func DeleteCommentById(w http.ResponseWriter, r *http.Request) {
 
 	// only admin or emp can delete all comments
 	if role != "admin" && role != "employee" {
-		if r.Context().Value("user").(models.AuthClaims).Id != id_comment {
+		commentDetails, err := db.GetCommentDetails(id_comment)
+		if err != nil {
+			slog.Error("db.GetCommentDetails() failed", "controller", "DeleteCommentById", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to delete comment.")
+			return
+		}
+		if r.Context().Value("user").(models.AuthClaims).Id != commentDetails.IdAccount {
 			utils.RespondWithError(w, http.StatusUnauthorized, "You can only delete your own comment.")
 			return
 		}
@@ -108,4 +114,47 @@ func DeleteCommentById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusOK, "Comment deleted successfully.")
+}
+
+// LikeComment godoc
+// @Summary      Like or unlike a comment
+// @Description  Toggles the liked status of a comment for the current user.
+// @Tags         comment
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id_comment  path      int  true  "Comment ID"
+// @Success      200         {object}  map[string]bool  "Returns the new liked status e.g., {'is_liked': true}"
+// @Failure      400         {object}  nil              "Invalid comment ID or Comment not found"
+// @Failure      401         {object}  nil              "Unauthorized"
+// @Failure      500         {object}  nil              "Internal server error"
+// @Router       /comments/{id_comment}/like [post]
+func LikeComment(w http.ResponseWriter, r *http.Request) {
+	id_comment, err := strconv.Atoi(r.PathValue("id_comment"))
+	if err != nil {
+		slog.Error("strconv.Atoi() failed", "controller", "LikeComment", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid comment ID.")
+		return
+	}
+
+	exist, err := db.CheckCommentExistsById(id_comment)
+	if err != nil {
+		slog.Error("db.CheckCommentExistsById() failed", "controller", "LikeComment", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to like/unlike comment.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusBadRequest, "Comment not found.")
+		return
+	}
+
+	idAccount := r.Context().Value("user").(models.AuthClaims).Id
+
+	isLiked, err := db.ToggleLikeComment(id_comment, idAccount)
+	if err != nil {
+		slog.Error("db.ToggleLikeComment() failed", "controller", "LikeComment", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to like/unlike comment.")
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]bool{"is_liked": isLiked})
 }

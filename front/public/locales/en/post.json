@@ -2,17 +2,24 @@
   "project": {
     "no_step": "No steps found",
     "delete_step_tooltip": "Delete this step",
-    "items_used": "Items used in this step"
+    "edit_step_tooltip": "Edit this step",
+    "items_used": "Items used in this step",
+    "reorder_steps_button": "Reorder steps",
+    "reorder_modal_title": "Reorder Project Steps",
+    "reorder_instructions": "Drag and drop the steps to change their ordering. The order will save automatically."
   },
   "delete_comment_modal_title": "Delete comment",
   "delete_comment_modal_text": "Are you sure you want to delete this comment? This action cannot be undone.",
+  "delete_step_modal_title": "Delete project step",
+  "delete_step_modal_text": "Are you sure you want to delete this project step? This action cannot be undone.",
   "details": {
     "sponsored": "This post is sponsored",
     "view_count": "{{count}} view",
     "view_count_plural": "{{count}} views",
     "save_label": "Save for later",
     "unsave_label": "Unsave",
-    "project_steps": "Project Steps"
+    "project_steps": "Project Steps",
+    "title": "Post Details"
   },
   "comments": {
     "title": "Comment",

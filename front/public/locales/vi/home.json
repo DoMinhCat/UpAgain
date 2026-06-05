@@ -95,5 +95,104 @@
       "no_events_desc": "Đang rảnh tay hả? Đăng ký ngay một Workshop để học chiêu mới đi nào.",
       "explore_workshops": "Khám phá Workshop & Sự kiện"
     }
+  },
+  "employee": {
+    "hero": {
+      "title": "Chào mừng, {{username}}!",
+      "subtitle": "Truyền cảm hứng thay đổi, điều phối sự kiện và hướng dẫn cộng đồng hướng tới lối sống tái chế."
+    },
+    "stats": {
+      "title": "Bảng điều khiển của bạn",
+      "subtitle": "Tổng quan về các sự kiện được đề xuất và nội dung cộng đồng đã xuất bản của bạn.",
+      "upcoming_workshops": "Sự kiện sắp tới",
+      "pending_proposals": "Sự kiện đề xuất",
+      "my_guides": "Guides và bài viết"
+    },
+    "actions": {
+      "ready": "Sẵn sàng truyền cảm hứng?",
+      "propose_title": "Đề xuất sự kiện mới",
+      "propose_desc": "Bạn có ý tưởng cho một lớp học tái chế, thảo luận hoặc gặp gỡ? Gửi đề xuất tới quản trị viên.",
+      "propose_button": "Đề xuất sự kiện",
+      "write_title": "Chia sẻ chuyên môn tái chế của bạn",
+      "write_desc": "Viết hướng dẫn, mẹo hoặc nghiên cứu điển hình để giáo dục cộng đồng UpAgain.",
+      "write_button": "Viết bài hướng dẫn",
+      "planning_button": "Đi tới Lịch trình & Kế hoạch →"
+    },
+    "agenda": {
+      "title": "Lịch trình tổ chức sắp tới",
+      "subtitle": "Các sự kiện đã được phê duyệt tiếp theo mà bạn được lên lịch tổ chức.",
+      "no_events_title": "Chưa có sự kiện nào",
+      "no_events_desc": "Bạn chưa có sự kiện tổ chức sắp tới nào. Hãy đề xuất một sự kiện hoặc tự đăng ký nhé!",
+      "view_planning": "Xem toàn bộ lịch trình →"
+    },
+    "posts": {
+      "title": "Guides và bài viết của bạn",
+      "subtitle": "Các mẹo, hướng dẫn và tin tức gần đây bạn chia sẻ với cộng đồng.",
+      "no_posts_title": "Chưa viết hướng dẫn nào",
+      "no_posts_desc": "Chia sẻ các mẹo tái chế và nghiên cứu điển hình của bạn với cộng đồng ngay hôm nay.",
+      "view_all": "Xem tất cả bài viết →"
+    }
+  },
+  "pro": {
+    "hero": {
+      "title": "Chào {{username}} nè, hãy cùng nâng tầm tay nghề và tái chế nhé.",
+      "subtitle": "Tìm kiếm nguyên liệu thô, khoe các dự án tái chế sáng tạo và quản lý hồ sơ nghệ nhân của bạn.",
+      "premium_badge": "Đối tác miễn phí",
+      "premium_cta": "Nâng cấp lên Premium để mở khóa quảng cáo tài trợ, thống kê chi tiết và ưu tiên săn vật liệu!"
+    },
+    "stats": {
+      "published_projects": "Dự án đã đăng",
+      "registered_events": "Sự kiện tham gia",
+      "marketplace_items": "Sản phẩm chợ đồ"
+    },
+    "manage": {
+      "title": "Góc Kinh Doanh Xanh",
+      "subtitle": "Quản lý bài đăng và sự hiện diện của bạn trong cộng đồng.",
+      "events_title": "Sự kiện của tôi",
+      "events_status": "Bạn đã đăng ký tham gia <b>{{count}} sự kiện sắp tới</b>.",
+      "manage_events": "Tìm thêm workshop →",
+      "posts_title": "Dự án của tôi",
+      "posts_status": "Bạn đã đăng tải <b>{{count}} bài hướng dẫn dự án</b>.",
+      "manage_posts": "Quản lý dự án →",
+      "ready_to_do_more": "Sẵn sàng khoe tay nghề tài hoa, {{username}}?",
+      "create_post": "Đăng dự án mới",
+      "explore_community": "Săn tìm nguyên liệu",
+      "materials_marketplace": "Chợ vật liệu",
+      "registered_events_list": "Sự kiện đã tham gia",
+      "discover_more_events": "Khám phá workshop"
+    },
+    "marketplace": {
+      "title": "Vật liệu dành riêng cho bạn",
+      "subtitle": "Nguyên liệu thô và đồ tái chế cực xịn đang chờ bạn rước về.",
+      "quiet_marketplace": "Chưa có vật liệu mới nào... Hãy quay lại sau nhé!",
+      "discover_marketplace": "Khám phá chợ đồ →"
+    },
+    "premium": {
+      "title": "Chào {{username}}, chào mừng đến với Trang quản trị Premium",
+      "subtitle": "Theo dõi số liệu kho hàng, đóng góp môi trường và hiệu quả tài chính của bạn.",
+      "inventory_title": "Phân Tích Kho Hàng",
+      "inventory_desc": "Tổng quan số vật liệu có sẵn, đã thêm và đã thu hồi/tái chế trong tháng này.",
+      "available": "Có sẵn",
+      "added": "Đã thêm trong tháng",
+      "recycled": "Đã thu hồi",
+      "material": "Vật liệu",
+      "impact_title": "Đóng Góp Môi Trường",
+      "co2_saved": "Lượng CO₂ giảm thiểu",
+      "co2_desc": "Tổng lượng khí thải carbon tránh được từ các dự án của bạn",
+      "materials_used": "Vật liệu đã tái sinh (Kg)",
+      "finance_title": "Quản Lý Tài Chính",
+      "total_purchases": "Tổng lượt mua",
+      "paid_purchases": "Lượt mua có phí",
+      "total_spent": "Tổng chi tiêu",
+      "view_invoices": "Xem lịch sử hóa đơn"
+    },
+    "materials": {
+      "wood": "Gỗ",
+      "metal": "Kim loại",
+      "plastic": "Nhựa",
+      "glass": "Thủy tinh",
+      "textile": "Vải/Sợi",
+      "cardboard": "Giấy/Carton"
+    }
   }
 }

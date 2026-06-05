@@ -1,6 +1,7 @@
 export const PATHS = {
   // common endpoints here for all roles
   HOME: "/",
+  NOTIFICATIONS: "/notifications",
 
   // admin endpoints
   ADMIN: {

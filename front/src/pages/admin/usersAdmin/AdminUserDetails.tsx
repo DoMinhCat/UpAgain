@@ -14,10 +14,14 @@ import {
   Tooltip,
   Modal,
   Indicator,
+  Skeleton,
   Loader,
   TextInput,
   HoverCard,
   UnstyledButton,
+  Grid,
+  Badge,
+  Divider,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { PATHS } from "../../../routes/paths";
@@ -42,11 +46,24 @@ import {
   useParams,
 } from "react-router-dom";
 
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
-import InfoField from "../../../components/common/InfoField";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import dayjs from "dayjs";
 import PasswordStrengthInput from "../../../components/input/PasswordStrengthInput";
-import { IconLock, IconInfoCircleFilled } from "@tabler/icons-react";
+import {
+  IconLock,
+  IconInfoCircleFilled,
+  IconUser,
+  IconMail,
+  IconPhone,
+  IconCalendar,
+  IconClock,
+  IconCrownFilled,
+  IconPackage,
+  IconBox,
+  IconCash,
+  IconCalendarStats,
+  IconFileText,
+} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuth } from "../../../context/AuthContext";
 import {
@@ -56,6 +73,7 @@ import {
   validatePhone,
   validateUsername,
 } from "../../../utils/validations/accountValidation";
+import { resolveUrl } from "../../../utils/imageUtils";
 
 export default function AdminUserDetails() {
   const { t } = useTranslation("admin");
@@ -138,6 +156,9 @@ export default function AdminUserDetails() {
   } = useAccountDetails(accountId, isValidId);
   const role = accountDetails?.role;
   const is_banned = accountDetails?.is_banned;
+  const isOnline = accountDetails?.last_active
+    ? dayjs().diff(dayjs(accountDetails.last_active), "minute") < 3
+    : false;
 
   // insert values for edit form
   useEffect(() => {
@@ -276,7 +297,7 @@ export default function AdminUserDetails() {
     useDisclosure(false);
 
   if (isAccountDetailsLoading) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
   if (errorAccountDetails) {
     return <Navigate to={PATHS.ADMIN.USERS.ALL} replace />;
@@ -284,626 +305,845 @@ export default function AdminUserDetails() {
 
   return (
     <Container px="md" size="xl">
-      <Title order={2} mt="lg">
-        {t("users.details.title")}
-      </Title>
-      <MyBreadcrumbs
-        breadcrumbs={[
-          ...(origin === "allUsers"
-            ? [{ title: t("users.title"), href: PATHS.ADMIN.USERS.ALL }]
-            : origin === "deletedList"
-              ? [
-                  { title: t("users.title"), href: PATHS.ADMIN.USERS.ALL },
-                  {
-                    title: t("users.deleted.title"),
-                    href: PATHS.ADMIN.USERS.DELETED,
-                  },
-                ]
-              : origin?.from === "eventDetails"
-                ? [
-                    { title: t("events.title"), href: PATHS.ADMIN.EVENTS.ALL },
-                    {
-                      title: t("events.details.title"),
-                      href: PATHS.ADMIN.EVENTS.ALL + "/" + origin?.id_event,
-                    },
-                  ]
-                : origin?.from === "postDetails"
+      <Group justify="space-between" align="center" mt="lg">
+        <Stack gap="xs">
+          <Title order={2}>{t("users.details.title")}</Title>
+          <MyBreadcrumbs
+            breadcrumbs={[
+              ...(origin === "allUsers"
+                ? [{ title: t("users.title"), href: PATHS.ADMIN.USERS.ALL }]
+                : origin === "deletedList"
                   ? [
+                      { title: t("users.title"), href: PATHS.ADMIN.USERS.ALL },
                       {
-                        title: t("posts.title"),
-                        href: PATHS.ADMIN.POSTS,
-                      },
-                      {
-                        title: t("posts.details.title", {
-                          defaultValue: "Post's Details",
-                        }),
-                        href: PATHS.ADMIN.POSTS + "/" + origin?.id_post,
+                        title: t("users.deleted.title"),
+                        href: PATHS.ADMIN.USERS.DELETED,
                       },
                     ]
-                  : origin?.from === "historyDetails"
+                  : origin?.from === "eventDetails"
                     ? [
                         {
-                          title: t("history.title"),
-                          href:
-                            PATHS.ADMIN.HISTORY.ALL + "/" + origin?.id_history,
+                          title: t("events.title"),
+                          href: PATHS.ADMIN.EVENTS.ALL,
+                        },
+                        {
+                          title: t("events.details.title"),
+                          href: PATHS.ADMIN.EVENTS.ALL + "/" + origin?.id_event,
                         },
                       ]
-                    : origin?.from === "listingDetail"
+                    : origin?.from === "postDetails"
                       ? [
                           {
-                            title: t("listings.title"),
-                            href: PATHS.ADMIN.LISTINGS,
+                            title: t("posts.title"),
+                            href: PATHS.ADMIN.POSTS,
                           },
                           {
-                            title: t("listings.details.title"),
-                            href:
-                              PATHS.ADMIN.LISTINGS + "/" + origin?.listingId,
+                            title: t("posts.details.title", {
+                              defaultValue: "Post's Details",
+                            }),
+                            href: PATHS.ADMIN.POSTS + "/" + origin?.id_post,
                           },
                         ]
-                      : origin?.from === "SubscriptionDetails"
+                      : origin?.from === "historyDetails"
                         ? [
                             {
-                              title: t("subscription.title", {
-                                defaultValue: "Subscription Management",
-                              }),
-                              href: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
-                            },
-                            {
-                              title: t("subscription.details.title", {
-                                defaultValue: "Subscription's Details",
-                              }),
+                              title: t("history.title"),
                               href:
-                                PATHS.ADMIN.SUBSCRIPTIONS.ALL +
+                                PATHS.ADMIN.HISTORY.ALL +
                                 "/" +
-                                origin?.id_sub,
+                                origin?.id_history,
                             },
                           ]
-                        : origin?.from === "finance"
+                        : origin?.from === "listingDetail"
                           ? [
                               {
-                                title: t("finance.title"),
-                                href: PATHS.ADMIN.FINANCE.ALL,
+                                title: t("listings.title"),
+                                href: PATHS.ADMIN.LISTINGS,
+                              },
+                              {
+                                title: t("listings.details.title"),
+                                href:
+                                  PATHS.ADMIN.LISTINGS +
+                                  "/" +
+                                  origin?.listingId,
                               },
                             ]
-                          : [
-                              {
-                                title: t("users.title"),
-                                href: PATHS.ADMIN.USERS.ALL,
-                              },
-                            ]),
-          { title: t("users.details.title"), href: "#" },
-        ]}
-      />
-      <Container px="md" size="sm" mt="xl">
-        {accountDetails?.role === "user" && (
-          <Flex align="flex-start" justify="flex-end">
-            <ScoreRing score={accountDetails.score} size={90} />
-          </Flex>
-        )}
-
-        <Stack justify="center" align="center">
-          <Avatar
-            src={accountDetails?.avatar}
-            name="User's name"
-            color="initials"
-            size="100"
+                          : origin?.from === "SubscriptionDetails"
+                            ? [
+                                {
+                                  title: t("subscription.title", {
+                                    defaultValue: "Subscription Management",
+                                  }),
+                                  href: PATHS.ADMIN.SUBSCRIPTIONS.ALL,
+                                },
+                                {
+                                  title: t("subscription.details.title", {
+                                    defaultValue: "Subscription's Details",
+                                  }),
+                                  href:
+                                    PATHS.ADMIN.SUBSCRIPTIONS.ALL +
+                                    "/" +
+                                    origin?.id_sub,
+                                },
+                              ]
+                            : origin?.from === "finance"
+                              ? [
+                                  {
+                                    title: t("finance.title"),
+                                    href: PATHS.ADMIN.FINANCE.ALL,
+                                  },
+                                ]
+                              : [
+                                  {
+                                    title: t("users.title"),
+                                    href: PATHS.ADMIN.USERS.ALL,
+                                  },
+                                ]),
+              { title: t("users.details.title"), href: "#" },
+            ]}
           />
-          <Title order={3}>{accountDetails?.username}</Title>
         </Stack>
-        <Title order={3} ta="left" mt="xl">
-          {t("users.details.general_info")}
-        </Title>
+      </Group>
 
-        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
-          <InfoField label={t("users.details.fields.username")}>
-            <Text ps="sm" mt="xs" mb="xl">
-              {accountDetails?.username}
-            </Text>
-          </InfoField>
-          <InfoField label={t("users.details.fields.registered_on")}>
-            <Text ps="sm" mt="xs" mb="xl">
-              {dayjs(accountDetails?.created_at).format("DD/MM/YYYY - HH:mm")}
-            </Text>
-          </InfoField>
-          <InfoField label={t("users.details.fields.role")}>
-            {accountDetails?.role === "user" ? (
-              <Text ps="sm" mt="xs" mb="xl" c="blue">
-                {t("users.roles.user")}
-              </Text>
-            ) : accountDetails?.role === "pro" ? (
-              <Text ps="sm" mt="xs" mb="xl" c="yellow">
-                {t("users.roles.pro")}
-              </Text>
-            ) : accountDetails?.role === "employee" ? (
-              <Text ps="sm" mt="xs" mb="xl" c="green">
-                {t("users.roles.employee")}
-              </Text>
-            ) : (
-              <Text ps="sm" mt="xs" mb="xl" c="red">
-                {t("users.roles.admin")}
-              </Text>
-            )}
-          </InfoField>
-          <InfoField label={t("users.details.fields.status")}>
-            {accountDetails?.deleted_at ? (
-              <Text ps="sm" mt="xs" mb="xl" c="red">
-                {t("users.details.fields.deleted")}
-              </Text>
-            ) : accountDetails?.is_banned ? (
-              <Text ps="sm" mt="xs" mb="xl" c="red">
-                {t("users.details.fields.banned")}
-              </Text>
-            ) : (
-              <Text ps="sm" mt="xs" mb="xl" c="green">
-                {t("users.details.fields.active")}
-              </Text>
-            )}
-          </InfoField>
-          <InfoField label={t("users.details.fields.subscription")}>
-            {accountDetails?.is_premium ? (
-              <Text
-                ps="sm"
-                mt="xs"
-                mb="xl"
-                fw={700}
-                variant="gradient"
-                gradient={{
-                  from: "rgba(199, 165, 70, 1)",
-                  to: "rgba(230, 225, 188, 1)",
-                  deg: 90,
-                }}
+      <Grid gap="md" mt="xl">
+        {/* Left Column: Hero Header + Account Info + Danger Zone */}
+        <Grid.Col span={{ base: 12, md: 8 }}>
+          <Stack gap="md">
+            {/* Hero Header Card */}
+            <Paper variant="primary" p="lg" radius="md">
+              <Flex
+                direction={{ base: "column", sm: "row" }}
+                gap="md"
+                justify="space-between"
+                align={{ base: "flex-start", sm: "center" }}
               >
-                {t("users.details.fields.premium")}
-              </Text>
-            ) : (
-              <Text ps="sm" mt="xs" mb="xl">
-                {t("users.details.fields.freemium")}
-              </Text>
-            )}
-          </InfoField>
-        </Paper>
-
-        <Title order={3} ta="left" mt="xl">
-          {t("users.details.contact")}
-        </Title>
-        <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
-          <InfoField label={t("users.details.fields.email")}>
-            <Text ps="sm" mt="xs" mb="xl">
-              {accountDetails?.email}
-            </Text>
-          </InfoField>
-          <InfoField label={t("users.details.fields.phone")}>
-            <Text ps="sm" mt="xs" mb="xl">
-              {accountDetails?.phone
-                ? accountDetails?.phone
-                : t("users.details.fields.n_a")}
-            </Text>
-          </InfoField>
-        </Paper>
-
-        {!accountDetails?.deleted_at && (
-          <>
-            <Title order={3} ta="left" mt="xl">
-              {t("users.details.activities")}
-            </Title>
-            <Paper variant="primary" px="lg" py="md" mt="sm" radius="lg">
-              <InfoField label={t("users.details.fields.last_active")}>
-                <Text ps="sm" mt="xs">
-                  {accountDetails?.last_active
-                    ? dayjs(accountDetails?.last_active).format(
-                        "DD/MM/YYYY - HH:mm",
-                      )
-                    : t("users.details.fields.n_a")}
-                </Text>
-              </InfoField>
-              {role == "user" && (
-                <>
-                  <InfoField
-                    label={t("users.details.fields.total_deposits")}
-                    mt="xl"
+                <Group gap="md" align="center">
+                  <Indicator
+                    inline
+                    size={16}
+                    offset={6}
+                    position="bottom-end"
+                    color={
+                      accountDetails?.deleted_at || accountDetails?.is_banned
+                        ? "red"
+                        : isOnline
+                          ? "green"
+                          : "gray"
+                    }
+                    withBorder
                   >
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_deposits +
-                            " " +
-                            (accountStats?.total_deposits === 1
-                              ? t("users.details.fields.deposit_singular")
-                              : t("users.details.fields.deposit_plural")) +
-                            " " +
-                            t("users.details.fields.posted")
-                          : t("users.details.fields.stats_error")}
-                      </Text>
-                    )}
-                  </InfoField>
-                  <InfoField label={t("users.details.fields.total_listings")}>
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_listings +
-                            " " +
-                            (accountStats?.total_listings === 1
-                              ? t("users.details.fields.listing_singular")
-                              : t("users.details.fields.listing_plural")) +
-                            " " +
-                            t("users.details.fields.posted")
-                          : t("users.details.fields.stats_error")}
-                      </Text>
-                    )}
-                  </InfoField>
-                  <InfoField label="Total spendings">
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_spendings + " €"
-                          : "Failed to get account's stats"}
-                      </Text>
-                    )}
-                  </InfoField>
-                </>
-              )}
-
-              {role == "employee" && (
-                <>
-                  <InfoField
-                    label={t("users.details.fields.total_events")}
-                    mt="xl"
-                  >
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_events +
-                            " " +
-                            (accountStats?.total_events === 1
-                              ? t("users.details.fields.event_singular")
-                              : t("users.details.fields.event_plural")) +
-                            " " +
-                            t("users.details.fields.assigned")
-                          : t("users.details.fields.stats_error")}
-                      </Text>
-                    )}
-                  </InfoField>
-                  <InfoField label={t("users.details.fields.total_posts")}>
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_posts +
-                            " " +
-                            (accountStats?.total_posts === 1
-                              ? t("users.details.fields.article_singular")
-                              : t("users.details.fields.article_plural")) +
-                            " " +
-                            t("users.details.fields.posted")
-                          : t("users.details.fields.stats_error")}
-                      </Text>
-                    )}
-                  </InfoField>
-                  <InfoField label={t("users.details.fields.current_tasks")}>
-                    <Button
-                      mt="xs"
-                      variant="primary"
-                      size="sm"
-                      onClick={openCalendar}
-                    >
-                      Show current tasks
-                    </Button>
-                  </InfoField>
-                </>
-              )}
-              {role == "pro" && (
-                <>
-                  <InfoField
-                    label={t("users.details.fields.total_listings_purchased")}
-                    mt="xl"
-                  >
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_listings +
-                            " " +
-                            (accountStats?.total_listings === 1
-                              ? t("users.details.fields.listing_singular")
-                              : t("users.details.fields.listing_plural")) +
-                            " " +
-                            t("users.details.fields.purchased")
-                          : t("users.details.fields.stats_error")}
-                      </Text>
-                    )}
-                  </InfoField>
-                  <InfoField
-                    label={t("users.details.fields.total_deposits_purchased")}
-                  >
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_deposits +
-                            " " +
-                            (accountStats?.total_deposits === 1
-                              ? t("users.details.fields.deposit_singular")
-                              : t("users.details.fields.deposit_plural")) +
-                            " " +
-                            t("users.details.fields.purchased")
-                          : t("users.details.fields.stats_error")}
-                      </Text>
-                    )}
-                  </InfoField>
-                  <InfoField label={t("users.details.fields.total_projects")}>
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_projects +
-                            " " +
-                            (accountStats?.total_projects === 1
-                              ? t("users.details.fields.project_singular")
-                              : t("users.details.fields.project_plural")) +
-                            " " +
-                            t("users.details.fields.posted")
-                          : t("users.details.fields.stats_error")}
-                      </Text>
-                    )}
-                  </InfoField>
-                  <InfoField label="Total spendings">
-                    {isAccountStatsLoading ? (
-                      <Loader mb="xl" size="sm" />
-                    ) : (
-                      <Text ps="sm" mt="xs" mb="xl">
-                        {!errorAccountDetails
-                          ? accountStats?.total_spendings + " €"
-                          : "Failed to get account's stats"}
-                      </Text>
-                    )}
-                  </InfoField>
-                </>
-              )}
-            </Paper>
-          </>
-        )}
-        <Title order={3} ta="left" mt="xl" c="red">
-          {t("users.details.danger_zone")}
-        </Title>
-        <Paper
-          variant="primary"
-          px="lg"
-          py="md"
-          mt="sm"
-          radius="lg"
-          style={{ border: "1px solid #ff000033" }}
-        >
-          {accountDetails?.deleted_at ? (
-            <InfoField label={t("users.details.actions.recover")}>
-              <Box ps="sm" mb="xl">
-                <Text c="dimmed" my="xs">
-                  {t("users.details.modals.recover_text")}
-                </Text>
-                <Button
-                  variant="primary"
-                  onClick={openRecover}
-                  loading={isPendingRecover}
-                >
-                  {t("users.details.actions.recover")}
-                </Button>
-              </Box>
-            </InfoField>
-          ) : (
-            <>
-              <InfoField label={t("users.details.actions.edit")}>
-                <Box ps="sm" mb="xl">
-                  <Group gap="xs">
-                    <Text c="dimmed" my="xs">
-                      {t("users.edit_modal.title", {
-                        defaultValue:
-                          "Modify account's username, contact information, etc.",
-                      })}
-                    </Text>
-                    {role === "admin" && accountId != user?.id && (
-                      <Tooltip
-                        label={t("users.details.tooltips.edit_admin")}
-                        closeDelay={200}
-                        transitionProps={{ transition: "pop", duration: 300 }}
-                      >
-                        <IconInfoCircleFilled size={14} />
-                      </Tooltip>
-                    )}
-                  </Group>
-                  <Button
-                    variant="edit"
-                    onClick={openEdit}
-                    disabled={role === "admin" && accountId != user?.id}
-                  >
-                    {t("users.details.actions.edit")}
-                  </Button>
-                </Box>
-              </InfoField>
-
-              <InfoField label={t("users.details.actions.change_password")}>
-                <Box ps="sm" mb="xl">
-                  <Group gap="xs">
-                    <Text mt="xs" mb="xs" c="dimmed">
-                      {t("users.details.modals.password_title")}
-                    </Text>
-                    {role === "admin" && accountId != user?.id && (
-                      <Tooltip
-                        label={t("users.details.tooltips.password_admin")}
-                        closeDelay={200}
-                        transitionProps={{ transition: "pop", duration: 300 }}
-                      >
-                        <IconInfoCircleFilled size={14} />
-                      </Tooltip>
-                    )}
-                  </Group>
-                  <form
-                    onSubmit={(e: React.SubmitEvent) => handleChangePassword(e)}
-                  >
-                    <PasswordStrengthInput
-                      w="50%"
-                      variant="body-color"
-                      placeholder={t(
-                        "users.details.modals.password_placeholder",
-                      )}
-                      value={password}
-                      disabled={
-                        isPendingPasswordUpdate ||
-                        (role === "admin" && accountId != user?.id)
-                      }
-                      leftSection={<IconLock size={14} />}
-                      onChange={(event) => {
-                        const value = event.currentTarget.value;
-                        setPassword(value);
-                        handleValidatePassword(value);
-                      }}
-                      error={passwordError}
-                      required
+                    <Avatar
+                      src={resolveUrl(accountDetails?.avatar || "")}
+                      name={accountDetails?.username || "User"}
+                      color="initials"
+                      size="lg"
                     />
-                    <PasswordInput
-                      leftSection={<IconLock size={14} />}
-                      variant="body-color"
-                      w="50%"
-                      mt="xs"
-                      value={confirmPassword}
-                      placeholder={t(
-                        "users.details.modals.password_confirm_placeholder",
-                      )}
-                      onChange={(event) => {
-                        const value = event.currentTarget.value;
-                        setConfirmPassword(value);
-                        handleValidateConfirmPassword(value);
-                      }}
-                      disabled={
-                        isPendingPasswordUpdate ||
-                        (role === "admin" && accountId != user?.id)
-                      }
-                      error={confirmPasswordError}
-                      required
-                    />
-                    <Button
-                      variant="edit"
-                      mt="xs"
-                      onClick={openChangePassword}
-                      disabled={
-                        isPendingPasswordUpdate ||
-                        (role === "admin" && accountId != user?.id) ||
-                        !password ||
-                        !confirmPassword ||
-                        !!passwordError ||
-                        !!confirmPasswordError
-                      }
-                    >
-                      {t("users.details.actions.change_password")}
-                    </Button>
-                    <Modal
-                      opened={openedChangePassword}
-                      onClose={closeChangePassword}
-                      title={t("users.details.modals.password_title")}
-                    >
-                      {t("users.details.modals.password_text", {
-                        defaultValue:
-                          "Are you sure you change password for this account? The old password will be replaced by the new one.",
-                      })}
-                      <Group mt="lg" justify="flex-end">
-                        <Button onClick={closeChangePassword} variant="grey">
-                          {t("common:actions.cancel", {
-                            defaultValue: "Cancel",
-                          })}
-                        </Button>
-                        <Button
-                          onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-                            handleChangePassword(e)
-                          }
-                          variant="edit"
-                          loading={isPendingPasswordUpdate}
-                        >
-                          {t("users.details.actions.change_password")}
-                        </Button>
-                      </Group>
-                    </Modal>
-                  </form>
-                </Box>
-              </InfoField>
-              <InfoField
-                label={
-                  is_banned
-                    ? t("users.details.actions.unban")
-                    : t("users.details.actions.ban")
-                }
-              >
-                <Box ps="sm" mb="xl">
-                  <Group gap="xs">
-                    <Text c="dimmed" my="xs">
-                      {is_banned
-                        ? t("users.details.modals.unban_text")
-                        : t("users.details.modals.ban_text")}
-                    </Text>
-                    {role === "admin" &&
-                      accountId != user?.id &&
-                      !is_banned && (
-                        <Tooltip
-                          label={t("users.details.tooltips.ban_admin", {
-                            defaultValue: "Cannot ban an admin",
-                          })}
-                          closeDelay={200}
-                          transitionProps={{ transition: "pop", duration: 300 }}
-                        >
-                          <IconInfoCircleFilled size={14} />
+                  </Indicator>
+                  <Stack gap={4}>
+                    <Group gap="xs" align="center">
+                      <Title order={3}>{accountDetails?.username}</Title>
+                      {accountDetails?.is_premium && (
+                        <Tooltip label={t("users.details.fields.premium")}>
+                          <IconCrownFilled
+                            size={20}
+                            color="var(--upagain-yellow)"
+                          />
                         </Tooltip>
                       )}
-                  </Group>
-                  <Button
-                    variant={!is_banned ? "delete" : "primary"}
-                    onClick={openBan}
-                    disabled={role === "admin" || isPendingToggleBan}
-                  >
-                    {!is_banned
-                      ? t("users.details.actions.ban")
-                      : t("users.details.actions.unban")}
-                  </Button>
-                </Box>
-              </InfoField>
+                    </Group>
+                    <Group gap="xs">
+                      {/* Role badge */}
+                      {accountDetails?.role === "user" ? (
+                        <Badge color="blue" variant="light">
+                          {t("users.roles.user")}
+                        </Badge>
+                      ) : accountDetails?.role === "pro" ? (
+                        <Badge color="yellow" variant="light">
+                          {t("users.roles.pro")}
+                        </Badge>
+                      ) : accountDetails?.role === "employee" ? (
+                        <Badge color="green" variant="light">
+                          {t("users.roles.employee")}
+                        </Badge>
+                      ) : (
+                        <Badge color="red" variant="light">
+                          {t("users.roles.admin")}
+                        </Badge>
+                      )}
 
-              <InfoField label={t("users.details.actions.delete")}>
-                <Box ps="sm" mb="xl">
-                  <Group gap="xs">
-                    <Text c="dimmed" my="xs">
-                      {t("users.details.modals.delete_text")}
+                      {/* Status badge */}
+                      {accountDetails?.deleted_at ? (
+                        <Badge color="red">
+                          {t("users.details.fields.deleted")}
+                        </Badge>
+                      ) : accountDetails?.is_banned ? (
+                        <Badge color="red">
+                          {t("users.details.fields.banned")}
+                        </Badge>
+                      ) : (
+                        <Badge color="green">
+                          {t("users.details.fields.active")}
+                        </Badge>
+                      )}
+                    </Group>
+                  </Stack>
+                </Group>
+
+                {accountDetails?.role === "user" && (
+                  <Group gap="xs" align="center">
+                    <Text size="sm" c="dimmed" fw={600}>
+                      {t("fields.upcycling_score", {
+                        defaultValue: "Upcycling Score",
+                      })}
+                      :
                     </Text>
-                    {role === "admin" && accountId != user?.id && (
-                      <Tooltip
-                        label={t("users.details.tooltips.edit_admin")}
-                        closeDelay={200}
-                        transitionProps={{ transition: "pop", duration: 300 }}
-                      >
-                        <IconInfoCircleFilled size={14} />
-                      </Tooltip>
-                    )}
+                    <ScoreRing score={accountDetails?.score || 0} size={80} />
                   </Group>
+                )}
+              </Flex>
+            </Paper>
+
+            {/* General & Contact Info Card */}
+            <Paper variant="primary" p="lg" radius="md">
+              <Title order={4} mb="md">
+                {t("users.details.general_info")}
+              </Title>
+              <Grid gap="md">
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <Stack gap="sm">
+                    <Group gap="xs" wrap="nowrap">
+                      <IconUser size={18} color="var(--mantine-color-dimmed)" />
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          {t("users.details.fields.username")}
+                        </Text>
+                        <Text size="sm">{accountDetails?.username}</Text>
+                      </Box>
+                    </Group>
+                    <Group gap="xs" wrap="nowrap">
+                      <IconMail size={18} color="var(--mantine-color-dimmed)" />
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          {t("users.details.fields.email")}
+                        </Text>
+                        <Text size="sm">{accountDetails?.email}</Text>
+                      </Box>
+                    </Group>
+                    <Group gap="xs" wrap="nowrap">
+                      <IconPhone
+                        size={18}
+                        color="var(--mantine-color-dimmed)"
+                      />
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          {t("users.details.fields.phone")}
+                        </Text>
+                        <Text size="sm">
+                          {accountDetails?.phone ||
+                            t("users.details.fields.n_a")}
+                        </Text>
+                      </Box>
+                    </Group>
+                  </Stack>
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <Stack gap="sm">
+                    <Group gap="xs" wrap="nowrap">
+                      <IconCalendar
+                        size={18}
+                        color="var(--mantine-color-dimmed)"
+                      />
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          {t("users.details.fields.registered_on")}
+                        </Text>
+                        <Text size="sm">
+                          {dayjs(accountDetails?.created_at).format(
+                            "DD/MM/YYYY - HH:mm",
+                          )}
+                        </Text>
+                      </Box>
+                    </Group>
+                    <Group gap="xs" wrap="nowrap">
+                      <IconClock
+                        size={18}
+                        color="var(--mantine-color-dimmed)"
+                      />
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          {t("users.details.fields.last_active")}
+                        </Text>
+                        <Text size="sm">
+                          {accountDetails?.last_active
+                            ? dayjs(accountDetails?.last_active).format(
+                                "DD/MM/YYYY - HH:mm",
+                              )
+                            : t("users.details.fields.n_a")}
+                        </Text>
+                      </Box>
+                    </Group>
+                    <Group gap="xs" wrap="nowrap">
+                      <IconCrownFilled
+                        size={18}
+                        color="var(--mantine-color-dimmed)"
+                      />
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          {t("users.details.fields.subscription")}
+                        </Text>
+                        <Text size="sm">
+                          {accountDetails?.is_premium
+                            ? t("users.details.fields.premium")
+                            : t("users.details.fields.freemium")}
+                        </Text>
+                      </Box>
+                    </Group>
+                  </Stack>
+                </Grid.Col>
+              </Grid>
+            </Paper>
+
+            {/* Danger Zone Card */}
+            <Paper
+              variant="primary"
+              p="lg"
+              radius="md"
+              style={{ borderColor: "var(--mantine-color-red-light)" }}
+            >
+              <Title order={4} c="red" mb="md">
+                {t("users.details.danger_zone")}
+              </Title>
+
+              {accountDetails?.deleted_at ? (
+                <Box>
+                  <Text size="sm" c="dimmed" mb="sm">
+                    {t("users.details.modals.recover_text")}
+                  </Text>
                   <Button
-                    variant="delete"
-                    onClick={openDelete}
-                    disabled={role === "admin" && accountId != user?.id}
+                    variant="primary"
+                    onClick={openRecover}
+                    loading={isPendingRecover}
                   >
-                    {t("users.details.actions.delete")}
+                    {t("users.details.actions.recover")}
                   </Button>
                 </Box>
-              </InfoField>
-            </>
-          )}
-        </Paper>
-      </Container>
+              ) : (
+                <Stack gap="md">
+                  {/* Edit Info */}
+                  <Group justify="space-between" align="center" wrap="nowrap">
+                    <Box>
+                      <Text size="sm" fw={600}>
+                        {t("users.details.actions.edit")}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {t("users.edit_modal.title", {
+                          defaultValue:
+                            "Modify account's username, contact information, etc.",
+                        })}
+                      </Text>
+                    </Box>
+                    <Group gap="xs" wrap="nowrap">
+                      {role === "admin" && accountId != user?.id && (
+                        <Tooltip label={t("users.details.tooltips.edit_admin")}>
+                          <IconInfoCircleFilled
+                            size={16}
+                            color="var(--mantine-color-dimmed)"
+                          />
+                        </Tooltip>
+                      )}
+                      <Button
+                        variant="edit"
+                        onClick={openEdit}
+                        disabled={role === "admin" && accountId != user?.id}
+                      >
+                        {t("users.details.actions.edit")}
+                      </Button>
+                    </Group>
+                  </Group>
+
+                  <Divider />
+
+                  {/* Change Password */}
+                  <Box>
+                    <Group justify="space-between" align="center" mb="sm">
+                      <Box>
+                        <Text size="sm" fw={600}>
+                          {t("users.details.actions.change_password")}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {t("users.details.modals.password_title")}
+                        </Text>
+                      </Box>
+                      {role === "admin" && accountId != user?.id && (
+                        <Tooltip
+                          label={t("users.details.tooltips.password_admin")}
+                        >
+                          <IconInfoCircleFilled
+                            size={16}
+                            color="var(--mantine-color-dimmed)"
+                          />
+                        </Tooltip>
+                      )}
+                    </Group>
+                    <form
+                      onSubmit={(e: React.FormEvent) => {
+                        e.preventDefault();
+                        openChangePassword();
+                      }}
+                    >
+                      <Flex
+                        gap="xs"
+                        direction={{ base: "column", sm: "row" }}
+                        align="flex-start"
+                      >
+                        <PasswordStrengthInput
+                          style={{ flex: 1, width: "100%" }}
+                          variant="body-color"
+                          placeholder={t(
+                            "users.details.modals.password_placeholder",
+                          )}
+                          value={password}
+                          disabled={
+                            isPendingPasswordUpdate ||
+                            (role === "admin" && accountId != user?.id)
+                          }
+                          leftSection={<IconLock size={14} />}
+                          onChange={(event) => {
+                            const value = event.currentTarget.value;
+                            setPassword(value);
+                            handleValidatePassword(value);
+                          }}
+                          error={passwordError}
+                          required
+                        />
+                        <PasswordInput
+                          leftSection={<IconLock size={14} />}
+                          variant="body-color"
+                          style={{ flex: 1, width: "100%" }}
+                          value={confirmPassword}
+                          placeholder={t(
+                            "users.details.modals.password_confirm_placeholder",
+                          )}
+                          onChange={(event) => {
+                            const value = event.currentTarget.value;
+                            setConfirmPassword(value);
+                            handleValidateConfirmPassword(value);
+                          }}
+                          disabled={
+                            isPendingPasswordUpdate ||
+                            (role === "admin" && accountId != user?.id)
+                          }
+                          error={confirmPasswordError}
+                          required
+                        />
+                      </Flex>
+                      <Button
+                        variant="edit"
+                        mt="sm"
+                        onClick={openChangePassword}
+                        loading={isPendingPasswordUpdate}
+                        disabled={
+                          (role === "admin" && accountId != user?.id) ||
+                          !password ||
+                          !confirmPassword ||
+                          !!passwordError ||
+                          !!confirmPasswordError
+                        }
+                      >
+                        {t("users.details.actions.change_password")}
+                      </Button>
+                      <Modal
+                        opened={openedChangePassword}
+                        onClose={closeChangePassword}
+                        title={t("users.details.modals.password_title")}
+                      >
+                        {t("users.details.modals.password_text", {
+                          defaultValue:
+                            "Are you sure you change password for this account? The old password will be replaced by the new one.",
+                        })}
+                        <Group mt="lg" justify="flex-end">
+                          <Button onClick={closeChangePassword} variant="grey">
+                            {t("common:actions.cancel", {
+                              defaultValue: "Cancel",
+                            })}
+                          </Button>
+                          <Button
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                              handleChangePassword(e)
+                            }
+                            variant="edit"
+                            loading={isPendingPasswordUpdate}
+                          >
+                            {t("users.details.actions.change_password")}
+                          </Button>
+                        </Group>
+                      </Modal>
+                    </form>
+                  </Box>
+
+                  <Divider />
+
+                  {/* Ban Account */}
+                  <Group justify="space-between" align="center" wrap="nowrap">
+                    <Box>
+                      <Text size="sm" fw={600}>
+                        {is_banned
+                          ? t("users.details.actions.unban")
+                          : t("users.details.actions.ban")}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {is_banned
+                          ? t("users.details.modals.unban_text")
+                          : t("users.details.modals.ban_text")}
+                      </Text>
+                    </Box>
+                    <Group gap="xs" wrap="nowrap">
+                      {role === "admin" &&
+                        accountId != user?.id &&
+                        !is_banned && (
+                          <Tooltip
+                            label={t("users.details.tooltips.ban_admin", {
+                              defaultValue: "Cannot ban an admin",
+                            })}
+                          >
+                            <IconInfoCircleFilled
+                              size={16}
+                              color="var(--mantine-color-dimmed)"
+                            />
+                          </Tooltip>
+                        )}
+                      <Button
+                        variant={!is_banned ? "delete" : "primary"}
+                        onClick={openBan}
+                        disabled={role === "admin" || isPendingToggleBan}
+                      >
+                        {!is_banned
+                          ? t("users.details.actions.ban")
+                          : t("users.details.actions.unban")}
+                      </Button>
+                    </Group>
+                  </Group>
+
+                  <Divider />
+
+                  {/* Delete Account */}
+                  <Group justify="space-between" align="center" wrap="nowrap">
+                    <Box>
+                      <Text size="sm" fw={600}>
+                        {t("users.details.actions.delete")}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {t("users.details.modals.delete_text")}
+                      </Text>
+                    </Box>
+                    <Button
+                      variant="delete"
+                      onClick={openDelete}
+                      disabled={role === "admin" && accountId != user?.id}
+                    >
+                      {t("users.details.actions.delete")}
+                    </Button>
+                  </Group>
+                </Stack>
+              )}
+            </Paper>
+          </Stack>
+        </Grid.Col>
+
+        {/* Right Column: Statistics & Activities */}
+        <Grid.Col span={{ base: 12, md: 4 }}>
+          <Stack gap="md">
+            {!accountDetails?.deleted_at && (
+              <Paper variant="primary" p="lg" radius="md">
+                <Title order={4} mb="md">
+                  {t("users.details.activities")}
+                </Title>
+
+                <Stack gap="md">
+                  {role === "user" && (
+                    <>
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconPackage
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              {t("users.details.fields.total_deposits")}
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_deposits}
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconBox
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              {t("users.details.fields.total_listings")}
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_listings}
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconCash
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              Total spendings
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_spendings} €
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+                    </>
+                  )}
+
+                  {role === "employee" && (
+                    <>
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconCalendarStats
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              {t("users.details.fields.total_events")}
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_events}
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconFileText
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              {t("users.details.fields.total_posts")}
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_posts}
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+
+                      <Box mt="xs">
+                        <Button
+                          fullWidth
+                          variant="primary"
+                          size="sm"
+                          onClick={openCalendar}
+                        >
+                          Show current tasks
+                        </Button>
+                      </Box>
+                    </>
+                  )}
+
+                  {role === "pro" && (
+                    <>
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconPackage
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              {t(
+                                "users.details.fields.total_listings_purchased",
+                              )}
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_listings}
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconBox
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              {t(
+                                "users.details.fields.total_deposits_purchased",
+                              )}
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_deposits}
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconFileText
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              {t("users.details.fields.total_projects")}
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_projects}
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+
+                      <Paper
+                        withBorder
+                        p="sm"
+                        radius="md"
+                        style={{
+                          backgroundColor: "var(--mantine-color-default-hover)",
+                        }}
+                      >
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <IconCash
+                              size={20}
+                              color="var(--upagain-neutral-green)"
+                            />
+                            <Text size="sm" fw={600}>
+                              Total spendings
+                            </Text>
+                          </Group>
+                          {isAccountStatsLoading ? (
+                            <Skeleton height={20} width={40} />
+                          ) : (
+                            <Text size="lg" fw={700}>
+                              {accountStats?.total_spendings} €
+                            </Text>
+                          )}
+                        </Group>
+                      </Paper>
+                    </>
+                  )}
+                </Stack>
+              </Paper>
+            )}
+          </Stack>
+        </Grid.Col>
+      </Grid>
       {/* // modal delete */}
       <Modal
         opened={openedDelete}

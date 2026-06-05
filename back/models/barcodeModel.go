@@ -17,18 +17,27 @@ type Barcode struct {
 }
 
 type BarCodeData struct {
-	Id            int    `json:"id"`
+	Id            int    `json:"id"` // id of the transaction row in db
 	IdTransaction string `json:"id_transaction"`
 	UserType      string `json:"user_type"`
 	IdAccount     int    `json:"id_account"`
 }
 
 type BarCodeInsert struct {
-	Code6Digit  string    `json:"code6digit"`
-	BarcodePath string    `json:"barcodePath"`
-	UserType    string    `json:"userType"`
-	IdAccount   int       `json:"idAccount"`
-	IdDeposit   int       `json:"idDeposit"`
+	Code6Digit    string    `json:"code6digit"`
+	BarcodePath   string    `json:"barcodePath"`
+	UserType      string    `json:"userType"`
+	IdAccount     int       `json:"idAccount"`
+	IdDeposit     int       `json:"idDeposit"`
 	IdTransaction string    `json:"idTransaction"`
-	ValidFrom   time.Time `json:"validFrom"`
+	ValidFrom     time.Time `json:"validFrom"`
+}
+
+type ConfirmCodeRequest struct {
+	ConfirmCode string `json:"confirm_code"`
+}
+
+type OpenContainerPayload struct {
+	Barcode    string `json:"barcode"`
+	Code6Digit string `json:"code6digit"`
 }

@@ -24,12 +24,9 @@ import {
   useSavePost,
   useGetAllPosts,
 } from "../../hooks/postHooks";
-import {
-  useGetUserImpact,
-  useGetGlobalImpact,
-} from "../../hooks/userHooks";
+import { useGetUserImpact, useGetGlobalImpact } from "../../hooks/userHooks";
 import { useGetMyEvents } from "../../hooks/eventHooks";
-import FullScreenLoader from "../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../components/common/FullScreenSkeleton";
 import { useAuth } from "../../context/AuthContext";
 import { ScoreRing } from "../../components/score/ScoreRing";
 import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
@@ -37,7 +34,7 @@ import { PATHS } from "../../routes/paths";
 import PostCard from "../../components/post/PostCard";
 import { EventCard } from "../../components/event/EventCard";
 import { DashboardCard } from "../../components/dashboard/DashboardCard";
-import { useHandleStripeEventRegistration } from "../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../hooks/stripeHooks";
 
 const WATER_MAX_L = 1000;
 const ELECTRICITY_MAX_KWH = 100;
@@ -64,7 +61,7 @@ export default function UserHome() {
   const scheme = useComputedColorScheme("light");
   const { user } = useAuth();
 
-  useHandleStripeEventRegistration();
+  useHandleVerifyStripeEventRegistration();
 
   const { data: accountDetails, isLoading: isLoadingAccountDetails } =
     useAccountDetails(user?.id || 0);
@@ -88,7 +85,7 @@ export default function UserHome() {
   const co2Comparison = getCO2Comparison(userImpactData?.co2 ?? 0);
 
   if (isLoadingAccountDetails) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (
@@ -121,7 +118,7 @@ export default function UserHome() {
       </HeroBanner>
 
       {/* SECTION 2: YOUR IMPACT */}
-      <Container px="md" py={50} size="xl">
+      <Container id="onboard-impact" px="md" py={50} size="xl">
         <Stack gap="xl">
           <Stack gap={0}>
             <Title order={2} size={32} c="var(--mantine-color-text)">
@@ -186,7 +183,10 @@ export default function UserHome() {
                   </Text>
                 </Group>
                 <Progress
-                  value={Math.min(((userImpactData?.water ?? 0) / WATER_MAX_L) * 100, 100)}
+                  value={Math.min(
+                    ((userImpactData?.water ?? 0) / WATER_MAX_L) * 100,
+                    100,
+                  )}
                   color="var(--upagain-neutral-green)"
                   size="sm"
                   radius="xl"
@@ -201,7 +201,11 @@ export default function UserHome() {
                   </Text>
                 </Group>
                 <Progress
-                  value={Math.min(((userImpactData?.electricity ?? 0) / ELECTRICITY_MAX_KWH) * 100, 100)}
+                  value={Math.min(
+                    ((userImpactData?.electricity ?? 0) / ELECTRICITY_MAX_KWH) *
+                      100,
+                    100,
+                  )}
                   color="var(--upagain-yellow)"
                   size="sm"
                   radius="xl"
@@ -221,7 +225,9 @@ export default function UserHome() {
               </Box>
               {accountDetails?.score && accountDetails.score > 0 ? (
                 <Text size="xs" c="dimmed" ta="center">
-                  {t("user.impact.score_points", { score: accountDetails.score })}
+                  {t("user.impact.score_points", {
+                    score: accountDetails.score,
+                  })}
                 </Text>
               ) : (
                 <Button
@@ -259,7 +265,7 @@ export default function UserHome() {
       </Title>
 
       {/* SECTION 3: MANAGE OBJECTS */}
-      <Container px="md" py={50} size="xl">
+      <Container id="onboard-manage" px="md" py={50} size="xl">
         <Paper
           className="paper"
           data-variant="primary"
@@ -416,7 +422,13 @@ export default function UserHome() {
       </Container>
 
       {/* SECTION 4: COMMUNITY & AGENDA */}
-      <Container px="md" py={50} size="xl" mb="xl">
+      <Container
+        id="onboard-community-events"
+        px="md"
+        py={50}
+        size="xl"
+        mb="xl"
+      >
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
           {/* 4.1 COMMUNITY INSIGHTS */}
           <Paper
@@ -468,6 +480,7 @@ export default function UserHome() {
                           likes={post.like_count}
                           isLiked={post.is_liked ?? false}
                           isSaved={post.is_saved ?? false}
+                          isSponsored={post.ads_id !== null}
                           onLike={() => likePostAsync(post.id)}
                           onSave={() => savePostAsync(post.id)}
                         />

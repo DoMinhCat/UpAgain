@@ -12,7 +12,7 @@ import (
 func GetAccountCredsByEmail(email string) (*models.AccountCreds, error) {
 	var user models.AccountCreds
 
-	row := utils.Conn.QueryRow("SELECT id, email, password, role, is_banned, username FROM accounts WHERE email=$1", email)
+	row := utils.Conn.QueryRow("SELECT id, email, password, role, is_banned, username FROM accounts WHERE email=$1 AND deleted_at IS NULL", email)
 	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.Role, &user.IsBanned, &user.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -225,6 +225,14 @@ func GetAccountDetailsById(id_account int) (models.AccountDetails, error) {
 		}
 		account.Phone = proDetails.Phone
 		account.IsPremium = proDetails.IsPremium
+		account.CompletedOnboard = &proDetails.CompletedOnboard
+
+		var hasTrial bool
+		err = utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM subscriptions WHERE id_pro = $1 AND is_trial = true)", id_account).Scan(&hasTrial)
+		if err != nil {
+			return models.AccountDetails{}, fmt.Errorf("GetAccountById() failed: %v", err.Error())
+		}
+		account.IsTrial = hasTrial
 	}
 
 	if account.Role == "user" {
@@ -234,6 +242,7 @@ func GetAccountDetailsById(id_account int) (models.AccountDetails, error) {
 		}
 		account.Phone = userDetail.Phone
 		account.Score = userDetail.Score
+		account.CompletedOnboard = &userDetail.CompletedOnboard
 	}
 	return account, nil
 }
@@ -431,7 +440,7 @@ func UpdateAvatar(id_account int, avatar string) error {
 }
 
 func UpdateUpcyclingScore(id_account int, score int) error {
-	_, err := utils.Conn.Exec("UPDATE users SET up_score=up_score+$1 WHERE id_account=$2 AND deleted_at IS NULL", score, id_account)
+	_, err := utils.Conn.Exec("UPDATE users SET up_score=up_score+$1 WHERE id_account=$2", score, id_account)
 	if err != nil {
 		return fmt.Errorf("UpdateUpcyclingScore() failed: %v", err.Error())
 	}

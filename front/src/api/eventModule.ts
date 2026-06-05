@@ -75,7 +75,7 @@ export const createEvent = async (
 };
 
 export const getEventDetails = async (id_event: number): Promise<AppEvent> => {
-  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL + id_event);
+  const response = await api.get(ENDPOINTS.ADMIN.EVENTS.ALL + "/" + id_event);
   return response.data;
 };
 
@@ -173,5 +173,16 @@ export const cancelRegistration = async (
 
 export const getMyEvents = async (): Promise<AppEvent[]> => {
   const response = await api.get(ENDPOINTS.EVENTS.MY_EVENTS);
+  return response.data;
+};
+
+export const refuseEvent = async (
+  id_event: number,
+  reason: string,
+): Promise<void> => {
+  const response = await api.patch(ENDPOINTS.ADMIN.EVENTS.REFUSE(id_event), {
+    action: "refuse",
+    reason,
+  });
   return response.data;
 };

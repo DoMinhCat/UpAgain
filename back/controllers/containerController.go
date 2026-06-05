@@ -6,11 +6,13 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
+	"backend/utils/onesignal"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -443,7 +445,6 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Postal code is required.")
 		return
 	}
-	
 
 	oldContainer, _ := db.FindContainerByID(id)
 	hasLocationChange := false
@@ -618,7 +619,7 @@ func GetNearestAvailableContainer(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid longitude")
 		return
 	}
-	
+
 	// get all available containers and sort them by distance from the user's location (the closer the better)
 	containers, err := db.GetAvailableContainers()
 	if err != nil {
@@ -642,4 +643,256 @@ func GetNearestAvailableContainer(w http.ResponseWriter, r *http.Request) {
 	closestContainer := containers[closestIndex]
 
 	utils.RespondWithJSON(w, http.StatusOK, closestContainer)
+}
+
+// OpenContainer godoc
+// @Summary      Open a container
+// @Description  Opens a specific container using either a 6-digit code or barcode image file. If the requestor is a user, it registers the drop-off and prepares a retrieval code/barcode for a professional. If the requestor is a professional, it registers the retrieval and completes the item transaction.
+// @Tags         container
+// @Security     ApiKeyAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        id          path      int     true   "Container ID"
+// @Param        code6digit  formData  string  false  "6-digit access code"
+// @Param        barcode     formData  file    false  "Barcode image file"
+// @Success      200         {object}  map[string]string  "Returns success message"
+// @Failure      400         {object}  nil                "Invalid request parameter or code"
+// @Failure      401         {object}  nil                "Unauthorized"
+// @Failure      404         {object}  nil                "Container not found"
+// @Failure      500         {object}  nil                "Internal server error"
+// @Router       /containers/{id}/open [post]
+func OpenContainer(w http.ResponseWriter, r *http.Request) {
+	id_container, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		slog.Error("strconv.Atoi() failed", "controller", "OpenContainer", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid container ID")
+		return
+	}
+	exist, err := db.CheckContainerExistById(id_container)
+	if err != nil {
+		slog.Error("CheckContainerExistById() failed", "controller", "OpenContainer", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching container.")
+		return
+	}
+	if !exist {
+		utils.RespondWithError(w, http.StatusNotFound, "Container not found")
+		return
+	}
+
+	var payload models.OpenContainerPayload
+	err = r.ParseMultipartForm(32 << 20) // 32MB limit
+	if err != nil {
+		slog.Error("r.ParseMultipartForm() failed", "controller", "OpenContainer", "error", err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Upload size exceeds 32MB.")
+		return
+	}
+
+	payload.Code6Digit = r.FormValue("code6digit")
+	role := r.Context().Value("user").(models.AuthClaims).Role
+	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	receivedBarcode := false
+	if payload.Code6Digit == "" {
+		receivedBarcode = true
+	}
+
+	var dbCode models.Barcode
+	if !receivedBarcode {
+		// check if 6 digit code is correct and valid
+		dbCode, err = db.GetCodeBy6DigitCode(payload.Code6Digit)
+		if err != nil {
+			slog.Error("GetCodeBy6DigitCode() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while verifying code.")
+			return
+		}
+		if dbCode.Code == "" {
+			// No code found in db
+			utils.RespondWithError(w, http.StatusBadRequest, "Incorrect 6 digit code.")
+			return
+		}
+		if !helpers.IsCodeValid(idRequestor, id_container, dbCode) {
+			utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect or invalid code.")
+			return
+		}
+	} else {
+		// check if barcode is correct and valid
+		file, _, err := r.FormFile("barcode")
+		if err != nil {
+			slog.Error("r.FormFile() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Access code or barcode image is required.")
+			return
+		}
+		defer file.Close()
+
+		decodedText, err := helpers.DecodeBarcode(file)
+		if err != nil {
+			slog.Error("DecodeBarcode() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Failed to decode barcode image.")
+			return
+		}
+
+		parts := strings.Split(decodedText, "|")
+		if len(parts) != 3 {
+			slog.Error("Invalid barcode format", "controller", "OpenContainer", "text", decodedText)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid barcode.")
+			return
+		}
+
+		txRowId, err := strconv.Atoi(parts[0])
+		if err != nil {
+			slog.Error("Invalid deposit ID in barcode", "controller", "OpenContainer", "id", parts[0], "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid barcode.")
+			return
+		}
+
+		accountId, err := strconv.Atoi(parts[2])
+		if err != nil {
+			slog.Error("Invalid account ID in barcode", "controller", "OpenContainer", "id", parts[2], "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid barcode.")
+			return
+		}
+
+		// get deposit ID based on txRowId
+		tx, err := db.GetTransactionByRowId(txRowId)
+		if err != nil {
+			slog.Error("GetTransactionByRowId() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while verifying barcode.")
+			return
+		}
+		dbCode, err = db.GetCodeByDepositIdAndAccountId(tx.IdItem, accountId)
+		if err != nil {
+			slog.Error("GetCodeByDepositIdAndAccountId() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while verifying barcode.")
+			return
+		}
+		if dbCode.Code == "" {
+			utils.RespondWithError(w, http.StatusBadRequest, "No matching barcode found.")
+			return
+		}
+		if !helpers.IsCodeValid(idRequestor, id_container, dbCode) {
+			utils.RespondWithError(w, http.StatusUnauthorized, "Incorrect or invalid barcode.")
+			return
+		}
+	}
+	// code is ok, proceed to open container and update status based on role
+
+	itemDetails, err := db.GetItemDetailsByItemId(dbCode.IdDeposit)
+	if err != nil {
+		slog.Error("GetItemDetailsByItemId() failed", "controller", "OpenContainer", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching item details.")
+		return
+	}
+	var newContainerStatus string
+	if role == "user" {
+		// user dropped object
+		newContainerStatus = "occupied"
+
+		// get pro transaction by id transaction (uuid)
+		tx, err := db.GetLatestTransactionByUuid(dbCode.IdTransaction)
+		if tx.Id == 0 {
+			utils.RespondWithError(w, http.StatusBadRequest, "No transaction found for the item you just retrieved.")
+			return
+		}
+		if err != nil {
+			slog.Error("GetLatestTransactionByUuid() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching transaction.")
+			return
+		}
+		// create code for pro
+		code6digit := helpers.GenerateRandom6CharCode()
+		barcodePath, err := helpers.GenerateAndSaveBarcode(models.BarCodeData{
+			Id:            tx.Id,
+			IdTransaction: tx.IdTransaction,
+			UserType:      "p",
+			IdAccount:     tx.IdPro,
+		})
+		if err != nil {
+			slog.Error("GenerateAndSaveBarcode() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while generating barcode for pro.")
+			return
+		}
+
+		err = db.InsertBarcode(models.BarCodeInsert{
+			Code6Digit:    code6digit,
+			BarcodePath:   barcodePath,
+			UserType:      "pro",
+			IdAccount:     tx.IdPro,
+			IdDeposit:     dbCode.IdDeposit,
+			IdTransaction: tx.IdTransaction,
+			ValidFrom:     time.Now(), // pro can retrieve as soon as user dropped
+		})
+		if err != nil {
+			slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
+		}
+		// Onesignal send notification to pro: hey go get your stuff, it is in container
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    tx.IdItem,
+			AccountId: tx.IdPro,
+			Status:    "deposited",
+		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				// failure to insert into DB, but do not block request, only log error as notification is not crucial
+				slog.Warn("HandleItemStatusChangeNoti failed for drop", "controller", "OpenContainer", "error", errNoti)
+			}
+		}()
+
+		// update score for user
+		score, err := helpers.CalculateScore(itemDetails.Material, itemDetails.Weight)
+		if err != nil {
+			slog.Error("CalculateScore() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while calculating score.")
+			return
+		}
+		err = db.UpdateUpcyclingScore(r.Context().Value("user").(models.AuthClaims).Id, score)
+		if err != nil {
+			slog.Error("UpdateUpcyclingScore() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating user's score.")
+			return
+		}
+	} else {
+		// pro retrieved the object, container will be empty
+		newContainerStatus = "ready"
+
+		// only considered completed if pro retrieved item
+		err = db.UpdateItemStatusById(dbCode.IdDeposit, "completed", "")
+		if err != nil {
+			slog.Error("UpdateItemStatusById() failed", "controller", "OpenContainer", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating item status.")
+			return
+		}
+		// Onesignal send notification to user: object has been retrieved by pro
+		notiPayload := onesignal.HandleItemNotiPayload{
+			ItemId:    dbCode.IdDeposit,
+			AccountId: itemDetails.IdUser,
+			Status:    "retrieved",
+		}
+		go func() {
+			errNoti := onesignal.HandleItemStatusChangeNoti(notiPayload)
+			if errNoti != nil {
+				// failure to insert into DB, but do not block request, only log error as notification is not crucial
+				slog.Warn("HandleItemStatusChangeNoti failed for retrieval", "controller", "OpenContainer", "error", errNoti)
+			}
+		}()
+
+	}
+
+	// finally update barcode status to used
+	err = db.UpdateCodeStatusBy6DigitCode(dbCode.Code, "used")
+	if err != nil {
+		slog.Error("UpdateCodeStatusBy6DigitCode() failed", "controller", "OpenContainer", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating code status.")
+		return
+	}
+	// update container status dynamically
+	err = db.UpdateStatusContainer(id_container, newContainerStatus)
+	if err != nil {
+		slog.Error("UpdateContainerStatusById() failed", "controller", "OpenContainer", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating container status.")
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Container opened successfully"})
 }

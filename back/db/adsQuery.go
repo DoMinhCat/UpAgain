@@ -87,7 +87,21 @@ func CreateAds(payload models.CreateAdsRequest, role string) (int, error) {
 			return 0, fmt.Errorf("CreateAds() failed: %v", err.Error())
 		}
 	} else {
-		// TODO: get current price of ads, calculate total price and insert into db
+		// get current price of ads, calculate total price and insert into db
+		adsPrice, err := GetFinanceSettingByKey("ads_price_per_month")
+		if err != nil {
+			return 0, fmt.Errorf("CreateAds() failed to get ads price setting: %v", err.Error())
+		}
+		totalPrice := adsPrice * float64(payload.Duration)
+		query := `
+			insert into ads (id_post, start_date, end_date, price_per_month, total_price)
+			values ($1, $2, $3, $4, $5)
+			returning id
+		`
+		err = utils.Conn.QueryRow(query, payload.IdPost, payload.From, endDate, adsPrice, totalPrice).Scan(&idAds)
+		if err != nil {
+			return 0, fmt.Errorf("CreateAds() failed: %v", err.Error())
+		}
 	}
 
 	return idAds, nil

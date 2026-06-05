@@ -17,6 +17,8 @@ import {
   Checkbox,
   SegmentedControl,
   Alert,
+  MultiSelect,
+  Tree,
 } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/routes";
@@ -24,7 +26,7 @@ import classes from "./styles/GlobalStyles.module.css";
 import { Notifications } from "@mantine/notifications";
 import { DateTimePicker, DatePickerInput } from "@mantine/dates";
 import React, { useEffect } from "react";
-import FullScreenLoader from "./components/common/FullScreenLoader";
+import FullScreenSkeleton from "./components/common/FullScreenSkeleton";
 import OneSignal from "react-onesignal";
 ("use client");
 
@@ -36,6 +38,14 @@ const UpAgainTheme = createTheme({
 
   components: {
     Select: Select.extend({
+      defaultProps: {
+        classNames: {
+          input: classes.input,
+          label: classes.label,
+        },
+      },
+    }),
+    MultiSelect: MultiSelect.extend({
       defaultProps: {
         classNames: {
           input: classes.input,
@@ -176,6 +186,15 @@ const UpAgainTheme = createTheme({
         transitionDuration: 300,
       },
     }),
+    Tree: Tree.extend({
+      defaultProps: {
+        classNames: {
+          root: classes.treeRoot,
+          node: classes.treeNode,
+          label: classes.treeLabel,
+        },
+      },
+    }),
   },
 });
 
@@ -241,7 +260,7 @@ function App() {
         },
       })}
     >
-      <React.Suspense fallback={<FullScreenLoader />}>
+      <React.Suspense fallback={<FullScreenSkeleton />}>
         <Notifications
           limit={3}
           zIndex={1000}

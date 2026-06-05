@@ -39,7 +39,8 @@ export function CreatePostModal({
     if (!category) {
       setErrorCategory(t("admin:posts.create_modal.errors.category"));
       return false;
-    } else if (category === "project") {
+    } else if (category === "project" && role !== "pro") {
+      console.log(role);
       setErrorCategory(t("admin:posts.create_modal.errors.category_project"));
       return false;
     } else {
@@ -137,11 +138,6 @@ export function CreatePostModal({
             },
             ...(role !== "pro"
               ? [
-                  {
-                    value: "project",
-                    label: t("admin:posts.categories.project"),
-                    disabled: role !== "pro",
-                  },
                   { value: "tips", label: t("admin:posts.categories.tips") },
                   { value: "news", label: t("admin:posts.categories.news") },
                   {

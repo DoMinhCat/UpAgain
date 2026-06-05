@@ -16,7 +16,7 @@ import {
 } from "@mantine/core";
 import { useAccountDetails } from "../../hooks/accountHooks.tsx";
 import { useGetUserImpact, useGetUserImpactItems } from "../../hooks/userHooks";
-import FullScreenLoader from "../../components/common/FullScreenLoader.tsx";
+import FullScreenSkeleton from "../../components/common/FullScreenSkeleton.tsx";
 import { DashboardCard } from "../../components/dashboard/DashboardCard.tsx";
 import { IconLeaf, IconDroplet, IconTrophy } from "@tabler/icons-react";
 import { ScoreRing } from "../../components/score/ScoreRing.tsx";
@@ -52,7 +52,7 @@ export default function UserScorePage() {
   }
 
   if (isLoadingAccountDetails || isLoadingImpact || isLoadingItems) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (

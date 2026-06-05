@@ -11,6 +11,8 @@ import {
   updateAccount,
   getAccountCountStats,
   updateAvatar,
+  completeOnboarding,
+  upgradeAccount,
 } from "../api/accountModule";
 import {
   type Account,
@@ -20,6 +22,8 @@ import {
   type updateAccountPayload,
   type AccountsListPagination,
   type AccountCountStats,
+  type UpgradePayload,
+  type UpgradeResponse,
 } from "../api/interfaces/account";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
@@ -245,6 +249,38 @@ export const useUpdateAvatar = (account_id: number) => {
       queryClient.invalidateQueries({
         queryKey: ["accountDetails", account_id],
       });
+    },
+  });
+};
+
+export const useCompleteOnboarding = (accountId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => completeOnboarding(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["accountDetails", accountId],
+      });
+    },
+  });
+};
+
+export const useUpgradeAccount = (accountId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation<UpgradeResponse, Error, UpgradePayload>({
+    mutationFn: (payload: UpgradePayload) => upgradeAccount(payload),
+    onSuccess: (data) => {
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["accountDetails", accountId],
+        });
+      }
+    },
+    meta: {
+      errorTitle: "common:stripe.verification_failed",
+      errorMessage: "common:stripe.stripe_verification_error",
     },
   });
 };

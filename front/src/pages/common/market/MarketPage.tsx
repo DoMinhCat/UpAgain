@@ -10,7 +10,7 @@ import {
   Select,
   SimpleGrid,
   Center,
-  Loader,
+  Skeleton,
 } from "@mantine/core";
 import { useAuth } from "../../../context/AuthContext";
 import { NotFoundPage } from "../../error/404";
@@ -114,6 +114,7 @@ export default function MarketPage() {
               )}
               {role === "user" && (
                 <Button
+                  id="onboard-market-post"
                   leftSection={<IconPlus stroke={2} />}
                   variant="primary"
                   onClick={() => navigate(PATHS.MARKETPLACE.NEW)}
@@ -165,9 +166,16 @@ export default function MarketPage() {
 
         {/* Grid */}
         {isLoading ? (
-          <Center py={80}>
-            <Loader color="var(--upagain-neutral-green)" />
-          </Center>
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <Stack key={i} gap="xs">
+                <Skeleton height={200} radius="md" />
+                <Skeleton height={18} width="75%" />
+                <Skeleton height={14} width="50%" />
+                <Skeleton height={22} width="35%" />
+              </Stack>
+            ))}
+          </SimpleGrid>
         ) : items.length === 0 ? (
           <Center py={80}>
             <Stack align="center" gap="xs">
@@ -182,7 +190,7 @@ export default function MarketPage() {
             </Stack>
           </Center>
         ) : (
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+          <SimpleGrid id="onboard-market-list" cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
             {items.map((item) => (
               <ItemCard key={item.id} item={item} />
             ))}

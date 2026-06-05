@@ -43,7 +43,7 @@ export const deleteContainer = async (id: number) => {
 };
 
 export const getContainerDetails = async (id: number): Promise<Container> => {
-  const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}${id}/`);
+  const response = await api.get(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}/${id}`);
   return response.data;
 };
 
@@ -95,5 +95,29 @@ export const getNearestContainer = async (
   const response = await api.get(ENDPOINTS.ADMIN.CONTAINERS.NEAREST, {
     params: { lat: coordinates.latitude, lng: coordinates.longitude },
   });
+  return response.data;
+};
+
+export const openContainer = async (
+  id: number,
+  payload: { code6digit?: string; barcode?: File },
+) => {
+  const formData = new FormData();
+  if (payload.code6digit) {
+    formData.append("code6digit", payload.code6digit);
+  }
+  if (payload.barcode) {
+    formData.append("barcode", payload.barcode);
+  }
+
+  const response = await api.post(
+    ENDPOINTS.ADMIN.CONTAINERS.OPEN(id),
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
   return response.data;
 };

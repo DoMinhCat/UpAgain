@@ -336,7 +336,7 @@ func GetTotalItemsByMaterialSince(material string, since *time.Time) (int, error
 	}
 	var count int
 	var err error
-	
+
 	if since == nil {
 		err = utils.Conn.QueryRow("SELECT COUNT(*) FROM items WHERE material = $1 AND is_deleted = false", material).Scan(&count)
 	} else {
@@ -419,6 +419,9 @@ func UpdateItemStatusById(id int, new_status string, reason string) error {
 			return fmt.Errorf("UpdateItemStatusById() failed: %v", err)
 		}
 		return nil
+	}
+	if !slices.Contains(ITEM_STATUS, new_status) {
+		return fmt.Errorf("UpdateItemStatusById() failed: invalid new status '%s'", new_status)
 	}
 	_, err = utils.Conn.Exec("UPDATE items SET status = $1, refuse_reason = $2 WHERE id = $3", new_status, reason, id)
 	if err != nil {

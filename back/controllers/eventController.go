@@ -6,6 +6,7 @@ import (
 	"backend/utils"
 	"backend/utils/geocode"
 	helpers "backend/utils/helpers"
+	onesignal "backend/utils/onesignal"
 	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
 	"encoding/json"
@@ -505,7 +506,7 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// can't edit an event that has already ended
+	// can't asign to an event that has already ended
 	event, err := db.GetEventDetailsById(id_event)
 	if err != nil {
 		slog.Error("GetEventDetailsById() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
@@ -532,7 +533,6 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 	var payload models.AssignEmployeeRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "AssignEmployeeToEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -604,6 +604,8 @@ func AssignEmployeeToEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go onesignal.HandleEventAssignedNoti(id_event, payload.IdsEmployee)
+
 	if role == "admin" {
 		err = db.InsertHistory("event", id_event, "update", r.Context().Value("user").(models.AuthClaims).Id, map[string]interface{}{"action": "assign_employees"}, payload)
 		if err != nil {
@@ -674,7 +676,6 @@ func UnAssignEmployeeByEventId(w http.ResponseWriter, r *http.Request) {
 	var payload models.UnAssignEmployeeRequest
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "UnAssignEmployeeByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -770,7 +771,6 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 	oldStatus, _ := db.GetEventStatusById(id_event)
 	err = json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		slog.Debug("json.NewDecoder(r.Body).Decode() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request body.")
 		return
 	}
@@ -780,7 +780,7 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.UpdateEventStatusByEventId(id_event, payload.Status)
+	err = db.UpdateEventStatusByEventId(id_event, payload.Status, nil)
 	if err != nil {
 		slog.Error("UpdateEventStatusByEventId() failed", "controller", "CancelEventByEventId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event status.")
@@ -794,7 +794,8 @@ func CancelEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: notify users participating in event about the update
+	// onesignal notification to users participating in event about the status update / cancellation
+	go onesignal.HandleEventUpdateNoti(id_event, "cancelled")
 
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
@@ -870,7 +871,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// only creator or assigned employee
+	// only creator or assigned employee(s) can edit eventx
 	if role != "admin" {
 		isValid, err := db.CheckIsCreatorOrAssignedEmployee(id_event, idUpdater)
 		if err != nil {
@@ -939,19 +940,19 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasChanges := false
-	if payload.Title != oldEvent.Title || 
-	payload.Description != oldEvent.Description || 
-	payload.Category != oldEvent.Category || 
-	payload.Capacity.Int64 != oldEvent.Capacity.Int64 || 
-	payload.StartAt.Time != oldEvent.StartAt.Time || 
-	payload.EndAt.Time != oldEvent.EndAt.Time || 
-	payload.Price.Float64 != oldEvent.Price.Float64 || 
-	payload.City != oldEvent.City || 
-	payload.Street != oldEvent.Street || 
-	payload.PostalCode != oldEvent.PostalCode || 
-	payload.LocationDetail.String != oldEvent.LocationDetail.String || 
-	len(keepImages) != len(currentImages) ||
-	newImg != nil {
+	if payload.Title != oldEvent.Title ||
+		payload.Description != oldEvent.Description ||
+		payload.Category != oldEvent.Category ||
+		payload.Capacity.Int64 != oldEvent.Capacity.Int64 ||
+		payload.StartAt.Time != oldEvent.StartAt.Time ||
+		payload.EndAt.Time != oldEvent.EndAt.Time ||
+		payload.Price.Float64 != oldEvent.Price.Float64 ||
+		payload.City != oldEvent.City ||
+		payload.Street != oldEvent.Street ||
+		payload.PostalCode != oldEvent.PostalCode ||
+		payload.LocationDetail.String != oldEvent.LocationDetail.String ||
+		len(keepImages) != len(currentImages) ||
+		newImg != nil {
 		hasChanges = true
 	}
 	if !hasChanges {
@@ -960,20 +961,20 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasLocationChanged := false
-	if payload.City != oldEvent.City || 
-	   payload.Street != oldEvent.Street || 
-	   payload.PostalCode != oldEvent.PostalCode || 
-	   payload.LocationDetail.String != oldEvent.LocationDetail.String {
+	if payload.City != oldEvent.City ||
+		payload.Street != oldEvent.Street ||
+		payload.PostalCode != oldEvent.PostalCode ||
+		payload.LocationDetail.String != oldEvent.LocationDetail.String {
 		hasLocationChanged = true
 	}
 
 	if hasLocationChanged {
 		addressToResolve := models.Address{
-			City: payload.City,
-			Street: payload.Street,
+			City:       payload.City,
+			Street:     payload.Street,
 			PostalCode: payload.PostalCode,
 		}
-		
+
 		coordinates, err := geocode.AddressToCoor(addressToResolve)
 		if err != nil {
 			if err.Error() == "ZERO_RESULTS" {
@@ -1008,7 +1009,7 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	// require validation again if employee
 	if role == "employee" {
-		err = db.UpdateEventStatusByEventId(id_event, "pending")
+		err = db.UpdateEventStatusByEventId(id_event, "pending", nil)
 		if err != nil {
 			slog.Error("UpdateEventStatusByEventId() failed", "controller", "UpdateEventByEventId", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating the event.")
@@ -1030,7 +1031,8 @@ func UpdateEventByEventId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: notify users participating in event
+	// onesignal notification to users participating in event about the details update
+	go onesignal.HandleEventUpdateNoti(id_event, "updated")
 	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
@@ -1115,7 +1117,39 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 
 	isPaid := event.Price.Valid && event.Price.Float64 > 0.0
 	if isPaid {
-		if payload.Paid {
+		// user click on register and not redirected to stripe yet (1st call), then give user checkout link to stripe
+		if !payload.Paid {
+			eventPriceInCents := int64(event.Price.Float64 * 100)
+			stripeCommTotalInCents := int64(float64(eventPriceInCents)*stripe.StripeCommissionRatePercentEU) + int64(stripe.StripeCommissionFixedInCentsEU)
+			// vat
+			vatTotalInCents := int64(float64(eventPriceInCents) * stripe.VatRate)
+			finalPriceInCents := stripeCommTotalInCents + eventPriceInCents + vatTotalInCents
+
+			frontendOrigin := utils.GetFrontOrigin()
+			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
+				return
+			}
+			successUrlSeparator := "?"
+			if strings.Contains(payload.OriginUrl, "?") {
+				successUrlSeparator = "&"
+			}
+			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+				EntityName:   event.Title,
+				PriceInCents: finalPriceInCents,
+				// return to the origin URL with param, frontend will check for that params to handle next steps
+				SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+				CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
+			})
+			if err != nil {
+				slog.Error("CreateStripeSession() failed", "controller", "RegisterToEventByEventId", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
+			return
+		} else {
+			// 2nd call: user got redirected back after having paid in stripe
 			err = db.InsertEventRegistration(requestorId, event)
 			if err != nil {
 				slog.Error("InsertEventRegistration() failed", "controller", "RegisterToEventByEventId", "error", err)
@@ -1125,29 +1159,6 @@ func RegisterToEventByEventId(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithJSON(w, http.StatusCreated, models.EventRegistrationResponse{})
 			return
 		}
-		frontendOrigin := utils.GetFrontOrigin()
-		if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
-			return
-		}
-		successUrlSeparator := "?"
-		if strings.Contains(payload.OriginUrl, "?") {
-			successUrlSeparator = "&"
-		}
-		checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
-			EventName:    event.Title,
-			PriceInCents: int64(event.Price.Float64 * 100),
-			// return to the origin URL with param, frontend will check for that params to handle next steps
-			SuccessURL: payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
-			CancelURL:  payload.OriginUrl + successUrlSeparator + "payment=cancel",
-		})
-		if err != nil {
-			slog.Error("CreateStripeSession() failed", "controller", "RegisterToEventByEventId", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while registering to the event.")
-			return
-		}
-		utils.RespondWithJSON(w, http.StatusOK, models.EventRegistrationResponse{CheckoutUrl: checkoutUrl})
-		return
 	} else {
 		err = db.InsertEventRegistration(requestorId, event)
 		if err != nil {
@@ -1259,16 +1270,15 @@ func GetMyEventsByAccountId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Account not found.")
 		return
 	}
-	
+
 	var events []models.Event
 	if role == "employee" {
-		// TODO:
-		// events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
-		// if err != nil {
-		// 	slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
-		// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
-		// 	return
-		// }
+		events, err = db.GetAssignedEventsByEmployeeId(idRequestor)
+		if err != nil {
+			slog.Error("GetAssignedEventsByEmployeeId() failed", "controller", "GetMyEventsByAccountId", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while fetching upcoming events.")
+			return
+		}
 	} else {
 		// user or pro
 		events, err = db.GetEventRegistrationsByAccountId(idRequestor)

@@ -9,7 +9,7 @@ import {
   TextInput,
   Select,
   Center,
-  Loader,
+  Skeleton,
   Button,
 } from "@mantine/core";
 import {
@@ -112,6 +112,7 @@ export default function UserPostsPage() {
 
               {(user?.role === "user" || user?.role === "pro") && (
                 <Button
+                  id="onboard-posts-saved"
                   leftSection={<IconBookmarkFilled stroke={2} />}
                   variant="primary"
                   onClick={() => {
@@ -167,9 +168,19 @@ export default function UserPostsPage() {
 
         {/* Grid */}
         {isLoading ? (
-          <Center py={80}>
-            <Loader color="var(--upagain-neutral-green)" />
-          </Center>
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <Stack key={i} gap="xs">
+                <Skeleton height={180} radius="md" />
+                <Skeleton height={16} width="80%" />
+                <Skeleton height={12} width="55%" />
+                <Group gap="xs">
+                  <Skeleton height={12} width={50} />
+                  <Skeleton height={12} width={40} />
+                </Group>
+              </Stack>
+            ))}
+          </SimpleGrid>
         ) : posts.length === 0 ? (
           <Center py={80}>
             <Stack align="center" gap="xs">
@@ -184,7 +195,7 @@ export default function UserPostsPage() {
             </Stack>
           </Center>
         ) : (
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+          <SimpleGrid id="onboard-posts-list" cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
             {posts.map((post) => (
               <PostCard
                 currentRole={role}
@@ -200,6 +211,7 @@ export default function UserPostsPage() {
                 likes={post.like_count}
                 isLiked={post.is_liked}
                 isSaved={post.is_saved}
+                isSponsored={post.ads_id !== null}
                 onLike={() => likePostAsync(post.id)}
                 onSave={() => savePostAsync(post.id)}
                 onClick={() =>

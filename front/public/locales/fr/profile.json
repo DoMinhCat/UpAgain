@@ -46,7 +46,18 @@
     "theme": "Thème",
     "language": "Langue",
     "dark_mode": "Mode sombre",
-    "light_mode": "Mode clair"
+    "light_mode": "Mode clair",
+    "save_alerts": "Enregistrer les préférences",
+    "modal_title": "Configuration des Alertes Intelligentes",
+    "modal_subtitle": "Recevez des notifications lorsque ces matériaux sont mis en ligne",
+    "alert_for": "Alerte pour tout nouveau dépôt de type {{name}}",
+    "configure_alerts": "Configurer les Matériaux d'Alerte",
+    "configure_alerts_desc": "Sélectionnez les types de matériaux à suivre dans l'application.",
+    "selected_materials": "Matériaux Sélectionnés",
+    "no_materials_selected": "Aucun matériau sélectionné. Vous ne recevrez pas d'alertes automatiques.",
+    "onboarding_tour": "Tutoriel d'intégration",
+    "onboarding_tour_desc": "Si vous avez besoin d'un rappel, vous pouvez rejouer le tutoriel d'accueil pour apprendre à naviguer sur la plateforme.",
+    "start_tour": "Relancer la visite d'accueil"
   },
   "notifications": {
     "user_object_status": "Mise à jour du statut de l'objet",
@@ -56,6 +67,7 @@
     "user_code_expiring": "Code expirant (24h)",
     "pro_material_available": "Nouveau matériau disponible",
     "pro_object_deposited": "Objet déposé",
+    "pro_object_expired": "Réservation Expirée",
     "pro_subscription_end": "Fin d'abonnement proche",
     "pro_code_expiring": "Code de récupération expirant",
     "emp_event_updated": "Événement assigné mis à jour",

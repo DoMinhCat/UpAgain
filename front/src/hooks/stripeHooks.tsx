@@ -1,7 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { StripePaymentVerificationRequest } from "../api/interfaces/stripe";
 import { verifyStripeSession } from "../api/stripeModule";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useRegisterToEvent } from "./eventHooks";
 import {
@@ -10,6 +10,11 @@ import {
   showInfoNotification,
 } from "../components/common/NotificationToast";
 import { useTranslation } from "react-i18next";
+import { usePurchaseItem } from "./itemHooks";
+import { useCreateAds } from "./adsHooks";
+import { PATHS } from "../routes/paths";
+import { useRegister } from "./authHooks";
+import { useUpgradeAccount } from "./accountHooks";
 
 export const useVerifyStripeSession = () => {
   const { t } = useTranslation(["common"]);
@@ -23,7 +28,9 @@ export const useVerifyStripeSession = () => {
   });
 };
 
-export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
+export const useHandleVerifyStripeEventRegistration = (
+  fallbackEventId?: number,
+) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const verifyStripeSessionMutation = useVerifyStripeSession();
   const registerToEvent = useRegisterToEvent();
@@ -94,5 +101,356 @@ export const useHandleStripeEventRegistration = (fallbackEventId?: number) => {
   return {
     isVerifying:
       verifyStripeSessionMutation.isPending || registerToEvent.isPending,
+  };
+};
+
+export const useHandleVerifyItemPurchase = (id_item: number) => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifyStripeSessionMutation = useVerifyStripeSession();
+  const purchaseItem = usePurchaseItem(id_item);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+
+    // when redirected back from stripe url with param "success", verify with backend
+    if (status === "success" && sessionId && !isNaN(id_item) && id_item > 0) {
+      verifyStripeSessionMutation.mutate(
+        { session_id: sessionId },
+        {
+          onSuccess: (data) => {
+            // backend confirm payment is done
+            if (data.is_paid) {
+              purchaseItem.mutate(
+                { paid: true },
+                {
+                  onSuccess: () => {
+                    showSuccessNotification(
+                      "Purchase completed",
+                      "Item has been purchased successfully",
+                    );
+                    searchParams.delete("payment");
+                    searchParams.delete("sessionid");
+                    setSearchParams(searchParams);
+                    queryClient.invalidateQueries({ queryKey: ["items"] });
+                    queryClient.invalidateQueries({ queryKey: ["item-stats"] });
+                    queryClient.invalidateQueries({
+                      queryKey: ["item-details", id_item],
+                    });
+                    queryClient.invalidateQueries({ queryKey: ["my-items"] });
+                    queryClient.invalidateQueries({
+                      queryKey: ["latest-transaction-of-pro", id_item],
+                    });
+                    navigate(PATHS.MARKETPLACE.ME);
+                  },
+                },
+              );
+            } else {
+              showErrorNotification("Purchase failed", "Payment not completed");
+              searchParams.delete("payment");
+              searchParams.delete("sessionid");
+              setSearchParams(searchParams);
+            }
+          },
+        },
+      );
+      // if user cancel payment
+    } else if (status === "cancelled" || status === "cancel") {
+      showInfoNotification(
+        "Purchase cancelled",
+        "You have cancelled the purchase",
+      );
+      searchParams.delete("payment");
+      searchParams.delete("sessionid");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  return {
+    isVerifying:
+      verifyStripeSessionMutation.isPending || purchaseItem.isPending,
+  };
+};
+
+export const useHandleVerifyAdsPayment = (postId: number) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifyStripeSessionMutation = useVerifyStripeSession();
+  const createAdsMutation = useCreateAds();
+  const queryClient = useQueryClient();
+  const { t } = useTranslation(["admin", "common"]);
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+    const adsFromStr = searchParams.get("ads_from");
+    const adsDurationStr = searchParams.get("ads_duration");
+
+    if (
+      status === "success" &&
+      sessionId &&
+      !isNaN(postId) &&
+      postId > 0 &&
+      adsFromStr &&
+      adsDurationStr
+    ) {
+      verifyStripeSessionMutation.mutate(
+        { session_id: sessionId },
+        {
+          onSuccess: (data) => {
+            if (data.is_paid) {
+              createAdsMutation.mutate(
+                {
+                  id_post: postId,
+                  from: new Date(adsFromStr),
+                  duration: parseInt(adsDurationStr, 10),
+                  paid: true,
+                },
+                {
+                  onSuccess: () => {
+                    searchParams.delete("payment");
+                    searchParams.delete("sessionid");
+                    searchParams.delete("ads_from");
+                    searchParams.delete("ads_duration");
+                    setSearchParams(searchParams);
+                    queryClient.invalidateQueries({ queryKey: ["posts"] });
+                    queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+                    queryClient.invalidateQueries({
+                      queryKey: ["postDetails", postId],
+                    });
+                    queryClient.invalidateQueries({
+                      queryKey: ["userPostDetails", postId],
+                    });
+                    showSuccessNotification(
+                      "admin:posts.notifications.ads_created_title",
+                      "admin:posts.notifications.ads_created_msg",
+                    );
+                  },
+                },
+              );
+            } else {
+              showErrorNotification(
+                t("admin:posts.notifications.error_creating_ads", {
+                  defaultValue: "Payment Failed",
+                }),
+                "Payment was not successfully completed.",
+              );
+              searchParams.delete("payment");
+              searchParams.delete("sessionid");
+              searchParams.delete("ads_from");
+              searchParams.delete("ads_duration");
+              setSearchParams(searchParams);
+            }
+          },
+        },
+      );
+    } else if (status === "cancelled" || status === "cancel") {
+      showInfoNotification(
+        t("admin:posts.notifications.ads_cancelled_title", {
+          defaultValue: "Payment Cancelled",
+        }),
+        "You cancelled the payment process.",
+      );
+      searchParams.delete("payment");
+      searchParams.delete("sessionid");
+      if (searchParams.has("ads_from")) searchParams.delete("ads_from");
+      if (searchParams.has("ads_duration")) searchParams.delete("ads_duration");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  return {
+    isVerifying:
+      verifyStripeSessionMutation.isPending || createAdsMutation.isPending,
+  };
+};
+
+export const useHandleVerifyStripePremiumRegistration = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifyStripeSessionMutation = useVerifyStripeSession();
+  const registerMutation = useRegister();
+  const { t } = useTranslation(["auth", "common"]);
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+
+    if (status === "success" && sessionId) {
+      const pendingPayloadStr = sessionStorage.getItem(
+        "pending_register_payload",
+      );
+
+      if (pendingPayloadStr) {
+        try {
+          const payload = JSON.parse(pendingPayloadStr);
+          verifyStripeSessionMutation.mutate(
+            { session_id: sessionId },
+            {
+              onSuccess: (data) => {
+                if (data.is_paid) {
+                  registerMutation.mutate(
+                    { ...payload, paid: true },
+                    {
+                      onSuccess: () => {
+                        sessionStorage.removeItem("pending_register_payload");
+                        searchParams.delete("payment");
+                        searchParams.delete("sessionid");
+                        setSearchParams(searchParams);
+                      },
+                      onError: () => {
+                        searchParams.delete("payment");
+                        searchParams.delete("sessionid");
+                        setSearchParams(searchParams);
+                      },
+                    },
+                  );
+                } else {
+                  showErrorNotification(
+                    t("auth:notifications.payment_failed_title", {
+                      defaultValue: "Payment verification failed",
+                    }),
+                    t("auth:notifications.payment_failed_msg", {
+                      defaultValue: "Payment was not completed.",
+                    }),
+                  );
+                  searchParams.delete("payment");
+                  searchParams.delete("sessionid");
+                  setSearchParams(searchParams);
+                }
+              },
+              onError: () => {
+                searchParams.delete("payment");
+                searchParams.delete("sessionid");
+                setSearchParams(searchParams);
+              },
+            },
+          );
+        } catch (e) {
+          showErrorNotification(
+            t("auth:notifications.invalid_payload_title", {
+              defaultValue: "Registration failed",
+            }),
+            t("auth:notifications.invalid_payload_msg", {
+              defaultValue: "Could not restore registration details.",
+            }),
+          );
+          searchParams.delete("payment");
+          searchParams.delete("sessionid");
+          setSearchParams(searchParams);
+        }
+      } else {
+        showErrorNotification(
+          t("auth:notifications.missing_payload_title", {
+            defaultValue: "Registration failed",
+          }),
+          t("auth:notifications.missing_payload_msg", {
+            defaultValue:
+              "Could not find registration details. Please try again.",
+          }),
+        );
+        searchParams.delete("payment");
+        searchParams.delete("sessionid");
+        setSearchParams(searchParams);
+      }
+    } else if (status === "cancelled" || status === "cancel") {
+      showInfoNotification(
+        t("auth:notifications.register_cancelled_title", {
+          defaultValue: "Registration cancelled",
+        }),
+        t("auth:notifications.register_cancelled_msg", {
+          defaultValue: "You have cancelled the subscription process.",
+        }),
+      );
+      searchParams.delete("payment");
+      searchParams.delete("sessionid");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  return {
+    isVerifying:
+      verifyStripeSessionMutation.isPending || registerMutation.isPending,
+  };
+};
+
+export const useHandleVerifyStripePremiumUpgrade = (accountId: number) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifyStripeSessionMutation = useVerifyStripeSession();
+  const upgradeMutation = useUpgradeAccount(accountId);
+  const { t } = useTranslation(["auth", "common"]);
+
+  useEffect(() => {
+    const status = searchParams.get("payment");
+    const sessionId = searchParams.get("sessionid");
+
+    if (status === "success" && sessionId) {
+      verifyStripeSessionMutation.mutate(
+        { session_id: sessionId },
+        {
+          onSuccess: (data) => {
+            if (data.is_paid) {
+              upgradeMutation.mutate(
+                { is_trial: false, paid: true },
+                {
+                  onSuccess: () => {
+                    showSuccessNotification(
+                      t("auth:notifications.upgrade_success_title", {
+                        defaultValue: "Upgrade successful",
+                      }),
+                      t("auth:notifications.upgrade_success_msg", {
+                        defaultValue: "Your subscription has been upgraded to Premium!",
+                      }),
+                    );
+                    searchParams.delete("payment");
+                    searchParams.delete("sessionid");
+                    setSearchParams(searchParams);
+                  },
+                  onError: () => {
+                    searchParams.delete("payment");
+                    searchParams.delete("sessionid");
+                    setSearchParams(searchParams);
+                  },
+                },
+              );
+            } else {
+              showErrorNotification(
+                t("auth:notifications.payment_failed_title", {
+                  defaultValue: "Payment verification failed",
+                }),
+                t("auth:notifications.payment_failed_msg", {
+                  defaultValue: "Payment was not completed.",
+                }),
+              );
+              searchParams.delete("payment");
+              searchParams.delete("sessionid");
+              setSearchParams(searchParams);
+            }
+          },
+          onError: () => {
+            searchParams.delete("payment");
+            searchParams.delete("sessionid");
+            setSearchParams(searchParams);
+          },
+        },
+      );
+    } else if (status === "cancelled" || status === "cancel") {
+      showInfoNotification(
+        t("auth:notifications.upgrade_cancelled_title", {
+          defaultValue: "Upgrade cancelled",
+        }),
+        t("auth:notifications.upgrade_cancelled_msg", {
+          defaultValue: "You have cancelled the subscription upgrade process.",
+        }),
+      );
+      searchParams.delete("payment");
+      searchParams.delete("sessionid");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  return {
+    isVerifying:
+      verifyStripeSessionMutation.isPending || upgradeMutation.isPending,
   };
 };
