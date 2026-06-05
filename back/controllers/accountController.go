@@ -1019,7 +1019,13 @@ func UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 // @Failure      500      {object}  nil     "Internal server error"
 // @Router       /accounts/onboarding [post]
 func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
-	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	claims, ok := r.Context().Value("user").(models.AuthClaims)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this request.")
+		return
+	}
+	idRequestor := claims.Id
+	role := claims.Role
 	isDel := false
 	exist, err := db.CheckAccountExistsById(idRequestor, &isDel)
 	if err != nil {
@@ -1028,11 +1034,11 @@ func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exist {
-		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", r.Context().Value("user").(models.AuthClaims).Id))
+		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", idRequestor))
 		return
 	}
 	// TODO: update onboard in db to true
-	err = db.UpdateOnboardByIdAccount(idRequestor)
+	err = db.UpdateOnboardByIdAccount(idRequestor, role)
 	if err != nil {
 		slog.Error("UpdateOnboardByIdAccount() failed", "controller", "UpdateOnboarding", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while updating onboarding.")

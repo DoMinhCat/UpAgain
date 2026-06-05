@@ -54,7 +54,10 @@
     "configure_alerts": "Cấu Hình Vật Liệu Thông Báo",
     "configure_alerts_desc": "Chọn loại vật liệu bạn muốn theo dõi trên hệ thống.",
     "selected_materials": "Vật liệu đang theo dõi",
-    "no_materials_selected": "Chưa chọn vật liệu nào. Bạn sẽ không nhận được thông báo tự động."
+    "no_materials_selected": "Chưa chọn vật liệu nào. Bạn sẽ không nhận được thông báo tự động.",
+    "onboarding_tour": "Hướng dẫn sử dụng",
+    "onboarding_tour_desc": "Nếu bạn cần xem lại, bạn có thể chạy lại hướng dẫn chào mừng để tìm hiểu cách điều hướng nền tảng.",
+    "start_tour": "Bắt đầu lại hướng dẫn"
   },
   "notifications": {
     "user_object_status": "Cập nhật trạng thái đối tượng",

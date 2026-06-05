@@ -225,6 +225,7 @@ func GetAccountDetailsById(id_account int) (models.AccountDetails, error) {
 		}
 		account.Phone = proDetails.Phone
 		account.IsPremium = proDetails.IsPremium
+		account.CompletedOnboard = &proDetails.CompletedOnboard
 
 		var hasTrial bool
 		err = utils.Conn.QueryRow("SELECT EXISTS(SELECT 1 FROM subscriptions WHERE id_pro = $1 AND is_trial = true)", id_account).Scan(&hasTrial)

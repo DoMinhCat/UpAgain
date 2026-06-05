@@ -5,8 +5,9 @@ import (
 )
 
 type ProDetails struct {
-	Phone     null.String `json:"phone" swaggertype:"string"`
-	IsPremium bool        `json:"is_premium"`
+	Phone            null.String `json:"phone" swaggertype:"string"`
+	IsPremium        bool        `json:"is_premium"`
+	CompletedOnboard bool        `json:"completed_onboard"`
 }
 
 type ProStats struct {

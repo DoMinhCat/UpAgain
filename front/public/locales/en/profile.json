@@ -54,7 +54,10 @@
     "configure_alerts": "Configure Alert Materials",
     "configure_alerts_desc": "Select the materials you want to track in the marketplace.",
     "selected_materials": "Selected Materials",
-    "no_materials_selected": "No materials selected. You will not receive any automated alerts."
+    "no_materials_selected": "No materials selected. You will not receive any automated alerts.",
+    "onboarding_tour": "Onboarding Tutorial",
+    "onboarding_tour_desc": "If you need a refresher, you can replay the welcome tutorial to learn how to navigate the platform.",
+    "start_tour": "Restart Welcome Tour"
   },
   "notifications": {
     "user_object_status": "Object Status Update",

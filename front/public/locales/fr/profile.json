@@ -54,7 +54,10 @@
     "configure_alerts": "Configurer les Matériaux d'Alerte",
     "configure_alerts_desc": "Sélectionnez les types de matériaux à suivre dans l'application.",
     "selected_materials": "Matériaux Sélectionnés",
-    "no_materials_selected": "Aucun matériau sélectionné. Vous ne recevrez pas d'alertes automatiques."
+    "no_materials_selected": "Aucun matériau sélectionné. Vous ne recevrez pas d'alertes automatiques.",
+    "onboarding_tour": "Tutoriel d'intégration",
+    "onboarding_tour_desc": "Si vous avez besoin d'un rappel, vous pouvez rejouer le tutoriel d'accueil pour apprendre à naviguer sur la plateforme.",
+    "start_tour": "Relancer la visite d'accueil"
   },
   "notifications": {
     "user_object_status": "Mise à jour du statut de l'objet",

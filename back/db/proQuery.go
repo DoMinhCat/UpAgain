@@ -39,7 +39,7 @@ func CreatePro(newAccount models.CreateAccountRequest, insertedId int) error {
 
 func GetProDetailsById(id_account int) (models.ProDetails, error) {
 	var proDetails models.ProDetails
-	err := utils.Conn.QueryRow("SELECT phone, is_premium FROM pros WHERE id_account=$1", id_account).Scan(&proDetails.Phone, &proDetails.IsPremium)
+	err := utils.Conn.QueryRow("SELECT phone, is_premium, completed_onboard FROM pros WHERE id_account=$1", id_account).Scan(&proDetails.Phone, &proDetails.IsPremium, &proDetails.CompletedOnboard)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return models.ProDetails{}, nil
