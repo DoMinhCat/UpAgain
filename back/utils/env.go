@@ -101,3 +101,11 @@ func GetGeoCodeApiKey() string {
 	}
 	return key
 }
+
+func GetGeminiApiKey() string {
+	key := os.Getenv("GEMINI_API_KEY")
+	if key == "" {
+		log.Panic("GEMINI_API_KEY not find in .env")
+	}
+	return key
+}

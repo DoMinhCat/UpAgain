@@ -29,6 +29,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetFinanceRoutes(mux)
 	GetAdsRoutes(mux)
 	GetNotificationRoutes(mux)
+	GetAIRoutes(mux)
 
 	// other routes to external services (stripe, google map api, ...)
 	GetStripeRoutes(mux)
