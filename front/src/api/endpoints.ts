@@ -171,6 +171,8 @@ export const ENDPOINTS = {
     DELETE: (noti_id: string) => `/notifications/${noti_id}`,
   },
 
+  CHATBOT: "/chatbot",
+
   // external providers
   STRIPE: {
     VERIFY: "/payments/verify",
