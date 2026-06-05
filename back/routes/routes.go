@@ -11,6 +11,7 @@ func GetAllRoutes() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	GetHealthCheckRoutes(mux)
+	GetAIRoutes(mux)
 	GetAuthRoutes(mux)
 	GetAccountRoutes(mux)
 	GetValidationRoutes(mux)
