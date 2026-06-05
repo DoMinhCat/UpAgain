@@ -180,5 +180,13 @@
     "pro": "Pro",
     "employee": "Nhân viên",
     "admin": "Admin"
+  },
+  "chatbot": {
+    "button_label": "Hỏi Arnaud",
+    "title": "Trợ lý Tái chế Arnaud",
+    "intro": "Xin chào! Tôi là trợ lý tái chế của bạn. Hãy hỏi tôi về ý tưởng tự làm (DIY), mẹo tái chế hoặc thông tin chi tiết về nền tảng nhé!",
+    "thinking": "Đang suy nghĩ...",
+    "placeholder": "Hỏi tôi bất cứ điều gì về tái chế...",
+    "error_message": "Rất tiếc, đã xảy ra lỗi. Vui lòng thử lại sau."
   }
 }
