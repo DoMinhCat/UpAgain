@@ -104,5 +104,30 @@
     "terms_conditions": "Conditions Générales d'Utilisation",
     "privacy_policy": "Politique de Confidentialité",
     "rights_reserved": "© {{year}} UpAgain. Tous droits réservés."
+  },
+  "onboarding": {
+    "last": "Terminer",
+    "next": "Suivant",
+    "skip": "Passer",
+    "back": "Retour",
+    "finished_title": "Intégration terminée ! 🎉",
+    "congrats": "Félicitations !",
+    "finished_message": "Vous avez terminé la visite d'intégration. Vous êtes maintenant prêt à explorer et utiliser toutes les fonctionnalités de UpAgain !",
+    "get_started": "C'est parti !",
+    "step_impact": "Voici l'aperçu de votre impact. Vous pouvez voir combien de CO2, d'eau et d'électricité vous avez économisés !",
+    "step_manage": "Gérez facilement vos annonces et vos dépôts à partir de cette section.",
+    "step_quick_nav": "Naviguez rapidement vers les événements et la communauté ici.",
+    "step_market_list": "Dans la boutique, vous pouvez voir les objets mis en ligne par les autres utilisateurs.",
+    "step_market_list_pro": "Bienvenue dans la boutique ! Ici, vous pouvez acheter des matériaux pour vos projets.",
+    "step_market_post": "Prêt à contribuer ? Cliquez ici pour publier votre premier objet !",
+    "step_myitems": "Suivez le statut, les réservations et les achats de toutes vos annonces au même endroit.",
+    "step_myitems_pro": "Gérez vos réservations et vos achats au même endroit dans Mes articles.",
+    "step_posts_list": "Explorez des articles et des projets passionnants rédigés par des professionnels de notre communauté.",
+    "step_posts_list_pro": "Découvrez les publications, les tutoriels, consultez vos favoris sauvegardés et publiez vos propres projets.",
+    "step_posts_saved": "Consultez tous vos articles sauvegardés favoris ici.",
+    "step_events_list": "Participez à nos événements et ateliers passionnants.",
+    "step_events_list_pro": "Explorez et participez aux événements organisés par nos collaborateurs.",
+    "step_events_my": "Gérez vos inscriptions aux événements ici.",
+    "step_events_planning": "Consultez tous les événements auxquels vous êtes inscrit au même endroit."
   }
 }
