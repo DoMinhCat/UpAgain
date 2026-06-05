@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import PostCard from "../../../components/post/PostCard";
-import { IconLeaf } from "@tabler/icons-react";
+import { IconLeaf, IconPlus } from "@tabler/icons-react";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import {
   useGetMyPosts,
@@ -28,6 +28,7 @@ import { useDisclosure } from "@mantine/hooks";
 
 export default function MyPosts() {
   const { user } = useAuth();
+  const role = user?.role;
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -105,8 +106,15 @@ export default function MyPosts() {
                 data={CATEGORIES}
                 size="sm"
               />
-              {(user?.role === "employee" || user?.role === "admin") && (
-                <Button onClick={openCreate} variant="cta-reverse">
+              {(user?.role === "employee" ||
+                user?.role === "admin" ||
+                user?.role === "pro") && (
+                <Button
+                  onClick={openCreate}
+                  variant="cta"
+                  leftSection={<IconPlus stroke={2} />}
+                  ta="center"
+                >
                   {t("admin:posts.new_post")}
                 </Button>
               )}
@@ -149,6 +157,7 @@ export default function MyPosts() {
                 likes={post.like_count}
                 isLiked={post.is_liked}
                 isSaved={post.is_saved}
+                isSponsored={post.ads_id !== null}
                 onLike={() => likePostAsync(post.id)}
                 onSave={() => savePostAsync(post.id)}
                 onClick={() =>
@@ -171,11 +180,14 @@ export default function MyPosts() {
           loading={isLoadingMyPosts}
         />
       </Stack>
-      <CreatePostModal
-        role={user?.role || ""}
-        opened={openedCreate}
-        onClose={closeCreate}
-      />
+
+      {(role === "employee" || role === "pro" || role === "admin") && (
+        <CreatePostModal
+          role={role}
+          opened={openedCreate}
+          onClose={closeCreate}
+        />
+      )}
     </Container>
   );
 }

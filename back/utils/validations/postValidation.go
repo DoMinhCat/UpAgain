@@ -52,3 +52,27 @@ func ValidatePostCreationOrUpdate(newPost models.CreatePostRequest) models.Valid
 		Error:   http.StatusOK,
 	}
 }
+
+func ValidateProjectStepCreation(newStep models.StepInsertPayload) models.ValidationResponse {
+	if strings.TrimSpace(newStep.Title) == "" {
+		return models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("Title is required."),
+			Error:   http.StatusBadRequest,
+		}
+	}
+
+	if strings.TrimSpace(newStep.Description) == "" {
+		return models.ValidationResponse{
+			Success: false,
+			Message: fmt.Errorf("Description is required."),
+			Error:   http.StatusBadRequest,
+		}
+	}
+
+	return models.ValidationResponse{
+		Success: true,
+		Message: nil,
+		Error:   http.StatusOK,
+	}
+}

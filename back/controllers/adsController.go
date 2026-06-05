@@ -4,11 +4,13 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	stripe "backend/utils/stripe"
 	validation "backend/utils/validations"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 // CreateAdsForProject godoc
@@ -103,7 +105,54 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithJSON(w, http.StatusOK, "Ad created successfully.")
 		return
 	} else {
-		// TODO: for pro need to do payment first then insert into db
+		// for pro need to do payment first then insert into db
+		adsPrice, err := db.GetFinanceSettingByKey("ads_price_per_month")
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while getting ads price setting.")
+			slog.Error("GetFinanceSettingByKey(ads_price_per_month) failed", "controller", "CreateAdsForProject", "error", err)
+			return
+		}
+		totalPriceBase := adsPrice * float64(payload.Duration)
+
+		// calculate stripe commission and VAT
+		stripeCommTotalInCents := int64(stripe.StripeCommissionRatePercentEU*totalPriceBase*100) + int64(stripe.StripeCommissionFixedInCentsEU)
+		vatTotalInCents := int64(totalPriceBase * 100 * stripe.VatRate)
+		finalPriceInCents := stripeCommTotalInCents + int64(totalPriceBase*100) + vatTotalInCents
+
+		if !payload.Paid {
+			frontendOrigin := utils.GetFrontOrigin()
+			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
+				return
+			}
+			successUrlSeparator := "?"
+			if strings.Contains(payload.OriginUrl, "?") {
+				successUrlSeparator = "&"
+			}
+			checkoutUrl, err := stripe.CreateStripeSession(stripe.CheckoutRequest{
+				EntityName:   "Advertisement booking for " + projectDetails.Title,
+				PriceInCents: finalPriceInCents,
+				SuccessURL:   payload.OriginUrl + successUrlSeparator + "payment=success&sessionid={CHECKOUT_SESSION_ID}",
+				CancelURL:    payload.OriginUrl + successUrlSeparator + "payment=cancel",
+			})
+			if err != nil {
+				slog.Error("CreateStripeSession() failed", "controller", "CreateAdsForProject", "error", err)
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating checkout session.")
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusOK, map[string]string{"checkout_url": checkoutUrl})
+			return
+		} else {
+			// 2nd call: user got redirected back after having paid in stripe
+			_, err := db.CreateAds(payload, role)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating an ad for this project.")
+				slog.Error("CreateAds() failed", "controller", "CreateAdsForProject", "error", err)
+				return
+			}
+			utils.RespondWithJSON(w, http.StatusOK, "Ad created successfully.")
+			return
+		}
 	}
 }
 

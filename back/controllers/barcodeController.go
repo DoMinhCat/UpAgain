@@ -31,7 +31,7 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 	}
 
 	var codes []models.Barcode
-	
+
 	if role == "admin" {
 		codes, err = db.GetCodesOfLatestTransactionByDepositId(depositId)
 		if err != nil {
@@ -45,6 +45,10 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 			if err != nil {
 				slog.Error("helpers.EncodeBarcodeToBase64() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
 				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while encoding deposit codes")
+				return
+			}
+			if base64Code == "" {
+				utils.RespondWithError(w, http.StatusInternalServerError, "Bar code not found")
 				return
 			}
 			codes[i].BarcodeBase64 = "data:image/png;base64," + base64Code
@@ -63,6 +67,10 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 			if err != nil {
 				slog.Error("helpers.EncodeBarcodeToBase64() failed", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "error", err)
 				utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while encoding deposit codes")
+				return
+			}
+			if base64Code == "" {
+				utils.RespondWithError(w, http.StatusOK, "Bar code not found")
 				return
 			}
 			code.BarcodeBase64 = "data:image/png;base64," + base64Code

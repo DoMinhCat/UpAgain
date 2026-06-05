@@ -5,6 +5,7 @@ import (
 	"backend/utils"
 	"database/sql"
 	"fmt"
+	"slices"
 	"time"
 )
 
@@ -286,7 +287,7 @@ func CreateEvent(event models.CreateEventRequest, creatorId int, role string) (i
 func GetEventDetailsById(id_event int) (models.Event, error) {
 	var event models.Event
 	query := `
-		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.postal_code, e.location_detail, e.lat, e.lng,
+		SELECT e.id, e.created_at, e.title, e.description, e.start_at, e.end_at, e.price, e.category, e.capacity, e.status, e.city, e.street, e.postal_code, e.location_detail, e.lat, e.lng, e.refuse_reason,
 		a.username, a.avatar, a.id
 		FROM events e 
 		JOIN accounts a ON e.created_by=a.id 
@@ -309,6 +310,7 @@ func GetEventDetailsById(id_event int) (models.Event, error) {
 		&event.LocationDetail,
 		&event.Lat,
 		&event.Lng,
+		&event.RefuseReason,
 		&event.EmployeeName,
 		&event.EmployeeAvatar,
 		&event.EmployeeId,
@@ -368,20 +370,21 @@ func CheckEventExistsById(id_event int) (bool, error) {
 	return exists, nil
 }
 
-func UpdateEventStatusByEventId(eventID int, newStatus string) error {
-	tx, err := utils.Conn.Begin()
-	if err != nil {
-		return fmt.Errorf("error starting transaction: %v", err)
+func UpdateEventStatusByEventId(eventID int, newStatus string, refuseReason *string) error {
+	if !slices.Contains(EVENT_STATUS, newStatus) {
+		return fmt.Errorf("invalid event status: %s", newStatus)
 	}
-	defer tx.Rollback()
+	query := "UPDATE events SET status = $1 WHERE id = $2"
+	params := []any{newStatus, eventID}
 
-	_, err = tx.Exec(`UPDATE events SET status = $1 WHERE id = $2`, newStatus, eventID)
-	if err != nil {
-		return fmt.Errorf("error updating event status in tx: %v", err)
+	if newStatus == "refused" && refuseReason != nil {
+		query = "UPDATE events SET status = $1, refuse_reason=$2 WHERE id = $3"
+		params = []any{newStatus, *refuseReason, eventID}
 	}
 
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("error committing event transaction: %v", err)
+	_, err := utils.Conn.Exec(query, params...)
+	if err != nil {
+		return fmt.Errorf("error updating event status: %v", err)
 	}
 	return nil
 }

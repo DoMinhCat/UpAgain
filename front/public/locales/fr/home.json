@@ -107,5 +107,104 @@
       "no_events_desc": "Prêt à apprendre une nouvelle compétence en upcycling ? Rejoignez un atelier aujourd'hui.",
       "explore_workshops": "Explorer nos ateliers et événements"
     }
+  },
+  "employee": {
+    "hero": {
+      "title": "Bienvenue, {{username}} !",
+      "subtitle": "Inspirer le changement, coordonner les événements et guider notre communauté vers le réemploi."
+    },
+    "stats": {
+      "title": "Votre Tableau de Bord",
+      "subtitle": "Aperçu de vos événements proposés et de votre contenu communautaire publié.",
+      "upcoming_workshops": "Événements à animer",
+      "pending_proposals": "Propositions d'événements",
+      "my_guides": "Guides et articles"
+    },
+    "actions": {
+      "ready": "Prêt à inspirer ?",
+      "propose_title": "Proposer un nouvel événement",
+      "propose_desc": "Une idée de cours d'upcycling, de table ronde ou de rencontre ? Soumettez une proposition.",
+      "propose_button": "Proposer un événement",
+      "write_title": "Partagez votre expertise circulaire",
+      "write_desc": "Rédigez des guides, des conseils ou des études de cas pour éduquer la communauté UpAgain.",
+      "write_button": "Écrire un guide",
+      "planning_button": "Accéder au planning & calendrier →"
+    },
+    "agenda": {
+      "title": "Calendrier des événements à animer",
+      "subtitle": "Vos prochains événements approuvés que vous devez animer.",
+      "no_events_title": "Aucun événement prévu",
+      "no_events_desc": "Vous n'avez aucun événement prévu à animer. Proposez-en un ou portez-vous volontaire !",
+      "view_planning": "Voir tout le planning"
+    },
+    "posts": {
+      "title": "Vos guides et articles",
+      "subtitle": "Conseils, guides et actualités récents que vous avez partagés avec la communauté.",
+      "no_posts_title": "Aucun guide rédigé pour le moment",
+      "no_posts_desc": "Partagez vos astuces d'upcycling et vos études de cas avec la communauté dès aujourd'hui.",
+      "view_all": "Voir toutes mes publications"
+    }
+  },
+  "pro": {
+    "hero": {
+      "title": "Salut {{username}}, développons votre savoir-faire et upcyclons ensemble.",
+      "subtitle": "Trouvez des matières premières, affichez vos projets circulaires et gérez votre profil d'artisan.",
+      "premium_badge": "Partenaire Gratuit",
+      "premium_cta": "Passez à l'abonnement Premium pour débloquer les publicités sponsorisées, les statistiques détaillées et le sourcing prioritaire !"
+    },
+    "stats": {
+      "published_projects": "Projets publiés",
+      "registered_events": "Événements rejoints",
+      "marketplace_items": "Articles du marché"
+    },
+    "manage": {
+      "title": "Votre Activité Circulaire",
+      "subtitle": "Suivez vos publications et votre présence communautaire.",
+      "events_title": "Mes Événements",
+      "events_status": "Vous êtes inscrit à <b>{{count}} événements à venir</b>.",
+      "manage_events": "Découvrir plus d'ateliers →",
+      "posts_title": "Mes Projets",
+      "posts_status": "Vous avez publié <b>{{count}} guides de projets</b>.",
+      "manage_posts": "Gérer tous les projets →",
+      "ready_to_do_more": "Prêt à présenter votre savoir-faire, {{username}} ?",
+      "create_post": "Publier un projet",
+      "explore_community": "Explorer les matériaux",
+      "materials_marketplace": "Marché des matériaux",
+      "registered_events_list": "Événements rejoints",
+      "discover_more_events": "Explorer les ateliers"
+    },
+    "marketplace": {
+      "title": "Matériaux sélectionnés pour vous",
+      "subtitle": "Matériaux bruts et articles upcyclés disponibles près de chez vous.",
+      "quiet_marketplace": "Aucun article trouvé sur le marché. Revenez bientôt pour voir les nouveautés !",
+      "discover_marketplace": "Explorer le marché →"
+    },
+    "premium": {
+      "title": "Salut {{username}}, bienvenue sur votre Tableau de Bord Premium",
+      "subtitle": "Suivez vos analyses de stock, votre impact écologique et vos performances financières.",
+      "inventory_title": "Analyse des Stocks",
+      "inventory_desc": "Aperçu des articles disponibles, ajoutés et recyclés par type de matériau ce mois-ci.",
+      "available": "Disponibles",
+      "added": "Ajoutés ce mois",
+      "recycled": "Recyclés ce mois",
+      "material": "Matériau",
+      "impact_title": "Impact Environnemental",
+      "co2_saved": "CO₂ Économisé",
+      "co2_desc": "Équivalent de l'empreinte carbone évitée par vos projets",
+      "materials_used": "Matériaux Recyclés (Kg)",
+      "finance_title": "Tableau de Bord Financier",
+      "total_purchases": "Nombre d'achats",
+      "paid_purchases": "Achats payants",
+      "total_spent": "Total des dépenses",
+      "view_invoices": "Voir l'historique des factures"
+    },
+    "materials": {
+      "wood": "Bois",
+      "metal": "Métal",
+      "plastic": "Plastique",
+      "glass": "Verre",
+      "textile": "Textile",
+      "cardboard": "Carton"
+    }
   }
 }

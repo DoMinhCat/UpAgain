@@ -77,3 +77,12 @@ export interface CreateListingRequest {
   city_name: string;
   postal_code: string;
 }
+
+export interface ItemPurchaseResponse {
+  checkout_url: string;
+}
+
+export interface ItemPurchasePayload {
+  origin_url?: string;
+  paid?: boolean;
+}

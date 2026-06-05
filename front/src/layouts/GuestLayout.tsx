@@ -1,6 +1,8 @@
 import { Box } from "@mantine/core";
 import { Outlet } from "react-router-dom";
 import { GuestNavBar } from "../components/guest/GuestNavBar";
+import { UserNavBar } from "../components/nav/UserNavBar";
+import { useAuth } from "../context/AuthContext";
 import PageFooter from "../components/chart/PageFooter";
 
 export default function GuestLayout({
@@ -8,6 +10,7 @@ export default function GuestLayout({
 }: {
   children?: React.ReactNode;
 }) {
+  const { user } = useAuth();
   // Define your header height here so it's consistent
   const HEADER_HEIGHT = 60;
 
@@ -27,7 +30,7 @@ export default function GuestLayout({
           borderBottom: "1px solid var(--mantine-color-gray-3)",
         }}
       >
-        <GuestNavBar />
+        {user ? <UserNavBar /> : <GuestNavBar />}
       </Box>
 
       {/* 2. The Main Content Area */}

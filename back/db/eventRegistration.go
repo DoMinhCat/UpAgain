@@ -38,7 +38,7 @@ func CheckEventHasParticipant(id_event int) (bool, error) {
 func GetAttendeesByEventId(id_event int) ([]models.Account, error) {
 	var attendees []models.Account
 	query := `
-		SELECT a.id, a.username, a.avatar
+		SELECT a.id, a.username, a.avatar, a.email, a.role
 		FROM event_registrations er
 		JOIN accounts a ON er.id_account=a.id
 		WHERE er.id_event=$1 and (er.status='registered' OR er.status='attended');
@@ -54,7 +54,7 @@ func GetAttendeesByEventId(id_event int) ([]models.Account, error) {
 
 	for rows.Next() {
 		var attendee models.Account
-		err := rows.Scan(&attendee.Id, &attendee.Username, &attendee.Avatar)
+		err := rows.Scan(&attendee.Id, &attendee.Username, &attendee.Avatar, &attendee.Email, &attendee.Role)
 		if err != nil {
 			return nil, fmt.Errorf("GetAttendeesByEventId() failed: %v", err.Error())
 		}
@@ -137,13 +137,13 @@ func GetEventRegistrationsByAccountId(id_account int) ([]models.Event, error) {
      FROM event_registrations er2 
      WHERE er2.id_event = e.id 
        AND er2.status != 'cancelled') AS total_registered
-FROM event_registrations er
-JOIN events e ON er.id_event = e.id
-JOIN accounts a ON e.created_by = a.id
-WHERE er.id_account = $1
-  AND er.status != 'cancelled'
-  AND e.status = 'approved'
-ORDER BY e.start_at ASC;
+	FROM event_registrations er
+	JOIN events e ON er.id_event = e.id
+	JOIN accounts a ON e.created_by = a.id
+	WHERE er.id_account = $1
+	AND er.status != 'cancelled'
+	AND e.status = 'approved'
+	ORDER BY e.start_at ASC;
 	`
 	rows, err := utils.Conn.Query(query, id_account)
 	if err != nil {

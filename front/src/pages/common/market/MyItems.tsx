@@ -10,7 +10,7 @@ import {
   SimpleGrid,
   Box,
   Select,
-  Loader,
+  Skeleton,
   Center,
 } from "@mantine/core";
 import { useAuth } from "../../../context/AuthContext";
@@ -25,7 +25,7 @@ import ItemCard from "../../../components/market/ItemCard";
 import PaginationFooter from "../../../components/common/PaginationFooter";
 import { useGetMyItems } from "../../../hooks/itemHooks";
 import { useDebouncedValue } from "@mantine/hooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 
 export default function MyItems() {
   const navigate = useNavigate();
@@ -49,6 +49,7 @@ export default function MyItems() {
     { value: "textile", label: t("common:materials.textile") },
     { value: "glass", label: t("common:materials.glass") },
     { value: "plastic", label: t("common:materials.plastic") },
+    { value: "other", label: t("common:materials.other") },
   ];
 
   const STATUS_OPTIONS =
@@ -106,11 +107,11 @@ export default function MyItems() {
   }
 
   if (isLoading) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (
-    <Container px="md" py={50} size="xl">
+    <Container id="onboard-myitems" px="md" py={50} size="xl">
       <Stack gap="xl">
         {/* Navigation */}
         <MyBreadcrumbs
@@ -212,9 +213,20 @@ export default function MyItems() {
 
         {/* List of Items */}
         {isLoading ? (
-          <Center h={300}>
-            <Loader color="var(--upagain-neutral-green)" size="xl" />
-          </Center>
+          <SimpleGrid
+            cols={{ base: 1, sm: 2, md: 3, lg: 4 }}
+            spacing="lg"
+            mt="md"
+          >
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Stack key={i} gap="xs">
+                <Skeleton height={200} radius="md" />
+                <Skeleton height={18} width="75%" />
+                <Skeleton height={14} width="50%" />
+                <Skeleton height={20} width="35%" />
+              </Stack>
+            ))}
+          </SimpleGrid>
         ) : items.length > 0 ? (
           <SimpleGrid
             cols={{ base: 1, sm: 2, md: 3, lg: 4 }}

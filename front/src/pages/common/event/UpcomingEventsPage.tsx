@@ -26,11 +26,11 @@ import { useAuth } from "../../../context/AuthContext";
 import { NotFoundPage } from "../../error/404";
 import { useGetMyEvents } from "../../../hooks/eventHooks";
 import type { AppEvent } from "../../../api/interfaces/event";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { useDisclosure } from "@mantine/hooks";
 import { EventListModal } from "../../../components/event/EventListModal";
 import dayjs from "dayjs";
-import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function UpcomingEventsPage() {
   const navigate = useNavigate();
@@ -113,7 +113,7 @@ export default function UpcomingEventsPage() {
     setCurrentUpcomingPage((prev) => Math.max(prev - 1, 1));
   };
   // Add hook to handle stripe redirect
-  useHandleStripeEventRegistration();
+  useHandleVerifyStripeEventRegistration();
 
   const handleNext = () => {
     setCurrentUpcomingPage((prev) => Math.min(prev + 1, totalUpcomingPages));
@@ -130,7 +130,7 @@ export default function UpcomingEventsPage() {
   }
 
   if (myEventsLoading) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (
@@ -264,8 +264,8 @@ export default function UpcomingEventsPage() {
             defaultView="month"
             events={scheduleEvents}
             onDayClick={(date) => handleSlotClick(date)}
-            onAllDaySlotClick={(date) => handleSlotClick(date)}
-            onTimeSlotClick={(data) => handleSlotClick(data.slotStart)}
+            onAllDaySlotClick={(date) => handleSlotClick(date)} // here
+            onTimeSlotClick={(data) => handleSlotClick(data.slotStart)} // here
             onEventClick={(event) => {
               navigate(
                 `${PATHS.EVENTS.HOME}/${event.payload?.category === "meetups" ? event.payload.category : event.payload?.category + "s"}/${event.id}`,

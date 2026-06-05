@@ -19,7 +19,7 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   IconPackage,
   IconMapPin,
@@ -98,6 +98,21 @@ export default function NewItem() {
 
   // ERROR STATES
   const [errorTitle, setErrorTitle] = useState("");
+
+  // GEOLOCATION LOADING STATE (covers GPS prompt delay)
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+
+  const handleGetLocation = useCallback(async () => {
+    setIsGettingLocation(true);
+    try {
+      const coords = await getCurrentLocation();
+      if (coords) {
+        setCurrentLocation(coords);
+      }
+    } finally {
+      setIsGettingLocation(false);
+    }
+  }, []);
   const [errorDescription, setErrorDescription] = useState("");
   const [errorWeight, setErrorWeight] = useState("");
   const [errorMaterial, setErrorMaterial] = useState("");
@@ -653,13 +668,8 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
-                            loading={isLoadingNearest}
-                            onClick={async () => {
-                              const coords = await getCurrentLocation();
-                              if (coords) {
-                                setCurrentLocation(coords);
-                              }
-                            }}
+                            loading={isGettingLocation || isLoadingNearest}
+                            onClick={handleGetLocation}
                           >
                             {t("methods.deposit.closest")}
                           </Button>
@@ -803,13 +813,8 @@ export default function NewItem() {
                             variant="secondary"
                             leftSection={<IconCurrentLocation size={16} />}
                             color="var(--upagain-neutral-green)"
-                            onClick={async () => {
-                              const coords = await getCurrentLocation();
-                              if (coords) {
-                                setCurrentLocation(coords);
-                              }
-                            }}
-                            loading={isLoadingAddress}
+                            onClick={handleGetLocation}
+                            loading={isGettingLocation || isLoadingAddress}
                           >
                             {t("methods.listing.current_location")}
                           </Button>

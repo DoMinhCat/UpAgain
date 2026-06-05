@@ -81,6 +81,19 @@ export const DeleteProjectStep = async (id_step: number) => {
   return response.data;
 };
 
+export const UpdateProjectStep = async (id_step: number, payload: FormData) => {
+  const response = await api.put(ENDPOINTS.ADMIN.POSTS.UPDATE_STEP(id_step), payload);
+  return response.data;
+};
+
+export const ReorderProjectStep = async (
+  id_step: number,
+  payload: { step_ids: number[] }
+) => {
+  const response = await api.put(ENDPOINTS.ADMIN.POSTS.REORDER_STEP(id_step), payload);
+  return response.data;
+};
+
 // --- User-facing post actions ---
 
 export const GetUserPosts = async (
@@ -164,5 +177,16 @@ export const GetMyPosts = async (
   const response = await api.get(ENDPOINTS.USER.POSTS.MY_POSTS, {
     params: { page, limit, category },
   });
+  return response.data;
+};
+
+export const CreateProjectStep = async (
+  id_post: number,
+  payload: FormData,
+) => {
+  const response = await api.post(
+    ENDPOINTS.ADMIN.POSTS.STEPS(id_post),
+    payload,
+  );
   return response.data;
 };

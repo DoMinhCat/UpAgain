@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useDisclosure } from "@mantine/hooks";
 import {
   Timeline,
   Group,
@@ -8,32 +10,56 @@ import {
   Box,
   Anchor,
   Center,
+  Button,
 } from "@mantine/core";
 import DOMPurify from "dompurify";
-import { IconTrash, IconLink } from "@tabler/icons-react";
+import {
+  IconTrash,
+  IconLink,
+  IconEdit,
+  IconArrowsSort,
+} from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { PhotosCarousel } from "../photo/PhotosCarousel";
 import { useNavigate } from "react-router-dom";
 import type { Step } from "../../api/interfaces/step";
 import { useTranslation } from "react-i18next";
+import { EditProjectStepModal } from "./EditProjectStepModal";
+import { ReorderProjectStepsModal } from "./ReorderProjectStepsModal";
 
 interface ProjectStepTimelineProps {
   role: "admin" | "user";
   enableDeleteStep?: boolean;
+  enableEditStep?: boolean;
   projectSteps?: Step[];
   onDeleteStep?: (id: number) => void;
   postId?: number;
+  postTitle?: string;
 }
 
 export const ProjectStepTimeline = ({
   role,
   enableDeleteStep = false,
+  enableEditStep = false,
   projectSteps,
   onDeleteStep,
   postId,
+  postTitle,
 }: ProjectStepTimelineProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation("post");
+  const [selectedStepForEdit, setSelectedStepForEdit] = useState<Step | null>(
+    null,
+  );
+  const [openedEdit, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
+  const [openedReorder, { open: openReorder, close: closeReorder }] =
+    useDisclosure(false);
+
+  const handleOpenEdit = (step: Step) => {
+    setSelectedStepForEdit(step);
+    openEdit();
+  };
 
   if (!projectSteps || projectSteps.length === 0) {
     return (
@@ -46,99 +72,154 @@ export const ProjectStepTimeline = ({
   }
 
   return (
-    <Timeline mt="xl" lineWidth={4} active={1} bulletSize={24}>
-      {projectSteps.map((step, index) => (
-        <Timeline.Item
-          key={step.id}
-          title={
-            <Group justify="space-between" align="flex-start" wrap="nowrap">
-              <Stack gap={2}>
-                <Text fw={700} size="lg">
-                  {index + 1}. {step.title}
-                </Text>
-                <Text c="dimmed" size="xs">
-                  {dayjs(step.created_at).format("DD/MM/YYYY HH:mm A")}
-                </Text>
-              </Stack>
+    <>
+      <Stack gap="md" mt="xl">
+        {enableEditStep && projectSteps && projectSteps.length > 1 && (
+          <Group justify="flex-end">
+            <Button
+              leftSection={<IconArrowsSort size={16} />}
+              variant="secondary"
+              onClick={openReorder}
+            >
+              {t("project.reorder_steps_button", {
+                defaultValue: "Reorder Steps",
+              })}
+            </Button>
+          </Group>
+        )}
 
-              {enableDeleteStep && onDeleteStep && (
-                <Tooltip
-                  label={t("project.delete_step_tooltip")}
-                  position="left"
-                >
-                  <ActionIcon
-                    variant="subtle"
-                    color="red"
-                    onClick={() => onDeleteStep(step.id)}
-                    size="lg"
-                  >
-                    <IconTrash size={20} stroke={1.5} />
-                  </ActionIcon>
-                </Tooltip>
+        <Timeline lineWidth={4} active={1} bulletSize={24}>
+          {projectSteps.map((step, index) => (
+            <Timeline.Item
+              key={step.id}
+              title={
+                <Group justify="space-between" align="flex-start" wrap="nowrap">
+                  <Stack gap={2}>
+                    <Text fw={700} size="lg">
+                      {index + 1}. {step.title}
+                    </Text>
+                    <Text c="dimmed" size="xs">
+                      {dayjs(step.created_at).format("DD/MM/YYYY HH:mm A")}
+                    </Text>
+                  </Stack>
+
+                  <Group gap="xs">
+                    {enableEditStep && (
+                      <Tooltip
+                        label={t("project.edit_step_tooltip")}
+                        position="left"
+                      >
+                        <ActionIcon
+                          variant="subtle"
+                          color="var(--upagain-yellow)"
+                          onClick={() => handleOpenEdit(step)}
+                          size="lg"
+                        >
+                          <IconEdit size={20} stroke={1.5} />
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+
+                    {enableDeleteStep && onDeleteStep && (
+                      <Tooltip
+                        label={t("project.delete_step_tooltip")}
+                        position="left"
+                      >
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          onClick={() => onDeleteStep(step.id)}
+                          size="lg"
+                        >
+                          <IconTrash size={20} stroke={1.5} />
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </Group>
+                </Group>
+              }
+            >
+              {/* Body Content */}
+              <Box mt="md">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(step.description),
+                  }}
+                />
+              </Box>
+
+              {/* Media Section */}
+              {step.photos && step.photos.length > 0 && (
+                <Box mt="lg">
+                  <PhotosCarousel
+                    photos={step.photos}
+                    initialSlide={0}
+                    slidesToScroll={1}
+                  />
+                </Box>
               )}
-            </Group>
-          }
-        >
-          {/* Body Content */}
-          <Box mt="md">
-            <div
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(step.description),
-              }}
-            />
-          </Box>
 
-          {/* Media Section */}
-          {step.photos && step.photos.length > 0 && (
-            <Box mt="lg">
-              <PhotosCarousel
-                photos={step.photos}
-                initialSlide={0}
-                slidesToScroll={step.photos.length > 1 ? 3 : 1}
-              />
-            </Box>
-          )}
-
-          {/* Metadata/Assets Section */}
-          {step.items && step.items.length > 0 && (
-            <Stack gap="xs" mt="xl" p="sm">
-              <Text size="sm" fw={700} c="dimmed" tt="uppercase">
-                {t("project.items_used")}
-              </Text>
-              <Group gap="sm">
-                <IconLink size={14} color="var(--mantine-color-dimmed)" />
-                {step.items.map((item) => (
-                  <Anchor
-                    key={item.id}
-                    size="sm"
-                    fw={500}
-                    style={{ color: "var(--component-color-primary)" }}
-                    onClick={() => {
-                      if (role === "admin") {
-                        navigate(`/admin/listings/${item.id}`, {
-                          state: {
-                            from: "postDetails",
-                            id_post: postId,
-                          },
-                        });
-                      } else {
-                        navigate(`/marketplace/${item.id}`, {
-                          state: {
-                            from: "postDetails",
-                            id_post: postId,
-                          },
-                        });
-                      }
-                    }}
-                  >
-                    {item.title}
-                  </Anchor>
-                ))}
-              </Group>
-            </Stack>
-          )}
-        </Timeline.Item>
-      ))}
-    </Timeline>
+              {/* Metadata/Assets Section */}
+              {step.items && step.items.length > 0 && (
+                <Stack gap="xs" mt="xl" p="sm">
+                  <Text size="sm" fw={700} c="dimmed" tt="uppercase">
+                    {t("project.items_used")}
+                  </Text>
+                  <Group gap="sm">
+                    <IconLink size={14} color="var(--mantine-color-dimmed)" />
+                    {step.items.map((item) => (
+                      <Anchor
+                        key={item.id}
+                        size="sm"
+                        fw={500}
+                        style={{ color: "var(--component-color-primary)" }}
+                        onClick={() => {
+                          if (role === "admin") {
+                            navigate(`/admin/listings/${item.id}`, {
+                              state: {
+                                from: "postDetails",
+                                id_post: postId,
+                                post_title: postTitle,
+                              },
+                            });
+                          } else {
+                            navigate(`/marketplace/${item.id}`, {
+                              state: {
+                                from: "postDetails",
+                                id_post: postId,
+                                post_title: postTitle,
+                              },
+                            });
+                          }
+                        }}
+                      >
+                        {item.title}
+                      </Anchor>
+                    ))}
+                  </Group>
+                </Stack>
+              )}
+            </Timeline.Item>
+          ))}
+        </Timeline>
+      </Stack>
+      {selectedStepForEdit && (
+        <EditProjectStepModal
+          opened={openedEdit}
+          onClose={() => {
+            closeEdit();
+            setSelectedStepForEdit(null);
+          }}
+          step={selectedStepForEdit}
+        />
+      )}
+      {projectSteps && projectSteps.length > 1 && (
+        <ReorderProjectStepsModal
+          opened={openedReorder}
+          onClose={closeReorder}
+          steps={projectSteps}
+        />
+      )}
+    </>
   );
 };

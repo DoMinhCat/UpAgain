@@ -33,7 +33,7 @@ interface CreateEventModalProps {
 }
 
 export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
-  const { t } = useTranslation(["admin", "common"]);
+  const { t } = useTranslation(["admin", "common", "events"]);
   const [title, setTitle] = useState<string>("");
   const [capacity, setCapacity] = useState<number | undefined>();
   const [price, setPrice] = useState<number>(0);
@@ -377,23 +377,23 @@ export function CreateEventModal({ opened, onClose }: CreateEventModalProps) {
           data={[
             {
               value: "workshop",
-              label: t("common:event_categories.workshop"),
+              label: t("events:categories.workshop"),
             },
             {
               value: "conference",
-              label: t("common:event_categories.conference"),
+              label: t("events:categories.conference"),
             },
             {
               value: "meetups",
-              label: t("common:event_categories.meetups"),
+              label: t("events:categories.meetup"),
             },
             {
               value: "exposition",
-              label: t("common:event_categories.exposition"),
+              label: t("events:categories.exposition"),
             },
             {
               value: "other",
-              label: t("common:event_categories.other"),
+              label: t("events:categories.other"),
             },
           ]}
           onChange={(value) => {

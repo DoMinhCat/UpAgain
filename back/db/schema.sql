@@ -40,12 +40,13 @@ CREATE TYPE noti_setting AS ENUM (
     'user_validation_status', --deposit/posting posted by user is validated by admin
     'user_object_retrieved', -- object in container retrieved by pro
     'user_event_updated', -- my event is updated
-    'user_code_expiring', -- my code to deposit is expiring in 24h
+    'user_code_expiring', -- my code to deposit is expiring in 24h (cron)
     -- for pros:
-    'pro_material_available', --custom alert for new deposit/listing matching chosen material(s)
+    'pro_material_available', --custom alert for new deposit/listing matching chosen material(s) (premium subscription)
     'pro_object_deposited', -- object put in container by user
-    'pro_subscription_end', -- premium subscription ending in 1 week
-    'pro_code_expiring', -- my code to retrieve object is expiring in 24h
+    'pro_object_expired', -- reservation for an object expired
+    'pro_subscription_end', -- premium subscription ending in 1 week (cron)
+    'pro_code_expiring', -- my code to retrieve object is expiring in 24h (cron)
     -- for employees:
     'emp_event_updated', -- my event is updated by admin
     'emp_event_assigned' -- new event assigned to me by admin
@@ -78,7 +79,8 @@ create table pros
 (
     id_account integer primary key references account (id) on delete restrict,
     phone             varchar(20),
-    is_premium boolean not null default false
+    is_premium boolean not null default false,
+    completed_onboard boolean not null default false
 );
 
 CREATE TYPE event_category AS ENUM ('workshop', 'conference', 'meetups', 'exposition', 'other');
@@ -102,6 +104,7 @@ create table events
     created_by   integer references accounts(id) on delete restrict,
     lat         numeric(9,6)   not null,
     lng         numeric(10,6)   not null,
+    refuse_reason text,
 
     CONSTRAINT check_coordinates CHECK (
         (lat >= -90 AND lat <= 90) AND
@@ -205,6 +208,15 @@ create table liked_posts
     PRIMARY KEY (id_account, id_post)
 );
 
+create table liked_comments
+(
+    id_account integer     not null references accounts (id) on delete cascade,
+    id_comment integer     not null references comments (id) on delete cascade,
+    liked_at   timestamptz not null default now(),
+    PRIMARY KEY (id_account, id_comment)
+);
+
+
 CREATE TYPE ads_status AS ENUM ('active', 'expired', 'cancelled');
 create table ads
 (
@@ -252,11 +264,11 @@ create table items
     created_at  timestamptz     not null default now(),
     title       varchar(255)    not null,
     description text,
-    price       numeric(8,2)    not null default 0,
+    price       numeric(8,2)    not null default 0,         -- in euro
     weight      numeric(8,2)    not null,                   -- in kg
     material    material        not null default 'other',
     status      item_status     not null default 'pending', -- workflow status
-    state       item_state      not null,                   -- new or needs to be repaired
+    state       item_state      not null,
     is_deleted  boolean         not null default false,
     refuse_reason text,
     id_user     integer         not null references users(id_account)  on delete restrict
@@ -325,7 +337,6 @@ create table barcodes
 );
 
 -- sub_from will not change, sub_to will be updated if renew/trial to official
--- is_active: user can cancel subscription before end date (sub_to) and purchase a new subscription (stupid but possible)
 create table subscriptions
 (
     id            serial          primary key,
@@ -364,8 +375,8 @@ CREATE TABLE project_steps (
   is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
   title       VARCHAR(255)   NOT NULL,
   description TEXT           NOT NULL,
-  step_order  INTEGER        NOT NULL DEFAULT 1
   id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  order       FLOAT          NOT NULL
 );
 
 -- a project step can have multiple items
@@ -386,4 +397,10 @@ create table notifications (
   entity_type notification_entity_type not null,
   entity_id text not null,
   id_account int not null references accounts(id) on delete cascade
+);
+
+CREATE TABLE IF NOT EXISTS pro_alert_materials (
+    id_pro INTEGER NOT NULL REFERENCES pros(id_account) ON DELETE CASCADE,
+    material material NOT NULL,
+    PRIMARY KEY (id_pro, material)
 );

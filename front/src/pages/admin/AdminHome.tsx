@@ -13,6 +13,7 @@ import {
   Select,
   Text,
   Box,
+  Skeleton,
   Loader,
   Group,
   Badge,
@@ -177,9 +178,7 @@ export default function AdminHome() {
           path={PATHS.ADMIN.VALIDATIONS.ALL}
           description={
             errorValidationStats ? (
-              <Text c="red">
-                {t("dashboard.errors.validation_stats")}
-              </Text>
+              <Text c="red">{t("dashboard.errors.validation_stats")}</Text>
             ) : isLoadingValidationStats ? (
               <Loader size="sm" />
             ) : (
@@ -209,7 +208,7 @@ export default function AdminHome() {
               <Text c="red">{t("dashboard.errors.score_stats")}</Text>
             ) : (
               <StatsCardDesc
-                stats={totalScore?.co2 || 0}
+                stats={Number(totalScore?.co2.toFixed(2)) || 0}
                 icon={
                   <IconLeaf size={24} color="var(--upagain-neutral-green)" />
                 }
@@ -227,9 +226,7 @@ export default function AdminHome() {
           path={PATHS.ADMIN.CONTAINERS}
           description={
             errorContainerCountStats ? (
-              <Text c="red">
-                {t("dashboard.errors.container_stats")}
-              </Text>
+              <Text c="red">{t("dashboard.errors.container_stats")}</Text>
             ) : isLoadingContainerCountStats ? (
               <Loader size="sm" />
             ) : (
@@ -343,7 +340,10 @@ export default function AdminHome() {
                 value: "most_recent_activity",
                 label: t("history.filters.sort_recent"),
               },
-              { value: "oldest_activity", label: t("history.filters.sort_oldest") },
+              {
+                value: "oldest_activity",
+                label: t("history.filters.sort_oldest"),
+              },
             ]}
             value={filters.sortValue}
             clearable
@@ -426,13 +426,17 @@ export default function AdminHome() {
           }
         >
           {isLoadingHistory ? (
-            <Table.Tr>
-              <Table.Td colSpan={5}>
-                <Flex justify="center" py="md">
-                  <Loader />
-                </Flex>
-              </Table.Td>
-            </Table.Tr>
+            <>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Table.Tr key={i}>
+                  <Table.Td><Skeleton height={14} width="70%" mx="auto" /></Table.Td>
+                  <Table.Td><Skeleton height={14} width="55%" mx="auto" /></Table.Td>
+                  <Table.Td><Skeleton height={14} width="45%" mx="auto" /></Table.Td>
+                  <Table.Td><Skeleton height={14} width="30%" mx="auto" /></Table.Td>
+                  <Table.Td><Skeleton height={20} width={60} radius="xl" mx="auto" /></Table.Td>
+                </Table.Tr>
+              ))}
+            </>
           ) : historyData?.histories.length === 0 ? (
             <Table.Tr>
               <Table.Td colSpan={5}>
@@ -461,10 +465,9 @@ export default function AdminHome() {
                 <Table.Td ta="center">{row.admin_name}</Table.Td>
                 <Table.Td ta="center">
                   {t(`modules.${row.module}` as any, {
-                    defaultValue: row.module
-                      .replace(/_/g, " ")
-                      .charAt(0)
-                      .toUpperCase() + row.module.slice(1).replace(/_/g, " "),
+                    defaultValue:
+                      row.module.replace(/_/g, " ").charAt(0).toUpperCase() +
+                      row.module.slice(1).replace(/_/g, " "),
                   })}
                 </Table.Td>
                 <Table.Td ta="center">

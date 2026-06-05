@@ -79,7 +79,8 @@
     "cancel_transaction_success_title": "Transaction Cancelled",
     "cancel_transaction_success_message": "The transaction has been cancelled.",
     "reserve_success_title": "Item Reserved",
-    "reserve_success_message": "The item has been successfully reserved. You can find it in your items."
+    "reserve_success_message": "The item has been successfully reserved. You can find it in your items.",
+    "open_container_error": "Error opening container"
   },
   "my_item_detail": {
     "not_found": "Item not found or you don't have access to it.",
@@ -114,7 +115,30 @@
     "cancelled_title": "Reservation Cancelled",
     "cancelled_on": "Cancelled on {{date}}",
     "waiting_for_dropoff": "Waiting for the seller to drop off the item in the container first. Once dropped off, your retrieval code and barcode will be generated here.",
-    "download_barcode": "Download Barcode"
+    "download_barcode": "Download Barcode",
+    "project_steps": {
+      "title": "Project Steps",
+      "description": "Add this item to one of your project steps to document its reuse.",
+      "add_button": "Add Step to Project",
+      "modal_title": "Add Step to Project",
+      "edit_modal_title": "Edit Project Step",
+      "items_label": "Items Used",
+      "items_placeholder": "Select items used in this step",
+      "title_label": "Step Title",
+      "title_placeholder": "e.g. Preparing the wood",
+      "description_label": "Step Description",
+      "description_placeholder": "Describe what you did in this step...",
+      "nothing_found": "No items found",
+      "errors": {
+        "title": "Title is required",
+        "description": "Description is required"
+      },
+      "notifications": {
+        "created_title": "Step Added",
+        "created_msg": "The step has been successfully added to your project.",
+        "error_creating": "Failed to add step to project."
+      }
+    }
   },
   "open_container": {
     "title": "Open Container",

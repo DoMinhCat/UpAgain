@@ -11,8 +11,7 @@ import {
   Divider,
   Textarea,
   Button,
-  Center,
-  Loader,
+  Skeleton,
   Paper,
   Box,
   useComputedColorScheme,
@@ -28,6 +27,7 @@ import {
   IconMessageCircle,
   IconRouteSquare,
   IconCrownFilled,
+  IconPlus,
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -42,6 +42,7 @@ import {
   useLikeComment,
   useGetProjectStepsByPostId,
   useDeleteComment,
+  useDeleteProjectStep,
 } from "../../../hooks/postHooks";
 import { ProjectStepTimeline } from "../../../components/post/ProjectStepTimeline";
 import type { Step } from "../../../api/interfaces/step";
@@ -55,15 +56,21 @@ import type { Post, PostComment } from "../../../api/interfaces/post";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import { useAuth } from "../../../context/AuthContext";
 import { NotFoundPage } from "../../error/404";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { DeleteCommentModal } from "../../../components/post/DeleteCommentModal";
+import { DeleteProjectStepModal } from "../../../components/post/DeleteProjectStepModal";
+import { BookAdsModal } from "../../../components/post/BookAdsModal";
+import { ConfirmAdsCancelModal } from "../../../components/post/ConfirmAdsCancelModal";
+import { useHandleVerifyAdsPayment } from "../../../hooks/stripeHooks";
+import { useDeleteAds } from "../../../hooks/adsHooks";
 import { useTranslation } from "react-i18next";
 import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { resolveUrl } from "../../../utils/imageUtils";
 import DOMPurify from "dompurify";
 import { EditPostModal } from "../../../components/post/EditPostModal";
 import { DeletePostModal } from "../../../components/post/DeletePostModal";
+import { CreatePostStepModal } from "../../../components/post/CreatePostStepModal";
 
 const CATEGORY_COLOR: Record<string, string> = {
   tutorial: "blue",
@@ -78,7 +85,13 @@ export default function PostDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useComputedColorScheme("light");
-  const { t } = useTranslation(["post", "common", "admin"]);
+  const { t } = useTranslation([
+    "post",
+    "common",
+    "admin",
+    "marketplace",
+    "community",
+  ]);
   const { user } = useAuth();
   const role: string = user?.role || "";
   const { id } = useParams<{ id: string }>();
@@ -124,6 +137,29 @@ export default function PostDetailPage() {
     useDisclosure(false);
   const [openedDelete, { open: openDelete, close: closeDelete }] =
     useDisclosure(false);
+  const [openedAddStep, { open: openAddStep, close: closeAddStep }] =
+    useDisclosure(false);
+
+  // BOOK ADS MODAL STATE
+  const [openedBookAds, { open: openBookAds, close: closeBookAds }] =
+    useDisclosure(false);
+
+  // CANCEL ADS MODAL STATE
+  const [openedCancelAds, { open: openCancelAds, close: closeCancelAds }] =
+    useDisclosure(false);
+  const deleteAdsMutate = useDeleteAds();
+  const handleCancelAds = () => {
+    if (post?.ads_id) {
+      deleteAdsMutate.mutate(post.ads_id, {
+        onSuccess: () => {
+          closeCancelAds();
+        },
+      });
+    }
+  };
+
+  // VERIFY PAYMENT IF REDIRECTED BACK FROM STRIPE
+  const { isVerifying: isVerifyingPayment } = useHandleVerifyAdsPayment(postId);
 
   const handleOpenDelete = (id: number) => {
     setCommentToDelete(id);
@@ -141,10 +177,44 @@ export default function PostDetailPage() {
     }
   };
 
+  // DELETE STEP MODAL STATE
+  const [idStepToDelete, setIdStepToDelete] = useState<number | null>(null);
+  const [openedDeleteStep, { open: openDeleteStep, close: closeDeleteStep }] =
+    useDisclosure(false);
+
+  const handleOpenDeleteStep = (id: number) => {
+    setIdStepToDelete(id);
+    openDeleteStep();
+  };
+
+  const deleteStepMutation = useDeleteProjectStep();
+  const confirmDeleteStep = () => {
+    if (idStepToDelete) {
+      deleteStepMutation.mutate(idStepToDelete, {
+        onSuccess: () => {
+          closeDeleteStep();
+          setIdStepToDelete(null);
+        },
+      });
+    }
+  };
+
   const post: Post | undefined = postData;
   const comments: PostComment[] = commentsData?.comments ?? [];
   const totalComments = commentsData?.total_comments ?? 0;
   const lastPage = commentsData?.last_page ?? 1;
+
+  useEffect(() => {
+    if (comments.length > 0) {
+      const initialLiked = new Set<number>();
+      comments.forEach((c) => {
+        if (c.is_liked) {
+          initialLiked.add(c.id);
+        }
+      });
+      setLikedComments(initialLiked);
+    }
+  }, [commentsData]);
 
   // Fire view increment once after 10 seconds after opened
   useEffect(() => {
@@ -225,19 +295,15 @@ export default function PostDetailPage() {
     likeComment(id_comment);
   };
 
-  if (isLoadingPost) {
-    return (
-      <Center py={120}>
-        <Loader color="var(--upagain-neutral-green)" />
-      </Center>
-    );
+  if (isLoadingPost || isVerifyingPayment) {
+    return <FullScreenSkeleton />;
   }
 
   if (!post) {
     return <NotFoundPage />;
   }
   if (isLoadingPost) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (
@@ -355,7 +421,8 @@ export default function PostDetailPage() {
                 mt="md"
                 breadcrumbs={[
                   { title: t("home:title"), href: PATHS.HOME },
-                  ...(location.state?.from === "communityIndex"
+                  ...(location.state?.from === "itemDetails" ||
+                  location.state?.from === "communityIndex"
                     ? [
                         {
                           title: t("community:community"),
@@ -381,6 +448,26 @@ export default function PostDetailPage() {
                 ((user?.role === "employee" || user?.role === "pro") &&
                   user?.id === post?.creator_id && (
                     <Group gap={"xs"}>
+                      {user?.role === "pro" &&
+                        user?.id === post?.creator_id &&
+                        !post?.ads_id &&
+                        post?.category === "project" && (
+                          <Button variant="primary" onClick={openBookAds}>
+                            {t("admin:posts.details.create_ads", {
+                              defaultValue: "Book Ad",
+                            })}
+                          </Button>
+                        )}
+                      {user?.role === "pro" &&
+                        user?.id === post?.creator_id &&
+                        post?.ads_id &&
+                        post?.category === "project" && (
+                          <Button variant="delete" onClick={openCancelAds}>
+                            {t("admin:posts.details.remove_ads", {
+                              defaultValue: "Cancel Ad",
+                            })}
+                          </Button>
+                        )}
                       <Button variant="edit" onClick={openEdit}>
                         {t("admin:posts.details.edit_post")}
                       </Button>
@@ -427,65 +514,69 @@ export default function PostDetailPage() {
                       </Text>
                     </Group>
 
-                    <Group gap={4}>
-                      <ActionIcon
-                        className="actionIcon"
-                        disabled={role !== "user" && role !== "pro"}
-                        data-variant="primary"
-                        variant="subtle"
-                        radius="xl"
-                        aria-label="Like post"
-                        onClick={handleLike}
-                        loading={isLiking}
-                      >
-                        {isLiked ? (
-                          <IconHeartFilled
-                            size={20}
-                            color="var(--mantine-color-red-6)"
-                          />
-                        ) : (
-                          <IconHeart
-                            size={20}
-                            color="var(--mantine-color-red-6)"
-                          />
-                        )}
-                      </ActionIcon>
-                      <Text size="sm" fw={600}>
-                        {likeCount}
-                      </Text>
-                    </Group>
+                    {role === "user" ||
+                      (role === "pro" && (
+                        <Group gap={4}>
+                          <ActionIcon
+                            className="actionIcon"
+                            data-variant="primary"
+                            variant="subtle"
+                            radius="xl"
+                            aria-label="Like post"
+                            onClick={handleLike}
+                            loading={isLiking}
+                          >
+                            {isLiked ? (
+                              <IconHeartFilled
+                                size={20}
+                                color="var(--mantine-color-red-6)"
+                              />
+                            ) : (
+                              <IconHeart
+                                size={20}
+                                color="var(--mantine-color-red-6)"
+                              />
+                            )}
+                          </ActionIcon>
+                          <Text size="sm" fw={600}>
+                            {likeCount}
+                          </Text>
+                        </Group>
+                      ))}
 
-                    <Tooltip
-                      label={
-                        isSaved
-                          ? t("post:details.unsave_label")
-                          : t("post:details.save_label")
-                      }
-                      withArrow
-                    >
-                      <ActionIcon
-                        disabled={role !== "user" && role !== "pro"}
-                        className="actionIcon"
-                        data-variant="primary"
-                        variant="subtle"
-                        radius="xl"
-                        aria-label="Save post"
-                        onClick={handleSave}
-                        loading={isSaving}
-                      >
-                        {isSaved ? (
-                          <IconBookmarkFilled
-                            size={20}
-                            color="var(--upagain-yellow)"
-                          />
-                        ) : (
-                          <IconBookmark
-                            size={20}
-                            color="var(--upagain-yellow)"
-                          />
-                        )}
-                      </ActionIcon>
-                    </Tooltip>
+                    {role === "user" ||
+                      (role === "pro" && (
+                        <Tooltip
+                          label={
+                            isSaved
+                              ? t("post:details.unsave_label")
+                              : t("post:details.save_label")
+                          }
+                          withArrow
+                        >
+                          <ActionIcon
+                            className="actionIcon"
+                            data-variant="primary"
+                            variant="subtle"
+                            radius="xl"
+                            aria-label="Save post"
+                            onClick={handleSave}
+                            loading={isSaving}
+                          >
+                            {isSaved ? (
+                              <IconBookmarkFilled
+                                size={20}
+                                color="var(--upagain-yellow)"
+                              />
+                            ) : (
+                              <IconBookmark
+                                size={20}
+                                color="var(--upagain-yellow)"
+                              />
+                            )}
+                          </ActionIcon>
+                        </Tooltip>
+                      ))}
                   </Group>
                 </Group>
               </Paper>
@@ -510,26 +601,61 @@ export default function PostDetailPage() {
                 <>
                   <Divider my="md" />
                   <Stack gap="xl">
-                    <Group gap="sm">
-                      <IconRouteSquare
-                        color="var(--upagain-neutral-green)"
-                        size={32}
-                      />
-                      <Title order={3}>{t("post:details.project_steps")}</Title>
+                    <Group justify="space-between" align="center">
+                      <Group gap="sm">
+                        <IconRouteSquare
+                          color="var(--upagain-neutral-green)"
+                          size={32}
+                        />
+                        <Title order={3}>
+                          {t("post:details.project_steps")}
+                        </Title>
+                      </Group>
+                      {user?.role === "pro" &&
+                        user?.id === post?.creator_id && (
+                          <Button
+                            variant="primary"
+                            onClick={openAddStep}
+                            leftSection={<IconPlus size={16} />}
+                          >
+                            {t(
+                              "marketplace:my_item_detail.project_steps.add_button",
+                              { defaultValue: "Add Step" },
+                            )}
+                          </Button>
+                        )}
                     </Group>
 
                     {isLoadingProjectSteps ? (
-                      <Center mt="xl">
-                        <Loader color="var(--upagain-neutral-green)" />
-                      </Center>
+                      <Stack gap="lg" mt="xl">
+                        {[1, 2, 3].map((i) => (
+                          <Group key={i} gap="md" align="flex-start">
+                            <Skeleton height={32} width={32} radius="xl" />
+                            <Stack gap="xs" style={{ flex: 1 }}>
+                              <Skeleton height={16} width="40%" />
+                              <Skeleton height={12} width="80%" />
+                              <Skeleton height={12} width="60%" />
+                            </Stack>
+                          </Group>
+                        ))}
+                      </Stack>
                     ) : (
                       <ProjectStepTimeline
                         role={role === "admin" ? "admin" : "user"}
                         enableDeleteStep={
-                          user?.role === "admin" || user?.role === "employee"
+                          user?.role === "admin" ||
+                          (user?.role === "pro" &&
+                            user?.id === post?.creator_id)
                         }
+                        enableEditStep={
+                          user?.role === "admin" ||
+                          (user?.role === "pro" &&
+                            user?.id === post?.creator_id)
+                        }
+                        onDeleteStep={handleOpenDeleteStep}
                         projectSteps={projectSteps as Step[]}
                         postId={post.id}
+                        postTitle={post.title}
                       />
                     )}
                   </Stack>
@@ -548,38 +674,42 @@ export default function PostDetailPage() {
                 </Group>
 
                 {/* Add comment */}
-                <Stack gap="sm" mb="md">
-                  <Textarea
-                    disabled={role !== "user" && role !== "pro"}
-                    placeholder={t("post:comments.placeholder")}
-                    value={commentText}
-                    radius="lg"
-                    onChange={(e) => setCommentText(e.currentTarget.value)}
-                    minRows={3}
-                    autosize
-                  />
-                  <Group justify="flex-end">
-                    <Button
-                      className="button"
-                      data-variant="primary"
-                      onClick={handleAddComment}
-                      loading={isPosting}
-                      disabled={
-                        !commentText.trim() ||
-                        (role !== "user" && role !== "pro")
-                      }
-                    >
-                      {t("post:comments.submit")}
-                    </Button>
-                  </Group>
-                </Stack>
-
+                {(role === "user" || role === "pro") && (
+                  <Stack gap="sm" mb="md">
+                    <Textarea
+                      placeholder={t("post:comments.placeholder")}
+                      value={commentText}
+                      radius="lg"
+                      onChange={(e) => setCommentText(e.currentTarget.value)}
+                      minRows={3}
+                      autosize
+                    />
+                    <Group justify="flex-end">
+                      <Button
+                        className="button"
+                        data-variant="primary"
+                        onClick={handleAddComment}
+                        loading={isPosting}
+                      >
+                        {t("post:comments.submit")}
+                      </Button>
+                    </Group>
+                  </Stack>
+                )}
                 {/* Comments list */}
                 {isLoadingComments ? (
-                  // TODO: replace with skeleton loading
-                  <Center py={40}>
-                    <Loader color="var(--upagain-neutral-green)" size="sm" />
-                  </Center>
+                  <Stack gap="md" py="md">
+                    {[1, 2, 3].map((i) => (
+                      <Group key={i} gap="sm" align="flex-start">
+                        <Skeleton height={36} width={36} radius="xl" />
+                        <Stack gap="xs" style={{ flex: 1 }}>
+                          <Skeleton height={14} width="25%" />
+                          <Skeleton height={12} width="90%" />
+                          <Skeleton height={12} width="70%" />
+                        </Stack>
+                      </Group>
+                    ))}
+                  </Stack>
                 ) : comments.length === 0 ? (
                   <Text c="dimmed" ta="center" py="xl">
                     {t("post:comments.empty")}
@@ -594,7 +724,12 @@ export default function PostDetailPage() {
                           ...comment,
                           like_count:
                             comment.like_count +
-                            (likedComments.has(comment.id) ? 1 : 0),
+                            (likedComments.has(comment.id) && !comment.is_liked
+                              ? 1
+                              : !likedComments.has(comment.id) &&
+                                  comment.is_liked
+                                ? -1
+                                : 0),
                         }}
                         onLike={handleLikeComment}
                         onDelete={handleOpenDelete}
@@ -657,6 +792,44 @@ export default function PostDetailPage() {
           navigate(PATHS.POSTS.MY_POSTS, { state: { from: "communityIndex" } })
         }
       />
+
+      {role === "pro" && (
+        <CreatePostStepModal
+          opened={openedAddStep}
+          onClose={closeAddStep}
+          postId={postId}
+        />
+      )}
+
+      <DeleteProjectStepModal
+        opened={openedDeleteStep}
+        onClose={closeDeleteStep}
+        onConfirm={confirmDeleteStep}
+        loading={deleteStepMutation.isPending}
+      />
+
+      {role === "pro" && (
+        <BookAdsModal
+          opened={openedBookAds}
+          onClose={closeBookAds}
+          postId={postId}
+          role="pro"
+          postTitle={post?.title}
+        />
+      )}
+
+      {role === "pro" && (
+        <ConfirmAdsCancelModal
+          opened={openedCancelAds}
+          onClose={closeCancelAds}
+          onConfirm={handleCancelAds}
+          loading={deleteAdsMutate.isPending}
+          warningMessage={t("admin:posts.ads_modal.refund_warning", {
+            defaultValue:
+              "Warning: No refund is possible for cancelled advertisements.",
+          })}
+        />
+      )}
     </>
   );
 }

@@ -55,11 +55,12 @@ import { PhotosCarousel } from "../../../components/photo/PhotosCarousel";
 import { useState } from "react";
 import { resolveUrl } from "../../../utils/imageUtils";
 import {
+  useConfirmItemRetrieval,
   useGetItemDetails,
   useGetItemTransactions,
   useGetLatestTransactionOfPro,
 } from "../../../hooks/itemHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import DOMPurify from "dompurify";
 import { useGetListingDetails } from "../../../hooks/listingHooks";
 import {
@@ -80,6 +81,7 @@ import type { Barcode } from "../../../api/interfaces/barcode";
 import { NotFoundPage } from "../../error/404";
 import { useContainerDetails } from "../../../hooks/containerHooks";
 import EmbeddedMap from "../../../components/common/EmbeddedMap";
+import { useHandleVerifyItemPurchase } from "../../../hooks/stripeHooks";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function AccessCodeCard({
@@ -156,6 +158,10 @@ function AccessCodeCard({
             mt="xs"
             fallbackSrc="https://placehold.co/400x200?text=Barcode"
           />
+          <Text size="xs" c="dimmed" ta="center">
+            {t("valid_from", { defaultValue: "Valid from:" })}{" "}
+            {dayjs(code.valid_from).format("DD/MM/YYYY HH:mm")}
+          </Text>
           <Text size="xs" c="dimmed" ta="center">
             {t("valid_to", { defaultValue: "Valid to:" })}{" "}
             {dayjs(code.valid_to).format("DD/MM/YYYY HH:mm")}
@@ -289,6 +295,9 @@ export default function MyItemDetail() {
   const [openedPurchase, { open: openPurchase, close: closePurchase }] =
     useDisclosure(false);
 
+  // VERIFY ITEM PURCHASE
+  const { isVerifying } = useHandleVerifyItemPurchase(id_item);
+
   const deleteItemMutation = useDeleteItem();
 
   const handleDelete = () => {
@@ -368,6 +377,12 @@ export default function MyItemDetail() {
     document.body.removeChild(link);
   };
 
+  // CONFIRM RETRIEVAL CODE
+  const confirmRetrieval = useConfirmItemRetrieval(id_item);
+  const handleConfirmRetrieval = () => {
+    confirmRetrieval.mutate({ confirm_code: confirmCode });
+  };
+
   if (
     isLoadingItem ||
     isListingDetailsLoading ||
@@ -375,15 +390,17 @@ export default function MyItemDetail() {
     isContainerDetailsLoading ||
     isLoadingProTransaction
   )
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
 
   if (isItemError || (role === "pro" && (!latestTx || latestTx.id_pro === 0))) {
     return <NotFoundPage />;
   }
 
   // deposit code helpers
-  const userDepositCode = depositCodes?.[0];
-  const proDepositCode = depositCodes?.[0];
+  const userDepositCode = depositCodes?.find(
+    (code) => code.user_type === "user",
+  );
+  const proDepositCode = depositCodes?.find((code) => code.user_type === "pro");
   // For pro, their code is the "pro" code; for user, it's the "user" code
   const myDepositCode: Barcode | undefined =
     role === "pro" ? proDepositCode : userDepositCode;
@@ -425,14 +442,53 @@ export default function MyItemDetail() {
               ) : myDepositCode &&
                 myDepositCode.code.length > 0 &&
                 myDepositCode.path.length > 0 ? (
-                <AccessCodeCard
-                  code={myDepositCode}
-                  label={t("admin:listings.details.buyer")}
-                  icon={<IconUserShield size={14} />}
-                  onDownload={() =>
-                    handleDownloadBarcode(myDepositCode.barcode_base64)
-                  }
-                />
+                <>
+                  <AccessCodeCard
+                    code={myDepositCode}
+                    label={t("admin:listings.details.buyer")}
+                    icon={<IconUserShield size={14} />}
+                    onDownload={() =>
+                      handleDownloadBarcode(myDepositCode.barcode_base64)
+                    }
+                  />
+                  {myDepositCode.status === "used" ? (
+                    <Alert
+                      icon={<IconCircleCheck size={16} />}
+                      color="teal"
+                      variant="light"
+                      mt="md"
+                    >
+                      {t(
+                        "marketplace:my_item_detail.retrieved_from_container",
+                        {
+                          defaultValue:
+                            "You have retrieved this item from the container.",
+                        },
+                      )}
+                    </Alert>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      mt="md"
+                      fullWidth
+                      disabled={dayjs().isBefore(
+                        dayjs(myDepositCode.valid_from),
+                      )}
+                      onClick={() =>
+                        navigate(PATHS.CONTAINERS.OPEN, {
+                          state: {
+                            id_container: depositDetails?.container_id,
+                            item_title: item?.title,
+                            item_id: item?.id,
+                          },
+                        })
+                      }
+                    >
+                      {t("marketplace:open_container.open_now")}
+                    </Button>
+                  )}
+                </>
               ) : isPurchased ? (
                 <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>
                   {t("marketplace:my_item_detail.waiting_for_dropoff")}
@@ -496,6 +552,9 @@ export default function MyItemDetail() {
                       <Button
                         variant="primary"
                         size="lg"
+                        disabled={dayjs().isBefore(
+                          dayjs(userDepositCode.valid_from),
+                        )}
                         onClick={() =>
                           navigate(PATHS.CONTAINERS.OPEN, {
                             state: {
@@ -908,16 +967,17 @@ export default function MyItemDetail() {
                   size="lg"
                   placeholder="-"
                   oneTimeCode
-                  // disabled={loading}
+                  disabled={confirmRetrieval.isPending}
                   value={confirmCode}
                   onChange={(val) => handleSetConfirmCode(val)}
                   aria-label="6-Digit Access Code"
                 />
-                {/* TODO: submit confirmation code to backend */}
                 <Button
                   variant="primary"
                   fullWidth
                   disabled={confirmCode.replace(" ", "").length < 6}
+                  onClick={handleConfirmRetrieval}
+                  loading={confirmRetrieval.isPending}
                 >
                   {t("marketplace:my_item_detail.confirm_button")}
                 </Button>
@@ -940,12 +1000,16 @@ export default function MyItemDetail() {
             </Title>
             <Text size="sm" c="dimmed" ta="center">
               {t("marketplace:detail.buyer")}:{" "}
-              <strong>{latestTx?.username_pro || "—"}</strong>
+              <strong>
+                {transactionsData?.transactions[0].username_pro || "—"}
+              </strong>
             </Text>
-            {latestTx && (
+            {transactionsData && transactionsData.total_transactions > 0 && (
               <Text size="xs" c="dimmed">
                 {t("marketplace:my_item_detail.completed_on", {
-                  date: dayjs(latestTx.created_at).format("DD/MM/YYYY"),
+                  date: dayjs(
+                    transactionsData?.transactions[0].created_at,
+                  ).format("DD/MM/YYYY"),
                 })}
               </Text>
             )}
@@ -1281,6 +1345,7 @@ export default function MyItemDetail() {
         idItem={id_item}
         itemTitle={item?.title}
         price={item?.price}
+        isVerifying={isVerifying}
       />
     </Container>
   );

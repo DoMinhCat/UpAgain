@@ -46,6 +46,7 @@ type Event struct {
 	Images         []string    `json:"images"`
 	Lat            float64     `json:"lat"`
 	Lng            float64     `json:"lng"`
+	RefuseReason   null.String `json:"refuse_reason" swaggertype:"string"`
 	Attendees      []Account   `json:"attendees"`
 	Organizers     []Account   `json:"organizers"`
 }
@@ -103,8 +104,8 @@ type UpdateEventRequest struct {
 	PostalCode     string      `json:"postal_code"`
 	LocationDetail null.String `json:"location_detail" swaggertype:"string"`
 	Images         []string    `json:"images"`
-	Lat            *float64     `json:"lat"`
-	Lng            *float64     `json:"lng"`
+	Lat            *float64    `json:"lat"`
+	Lng            *float64    `json:"lng"`
 }
 
 type EventRegistrationRequest struct {

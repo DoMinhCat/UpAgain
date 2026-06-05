@@ -44,7 +44,25 @@
   },
   "notifications": {
     "error": "Erreur",
-    "success": "Succès"
+    "success": "Succès",
+    "mark_all_read": "Tout marquer comme lu",
+    "no_new": "Aucune nouvelle notification",
+    "title": "Notifications",
+    "see_all": "Voir tout",
+    "btn_push_noti": "Activer les notifications push sur cet appareil",
+    "blocked_desc": "Les notifications sont bloquées par les paramètres de votre navigateur. Veuillez les activer dans votre navigateur pour recevoir les mises à jour.",
+    "types": {
+      "user_object_status": "Le statut de l'objet \"{{title}}\" a changé",
+      "user_validation_status": "Statut de validation mis à jour pour \"{{title}}\"",
+      "user_object_retrieved": "L'objet \"{{title}}\" a été récupéré",
+      "user_event_updated": "L'événement \"{{title}}\" a été mis à jour",
+      "pro_material_available": "Nouveau matériau disponible : {{title}}",
+      "pro_object_deposited": "L'objet \"{{title}}\" a été déposé et est prêt",
+      "pro_object_expired": "La réservation pour \"{{title}}\" a expiré",
+      "pro_subscription_end": "L'abonnement se termine bientôt",
+      "emp_event_updated": "L'événement \"{{title}}\" a été mis à jour",
+      "emp_event_assigned": "Assigné à l'événement \"{{title}}\""
+    }
   },
   "free": "Gratuit",
   "not_set": "Non défini",
@@ -70,6 +88,12 @@
     "days_ago_one": "Il y a 1 jour",
     "days_ago_other": "Il y a {{count}} jours"
   },
+  "change_language": "Changer de langue",
+  "languages": "Langues",
+  "navigation": "Navigation",
+  "about_us": "À propos",
+  "pricing": "Tarifs",
+  "contact": "Contact",
   "footer": {
     "description": "Donnez une seconde vie à vos objets. Une solution simple et écologique pour échanger et revaloriser vos ressources.",
     "explore": "Explorer",
@@ -82,5 +106,30 @@
     "terms_conditions": "Conditions Générales d'Utilisation",
     "privacy_policy": "Politique de Confidentialité",
     "rights_reserved": "© {{year}} UpAgain. Tous droits réservés."
+  },
+  "onboarding": {
+    "last": "Terminer",
+    "next": "Suivant",
+    "skip": "Passer",
+    "back": "Retour",
+    "finished_title": "Intégration terminée ! 🎉",
+    "congrats": "Félicitations !",
+    "finished_message": "Vous avez terminé la visite d'intégration. Vous êtes maintenant prêt à explorer et utiliser toutes les fonctionnalités de UpAgain !",
+    "get_started": "C'est parti !",
+    "step_impact": "Voici l'aperçu de votre impact. Vous pouvez voir combien de CO2, d'eau et d'électricité vous avez économisés !",
+    "step_manage": "Gérez facilement vos annonces et vos dépôts à partir de cette section.",
+    "step_quick_nav": "Naviguez rapidement vers les événements et la communauté ici.",
+    "step_market_list": "Dans la boutique, vous pouvez voir les objets mis en ligne par les autres utilisateurs.",
+    "step_market_list_pro": "Bienvenue dans la boutique ! Ici, vous pouvez acheter des matériaux pour vos projets.",
+    "step_market_post": "Prêt à contribuer ? Cliquez ici pour publier votre premier objet !",
+    "step_myitems": "Suivez le statut, les réservations et les achats de toutes vos annonces au même endroit.",
+    "step_myitems_pro": "Gérez vos réservations et vos achats au même endroit dans Mes articles.",
+    "step_posts_list": "Explorez des articles et des projets passionnants rédigés par des professionnels de notre communauté.",
+    "step_posts_list_pro": "Découvrez les publications, les tutoriels, consultez vos favoris sauvegardés et publiez vos propres projets.",
+    "step_posts_saved": "Consultez tous vos articles sauvegardés favoris ici.",
+    "step_events_list": "Participez à nos événements et ateliers passionnants.",
+    "step_events_list_pro": "Explorez et participez aux événements organisés par nos collaborateurs.",
+    "step_events_my": "Gérez vos inscriptions aux événements ici.",
+    "step_events_planning": "Consultez tous les événements auxquels vous êtes inscrit au même endroit."
   }
 }

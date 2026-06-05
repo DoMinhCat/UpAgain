@@ -46,7 +46,18 @@
     "theme": "Chủ đề",
     "language": "Ngôn ngữ",
     "dark_mode": "Chế độ tối",
-    "light_mode": "Chế độ sáng"
+    "light_mode": "Chế độ sáng",
+    "save_alerts": "Lưu các tùy chọn",
+    "modal_title": "Cài Đặt Thông Báo Thông Minh",
+    "modal_subtitle": "Nhận thông báo ngay khi các vật liệu này được đăng trên chợ",
+    "alert_for": "Nhận thông báo khi có {{name}} mới",
+    "configure_alerts": "Cấu Hình Vật Liệu Thông Báo",
+    "configure_alerts_desc": "Chọn loại vật liệu bạn muốn theo dõi trên hệ thống.",
+    "selected_materials": "Vật liệu đang theo dõi",
+    "no_materials_selected": "Chưa chọn vật liệu nào. Bạn sẽ không nhận được thông báo tự động.",
+    "onboarding_tour": "Hướng dẫn sử dụng",
+    "onboarding_tour_desc": "Nếu bạn cần xem lại, bạn có thể chạy lại hướng dẫn chào mừng để tìm hiểu cách điều hướng nền tảng.",
+    "start_tour": "Bắt đầu lại hướng dẫn"
   },
   "notifications": {
     "user_object_status": "Cập nhật trạng thái đối tượng",
@@ -56,6 +67,7 @@
     "user_code_expiring": "Mã sắp hết hạn (24h)",
     "pro_material_available": "Vật liệu mới có sẵn",
     "pro_object_deposited": "Đối tượng đã được gửi",
+    "pro_object_expired": "Đơn đặt trước hết hạn",
     "pro_subscription_end": "Sắp kết thúc gói đăng ký",
     "pro_code_expiring": "Mã lấy đồ sắp hết hạn",
     "emp_event_updated": "Sự kiện được giao đã cập nhật",

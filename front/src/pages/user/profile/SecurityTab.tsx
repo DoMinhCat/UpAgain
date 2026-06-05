@@ -15,7 +15,7 @@ import {
   useUpdatePassword,
 } from "../../../hooks/accountHooks";
 import { useAuth } from "../../../context/AuthContext";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import { IconLock, IconMail, IconShield } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import {
@@ -91,7 +91,7 @@ export default function SecurityTab() {
     );
   };
 
-  if (isLoadingAccountDetails || !accountDetails) return <FullScreenLoader />;
+  if (isLoadingAccountDetails || !accountDetails) return <FullScreenSkeleton />;
 
   return (
     <Stack gap={40}>

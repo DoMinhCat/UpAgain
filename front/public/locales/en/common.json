@@ -44,7 +44,25 @@
   },
   "notifications": {
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "mark_all_read": "Mark all as read",
+    "no_new": "No new notifications",
+    "title": "Notifications",
+    "see_all": "See all",
+    "btn_push_noti": "Enable push notifications on this device",
+    "blocked_desc": "Notifications are blocked by your browser settings. Please enable them in your browser to receive updates.",
+    "types": {
+      "user_object_status": "Object \"{{title}}\" status updated",
+      "user_validation_status": "Validation status updated for \"{{title}}\"",
+      "user_object_retrieved": "Object \"{{title}}\" retrieved",
+      "user_event_updated": "Event \"{{title}}\" updated",
+      "pro_material_available": "New material available: {{title}}",
+      "pro_object_deposited": "Object \"{{title}}\" is deposited and ready",
+      "pro_object_expired": "Reservation for \"{{title}}\" has expired",
+      "pro_subscription_end": "Subscription ending soon",
+      "emp_event_updated": "Event \"{{title}}\" updated",
+      "emp_event_assigned": "Assigned to event \"{{title}}\""
+    }
   },
   "free": "Free",
   "not_set": "Not set",
@@ -70,6 +88,12 @@
     "days_ago_one": "1 day ago",
     "days_ago_other": "{{count}} days ago"
   },
+  "change_language": "Change language",
+  "languages": "Languages",
+  "navigation": "Navigation",
+  "about_us": "About us",
+  "pricing": "Pricing",
+  "contact": "Contact",
   "footer": {
     "description": "Give your objects a second life. A simple and eco-friendly way to trade and upcycle resources.",
     "explore": "Explore",
@@ -82,5 +106,30 @@
     "terms_conditions": "Terms & Conditions",
     "privacy_policy": "Privacy Policy",
     "rights_reserved": "© {{year}} UpAgain. All rights reserved."
+  },
+  "onboarding": {
+    "last": "Finish",
+    "next": "Next",
+    "skip": "Skip",
+    "back": "Back",
+    "finished_title": "Onboarding Completed! 🎉",
+    "congrats": "Congratulations!",
+    "finished_message": "You have completed the onboarding tour. You are now ready to explore and use all the features of UpAgain!",
+    "get_started": "Let's Go!",
+    "step_impact": "Here is your impact overview. You can see how much CO2, water, and electricity you have saved!",
+    "step_manage": "Manage your listings and deposits easily from this section.",
+    "step_quick_nav": "Quickly navigate to events and the community here.",
+    "step_market_list": "In the marketplace, you can see objects listed by other users.",
+    "step_market_list_pro": "Welcome to the marketplace! Here, you can buy materials for your projects.",
+    "step_market_post": "Ready to contribute? Click here to post your first object!",
+    "step_myitems": "Track the status, reservations, and purchases of all your listings in one place.",
+    "step_myitems_pro": "Manage your reservations and purchases in one place under My Items.",
+    "step_posts_list": "Explore exciting articles and projects from professionals in our community.",
+    "step_posts_list_pro": "Explore the posts and tutorials, view your saved posts, and post your own projects here.",
+    "step_posts_saved": "See all your favorite saved posts here.",
+    "step_events_list": "Participate in our engaging events and workshops.",
+    "step_events_list_pro": "Explore and participate in events organized by our employees.",
+    "step_events_my": "Manage your event registrations here.",
+    "step_events_planning": "See all the events you are registered for in one place."
   }
 }

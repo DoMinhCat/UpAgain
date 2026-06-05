@@ -84,7 +84,6 @@ func GetDepositDetailsById(w http.ResponseWriter, r *http.Request) {
 // @Failure      500              {object}  nil     "Internal server error"
 // @Router       /deposits/{deposit_id}/ [put]
 func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
-	slog.Debug("UpdateDepositByDepositId() called", "controller", "UpdateDepositByDepositId")
 	role := r.Context().Value("user").(models.AuthClaims).Role
 	if role == "employee" || role == "pro" {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action.")
@@ -270,7 +269,6 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 
 	// if is user then require validation from admin again and invalidate barcode
 	if role == "user" {
-		slog.Debug("need validation again")
 		err = db.UpdateItemStatusById(id, "pending", "")
 		if err != nil {
 			slog.Error("db.UpdateItemStatusById() failed", "controller", "UpdateDepositByDepositId", "error", err)
@@ -280,7 +278,6 @@ func UpdateDepositByDepositId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// update
-	slog.Debug("updating")
 	err = db.UpdateDepositById(id, payload)
 	if err != nil {
 		slog.Error("db.UpdateDepositById() failed", "controller", "UpdateDepositByDepositId", "error", err)
@@ -432,8 +429,5 @@ func TransferContainerByDepositId(w http.ResponseWriter, r *http.Request) {
 			slog.Error("db.InsertHistory() failed", "controller", "TransferContainerByDepositId", "error", err)
 		}
 	}
-
-	// TODO: notification to user and pro (if pro reserved, since if purchased code will be generated therefore cant trasnfer container) that container is changed
-
 	utils.RespondWithJSON(w, http.StatusOK, "Transfer succeeded.")
 }

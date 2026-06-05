@@ -26,9 +26,9 @@ import MyBreadcrumbs from "../../../components/nav/MyBreadcrumbs";
 import { PATHS } from "../../../routes/paths";
 import { useAuth } from "../../../context/AuthContext";
 import { useGetAllEvents } from "../../../hooks/eventHooks";
-import FullScreenLoader from "../../../components/common/FullScreenLoader";
+import FullScreenSkeleton from "../../../components/common/FullScreenSkeleton";
 import type { AppEvent } from "../../../api/interfaces/event";
-import { useHandleStripeEventRegistration } from "../../../hooks/stripeHooks";
+import { useHandleVerifyStripeEventRegistration } from "../../../hooks/stripeHooks";
 
 export default function EventPage() {
   const { user } = useAuth();
@@ -37,7 +37,7 @@ export default function EventPage() {
   const navigate = useNavigate();
 
   // Stripe redirect handler
-  useHandleStripeEventRegistration();
+  useHandleVerifyStripeEventRegistration();
 
   // GET EVENTS BY CATE
   const LIMIT = 4;
@@ -117,7 +117,7 @@ export default function EventPage() {
     isLoadingExposition ||
     isLoadingOther
   ) {
-    return <FullScreenLoader />;
+    return <FullScreenSkeleton />;
   }
 
   return (
@@ -152,6 +152,7 @@ export default function EventPage() {
           />
           {user?.role !== "admin" && (
             <Button
+              id="onboard-events-my"
               className="button"
               data-variant="primary"
               onClick={() =>
@@ -166,7 +167,7 @@ export default function EventPage() {
           )}
         </Group>
 
-        <Stack gap={60}>
+        <Stack id="onboard-events-list" gap={60}>
           {/* 2. CATEGORY SECTIONS */}
           {eventsByCategory.map(({ name, items }) => (
             <Stack key={name} gap="xl">

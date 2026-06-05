@@ -12,6 +12,7 @@ import {
   Divider,
   Group,
   Modal,
+  Stack,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconLock } from "@tabler/icons-react";
@@ -32,17 +33,57 @@ export default function RegisterFormPro() {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();
 
+  const getPendingField = (key: string) => {
+    try {
+      const pending = sessionStorage.getItem("pending_register_payload");
+      if (pending) {
+        const parsed = JSON.parse(pending);
+        return parsed[key] || "";
+      }
+    } catch (e) {
+      // ignore
+    }
+    return "";
+  };
+
+  const getPendingPlan = (): "freemium" | "premium" | "trial" | null => {
+    try {
+      const pending = sessionStorage.getItem("pending_register_payload");
+      if (pending) {
+        const parsed = JSON.parse(pending);
+        if (parsed.is_trial) return "trial";
+        if (parsed.is_premium) return "premium";
+        return "freemium";
+      }
+    } catch (e) {
+      // ignore
+    }
+    return null;
+  };
+
   // SUB MODAL
   const [openedPremium, { open: openPremium, close: closePremium }] =
     useDisclosure(false);
   const [selectedPlan, setSelectedPlan] = useState<
     "freemium" | "premium" | "trial" | null
-  >(null);
+  >(() => getPendingPlan());
 
   const { data: trialDays } = useGetFinanceSettingByKey("trial_days");
+  const { data: subscriptionPrice } = useGetFinanceSettingByKey("subscription_price");
+
+  const priceVal = subscriptionPrice || 0;
+  const currentPriceInCents = Math.round(priceVal * 100);
+  const vatInCents = Math.floor(currentPriceInCents * 0.20);
+  const stripeCommInCents = Math.floor(currentPriceInCents * 0.015) + 25;
+  const totalInCents = currentPriceInCents + vatInCents + stripeCommInCents;
+
+  const basePriceStr = (currentPriceInCents / 100).toFixed(2);
+  const vatStr = (vatInCents / 100).toFixed(2);
+  const stripeFeeStr = (stripeCommInCents / 100).toFixed(2);
+  const totalStr = (totalInCents / 100).toFixed(2);
 
   // password
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(() => getPendingField("password"));
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const validatePassword = (val: string) => {
     if (!val) {
@@ -66,7 +107,9 @@ export default function RegisterFormPro() {
   };
 
   // confirm password
-  const [ConfirmPassword, setConfirmPassword] = useState("");
+  const [ConfirmPassword, setConfirmPassword] = useState(() =>
+    getPendingField("password"),
+  );
   const [ConfirmPasswordError, setConfirmPasswordError] = useState<
     string | null
   >(null);
@@ -83,7 +126,7 @@ export default function RegisterFormPro() {
   };
 
   // email
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => getPendingField("email"));
   const [emailError, setEmailError] = useState<string | null>(null);
 
   const registerMutation = useRegister();
@@ -102,7 +145,7 @@ export default function RegisterFormPro() {
   };
 
   // username
-  const [Username, setUsername] = useState("");
+  const [Username, setUsername] = useState(() => getPendingField("username"));
   const [UsernameError, setUsernameError] = useState<string | null>(null);
   const validateUsername = (val: string) => {
     if (!val) {
@@ -122,7 +165,7 @@ export default function RegisterFormPro() {
   };
 
   // phone
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(() => getPendingField("phone"));
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const validatePhone = (val: string) => {
     if (!val) {
@@ -145,7 +188,7 @@ export default function RegisterFormPro() {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault(); // Prevents page reload
 
     if (
@@ -157,7 +200,10 @@ export default function RegisterFormPro() {
     )
       return;
     if (selectedPlan == null) {
-      showErrorNotification(t("register.errors.failed"), t("register.errors.plan_required"));
+      showErrorNotification(
+        t("register.errors.failed"),
+        t("register.errors.plan_required"),
+      );
       return;
     }
 
@@ -169,6 +215,7 @@ export default function RegisterFormPro() {
       role: "pro",
       is_trial: selectedPlan === "trial",
       is_premium: selectedPlan === "premium" || selectedPlan === "trial",
+      origin_url: window.location.origin + PATHS.GUEST.REGISTER,
     });
   };
 
@@ -190,7 +237,10 @@ export default function RegisterFormPro() {
         variant="primary"
       >
         <form onSubmit={handleSubmit}>
-          <Fieldset legend={t("register.credentials_legend")} variant="unstyled">
+          <Fieldset
+            legend={t("register.credentials_legend")}
+            variant="unstyled"
+          >
             <TextInput
               variant="body-color"
               label={t("login.email_label")}
@@ -279,7 +329,10 @@ export default function RegisterFormPro() {
           </Fieldset>
           <Divider my="xl" color="var(--border-color)" />
 
-          <Fieldset legend={t("register.subscription_legend")} variant="unstyled">
+          <Fieldset
+            legend={t("register.subscription_legend")}
+            variant="unstyled"
+          >
             <Group justify="center">
               <Button
                 variant={
@@ -302,6 +355,28 @@ export default function RegisterFormPro() {
                       : t("register.pro.see_subscriptions")}
               </Button>
             </Group>
+
+            {selectedPlan === "premium" && subscriptionPrice && (
+              <Stack gap={4} mt="md" style={{ border: "1px solid var(--border-color)", borderRadius: 8, padding: 12 }}>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">{t("plans.premium.breakdown.base")}</Text>
+                  <Text size="xs" fw={500}>{basePriceStr}€</Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">{t("plans.premium.breakdown.vat")}</Text>
+                  <Text size="xs" fw={500}>{vatStr}€</Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="xs" c="dimmed">{t("plans.premium.breakdown.stripe")}</Text>
+                  <Text size="xs" fw={500}>{stripeFeeStr}€</Text>
+                </Group>
+                <Divider my={2} color="var(--border-color)" />
+                <Group justify="space-between">
+                  <Text size="sm" fw={700}>{t("plans.premium.breakdown.total")}</Text>
+                  <Text size="sm" fw={700} c="var(--upagain-primary)">{totalStr}€</Text>
+                </Group>
+              </Stack>
+            )}
           </Fieldset>
           <Checkbox
             mt="lg"

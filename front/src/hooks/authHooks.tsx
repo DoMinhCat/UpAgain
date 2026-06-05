@@ -39,13 +39,19 @@ export const useRegister = () => {
       errorTitle: "auth:notifications.register_failed_title",
       errorMessage: "auth:notifications.register_failed_message",
     },
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       if (response?.status === 201) {
         navigate(PATHS.GUEST.LOGIN);
         showSuccessNotification(
           "auth:notifications.register_success_title",
           "auth:notifications.register_success_message",
         );
+      } else if (response?.status === 200 && response.data?.checkout_url) {
+        sessionStorage.setItem(
+          "pending_register_payload",
+          JSON.stringify(variables),
+        );
+        window.location.href = response.data.checkout_url;
       }
     },
   });
