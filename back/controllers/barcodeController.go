@@ -48,8 +48,8 @@ func GetDepositCodesOfLatestTransactionByDepositId(w http.ResponseWriter, r *htt
 				return
 			}
 			if base64Code == "" {
-				utils.RespondWithError(w, http.StatusInternalServerError, "Bar code not found")
-				return
+				slog.Warn("base64Code is empty", "controller", "GetDepositCodesOfLatestTransactionByDepositId", "depositId", depositId)
+				continue
 			}
 			codes[i].BarcodeBase64 = "data:image/png;base64," + base64Code
 		}

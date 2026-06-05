@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"backend/cron"
 	"backend/db"
 	"backend/models"
 	"backend/utils"
@@ -1144,16 +1145,10 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 			slog.Error("InsertBarcode() failed", "controller", "PurchaseItem", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 			return
-
-			// TODO: cron job will update container status to 'waiting' once the user's code enter the valid date
-			// TODO: trigger cron job right now to update container status in case available date for container is now
-			// err = db.UpdateStatusContainer(depositDetails.ContainerId, "waiting")
-			// if err != nil {
-			// 	slog.Error("UpdateStatusContainer() failed", "controller", "PurchaseItem", "error", err)
-			// 	utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
-			// 	return
-			// }
 		}
+
+		// trigger cron job right now to update container status in case available date for container is now
+		go cron.UpdateActiveCode()
 	}
 	// onesignal to user about item purchase
 	notiPayload := onesignal.HandleItemNotiPayload{
