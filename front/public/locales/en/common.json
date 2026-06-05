@@ -56,6 +56,7 @@
       "user_event_updated": "Event \"{{title}}\" updated",
       "pro_material_available": "New material available: {{title}}",
       "pro_object_deposited": "Object \"{{title}}\" is deposited and ready",
+      "pro_object_expired": "Reservation for \"{{title}}\" has expired",
       "pro_subscription_end": "Subscription ending soon",
       "emp_event_updated": "Event \"{{title}}\" updated",
       "emp_event_assigned": "Assigned to event \"{{title}}\""

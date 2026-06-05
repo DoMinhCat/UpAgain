@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/config"
+	"backend/cron"
 	"backend/middleware"
 	"backend/routes"
 	"backend/utils"
@@ -48,6 +49,9 @@ func main() {
 		slog.Info("connected to database successfully")
 		defer utils.Conn.Close()
 	}
+
+	// Start cron jobs
+	cron.StartCronJobs()
 
 	mux := routes.GetAllRoutes()
 	// CORS configuration

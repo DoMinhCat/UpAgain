@@ -270,7 +270,8 @@
         "unban_text": "Êtes-vous sûr de vouloir débannir ce compte ? L'utilisateur retrouvera ses accès.",
         "password_title": "Changer le mot de passe",
         "password_placeholder": "Nouveau mot de passe",
-        "password_confirm_placeholder": "Confirmer le nouveau mot de passe"
+        "password_confirm_placeholder": "Confirmer le nouveau mot de passe",
+        "password_text": "Êtes-vous sûr de vouloir changer le mot de passe de ce compte ? L'ancien mot de passe sera remplacé par le nouveau."
       }
     },
     "deleted": {
