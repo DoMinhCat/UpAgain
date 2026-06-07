@@ -15,7 +15,7 @@ func UpdateExpiredAds() {
     FROM posts p
     WHERE a.id_post = p.id
         AND a.status = 'active'
-        AND p.end_date < NOW();
+        AND a.end_date < NOW();
     `
     _, err := utils.Conn.Exec(query)
     if err != nil {
