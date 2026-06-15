@@ -9,6 +9,21 @@ import (
 	"strings"
 )
 
+// ServeImageHandler godoc
+// @Summary      Serve upload image
+// @Description  Serve an uploaded image by its relative path. Requires 'pro' user privileges.
+// @Tags         images
+// @Security     ApiKeyAuth
+// @Produce      png
+// @Produce      jpeg
+// @Produce      gif
+// @Param        path  query     string  true  "Relative path to the image, e.g. images/accounts/avatar.png"
+// @Success      200   {file}    binary  "The image file"
+// @Failure      400   {object}  nil     "Invalid query parameter or path directory traversal attempt"
+// @Failure      401   {object}  nil     "Unauthorized - login required"
+// @Failure      403   {object}  nil     "Forbidden - requires 'pro' role"
+// @Failure      404   {object}  nil     "Image not found"
+// @Router       /images [get]
 func ServeImageHandler(w http.ResponseWriter, r *http.Request) {
 	imagePath := r.URL.Query().Get("path")
 	slog.Debug("Debug Image", "imagePath", imagePath)

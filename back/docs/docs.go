@@ -1406,6 +1406,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/chatbot": {
+            "post": {
+                "description": "Send a prompt/message to the Gemini AI API and get the response text.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ai"
+                ],
+                "summary": "Chat with Gemini AI",
+                "parameters": [
+                    {
+                        "description": "Chatbot prompt message",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ChatbotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ChatbotResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/comments/{id_comment}/": {
             "delete": {
                 "security": [
@@ -3586,6 +3626,54 @@ const docTemplate = `{
                                 "type": "string"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/images": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Serve an uploaded image by its relative path. Requires 'pro' user privileges.",
+                "produces": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/gif"
+                ],
+                "tags": [
+                    "images"
+                ],
+                "summary": "Serve upload image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Relative path to the image, e.g. images/accounts/avatar.png",
+                        "name": "path",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The image file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameter or path directory traversal attempt"
+                    },
+                    "401": {
+                        "description": "Unauthorized - login required"
+                    },
+                    "403": {
+                        "description": "Forbidden - requires 'pro' role"
+                    },
+                    "404": {
+                        "description": "Image not found"
                     }
                 }
             }
@@ -6485,6 +6573,22 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.ChatbotRequest": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ChatbotResponse": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Account": {
             "type": "object",
             "properties": {
