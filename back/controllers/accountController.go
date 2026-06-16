@@ -771,6 +771,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	if payload.Username == "" {
 		payload.Username = accountDetails.Username
 	}
+	payload.Id = id_account
 
 	validationResult := validations.ValidateAccountUpdate(payload)
 	if !validationResult.Success {
@@ -788,7 +789,6 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	payload.Id = id_account
 	err = db.UpdateAccount(payload, accountDetails.Role)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
