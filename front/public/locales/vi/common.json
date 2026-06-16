@@ -72,7 +72,9 @@
       "pro_object_expired": "Đơn đặt trước cho \"{{title}}\" đã hết hạn",
       "pro_subscription_end": "Gói đăng ký sắp kết thúc",
       "emp_event_updated": "Sự kiện phân công \"{{title}}\" đã cập nhật",
-      "emp_event_assigned": "Được phân công vào sự kiện \"{{title}}\""
+      "emp_event_assigned": "Được phân công vào sự kiện \"{{title}}\"",
+      "user_code_expiring": "Mã gửi hàng cho \"{{title}}\" sắp hết hạn",
+      "pro_code_expiring": "Mã nhận hàng cho \"{{title}}\" sắp hết hạn"
     },
     "loading": "Đang tải...",
     "not_found": "Không tìm thấy"
