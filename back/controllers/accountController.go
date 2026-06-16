@@ -765,11 +765,23 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	payload.Username = strings.TrimSpace(payload.Username)
 	payload.Phone = strings.TrimSpace(payload.Phone)
 
-	if payload.Email == "" {
+	if payload.Email == "" || len(payload.Email) == 0 {
 		payload.Email = accountDetails.Email
 	}
-	if payload.Username == "" {
+	if payload.Username == "" || len(payload.Username) == 0 {
+		slog.Debug("username filled")
 		payload.Username = accountDetails.Username
+	}
+	if payload.Phone == "" || len(payload.Phone) == 0 {
+		if accountDetails.Role == "pro" {
+			proDetails, err := db.GetProDetailsById(id_account)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+				slog.Error("GetProDetailsById() failed", "controller", "UpdateAccount", "error", err)
+				return
+			}
+			payload.Phone = proDetails.Phone.String
+		}
 	}
 	payload.Id = id_account
 
