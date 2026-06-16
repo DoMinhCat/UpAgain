@@ -97,7 +97,7 @@ export default function GeminiChatbot() {
   return (
     <>
       {!opened && (
-        <Affix position={{ bottom: 20, right: 20 }} zIndex={9999}>
+        <Affix position={{ bottom: 20, right: 20 }} zIndex={10}>
           <Button
             onClick={() => setOpened(true)}
             leftSection={<IconSparkles size={20} />}
