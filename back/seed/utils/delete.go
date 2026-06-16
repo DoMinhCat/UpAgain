@@ -5,14 +5,8 @@ import (
 	"fmt"
 )
 
-func CleanSeedDb(conn *sql.DB) {
+func CleanSeedDb(tx *sql.Tx) error {
 	fmt.Println("Cleaning Seed DB for fresh seeding...")
-
-	tx, err := conn.Begin()
-	if err != nil {
-		panic(fmt.Sprintf("failed to start transaction: %v", err))
-	}
-	defer tx.Rollback()
 
 	query := `
 		TRUNCATE TABLE 
@@ -48,15 +42,11 @@ func CleanSeedDb(conn *sql.DB) {
 		RESTART IDENTITY CASCADE;
 	`
 
-	_, err = tx.Exec(query)
+	_, err := tx.Exec(query)
 	if err != nil {
-		panic(fmt.Sprintf("failed to clean database: %v", err))
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		panic(fmt.Sprintf("failed to commit transaction: %v", err))
+		return fmt.Errorf("failed to clean database: %v", err)
 	}
 
 	fmt.Println("Database cleaned successfully.")
+	return nil
 }
