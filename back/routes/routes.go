@@ -30,6 +30,7 @@ func GetAllRoutes() *http.ServeMux {
 	GetFinanceRoutes(mux)
 	GetAdsRoutes(mux)
 	GetNotificationRoutes(mux)
+	GetImageRoutes(mux)
 
 	// other routes to external services (stripe, google map api, ...)
 	GetStripeRoutes(mux)
@@ -37,9 +38,5 @@ func GetAllRoutes() *http.ServeMux {
 
 	// swagger API documentation
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
-
-	// serve uploaded files
-	mux.Handle("GET /images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
-
 	return mux
 }
