@@ -195,7 +195,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	utils.RespondWithJSON(w, http.StatusCreated, "Post created successfully")
+	utils.RespondWithJSON(w, http.StatusCreated, nil)
 }
 
 // GetAllPosts godoc
