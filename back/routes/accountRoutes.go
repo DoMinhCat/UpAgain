@@ -22,7 +22,7 @@ func GetAccountRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /accounts/{id_account}/pro-analytics/alerts", middleware.AuthMiddleware([]string{"pro", "admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetProAlertMaterials))))
 	mux.Handle("PUT /accounts/{id_account}/pro-analytics/alerts", middleware.AuthMiddleware([]string{"pro", "admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateProAlertMaterials))))
 
-	mux.Handle("PATCH /accounts/{id_account}/password", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdatePassword))))
+	mux.Handle("PATCH /accounts/{id_account}/password", middleware.AuthMiddleware([]string{"admin", "user", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdatePassword))))
 	mux.Handle("PATCH /accounts/{id_account}/ban", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.ToggleBanAccount))))
 	mux.Handle("PATCH /accounts/{id_account}/recover", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.RecoverAccount))))
 	mux.Handle("PATCH /accounts/{id_account}/update", middleware.AuthMiddleware([]string{"admin", "user", "pro", "employee"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.UpdateAccount))))
