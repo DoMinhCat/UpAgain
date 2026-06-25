@@ -12,7 +12,7 @@ func GetContainerRoutes(mux *http.ServeMux) {
 
 	mux.Handle("GET /containers", middleware.AuthMiddleware([]string{"admin", "employee", "user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAllContainersHandler))))
 	mux.Handle("GET /containers/count", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetContainerCountStats))))
-	mux.Handle("GET /containers/nearest", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetNearestAvailableContainer))))
+	mux.Handle("GET /containers/nearest", middleware.AuthMiddleware([]string{"admin", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetNearestAvailableContainer))))
 	mux.Handle("GET /containers/available", middleware.AuthMiddleware([]string{"admin", "user"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetAvailableContainers))))
 	mux.Handle("GET /containers/{id}", middleware.AuthMiddleware([]string{"admin", "employee", "user", "pro"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetContainerByID))))
 	mux.Handle("GET /containers/{id}/schedule", middleware.AuthMiddleware([]string{"admin"}, middleware.UpdateLastActive(http.HandlerFunc(controllers.GetContainerSchedule))))
