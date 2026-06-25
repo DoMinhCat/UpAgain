@@ -22,7 +22,6 @@ jobs:
       - name: Build Frontend on Host
         run: |
           cd /app/UpAgain/front
-          echo "VITE_API_BASE_URL=/api" > .env.production
           npm install
           npm run build
 
