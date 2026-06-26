@@ -23,8 +23,6 @@ func main() {
 	utils.InitLogger()
 	slog.Info("backend process starting...")
 
-	// TODO: needs Arnaud to check with server config. Is it ok to load ".env" first here to get APP_ENV?
-	// Which file do we get from, .env? Do we already have one on the server?
 	err := godotenv.Load()
 	if err != nil {
 		slog.Error("Error loading '.env' file", "error", err)
@@ -76,3 +74,4 @@ func main() {
 		slog.Error("server failed to start", "error", err)
 	}
 }
+// Dummy comment

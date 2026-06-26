@@ -66,7 +66,6 @@ create table users
     phone             varchar(20),
     up_score          numeric(2) not null default 0,
     completed_onboard boolean   not null default false
-    -- TODO: add bank info for payment purposes
 );
 
 create table employees
