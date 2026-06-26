@@ -141,14 +141,7 @@ export default function EventCategoryPage() {
                 searchable
                 clearable
                 leftSection={<IconFilter size={16} />}
-                data={[
-                  "Paris",
-                  "Lyon",
-                  "Marseille",
-                  "Bordeaux",
-                  "Toulouse",
-                  "FAKE",
-                ]}
+                data={["Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse"]}
                 value={filters.city}
                 onChange={(value) => handleFilterChange("city", value)}
                 style={{ width: 140 }}

@@ -1056,7 +1056,6 @@ func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", idRequestor))
 		return
 	}
-	// TODO: update onboard in db to true
 	err = db.UpdateOnboardByIdAccount(idRequestor, role)
 	if err != nil {
 		slog.Error("UpdateOnboardByIdAccount() failed", "controller", "UpdateOnboarding", "error", err)

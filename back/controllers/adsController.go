@@ -15,7 +15,7 @@ import (
 
 // CreateAdsForProject godoc
 // @Summary      Create an ad for a project
-// @Description  Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay (TODO).
+// @Description  Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay
 // @Tags         ads
 // @Security     ApiKeyAuth
 // @Accept       json

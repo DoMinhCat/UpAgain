@@ -648,7 +648,6 @@ export default function ItemDetailPage() {
                             color="var(--upagain-neutral-green)"
                             rightSection={<IconChevronRight size={18} />}
                             onClick={openPurchase}
-                            // TODO: show hint Stripe's commission and VAT not included yet
                           >
                             {t("marketplace:detail.buy")}
                           </Button>

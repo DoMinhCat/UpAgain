@@ -1269,7 +1269,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay (TODO).",
+                "description": "Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay",
                 "consumes": [
                     "application/json"
                 ],

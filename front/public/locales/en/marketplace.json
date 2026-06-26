@@ -104,7 +104,6 @@
     "pro_give_code_reminder": "Ask the seller for their 6-digit confirmation code once you have collected the item.",
     "pro_confirm_instructions": "Give the 6-digit code shown below to the seller to confirm successful retrieval.",
     "confirmation_code_title": "Confirmation Code",
-    "code_todo": "TODO: Confirmation code will be fetched from the backend once implemented.",
     "confirm_retrieval": "Confirm Retrieval",
     "enter_code_instruction": "Enter the 6-digit code given to you by the buyer to confirm they have received the item.",
     "confirm_button": "Confirm Retrieval",

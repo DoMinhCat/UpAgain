@@ -99,7 +99,6 @@
     "pro_give_code_reminder": "Demandez au vendeur son code de confirmation à 6 chiffres une fois l'objet récupéré.",
     "pro_confirm_instructions": "Donnez le code à 6 chiffres ci-dessous au vendeur pour confirmer la récupération.",
     "confirmation_code_title": "Code de confirmation",
-    "code_todo": "TODO : Le code de confirmation sera fourni par le backend une fois implémenté.",
     "confirm_retrieval": "Confirmer la récupération",
     "enter_code_instruction": "Saisissez le code à 6 chiffres donné par l'acheteur pour confirmer qu'il a bien reçu l'objet.",
     "confirm_button": "Confirmer la récupération",
