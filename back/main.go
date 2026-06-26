@@ -63,7 +63,7 @@ func main() {
 		AllowedHeaders:   []string{"Content-Type", "Authorization", "Accept-Encoding"},
 		ExposedHeaders:   []string{"Content-Type", "Authorization", "Accept-Encoding"},
 		AllowCredentials: true,
-		Debug:            true,
+		Debug:            false,
 	})
 
 	handler := corsHandler.Handler(middleware.CleanPathMiddleware(mux))
