@@ -65,6 +65,8 @@
     "delete_error": "Lỗi khi xóa món đồ",
     "delete_success_title": "Đã xóa món đồ",
     "delete_success_message": "Món đồ đã được gỡ bỏ thành công.",
+    "update_success_title": "Đã cập nhật món đồ",
+    "update_success_message": "Món đồ đã được cập nhật thành công.",
     "update_status_error": "Lỗi khi cập nhật trạng thái",
     "post_error": "Lỗi khi đăng món đồ",
     "post_success_title": "Đã đăng món đồ",

@@ -71,6 +71,8 @@
     "delete_error": "Error deleting item",
     "delete_success_title": "Item Deleted",
     "delete_success_message": "The item has been successfully removed.",
+    "update_success_title": "Item Updated",
+    "update_success_message": "The item has been updated successfully.",
     "update_status_error": "Error updating status",
     "post_error": "Error posting item",
     "post_success_title": "Item Posted",
