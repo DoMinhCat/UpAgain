@@ -31,6 +31,7 @@ export const useUpdateDeposit = (id: number) => {
       errorMessage: "marketplace:notifications.update_error",
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
       queryClient.invalidateQueries({ queryKey: ["item-details", id] });
       queryClient.invalidateQueries({ queryKey: ["depositDetails", id] });
       showSuccessNotification(
