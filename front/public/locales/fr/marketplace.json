@@ -66,6 +66,8 @@
     "delete_error": "Erreur lors de la suppression de l'objet",
     "delete_success_title": "Objet Supprimé",
     "delete_success_message": "L'objet a été supprimé avec succès.",
+    "update_success_title": "Objet mis à jour",
+    "update_success_message": "L'objet a été mis à jour avec succès.",
     "update_status_error": "Erreur lors de la mise à jour du statut",
     "post_error": "Erreur lors de la publication de l'objet",
     "post_success_title": "Objet Publié",
