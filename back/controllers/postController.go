@@ -239,6 +239,7 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	slog.Debug("debug get all posts", "limit", limit)
 
 	filters := models.PostFilters{
 		Search:   query.Get("search"),
