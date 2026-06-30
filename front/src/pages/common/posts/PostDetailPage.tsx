@@ -334,7 +334,7 @@ export default function PostDetailPage() {
                   <Box
                     h="100%"
                     style={{
-                      backgroundImage: `url("${resolveUrl(url)}")`,
+                      backgroundImage: `url("${resolveUrl(url)}"), url("/banners/event-banner1-${theme}.png")`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       cursor: "zoom-in",
