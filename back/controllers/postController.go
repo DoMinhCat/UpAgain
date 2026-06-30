@@ -239,7 +239,6 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	slog.Debug("debug get all posts", "limit", limit)
 
 	filters := models.PostFilters{
 		Search:   query.Get("search"),
@@ -804,7 +803,7 @@ func GetPostCommentsByPostId(w http.ResponseWriter, r *http.Request) {
 // @Success      200      {object}  []models.ProjectStep
 // @Failure      400      {string}  string  "Invalid or missing post ID"
 // @Failure      500      {string}  string  "Internal Server Error"
-// @Router       /posts/{id_post}/steps/ [get]
+// @Router       /posts/{id_post}/steps [get]
 func GetProjectStepsByPostId(w http.ResponseWriter, r *http.Request) {
 	idPost, err := strconv.Atoi(r.PathValue("id_post"))
 	if err != nil {
