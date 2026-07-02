@@ -2152,13 +2152,9 @@ paths:
         name: id_comment
         required: true
         type: integer
-      produces:
-      - application/json
       responses:
-        "200":
+        "204":
           description: Comment deleted successfully
-          schema:
-            type: string
         "400":
           description: Invalid ID
         "401":
@@ -4317,6 +4313,23 @@ paths:
       summary: Login
       tags:
       - auth
+  /logs/:
+    get:
+      description: Serve the backend log file.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "500":
+          description: Unable to create log file
+      security:
+      - ApiKeyAuth: []
+      summary: Serve logs
+      tags:
+      - log
   /notifications:
     get:
       description: Get all active notifications associated with the logged-in account
@@ -4771,6 +4784,36 @@ paths:
       tags:
       - Posts
   /posts/{id_post}/steps:
+    get:
+      description: Returns all project steps associated with a specific post.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ProjectStep'
+            type: array
+        "400":
+          description: Invalid or missing post ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get project steps
+      tags:
+      - Posts
     post:
       consumes:
       - multipart/form-data
@@ -4831,37 +4874,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Create a new step for a post
-      tags:
-      - Posts
-  /posts/{id_post}/steps/:
-    get:
-      description: Returns all project steps associated with a specific post.
-      parameters:
-      - description: Post ID
-        in: path
-        name: id_post
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.ProjectStep'
-            type: array
-        "400":
-          description: Invalid or missing post ID
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: Get project steps
       tags:
       - Posts
   /posts/{id_post}/view/:

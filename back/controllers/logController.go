@@ -1,11 +1,22 @@
 package controllers
 
 import (
+	"log/slog"
 	"net/http"
 	"os"
 )
 
+// ServeLogs godoc
+// @Summary      Serve logs
+// @Description  Serve the backend log file.
+// @Tags         log
+// @Security     ApiKeyAuth
+// @Produce      text/plain
+// @Success      200      {file}  text/plain  "Log file"  "Successfully retrieved logs"
+// @Failure      500      {object}  nil  "Unable to create log file"
+// @Router       /logs/ [get]
 func ServeLogs(w http.ResponseWriter, r *http.Request) {
+	slog.Info("ServeLogs called", "controller", "ServeLogs")
 	logPath := "backend.log"
 
 	// Check if the file exists yet, create it if not
