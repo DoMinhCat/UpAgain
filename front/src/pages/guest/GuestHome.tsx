@@ -524,7 +524,7 @@ export default function GuestHome() {
                       </List>
                     </Stack>
                     <Image
-                      src="https://placehold.co/600x350?text=Dashboard+Preview"
+                      src="/banners/premium-dashboard-preview.png"
                       radius="md"
                       alt="Dashboard"
                     />
@@ -568,7 +568,7 @@ export default function GuestHome() {
                       </List>
                     </Stack>
                     <Image
-                      src="https://placehold.co/600x350?text=Promoted+Projects+Preview"
+                      src="/banners/sponsored-project-preview.png"
                       radius="md"
                       alt="Projects"
                     />
