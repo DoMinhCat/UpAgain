@@ -166,7 +166,8 @@ create table posts
     view_count integer       not null default 0,
     like_count integer       not null default 0,
     is_deleted boolean       not null default false,
-    id_account integer       not null references account (id) on delete restrict -- this account's role must be pro or employee
+    id_account integer       not null references account (id) on delete restrict, -- this account's role must be pro or employee
+    end_date   timestamptz
 );
 CREATE INDEX idx_posts_category ON posts (category);
 CREATE INDEX idx_posts_created_at ON posts (created_at);

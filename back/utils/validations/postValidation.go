@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func ValidatePostCreationOrUpdate(newPost models.CreatePostRequest) models.ValidationResponse {
@@ -44,6 +45,25 @@ func ValidatePostCreationOrUpdate(newPost models.CreatePostRequest) models.Valid
 			Error:   http.StatusBadRequest,
 		}
 		return response
+	}
+
+	if newPost.Category == "tips" {
+		if !newPost.EndDate.Valid {
+			response = models.ValidationResponse{
+				Success: false,
+				Message: fmt.Errorf("End date is required for tips."),
+				Error:   http.StatusBadRequest,
+			}
+			return response
+		}
+		if newPost.EndDate.Time.Before(time.Now()) {
+			response = models.ValidationResponse{
+				Success: false,
+				Message: fmt.Errorf("End date must be in the future."),
+				Error:   http.StatusBadRequest,
+			}
+			return response
+		}
 	}
 
 	return models.ValidationResponse{
