@@ -189,11 +189,14 @@ func TotalSavesByPostId(id *int) (int, error) {
 
 // Posts don't require validation, therefore has no field 'status' in database
 func CreatePost(payload models.CreatePostRequest) (int, error) {
+	if payload.Category != "tips" {
+		payload.EndDate.Valid = false
+	}
 	query := `
-		insert into posts (title, content, category, id_account) values ($1, $2, $3, $4) returning id;
+		insert into posts (title, content, category, id_account, end_date) values ($1, $2, $3, $4, $5) returning id;
 	`
 	var idPost int
-	err := utils.Conn.QueryRow(query, payload.Title, payload.Content, payload.Category, payload.CreatorId).Scan(&idPost)
+	err := utils.Conn.QueryRow(query, payload.Title, payload.Content, payload.Category, payload.CreatorId, payload.EndDate).Scan(&idPost)
 	if err != nil {
 		return 0, fmt.Errorf("CreatePost() failed: '%v'", err)
 	}
@@ -205,7 +208,7 @@ func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int)
 	var results []models.Post
 	var params []interface{}
 	var countParams []interface{}
-	whereClause := "WHERE p.is_deleted = false"
+	whereClause := "WHERE p.is_deleted = false AND (p.category != 'tips' OR p.end_date IS NULL OR p.end_date > NOW())"
 	paramIndex := 1
 
 	if filters.Search != "" {
@@ -257,7 +260,7 @@ func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int)
 	}
 
 	query := `
-		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id, a.avatar
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id, a.avatar, p.end_date
 		` + fromJoinClause + `
 		 ` + whereClause + " " + orderBy
 
@@ -277,7 +280,7 @@ func GetAllPosts(page int, limit int, filters models.PostFilters, idAccount int)
 
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.AdsId, &post.CreatorAvatar)
+		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.AdsId, &post.CreatorAvatar, &post.EndDate)
 		if err != nil {
 			return nil, 0, fmt.Errorf("GetAllPosts() scan failed: %v", err.Error())
 		}
@@ -341,13 +344,13 @@ func GetTotalSavesByPostId(id int) (int, error) {
 func GetPostDetailsById(id int, id_account ...int) (models.Post, error) {
 	var post models.Post
 	query := `
-	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id, ad.start_date, ad.end_date
+	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id, ad.start_date, ad.end_date, p.end_date
 	from posts p 
 	join accounts a on p.id_account=a.id 
 	left join ads ad on p.id=ad.id_post and ad.status = 'active'
 	where p.id = $1 and p.is_deleted = false;
 	`
-	err := utils.Conn.QueryRow(query, id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId, &post.AdsId, &post.AdsFrom, &post.AdsTo)
+	err := utils.Conn.QueryRow(query, id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId, &post.AdsId, &post.AdsFrom, &post.AdsTo, &post.EndDate)
 	if err != nil {
 		return models.Post{}, fmt.Errorf("GetPostDetailsById() failed: '%v'", err)
 	}
@@ -387,14 +390,14 @@ func GetPostDetailsById(id int, id_account ...int) (models.Post, error) {
 func GetPostDetailsByStepId(step_id int) (models.Post, error) {
 	var post models.Post
 	query := `
-	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id, ad.start_date, ad.end_date
+	select p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, a.id, ad.id, ad.start_date, ad.end_date, p.end_date
 	from posts p 
 	join accounts a on p.id_account=a.id 
 	left join ads ad on p.id=ad.id_post and ad.status = 'active'
 	JOIN project_steps ps on ps.id_post = p.id
 	where ps.id = $1 and p.is_deleted = false;
 	`
-	err := utils.Conn.QueryRow(query, step_id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId, &post.AdsId, &post.AdsFrom, &post.AdsTo)
+	err := utils.Conn.QueryRow(query, step_id).Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.CreatorId, &post.AdsId, &post.AdsFrom, &post.AdsTo, &post.EndDate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return models.Post{}, nil
@@ -487,8 +490,11 @@ func UpdatePostById(id_post int, payload models.CreatePostRequest) error {
 	if !slices.Contains(PostCategories, payload.Category) {
 		return fmt.Errorf("UpdatePostById() failed: invalid post category '%v'", payload.Category)
 	}
-	query := `update posts set title = $1, content = $2, category = $3 where id = $4 and is_deleted = false;`
-	_, err := utils.Conn.Exec(query, payload.Title, payload.Content, payload.Category, id_post)
+	if payload.Category != "tips" {
+		payload.EndDate.Valid = false
+	}
+	query := `update posts set title = $1, content = $2, category = $3, end_date = $4 where id = $5 and is_deleted = false;`
+	_, err := utils.Conn.Exec(query, payload.Title, payload.Content, payload.Category, payload.EndDate, id_post)
 	if err != nil {
 		return fmt.Errorf("UpdatePostById() failed: '%v'", err)
 	}
@@ -529,7 +535,7 @@ func GetPostsByAccountId(id_account int, page int, limit int, category string) (
 	}
 
 	query := fmt.Sprintf(`
-		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username, ad.id, p.end_date
 		from posts p 
 		join accounts a on p.id_account=a.id 
 		left join ads ad on p.id=ad.id_post and ad.status = 'active'
@@ -545,7 +551,7 @@ func GetPostsByAccountId(id_account int, page int, limit int, category string) (
 	var posts []models.Post
 	for rows.Next() {
 		var post models.Post
-		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.AdsId)
+		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator, &post.AdsId, &post.EndDate)
 		if err != nil {
 			return result, fmt.Errorf("GetPostsByAccountId() scan failed: '%v'", err)
 		}
