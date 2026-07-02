@@ -102,9 +102,13 @@ func AddressToCoor(address models.Address) (models.Coordinates, error) {
 	var bestResult models.GeocodeResult
 	if len(geoResponse.Results) > 0 {
 		bestResult = geoResponse.Results[0]
+		// strict validation to avoid bullshit address
+		if bestResult.Geometry.LocationType == "APPROXIMATE" || bestResult.Geometry.LocationType == "GEOMETRIC_CENTER" {
+			return models.Coordinates{}, fmt.Errorf("INVALID_ADDRESS")
+		}
 	} else {
 		// no result found
-		return models.Coordinates{}, nil
+		return models.Coordinates{}, fmt.Errorf("ZERO_RESULTS")
 	}
 
 	var response = models.Coordinates{
