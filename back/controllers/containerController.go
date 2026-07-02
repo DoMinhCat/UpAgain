@@ -343,6 +343,10 @@ func CreateContainerHandler(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
 			return
 		}
+		if err.Error() == "INVALID_ADDRESS" {
+			utils.RespondWithError(w, http.StatusBadRequest, "L'adresse fournie n'est pas assez précise, veuillez fournir une autre adresse.")
+			return
+		}
 		slog.Error("AddressToCoor() failed", "controller", "CreateContainerHandler", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to resolve coordinates")
 		return
@@ -462,6 +466,10 @@ func UpdateContainerLocation(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if err.Error() == "ZERO_RESULTS" {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
+				return
+			}
+			if err.Error() == "INVALID_ADDRESS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "L'adresse fournie n'est pas assez précise, veuillez fournir une autre adresse.")
 				return
 			}
 			slog.Error("AddressToCoor() failed", "controller", "UpdateContainerLocation", "error", err)

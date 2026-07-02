@@ -301,6 +301,10 @@ func UpdateListing(w http.ResponseWriter, r *http.Request) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
 				return
 			}
+			if err.Error() == "INVALID_ADDRESS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "L'adresse fournie n'est pas assez précise, veuillez fournir une autre adresse.")
+				return
+			}
 			slog.Error("AddressToCoor() failed", "controller", "UpdateListing", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "Failed to update listing.")
 			return
