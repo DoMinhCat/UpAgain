@@ -307,7 +307,7 @@ export function UserNavBar() {
             path={PATHS.GUEST.POSTS}
           />
           <HeaderLink label={t("events:events")} path={PATHS.EVENTS.HOME} />
-          {user?.role === "pro" && (
+          {user?.role === "pro" && !accountDetails?.is_premium && (
             <HeaderLink
               label={t("common:pricing")}
               path={PATHS.GUEST.PRICING}
