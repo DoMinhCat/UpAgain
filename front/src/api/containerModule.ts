@@ -31,14 +31,14 @@ export const createContainer = async (container: Partial<Container>) => {
 };
 
 export const updateContainerStatus = async (id: number, status: string) => {
-  const response = await api.put(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}${id}/`, {
+  const response = await api.put(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}/${id}/`, {
     status,
   });
   return response.data;
 };
 
 export const deleteContainer = async (id: number) => {
-  const response = await api.delete(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}${id}/`);
+  const response = await api.delete(`${ENDPOINTS.ADMIN.CONTAINERS.ALL}/${id}`);
   return response;
 };
 
@@ -65,7 +65,7 @@ export const updateContainerLocation = async (
   postal_code: string,
 ) => {
   const response = await api.put(
-    `${ENDPOINTS.ADMIN.CONTAINERS.ALL}${id}/location/`,
+    `${ENDPOINTS.ADMIN.CONTAINERS.ALL}/${id}/location/`,
     {
       city_name,
       street,
