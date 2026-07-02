@@ -85,6 +85,8 @@
   "sort_by": "Trier par",
   "type": "Type",
   "pagination": {
+    "comments_one": "Commentaire",
+    "comments_other": "Commentaires",
     "showing": "Affichage de",
     "of": "sur",
     "results_one": "résultat",
