@@ -31,6 +31,7 @@ export const PATHS = {
       ALL: "/admin/subscriptions",
       DETAILS: "/admin/subscriptions/:id",
     },
+    LOGS: "/admin/logs",
   },
   USER: {
     // paths for user espace here
