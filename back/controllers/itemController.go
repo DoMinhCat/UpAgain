@@ -1089,8 +1089,8 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		// our rate is store in %
 		upAgainCommissionRate, err := db.GetFinanceSettingByKey("commission_rate")
 		if err != nil {
-			slog.Error("GetFinanceSettingByKey() failed", "controller", "CreateItem", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			slog.Error("GetFinanceSettingByKey() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 			return
 		}
 		upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate / 100)
