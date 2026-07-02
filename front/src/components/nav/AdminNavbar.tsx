@@ -11,6 +11,7 @@ import {
   IconBuildingStore,
   IconUser,
   IconChevronRight,
+  IconTerminal2,
 } from "@tabler/icons-react";
 import {
   Center,
@@ -162,6 +163,11 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
       label: t("admin:finance.title"),
       path: PATHS.ADMIN.FINANCE.ALL,
     },
+    {
+      icon: IconTerminal2,
+      label: t("admin:logs.title"),
+      path: PATHS.ADMIN.LOGS,
+    },
   ];
   const links = navButtonData.map((link) => (
     <NavbarLink {...link} key={link.label} onClick={onLinkClick} />
@@ -250,8 +256,8 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
                 onClick={toggle}
               >
                 {scheme === "dark"
-                  ? t("common:light_mode")
-                  : t("common:dark_mode")}
+                  ? t("profile:preferences.light_mode")
+                  : t("profile:preferences.dark_mode")}
               </Menu.Item>
 
               <Menu trigger="click" position="right-start" offset={5} withArrow>

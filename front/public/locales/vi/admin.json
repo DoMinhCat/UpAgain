@@ -52,7 +52,8 @@
     "finance": {
       "title": "Trung tâm tài chính",
       "description": "Phân tích doanh thu của UpAgain"
-    }
+    },
+    "logs": "Nhật Ký Hệ Thống"
   },
   "history": {
     "title": "Lịch Sử Admin",
@@ -1059,5 +1060,14 @@
   },
   "fields": {
     "upcycling_score": "Điểm Upcycling"
+  },
+  "logs": {
+    "title": "Nhật Ký Hệ Thống",
+    "refresh": "Tải Lại",
+    "no_logs": "Chưa có nhật ký hệ thống nào.",
+    "notifications": {
+      "error_title": "Lấy nhật ký thất bại",
+      "error_message": "Có lỗi xảy ra khi lấy nhật ký hệ thống."
+    }
   }
 }
