@@ -171,8 +171,8 @@ export default function PreferencesTab() {
               <Text fw={600}>{t("preferences.theme")}</Text>
               <Text size="sm" c="dimmed">
                 {computedColorScheme === "dark"
-                  ? t("preferences.dark_mode")
-                  : t("preferences.light_mode")}
+                  ? t("profile:preferences.dark_mode")
+                  : t("profile:preferences.light_mode")}
               </Text>
             </Stack>
             <ActionIcon
