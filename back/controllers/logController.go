@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log/slog"
 	"net/http"
 	"os"
 )
@@ -16,7 +15,6 @@ import (
 // @Failure      500      {object}  nil  "Unable to create log file"
 // @Router       /logs/ [get]
 func ServeLogs(w http.ResponseWriter, r *http.Request) {
-	slog.Info("ServeLogs called", "controller", "ServeLogs")
 	logPath := "backend.log"
 
 	// Check if the file exists yet, create it if not
