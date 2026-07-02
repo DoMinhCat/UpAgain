@@ -49,7 +49,7 @@ export default function AdminEventsModule() {
     categoryValue: string | null;
   }>({
     searchValue: "",
-    sortValue: null,
+    sortValue: "most_recent_creation",
     statusValue: null,
     categoryValue: null,
   });
