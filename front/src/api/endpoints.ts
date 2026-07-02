@@ -94,6 +94,7 @@ export const ENDPOINTS = {
       TRIAL: "/subscriptions/trial",
       STATS: "/subscriptions/stats",
     },
+    LOGS: "/logs",
   },
 
   AUTH: {

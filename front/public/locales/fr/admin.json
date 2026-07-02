@@ -52,7 +52,8 @@
     "finance": {
       "title": "Centre Financier",
       "description": "Analyser les revenus de UpAgain"
-    }
+    },
+    "logs": "Logs Système"
   },
   "history": {
     "title": "Historique Admin",
@@ -1063,5 +1064,14 @@
   },
   "fields": {
     "upcycling_score": "Score d'upcycling"
+  },
+  "logs": {
+    "title": "Logs Système",
+    "refresh": "Actualiser",
+    "no_logs": "Aucun log généré pour le moment.",
+    "notifications": {
+      "error_title": "Échec de la récupération des logs",
+      "error_message": "Une erreur est survenue lors de la récupération des logs système."
+    }
   }
 }

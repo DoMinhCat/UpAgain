@@ -68,9 +68,8 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 // @Description  Delete a comment by ID. Admins and employees can delete any comment; users can only delete their own.
 // @Tags         comment
 // @Security     ApiKeyAuth
-// @Produce      json
 // @Param        id_comment  path      int  true  "Comment ID"
-// @Success      200         {string}  string  "Comment deleted successfully"
+// @Success      204         {object}  nil     "Comment deleted successfully"
 // @Failure      400         {object}  nil     "Invalid ID"
 // @Failure      401         {object}  nil     "Unauthorized"
 // @Failure      500         {object}  nil     "Internal server error"
@@ -113,7 +112,7 @@ func DeleteCommentById(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, "Comment deleted successfully.")
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
 // LikeComment godoc
