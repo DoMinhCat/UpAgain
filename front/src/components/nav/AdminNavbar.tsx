@@ -250,8 +250,8 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
                 onClick={toggle}
               >
                 {scheme === "dark"
-                  ? t("common:light_mode")
-                  : t("common:dark_mode")}
+                  ? t("profile:preferences.light_mode")
+                  : t("profile:preferences.dark_mode")}
               </Menu.Item>
 
               <Menu trigger="click" position="right-start" offset={5} withArrow>
