@@ -11,6 +11,7 @@ import {
   IconBuildingStore,
   IconUser,
   IconChevronRight,
+  IconTerminal2,
 } from "@tabler/icons-react";
 import {
   Center,
@@ -161,6 +162,11 @@ export function AdminNavbar({ onLinkClick }: { onLinkClick?: () => void }) {
       icon: IconPigMoney,
       label: t("admin:finance.title"),
       path: PATHS.ADMIN.FINANCE.ALL,
+    },
+    {
+      icon: IconTerminal2,
+      label: t("admin:logs.title"),
+      path: PATHS.ADMIN.LOGS,
     },
   ];
   const links = navButtonData.map((link) => (
