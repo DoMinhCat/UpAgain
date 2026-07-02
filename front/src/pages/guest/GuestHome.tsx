@@ -527,6 +527,8 @@ export default function GuestHome() {
                       src="/banners/premium-dashboard-preview.png"
                       radius="md"
                       alt="Dashboard"
+                      h={280}
+                      fit="cover"
                     />
                   </Stack>
                 </Paper>
@@ -571,6 +573,8 @@ export default function GuestHome() {
                       src="/banners/sponsored-project-preview.png"
                       radius="md"
                       alt="Projects"
+                      h={280}
+                      fit="cover"
                     />
                   </Stack>
                 </Paper>
