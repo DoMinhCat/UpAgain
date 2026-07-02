@@ -855,6 +855,25 @@ func GetMyItems(w http.ResponseWriter, r *http.Request) {
 // @Router       /items/{item_id}/reserve [post]
 func ReserveItem(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	proDetails, err := db.GetProDetailsById(idRequestor)
+	if err != nil {
+		slog.Error("GetProDetailsById() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	if !proDetails.IsPremium {
+		count, err := db.GetProPurchasedCountInLastMonth(idRequestor)
+		if err != nil {
+			slog.Error("GetProPurchasedCountInLastMonth() failed", "controller", "ReserveItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+			return
+		}
+		if count >= 10 {
+			utils.RespondWithError(w, http.StatusForbidden, "You have reached the monthly purchase limit for freemium users.")
+			return
+		}
+	}
+
 	item_id, err := strconv.Atoi(r.PathValue("item_id"))
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "ReserveItem", "error", err)
@@ -998,6 +1017,25 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+
+	proDetails, err := db.GetProDetailsById(idRequestor)
+	if err != nil {
+		slog.Error("GetProDetailsById() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if !proDetails.IsPremium {
+		count, err := db.GetProPurchasedCountInLastMonth(idRequestor)
+		if err != nil {
+			slog.Error("GetProPurchasedCountInLastMonth() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
+		}
+		if count >= 10 {
+			utils.RespondWithError(w, http.StatusForbidden, "You have reached the monthly purchase limit for freemium users.")
+			return
+		}
+	}
 
 	latestTxOfPro, err := db.GetLatestTransactionOfPro(idRequestor, item_id)
 	if err != nil {

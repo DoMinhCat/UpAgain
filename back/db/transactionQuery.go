@@ -376,3 +376,16 @@ func GetTransactionByRowId(id int) (models.Transaction, error) {
 	}
 	return transaction, nil
 }
+
+func GetProPurchasedCountInLastMonth(idPro int) (int, error) {
+	var count int
+	query := `
+		SELECT COUNT(*) FROM transactions
+		WHERE id_pro = $1 AND action = 'purchased' AND created_at >= NOW() - INTERVAL '30 days'
+	`
+	err := utils.Conn.QueryRow(query, idPro).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("GetProPurchasedCountInLastMonth() failed: %w", err)
+	}
+	return count, nil
+}
