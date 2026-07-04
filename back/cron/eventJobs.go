@@ -23,6 +23,6 @@ func UpdateEventRegistrationStatus() {
 		slog.Error("UpdateEventRegistrationStatus failed", "error", err)
 		return
 	}
-	
+
 	slog.Info("UpdateEventRegistrationStatus completed")
 }
