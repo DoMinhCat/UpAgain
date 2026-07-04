@@ -588,3 +588,87 @@ func GetPostsByAccountId(id_account int, page int, limit int, category string) (
 	}
 	return result, nil
 }
+
+func GetSavedPosts(idAccount int, page int, limit int, category string) (models.PostListPagination, error) {
+	result := models.PostListPagination{}
+	if !slices.Contains(PostCategories, category) && category != "" {
+		return result, fmt.Errorf("GetSavedPosts() failed: invalid category '%v'", category)
+	}
+	if page <= 0 {
+        page = 1
+    }
+    if limit <= 0 {
+        limit = 10
+    }
+
+	var posts []models.Post
+
+	var params []interface{}
+	params = append(params, idAccount)
+	whereClause := " WHERE sp.id_account = $1"
+
+	if category != "" {
+		whereClause += " AND p.category = $2"
+		params = append(params, category)
+	}
+
+	queryCount := fmt.Sprintf(`
+        SELECT COUNT(*) as count 
+        FROM saved_posts sp 
+        JOIN posts p on p.id = sp.id_post
+        %v`, whereClause)
+    row := utils.Conn.QueryRow(queryCount, params...)
+    if err := row.Scan(&result.TotalRecords); err != nil {
+        return result, fmt.Errorf("GetSavedPosts() count failed: '%v'", err)
+    }
+
+	result.CurrentPage = page
+    result.Limit = limit
+    if result.TotalRecords > 0 {
+        // Calculate the maximum number of pages available (ceiling division)
+        result.LastPage = (result.TotalRecords + limit - 1) / limit
+    } else {
+        result.LastPage = 1
+    }
+
+	paramCount := len(params)
+    limitPlaceholder := fmt.Sprintf("$%d", paramCount+1)
+    offsetPlaceholder := fmt.Sprintf("$%d", paramCount+2)
+
+    offset := (page - 1) * limit
+    params = append(params, limit, offset)
+
+	query := fmt.Sprintf(`
+		SELECT p.id, p.created_at, p.title, p.content, p.category, p.view_count, p.like_count, p.id_account, a.username
+		FROM saved_posts sp
+		JOIN posts p ON sp.id_post = p.id
+		JOIN accounts a ON p.id_account=a.id 
+		%v
+		ORDER BY p.created_at DESC
+		LIMIT %v OFFSET %v
+	`, whereClause, limitPlaceholder, offsetPlaceholder)
+	rows, err := utils.Conn.Query(query, params...)
+	if err != nil {
+		return result, fmt.Errorf("GetSavedPosts() failed: '%v'", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var post models.Post
+		err := rows.Scan(&post.Id, &post.CreatedAt, &post.Title, &post.Content, &post.Category, &post.ViewCount, &post.LikeCount, &post.IdAccount, &post.Creator)
+		if err != nil {
+			return result, fmt.Errorf("GetSavedPosts() scan failed: '%v'", err)
+		}
+		photos, err := GetPhotosPathsByObjectId(post.Id, "post")
+		if err != nil {
+			return result, fmt.Errorf("GetSavedPosts() failed: '%v'", err)
+		}
+		post.Photos = photos
+		post.IsSaved = true
+		post.IsLiked, _ = IsPostLikedByUser(post.Id, idAccount)
+		posts = append(posts, post)
+	}
+
+	result.Posts = posts
+
+	return result, nil
+}
