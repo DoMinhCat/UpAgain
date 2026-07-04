@@ -87,6 +87,8 @@
   "pagination": {
     "comments_one": "Commentaire",
     "comments_other": "Commentaires",
+    "articles_one": "article",
+    "articles_other": "articles",
     "showing": "Affichage de",
     "of": "sur",
     "results_one": "résultat",

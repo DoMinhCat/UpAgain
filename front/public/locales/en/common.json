@@ -85,8 +85,10 @@
   "sort_by": "Sort by",
   "type": "Type",
   "pagination": {
-    "comments_one": "Comment",
-    "comments_other": "Comments",
+    "comments_one": "comment",
+    "comments_other": "comments",
+    "articles_one": "article",
+    "articles_other": "articles",
     "showing": "Showing",
     "of": "of",
     "results_one": "result",
