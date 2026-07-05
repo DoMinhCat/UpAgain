@@ -102,7 +102,7 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			slog.Error("InsertHistory() failed", "controller", "CreateAdsForProject", "error", err)
 		}
-		utils.RespondWithJSON(w, http.StatusOK, "Ad created successfully.")
+		utils.RespondWithJSON(w, http.StatusOK,  map[string]string{"message": "Ad created successfully."})
 		return
 	} else {
 		// for pro need to do payment first then insert into db
@@ -121,7 +121,7 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 
 		if !payload.Paid {
 			frontendOrigin := utils.GetFrontOrigin()
-			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+			if payload.OriginUrl == "" || (!strings.HasPrefix(payload.OriginUrl, frontendOrigin) && !strings.HasPrefix(payload.OriginUrl, "upagain://")) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
 				return
 			}
@@ -150,7 +150,7 @@ func CreateAdsForProject(w http.ResponseWriter, r *http.Request) {
 				slog.Error("CreateAds() failed", "controller", "CreateAdsForProject", "error", err)
 				return
 			}
-			utils.RespondWithJSON(w, http.StatusOK, "Ad created successfully.")
+			utils.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Ad created successfully."})
 			return
 		}
 	}
