@@ -954,6 +954,8 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	searchStr := query.Get("search")
+
 	limitStr := query.Get("limit")
 	if limitStr != "" {
 		limit, err = strconv.Atoi(limitStr)
@@ -969,7 +971,7 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid category")
 	}
 
-	posts, err := db.GetPostsByAccountId(idRequestor, page, limit, category)
+	posts, err := db.GetPostsByAccountId(idRequestor, page, limit, category, searchStr)
 	if err != nil {
 		slog.Error("db.GetPostsByAccountId() failed", "controller", "GetPostsByAccountId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")
