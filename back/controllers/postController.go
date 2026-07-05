@@ -14,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/guregu/null"
 )
 
 // GetPostsStats godoc
@@ -146,6 +148,16 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	payload.Title = strings.TrimSpace(r.FormValue("title"))
 	payload.Content = strings.TrimSpace(r.FormValue("content"))
 	payload.Category = strings.TrimSpace(r.FormValue("category"))
+	endDateStr := strings.TrimSpace(r.FormValue("end_date"))
+	if endDateStr != "" {
+		if t, err := time.Parse(time.RFC3339, endDateStr); err == nil {
+			payload.EndDate = null.TimeFrom(t)
+		} else {
+			slog.Error("time.Parse() failed for end_date", "controller", "CreatePost", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid end_date format.")
+			return
+		}
+	}
 	files := r.MultipartForm.File["images"]
 	for _, file := range files {
 		path, err := helpers.SaveUploadedFile(file, "images/posts")
@@ -396,6 +408,11 @@ func GetPostDetailsById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if post.Category == "tips" && post.EndDate.Valid && post.EndDate.Time.Before(time.Now()) {
+		utils.RespondWithError(w, http.StatusNotFound, "Post not found")
+		return
+	}
+
 	utils.RespondWithJSON(w, http.StatusOK, post)
 }
 
@@ -588,6 +605,16 @@ func UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	payload.Title = r.FormValue("title")
 	payload.Content = r.FormValue("content")
 	payload.Category = r.FormValue("category")
+	endDateStr := strings.TrimSpace(r.FormValue("end_date"))
+	if endDateStr != "" {
+		if t, err := time.Parse(time.RFC3339, endDateStr); err == nil {
+			payload.EndDate = null.TimeFrom(t)
+		} else {
+			slog.Error("time.Parse() failed for end_date", "controller", "UpdatePostById", "error", err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid end_date format.")
+			return
+		}
+	}
 	// validate
 	validation := validations.ValidatePostCreationOrUpdate(payload)
 	if !validation.Success {
@@ -927,6 +954,8 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	searchStr := query.Get("search")
+
 	limitStr := query.Get("limit")
 	if limitStr != "" {
 		limit, err = strconv.Atoi(limitStr)
@@ -942,7 +971,7 @@ func GetPostsByAccountId(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid category")
 	}
 
-	posts, err := db.GetPostsByAccountId(idRequestor, page, limit, category)
+	posts, err := db.GetPostsByAccountId(idRequestor, page, limit, category, searchStr)
 	if err != nil {
 		slog.Error("db.GetPostsByAccountId() failed", "controller", "GetPostsByAccountId", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to get posts")

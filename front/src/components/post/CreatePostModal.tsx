@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Modal, Stack, TextInput, Select, Group, Button } from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
 import { useTranslation } from "react-i18next";
 import { useCreatePost } from "../../hooks/postHooks";
 import { showSuccessNotification } from "../common/NotificationToast";
@@ -25,6 +26,8 @@ export function CreatePostModal({
   const [errorTitle, setErrorTitle] = useState<string>("");
   const [errorCategory, setErrorCategory] = useState<string>("");
   const [errorDescription, setErrorDescription] = useState<string>("");
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [errorEndDate, setErrorEndDate] = useState<string>("");
 
   const validateTitle = () => {
     if (!title) {
@@ -48,6 +51,31 @@ export function CreatePostModal({
       return true;
     }
   };
+  const validateEndDate = (
+    currentCategory = category,
+    currentDate = endDate,
+  ) => {
+    if (currentCategory === "tips") {
+      if (!currentDate) {
+        setErrorEndDate(
+          t("admin:posts.create_modal.errors.end_date_required", {
+            defaultValue: "End date is required for tips.",
+          }),
+        );
+        return false;
+      }
+      if (currentDate <= new Date()) {
+        setErrorEndDate(
+          t("admin:posts.create_modal.errors.end_date_future", {
+            defaultValue: "End date must be in the future.",
+          }),
+        );
+        return false;
+      }
+    }
+    setErrorEndDate("");
+    return true;
+  };
   const validateDescription = () => {
     const stripped = description.replace(/<[^>]*>/g, "").trim();
     if (!description || stripped === "") {
@@ -67,6 +95,8 @@ export function CreatePostModal({
     setTitle("");
     setCategory("");
     setDescription("");
+    setEndDate(null);
+    setErrorEndDate("");
     onClose();
   };
 
@@ -76,8 +106,9 @@ export function CreatePostModal({
     const isTitleValid = validateTitle();
     const isCategoryValid = validateCategory();
     const isDescValid = validateDescription();
+    const isEndDateValid = validateEndDate();
 
-    if (!isTitleValid || !isCategoryValid || !isDescValid) {
+    if (!isTitleValid || !isCategoryValid || !isDescValid || !isEndDateValid) {
       return;
     }
 
@@ -85,6 +116,9 @@ export function CreatePostModal({
     formData.append("title", title);
     formData.append("category", category);
     formData.append("content", description);
+    if (category === "tips" && endDate) {
+      formData.append("end_date", endDate.toISOString());
+    }
     files.forEach((file) => {
       formData.append("images", file);
     });
@@ -150,8 +184,33 @@ export function CreatePostModal({
           ]}
           onChange={(value) => {
             setCategory(value as string);
+            if (value !== "tips") {
+              setEndDate(null);
+              setErrorEndDate("");
+            }
           }}
         />
+        {category === "tips" && (
+          <DateTimePicker
+            withAsterisk
+            label={t("admin:posts.create_modal.end_date_label", {
+              defaultValue: "End Date",
+            })}
+            placeholder={t("admin:posts.create_modal.end_date_placeholder", {
+              defaultValue: "Select end date and time",
+            })}
+            value={endDate}
+            onChange={(value: any) => {
+              const dateValue = value ? new Date(value) : null;
+              setEndDate(dateValue);
+              validateEndDate("tips", dateValue);
+            }}
+            onBlur={() => validateEndDate("tips", endDate)}
+            error={errorEndDate}
+            minDate={new Date()}
+            disabled={createPostMutation.isPending}
+          />
+        )}
         <TextEditor
           label={t("admin:posts.create_modal.content_label")}
           value={description}

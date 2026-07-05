@@ -41,7 +41,7 @@ export function GuestNavBar() {
 
       {/* 2. Navigation Section */}
       <Group h="100%" gap="sm" visibleFrom="sm">
-        <HeaderLink label={t("community:community")} path={PATHS.GUEST.POSTS} />
+        {/* <HeaderLink label={t("community:community")} path={PATHS.GUEST.POSTS} /> */}
         <HeaderLink label={t("common:about_us")} path={PATHS.GUEST.ABOUT} />
         <HeaderLink label={t("common:pricing")} path={PATHS.GUEST.PRICING} />
         <HeaderLink label={t("common:contact")} path={PATHS.GUEST.CONTACT} />
@@ -133,11 +133,11 @@ export function GuestNavBar() {
         zIndex={1000000}
       >
         <Stack gap="md">
-          <HeaderLink
+          {/* <HeaderLink
             label={t("community:community")}
             path={PATHS.GUEST.POSTS}
             onClick={closeDrawer}
-          />
+          /> */}
           <HeaderLink
             label={t("common:about_us")}
             path={PATHS.GUEST.ABOUT}

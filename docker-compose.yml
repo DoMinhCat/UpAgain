@@ -10,6 +10,7 @@ services:
     volumes:
       - /mnt/truenas-web/back/.env.production:/root/.env.production
       - /mnt/truenas-web/back/.env.production:/root/.env.development
+      - /mnt/truenas-web/back/images:/root/images
     working_dir: /root
   upcycle-front:
     build:

@@ -363,4 +363,3 @@ func GetMatchingAlertProIds(itemId int) ([]int, error) {
 	}
 	return proIds, nil
 }
-

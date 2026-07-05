@@ -30,7 +30,7 @@ func GetTotalAdsSpendingsById(id int) (float64, error) {
 	}
 
 	query := `
-	select start_date, end_date from ads a
+	select a.start_date, a.end_date from ads a
 	join posts p on a.id_post = p.id
 	where p.id_account = $1
 	`

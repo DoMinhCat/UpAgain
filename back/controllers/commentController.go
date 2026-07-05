@@ -69,7 +69,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 // @Tags         comment
 // @Security     ApiKeyAuth
 // @Param        id_comment  path      int  true  "Comment ID"
-// @Success      204         {object}  nil     "Comment deleted successfully"
+// @Success      204         {object}  nil
 // @Failure      400         {object}  nil     "Invalid ID"
 // @Failure      401         {object}  nil     "Unauthorized"
 // @Failure      500         {object}  nil     "Internal server error"

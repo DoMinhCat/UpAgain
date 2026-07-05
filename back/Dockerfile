@@ -15,7 +15,7 @@ RUN apk add --no-cache ca-certificates libc6-compat
 WORKDIR /root/
 
 COPY --from=builder /app/upcycle-back .
-COPY --from=builder /app/images ./images
+# COPY --from=builder /app/images ./images
 
 EXPOSE 8080
 CMD ["./upcycle-back"]
