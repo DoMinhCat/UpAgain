@@ -4,8 +4,12 @@ import type { ProAnalyticsResponse } from "./interfaces/pro";
 
 export const getProAnalytics = async (
   id_account: number,
+  timeframe?: string,
 ): Promise<ProAnalyticsResponse> => {
-  const response = await api.get(ENDPOINTS.ACCOUNTS.PRO_ANALYTICS(id_account));
+  const url = timeframe
+    ? `${ENDPOINTS.ACCOUNTS.PRO_ANALYTICS(id_account)}?timeframe=${timeframe}`
+    : ENDPOINTS.ACCOUNTS.PRO_ANALYTICS(id_account);
+  const response = await api.get(url);
   return response.data;
 };
 
