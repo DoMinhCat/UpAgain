@@ -55,6 +55,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !existing.EmailVerifiedAt.Valid {
+		response.RespondWithError(w, http.StatusUnauthorized, "Please verify your email before logging in.")
+		return
+	}
+
 	// check if is admin
 	if existing.Role == "employee" {
 		isAdmin, err := db.GetEmployeeRoleById(existing.Id)
