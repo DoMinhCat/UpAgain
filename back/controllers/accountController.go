@@ -126,7 +126,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("GenerateEmailVerificationToken() failed", "controller", "CreateAccount", "error", err)
 	} else {
-		verifyURL := config.BackendOrigin + "/verify-email/" + verificationToken + "/"
+		verifyURL := config.BackendOrigin + "/verify-email/" + verificationToken
 		subject, body := mail.BuildWelcomeVerificationEmail(newAccount.Username, verifyURL)
 		go func() {
 			if err := mail.NewMailer().SendMail(newAccount.Email, subject, body); err != nil {
