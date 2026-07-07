@@ -41,6 +41,12 @@ func main() {
 	config.OnesignalAPIKEY = utils.GetOnesignalRestApiKey()
 	config.OnesignalAppId = utils.GetOnesignalAppId()
 	config.GeminiAPIKey = utils.GetGeminiApiKey()
+	config.SmtpHost = utils.GetSmtpHost()
+	config.SmtpPort = utils.GetSmtpPort()
+	config.SmtpUser = utils.GetSmtpUser()
+	config.SmtpPassword = utils.GetSmtpPassword()
+	config.SmtpFrom = utils.GetSmtpFrom()
+	config.BackendOrigin = utils.GetBackendOrigin()
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)
