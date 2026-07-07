@@ -140,7 +140,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  nil  "Email verified successfully"
 // @Failure      400  {object}  nil  "Invalid or expired verification link"
 // @Failure      500  {object}  nil  "Internal server error"
-// @Router       /verify-email/{token}/ [get]
+// @Router       /verify-email/{token} [get]
 func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	token := r.PathValue("token")
 
