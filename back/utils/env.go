@@ -3,6 +3,7 @@ package utils
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -108,4 +109,56 @@ func GetGeminiApiKey() string {
 		log.Panic("GEMINI_API_KEY not find in .env")
 	}
 	return key
+}
+
+func GetSmtpHost() string {
+	host := os.Getenv("SMTP_HOST")
+	if host == "" {
+		log.Panic("SMTP_HOST not find in .env")
+	}
+	return host
+}
+
+func GetSmtpPort() int {
+	portStr := os.Getenv("SMTP_PORT")
+	if portStr == "" {
+		log.Panic("SMTP_PORT not find in .env")
+	}
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		log.Panicf("SMTP_PORT is not a valid integer: %s", portStr)
+	}
+	return port
+}
+
+func GetSmtpUser() string {
+	user := os.Getenv("SMTP_USER")
+	if user == "" {
+		log.Panic("SMTP_USER not find in .env")
+	}
+	return user
+}
+
+func GetSmtpPassword() string {
+	password := os.Getenv("SMTP_PASSWORD")
+	if password == "" {
+		log.Panic("SMTP_PASSWORD not find in .env")
+	}
+	return password
+}
+
+func GetSmtpFrom() string {
+	from := os.Getenv("SMTP_FROM")
+	if from == "" {
+		log.Panic("SMTP_FROM not find in .env")
+	}
+	return from
+}
+
+func GetBackendOrigin() string {
+	origin := os.Getenv("BACKEND_ORIGIN")
+	if origin == "" {
+		log.Panic("BACKEND_ORIGIN not find in .env")
+	}
+	return origin
 }
