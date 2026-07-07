@@ -1,5 +1,7 @@
 package models
 
+import "github.com/guregu/null"
+
 type AuthClaims struct {
 	Id       int    `json:"id"`
 	Email    string `json:"email"`
@@ -13,10 +15,11 @@ type LoginRequest struct {
 }
 
 type AccountCreds struct {
-	Id       int    `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
-	IsBanned bool   `json:"is_banned"`
-	Username string `json:"username"`
+	Id              int       `json:"id"`
+	Email           string    `json:"email"`
+	Password        string    `json:"password"`
+	Role            string    `json:"role"`
+	IsBanned        bool      `json:"is_banned"`
+	Username        string    `json:"username"`
+	EmailVerifiedAt null.Time `json:"email_verified_at"`
 }

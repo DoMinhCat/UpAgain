@@ -12,8 +12,8 @@ import (
 func GetAccountCredsByEmail(email string) (*models.AccountCreds, error) {
 	var user models.AccountCreds
 
-	row := utils.Conn.QueryRow("SELECT id, email, password, role, is_banned, username FROM accounts WHERE email=$1 AND deleted_at IS NULL", email)
-	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.Role, &user.IsBanned, &user.Username)
+	row := utils.Conn.QueryRow("SELECT id, email, password, role, is_banned, username, email_verified_at FROM accounts WHERE email=$1 AND deleted_at IS NULL", email)
+	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.Role, &user.IsBanned, &user.Username, &user.EmailVerifiedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Return nothing found without an error
@@ -22,6 +22,15 @@ func GetAccountCredsByEmail(email string) (*models.AccountCreds, error) {
 	}
 
 	return &user, nil
+}
+
+// SetEmailVerified marks the account's email as verified.
+func SetEmailVerified(idAccount int) error {
+	_, err := utils.Conn.Exec("UPDATE accounts SET email_verified_at = now() WHERE id = $1", idAccount)
+	if err != nil {
+		return fmt.Errorf("error setting email verified for account id %d: %v", idAccount, err.Error())
+	}
+	return nil
 }
 
 func CheckUsernameExists(username string) (bool, error) {
