@@ -30,6 +30,8 @@ func NewMailer() *Mailer {
 		ServerName:         "upcycleconnect.lan",
 	}
 
+	dialer.SSL = false
+
 	return &Mailer{
 		Sender: dialer,
 		From:   config.SmtpFrom,
