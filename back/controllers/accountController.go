@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"backend/config"
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	authUtils "backend/utils/auth"
 	helpers "backend/utils/helpers"
+	"backend/utils/mail"
 	stripe "backend/utils/stripe"
 	validations "backend/utils/validations"
 	"encoding/csv"
@@ -117,6 +120,19 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	err = db.InsertDefaultNotiSetting(id_inserted)
 	if err != nil {
 		slog.Error("InsertDefaultNotiSetting() failed", "controller", "CreateAccount", "error", err)
+	}
+
+	verificationToken, err := authUtils.GenerateEmailVerificationToken(id_inserted, newAccount.Email)
+	if err != nil {
+		slog.Error("GenerateEmailVerificationToken() failed", "controller", "CreateAccount", "error", err)
+	} else {
+		verifyURL := config.BackendOrigin + "/verify-email/" + verificationToken + "/"
+		subject, body := mail.BuildWelcomeVerificationEmail(newAccount.Username, verifyURL)
+		go func() {
+			if err := mail.NewMailer().SendMail(newAccount.Email, subject, body); err != nil {
+				slog.Error("SendMail() failed", "controller", "CreateAccount", "error", err)
+			}
+		}()
 	}
 
 	if role == "admin" {
