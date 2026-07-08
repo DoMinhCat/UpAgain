@@ -10,7 +10,6 @@ import (
 
 /*
 Insert order:
-- items, comments, ads, project_steps
 - event_registrations, event_employee, listings, deposits, transactions, step_items, subscriptions, photos
 */
 
@@ -110,6 +109,13 @@ func SeedDB() {
 		panic(fmt.Sprintf("InsertItems failed: %v", err))
 	}
 
+// - items, comments, ads, project_steps
+
+	// comments
+	_, err = insert.InsertComments(tx, postIDs, userIDs, proIDs, 300)
+	if err != nil {
+		panic(fmt.Sprintf("InsertComments failed: %v", err))
+	}
 
 
 	_, _, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, eventIDs, postIDs, itemIDs
