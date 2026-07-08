@@ -263,30 +263,6 @@ CREATE TABLE project_steps (
   "order"       FLOAT          NOT NULL
 );
 
-CREATE TYPE photo_object_type AS ENUM ('item', 'post', 'step', 'event', 'avatar');
-CREATE TABLE photos (
-    id          serial PRIMARY KEY,
-    created_at  timestamptz NOT NULL DEFAULT now(),
-    is_primary  boolean NOT NULL DEFAULT false,
-    path        varchar(255) NOT NULL UNIQUE,
-    object_type photo_object_type NOT NULL,
-    
-    -- Specific FK columns
-    item_id     integer REFERENCES items(id) ON DELETE CASCADE,
-    post_id     integer REFERENCES posts(id) ON DELETE CASCADE,
-    step_id     integer REFERENCES project_steps(id) ON DELETE CASCADE,
-    event_id    integer REFERENCES events(id) ON DELETE CASCADE,
-    account_id  integer REFERENCES accounts(id) ON DELETE CASCADE, --for avatar
-
-    -- Ensure only one is populated and matches the ENUM
-    CONSTRAINT check_single_source CHECK (
-        (object_type = 'item'   AND item_id IS NOT NULL    AND post_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
-        (object_type = 'post'   AND post_id IS NOT NULL    AND item_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
-        (object_type = 'event'  AND event_id IS NOT NULL   AND item_id IS NULL      AND post_id IS NULL     AND account_id IS NULL) OR
-        (object_type = 'avatar' AND account_id IS NOT NULL AND item_id IS NULL      AND post_id IS NULL     AND event_id IS NULL)
-    )
-);
-
 create table listings
 (
     id_item     integer primary key references items (id) on delete cascade,
