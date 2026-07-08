@@ -46,6 +46,8 @@ func SeedDB() {
 	if err != nil {
 		panic(fmt.Sprintf("InsertAccounts failed: %v", err))
 	}
+	allAccountIDs := append(userIDs, proIDs...)
+    allAccountIDs = append(allAccountIDs, employeeIDs...)
 
 	// finance settings
 	err = insert.InsertFinanceSettings(tx)
@@ -59,7 +61,7 @@ func SeedDB() {
 		panic(fmt.Sprintf("InsertContainers failed: %v", err))
 	}
 	
-	// TODO: pros, noti_settings, notifications
+	// TODO: noti_settings, notifications
 
 	// users
 	err = insert.InsertUsers(tx, userIDs)
@@ -78,6 +80,12 @@ func SeedDB() {
 	if err != nil {
 		panic(fmt.Sprintf("InsertPros failed: %v", err))
 	}
+
+	// noti_settings
+	err = insert.InsertNotiSettingsForRoles(tx, userIDs, proIDs, employeeIDs)
+    if err != nil {
+        panic(fmt.Sprintf("InsertNotiSettingsForRoles failed: %v", err))
+    }
 
 
 	_, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs
