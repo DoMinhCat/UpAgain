@@ -150,8 +150,16 @@ func SeedDB() {
 	if err != nil {
 		panic(fmt.Sprintf("InsertDeposits failed: %v", err))
 	}
+
+	// ! transactions, step_items is empty
+
+	// subscriptions
+	err = insert.InsertSubscriptions(tx, premiumIds)
+	if err != nil {
+		panic(fmt.Sprintf("InsertSubscriptions failed: %v", err))
+	}
 	
-	//  transactions, step_items, subscriptions, photos
+	// photos
 	
 
 
