@@ -72,7 +72,7 @@ export default function UserScorePage() {
               ]
             : []),
           {
-            title: t("admin:users.score.title"),
+            title: t("admin:fields.upcycling_score"),
             href: "#",
           },
         ]}

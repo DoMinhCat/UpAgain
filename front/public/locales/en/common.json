@@ -87,6 +87,8 @@
   "pagination": {
     "comments_one": "comment",
     "comments_other": "comments",
+    "events_one": "event",
+    "events_other": "events",
     "articles_one": "article",
     "articles_other": "articles",
     "showing": "Showing",
