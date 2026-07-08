@@ -769,7 +769,6 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		payload.Email = accountDetails.Email
 	}
 	if payload.Username == "" || len(payload.Username) == 0 {
-		slog.Debug("username filled")
 		payload.Username = accountDetails.Username
 	}
 	if payload.Phone == "" || len(payload.Phone) == 0 {

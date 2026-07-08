@@ -11,6 +11,7 @@ import {
   Table,
   Badge,
   Skeleton,
+  SegmentedControl,
 } from "@mantine/core";
 import {
   IconLeaf,
@@ -54,7 +55,8 @@ export default function ProHomePremium() {
     updateAlertMaterials.mutate(materials);
   };
 
-  const { data, isLoading } = useGetProAnalytics(user?.id);
+  const [timeframe, setTimeframe] = useState("7d");
+  const { data, isLoading } = useGetProAnalytics(user?.id, timeframe);
 
   if (isLoading) {
     return (
@@ -131,6 +133,39 @@ export default function ProHomePremium() {
   return (
     <Container size="xl" py={40}>
       <Stack gap="xl">
+        <Group
+          justify="flex-end"
+          style={{
+            position: "sticky",
+            top: 90,
+            zIndex: 100,
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            style={{
+              pointerEvents: "auto",
+              background: "var(--mantine-color-dark-6, #1e1e1c)",
+              backdropFilter: "blur(8px)",
+              padding: "4px",
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <SegmentedControl
+              value={timeframe}
+              onChange={setTimeframe}
+              data={[
+                { label: t("pro.premium.time_24h", "24h"), value: "24h" },
+                { label: t("pro.premium.time_7d", "7d"), value: "7d" },
+                { label: t("pro.premium.time_30d", "30d"), value: "30d" },
+                { label: t("pro.premium.time_year", "Year"), value: "year" },
+              ]}
+            />
+          </div>
+        </Group>
+
         {/* Header Block */}
         <Paper
           withBorder

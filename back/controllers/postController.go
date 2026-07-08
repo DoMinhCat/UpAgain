@@ -911,7 +911,7 @@ func DeleteProjectStep(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, nil)
+	utils.RespondWithJSON(w, http.StatusNoContent, nil)
 }
 
 // GetPostsByAccountId godoc

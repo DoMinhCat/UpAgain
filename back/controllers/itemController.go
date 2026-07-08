@@ -1105,7 +1105,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		// 1st phase: redirect user to stripe to pay by returning a checkout link to stripe
 		if !payload.Paid {
 			frontendOrigin := utils.GetFrontOrigin()
-			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+			if payload.OriginUrl == "" || (!strings.HasPrefix(payload.OriginUrl, frontendOrigin) && !strings.HasPrefix(payload.OriginUrl, "upagain://")) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
 				return
 			}

@@ -573,7 +573,7 @@ export default function UserHome() {
                       fw={700}
                       onClick={() => navigate(PATHS.EVENTS.PLANNING)}
                     >
-                      {t("user.agenda.view_all")} →
+                      {t("employee.posts.view_all")} →
                     </Text>
                   </Stack>
                 ) : (

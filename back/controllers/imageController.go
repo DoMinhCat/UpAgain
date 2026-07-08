@@ -3,7 +3,6 @@ package controllers
 import (
 	"backend/utils"
 	helpers "backend/utils/helpers"
-	"log/slog"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -26,7 +25,6 @@ import (
 // @Router       /images [get]
 func ServeImageHandler(w http.ResponseWriter, r *http.Request) {
 	imagePath := r.URL.Query().Get("path")
-	slog.Debug("Debug Image", "imagePath", imagePath)
 	if imagePath == "" {
 		utils.RespondWithError(w, http.StatusBadRequest, "Image path is required.")
 		return
