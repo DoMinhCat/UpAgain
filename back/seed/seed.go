@@ -123,9 +123,14 @@ func SeedDB() {
 	}
 
 
-// - event_registrations, event_employee, listings, deposits, transactions, step_items, subscriptions, photos
+	// event_employee, listings, deposits, transactions, step_items, subscriptions, photos
+	// event registrations
+	err = insert.InsertEventRegistrations(tx, eventIDs, userIDs, proIDs)
+	if err != nil {
+		panic(fmt.Sprintf("InsertEventRegistrations failed: %v", err))
+	}
 
-
+	
 
 
 	_, _, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, eventIDs, postIDs, itemIDs
