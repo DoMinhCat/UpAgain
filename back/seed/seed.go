@@ -122,21 +122,37 @@ func SeedDB() {
 		panic(fmt.Sprintf("InsertAds failed: %v", err))
 	}
 
-
-	// event_employee, listings, deposits, transactions, step_items, subscriptions, photos
 	// event registrations
 	err = insert.InsertEventRegistrations(tx, eventIDs, userIDs, proIDs)
 	if err != nil {
 		panic(fmt.Sprintf("InsertEventRegistrations failed: %v", err))
 	}
-
+	
 	// event employee
 	err = insert.InsertEventEmployees(tx, eventIDs, employeeIDs)
 	if err != nil {
 		panic(fmt.Sprintf("InsertEventEmployees failed: %v", err))
 	}
 	
+	// Split items 50/50
+	halfIndex := len(itemIDs) / 2
+	listingItemIDs := itemIDs[:halfIndex]
+	depositItemIDs := itemIDs[halfIndex:]
 
+	// listings
+	err = insert.InsertListings(tx, listingItemIDs)
+	if err != nil {
+		panic(fmt.Sprintf("InsertListings failed: %v", err))
+	}
+
+	// deposits
+	err = insert.InsertDeposits(tx, depositItemIDs, containerIDs)
+	if err != nil {
+		panic(fmt.Sprintf("InsertDeposits failed: %v", err))
+	}
+	
+	//  transactions, step_items, subscriptions, photos
+	
 
 
 	_, _, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, eventIDs, postIDs, itemIDs
