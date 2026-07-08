@@ -19,28 +19,21 @@ type AccountSeed struct {
 	Avatar   string
 }
 
-// InsertAccounts generates and inserts a large set of seed accounts (employees, users, pros)
-// into the 'accounts' table. It uses predefined test credentials for base accounts and
-// generates hundreds of fake accounts using gofakeit.
-//
-// It returns slices of the generated account IDs categorized by their roles:
-//   - userIDs: IDs of accounts with the 'user' role
-//   - proIDs: IDs of accounts with the 'pro' role
-//   - employeeIDs: IDs of accounts with the 'employee' role
-//
-// These IDs are returned so that subsequent seeding functions can populate the respective
-// subclass tables (users, pros, employees) and other related tables.
 func InsertAccounts(tx *sql.Tx) (userIDs []int, proIDs []int, employeeIDs []int, err error) {
-	hashedPassword := auth.HashPassword("password123")
-
-	accounts := []AccountSeed{
-		{Email: "admin@upagain.com", Username: "admin", Password: hashedPassword, Role: "employee"},
-		{Email: "employee@upagain.com", Username: "employee", Password: hashedPassword, Role: "employee"},
-		{Email: "user@upagain.com", Username: "user", Password: hashedPassword, Role: "user"},
-		{Email: "pro@upagain.com", Username: "pro", Password: hashedPassword, Role: "pro"},
+	// Simple mock helper to generate public avatar URL links
+	getAvatarURL := func() string {
+		return fmt.Sprintf("https://api.dicebear.com/7.x/adventurer/svg?seed=%s", gofakeit.UUID())
 	}
 
-	// Generate a few hundreds of fake accounts of different roles
+	hashedPassword := auth.HashPassword("Dummy!123456")
+
+	accounts := []AccountSeed{
+		{Email: "admin@upagain.com", Username: "admin", Password: hashedPassword, Role: "employee", Avatar: getAvatarURL()},
+		{Email: "employee@upagain.com", Username: "employee", Password: hashedPassword, Role: "employee", Avatar: getAvatarURL()},
+		{Email: "user@upagain.com", Username: "user", Password: hashedPassword, Role: "user", Avatar: getAvatarURL()},
+		{Email: "pro@upagain.com", Username: "pro", Password: hashedPassword, Role: "pro", Avatar: getAvatarURL()},
+	}
+
 	// 150 users
 	for i := 0; i < 150; i++ {
 		accounts = append(accounts, AccountSeed{
@@ -48,6 +41,7 @@ func InsertAccounts(tx *sql.Tx) (userIDs []int, proIDs []int, employeeIDs []int,
 			Username: gofakeit.Username(),
 			Password: hashedPassword,
 			Role:     "user",
+			Avatar:   getAvatarURL(),
 		})
 	}
 	// 70 pros
@@ -57,6 +51,7 @@ func InsertAccounts(tx *sql.Tx) (userIDs []int, proIDs []int, employeeIDs []int,
 			Username: gofakeit.Username(),
 			Password: hashedPassword,
 			Role:     "pro",
+			Avatar:   getAvatarURL(),
 		})
 	}
 	// 20 employees
@@ -66,14 +61,15 @@ func InsertAccounts(tx *sql.Tx) (userIDs []int, proIDs []int, employeeIDs []int,
 			Username: gofakeit.Username(),
 			Password: hashedPassword,
 			Role:     "employee",
+			Avatar:   getAvatarURL(),
 		})
 	}
 
 	query := `
-		INSERT INTO accounts (email, username, password, role, is_banned, avatar, email_verified_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING id
-	`
+        INSERT INTO accounts (email, username, password, role, is_banned, avatar, email_verified_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id
+    `
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
@@ -94,7 +90,6 @@ func InsertAccounts(tx *sql.Tx) (userIDs []int, proIDs []int, employeeIDs []int,
 			return nil, nil, nil, fmt.Errorf("failed to insert account %s: %w", acc.Email, err)
 		}
 
-		// Categorize the inserted ID by its role
 		switch acc.Role {
 		case "user":
 			userIDs = append(userIDs, insertedID)
