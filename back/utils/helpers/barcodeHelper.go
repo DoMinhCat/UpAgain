@@ -65,7 +65,7 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 func EncodeBarcodeToBase64(filepath string) (string, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
-		if strings.Contains(err.Error(), "The system cannot find the file specified") {
+		if strings.Contains(err.Error(), "The system cannot find the file specified") || strings.Contains(err.Error(), "no such file or directory") {
 			return "", nil
 		}
 		return "", fmt.Errorf("failed to open file: %v", err)
