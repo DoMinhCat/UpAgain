@@ -253,6 +253,16 @@ CREATE INDEX idx_items_status   ON items (status);
 CREATE INDEX idx_items_state    ON items (state);
 CREATE INDEX idx_items_material ON items (material);
 
+CREATE TABLE project_steps (
+  id          SERIAL         PRIMARY KEY,
+  created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+  is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
+  title       VARCHAR(255)   NOT NULL,
+  description TEXT           NOT NULL,
+  id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  "order"       FLOAT          NOT NULL
+);
+
 create table listings
 (
     id_item     integer primary key references items (id) on delete cascade,
@@ -345,15 +355,7 @@ create table transactions(
 );
 CREATE INDEX idx_transactions_uuid ON transactions(id_transaction);
 
-CREATE TABLE project_steps (
-  id          SERIAL         PRIMARY KEY,
-  created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
-  is_deleted  BOOLEAN        NOT NULL DEFAULT FALSE,
-  title       VARCHAR(255)   NOT NULL,
-  description TEXT           NOT NULL,
-  id_post     INTEGER        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  order       FLOAT          NOT NULL
-);
+
 
 -- a project step can have multiple items
 -- an item can be in multiple project steps
@@ -375,7 +377,7 @@ create table notifications (
   id_account int not null references accounts(id) on delete cascade
 );
 
-CREATE TABLE IF NOT EXISTS pro_alert_materials (
+CREATE TABLE pro_alert_materials (
     id_pro INTEGER NOT NULL REFERENCES pros(id_account) ON DELETE CASCADE,
     material material NOT NULL,
     PRIMARY KEY (id_pro, material)
@@ -398,9 +400,10 @@ CREATE TABLE photos (
 
     -- Ensure only one is populated and matches the ENUM
     CONSTRAINT check_single_source CHECK (
-        (object_type = 'item'   AND item_id IS NOT NULL    AND post_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
-        (object_type = 'post'   AND post_id IS NOT NULL    AND item_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
-        (object_type = 'event'  AND event_id IS NOT NULL   AND item_id IS NULL      AND post_id IS NULL     AND account_id IS NULL) OR
-        (object_type = 'avatar' AND account_id IS NOT NULL AND item_id IS NULL      AND post_id IS NULL     AND event_id IS NULL)
+        (object_type = 'item'   AND item_id IS NOT NULL    AND post_id IS NULL      AND step_id IS NULL     AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'post'   AND post_id IS NOT NULL    AND item_id IS NULL      AND step_id IS NULL     AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'step'   AND step_id IS NOT NULL    AND item_id IS NULL      AND post_id IS NULL     AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'event'  AND event_id IS NOT NULL   AND item_id IS NULL      AND post_id IS NULL     AND step_id IS NULL     AND account_id IS NULL) OR
+        (object_type = 'avatar' AND account_id IS NOT NULL AND item_id IS NULL      AND post_id IS NULL     AND step_id IS NULL     AND event_id IS NULL)
     )
 );

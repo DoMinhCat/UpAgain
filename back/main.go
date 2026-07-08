@@ -5,7 +5,10 @@ import (
 	"backend/cron"
 	"backend/middleware"
 	"backend/routes"
+	"backend/seed"
 	"backend/utils"
+	"flag"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -21,22 +24,34 @@ import (
 // @BasePath  /
 func main() {
 	utils.InitLogger()
-	slog.Info("backend process starting...")
 
 	err := godotenv.Load()
 	if err != nil {
-		slog.Error("Error loading '.env' file", "error", err)
+		slog.Warn("Error loading '.env' file", "error", err)
 	}
 
 	env := os.Getenv("APP_ENV")
 	if env == "" {
-		// Default fallback
 		slog.Info("APP_ENV not set, defaulting to 'dev'")
 		env = "dev"
 	}
-
 	utils.LoadEnv(env)
 
+
+	// Run seeding script with `go run main.go --seed`
+	// ! FOR DEV ONLY
+	seedFlag := flag.Bool("seed", false, "run database seeder")
+	flag.Parse()
+
+	if *seedFlag {
+		fmt.Println("Starting database seed...")
+		seed.SeedDB()
+		return   
+	}
+
+
+	// spin up server
+	slog.Info("backend process starting...")
 	config.GeoCodeAPIKey = utils.GetGeoCodeApiKey()
 	config.OnesignalAPIKEY = utils.GetOnesignalRestApiKey()
 	config.OnesignalAppId = utils.GetOnesignalAppId()
