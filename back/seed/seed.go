@@ -86,9 +86,13 @@ func SeedDB() {
 	// notifications will be leave empty
 
 	// TODO: events, posts, pro_alert_materials
+	// events
+	eventIDs, err := insert.InsertEvents(tx, employeeIDs, 30)
+    if err != nil {
+        panic(fmt.Sprintf("InsertEvents failed: %v", err))
+    }
 
-
-	_, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, premiumIds
+	_, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, premiumIds, eventIDs
 
 	err = tx.Commit()
 	if err != nil {
