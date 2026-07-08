@@ -61,8 +61,11 @@ func SeedDB() {
 	
 	// TODO: users, employees, pros, noti_settings, notifications
 
-
-
+	// users
+	err = insert.InsertUsers(tx, userIDs)
+	if err != nil {
+		panic(fmt.Sprintf("InsertUsers failed: %v", err))
+	}
 
 
 	_, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs
