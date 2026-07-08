@@ -130,7 +130,13 @@ func SeedDB() {
 		panic(fmt.Sprintf("InsertEventRegistrations failed: %v", err))
 	}
 
+	// event employee
+	err = insert.InsertEventEmployees(tx, eventIDs, employeeIDs)
+	if err != nil {
+		panic(fmt.Sprintf("InsertEventEmployees failed: %v", err))
+	}
 	
+
 
 
 	_, _, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, eventIDs, postIDs, itemIDs
