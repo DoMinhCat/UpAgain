@@ -12,9 +12,10 @@ import (
 func InsertItems(tx *sql.Tx, userIDs []int, count int) ([]int, error) {
 	query := `
 		INSERT INTO items (title, description, price, weight, material, status, state, is_deleted, id_user)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, false, $9)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id
 	`
+	isDeleted := false
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
@@ -38,7 +39,7 @@ func InsertItems(tx *sql.Tx, userIDs []int, count int) ([]int, error) {
 		idUser := gofakeit.RandomInt(userIDs)
 
 		var insertedID int
-		err := stmt.QueryRow(title, description, price, weight, material, status, state, idUser).Scan(&insertedID)
+		err := stmt.QueryRow(title, description, price, weight, material, status, state, isDeleted, idUser).Scan(&insertedID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to insert item: %w", err)
 		}

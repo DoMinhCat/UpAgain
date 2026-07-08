@@ -11,8 +11,8 @@ import (
 
 func InsertSubscriptions(tx *sql.Tx, premiumProIDs []int) error {
 	query := `
-		INSERT INTO subscriptions (is_trial, is_active, sub_from, sub_to, id_pro, cancel_reason, price)
-		VALUES (false, true, $1, $2, $3, nil, $4)
+		INSERT INTO subscriptions (is_trial, is_active, sub_from, sub_to, id_pro, price)
+		VALUES (false, true, $1, $2, $3, $4)
 	`
 
 	stmt, err := tx.Prepare(query)

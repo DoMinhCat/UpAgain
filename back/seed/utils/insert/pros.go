@@ -11,7 +11,7 @@ func InsertPros(tx *sql.Tx, accountIds []int) (premiumIds []int, err error) {
 	query := `
 		INSERT INTO pros (id_account, phone, is_premium, completed_onboard)
 		VALUES ($1, $2, $3, $4)
-        RETURNING id
+        RETURNING id_account
 	`
 
 	stmt, err := tx.Prepare(query)
