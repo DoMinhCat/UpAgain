@@ -109,12 +109,16 @@ func SeedDB() {
 		panic(fmt.Sprintf("InsertItems failed: %v", err))
 	}
 
-// - items, comments, ads, project_steps
-
 	// comments
 	_, err = insert.InsertComments(tx, postIDs, userIDs, proIDs, 300)
 	if err != nil {
 		panic(fmt.Sprintf("InsertComments failed: %v", err))
+	}
+
+	// project steps
+	_, err = insert.InsertProjectSteps(tx, postIDs)
+	if err != nil {
+		panic(fmt.Sprintf("InsertProjectSteps failed: %v", err))
 	}
 
 
