@@ -111,7 +111,7 @@ func SeedDB() {
 	}
 
 	// project steps
-	_, err = insert.InsertProjectSteps(tx, projectIDs)
+	stepIds, err := insert.InsertProjectSteps(tx, projectIDs)
 	if err != nil {
 		panic(fmt.Sprintf("InsertProjectSteps failed: %v", err))
 	}
@@ -158,13 +158,15 @@ func SeedDB() {
 	if err != nil {
 		panic(fmt.Sprintf("InsertSubscriptions failed: %v", err))
 	}
-	
+
 	// photos
+	err = insert.InsertPhotos(tx, itemIDs, postIDs, stepIds, eventIDs, allAccountIDs)
+	if err != nil {
+		panic(fmt.Sprintf("InsertPhotos failed: %v", err))
+	}
 	
 
-
-	_, _, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, eventIDs, postIDs, itemIDs
-
+	
 	err = tx.Commit()
 	if err != nil {
 		panic(fmt.Sprintf("failed to commit transaction: %v", err))
