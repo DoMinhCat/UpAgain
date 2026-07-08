@@ -59,6 +59,12 @@ func SeedDB() {
 		panic(fmt.Sprintf("InsertContainers failed: %v", err))
 	}
 	
+	// TODO: users, employees, pros, noti_settings, notifications
+
+
+
+
+
 	_, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs
 
 	err = tx.Commit()
