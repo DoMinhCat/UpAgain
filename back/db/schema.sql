@@ -29,7 +29,8 @@ create table accounts
     deleted_at timestamptz  null,
     is_banned  boolean      not null default false,
     avatar     varchar(255),
-    email_verified_at timestamptz null
+    email_verified_at timestamptz null,
+    last_active timestamptz null
 );
 -- create index on role for faster query
 CREATE INDEX idx_account_role ON accounts (role);
