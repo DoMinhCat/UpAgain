@@ -10,8 +10,7 @@ import (
 
 /*
 Insert order:
-- events, posts, pro_alert_materials
-- items, comments, saved_posts, viewed_posts, liked_posts, liked_comments, ads, project_steps
+- items, comments, ads, project_steps
 - event_registrations, event_employee, listings, deposits, transactions, step_items, subscriptions, photos
 */
 
@@ -83,7 +82,7 @@ func SeedDB() {
         panic(fmt.Sprintf("InsertNotiSettingsForRoles failed: %v", err))
     }
 
-	// notifications will be leave empty
+	// ! notifications will be leave empty
 
 	// events
 	eventIDs, err := insert.InsertEvents(tx, employeeIDs, 30)
@@ -103,7 +102,17 @@ func SeedDB() {
         panic(fmt.Sprintf("InsertProAlertMaterials failed: %v", err))
     }
 
-	_, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, eventIDs, postIDs
+	// ! saved_posts, viewed_posts, liked_posts, liked_comments will be empty
+
+	// items
+	itemIDs, err := insert.InsertItems(tx, userIDs, 250)
+	if err != nil {
+		panic(fmt.Sprintf("InsertItems failed: %v", err))
+	}
+
+
+
+	_, _, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, eventIDs, postIDs, itemIDs
 
 	err = tx.Commit()
 	if err != nil {
