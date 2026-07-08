@@ -1,7 +1,12 @@
 package insert
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
-func InsertAccounts(tx *sql.Tx) {
-
+// Insert into table 'accounts'
+func InsertAccounts(tx *sql.Tx) error {
+	
+	
+	return nil
 }
