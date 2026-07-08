@@ -43,8 +43,8 @@ func InsertEvents(tx *sql.Tx, employeeIDs []int, count int) ([]int, error) {
 		locationDetail := gofakeit.Phrase()
 		createdBy := gofakeit.RandomInt(employeeIDs)
 		
-		lat := gofakeit.Float64Range(utils.ParisMinLat, utils.ParisMaxLat)
-		lng := gofakeit.Float64Range(utils.ParisMinLng, utils.ParisMaxLng)
+		lat := gofakeit.Float64Range(utils.PARIS_MIN_LAT, utils.PARIS_MAX_LAT)
+		lng := gofakeit.Float64Range(utils.PARIS_MIN_LNG, utils.PARIS_MAX_LNG)
 
 		var insertedID int
 		err := stmt.QueryRow(title, description, startAt, endAt, price, category, capacity, city, street, postalCode, locationDetail, createdBy, lat, lng).Scan(&insertedID)

@@ -25,7 +25,7 @@ func InsertPosts(tx *sql.Tx, proIDs []int, employeeIDs []int, count int) ([]int,
 	var postIDs []int
 	for i := 0; i < count; i++ {
 		title := gofakeit.BookTitle()
-		htmlContent := fmt.Sprintf(utils.MockHTMLContent, title, gofakeit.Paragraph(1, 2, 8, " "), gofakeit.Paragraph(1, 2, 5, " "))
+		htmlContent := fmt.Sprintf(utils.MOCK_HTML_CONTENT, title, gofakeit.Paragraph(1, 2, 8, " "), gofakeit.Paragraph(1, 2, 5, " "))
 		
 		var accountID int
 		var category string
@@ -34,12 +34,12 @@ func InsertPosts(tx *sql.Tx, proIDs []int, employeeIDs []int, count int) ([]int,
 		// 50/50 distribution between Pro or Employee accounts
 		if gofakeit.Bool() && len(proIDs) > 0 {
 			accountID = gofakeit.RandomInt(proIDs)
-			category = utils.CategoryProject
+			category = utils.CATEGORY_PROJECT
 		} else {
 			accountID = gofakeit.RandomInt(employeeIDs)
 			category = gofakeit.RandomString(utils.NON_PROJECT_POST_CATEGORIES)
 			
-			if category == utils.CategoryTips {
+			if category == utils.CATEGORY_TIPS {
 				futureDate := gofakeit.DateRange(time.Now().AddDate(0, 0, 7), time.Now().AddDate(0, 1, 0))
 				endDate = &futureDate
 			}

@@ -34,19 +34,19 @@ var TABLES = []string{
 
 // Event Categorization and Constraints
 const (
-	ParisMinLat = 48.8156
-	ParisMaxLat = 48.9021
-	ParisMinLng = 2.2241
-	ParisMaxLng = 2.4699
+	PARIS_MIN_LAT = 48.8156
+	PARIS_MAX_LAT = 48.9021
+	PARIS_MIN_LNG = 2.2241
+	PARIS_MAX_LNG = 2.4699
 )
 
 var EVENT_CATEGORIES = []string{"workshop", "conference", "meetups", "exposition", "other"}
 
 // Post Categorization and Content
 const (
-	CategoryProject = "project"
-	CategoryTips    = "tips"
-	MockHTMLContent = `<article><h2>%s</h2><p>%s</p><section><p>%s</p></section></article>`
+	CATEGORY_PROJECT  = "project"
+	CATEGORY_TIPS     = "tips"
+	MOCK_HTML_CONTENT = `<article><h2>%s</h2><p>%s</p><section><p>%s</p></section></article>`
 )
 
 var NON_PROJECT_POST_CATEGORIES = []string{"tutorial", "tips", "news", "case_study", "other"}
