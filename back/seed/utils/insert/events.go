@@ -1,11 +1,10 @@
 package insert
 
 import (
+	"backend/seed/utils"
 	"database/sql"
 	"fmt"
 	"time"
-
-	"backend/seed/utils"
 
 	"github.com/brianvoe/gofakeit/v7"
 )
