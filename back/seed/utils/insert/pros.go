@@ -7,15 +7,16 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 )
 
-func InsertPros(tx *sql.Tx, accountIds []int) error {
+func InsertPros(tx *sql.Tx, accountIds []int) (premiumIds []int, err error) {
 	query := `
 		INSERT INTO pros (id_account, phone, is_premium, completed_onboard)
 		VALUES ($1, $2, $3, $4)
+        RETURNING id
 	`
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
-		return fmt.Errorf("failed to prepare insert pros statement: %w", err)
+		return nil, fmt.Errorf("failed to prepare insert pros statement: %w", err)
 	}
 	defer stmt.Close()
 
@@ -24,12 +25,18 @@ func InsertPros(tx *sql.Tx, accountIds []int) error {
 		isPremium := gofakeit.Bool()
 		completedOnboard := gofakeit.Bool()
 
-		_, err := stmt.Exec(accountID, phone, isPremium, completedOnboard)
+		var insertedID int
+		err := stmt.QueryRow(accountID, phone, isPremium, completedOnboard).Scan(&insertedID)
 		if err != nil {
-			return fmt.Errorf("failed to insert pro for account %d: %w", accountID, err)
+			return nil, fmt.Errorf("failed to insert pro for account %d: %w", accountID, err)
+		}
+
+		// return list of premium ids
+		if isPremium {
+			premiumIds = append(premiumIds, insertedID)
 		}
 	}
 
 	fmt.Printf("Successfully seeded %d pros.\n", len(accountIds))
-	return nil
+	return premiumIds, nil
 }
