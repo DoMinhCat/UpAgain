@@ -8,11 +8,6 @@ import (
 
 // This script populate the database with dummy data while respecting business rules
 
-/*
-Insert order:
-- event_registrations, event_employee, listings, deposits, transactions, step_items, subscriptions, photos
-*/
-
 func SeedDB() {
 	/* High level plan:
 	1. Delete from all tables
@@ -120,6 +115,17 @@ func SeedDB() {
 	if err != nil {
 		panic(fmt.Sprintf("InsertProjectSteps failed: %v", err))
 	}
+
+	//ads
+	err = insert.InsertAds(tx, projectIDs)
+	if err != nil {
+		panic(fmt.Sprintf("InsertAds failed: %v", err))
+	}
+
+
+// - event_registrations, event_employee, listings, deposits, transactions, step_items, subscriptions, photos
+
+
 
 
 	_, _, _, _, _, _, _ = userIDs, proIDs, employeeIDs, containerIDs, eventIDs, postIDs, itemIDs

@@ -53,3 +53,11 @@ var NON_PROJECT_POST_CATEGORIES = []string{"tutorial", "tips", "news", "case_stu
 
 // Material Enum Values
 var MATERIALS = []string{"wood", "metal", "textile", "glass", "plastic", "mixed", "other"}
+
+// Stripe & VAT constants (2026 Financial Config)
+const (
+	STRIPE_COMMISSION_RATE_PERCENT_EU = 0.015 // 1.5%
+	STRIPE_COMMISSION_FIXED_IN_CENTS  = 25    // 25 cents = 0.25 EUR
+	VAT_RATE                          = 0.20  // 20% VAT (France)
+	ADS_PRICE_PER_MONTH               = 35.00 // 35 EUR
+)
