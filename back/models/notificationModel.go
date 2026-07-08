@@ -15,15 +15,15 @@ type NotificationInsert struct {
 }
 
 type NotificationDetail struct {
-	Uuid             string    `json:"uuid"`
-	CreatedAt        time.Time `json:"created_at"`
-	ReadAt           null.Time `json:"read_at" swaggertype:"string"`
-	DeletedAt        null.Time `json:"deleted_at" swaggertype:"string"`
-	Type             string    `json:"type"`
-	EntityType       string    `json:"entity_type"`
-	EntityId         int       `json:"entity_id"`
-	IdAccount        int       `json:"id_account"`
-	EntityTitle      string    `json:"entity_title"`
+	Uuid        string    `json:"uuid"`
+	CreatedAt   time.Time `json:"created_at"`
+	ReadAt      null.Time `json:"read_at" swaggertype:"string"`
+	DeletedAt   null.Time `json:"deleted_at" swaggertype:"string"`
+	Type        string    `json:"type"`
+	EntityType  string    `json:"entity_type"`
+	EntityId    int       `json:"entity_id"`
+	IdAccount   int       `json:"id_account"`
+	EntityTitle string    `json:"entity_title"`
 }
 
 type MarkNotificationsReadRequest struct {

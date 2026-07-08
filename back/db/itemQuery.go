@@ -194,7 +194,6 @@ func GetAllItems(page, limit int, filters models.ItemFilters) ([]models.Item, in
 	var results []models.Item
 	var params []interface{}
 	var countParams []interface{}
-	// TODO: admin can also see purchased items
 	whereClause := "WHERE i.is_deleted = false"
 	if filters.IncludePurchased != "true" {
 		whereClause += ` AND NOT EXISTS (

@@ -131,7 +131,7 @@ export const ProjectStepTimeline = ({
                           onClick={() => onDeleteStep(step.id)}
                           size="lg"
                         >
-                          <IconTrash size={20} stroke={1.5} />
+                          <IconTrash size={20} stroke={1.5} color="red" />
                         </ActionIcon>
                       </Tooltip>
                     )}

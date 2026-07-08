@@ -733,6 +733,10 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid address")
 				return
 			}
+			if err.Error() == "INVALID_ADDRESS" {
+				utils.RespondWithError(w, http.StatusBadRequest, "L'adresse fournie n'est pas assez précise, veuillez fournir une autre adresse.")
+				return
+			}
 			slog.Error("AddressToCoor() failed", "controller", "CreateItem", "error", err)
 			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
 			return
@@ -855,6 +859,25 @@ func GetMyItems(w http.ResponseWriter, r *http.Request) {
 // @Router       /items/{item_id}/reserve [post]
 func ReserveItem(w http.ResponseWriter, r *http.Request) {
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
+	proDetails, err := db.GetProDetailsById(idRequestor)
+	if err != nil {
+		slog.Error("GetProDetailsById() failed", "controller", "ReserveItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+		return
+	}
+	if !proDetails.IsPremium {
+		count, err := db.GetProPurchasedCountInLastMonth(idRequestor)
+		if err != nil {
+			slog.Error("GetProPurchasedCountInLastMonth() failed", "controller", "ReserveItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while reserving item.")
+			return
+		}
+		if count >= 10 {
+			utils.RespondWithError(w, http.StatusForbidden, "You have reached the monthly purchase limit for freemium users.")
+			return
+		}
+	}
+
 	item_id, err := strconv.Atoi(r.PathValue("item_id"))
 	if err != nil {
 		slog.Error("Atoi() failed", "controller", "ReserveItem", "error", err)
@@ -999,6 +1022,25 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 	}
 	idRequestor := r.Context().Value("user").(models.AuthClaims).Id
 
+	proDetails, err := db.GetProDetailsById(idRequestor)
+	if err != nil {
+		slog.Error("GetProDetailsById() failed", "controller", "PurchaseItem", "error", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+		return
+	}
+	if !proDetails.IsPremium {
+		count, err := db.GetProPurchasedCountInLastMonth(idRequestor)
+		if err != nil {
+			slog.Error("GetProPurchasedCountInLastMonth() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
+			return
+		}
+		if count >= 10 {
+			utils.RespondWithError(w, http.StatusForbidden, "You have reached the monthly purchase limit for freemium users.")
+			return
+		}
+	}
+
 	latestTxOfPro, err := db.GetLatestTransactionOfPro(idRequestor, item_id)
 	if err != nil {
 		slog.Error("GetLatestTransactionOfPro() failed", "controller", "PurchaseItem", "error", err)
@@ -1051,8 +1093,8 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		// our rate is store in %
 		upAgainCommissionRate, err := db.GetFinanceSettingByKey("commission_rate")
 		if err != nil {
-			slog.Error("GetFinanceSettingByKey() failed", "controller", "CreateItem", "error", err)
-			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while creating item.")
+			slog.Error("GetFinanceSettingByKey() failed", "controller", "PurchaseItem", "error", err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "An error occurred while purchasing item.")
 			return
 		}
 		upAgainCommTotal := itemPriceInCents * (upAgainCommissionRate / 100)
@@ -1063,7 +1105,7 @@ func PurchaseItem(w http.ResponseWriter, r *http.Request) {
 		// 1st phase: redirect user to stripe to pay by returning a checkout link to stripe
 		if !payload.Paid {
 			frontendOrigin := utils.GetFrontOrigin()
-			if payload.OriginUrl == "" || !strings.HasPrefix(payload.OriginUrl, frontendOrigin) {
+			if payload.OriginUrl == "" || (!strings.HasPrefix(payload.OriginUrl, frontendOrigin) && !strings.HasPrefix(payload.OriginUrl, "upagain://")) {
 				utils.RespondWithError(w, http.StatusBadRequest, "Invalid origin URL.")
 				return
 			}

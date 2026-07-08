@@ -28,7 +28,8 @@ create table accounts
     role       account_role not null,
     deleted_at timestamptz  null,
     is_banned  boolean      not null default false,
-    avatar     varchar(255)
+    avatar     varchar(255),
+    email_verified_at timestamptz null
 );
 -- create index on role for faster query
 CREATE INDEX idx_account_role ON accounts (role);
@@ -66,7 +67,6 @@ create table users
     phone             varchar(20),
     up_score          numeric(2) not null default 0,
     completed_onboard boolean   not null default false
-    -- TODO: add bank info for payment purposes
 );
 
 create table employees
@@ -167,7 +167,8 @@ create table posts
     view_count integer       not null default 0,
     like_count integer       not null default 0,
     is_deleted boolean       not null default false,
-    id_account integer       not null references accounts (id) on delete restrict -- this account's role must be pro or employee
+    id_account integer       not null references accounts (id) on delete restrict, -- this account's role must be pro or employee
+    end_date   timestamptz
 );
 CREATE INDEX idx_posts_category ON posts (category);
 CREATE INDEX idx_posts_created_at ON posts (created_at);
@@ -215,7 +216,6 @@ create table liked_comments
     liked_at   timestamptz not null default now(),
     PRIMARY KEY (id_account, id_comment)
 );
-
 
 CREATE TYPE ads_status AS ENUM ('active', 'expired', 'cancelled');
 create table ads
@@ -405,4 +405,28 @@ CREATE TABLE pro_alert_materials (
     id_pro INTEGER NOT NULL REFERENCES pros(id_account) ON DELETE CASCADE,
     material material NOT NULL,
     PRIMARY KEY (id_pro, material)
+);
+
+CREATE TYPE photo_object_type AS ENUM ('item', 'post', 'step', 'event', 'avatar');
+CREATE TABLE photos (
+    id          serial PRIMARY KEY,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    is_primary  boolean NOT NULL DEFAULT false,
+    path        varchar(255) NOT NULL UNIQUE,
+    object_type photo_object_type NOT NULL,
+    
+    -- Specific FK columns
+    item_id     integer REFERENCES items(id) ON DELETE CASCADE,
+    post_id     integer REFERENCES posts(id) ON DELETE CASCADE,
+    step_id     integer REFERENCES project_steps(id) ON DELETE CASCADE,
+    event_id    integer REFERENCES events(id) ON DELETE CASCADE,
+    account_id  integer REFERENCES accounts(id) ON DELETE CASCADE, --for avatar
+
+    -- Ensure only one is populated and matches the ENUM
+    CONSTRAINT check_single_source CHECK (
+        (object_type = 'item'   AND item_id IS NOT NULL    AND post_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'post'   AND post_id IS NOT NULL    AND item_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'event'  AND event_id IS NOT NULL   AND item_id IS NULL      AND post_id IS NULL     AND account_id IS NULL) OR
+        (object_type = 'avatar' AND account_id IS NOT NULL AND item_id IS NULL      AND post_id IS NULL     AND event_id IS NULL)
+    )
 );

@@ -58,3 +58,14 @@ func DeleteFileByPath(baseDir string, path string) error {
 
 	return nil
 }
+
+// IsFileExists checks if a file exists on disk.
+//
+// filePath should be "images/..." stored in DB
+func IsFileExists(filePath string) bool {
+	_, err := os.Stat(filePath)
+	if err != nil {
+		return false
+	}
+	return true
+}

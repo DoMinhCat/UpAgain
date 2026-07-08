@@ -25,7 +25,6 @@ import (
 func main() {
 	utils.InitLogger()
 
-	// Load env variables
 	err := godotenv.Load()
 	if err != nil {
 		slog.Warn("Error loading '.env' file", "error", err)
@@ -57,6 +56,12 @@ func main() {
 	config.OnesignalAPIKEY = utils.GetOnesignalRestApiKey()
 	config.OnesignalAppId = utils.GetOnesignalAppId()
 	config.GeminiAPIKey = utils.GetGeminiApiKey()
+	config.SmtpHost = utils.GetSmtpHost()
+	config.SmtpPort = utils.GetSmtpPort()
+	config.SmtpUser = utils.GetSmtpUser()
+	config.SmtpPassword = utils.GetSmtpPassword()
+	config.SmtpFrom = utils.GetSmtpFrom()
+	config.BackendOrigin = utils.GetBackendOrigin()
 	utils.Conn, utils.ErrDb = utils.GetDb()
 	if utils.ErrDb != nil {
 		slog.Error("failed to connect to database", "error", utils.ErrDb)
@@ -77,7 +82,7 @@ func main() {
 		AllowedHeaders:   []string{"Content-Type", "Authorization", "Accept-Encoding"},
 		ExposedHeaders:   []string{"Content-Type", "Authorization", "Accept-Encoding"},
 		AllowCredentials: true,
-		Debug:            true,
+		Debug:            false,
 	})
 
 	handler := corsHandler.Handler(middleware.CleanPathMiddleware(mux))
@@ -90,3 +95,5 @@ func main() {
 		slog.Error("server failed to start", "error", err)
 	}
 }
+
+// Dummy comment

@@ -228,7 +228,8 @@ export function EditEventModal({
       {
         onSuccess: () => {
           handleClose();
-          navigate(PATHS.EVENTS.PLANNING);
+          if (user?.role !== "admin") navigate(PATHS.EVENTS.PLANNING);
+          else navigate(PATHS.ADMIN.EVENTS.ALL + "/" + eventDetails.id);
         },
       },
     );

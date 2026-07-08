@@ -54,8 +54,10 @@ func GetProAnalytics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	timeframe := r.URL.Query().Get("timeframe")
+
 	// 1. Inventory Stats
-	inventory, err := db.GetProInventoryAnalytics()
+	inventory, err := db.GetProInventoryAnalytics(timeframe)
 	if err != nil {
 		slog.Error("GetProInventoryAnalytics() failed", "controller", "GetProAnalytics", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve inventory analytics.")
@@ -63,7 +65,7 @@ func GetProAnalytics(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 2. Impact Tracking
-	totalCO2, materialUsage, err := db.GetProImpactTracking(idAccount)
+	totalCO2, materialUsage, err := db.GetProImpactTracking(idAccount, timeframe)
 	if err != nil {
 		slog.Error("GetProImpactTracking() failed", "controller", "GetProAnalytics", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve impact tracking stats.")
@@ -71,7 +73,7 @@ func GetProAnalytics(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3. Financial Stats
-	totalPurchases, paidPurchases, totalSpent, err := db.GetProFinancialStats(idAccount)
+	totalPurchases, paidPurchases, totalSpent, err := db.GetProFinancialStats(idAccount, timeframe)
 	if err != nil {
 		slog.Error("GetProFinancialStats() failed", "controller", "GetProAnalytics", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve financial dashboard stats.")

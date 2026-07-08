@@ -97,6 +97,14 @@ func GetCoorFromAddress(w http.ResponseWriter, r *http.Request) {
 
 	coordinates, err := geocode.AddressToCoor(params)
 	if err != nil {
+		if err.Error() == "INVALID_ADDRESS" {
+			utils.RespondWithError(w, http.StatusBadRequest, "L'adresse fournie n'est pas assez précise, veuillez fournir une autre adresse.")
+			return
+		}
+		if err.Error() == "ZERO_RESULTS" {
+			utils.RespondWithError(w, http.StatusNotFound, "Adresse non trouvée.")
+			return
+		}
 		slog.Error("AddressToCoor() failed", "controller", "GetCoorFromAddress", "error", err)
 		utils.RespondWithError(w, http.StatusInternalServerError, "Failed to retrieve coordinates from given address")
 		return

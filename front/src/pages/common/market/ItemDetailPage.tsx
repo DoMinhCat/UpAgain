@@ -238,7 +238,8 @@ export default function ItemDetailPage() {
                           <Box
                             h="100%"
                             style={{
-                              backgroundImage: `url("${resolveUrl(url)}")`,
+                              // Fixed the closing parenthesis for the first url()
+                              backgroundImage: `url("${resolveUrl(url)}"), url("/banners/event-banner1-${theme}.png")`,
                               backgroundSize: "cover",
                               backgroundPosition: "center",
                               cursor: "zoom-in",
@@ -252,7 +253,7 @@ export default function ItemDetailPage() {
                               pos="absolute"
                               inset={0}
                               style={{
-                                background:
+                                backgroundImage:
                                   "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.3) 100%)",
                                 pointerEvents: "none",
                               }}
@@ -648,7 +649,6 @@ export default function ItemDetailPage() {
                             color="var(--upagain-neutral-green)"
                             rightSection={<IconChevronRight size={18} />}
                             onClick={openPurchase}
-                            // TODO: show hint Stripe's commission and VAT not included yet
                           >
                             {t("marketplace:detail.buy")}
                           </Button>

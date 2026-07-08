@@ -52,7 +52,8 @@
     "finance": {
       "title": "Finance Hub",
       "description": "Analyze UpAgain's income"
-    }
+    },
+    "logs": "System Logs"
   },
   "history": {
     "title": "Admin History",
@@ -1063,5 +1064,14 @@
   },
   "fields": {
     "upcycling_score": "Upcycling Score"
+  },
+  "logs": {
+    "title": "System Logs",
+    "refresh": "Refresh",
+    "no_logs": "No logs generated yet.",
+    "notifications": {
+      "error_title": "Failed to fetch logs",
+      "error_message": "An error occurred while fetching system logs."
+    }
   }
 }

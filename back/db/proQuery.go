@@ -127,8 +127,24 @@ func UpdateProPremium(id_account int, is_premium bool) error {
 	return nil
 }
 
-func GetProInventoryAnalytics() ([]models.MaterialInventoryStats, error) {
-	query := `
+func getTimeframeCondition(timeframe string) string {
+	switch timeframe {
+	case "24h":
+		return "now() - interval '24 hours'"
+	case "7d":
+		return "now() - interval '7 days'"
+	case "30d":
+		return "now() - interval '30 days'"
+	case "year":
+		return "now() - interval '1 year'"
+	default:
+		return "date_trunc('month', now())"
+	}
+}
+
+func GetProInventoryAnalytics(timeframe string) ([]models.MaterialInventoryStats, error) {
+	cond := getTimeframeCondition(timeframe)
+	query := fmt.Sprintf(`
 		SELECT 
 			m.mat::text AS material,
 			COALESCE(avail.cnt, 0) AS available,
@@ -152,7 +168,7 @@ func GetProInventoryAnalytics() ([]models.MaterialInventoryStats, error) {
 			SELECT material, COUNT(*) AS cnt
 			FROM items i
 			WHERE i.is_deleted = false
-			  AND i.created_at >= date_trunc('month', now())
+			  AND i.created_at >= %s
 			GROUP BY material
 		) add_cnt ON m.mat = add_cnt.material
 		LEFT JOIN (
@@ -161,11 +177,11 @@ func GetProInventoryAnalytics() ([]models.MaterialInventoryStats, error) {
 			JOIN transactions t ON i.id = t.id_item
 			WHERE i.is_deleted = false
 			  AND t.action = 'purchased'
-			  AND t.created_at >= date_trunc('month', now())
+			  AND t.created_at >= %s
 			GROUP BY i.material
 		) recy ON m.mat = recy.material
 		ORDER BY m.mat;
-	`
+	`, cond, cond)
 	rows, err := utils.Conn.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("GetProInventoryAnalytics() query failed: %w", err)
@@ -186,14 +202,15 @@ func GetProInventoryAnalytics() ([]models.MaterialInventoryStats, error) {
 	return stats, nil
 }
 
-func GetProImpactTracking(idPro int) (float64, []models.MaterialUsageStats, error) {
+func GetProImpactTracking(idPro int, timeframe string) (float64, []models.MaterialUsageStats, error) {
 	materialsList := []string{"wood", "metal", "textile", "glass", "plastic", "mixed", "other"}
 	usageMap := make(map[string]float64)
 	for _, m := range materialsList {
 		usageMap[m] = 0.0
 	}
 
-	query := `
+	cond := getTimeframeCondition(timeframe)
+	query := fmt.Sprintf(`
 		SELECT 
 			i.material::text, 
 			COALESCE(SUM(i.weight), 0.0)
@@ -202,8 +219,9 @@ func GetProImpactTracking(idPro int) (float64, []models.MaterialUsageStats, erro
 		WHERE t.id_pro = $1
 		  AND t.action = 'purchased'
 		  AND i.is_deleted = false
+		  AND t.created_at >= %s
 		GROUP BY i.material
-	`
+	`, cond)
 	rows, err := utils.Conn.Query(query, idPro)
 	if err != nil {
 		return 0, nil, fmt.Errorf("GetProImpactTracking() query failed: %w", err)
@@ -243,19 +261,21 @@ func GetProImpactTracking(idPro int) (float64, []models.MaterialUsageStats, erro
 	return totalCO2, stats, nil
 }
 
-func GetProFinancialStats(idPro int) (int, int, float64, error) {
+func GetProFinancialStats(idPro int, timeframe string) (int, int, float64, error) {
 	var totalPurchases int
 	var paidPurchases int
 	var totalSpent float64
 
-	query := `
+	cond := getTimeframeCondition(timeframe)
+	query := fmt.Sprintf(`
 		SELECT 
 			COUNT(*), 
 			COUNT(*) FILTER (WHERE total_price > 0),
 			COALESCE(SUM(total_price), 0.0)::float8
 		FROM transactions
 		WHERE id_pro = $1 AND action = 'purchased'
-	`
+		  AND created_at >= %s
+	`, cond)
 	err := utils.Conn.QueryRow(query, idPro).Scan(&totalPurchases, &paidPurchases, &totalSpent)
 	if err != nil {
 		return 0, 0, 0, fmt.Errorf("GetProFinancialStats() failed: %w", err)
@@ -363,4 +383,3 @@ func GetMatchingAlertProIds(itemId int) ([]int, error) {
 	}
 	return proIds, nil
 }
-

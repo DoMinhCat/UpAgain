@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal, Stack, TextInput, Select, Group, Button } from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
 import { TextEditor } from "../input/TextEditor";
 import ImageDropzone from "../input/ImageDropzone";
 import { useUpdatePost } from "../../hooks/postHooks";
@@ -27,6 +28,8 @@ export const EditPostModal = ({
   const [errorTitle, setErrorTitle] = useState<string>("");
   const [errorCategory, setErrorCategory] = useState<string>("");
   const [errorDescription, setErrorDescription] = useState<string>("");
+  const [endDateEdit, setEndDateEdit] = useState<Date | null>(null);
+  const [errorEndDate, setErrorEndDate] = useState<string>("");
 
   const updatePostMutate = useUpdatePost(postId);
 
@@ -35,6 +38,7 @@ export const EditPostModal = ({
       setTitleEdit(postDetails.title || "");
       setCategoryEdit(postDetails.category || "");
       setDescriptionEdit(postDetails.content || "");
+      setEndDateEdit(postDetails.end_date ? new Date(postDetails.end_date) : null);
       const files = postDetails.photos?.map((path: string) => {
         return { path: path };
       });
@@ -43,6 +47,7 @@ export const EditPostModal = ({
       setErrorTitle("");
       setErrorCategory("");
       setErrorDescription("");
+      setErrorEndDate("");
     }
   }, [opened, postDetails]);
 
@@ -74,14 +79,30 @@ export const EditPostModal = ({
     return true;
   };
 
+  const validateEndDateEdit = (currentCategory = categoryEdit, currentDate = endDateEdit) => {
+    if (currentCategory === "tips") {
+      if (!currentDate) {
+        setErrorEndDate("End date is required for tips.");
+        return false;
+      }
+      if (currentDate.getTime() <= Date.now()) {
+        setErrorEndDate("End date must be in the future.");
+        return false;
+      }
+    }
+    setErrorEndDate("");
+    return true;
+  };
+
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (postDetails) {
       const isValidTitle = validateTitleEdit();
       const isValidCategory = validateCategoryEdit();
       const isValidDescription = validateDescriptionEdit();
+      const isValidEndDate = validateEndDateEdit();
 
-      if (!isValidTitle || !isValidCategory || !isValidDescription) {
+      if (!isValidTitle || !isValidCategory || !isValidDescription || !isValidEndDate) {
         return;
       }
 
@@ -89,6 +110,9 @@ export const EditPostModal = ({
       formData.append("title", titleEdit);
       formData.append("category", categoryEdit);
       formData.append("content", descriptionEdit);
+      if (categoryEdit === "tips" && endDateEdit) {
+        formData.append("end_date", endDateEdit.toISOString());
+      }
 
       fileEdit.forEach((obj) => {
         if (obj instanceof File) {
@@ -150,8 +174,29 @@ export const EditPostModal = ({
           ]}
           onChange={(value) => {
             setCategoryEdit(value as string);
+            if (value !== "tips") {
+              setEndDateEdit(null);
+              setErrorEndDate("");
+            }
           }}
         />
+        {categoryEdit === "tips" && (
+          <DateTimePicker
+            withAsterisk
+            label="End Date"
+            placeholder="Select end date and time"
+            value={endDateEdit}
+            onChange={(value: any) => {
+              const dateValue = value ? new Date(value) : null;
+              setEndDateEdit(dateValue);
+              validateEndDateEdit("tips", dateValue);
+            }}
+            onBlur={() => validateEndDateEdit("tips", endDateEdit)}
+            error={errorEndDate}
+            minDate={new Date()}
+            disabled={updatePostMutate.isPending}
+          />
+        )}
         <TextEditor
           label="Post's description"
           value={descriptionEdit}

@@ -56,7 +56,7 @@ func ValidateEventCreation(newEvent models.CreateEventRequest) models.Validation
 		return response
 	}
 
-	if newEvent.EndAt.Time.Before(newEvent.StartAt.Time) {
+	if !newEvent.EndAt.Time.After(newEvent.StartAt.Time) {
 		response = models.ValidationResponse{
 			Success: false,
 			Message: fmt.Errorf("End date must be after start date."),

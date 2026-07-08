@@ -79,7 +79,7 @@ export default function UserHome() {
       ? myEvents.filter((event) => new Date(event.start_at) > new Date())
       : [];
 
-  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like"); // TODO: backend need to add param to return sponsored results first
+  const { data: postsData } = useGetAllPosts(1, 2, "", "", "highest_like");
   const posts = postsData?.posts ?? [];
 
   const co2Comparison = getCO2Comparison(userImpactData?.co2 ?? 0);
@@ -573,7 +573,7 @@ export default function UserHome() {
                       fw={700}
                       onClick={() => navigate(PATHS.EVENTS.PLANNING)}
                     >
-                      {t("user.agenda.view_all")} →
+                      {t("employee.posts.view_all")} →
                     </Text>
                   </Stack>
                 ) : (

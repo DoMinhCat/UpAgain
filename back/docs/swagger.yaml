@@ -1,5 +1,15 @@
 basePath: /
 definitions:
+  controllers.ChatbotRequest:
+    properties:
+      message:
+        type: string
+    type: object
+  controllers.ChatbotResponse:
+    properties:
+      response:
+        type: string
+    type: object
   models.Account:
     properties:
       avatar:
@@ -2016,7 +2026,7 @@ paths:
       consumes:
       - application/json
       description: Create a new advertisement for a specific project. Admin creates
-        it for free, Pro users will need to pay (TODO).
+        it for free, Pro users will need to pay
       parameters:
       - description: Create Ad payload
         in: body
@@ -2105,6 +2115,33 @@ paths:
       summary: Update an ad
       tags:
       - ads
+  /chatbot:
+    post:
+      consumes:
+      - application/json
+      description: Send a prompt/message to the Gemini AI API and get the response
+        text.
+      parameters:
+      - description: Chatbot prompt message
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.ChatbotRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ChatbotResponse'
+        "400":
+          description: Invalid request body
+        "500":
+          description: Internal server error
+      summary: Chat with Gemini AI
+      tags:
+      - ai
   /comments/{id_comment}/:
     delete:
       description: Delete a comment by ID. Admins and employees can delete any comment;
@@ -2115,13 +2152,9 @@ paths:
         name: id_comment
         required: true
         type: integer
-      produces:
-      - application/json
       responses:
-        "200":
+        "204":
           description: Comment deleted successfully
-          schema:
-            type: string
         "400":
           description: Invalid ID
         "401":
@@ -3530,6 +3563,38 @@ paths:
       summary: Get history details
       tags:
       - Admin History
+  /images:
+    get:
+      description: Serve an uploaded image by its relative path. Requires 'pro' user
+        privileges.
+      parameters:
+      - description: Relative path to the image, e.g. images/accounts/avatar.png
+        in: query
+        name: path
+        required: true
+        type: string
+      produces:
+      - image/png
+      - image/jpeg
+      - image/gif
+      responses:
+        "200":
+          description: The image file
+          schema:
+            type: file
+        "400":
+          description: Invalid query parameter or path directory traversal attempt
+        "401":
+          description: Unauthorized - login required
+        "403":
+          description: Forbidden - requires 'pro' role
+        "404":
+          description: Image not found
+      security:
+      - ApiKeyAuth: []
+      summary: Serve upload image
+      tags:
+      - images
   /items/:
     get:
       description: Get a paginated list of all items with optional filters for search,
@@ -4248,6 +4313,23 @@ paths:
       summary: Login
       tags:
       - auth
+  /logs/:
+    get:
+      description: Serve the backend log file.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "500":
+          description: Unable to create log file
+      security:
+      - ApiKeyAuth: []
+      summary: Serve logs
+      tags:
+      - log
   /notifications:
     get:
       description: Get all active notifications associated with the logged-in account
@@ -4702,6 +4784,36 @@ paths:
       tags:
       - Posts
   /posts/{id_post}/steps:
+    get:
+      description: Returns all project steps associated with a specific post.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id_post
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ProjectStep'
+            type: array
+        "400":
+          description: Invalid or missing post ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get project steps
+      tags:
+      - Posts
     post:
       consumes:
       - multipart/form-data
@@ -4762,37 +4874,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Create a new step for a post
-      tags:
-      - Posts
-  /posts/{id_post}/steps/:
-    get:
-      description: Returns all project steps associated with a specific post.
-      parameters:
-      - description: Post ID
-        in: path
-        name: id_post
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.ProjectStep'
-            type: array
-        "400":
-          description: Invalid or missing post ID
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: Get project steps
       tags:
       - Posts
   /posts/{id_post}/view/:

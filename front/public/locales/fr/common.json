@@ -73,7 +73,9 @@
       "pro_object_expired": "La réservation pour \"{{title}}\" a expiré",
       "pro_subscription_end": "L'abonnement se termine bientôt",
       "emp_event_updated": "L'événement \"{{title}}\" a été mis à jour",
-      "emp_event_assigned": "Assigné à l'événement \"{{title}}\""
+      "emp_event_assigned": "Assigné à l'événement \"{{title}}\"",
+      "user_code_expiring": "Le code de dépôt pour \"{{title}}\" expire bientôt",
+      "pro_code_expiring": "Le code de retrait pour \"{{title}}\" expire bientôt"
     },
     "loading": "Chargement...",
     "not_found": "Introuvable"
@@ -83,6 +85,10 @@
   "sort_by": "Trier par",
   "type": "Type",
   "pagination": {
+    "comments_one": "Commentaire",
+    "comments_other": "Commentaires",
+    "articles_one": "article",
+    "articles_other": "articles",
     "showing": "Affichage de",
     "of": "sur",
     "results_one": "résultat",

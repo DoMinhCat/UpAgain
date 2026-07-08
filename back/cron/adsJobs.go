@@ -7,9 +7,9 @@ import (
 )
 
 func UpdateExpiredAds() {
-    slog.Info("UpdateExpiredAds started", "time", time.Now().Format(time.RFC3339))
+	slog.Info("UpdateExpiredAds started", "time", time.Now().Format(time.RFC3339))
 
-    query := `
+	query := `
     UPDATE ads a
     SET status = 'expired'
     FROM posts p
@@ -17,11 +17,11 @@ func UpdateExpiredAds() {
         AND a.status = 'active'
         AND a.end_date < NOW();
     `
-    _, err := utils.Conn.Exec(query)
-    if err != nil {
-        slog.Error("UpdateExpiredAds failed", "error", err)
-        return
-    }
-    
-    slog.Info("UpdateExpiredAds completed")
+	_, err := utils.Conn.Exec(query)
+	if err != nil {
+		slog.Error("UpdateExpiredAds failed", "error", err)
+		return
+	}
+
+	slog.Info("UpdateExpiredAds completed")
 }

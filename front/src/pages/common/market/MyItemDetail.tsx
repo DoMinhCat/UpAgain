@@ -611,7 +611,6 @@ export default function MyItemDetail() {
                   </Text>
                 </Stack>
               )}
-              {/* TODO: integrate purchase action */}
               <Button
                 variant="primary"
                 fullWidth

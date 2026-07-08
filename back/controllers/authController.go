@@ -55,6 +55,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !existing.EmailVerifiedAt.Valid {
+		response.RespondWithError(w, http.StatusUnauthorized, "Please verify your email before logging in.")
+		return
+	}
+
 	// check if is admin
 	if existing.Role == "employee" {
 		isAdmin, err := db.GetEmployeeRoleById(existing.Id)
@@ -124,4 +129,34 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
+// VerifyEmail godoc
+// @Summary      Verify email
+// @Description  Confirms an account's email address using the token sent by email at registration
+// @Tags         auth
+// @Produce      json
+// @Param        token path string true "Email verification token"
+// @Success      200  {object}  nil  "Email verified successfully"
+// @Failure      400  {object}  nil  "Invalid or expired verification link"
+// @Failure      500  {object}  nil  "Internal server error"
+// @Router       /verify-email/{token} [get]
+func VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue("token")
+
+	idAccount, _, err := utils.ParseEmailVerificationToken(token)
+	if err != nil {
+		response.RespondWithError(w, http.StatusBadRequest, "Invalid or expired verification link.")
+		slog.Error("ParseEmailVerificationToken() failed", "controller", "VerifyEmail", "error", err)
+		return
+	}
+
+	err = db.SetEmailVerified(idAccount)
+	if err != nil {
+		response.RespondWithError(w, http.StatusInternalServerError, "An error occurred.")
+		slog.Error("SetEmailVerified() failed", "controller", "VerifyEmail", "error", err)
+		return
+	}
+
+	response.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "Email verified successfully."})
 }

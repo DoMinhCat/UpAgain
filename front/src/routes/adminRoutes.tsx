@@ -23,6 +23,7 @@ import AdminListingDetails from "../pages/admin/listingsAdmin/AdminListingDetail
 import AdminSubscriptionModule from "../pages/admin/subscriptionsAdmin/AdminSubscriptionModule.tsx";
 import AdminSubscriptionDetails from "../pages/admin/subscriptionsAdmin/AdminSubscriptionDetails.tsx";
 import AdminFinance from "../pages/admin/financeAdmin/AdminFinance.tsx";
+import AdminLogsModule from "../pages/admin/logsAdmin/AdminLogsModule.tsx";
 
 // implement the same Guard component for user and pro
 const AdminGuard = ({ children }: { children: React.ReactNode }) => {
@@ -143,6 +144,10 @@ export const adminRoutes: RouteObject = {
     {
       path: "finance",
       element: <AdminFinance />,
+    },
+    {
+      path: "logs",
+      element: <AdminLogsModule />,
     },
   ],
 };

@@ -6,10 +6,10 @@ import {
 } from "../api/proModule";
 import { showSuccessNotification } from "../components/common/NotificationToast";
 
-export const useGetProAnalytics = (idAccount: number | undefined) => {
+export const useGetProAnalytics = (idAccount: number | undefined, timeframe?: string) => {
   return useQuery({
-    queryKey: ["proAnalytics", idAccount],
-    queryFn: () => getProAnalytics(idAccount!),
+    queryKey: ["proAnalytics", idAccount, timeframe],
+    queryFn: () => getProAnalytics(idAccount!, timeframe),
     enabled: idAccount !== undefined && !isNaN(idAccount),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

@@ -53,7 +53,6 @@ const CATEGORY_COLOR: Record<string, string> = {
   other: "gray",
 };
 
-// TODO: Add crown if sponsored on the top left
 export default function PostCard({
   currentRole,
   title,

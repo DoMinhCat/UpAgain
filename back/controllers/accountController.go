@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"backend/config"
 	"backend/db"
 	"backend/models"
 	"backend/utils"
+	authUtils "backend/utils/auth"
 	helpers "backend/utils/helpers"
+	"backend/utils/mail"
 	stripe "backend/utils/stripe"
 	validations "backend/utils/validations"
 	"encoding/csv"
@@ -117,6 +120,19 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	err = db.InsertDefaultNotiSetting(id_inserted)
 	if err != nil {
 		slog.Error("InsertDefaultNotiSetting() failed", "controller", "CreateAccount", "error", err)
+	}
+
+	verificationToken, err := authUtils.GenerateEmailVerificationToken(id_inserted, newAccount.Email)
+	if err != nil {
+		slog.Error("GenerateEmailVerificationToken() failed", "controller", "CreateAccount", "error", err)
+	} else {
+		verifyURL := config.BackendOrigin + "/verify-email/" + verificationToken
+		subject, body := mail.BuildWelcomeVerificationEmail(newAccount.Username, verifyURL)
+		go func() {
+			if err := mail.NewMailer().SendMail(newAccount.Email, subject, body); err != nil {
+				slog.Error("SendMail() failed", "controller", "CreateAccount", "error", err)
+			}
+		}()
 	}
 
 	if role == "admin" {
@@ -736,10 +752,10 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, err := db.GetRoleById(id_account)
+	accountDetails, err := db.GetAccountDetailsById(id_account)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
-		slog.Error("GetRoleById() failed", "controller", "UpdateAccount", "error", err)
+		slog.Error("GetAccountDetailsById() failed", "controller", "UpdateAccount", "error", err)
 		return
 	}
 
@@ -748,7 +764,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update another's account.")
 		return
 	}
-	if role == "admin" && reqID != id_account {
+	if accountDetails.Role == "admin" && reqID != id_account {
 		utils.RespondWithError(w, http.StatusUnauthorized, "You are not authorized to update another admin's account.")
 		return
 	}
@@ -764,6 +780,25 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
 	payload.Username = strings.TrimSpace(payload.Username)
 	payload.Phone = strings.TrimSpace(payload.Phone)
+
+	if payload.Email == "" || len(payload.Email) == 0 {
+		payload.Email = accountDetails.Email
+	}
+	if payload.Username == "" || len(payload.Username) == 0 {
+		payload.Username = accountDetails.Username
+	}
+	if payload.Phone == "" || len(payload.Phone) == 0 {
+		if accountDetails.Role == "pro" {
+			proDetails, err := db.GetProDetailsById(id_account)
+			if err != nil {
+				utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
+				slog.Error("GetProDetailsById() failed", "controller", "UpdateAccount", "error", err)
+				return
+			}
+			payload.Phone = proDetails.Phone.String
+		}
+	}
+	payload.Id = id_account
 
 	validationResult := validations.ValidateAccountUpdate(payload)
 	if !validationResult.Success {
@@ -781,8 +816,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	payload.Id = id_account
-	err = db.UpdateAccount(payload, role)
+	err = db.UpdateAccount(payload, accountDetails.Role)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "An error occurred while updating an account.")
 		slog.Error("UpdateAccount() failed", "controller", "UpdateAccount", "error", err)
@@ -790,7 +824,7 @@ func UpdateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if claims.Role == "admin" && getOldAccountOk {
-		err = db.InsertHistory(role, id_account, "update", claims.Id, oldAccount, payload)
+		err = db.InsertHistory(accountDetails.Role, id_account, "update", claims.Id, oldAccount, payload)
 		if err != nil {
 			slog.Error("InsertHistory() failed", "controller", "UpdateAccount", "error", err)
 		}
@@ -1037,7 +1071,6 @@ func UpdateOnboarding(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusNotFound, fmt.Sprintf("Account with ID '%v' not found.", idRequestor))
 		return
 	}
-	// TODO: update onboard in db to true
 	err = db.UpdateOnboardByIdAccount(idRequestor, role)
 	if err != nil {
 		slog.Error("UpdateOnboardByIdAccount() failed", "controller", "UpdateOnboarding", "error", err)

@@ -73,7 +73,9 @@
       "pro_object_expired": "Reservation for \"{{title}}\" has expired",
       "pro_subscription_end": "Subscription ending soon",
       "emp_event_updated": "Event \"{{title}}\" updated",
-      "emp_event_assigned": "Assigned to event \"{{title}}\""
+      "emp_event_assigned": "Assigned to event \"{{title}}\"",
+      "user_code_expiring": "Deposit code for \"{{title}}\" is expiring soon",
+      "pro_code_expiring": "Retrieval code for \"{{title}}\" is expiring soon"
     },
     "loading": "Loading...",
     "not_found": "Not found"
@@ -83,6 +85,10 @@
   "sort_by": "Sort by",
   "type": "Type",
   "pagination": {
+    "comments_one": "comment",
+    "comments_other": "comments",
+    "articles_one": "article",
+    "articles_other": "articles",
     "showing": "Showing",
     "of": "of",
     "results_one": "result",

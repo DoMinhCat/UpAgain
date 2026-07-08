@@ -1269,7 +1269,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay (TODO).",
+                "description": "Create a new advertisement for a specific project. Admin creates it for free, Pro users will need to pay",
                 "consumes": [
                     "application/json"
                 ],
@@ -1406,6 +1406,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/chatbot": {
+            "post": {
+                "description": "Send a prompt/message to the Gemini AI API and get the response text.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ai"
+                ],
+                "summary": "Chat with Gemini AI",
+                "parameters": [
+                    {
+                        "description": "Chatbot prompt message",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ChatbotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ChatbotResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/comments/{id_comment}/": {
             "delete": {
                 "security": [
@@ -1414,9 +1454,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Delete a comment by ID. Admins and employees can delete any comment; users can only delete their own.",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "comment"
                 ],
@@ -1431,11 +1468,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Comment deleted successfully",
-                        "schema": {
-                            "type": "string"
-                        }
+                    "204": {
+                        "description": "Comment deleted successfully"
                     },
                     "400": {
                         "description": "Invalid ID"
@@ -3590,6 +3624,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/images": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Serve an uploaded image by its relative path. Requires 'pro' user privileges.",
+                "produces": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/gif"
+                ],
+                "tags": [
+                    "images"
+                ],
+                "summary": "Serve upload image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Relative path to the image, e.g. images/accounts/avatar.png",
+                        "name": "path",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The image file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameter or path directory traversal attempt"
+                    },
+                    "401": {
+                        "description": "Unauthorized - login required"
+                    },
+                    "403": {
+                        "description": "Forbidden - requires 'pro' role"
+                    },
+                    "404": {
+                        "description": "Image not found"
+                    }
+                }
+            }
+        },
         "/items/": {
             "get": {
                 "security": [
@@ -4664,6 +4746,34 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/logs/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Serve the backend log file.",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "log"
+                ],
+                "summary": "Serve logs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to create log file"
                     }
                 }
             }
@@ -5752,6 +5862,53 @@ const docTemplate = `{
             }
         },
         "/posts/{id_post}/steps": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns all project steps associated with a specific post.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get project steps",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "id_post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ProjectStep"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing post ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -5832,55 +5989,6 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/posts/{id_post}/steps/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Returns all project steps associated with a specific post.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Posts"
-                ],
-                "summary": "Get project steps",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id_post",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.ProjectStep"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid or missing post ID",
                         "schema": {
                             "type": "string"
                         }
@@ -6485,6 +6593,22 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.ChatbotRequest": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ChatbotResponse": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Account": {
             "type": "object",
             "properties": {
