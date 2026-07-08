@@ -9,7 +9,7 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 )
 
-func InsertProjectSteps(tx *sql.Tx, postIDs []int) ([]int, error) {
+func InsertProjectSteps(tx *sql.Tx, projectIDs []int) ([]int, error) {
 	query := `
 		INSERT INTO project_steps (is_deleted, title, description, id_post, "order")
 		VALUES (false, $1, $2, $3, $4)
@@ -23,7 +23,7 @@ func InsertProjectSteps(tx *sql.Tx, postIDs []int) ([]int, error) {
 	defer stmt.Close()
 
 	var stepIDs []int
-	for _, postID := range postIDs {
+	for _, postID := range projectIDs {
 		// Generate between 2 to 5 structured sequential steps per post
 		stepsCount := gofakeit.Number(2, 5)
 
@@ -41,6 +41,6 @@ func InsertProjectSteps(tx *sql.Tx, postIDs []int) ([]int, error) {
 		}
 	}
 
-	fmt.Printf("Successfully seeded %d sequential project steps across %d posts.\n", len(stepIDs), len(postIDs))
+	fmt.Printf("Successfully seeded %d sequential project steps across %d posts.\n", len(stepIDs), len(projectIDs))
 	return stepIDs, nil
 }

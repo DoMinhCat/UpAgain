@@ -9,7 +9,7 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 )
 
-func InsertPosts(tx *sql.Tx, proIDs []int, employeeIDs []int, count int) ([]int, error) {
+func InsertPosts(tx *sql.Tx, proIDs []int, employeeIDs []int, count int) ([]int, []int, error) {
 	query := `
 		INSERT INTO posts (title, content, category, view_count, like_count, is_deleted, id_account, end_date)
 		VALUES ($1, $2, $3, 0, 0, false, $4, $5)
@@ -18,11 +18,12 @@ func InsertPosts(tx *sql.Tx, proIDs []int, employeeIDs []int, count int) ([]int,
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to prepare insert posts statement: %w", err)
+		return nil, nil, fmt.Errorf("failed to prepare insert posts statement: %w", err)
 	}
 	defer stmt.Close()
 
 	var postIDs []int
+	var projectIDs []int
 	for i := 0; i < count; i++ {
 		title := gofakeit.BookTitle()
 		htmlContent := fmt.Sprintf(utils.MOCK_HTML_CONTENT, title, gofakeit.Paragraph(1, 2, 8, " "), gofakeit.Paragraph(1, 2, 5, " "))
@@ -48,11 +49,14 @@ func InsertPosts(tx *sql.Tx, proIDs []int, employeeIDs []int, count int) ([]int,
 		var insertedID int
 		err := stmt.QueryRow(title, htmlContent, category, accountID, endDate).Scan(&insertedID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to insert post: %w", err)
+			return nil, nil, fmt.Errorf("failed to insert post: %w", err)
 		}
 		postIDs = append(postIDs, insertedID)
+		if category == utils.CATEGORY_PROJECT {
+			projectIDs = append(projectIDs, insertedID)
+		}
 	}
 
 	fmt.Printf("Successfully seeded %d posts.\n", len(postIDs))
-	return postIDs, nil
+	return postIDs, projectIDs, nil
 }

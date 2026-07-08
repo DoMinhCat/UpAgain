@@ -90,7 +90,7 @@ func SeedDB() {
     }
 
 	// posts
-	postIDs, err := insert.InsertPosts(tx, proIDs, employeeIDs, 100)
+	postIDs, projectIDs, err := insert.InsertPosts(tx, proIDs, employeeIDs, 100)
     if err != nil {
         panic(fmt.Sprintf("InsertPosts failed: %v", err))
     }
@@ -116,7 +116,7 @@ func SeedDB() {
 	}
 
 	// project steps
-	_, err = insert.InsertProjectSteps(tx, postIDs)
+	_, err = insert.InsertProjectSteps(tx, projectIDs)
 	if err != nil {
 		panic(fmt.Sprintf("InsertProjectSteps failed: %v", err))
 	}
