@@ -400,9 +400,10 @@ CREATE TABLE photos (
 
     -- Ensure only one is populated and matches the ENUM
     CONSTRAINT check_single_source CHECK (
-        (object_type = 'item'   AND item_id IS NOT NULL    AND post_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
-        (object_type = 'post'   AND post_id IS NOT NULL    AND item_id IS NULL      AND event_id IS NULL    AND account_id IS NULL) OR
-        (object_type = 'event'  AND event_id IS NOT NULL   AND item_id IS NULL      AND post_id IS NULL     AND account_id IS NULL) OR
-        (object_type = 'avatar' AND account_id IS NOT NULL AND item_id IS NULL      AND post_id IS NULL     AND event_id IS NULL)
+        (object_type = 'item'   AND item_id IS NOT NULL    AND post_id IS NULL      AND step_id IS NULL     AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'post'   AND post_id IS NOT NULL    AND item_id IS NULL      AND step_id IS NULL     AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'step'   AND step_id IS NOT NULL    AND item_id IS NULL      AND post_id IS NULL     AND event_id IS NULL    AND account_id IS NULL) OR
+        (object_type = 'event'  AND event_id IS NOT NULL   AND item_id IS NULL      AND post_id IS NULL     AND step_id IS NULL     AND account_id IS NULL) OR
+        (object_type = 'avatar' AND account_id IS NOT NULL AND item_id IS NULL      AND post_id IS NULL     AND step_id IS NULL     AND event_id IS NULL)
     )
 );
