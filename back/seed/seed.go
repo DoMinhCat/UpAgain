@@ -59,13 +59,13 @@ func SeedDB() {
 	}
 
 	// employees
-	err = insert.InsertEmployees(tx, userIDs)
+	err = insert.InsertEmployees(tx, employeeIDs)
 	if err != nil {
 		panic(fmt.Sprintf("InsertEmployees failed: %v", err))
 	}
 
 	// pros
-	premiumIds, err := insert.InsertPros(tx, userIDs)
+	premiumIds, err := insert.InsertPros(tx, proIDs)
 	if err != nil {
 		panic(fmt.Sprintf("InsertPros failed: %v", err))
 	}
