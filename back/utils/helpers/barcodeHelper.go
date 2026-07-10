@@ -48,7 +48,11 @@ func GenerateAndSaveBarcode(data models.BarCodeData) (string, error) {
 
 	// save barcode in images/barcodes/
 	filename := fmt.Sprintf("%s-%s-%d.png", data.IdTransaction, data.UserType, time.Now().UnixNano())
-	destPath := filepath.Join("images/barcodes/", filename)
+	destDir := "images/barcodes"
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %v", err)
+	}
+	destPath := filepath.Join(destDir, filename)
 	file, err := os.Create(destPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to create file: %v", err)
